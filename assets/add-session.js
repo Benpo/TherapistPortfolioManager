@@ -503,6 +503,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
       const sessionType = sessionTypeInput ? sessionTypeInput.value : "clinic";
+      const trappedEmotions = document.getElementById("trappedEmotions").value.trim();
       const comments = document.getElementById("sessionComments").value.trim();
       const insights = insightsInput ? insightsInput.value.trim() : "";
       const limitingBeliefs = (document.getElementById("limitingBeliefs") || {}).value?.trim() || "";
