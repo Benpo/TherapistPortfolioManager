@@ -118,11 +118,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   setupToggleGroup("sessionTypeGroup");
-  setupToggleGroup("heartWallGroup");
   setupToggleGroup("inlineClientTypeGroup");
 
   clientCache = (await loadClients(prefillClientId)) || [];
-  updateHeartWallSection();
   updateClientSpotlight();
   if (clientSelect) {
     clientSelect.addEventListener("change", () => {
@@ -134,7 +132,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         resetInlineClientForm();
       }
       updateClientSpotlight();
-      updateHeartWallSection();
     });
   }
 
@@ -329,9 +326,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function formatSessionType(value) {
     const labels = {
-      inPerson: App.t("session.form.inPerson"),
-      proxy: App.t("session.form.proxy"),
-      surrogate: App.t("session.form.surrogate")
+      clinic: App.t("session.form.clinic"),
+      online: App.t("session.form.online"),
+      other: App.t("session.form.other")
     };
     return labels[value] || value || "-";
   }
@@ -345,12 +342,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const dateValue = sessionDate && sessionDate.value ? App.formatDate(sessionDate.value) : "-";
     const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
     const sessionType = formatSessionType(sessionTypeInput ? sessionTypeInput.value : "");
-    const heartWallInput = document.querySelector("input[name='heartWallCleared']:checked");
-    const heartWallValue = heartWallInput
-      ? heartWallInput.value === "yes"
-        ? App.t("session.form.heartWallYes")
-        : App.t("session.form.heartWallNo")
-      : App.t("session.copy.notApplicable");
     const issuesPayload = getIssuesPayload();
     const issuesText = issuesPayload.length
       ? issuesPayload
@@ -450,29 +441,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         App.showToast("", "toast.errorRequired");
         return;
       }
-      let lastInitial = document.getElementById("inlineClientLastInitial").value.trim();
-      if (lastInitial.length > 1) lastInitial = lastInitial.charAt(0);
-      if (lastInitial) lastInitial = lastInitial.toUpperCase();
-      const ageValue = document.getElementById("inlineClientAge").value.trim();
+      const lastName = document.getElementById("inlineClientLastName").value.trim();
+      const birthDate = document.getElementById("inlineClientBirthDate").value || null;
+      const age = birthDate ? Math.floor((Date.now() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000)) : null;
       const email = document.getElementById("inlineClientEmail").value.trim();
       const phone = document.getElementById("inlineClientPhone").value.trim();
       const notes = document.getElementById("inlineClientNotes").value.trim();
-      const heartWall = document.getElementById("inlineClientHeartWall").checked;
       const typeInput = document.querySelector("input[name='inlineClientType']:checked");
-      const type = typeInput ? typeInput.value : "human";
-      const age = ageValue ? Number.parseInt(ageValue, 10) : null;
-      const displayName = lastInitial ? `${firstName} ${lastInitial}.` : firstName;
+      const type = typeInput ? typeInput.value : "adult";
+      const displayName = lastName ? `${firstName} ${lastName}` : firstName;
 
       const id = await PortfolioDB.addClient({
         name: displayName,
         firstName,
-        lastInitial,
+        lastName,
+        birthDate,
         age,
         email,
         phone,
         notes,
         type,
-        heartWall,
         photoData: inlinePhotoData,
         createdAt: new Date().toISOString()
       });
@@ -481,7 +469,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (inlineForm) inlineForm.style.display = "none";
       resetInlineClientForm();
       updateClientSpotlight();
-      updateHeartWallSection();
       App.showToast("", "toast.clientCreated");
     });
   }
@@ -526,9 +513,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
-      const sessionType = sessionTypeInput ? sessionTypeInput.value : "inPerson";
+      const sessionType = sessionTypeInput ? sessionTypeInput.value : "clinic";
       const comments = document.getElementById("sessionComments").value.trim();
       const insights = insightsInput ? insightsInput.value.trim() : "";
+      const limitingBeliefs = (document.getElementById("limitingBeliefs") || {}).value?.trim() || "";
+      const additionalTech = (document.getElementById("additionalTech") || {}).value?.trim() || "";
       const customerSummary = customerSummaryInput ? customerSummaryInput.value.trim() : "";
 
       if (editingSession) {
@@ -540,9 +529,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           issues: issuesPayload,
           trappedEmotions,
           insights,
+          limitingBeliefs,
+          additionalTech,
           customerSummary,
           comments,
-          heartWallCleared,
           updatedAt: new Date().toISOString()
         });
         App.showToast("", "toast.sessionUpdated");
@@ -554,9 +544,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           issues: issuesPayload,
           trappedEmotions,
           insights,
+          limitingBeliefs,
+          additionalTech,
           customerSummary,
           comments,
-          heartWallCleared,
           createdAt: new Date().toISOString()
         });
         App.showToast("", "toast.sessionSaved");
@@ -597,7 +588,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     editingSession = await PortfolioDB.getSession(sessionId);
     if (editingSession) {
       populateSession(editingSession, issues, createIssueBlock);
-      updateHeartWallSection(editingSession.heartWallCleared);
       updateClientSpotlight();
       updateSessionTitle(editingSession);
       setSubmitLabel("session.form.update");
@@ -668,8 +658,8 @@ function getClientDisplayName(client) {
   if (!client) return "";
   if (client.name) return client.name;
   const first = client.firstName || "";
-  const last = client.lastInitial ? `${client.lastInitial}.` : "";
-  return `${first} ${last}`.trim();
+  const last = client.lastName || client.lastInitial || "";
+  return last ? `${first} ${last}` : first;
 }
 
 function updateHeartWallSection(prefillValue) {
@@ -751,20 +741,10 @@ function updateSessionTitle(session) {
   }
 }
 
-function setHeartWallSelection(value) {
-  document.querySelectorAll("input[name='heartWallCleared']").forEach((input) => {
-    const card = input.closest(".toggle-card");
-    const isMatch = value === true ? input.value === "yes" : value === false ? input.value === "no" : false;
-    input.checked = isMatch;
-    if (card) card.classList.toggle("active", isMatch);
-  });
-}
-
 function resetInlineClientForm() {
   const fields = [
     "inlineClientFirstName",
-    "inlineClientLastInitial",
-    "inlineClientAge",
+    "inlineClientLastName",
     "inlineClientEmail",
     "inlineClientPhone",
     "inlineClientNotes"
@@ -773,8 +753,8 @@ function resetInlineClientForm() {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
-  const heartWall = document.getElementById("inlineClientHeartWall");
-  if (heartWall) heartWall.checked = false;
+  const birthDateEl = document.getElementById("inlineClientBirthDate");
+  if (birthDateEl) birthDateEl.value = "";
   const photoInput = document.getElementById("inlineClientPhoto");
   if (photoInput) photoInput.value = "";
   const photoPreview = document.getElementById("inlineClientPhotoPreview");
@@ -782,9 +762,9 @@ function resetInlineClientForm() {
   inlinePhotoData = "";
   document.querySelectorAll("input[name='inlineClientType']").forEach((input) => {
     const card = input.closest(".toggle-card");
-    const isHuman = input.value === "human";
-    input.checked = isHuman;
-    if (card) card.classList.toggle("active", isHuman);
+    const isAdult = input.value === "adult";
+    input.checked = isAdult;
+    if (card) card.classList.toggle("active", isAdult);
   });
 }
 
@@ -811,7 +791,10 @@ function populateSession(session, issues, createIssueBlock) {
   if (comments) comments.value = session.comments || "";
   if (insights) insights.value = session.insights || "";
   if (customerSummary) customerSummary.value = session.customerSummary || "";
-  setHeartWallSelection(session.heartWallCleared);
+  const limitingBeliefsEl = document.getElementById("limitingBeliefs");
+  if (limitingBeliefsEl) limitingBeliefsEl.value = session.limitingBeliefs || "";
+  const additionalTechEl = document.getElementById("additionalTech");
+  if (additionalTechEl) additionalTechEl.value = session.additionalTech || "";
   updateClientSpotlight();
 
   document.querySelectorAll("input[name='sessionType']").forEach((input) => {

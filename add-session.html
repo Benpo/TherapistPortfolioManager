@@ -65,17 +65,17 @@
             <div class="form-field">
               <label class="label" data-i18n="session.form.sessionType">Session Type</label>
               <div class="toggle-group" id="sessionTypeGroup">
-                <label class="toggle-card active" data-type="inPerson">
-                  <input type="radio" name="sessionType" value="inPerson" checked />
-                  <span data-i18n="session.form.inPerson">In-person</span>
+                <label class="toggle-card active" data-type="clinic">
+                  <input type="radio" name="sessionType" value="clinic" checked />
+                  <span data-i18n="session.form.clinic">Clinic</span>
                 </label>
-                <label class="toggle-card" data-type="proxy">
-                  <input type="radio" name="sessionType" value="proxy" />
-                  <span data-i18n="session.form.proxy">Proxy</span>
+                <label class="toggle-card" data-type="online">
+                  <input type="radio" name="sessionType" value="online" />
+                  <span data-i18n="session.form.online">Online</span>
                 </label>
-                <label class="toggle-card" data-type="surrogate">
-                  <input type="radio" name="sessionType" value="surrogate" />
-                  <span data-i18n="session.form.surrogate">Surrogate</span>
+                <label class="toggle-card" data-type="other">
+                  <input type="radio" name="sessionType" value="other" />
+                  <span data-i18n="session.form.other">Other</span>
                 </label>
               </div>
             </div>
@@ -95,20 +95,6 @@
             </div>
           </div>
 
-          <div id="heartWallSection" class="form-field heartwall-section" style="display:none;">
-            <label class="label" data-i18n="session.form.heartWallQuestion">Was the Heart-Wall completely cleared in this session? *</label>
-            <div class="toggle-group" id="heartWallGroup">
-              <label class="toggle-card" data-type="yes">
-                <input type="radio" name="heartWallCleared" value="yes" />
-                <span data-i18n="session.form.heartWallYes">Yes</span>
-              </label>
-              <label class="toggle-card" data-type="no">
-                <input type="radio" name="heartWallCleared" value="no" />
-                <span data-i18n="session.form.heartWallNo">No</span>
-              </label>
-            </div>
-          </div>
-
           <div id="inlineClientForm" class="card" style="margin-top:1.5rem; display:none;">
             <div class="form-grid">
               <div class="form-field">
@@ -116,12 +102,12 @@
                 <input class="input" id="inlineClientFirstName" type="text" data-i18n-placeholder="client.form.firstName.placeholder" />
               </div>
               <div class="form-field">
-                <label class="label" data-i18n="client.form.lastInitial">Last Initial (Optional)</label>
-                <input class="input" id="inlineClientLastInitial" type="text" maxlength="1" data-i18n-placeholder="client.form.lastInitial.placeholder" />
+                <label class="label" data-i18n="client.form.lastName">Last Name</label>
+                <input class="input" id="inlineClientLastName" type="text" data-i18n-placeholder="client.form.lastName.placeholder" />
               </div>
               <div class="form-field">
-                <label class="label" data-i18n="client.form.age">Client Age</label>
-                <input class="input" id="inlineClientAge" type="number" min="0" data-i18n-placeholder="client.form.age.placeholder" />
+                <label class="label" data-i18n="client.form.birthDate">Date of Birth</label>
+                <input class="input" id="inlineClientBirthDate" type="date" />
               </div>
               <div class="form-field">
                 <label class="label" data-i18n="client.form.email">Email</label>
@@ -146,19 +132,17 @@
             </div>
 
             <div class="form-field" style="margin-top:1.25rem;">
-              <label class="checkbox-field">
-                <input type="checkbox" id="inlineClientHeartWall" />
-                <span data-i18n="client.form.heartWall">Is this a Heart-Wall Client?</span>
-              </label>
-            </div>
-
-            <div class="form-field" style="margin-top:1.25rem;">
               <label class="label" data-i18n="client.form.type">Client Type</label>
               <div class="toggle-group" id="inlineClientTypeGroup">
-                <label class="toggle-card active" data-type="human">
-                  <input type="radio" name="inlineClientType" value="human" checked />
+                <label class="toggle-card" data-type="child">
+                  <input type="radio" name="inlineClientType" value="child" />
+                  <span class="icon-badge">🧒</span>
+                  <span data-i18n="client.form.type.child">Child</span>
+                </label>
+                <label class="toggle-card active" data-type="adult">
+                  <input type="radio" name="inlineClientType" value="adult" checked />
                   <span class="icon-badge">🧍</span>
-                  <span data-i18n="client.form.type.human">Human</span>
+                  <span data-i18n="client.form.type.adult">Adult</span>
                 </label>
                 <label class="toggle-card" data-type="animal">
                   <input type="radio" name="inlineClientType" value="animal" />
@@ -188,25 +172,45 @@
 
           <div class="section-divider"></div>
 
-          <div class="form-field">
-            <div class="field-header">
-              <label class="label" data-i18n="session.form.trapped">Trapped Emotions Released *</label>
-              <button class="icon-button field-copy" type="button" data-copy-target="trappedEmotions">
-                <span aria-hidden="true">&#128203;</span>
-              </button>
+          <details class="expandable-field">
+            <summary>
+              <span class="label" data-i18n="session.form.trapped">Trapped Emotions Released</span>
+              <span class="expand-arrow" aria-hidden="true">›</span>
+            </summary>
+            <div class="expandable-body">
+              <textarea class="textarea session-textarea" id="trappedEmotions" data-i18n-placeholder="session.form.trapped.placeholder"></textarea>
             </div>
-            <textarea class="textarea session-textarea" id="trappedEmotions" data-i18n-placeholder="session.form.trapped.placeholder"></textarea>
-          </div>
+          </details>
 
-          <div class="form-field" style="margin-top:1.5rem;">
-            <div class="field-header">
-              <label class="label" data-i18n="session.form.insights">Body Code</label>
-              <button class="icon-button field-copy" type="button" data-copy-target="sessionInsights">
-                <span aria-hidden="true">&#128203;</span>
-              </button>
+          <details class="expandable-field">
+            <summary>
+              <span class="label" data-i18n="session.form.insights">Physical Imbalance</span>
+              <span class="expand-arrow" aria-hidden="true">›</span>
+            </summary>
+            <div class="expandable-body">
+              <textarea class="textarea session-textarea" id="sessionInsights" data-i18n-placeholder="session.form.insights.placeholder"></textarea>
             </div>
-            <textarea class="textarea session-textarea" id="sessionInsights" data-i18n-placeholder="session.form.insights.placeholder"></textarea>
-          </div>
+          </details>
+
+          <details class="expandable-field">
+            <summary>
+              <span class="label" data-i18n="session.form.limitingBeliefs">Limiting Beliefs</span>
+              <span class="expand-arrow" aria-hidden="true">›</span>
+            </summary>
+            <div class="expandable-body">
+              <textarea class="textarea session-textarea" id="limitingBeliefs" data-i18n-placeholder="session.form.limitingBeliefs.placeholder"></textarea>
+            </div>
+          </details>
+
+          <details class="expandable-field">
+            <summary>
+              <span class="label" data-i18n="session.form.additionalTech">Additional Treatment Techniques</span>
+              <span class="expand-arrow" aria-hidden="true">›</span>
+            </summary>
+            <div class="expandable-body">
+              <textarea class="textarea session-textarea" id="additionalTech" data-i18n-placeholder="session.form.additionalTech.placeholder"></textarea>
+            </div>
+          </details>
 
           <div class="section-divider"></div>
 
@@ -219,7 +223,7 @@
 
           <div class="form-field">
             <div class="field-header">
-              <label class="label" data-i18n="session.form.comments">Comments</label>
+              <label class="label" data-i18n="session.form.comments">Session Notes and Observations</label>
               <button class="icon-button field-copy" type="button" data-copy-target="sessionComments">
                 <span aria-hidden="true">&#128203;</span>
               </button>
@@ -229,7 +233,7 @@
 
           <div class="form-field" style="margin-top:1.5rem;">
             <div class="field-header">
-              <label class="label" data-i18n="session.form.customerSummary">Customer Summary</label>
+              <label class="label" data-i18n="session.form.customerSummary">Information for Next Session</label>
               <button class="icon-button field-copy" type="button" data-copy-target="customerSummary">
                 <span aria-hidden="true">&#128203;</span>
               </button>
