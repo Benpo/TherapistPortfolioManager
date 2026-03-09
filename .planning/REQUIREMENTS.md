@@ -19,7 +19,7 @@ Requirements for sellable product release. Each maps to roadmap phases.
 
 - [ ] **DSGN-01**: Garden/nature theme overhaul — warm cream background, garden green primary, orange accents, Rubik font
 - [ ] **DSGN-02**: Dark mode with light/dark toggle persisted to localStorage, no flash of wrong theme on load
-- [ ] **DSGN-03**: CSS logical properties migration replacing all directional CSS (margin-left -> margin-inline-start etc.)
+- [x] **DSGN-03**: CSS logical properties migration replacing all directional CSS (margin-left -> margin-inline-start etc.)
 - [ ] **DSGN-04**: Navigation component extraction — JS-rendered nav replacing copy-pasted HTML across 5 pages
 
 ### Data Model
@@ -117,7 +117,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FOUND-05 | Phase 6: Quality and Developer Experience | Pending |
 | DSGN-01 | Phase 2: Visual Transformation | Pending |
 | DSGN-02 | Phase 2: Visual Transformation | Pending |
-| DSGN-03 | Phase 2: Visual Transformation | Pending |
+| DSGN-03 | Phase 2: Visual Transformation | Complete |
 | DSGN-04 | Phase 2: Visual Transformation | Pending |
 | DATA-01 | Phase 3: Data Model and Features | Pending |
 | DATA-02 | Phase 3: Data Model and Features | Pending |
