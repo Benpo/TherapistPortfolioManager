@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 01-foundation-01-01-PLAN.md
-last_updated: "2026-03-09T16:05:06.606Z"
+stopped_at: Completed 01-foundation-01-02-PLAN.md
+last_updated: "2026-03-09T16:07:52.881Z"
 last_activity: 2026-03-09 -- Roadmap created
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 7 | 2 tasks | 10 files |
+| Phase 01-foundation P02 | 1 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Nunito not self-hosted — replaced entirely with Rubik as default font stack
 - [Phase 01-foundation]: Two-tier CSS token architecture: primitives (:root --color-purple-*) referenced only by semantics (:root --color-primary)
 - [Phase 01-foundation]: Dark mode via [data-theme=dark] attribute override, not prefers-color-scheme media query
+- [Phase 01-foundation]: MIGRATIONS map pattern chosen for sequential IndexedDB upgrades — Phase 3 adds v2 entry without touching existing code
+- [Phase 01-foundation]: DB_VERSION stays at 1 in Phase 1; migration infrastructure readied for Phase 3 schema changes
 
 ### Pending Todos
 
@@ -78,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T16:05:06.605Z
-Stopped at: Completed 01-foundation-01-01-PLAN.md
+Last session: 2026-03-09T16:07:52.880Z
+Stopped at: Completed 01-foundation-01-02-PLAN.md
 Resume file: None
