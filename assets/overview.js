@@ -1,5 +1,33 @@
+function getDailyQuote(lang) {
+  const allQuotes = window.QUOTES || {};
+  const langQuotes = allQuotes[lang] || allQuotes["en"] || [];
+  if (!langQuotes.length) return "";
+  const today = new Date();
+  const dayOfYear = Math.floor(
+    (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
+  );
+  return langQuotes[dayOfYear % langQuotes.length];
+}
+
+function renderGreeting() {
+  const greetingEl = document.getElementById("greeting-text");
+  const quoteEl = document.getElementById("quote-text");
+  if (!greetingEl || !quoteEl) return;
+
+  const hour = new Date().getHours();
+  const greetingKey = hour >= 5 && hour < 12
+    ? "greeting.morning"
+    : hour >= 12 && hour < 18
+    ? "greeting.afternoon"
+    : "greeting.evening";
+
+  greetingEl.textContent = App.t(greetingKey);
+  quoteEl.textContent = "\u201C" + getDailyQuote(localStorage.getItem("portfolioLang") || "en") + "\u201D";
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   App.initCommon();
+  renderGreeting();
   await loadOverview();
 
   const addClientBtn = document.getElementById("addClientBtn");
@@ -38,6 +66,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupModal();
 
   document.addEventListener("app:language", async () => {
+    renderGreeting();
     await loadOverview();
   });
 });
