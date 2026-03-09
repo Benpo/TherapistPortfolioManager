@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 02-03 CSS logical properties migration
-last_updated: "2026-03-09T18:45:34.113Z"
+stopped_at: Completed 02-02 night-garden dark mode palette
+last_updated: "2026-03-09T19:21:01.430Z"
 last_activity: 2026-03-09 -- Completed 01-03 backup reminder system
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 6
   percent: 100
 ---
 
@@ -53,6 +53,7 @@ Progress: [██████████] 100%
 | Phase 01-foundation P01 | 7 | 2 tasks | 10 files |
 | Phase 01-foundation P02 | 1 | 1 tasks | 1 files |
 | Phase 02-visual-transformation P03 | 3 | 1 tasks | 1 files |
+| Phase 02-visual-transformation P02 | 7 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: requestPersistentStorage() marks portfolioStoragePersistRequested=true even on error/denial to prevent repeated browser prompts
 - [Phase 02-visual-transformation]: CSS logical properties: browser direction:rtl on body handles form input text alignment — no logical base rule needed
 - [Phase 02-visual-transformation]: CSS logical properties: brand-mark font-weight:800 retained as HTML still uses EC text, not SVG
+- [Phase 02-visual-transformation]: Orange accent (#f97316) not overridden in dark mode — sufficient contrast on deep green #0d2818
+- [Phase 02-visual-transformation]: Night-garden dark mode: deep forest green (#0d2818) backgrounds replace purple-dark Phase 1 placeholders
 
 ### Pending Todos
 
@@ -87,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T18:45:34.111Z
-Stopped at: Completed 02-03 CSS logical properties migration
+Last session: 2026-03-09T19:21:01.428Z
+Stopped at: Completed 02-02 night-garden dark mode palette
 Resume file: None
