@@ -31,11 +31,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. IndexedDB opens with a migration handler that can upgrade through multiple schema versions sequentially
   4. After 7 days without exporting data, the user sees a backup reminder prompt with snooze and export options
   5. The app requests persistent storage via navigator.storage.persist() on first load
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md — CSS design token system (tokens.css) + Rubik self-hosted fonts (FOUND-01, FOUND-02)
+- [ ] 01-02-PLAN.md — IndexedDB sequential migration infrastructure (FOUND-03)
+- [ ] 01-03-PLAN.md — Backup reminder banner + navigator.storage.persist() (FOUND-04)
 
 ### Phase 2: Visual Transformation
 **Goal**: The app looks and feels like a professional, sellable product with garden theme aesthetics and full dark mode support
