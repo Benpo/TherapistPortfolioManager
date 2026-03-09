@@ -121,49 +121,49 @@
 }
 
 /* === DARK MODE === */
-/* Night-garden dark mode palette */
+/* Soft teal-grey dark mode palette (Option C) */
 [data-theme="dark"] {
-  /* Backgrounds — deep forest green, near black but distinctly green */
-  --color-background: #0d2818;
-  --color-background-gradient-start: #0d2818;
-  --color-background-gradient-end: #112e1e;
-  /* Surfaces — dark green panels */
-  --color-surface: #162e1f;
-  --color-surface-alt: #1a3524;
-  --color-surface-hover: #1f3d28;
-  --color-surface-subtle: #1a3524;
-  --color-surface-muted: #162e1f;
-  --color-surface-avatar: #1f3d28;
-  --color-surface-media: #1f3d28;
-  --color-surface-disabled: #162e1f;
-  --color-surface-secondary-btn: #1a3524;
-  --color-surface-toggle: #1a3524;
-  --color-surface-modal-close: #1a3524;
-  /* Text — warm cream, readable on dark green */
-  --color-text: #f0ede4;
-  --color-text-muted: #9ab89f;
-  --color-text-meta: #9ab89f;
-  /* Primary — lighter garden green, visible on dark backgrounds */
-  --color-primary: #52a078;
-  --color-primary-soft: #1a3524;
-  --color-primary-dark: #a8d4b8;
-  --color-primary-deeper: #9ab89f;
-  /* Borders — subtle green-tinted */
-  --color-border: rgba(82, 160, 120, 0.25);
-  --color-border-soft: rgba(82, 160, 120, 0.12);
-  --color-border-faint: rgba(82, 160, 120, 0.08);
-  --color-border-subtle: rgba(82, 160, 120, 0.15);
-  --color-border-ghost: rgba(82, 160, 120, 0.3);
+  /* Backgrounds — dark teal-grey, gentle on the eye */
+  --color-background: #1a2020;
+  --color-background-gradient-start: #1a2020;
+  --color-background-gradient-end: #1e2626;
+  /* Surfaces — slightly lighter teal-grey panels */
+  --color-surface: #202828;
+  --color-surface-alt: #253030;
+  --color-surface-hover: #2a3535;
+  --color-surface-subtle: #253030;
+  --color-surface-muted: #202828;
+  --color-surface-avatar: #2a3535;
+  --color-surface-media: #2a3535;
+  --color-surface-disabled: #202828;
+  --color-surface-secondary-btn: #253030;
+  --color-surface-toggle: #253030;
+  --color-surface-modal-close: #253030;
+  /* Text — soft off-white, readable on dark teal */
+  --color-text: #e8eeed;
+  --color-text-muted: #7aa8a8;
+  --color-text-meta: #7aa8a8;
+  /* Primary — soft teal, visible on dark backgrounds */
+  --color-primary: #5aacac;
+  --color-primary-soft: #253030;
+  --color-primary-dark: #9ec8c8;
+  --color-primary-deeper: #7aa8a8;
+  /* Borders — subtle teal-tinted */
+  --color-border: rgba(90, 172, 172, 0.22);
+  --color-border-soft: rgba(90, 172, 172, 0.11);
+  --color-border-faint: rgba(90, 172, 172, 0.07);
+  --color-border-subtle: rgba(90, 172, 172, 0.14);
+  --color-border-ghost: rgba(90, 172, 172, 0.28);
   /* Toast */
-  --color-toast-bg: #0d2818;
-  /* Shadows — deeper on dark */
-  --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.45);
-  --shadow-nav: 0 10px 20px rgba(0, 0, 0, 0.3);
-  --shadow-card: 0 12px 26px rgba(0, 0, 0, 0.5);
-  --shadow-brand: 0 8px 24px rgba(82, 160, 120, 0.4);
-  --shadow-button: 0 4px 12px rgba(82, 160, 120, 0.3);
+  --color-toast-bg: #1a2020;
+  /* Shadows — softer on dark */
+  --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.38);
+  --shadow-nav: 0 10px 20px rgba(0, 0, 0, 0.25);
+  --shadow-card: 0 12px 26px rgba(0, 0, 0, 0.42);
+  --shadow-brand: 0 8px 24px rgba(90, 172, 172, 0.35);
+  --shadow-button: 0 4px 12px rgba(90, 172, 172, 0.25);
   --shadow-danger: 0 4px 12px rgba(234, 75, 75, 0.35);
-  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.65);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.55);
   /* Placeholder gradient */
-  --color-placeholder-gradient: linear-gradient(135deg, #3a7d5f, #52a078);
+  --color-placeholder-gradient: linear-gradient(135deg, #3a8080, #5aacac);
 }
