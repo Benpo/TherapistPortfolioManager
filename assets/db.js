@@ -2,24 +2,171 @@ window.PortfolioDB = (() => {
   const DB_NAME = "emotion_code_portfolio";
   const DB_VERSION = 1;
 
+  const MIGRATIONS = {
+    1: function initializeSchema(db) {
+      // v1: original schema — only runs on fresh installs (oldVersion === 0)
+      if (!db.objectStoreNames.contains("clients")) {
+        const store = db.createObjectStore("clients", { keyPath: "id", autoIncrement: true });
+        store.createIndex("name", "name", { unique: false });
+      }
+      if (!db.objectStoreNames.contains("sessions")) {
+        const store = db.createObjectStore("sessions", { keyPath: "id", autoIncrement: true });
+        store.createIndex("clientId", "clientId", { unique: false });
+        store.createIndex("date", "date", { unique: false });
+      }
+    },
+    // Phase 3 will add version 2 here when schema changes are needed:
+    // 2: function addReferralSource(db, transaction) { ... },
+  };
+
   function openDB() {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
+
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
-        if (!db.objectStoreNames.contains("clients")) {
-          const store = db.createObjectStore("clients", { keyPath: "id", autoIncrement: true });
-          store.createIndex("name", "name", { unique: false });
-        }
-        if (!db.objectStoreNames.contains("sessions")) {
-          const store = db.createObjectStore("sessions", { keyPath: "id", autoIncrement: true });
-          store.createIndex("clientId", "clientId", { unique: false });
-          store.createIndex("date", "date", { unique: false });
+        const transaction = event.target.transaction;
+        const oldVersion = event.oldVersion; // 0 for brand-new installs
+        const newVersion = event.newVersion;
+
+        try {
+          // Run each migration in order from oldVersion+1 to newVersion
+          // This handles skipped versions: v1→v3 runs migration 2 then migration 3
+          for (let v = oldVersion + 1; v <= newVersion; v++) {
+            if (MIGRATIONS[v]) {
+              MIGRATIONS[v](db, transaction);
+            }
+          }
+        } catch (err) {
+          // Abort the upgrade transaction so the DB stays at oldVersion
+          transaction.abort();
+          showDBMigrationError(err);
+          reject(err);
         }
       };
-      request.onsuccess = () => resolve(request.result);
+
+      request.onblocked = () => {
+        // Another tab has this DB open at an older version
+        // The current tab requested a version upgrade that is blocked
+        showDBBlockedMessage();
+      };
+
+      request.onsuccess = (event) => {
+        const db = event.target.result;
+
+        // When another tab upgrades the DB, close this connection so the upgrade can proceed
+        db.onversionchange = () => {
+          db.close();
+          showDBVersionChangedMessage();
+        };
+
+        resolve(db);
+      };
+
       request.onerror = () => reject(request.error);
     });
+  }
+
+  function showDBBlockedMessage() {
+    // Show a persistent banner (not just a toast) because user must take action
+    const existing = document.getElementById("dbBlockedBanner");
+    if (existing) return; // Already showing
+
+    const banner = document.createElement("div");
+    banner.id = "dbBlockedBanner";
+    banner.setAttribute("role", "alert");
+    banner.style.cssText = [
+      "position:fixed",
+      "top:0",
+      "left:0",
+      "right:0",
+      "z-index:9999",
+      "background:var(--color-danger, #ea4b4b)",
+      "color:#fff",
+      "padding:12px 16px",
+      "text-align:center",
+      "font-family:Rubik,system-ui,sans-serif",
+      "font-size:14px",
+    ].join(";");
+    banner.textContent = "Please close other tabs of this app to continue.";
+    document.body.prepend(banner);
+  }
+
+  function showDBVersionChangedMessage() {
+    // The DB was upgraded by another tab — this tab must reload
+    const existing = document.getElementById("dbVersionChangedBanner");
+    if (existing) return;
+
+    const banner = document.createElement("div");
+    banner.id = "dbVersionChangedBanner";
+    banner.setAttribute("role", "alert");
+    banner.style.cssText = [
+      "position:fixed",
+      "top:0",
+      "left:0",
+      "right:0",
+      "z-index:9999",
+      "background:var(--color-primary, #7c66ff)",
+      "color:#fff",
+      "padding:12px 16px",
+      "text-align:center",
+      "font-family:Rubik,system-ui,sans-serif",
+      "font-size:14px",
+      "display:flex",
+      "align-items:center",
+      "justify-content:center",
+      "gap:12px",
+    ].join(";");
+
+    const msg = document.createElement("span");
+    msg.textContent = "A newer version of this app is open. Please refresh to continue.";
+
+    const btn = document.createElement("button");
+    btn.textContent = "Refresh";
+    btn.style.cssText = "background:#fff;color:var(--color-primary,#7c66ff);border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-weight:600;";
+    btn.onclick = () => location.reload();
+
+    banner.append(msg, btn);
+    document.body.prepend(banner);
+  }
+
+  function showDBMigrationError(err) {
+    console.error("IndexedDB migration failed:", err);
+
+    const existing = document.getElementById("dbMigrationErrorBanner");
+    if (existing) return;
+
+    const banner = document.createElement("div");
+    banner.id = "dbMigrationErrorBanner";
+    banner.setAttribute("role", "alert");
+    banner.style.cssText = [
+      "position:fixed",
+      "top:0",
+      "left:0",
+      "right:0",
+      "z-index:9999",
+      "background:var(--color-danger, #ea4b4b)",
+      "color:#fff",
+      "padding:12px 16px",
+      "text-align:center",
+      "font-family:Rubik,system-ui,sans-serif",
+      "font-size:14px",
+      "display:flex",
+      "align-items:center",
+      "justify-content:center",
+      "gap:12px",
+    ].join(";");
+
+    const msg = document.createElement("span");
+    msg.textContent = "Database update failed. Your data is safe. Please refresh the page to try again.";
+
+    const btn = document.createElement("button");
+    btn.textContent = "Refresh page";
+    btn.style.cssText = "background:#fff;color:var(--color-danger,#ea4b4b);border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-weight:600;";
+    btn.onclick = () => location.reload();
+
+    banner.append(msg, btn);
+    document.body.prepend(banner);
   }
 
   async function withStore(storeName, mode, callback) {
