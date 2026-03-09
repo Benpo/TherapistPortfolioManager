@@ -490,8 +490,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
       const date = sessionDate.value;
-      const trappedEmotions = document.getElementById("trappedEmotions").value.trim();
-      if (!date || !trappedEmotions) {
+      if (!date) {
         App.showToast("", "toast.errorRequired");
         return;
       }
