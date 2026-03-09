@@ -672,6 +672,18 @@ function updateClientSpotlight() {
   spotlight.classList.remove("is-hidden");
   const displayName = getClientDisplayName(selectedClient);
   if (name) name.textContent = displayName || "-";
+  const ageEl = document.getElementById("clientSpotlightAge");
+  if (ageEl) {
+    const age = selectedClient.birthDate
+      ? Math.floor((Date.now() - new Date(selectedClient.birthDate)) / (365.25 * 24 * 60 * 60 * 1000))
+      : selectedClient.age;
+    if (age != null && !isNaN(age)) {
+      ageEl.textContent = `${App.t("common.age")}: ${age}`;
+      ageEl.classList.remove("is-hidden");
+    } else {
+      ageEl.classList.add("is-hidden");
+    }
+  }
   const initial = (displayName || selectedClient.firstName || "?").charAt(0).toUpperCase();
   if (selectedClient.photoData) {
     if (photo) {
