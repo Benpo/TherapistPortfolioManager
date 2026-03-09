@@ -47,11 +47,12 @@ Plans:
   2. User can toggle between light and dark modes via a visible control, and the preference persists across browser sessions with no flash of wrong theme on reload
   3. All directional CSS uses logical properties (inline-start/inline-end) -- switching to Hebrew RTL requires zero CSS overrides
   4. Navigation is rendered from a single JS component -- changing a nav item updates all 5 pages automatically
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Garden palette (tokens.css) + brand area + nav component extraction + no-flash scripts (DSGN-01, DSGN-04)
+- [ ] 02-02-PLAN.md — Night-garden dark mode palette (tokens.css) + theme toggle (DSGN-02)
+- [ ] 02-03-PLAN.md — CSS logical properties migration (app.css) (DSGN-03)
 
 ### Phase 3: Data Model and Features
 **Goal**: The clinical data model is finalized with Sapir's input, expanded client types and session fields are live, and key usability features work
@@ -124,7 +125,7 @@ Phases execute in numeric order: 1 -> 1.1 -> 2 -> 2.1 -> 3 -> etc.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-09 |
-| 2. Visual Transformation | 0/? | Not started | - |
+| 2. Visual Transformation | 0/3 | Not started | - |
 | 3. Data Model and Features | 0/? | Not started | - |
 | 4. Internationalization and Distribution Research | 0/? | Not started | - |
 | 5. Legal and Production Packaging | 0/? | Not started | - |
