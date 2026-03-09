@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reporting</title>
+  <link rel="stylesheet" href="./assets/app.css" />
+</head>
+<body data-nav="reporting">
+  <div class="app-shell">
+    <div class="container">
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-mark">EC</div>
+          <div>
+            <div class="brand-title" data-i18n="app.title">Emotion Code Portfolio</div>
+            <div class="brand-subtitle" data-i18n="app.subtitle">Portfolio Manager</div>
+          </div>
+        </div>
+        <nav class="app-nav">
+          <a href="./index.html" data-nav="overview" data-i18n="nav.overview">Overview</a>
+          <a href="./sessions.html" data-nav="sessions" data-i18n="nav.sessions">Sessions</a>
+          <a href="./reporting.html" data-nav="reporting" data-i18n="nav.reporting">Reporting</a>
+          <span class="nav-divider" aria-hidden="true"></span>
+          <a href="./add-client.html" data-nav="addClient" data-i18n="nav.addClient">Add Client</a>
+          <a href="./add-session.html" data-nav="addSession" data-i18n="nav.addSession">Add Session</a>
+        </nav>
+        <div class="header-actions">
+          <select id="languageSelect" class="select" aria-label="Language">
+            <option value="en">English</option>
+            <option value="he">עברית</option>
+          </select>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="section-title" data-i18n="reporting.title">Reporting</div>
+        <div class="helper-text" data-i18n="reporting.subtitle">Key Metrics</div>
+      </section>
+
+      <section class="stat-grid" style="margin-top:1.5rem;">
+        <div class="stat-card">
+          <div class="stat-value" id="reportTotalClients">0</div>
+          <div class="stat-label" data-i18n="reporting.totalClients">Total Clients</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="reportTotalSessions">0</div>
+          <div class="stat-label" data-i18n="reporting.totalSessions">Total Sessions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="reportAvgIssues">-</div>
+          <div class="stat-label" data-i18n="reporting.avgIssues">Avg Issues per Session</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="reportAvgBefore">-</div>
+          <div class="stat-label" data-i18n="reporting.avgBefore">Avg Severity (Before)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="reportAvgAfter">-</div>
+          <div class="stat-label" data-i18n="reporting.avgAfter">Avg Severity (After)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="reportHeartWall">0</div>
+          <div class="stat-label" data-i18n="reporting.heartWallCleared">Heart-Wall Cleared Sessions</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="./assets/i18n.js"></script>
+  <script src="./assets/db.js"></script>
+  <script src="./assets/app.js"></script>
+  <script src="./assets/reporting.js"></script>
+</body>
+</html>

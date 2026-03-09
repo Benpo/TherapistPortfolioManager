@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Emotion Code Portfolio</title>
+  <link rel="stylesheet" href="./assets/app.css" />
+</head>
+<body data-nav="overview">
+  <div class="app-shell">
+    <div class="container">
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-mark">EC</div>
+          <div>
+            <div class="brand-title" data-i18n="app.title">Emotion Code Portfolio</div>
+            <div class="brand-subtitle" data-i18n="app.subtitle">Portfolio Manager</div>
+          </div>
+        </div>
+        <nav class="app-nav">
+          <a href="./index.html" data-nav="overview" data-i18n="nav.overview">Overview</a>
+          <a href="./sessions.html" data-nav="sessions" data-i18n="nav.sessions">Sessions</a>
+          <a href="./reporting.html" data-nav="reporting" data-i18n="nav.reporting">Reporting</a>
+          <span class="nav-divider" aria-hidden="true"></span>
+          <a href="./add-client.html" data-nav="addClient" data-i18n="nav.addClient">Add Client</a>
+          <a href="./add-session.html" data-nav="addSession" data-i18n="nav.addSession">Add Session</a>
+        </nav>
+        <div class="header-actions">
+          <select id="languageSelect" class="select" aria-label="Language">
+            <option value="en">English</option>
+            <option value="he">עברית</option>
+          </select>
+        </div>
+      </header>
+
+      <section class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statClients">0</div>
+          <div class="stat-label" data-i18n="overview.stats.clients">Total Clients</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statSessions">0</div>
+          <div class="stat-label" data-i18n="overview.stats.sessions">Total Sessions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statMonth">0</div>
+          <div class="stat-label" data-i18n="overview.stats.month">Sessions This Month</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="inline-actions" style="margin-bottom:1rem;">
+          <button class="button icon-swap" id="addClientBtn">
+            <span class="button-label" data-i18n="overview.addClient">Add Client</span>
+            <span class="button-icon" aria-hidden="true">+&#128100;</span>
+          </button>
+          <button class="button secondary icon-swap" id="addSessionBtn">
+            <span class="button-label" data-i18n="overview.addSession">Add Session</span>
+            <span class="button-icon" aria-hidden="true">+&#128197;</span>
+          </button>
+          <button class="button ghost" id="exportBtn" data-i18n="overview.export">Export Data</button>
+          <label class="button ghost import-label">
+            <span data-i18n="overview.import">Import Data</span>
+            <input id="importInput" type="file" accept="application/json" class="is-hidden" />
+          </label>
+        </div>
+        <h2 class="section-title" data-i18n="overview.clients.title">Clients</h2>
+        <div id="emptyState" class="helper-text" data-i18n="overview.clients.empty" style="display:none;"></div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th data-i18n="overview.table.name">Name</th>
+              <th data-i18n="overview.table.type">Type</th>
+              <th data-i18n="overview.table.sessions">Sessions</th>
+              <th data-i18n="overview.table.lastSession">Last Session</th>
+              <th data-i18n="overview.table.actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clientTableBody"></tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <div id="clientModal" class="modal is-hidden" role="dialog" aria-modal="true">
+    <div class="modal-overlay"></div>
+    <div class="modal-card">
+      <button class="modal-close" type="button" aria-label="Close"></button>
+      <div class="modal-header">
+        <img id="modalAvatar" class="modal-avatar is-hidden" alt="Client avatar" />
+        <div>
+          <div id="modalName" class="modal-title"></div>
+          <div id="modalMeta" class="modal-subtitle"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="button secondary" id="modalEditClient" type="button" data-i18n="overview.modal.editClient">Edit Client</button>
+        <button class="button" id="modalAddSession" type="button" data-i18n="overview.modal.addSession">Add Session</button>
+      </div>
+      <div class="modal-grid">
+        <div class="modal-stat">
+          <div class="modal-stat-value" id="modalSessions">0</div>
+          <div class="modal-stat-label" data-i18n="overview.modal.sessions">Sessions</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-value" id="modalIssues">0</div>
+          <div class="modal-stat-label" data-i18n="overview.modal.issues">Issues Addressed</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-value" id="modalAvgBefore">-</div>
+          <div class="modal-stat-label" data-i18n="overview.modal.avgBefore">Avg Severity (Before)</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-value" id="modalAvgAfter">-</div>
+          <div class="modal-stat-label" data-i18n="overview.modal.avgAfter">Avg Severity (After)</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-value" id="modalAvgDays">-</div>
+          <div class="modal-stat-label" data-i18n="overview.modal.avgDays">Avg Days Between Sessions</div>
+        </div>
+      </div>
+      <div class="modal-notes">
+        <div class="modal-notes-title" data-i18n="overview.modal.notes">Notes</div>
+        <div id="modalNotes" class="modal-notes-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="./assets/i18n.js"></script>
+  <script src="./assets/db.js"></script>
+  <script src="./assets/app.js"></script>
+  <script src="./assets/overview.js"></script>
+</body>
+</html>

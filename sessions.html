@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sessions</title>
+  <link rel="stylesheet" href="./assets/app.css" />
+</head>
+<body data-nav="sessions">
+  <div class="app-shell">
+    <div class="container">
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-mark">EC</div>
+          <div>
+            <div class="brand-title" data-i18n="app.title">Emotion Code Portfolio</div>
+            <div class="brand-subtitle" data-i18n="app.subtitle">Portfolio Manager</div>
+          </div>
+        </div>
+        <nav class="app-nav">
+          <a href="./index.html" data-nav="overview" data-i18n="nav.overview">Overview</a>
+          <a href="./sessions.html" data-nav="sessions" data-i18n="nav.sessions">Sessions</a>
+          <a href="./reporting.html" data-nav="reporting" data-i18n="nav.reporting">Reporting</a>
+          <span class="nav-divider" aria-hidden="true"></span>
+          <a href="./add-client.html" data-nav="addClient" data-i18n="nav.addClient">Add Client</a>
+          <a href="./add-session.html" data-nav="addSession" data-i18n="nav.addSession">Add Session</a>
+        </nav>
+        <div class="header-actions">
+          <select id="languageSelect" class="select" aria-label="Language">
+            <option value="en">English</option>
+            <option value="he">עברית</option>
+          </select>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2 class="section-title" data-i18n="sessions.title">Sessions</h2>
+        <div class="filter-bar">
+          <div class="filter-field">
+            <label class="label" data-i18n="sessions.filters.client">Client</label>
+            <select class="select-field" id="sessionClientFilter">
+              <option value="" data-i18n="sessions.filters.client.placeholder">All clients</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="sessions.filters.dateFrom">From</label>
+            <input class="input" id="sessionDateFrom" type="date" />
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="sessions.filters.dateTo">To</label>
+            <input class="input" id="sessionDateTo" type="date" />
+          </div>
+        </div>
+        <div id="sessionsEmpty" class="helper-text" data-i18n="sessions.empty" style="display:none;"></div>
+        <table class="table sessions-table">
+          <thead>
+            <tr>
+              <th data-i18n="sessions.table.date">Date</th>
+              <th data-i18n="sessions.table.client">Client</th>
+              <th data-i18n="sessions.table.type">Type</th>
+              <th data-i18n="sessions.table.issues">Issues</th>
+              <th data-i18n="sessions.table.trapped">Trapped Emotions</th>
+              <th data-i18n="sessions.table.heartWall">Heart-Wall</th>
+              <th data-i18n="sessions.table.actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sessionsTableBody"></tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="./assets/i18n.js"></script>
+  <script src="./assets/db.js"></script>
+  <script src="./assets/app.js"></script>
+  <script src="./assets/sessions.js"></script>
+</body>
+</html>

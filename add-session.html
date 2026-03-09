@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Session</title>
+  <link rel="stylesheet" href="./assets/app.css" />
+</head>
+<body data-nav="addSession">
+  <div class="app-shell">
+    <div class="container">
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-mark">EC</div>
+          <div>
+            <div class="brand-title" data-i18n="app.title">Emotion Code Portfolio</div>
+            <div class="brand-subtitle" data-i18n="app.subtitle">Portfolio Manager</div>
+          </div>
+        </div>
+        <nav class="app-nav">
+          <a href="./index.html" data-nav="overview" data-i18n="nav.overview">Overview</a>
+          <a href="./sessions.html" data-nav="sessions" data-i18n="nav.sessions">Sessions</a>
+          <a href="./reporting.html" data-nav="reporting" data-i18n="nav.reporting">Reporting</a>
+          <span class="nav-divider" aria-hidden="true"></span>
+          <a href="./add-client.html" data-nav="addClient" data-i18n="nav.addClient">Add Client</a>
+          <a href="./add-session.html" data-nav="addSession" data-i18n="nav.addSession">Add Session</a>
+        </nav>
+        <div class="header-actions">
+          <select id="languageSelect" class="select" aria-label="Language">
+            <option value="en">English</option>
+            <option value="he">עברית</option>
+          </select>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="session-header">
+          <h2 class="section-title" data-i18n="session.title">Add New Session</h2>
+          <div class="session-header-actions">
+            <button class="button ghost icon-inline is-hidden" type="button" id="copySessionBtn">
+              <span class="button-label" data-i18n="session.copyAll">Copy Session (MD)</span>
+              <span class="button-icon" aria-hidden="true">&#128203;</span>
+            </button>
+            <button class="icon-button is-hidden" type="button" id="editSessionBtn">
+              <span aria-hidden="true">&#9998;</span>
+            </button>
+          </div>
+        </div>
+        <form id="sessionForm">
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="label" data-i18n="session.form.client">Client *</label>
+              <select class="select-field" id="clientSelect" data-i18n-placeholder="session.form.client.placeholder">
+                <option value="" data-i18n="session.form.client.placeholder">Select a client</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="label" data-i18n="session.form.sessionType">Session Type</label>
+              <div class="toggle-group" id="sessionTypeGroup">
+                <label class="toggle-card active" data-type="inPerson">
+                  <input type="radio" name="sessionType" value="inPerson" checked />
+                  <span data-i18n="session.form.inPerson">In-person</span>
+                </label>
+                <label class="toggle-card" data-type="proxy">
+                  <input type="radio" name="sessionType" value="proxy" />
+                  <span data-i18n="session.form.proxy">Proxy</span>
+                </label>
+                <label class="toggle-card" data-type="surrogate">
+                  <input type="radio" name="sessionType" value="surrogate" />
+                  <span data-i18n="session.form.surrogate">Surrogate</span>
+                </label>
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="label" data-i18n="session.form.date">Session Date *</label>
+              <input class="input" id="sessionDate" type="date" required />
+            </div>
+          </div>
+
+          <div id="clientSpotlight" class="client-spotlight is-hidden">
+            <div class="client-spotlight-media">
+              <img id="clientSpotlightPhoto" class="client-spotlight-photo is-hidden" alt="Client photo" />
+              <div id="clientSpotlightPlaceholder" class="client-spotlight-placeholder">?</div>
+            </div>
+            <div class="client-spotlight-text">
+              <div id="clientSpotlightName" class="client-spotlight-name"></div>
+            </div>
+          </div>
+
+          <div id="heartWallSection" class="form-field heartwall-section" style="display:none;">
+            <label class="label" data-i18n="session.form.heartWallQuestion">Was the Heart-Wall completely cleared in this session? *</label>
+            <div class="toggle-group" id="heartWallGroup">
+              <label class="toggle-card" data-type="yes">
+                <input type="radio" name="heartWallCleared" value="yes" />
+                <span data-i18n="session.form.heartWallYes">Yes</span>
+              </label>
+              <label class="toggle-card" data-type="no">
+                <input type="radio" name="heartWallCleared" value="no" />
+                <span data-i18n="session.form.heartWallNo">No</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="inlineClientForm" class="card" style="margin-top:1.5rem; display:none;">
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.firstName">First Name *</label>
+                <input class="input" id="inlineClientFirstName" type="text" data-i18n-placeholder="client.form.firstName.placeholder" />
+              </div>
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.lastInitial">Last Initial (Optional)</label>
+                <input class="input" id="inlineClientLastInitial" type="text" maxlength="1" data-i18n-placeholder="client.form.lastInitial.placeholder" />
+              </div>
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.age">Client Age</label>
+                <input class="input" id="inlineClientAge" type="number" min="0" data-i18n-placeholder="client.form.age.placeholder" />
+              </div>
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.email">Email</label>
+                <input class="input" id="inlineClientEmail" type="email" data-i18n-placeholder="client.form.email.placeholder" />
+              </div>
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.phone">Phone</label>
+                <input class="input" id="inlineClientPhone" type="tel" data-i18n-placeholder="client.form.phone.placeholder" />
+              </div>
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.notes">Notes</label>
+                <textarea class="textarea" id="inlineClientNotes" data-i18n-placeholder="client.form.notes.placeholder"></textarea>
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-top:1.25rem;">
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.photo">Client Photo (Optional)</label>
+                <input class="input" id="inlineClientPhoto" type="file" accept="image/*" capture="environment" />
+                <img id="inlineClientPhotoPreview" class="photo-preview is-hidden" alt="Client preview" />
+              </div>
+            </div>
+
+            <div class="form-field" style="margin-top:1.25rem;">
+              <label class="checkbox-field">
+                <input type="checkbox" id="inlineClientHeartWall" />
+                <span data-i18n="client.form.heartWall">Is this a Heart-Wall Client?</span>
+              </label>
+            </div>
+
+            <div class="form-field" style="margin-top:1.25rem;">
+              <label class="label" data-i18n="client.form.type">Client Type</label>
+              <div class="toggle-group" id="inlineClientTypeGroup">
+                <label class="toggle-card active" data-type="human">
+                  <input type="radio" name="inlineClientType" value="human" checked />
+                  <span class="icon-badge">🧍</span>
+                  <span data-i18n="client.form.type.human">Human</span>
+                </label>
+                <label class="toggle-card" data-type="animal">
+                  <input type="radio" name="inlineClientType" value="animal" />
+                  <span class="icon-badge">🐾</span>
+                  <span data-i18n="client.form.type.animal">Animal</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="inline-actions" style="margin-top:1.5rem;">
+              <button class="button icon-swap" type="button" id="inlineClientSave">
+                <span class="button-label" data-i18n="client.form.save">Save Client</span>
+                <span class="button-icon" aria-hidden="true">&#128190;</span>
+              </button>
+              <button class="button ghost" type="button" id="inlineClientCancel" data-i18n="client.form.cancel">Cancel</button>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="form-field">
+            <label class="label" data-i18n="session.form.issuesTitle">Issues addressed in this session *</label>
+            <div class="helper-text" data-i18n="session.form.issueLimit">You may list up to 3 issues per session</div>
+          </div>
+          <div id="issueList"></div>
+          <button class="button secondary" type="button" id="addIssueBtn" data-i18n="session.form.addIssue">Add Another Issue</button>
+
+          <div class="section-divider"></div>
+
+          <div class="form-field">
+            <div class="field-header">
+              <label class="label" data-i18n="session.form.trapped">Trapped Emotions Released *</label>
+              <button class="icon-button field-copy" type="button" data-copy-target="trappedEmotions">
+                <span aria-hidden="true">&#128203;</span>
+              </button>
+            </div>
+            <textarea class="textarea session-textarea" id="trappedEmotions" data-i18n-placeholder="session.form.trapped.placeholder"></textarea>
+          </div>
+
+          <div class="form-field" style="margin-top:1.5rem;">
+            <div class="field-header">
+              <label class="label" data-i18n="session.form.insights">Body Code</label>
+              <button class="icon-button field-copy" type="button" data-copy-target="sessionInsights">
+                <span aria-hidden="true">&#128203;</span>
+              </button>
+            </div>
+            <textarea class="textarea session-textarea" id="sessionInsights" data-i18n-placeholder="session.form.insights.placeholder"></textarea>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="form-field">
+            <label class="label muted-label" data-i18n="session.form.afterSeverityTitle">Issue severity at the end of this session *</label>
+          </div>
+          <div id="issueSummaryList"></div>
+
+          <div class="section-divider"></div>
+
+          <div class="form-field">
+            <div class="field-header">
+              <label class="label" data-i18n="session.form.comments">Comments</label>
+              <button class="icon-button field-copy" type="button" data-copy-target="sessionComments">
+                <span aria-hidden="true">&#128203;</span>
+              </button>
+            </div>
+            <textarea class="textarea session-textarea" id="sessionComments" data-i18n-placeholder="session.form.comments.placeholder"></textarea>
+          </div>
+
+          <div class="form-field" style="margin-top:1.5rem;">
+            <div class="field-header">
+              <label class="label" data-i18n="session.form.customerSummary">Customer Summary</label>
+              <button class="icon-button field-copy" type="button" data-copy-target="customerSummary">
+                <span aria-hidden="true">&#128203;</span>
+              </button>
+            </div>
+            <textarea class="textarea session-textarea" id="customerSummary" data-i18n-placeholder="session.form.customerSummary.placeholder"></textarea>
+          </div>
+
+          <div class="inline-actions" style="margin-top:1.5rem;">
+            <button class="button icon-swap session-save-button" type="submit">
+              <span class="button-label" data-i18n="session.form.save">Save Session</span>
+              <span class="button-icon" aria-hidden="true">&#128190;</span>
+            </button>
+            <button class="button danger icon-swap is-hidden" type="button" id="deleteSessionBtn">
+              <span class="button-label" data-i18n="session.form.delete">Delete Session</span>
+              <span class="button-icon" aria-hidden="true">&#128465;</span>
+            </button>
+            <a class="button ghost" href="./index.html" data-i18n="common.backToOverview">Back to Overview</a>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+    <div class="modal-overlay"></div>
+    <div class="modal-card confirm-card">
+      <div id="confirmTitle" class="confirm-title"></div>
+      <div id="confirmMessage" class="confirm-body"></div>
+      <div class="modal-actions confirm-actions">
+        <button class="button ghost" type="button" id="confirmCancelBtn" data-i18n="confirm.cancel">Cancel</button>
+        <button class="button danger" type="button" id="confirmOkBtn" data-i18n="confirm.delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="./assets/i18n.js"></script>
+  <script src="./assets/db.js"></script>
+  <script src="./assets/app.js"></script>
+  <script src="./assets/add-session.js"></script>
+</body>
+</html>
