@@ -45,8 +45,8 @@ a {
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background: var(--color-primary);
-  color: var(--color-surface);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
   display: grid;
   place-items: center;
   font-weight: 800;
