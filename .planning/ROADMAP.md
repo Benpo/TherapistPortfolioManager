@@ -12,7 +12,7 @@ Transform the existing functional vanilla JS prototype into a sellable product f
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Design tokens, self-hosted fonts, DB migration infrastructure, and backup safety net
+- [x] **Phase 1: Foundation** - Design tokens, self-hosted fonts, DB migration infrastructure, and backup safety net (completed 2026-03-09)
 - [ ] **Phase 2: Visual Transformation** - Garden theme overhaul, dark mode, CSS logical properties, and nav extraction
 - [ ] **Phase 3: Data Model and Features** - Session field consolidation (with Sapir), expanded types, new fields, search, and greeting
 - [ ] **Phase 4: Internationalization and Distribution Research** - 4-language i18n, RTL validation, hosting and payment research
@@ -123,7 +123,7 @@ Phases execute in numeric order: 1 -> 1.1 -> 2 -> 2.1 -> 3 -> etc.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/3 | In Progress|  |
+| 1. Foundation | 3/3 | Complete   | 2026-03-09 |
 | 2. Visual Transformation | 0/? | Not started | - |
 | 3. Data Model and Features | 0/? | Not started | - |
 | 4. Internationalization and Distribution Research | 0/? | Not started | - |

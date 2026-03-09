@@ -12,7 +12,7 @@ Requirements for sellable product release. Each maps to roadmap phases.
 - [x] **FOUND-01**: CSS design token system with two-tier architecture (primitives + semantic tokens) replacing hardcoded colors
 - [x] **FOUND-02**: Self-hosted Rubik font (WOFF2) eliminating Google Fonts CDN dependency
 - [x] **FOUND-03**: IndexedDB migration infrastructure with version upgrade handlers, onblocked/onversionchange support
-- [ ] **FOUND-04**: Backup reminder system — weekly prompt with snooze, persistent across sessions
+- [x] **FOUND-04**: Backup reminder system — weekly prompt with snooze, persistent across sessions
 - [ ] **FOUND-05**: Playwright test suite for critical paths (IndexedDB CRUD, data integrity, navigation, i18n switching)
 
 ### Design
@@ -113,7 +113,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FOUND-01 | Phase 1: Foundation | Complete |
 | FOUND-02 | Phase 1: Foundation | Complete |
 | FOUND-03 | Phase 1: Foundation | Complete |
-| FOUND-04 | Phase 1: Foundation | Pending |
+| FOUND-04 | Phase 1: Foundation | Complete |
 | FOUND-05 | Phase 6: Quality and Developer Experience | Pending |
 | DSGN-01 | Phase 2: Visual Transformation | Pending |
 | DSGN-02 | Phase 2: Visual Transformation | Pending |
