@@ -12,8 +12,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (exportBtn) {
     exportBtn.addEventListener("click", async () => {
-      const data = await exportData();
-      downloadJSON(data);
+      const data = await App.exportData();
+      App.downloadJSON(data);
     });
   }
 
@@ -357,29 +357,6 @@ function averageDaysBetween(sessions) {
     total += diff;
   }
   return (total / (dates.length - 1)).toFixed(1);
-}
-
-async function exportData() {
-  const clients = await PortfolioDB.getAllClients();
-  const sessions = await PortfolioDB.getAllSessions();
-  return {
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    clients,
-    sessions
-  };
-}
-
-function downloadJSON(data) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `emotion-code-portfolio-${new Date().toISOString().slice(0, 10)}.json`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
 }
 
 async function importData(data) {

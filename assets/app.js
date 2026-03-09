@@ -45,6 +45,9 @@ window.App = (() => {
         link.classList.toggle("active", link.dataset.nav === navKey);
       });
     }
+
+    checkBackupReminder();
+    requestPersistentStorage();
   }
 
   function showToast(message, key) {
@@ -147,6 +150,143 @@ window.App = (() => {
     return Number.parseInt(value, 10);
   }
 
+  async function exportData() {
+    const clients = await window.PortfolioDB.getAllClients();
+    const sessions = await window.PortfolioDB.getAllSessions();
+    return {
+      clients,
+      sessions,
+      exportedAt: new Date().toISOString(),
+      version: 1,
+    };
+  }
+
+  function downloadJSON(data) {
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `portfolio-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    // Record successful export timestamp
+    localStorage.setItem("portfolioLastExport", String(Date.now()));
+  }
+
+  function requestPersistentStorage() {
+    if (localStorage.getItem("portfolioStoragePersistRequested")) return;
+    if (!navigator.storage || !navigator.storage.persist) return;
+    navigator.storage.persist().then((granted) => {
+      localStorage.setItem("portfolioStoragePersistRequested", "true");
+      // Silently log result — do not surface to user
+      console.log("Persistent storage requested:", granted ? "granted" : "not granted");
+    }).catch(() => {
+      // If denied or errored, still mark as requested so we do not retry every load
+      localStorage.setItem("portfolioStoragePersistRequested", "true");
+    });
+  }
+
+  function checkBackupReminder() {
+    const snoozedUntil = localStorage.getItem("portfolioBackupSnoozedUntil");
+    if (snoozedUntil && Date.now() < Number(snoozedUntil)) return; // Still snoozed
+
+    const lastExport = localStorage.getItem("portfolioLastExport");
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+    // Show banner if: never exported OR last export was more than 7 days ago
+    if (!lastExport || Date.now() - Number(lastExport) > sevenDays) {
+      showBackupBanner();
+    }
+  }
+
+  function showBackupBanner() {
+    if (document.getElementById("backupBanner")) return; // Already showing
+
+    const banner = document.createElement("div");
+    banner.id = "backupBanner";
+    banner.setAttribute("role", "alert");
+    banner.setAttribute("aria-live", "polite");
+    banner.className = "backup-banner";
+
+    // Inline styles as fallback — tokens.css may not be loaded yet at this point,
+    // but by Task 2 in plan 01-01 tokens.css IS loaded first, so var() calls work.
+    banner.style.cssText = [
+      "display:flex",
+      "align-items:center",
+      "justify-content:space-between",
+      "flex-wrap:wrap",
+      "gap:8px",
+      "padding:10px 16px",
+      "background:var(--color-primary-soft,#efeafe)",
+      "border-bottom:1px solid var(--color-border,rgba(86,78,120,0.2))",
+      "font-family:Rubik,system-ui,sans-serif",
+      "font-size:14px",
+      "color:var(--color-text,#2f2d38)",
+    ].join(";");
+
+    const msg = document.createElement("span");
+    msg.className = "backup-banner-message";
+    msg.textContent = "It has been a while — consider backing up your data.";
+
+    const actions = document.createElement("div");
+    actions.className = "backup-banner-actions";
+    actions.style.cssText = "display:flex;align-items:center;gap:8px;flex-wrap:wrap;";
+
+    // "Back up now" button
+    const exportBtn = document.createElement("button");
+    exportBtn.className = "button backup-banner-export";
+    exportBtn.textContent = "Back up now";
+    exportBtn.style.cssText = "background:var(--color-primary,#7c66ff);color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:600;font-size:13px;";
+    exportBtn.addEventListener("click", async () => {
+      try {
+        const data = await exportData();
+        downloadJSON(data); // this sets portfolioLastExport
+        banner.remove();
+      } catch (err) {
+        console.error("Backup failed:", err);
+      }
+    });
+
+    // "Postpone to tomorrow" button
+    const tomorrowBtn = document.createElement("button");
+    tomorrowBtn.className = "button ghost backup-banner-tomorrow";
+    tomorrowBtn.textContent = "Postpone to tomorrow";
+    tomorrowBtn.style.cssText = "background:transparent;color:var(--color-text,#2f2d38);border:1px solid var(--color-border,rgba(86,78,120,0.2));border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;";
+    tomorrowBtn.addEventListener("click", () => {
+      localStorage.setItem("portfolioBackupSnoozedUntil", String(Date.now() + 24 * 60 * 60 * 1000));
+      banner.remove();
+    });
+
+    // "Postpone 1 week" button
+    const weekBtn = document.createElement("button");
+    weekBtn.className = "button ghost backup-banner-week";
+    weekBtn.textContent = "Postpone 1 week";
+    weekBtn.style.cssText = "background:transparent;color:var(--color-text,#2f2d38);border:1px solid var(--color-border,rgba(86,78,120,0.2));border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;";
+    weekBtn.addEventListener("click", () => {
+      localStorage.setItem("portfolioBackupSnoozedUntil", String(Date.now() + 7 * 24 * 60 * 60 * 1000));
+      banner.remove();
+    });
+
+    // X close button (no snooze — hides for this page load only)
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "backup-banner-close";
+    closeBtn.setAttribute("aria-label", "Close backup reminder");
+    closeBtn.textContent = "\u2715";
+    closeBtn.style.cssText = "background:none;border:none;cursor:pointer;font-size:16px;color:var(--color-text-muted,#5f5c72);padding:0 4px;";
+    closeBtn.addEventListener("click", () => {
+      banner.remove(); // No localStorage change — banner reappears next page load if still overdue
+    });
+
+    actions.append(exportBtn, tomorrowBtn, weekBtn, closeBtn);
+    banner.append(msg, actions);
+
+    // Insert at the very top of <body> so it sits above everything
+    document.body.prepend(banner);
+  }
+
   return {
     t,
     applyTranslations,
@@ -156,6 +296,8 @@ window.App = (() => {
     confirmDialog,
     formatDate,
     createSeverityScale,
-    getSeverityValue
+    getSeverityValue,
+    exportData,
+    downloadJSON,
   };
 })();
