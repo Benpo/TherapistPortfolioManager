@@ -50,12 +50,12 @@
               <input class="input" id="clientFirstName" type="text" required data-i18n-placeholder="client.form.firstName.placeholder" placeholder="First name" />
             </div>
             <div class="form-field">
-              <label class="label" data-i18n="client.form.lastInitial">Last Initial (Optional)</label>
-              <input class="input" id="clientLastInitial" type="text" maxlength="1" data-i18n-placeholder="client.form.lastInitial.placeholder" placeholder="Last initial" />
+              <label class="label" data-i18n="client.form.lastName">Last Name</label>
+              <input class="input" id="clientLastName" type="text" data-i18n-placeholder="client.form.lastName.placeholder" placeholder="Last name" />
             </div>
             <div class="form-field">
-              <label class="label" data-i18n="client.form.age">Client Age</label>
-              <input class="input" id="clientAge" type="number" min="0" data-i18n-placeholder="client.form.age.placeholder" placeholder="Age in years" />
+              <label class="label" data-i18n="client.form.birthDate">Date of Birth</label>
+              <input class="input" id="clientBirthDate" type="date" />
             </div>
             <div class="form-field">
               <label class="label" data-i18n="client.form.email">Email</label>
@@ -80,19 +80,17 @@
           </div>
 
           <div class="form-field" style="margin-top:1.25rem;">
-            <label class="checkbox-field">
-              <input type="checkbox" id="clientHeartWall" />
-              <span data-i18n="client.form.heartWall">Is this a Heart-Wall Client?</span>
-            </label>
-          </div>
-
-          <div class="form-field" style="margin-top:1.25rem;">
             <label class="label" data-i18n="client.form.type">Client Type</label>
             <div class="toggle-group" id="clientTypeGroup">
-              <label class="toggle-card active" data-type="human">
-                <input type="radio" name="clientType" value="human" checked />
+              <label class="toggle-card" data-type="child">
+                <input type="radio" name="clientType" value="child" />
+                <span class="icon-badge">🧒</span>
+                <span data-i18n="client.form.type.child">Child</span>
+              </label>
+              <label class="toggle-card active" data-type="adult">
+                <input type="radio" name="clientType" value="adult" checked />
                 <span class="icon-badge">🧍</span>
-                <span data-i18n="client.form.type.human">Human</span>
+                <span data-i18n="client.form.type.adult">Adult</span>
               </label>
               <label class="toggle-card" data-type="animal">
                 <input type="radio" name="clientType" value="animal" />

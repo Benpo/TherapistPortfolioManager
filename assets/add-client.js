@@ -59,12 +59,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     editingClient = await PortfolioDB.getClient(clientId);
     if (editingClient) {
       document.getElementById("clientFirstName").value = editingClient.firstName || editingClient.name || "";
-      document.getElementById("clientLastInitial").value = editingClient.lastInitial || "";
-      document.getElementById("clientAge").value = editingClient.age || "";
+      document.getElementById("clientLastName").value = editingClient.lastName || editingClient.lastInitial || "";
+      document.getElementById("clientBirthDate").value = editingClient.birthDate || "";
       document.getElementById("clientEmail").value = editingClient.email || "";
       document.getElementById("clientPhone").value = editingClient.phone || "";
       document.getElementById("clientNotes").value = editingClient.notes || "";
-      document.getElementById("clientHeartWall").checked = Boolean(editingClient.heartWall);
       photoData = editingClient.photoData || "";
       if (photoData && photoPreview) {
         photoPreview.src = photoData;
@@ -119,19 +118,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         App.showToast("", "toast.errorRequired");
         return;
       }
-      let lastInitial = document.getElementById("clientLastInitial").value.trim();
-      if (lastInitial.length > 1) lastInitial = lastInitial.charAt(0);
-      if (lastInitial) lastInitial = lastInitial.toUpperCase();
-      const ageValue = document.getElementById("clientAge").value.trim();
+      const lastName = document.getElementById("clientLastName").value.trim();
+      const birthDate = document.getElementById("clientBirthDate").value || null;
+      const age = birthDate ? Math.floor((Date.now() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000)) : null;
       const email = document.getElementById("clientEmail").value.trim();
       const phone = document.getElementById("clientPhone").value.trim();
       const notes = document.getElementById("clientNotes").value.trim();
       const typeInput = document.querySelector("input[name='clientType']:checked");
-      const type = typeInput ? typeInput.value : "human";
-      const heartWall = document.getElementById("clientHeartWall").checked;
-      const age = ageValue ? Number.parseInt(ageValue, 10) : null;
+      const type = typeInput ? typeInput.value : "adult";
 
-      const displayName = lastInitial ? `${firstName} ${lastInitial}.` : firstName;
+      const displayName = lastName ? `${firstName} ${lastName}` : firstName;
 
       let savedId = null;
       if (editingClient) {
@@ -139,13 +135,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           ...editingClient,
           name: displayName,
           firstName,
-          lastInitial,
+          lastName,
+          birthDate,
           age,
           email,
           phone,
           notes,
           type,
-          heartWall,
           photoData,
           updatedAt: new Date().toISOString()
         });
@@ -154,13 +150,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         savedId = await PortfolioDB.addClient({
           name: displayName,
           firstName,
-          lastInitial,
+          lastName,
+          birthDate,
           age,
           email,
           phone,
           notes,
           type,
-          heartWall,
           photoData,
           createdAt: new Date().toISOString()
         });

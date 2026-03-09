@@ -293,9 +293,11 @@ function openClientModal(client, sessions) {
   if (name) name.textContent = client.name;
   if (meta) {
     const bits = [];
-    if (client.age) bits.push(`${client.age}`);
-    if (client.type) bits.push(App.t(`common.type.${client.type}`));
-    if (client.heartWall) bits.push(App.t("common.heartWall"));
+    const displayAge = client.birthDate
+      ? Math.floor((Date.now() - new Date(client.birthDate)) / (365.25 * 24 * 60 * 60 * 1000))
+      : client.age;
+    if (displayAge) bits.push(`${displayAge}`);
+    if (client.type) bits.push(App.t(`common.type.${client.type}`) || client.type);
     meta.textContent = bits.join(" • ");
   }
 
