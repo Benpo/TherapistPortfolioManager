@@ -54,6 +54,9 @@
   --color-dark-600: #5f5c72;
   --color-green-500: #2fb37d;
   --color-red-500: #ea4b4b;
+  --color-heartwall: #e83d6d;
+  --color-sev-default-border: #ccc;
+  --color-sev-default-text: #666;
   --color-primary-shadow: rgba(124, 102, 255, 0.35);
   --color-primary-shadow-soft: rgba(124, 102, 255, 0.28);
   --color-danger-shadow: rgba(234, 75, 75, 0.28);
@@ -86,6 +89,7 @@
   --color-text-meta: var(--color-purple-deeper);
   --color-success: var(--color-green-500);
   --color-danger: var(--color-red-500);
+  --color-heartwall-badge: var(--color-heartwall);
   --color-border: var(--color-purple-border);
   --color-border-soft: var(--color-purple-border-soft);
   --color-border-faint: var(--color-purple-border-faint);
@@ -95,6 +99,7 @@
   --color-modal-overlay-bg: var(--color-modal-overlay);
   --color-placeholder-gradient: linear-gradient(135deg, var(--color-purple-500), var(--color-purple-400));
   --shadow-soft: 0 18px 40px rgba(36, 24, 72, 0.08);
+  --shadow-nav: 0 10px 20px rgba(36, 24, 72, 0.08);
   --shadow-card: 0 12px 26px rgba(36, 24, 72, 0.1);
   --shadow-brand: 0 8px 24px var(--color-primary-shadow);
   --shadow-button: 0 4px 12px var(--color-primary-shadow-soft);
