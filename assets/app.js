@@ -220,8 +220,8 @@ window.App = (() => {
       "flex-wrap:wrap",
       "gap:8px",
       "padding:10px 16px",
-      "background:var(--color-primary-soft,#efeafe)",
-      "border-bottom:1px solid var(--color-border,rgba(86,78,120,0.2))",
+      "background:var(--color-primary-soft,#c8e6d4)",
+      "border-bottom:1px solid var(--color-border,rgba(45,106,79,0.2))",
       "font-family:Rubik,system-ui,sans-serif",
       "font-size:14px",
       "color:var(--color-text,#2f2d38)",
@@ -239,7 +239,7 @@ window.App = (() => {
     const exportBtn = document.createElement("button");
     exportBtn.className = "button backup-banner-export";
     exportBtn.textContent = "Back up now";
-    exportBtn.style.cssText = "background:var(--color-primary,#7c66ff);color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:600;font-size:13px;";
+    exportBtn.style.cssText = "background:var(--color-primary,#2d6a4f);color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:600;font-size:13px;";
     exportBtn.addEventListener("click", async () => {
       try {
         const data = await exportData();
@@ -254,7 +254,7 @@ window.App = (() => {
     const tomorrowBtn = document.createElement("button");
     tomorrowBtn.className = "button ghost backup-banner-tomorrow";
     tomorrowBtn.textContent = "Postpone to tomorrow";
-    tomorrowBtn.style.cssText = "background:transparent;color:var(--color-text,#2f2d38);border:1px solid var(--color-border,rgba(86,78,120,0.2));border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;";
+    tomorrowBtn.style.cssText = "background:transparent;color:var(--color-text,#2f2d38);border:1px solid var(--color-border,rgba(45,106,79,0.2));border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;";
     tomorrowBtn.addEventListener("click", () => {
       localStorage.setItem("portfolioBackupSnoozedUntil", String(Date.now() + 24 * 60 * 60 * 1000));
       banner.remove();
@@ -264,7 +264,7 @@ window.App = (() => {
     const weekBtn = document.createElement("button");
     weekBtn.className = "button ghost backup-banner-week";
     weekBtn.textContent = "Postpone 1 week";
-    weekBtn.style.cssText = "background:transparent;color:var(--color-text,#2f2d38);border:1px solid var(--color-border,rgba(86,78,120,0.2));border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;";
+    weekBtn.style.cssText = "background:transparent;color:var(--color-text,#2f2d38);border:1px solid var(--color-border,rgba(45,106,79,0.2));border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;";
     weekBtn.addEventListener("click", () => {
       localStorage.setItem("portfolioBackupSnoozedUntil", String(Date.now() + 7 * 24 * 60 * 60 * 1000));
       banner.remove();

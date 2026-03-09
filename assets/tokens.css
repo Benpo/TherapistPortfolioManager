@@ -24,41 +24,54 @@
 /* === PRIMITIVE TOKENS === */
 /* Raw values — only referenced by semantic tokens, never used directly in app CSS */
 :root {
-  --color-purple-600: #7c66ff;
-  --color-purple-500: #8b7cff;
-  --color-purple-400: #c6b9ff;
-  --color-purple-200: #efeafe;
-  --color-purple-100: #f3efff;
-  --color-purple-50: #f8f6ff;
-  --color-purple-dark: #4a4166;
-  --color-purple-deeper: #3a3452;
-  --color-purple-border: rgba(86, 78, 120, 0.2);
-  --color-purple-border-soft: rgba(86, 78, 120, 0.1);
-  --color-purple-border-faint: rgba(86, 78, 120, 0.08);
-  --color-purple-border-subtle: rgba(86, 78, 120, 0.12);
-  --color-purple-border-ghost: rgba(86, 78, 120, 0.25);
-  --color-cream-50: #f6f3fb;
-  --color-cream-100: #faf8ff;
-  --color-cream-200: #f2effb;
-  --color-cream-300: #f5f2ff;
-  --color-cream-400: #fbf9ff;
-  --color-cream-500: #f7f4ff;
-  --color-cream-600: #f0ecff;
-  --color-cream-700: #ede8ff;
-  --color-cream-800: #f9f7ff;
-  --color-cream-900: #e6defc;
+  /* Garden greens */
+  --color-green-700: #1e5c3a;
+  --color-green-600: #2d6a4f;
+  --color-green-500: #3a7d5f;
+  --color-green-400: #74b89a;
+  --color-green-200: #c8e6d4;
+  --color-green-100: #e8f5ee;
+  --color-green-50: #f2faf5;
+  --color-green-25: #f7fcf9;
+  --color-green-dark: #174a30;
+  --color-green-deeper: #0f3520;
+  /* Green borders */
+  --color-green-border: rgba(45, 106, 79, 0.2);
+  --color-green-border-soft: rgba(45, 106, 79, 0.1);
+  --color-green-border-faint: rgba(45, 106, 79, 0.08);
+  --color-green-border-subtle: rgba(45, 106, 79, 0.12);
+  --color-green-border-ghost: rgba(45, 106, 79, 0.25);
+  /* Warm creams (backgrounds) */
+  --color-cream-warm-50: #fdf8f0;
+  --color-cream-warm-100: #fefcf7;
+  --color-cream-warm-200: #fdf5e8;
+  --color-cream-warm-300: #fef8f0;
+  --color-cream-warm-400: #fefaf3;
+  --color-cream-warm-500: #fdf7ed;
+  --color-cream-warm-600: #fbf3e4;
+  --color-cream-warm-700: #f8eed9;
+  --color-cream-warm-800: #fefcf8;
+  --color-cream-warm-900: #f5e8c8;
+  /* Oranges */
+  --color-orange-500: #f97316;
+  --color-orange-400: #fb923c;
+  --color-orange-200: #fed7aa;
+  --color-orange-100: #ffedd5;
+  /* Neutrals */
   --color-white: #ffffff;
   --color-dark-900: #2f2d38;
   --color-dark-800: #2e2a38;
   --color-dark-700: #1a1825;
   --color-dark-600: #5f5c72;
-  --color-green-500: #2fb37d;
+  /* Functional colors */
+  --color-success-green: #2fb37d;
   --color-red-500: #ea4b4b;
   --color-heartwall: #e83d6d;
   --color-sev-default-border: #ccc;
   --color-sev-default-text: #666;
-  --color-primary-shadow: rgba(124, 102, 255, 0.35);
-  --color-primary-shadow-soft: rgba(124, 102, 255, 0.28);
+  /* Shadow primitives */
+  --color-primary-shadow: rgba(45, 106, 79, 0.35);
+  --color-primary-shadow-soft: rgba(45, 106, 79, 0.28);
   --color-danger-shadow: rgba(234, 75, 75, 0.28);
   --color-modal-overlay: rgba(26, 24, 35, 0.4);
   --color-modal-shadow: rgba(36, 24, 72, 0.2);
@@ -66,38 +79,38 @@
 
 /* === SEMANTIC TOKENS (light mode default) === */
 :root {
-  --color-primary: var(--color-purple-600);
-  --color-primary-soft: var(--color-purple-200);
-  --color-primary-dark: var(--color-purple-dark);
-  --color-primary-deeper: var(--color-purple-deeper);
-  --color-background: var(--color-cream-50);
-  --color-background-gradient-start: var(--color-cream-100);
-  --color-background-gradient-end: var(--color-cream-200);
+  --color-primary: var(--color-green-600);
+  --color-primary-soft: var(--color-green-200);
+  --color-primary-dark: var(--color-green-dark);
+  --color-primary-deeper: var(--color-green-deeper);
+  --color-background: var(--color-cream-warm-50);
+  --color-background-gradient-start: var(--color-cream-warm-100);
+  --color-background-gradient-end: var(--color-cream-warm-200);
   --color-surface: var(--color-white);
-  --color-surface-alt: var(--color-cream-500);
-  --color-surface-hover: var(--color-cream-400);
-  --color-surface-subtle: var(--color-cream-300);
-  --color-surface-muted: var(--color-cream-800);
-  --color-surface-avatar: var(--color-cream-600);
-  --color-surface-media: var(--color-cream-700);
-  --color-surface-disabled: var(--color-cream-800);
-  --color-surface-secondary-btn: var(--color-purple-100);
-  --color-surface-toggle: var(--color-purple-50);
-  --color-surface-modal-close: var(--color-purple-100);
+  --color-surface-alt: var(--color-cream-warm-500);
+  --color-surface-hover: var(--color-cream-warm-400);
+  --color-surface-subtle: var(--color-cream-warm-300);
+  --color-surface-muted: var(--color-cream-warm-800);
+  --color-surface-avatar: var(--color-cream-warm-600);
+  --color-surface-media: var(--color-cream-warm-700);
+  --color-surface-disabled: var(--color-cream-warm-800);
+  --color-surface-secondary-btn: var(--color-green-100);
+  --color-surface-toggle: var(--color-green-50);
+  --color-surface-modal-close: var(--color-green-100);
   --color-text: var(--color-dark-900);
   --color-text-muted: var(--color-dark-600);
-  --color-text-meta: var(--color-purple-deeper);
-  --color-success: var(--color-green-500);
+  --color-text-meta: var(--color-green-deeper);
+  --color-success: var(--color-success-green);
   --color-danger: var(--color-red-500);
   --color-heartwall-badge: var(--color-heartwall);
-  --color-border: var(--color-purple-border);
-  --color-border-soft: var(--color-purple-border-soft);
-  --color-border-faint: var(--color-purple-border-faint);
-  --color-border-subtle: var(--color-purple-border-subtle);
-  --color-border-ghost: var(--color-purple-border-ghost);
+  --color-border: var(--color-green-border);
+  --color-border-soft: var(--color-green-border-soft);
+  --color-border-faint: var(--color-green-border-faint);
+  --color-border-subtle: var(--color-green-border-subtle);
+  --color-border-ghost: var(--color-green-border-ghost);
   --color-toast-bg: var(--color-dark-800);
   --color-modal-overlay-bg: var(--color-modal-overlay);
-  --color-placeholder-gradient: linear-gradient(135deg, var(--color-purple-500), var(--color-purple-400));
+  --color-placeholder-gradient: linear-gradient(135deg, var(--color-green-500), var(--color-green-400));
   --shadow-soft: 0 18px 40px rgba(36, 24, 72, 0.08);
   --shadow-nav: 0 10px 20px rgba(36, 24, 72, 0.08);
   --shadow-card: 0 12px 26px rgba(36, 24, 72, 0.1);
