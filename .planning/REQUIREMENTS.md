@@ -19,7 +19,7 @@ Requirements for sellable product release. Each maps to roadmap phases.
 
 - [ ] **DSGN-01**: Garden/nature theme overhaul — warm cream background, garden green primary, orange accents, Rubik font
 - [ ] **DSGN-02**: Dark mode with light/dark toggle persisted to localStorage, no flash of wrong theme on load
-- [ ] **DSGN-03**: CSS logical properties migration replacing all directional CSS (margin-left → margin-inline-start etc.)
+- [ ] **DSGN-03**: CSS logical properties migration replacing all directional CSS (margin-left -> margin-inline-start etc.)
 - [ ] **DSGN-04**: Navigation component extraction — JS-rendered nav replacing copy-pasted HTML across 5 pages
 
 ### Data Model
@@ -110,13 +110,46 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated during roadmap creation) | | |
+| FOUND-01 | Phase 1: Foundation | Pending |
+| FOUND-02 | Phase 1: Foundation | Pending |
+| FOUND-03 | Phase 1: Foundation | Pending |
+| FOUND-04 | Phase 1: Foundation | Pending |
+| FOUND-05 | Phase 6: Quality and Developer Experience | Pending |
+| DSGN-01 | Phase 2: Visual Transformation | Pending |
+| DSGN-02 | Phase 2: Visual Transformation | Pending |
+| DSGN-03 | Phase 2: Visual Transformation | Pending |
+| DSGN-04 | Phase 2: Visual Transformation | Pending |
+| DATA-01 | Phase 3: Data Model and Features | Pending |
+| DATA-02 | Phase 3: Data Model and Features | Pending |
+| DATA-03 | Phase 3: Data Model and Features | Pending |
+| DATA-04 | Phase 3: Data Model and Features | Pending |
+| FEAT-01 | Phase 3: Data Model and Features | Pending |
+| FEAT-02 | Phase 3: Data Model and Features | Pending |
+| I18N-01 | Phase 4: Internationalization and Distribution Research | Pending |
+| I18N-02 | Phase 4: Internationalization and Distribution Research | Pending |
+| I18N-03 | Phase 4: Internationalization and Distribution Research | Pending |
+| I18N-04 | Phase 4: Internationalization and Distribution Research | Pending |
+| DIST-01 | Phase 4: Internationalization and Distribution Research | Pending |
+| DIST-02 | Phase 4: Internationalization and Distribution Research | Pending |
+| LEGL-01 | Phase 5: Legal and Production Packaging | Pending |
+| LEGL-02 | Phase 5: Legal and Production Packaging | Pending |
+| LEGL-03 | Phase 5: Legal and Production Packaging | Pending |
+| DIST-03 | Phase 5: Legal and Production Packaging | Pending |
+| DIST-04 | Phase 5: Legal and Production Packaging | Pending |
+| DIST-05 | Phase 5: Legal and Production Packaging | Pending |
+| QA-01 | Phase 6: Quality and Developer Experience | Pending |
+| QA-02 | Phase 6: Quality and Developer Experience | Pending |
+| QA-03 | Phase 6: Quality and Developer Experience | Pending |
+| QA-04 | Phase 6: Quality and Developer Experience | Pending |
+| DEVX-01 | Phase 6: Quality and Developer Experience | Pending |
+| DEVX-02 | Phase 6: Quality and Developer Experience | Pending |
+| DEVX-03 | Phase 6: Quality and Developer Experience | Pending |
 
 **Coverage:**
-- v1 requirements: 27 total
-- Mapped to phases: 0
-- Unmapped: 27 ⚠️
+- v1 requirements: 34 total
+- Mapped to phases: 34
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-09 after initial definition*
+*Last updated: 2026-03-09 after roadmap creation*
