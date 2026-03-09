@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const copySessionBtn = document.getElementById("copySessionBtn");
   const copyButtons = document.querySelectorAll(".field-copy");
   const readModeTextareas = document.querySelectorAll(".session-textarea");
-  const titleEl = document.querySelector(".section-title");
   const sessionIdParam = new URLSearchParams(window.location.search).get("sessionId");
   const prefillClientParam = new URLSearchParams(window.location.search).get("clientId");
   const sessionId = sessionIdParam ? Number.parseInt(sessionIdParam, 10) : null;
@@ -278,8 +277,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function validateIssues(payload) {
-    if (!payload.length) return false;
-    return payload.every((issue) => issue.before !== null && issue.after !== null);
+    return payload.length > 0;
   }
 
   function getClientNameForCopy() {
@@ -379,7 +377,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       `## ${App.t("session.form.comments")}`,
       commentsValue,
       "",
-      `## ${App.t("session.form.customerSummary")}`,
+      `## ${App.t("session.form.nextSession")}`,
       summaryValue
     ].join("\n");
   }
@@ -491,14 +489,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         App.showToast("", "toast.selectClient");
         return;
       }
-      const selectedClient = getSelectedClient(clientId, clientCache);
-      const requiresHeartWall = selectedClient && selectedClient.heartWall;
-      const heartWallClearedInput = document.querySelector("input[name='heartWallCleared']:checked");
-      if (requiresHeartWall && !heartWallClearedInput) {
-        App.showToast("", "toast.heartWallRequired");
-        return;
-      }
-      const heartWallCleared = requiresHeartWall ? heartWallClearedInput.value === "yes" : null;
       const date = sessionDate.value;
       const trappedEmotions = document.getElementById("trappedEmotions").value.trim();
       if (!date || !trappedEmotions) {
@@ -660,30 +650,6 @@ function getClientDisplayName(client) {
   const first = client.firstName || "";
   const last = client.lastName || client.lastInitial || "";
   return last ? `${first} ${last}` : first;
-}
-
-function updateHeartWallSection(prefillValue) {
-  const heartWallSection = document.getElementById("heartWallSection");
-  const clientSelect = document.getElementById("clientSelect");
-  if (!heartWallSection || !clientSelect) return;
-  const clientId = Number.parseInt(clientSelect.value, 10);
-  if (!clientId) {
-    heartWallSection.style.display = "none";
-    setHeartWallSelection(null);
-    return;
-  }
-  const selectedClient = getSelectedClient(clientId, clientCache);
-  const shouldShow = selectedClient && selectedClient.heartWall;
-  heartWallSection.style.display = shouldShow ? "block" : "none";
-  if (!shouldShow) {
-    setHeartWallSelection(null);
-    return;
-  }
-  if (prefillValue !== undefined) {
-    setHeartWallSelection(prefillValue);
-  } else {
-    setHeartWallSelection(null);
-  }
 }
 
 function updateClientSpotlight() {
