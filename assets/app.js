@@ -30,7 +30,54 @@ window.App = (() => {
     document.dispatchEvent(new CustomEvent("app:language", { detail: { lang: currentLang } }));
   }
 
+  function renderNav() {
+    const placeholder = document.getElementById('nav-placeholder');
+    if (!placeholder) return;
+    placeholder.innerHTML = `
+    <nav class="app-nav">
+      <a href="./index.html" data-nav="overview" data-i18n="nav.overview">Overview</a>
+      <a href="./sessions.html" data-nav="sessions" data-i18n="nav.sessions">Sessions</a>
+      <a href="./reporting.html" data-nav="reporting" data-i18n="nav.reporting">Reporting</a>
+      <span class="nav-divider" aria-hidden="true"></span>
+      <a href="./add-client.html" data-nav="addClient" data-i18n="nav.addClient">Add Client</a>
+      <a href="./add-session.html" data-nav="addSession" data-i18n="nav.addSession">Add Session</a>
+    </nav>`;
+    const navKey = document.body.dataset.nav;
+    if (navKey) {
+      placeholder.querySelectorAll('a[data-nav]').forEach(link => {
+        link.classList.toggle('active', link.dataset.nav === navKey);
+      });
+    }
+    applyTranslations(placeholder);
+  }
+
+  function initThemeToggle() {
+    // Stub — full implementation in Plan 02
+    // Creates and mounts the toggle button now so HTML structure is ready
+    const actions = document.querySelector('.header-actions');
+    if (!actions) return;
+    const btn = document.createElement('button');
+    btn.className = 'button ghost theme-toggle';
+    btn.setAttribute('aria-label', 'Toggle dark mode');
+    const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+    const updateIcon = () => { btn.textContent = isDark() ? '\u2600\ufe0f' : '\uD83C\uDF19'; };
+    updateIcon();
+    btn.addEventListener('click', () => {
+      const next = isDark() ? 'light' : 'dark';
+      if (next === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+      localStorage.setItem('portfolioTheme', next);
+      updateIcon();
+    });
+    actions.prepend(btn);
+  }
+
   function initCommon() {
+    renderNav();
+    initThemeToggle();
     const savedLang = localStorage.getItem("portfolioLang") || window.I18N_DEFAULT || "en";
     const select = document.getElementById("languageSelect");
     setLanguage(savedLang);
@@ -38,14 +85,6 @@ window.App = (() => {
       select.value = savedLang;
       select.addEventListener("change", () => setLanguage(select.value));
     }
-
-    const navKey = document.body.dataset.nav;
-    if (navKey) {
-      document.querySelectorAll(".app-nav a").forEach((link) => {
-        link.classList.toggle("active", link.dataset.nav === navKey);
-      });
-    }
-
     checkBackupReminder();
     requestPersistentStorage();
   }
@@ -292,6 +331,8 @@ window.App = (() => {
     applyTranslations,
     setLanguage,
     initCommon,
+    renderNav,
+    initThemeToggle,
     showToast,
     confirmDialog,
     formatDate,
