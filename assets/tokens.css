@@ -1,0 +1,140 @@
+/* === FONT FACE === */
+@font-face {
+  font-family: 'Rubik';
+  src: url('./fonts/Rubik-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Rubik';
+  src: url('./fonts/Rubik-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Rubik';
+  src: url('./fonts/Rubik-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* === PRIMITIVE TOKENS === */
+/* Raw values — only referenced by semantic tokens, never used directly in app CSS */
+:root {
+  --color-purple-600: #7c66ff;
+  --color-purple-500: #8b7cff;
+  --color-purple-400: #c6b9ff;
+  --color-purple-200: #efeafe;
+  --color-purple-100: #f3efff;
+  --color-purple-50: #f8f6ff;
+  --color-purple-dark: #4a4166;
+  --color-purple-deeper: #3a3452;
+  --color-purple-border: rgba(86, 78, 120, 0.2);
+  --color-purple-border-soft: rgba(86, 78, 120, 0.1);
+  --color-purple-border-faint: rgba(86, 78, 120, 0.08);
+  --color-purple-border-subtle: rgba(86, 78, 120, 0.12);
+  --color-purple-border-ghost: rgba(86, 78, 120, 0.25);
+  --color-cream-50: #f6f3fb;
+  --color-cream-100: #faf8ff;
+  --color-cream-200: #f2effb;
+  --color-cream-300: #f5f2ff;
+  --color-cream-400: #fbf9ff;
+  --color-cream-500: #f7f4ff;
+  --color-cream-600: #f0ecff;
+  --color-cream-700: #ede8ff;
+  --color-cream-800: #f9f7ff;
+  --color-cream-900: #e6defc;
+  --color-white: #ffffff;
+  --color-dark-900: #2f2d38;
+  --color-dark-800: #2e2a38;
+  --color-dark-700: #1a1825;
+  --color-dark-600: #5f5c72;
+  --color-green-500: #2fb37d;
+  --color-red-500: #ea4b4b;
+  --color-primary-shadow: rgba(124, 102, 255, 0.35);
+  --color-primary-shadow-soft: rgba(124, 102, 255, 0.28);
+  --color-danger-shadow: rgba(234, 75, 75, 0.28);
+  --color-modal-overlay: rgba(26, 24, 35, 0.4);
+  --color-modal-shadow: rgba(36, 24, 72, 0.2);
+}
+
+/* === SEMANTIC TOKENS (light mode default) === */
+:root {
+  --color-primary: var(--color-purple-600);
+  --color-primary-soft: var(--color-purple-200);
+  --color-primary-dark: var(--color-purple-dark);
+  --color-primary-deeper: var(--color-purple-deeper);
+  --color-background: var(--color-cream-50);
+  --color-background-gradient-start: var(--color-cream-100);
+  --color-background-gradient-end: var(--color-cream-200);
+  --color-surface: var(--color-white);
+  --color-surface-alt: var(--color-cream-500);
+  --color-surface-hover: var(--color-cream-400);
+  --color-surface-subtle: var(--color-cream-300);
+  --color-surface-muted: var(--color-cream-800);
+  --color-surface-avatar: var(--color-cream-600);
+  --color-surface-media: var(--color-cream-700);
+  --color-surface-disabled: var(--color-cream-800);
+  --color-surface-secondary-btn: var(--color-purple-100);
+  --color-surface-toggle: var(--color-purple-50);
+  --color-surface-modal-close: var(--color-purple-100);
+  --color-text: var(--color-dark-900);
+  --color-text-muted: var(--color-dark-600);
+  --color-text-meta: var(--color-purple-deeper);
+  --color-success: var(--color-green-500);
+  --color-danger: var(--color-red-500);
+  --color-border: var(--color-purple-border);
+  --color-border-soft: var(--color-purple-border-soft);
+  --color-border-faint: var(--color-purple-border-faint);
+  --color-border-subtle: var(--color-purple-border-subtle);
+  --color-border-ghost: var(--color-purple-border-ghost);
+  --color-toast-bg: var(--color-dark-800);
+  --color-modal-overlay-bg: var(--color-modal-overlay);
+  --color-placeholder-gradient: linear-gradient(135deg, var(--color-purple-500), var(--color-purple-400));
+  --shadow-soft: 0 18px 40px rgba(36, 24, 72, 0.08);
+  --shadow-card: 0 12px 26px rgba(36, 24, 72, 0.1);
+  --shadow-brand: 0 8px 24px var(--color-primary-shadow);
+  --shadow-button: 0 4px 12px var(--color-primary-shadow-soft);
+  --shadow-danger: 0 4px 12px var(--color-danger-shadow);
+  --shadow-modal: 0 20px 40px var(--color-modal-shadow);
+}
+
+/* === DARK MODE === */
+/* Phase 1 placeholder values — Phase 2 will replace with garden palette */
+[data-theme="dark"] {
+  --color-background: #1a1825;
+  --color-background-gradient-start: #1a1825;
+  --color-background-gradient-end: #1f1c2e;
+  --color-surface: #252235;
+  --color-surface-alt: #2a2640;
+  --color-surface-hover: #2e2a3e;
+  --color-surface-subtle: #2a2640;
+  --color-surface-muted: #2a2640;
+  --color-surface-avatar: #332f4a;
+  --color-surface-media: #332f4a;
+  --color-surface-disabled: #2a2640;
+  --color-surface-secondary-btn: #2e2850;
+  --color-surface-toggle: #2e2850;
+  --color-surface-modal-close: #2e2850;
+  --color-text: #f0eeff;
+  --color-text-muted: #a8a0c8;
+  --color-text-meta: #a8a0c8;
+  --color-primary: #9b88ff;
+  --color-primary-soft: #2e2850;
+  --color-primary-dark: #c6b9ff;
+  --color-primary-deeper: #a8a0c8;
+  --color-border: rgba(160, 150, 200, 0.2);
+  --color-border-soft: rgba(160, 150, 200, 0.1);
+  --color-border-faint: rgba(160, 150, 200, 0.08);
+  --color-border-subtle: rgba(160, 150, 200, 0.12);
+  --color-border-ghost: rgba(160, 150, 200, 0.25);
+  --color-toast-bg: #1a1825;
+  --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 12px 26px rgba(0, 0, 0, 0.35);
+  --shadow-brand: 0 8px 24px rgba(155, 136, 255, 0.35);
+  --shadow-button: 0 4px 12px rgba(155, 136, 255, 0.28);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
