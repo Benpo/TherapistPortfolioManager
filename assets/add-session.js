@@ -572,6 +572,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       setSubmitLabel("session.form.update");
     }
     if (isReadMode) resizeReadModeTextareas();
+    updateClientSpotlight();
   });
 
   if (sessionId && Number.isInteger(sessionId)) {
