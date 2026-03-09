@@ -286,15 +286,10 @@ a {
 
 .table th,
 .table td {
-  text-align: left;
+  text-align: start;
   padding: 0.75rem 0.5rem;
   border-bottom: 1px solid var(--color-border-soft);
   font-size: 0.95rem;
-}
-
-body[dir="rtl"] .table th,
-body[dir="rtl"] .table td {
-  text-align: right;
 }
 
 .table th {
@@ -428,7 +423,7 @@ body[dir="rtl"] .table td {
 
 .session-actions-cell{
   width:110px;
-  text-align:right;
+  text-align:end;
 }
 
 .session-edit{
@@ -618,7 +613,7 @@ body[dir="rtl"] .table td {
 .issue-remove{
   position:absolute;
   top:0.75rem;
-  right:0.75rem;
+  inset-inline-end:0.75rem;
   width:28px;
   height:28px;
   border-radius:50%;
@@ -702,7 +697,7 @@ body[dir="rtl"] .table td {
 .toast {
   position: fixed;
   bottom: 2rem;
-  right: 2rem;
+  inset-inline-end: 2rem;
   background: var(--color-toast-bg);
   color: var(--color-surface);
   padding: 0.75rem 1.4rem;
@@ -734,7 +729,7 @@ body[dir="rtl"] .issue-grid {
   }
 
   body[dir="rtl"] .app-header {
-    align-items: flex-end;
+    align-items: flex-end; /* intentional semantic RTL override */
   }
 
   .issue-grid {
@@ -771,33 +766,12 @@ body[dir="rtl"] .issue-grid {
   margin-top: 0.5rem;
 }
 
-body[dir="rtl"] .row-toggle {
-  margin-left: 0;
-  margin-right: 0;
-}
-
 body[dir="rtl"] .row-actions{
   justify-content:flex-start;
 }
 
 body[dir="rtl"] .heartwall-badge{
   align-self: flex-end;
-}
-
-body[dir="rtl"] .input,
-body[dir="rtl"] .textarea,
-body[dir="rtl"] .select-field,
-body[dir="rtl"] .select {
-  text-align: right;
-}
-
-body[dir="rtl"] .issue-remove{
-  right:auto;
-  left:0.75rem;
-}
-
-body[dir="rtl"] .client-spotlight{
-  text-align:right;
 }
 
 body[dir="rtl"] .session-header{
@@ -868,7 +842,7 @@ body[dir="rtl"] .session-header{
 }
 
 .heart-badge{
-  margin-left:.35rem;
+  margin-inline-start:.35rem;
   background:var(--color-heartwall-badge);
   color:var(--color-surface);
   border-radius:999px;
@@ -877,11 +851,6 @@ body[dir="rtl"] .session-header{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-}
-
-body[dir="rtl"] .heart-badge{
-  margin-left:0;
-  margin-right:.35rem;
 }
 
 .session-actions{
@@ -936,6 +905,7 @@ body[dir="rtl"] .heart-badge{
   width:min(720px, 90vw);
   box-shadow:var(--shadow-modal);
   z-index:1;
+  text-align:start;
 }
 
 .confirm-card{
@@ -969,7 +939,7 @@ body[dir="rtl"] .heart-badge{
 .modal-close{
   position:absolute;
   top:1rem;
-  right:1rem;
+  inset-inline-end:1rem;
   border:0;
   background:var(--color-surface-modal-close);
   width:36px;
@@ -983,7 +953,7 @@ body[dir="rtl"] .heart-badge{
   content:"";
   position:absolute;
   top:50%;
-  left:50%;
+  left:50%; /* centering trick — not directional, keep as physical */
   width:16px;
   height:2px;
   background:var(--color-primary-dark);
@@ -1061,17 +1031,8 @@ body[dir="rtl"] .heart-badge{
   color:var(--color-text-muted);
 }
 
-body[dir="rtl"] .modal-close{
-  right:auto;
-  left:1rem;
-}
-
 body[dir="rtl"] .client-name{
   justify-content:flex-end;
-}
-
-body[dir="rtl"] .session-actions-cell{
-  text-align:left;
 }
 
 body[dir="rtl"] .modal-actions{
@@ -1092,6 +1053,3 @@ body[dir="rtl"] .modal-actions{
   color:var(--color-primary);
 }
 
-body[dir="rtl"] .modal-card{
-  text-align:right;
-}
