@@ -105,6 +105,21 @@
             </div>
           </div>
 
+          <div class="form-field" style="margin-top:1.25rem;">
+            <label class="label" data-i18n="client.form.referralSource">Referral Source</label>
+            <select class="select-field" id="clientReferralSource">
+              <option value="" data-i18n="client.form.referral.placeholder">Select...</option>
+              <option value="facebook">Facebook</option>
+              <option value="instagram">Instagram</option>
+              <option value="wordOfMouth" data-i18n="client.form.referral.wordOfMouth">Word of mouth</option>
+              <option value="colleague" data-i18n="client.form.referral.colleague">Colleague referral</option>
+              <option value="internet" data-i18n="client.form.referral.internet">Internet search</option>
+              <option value="other" data-i18n="client.form.referral.other">Other</option>
+            </select>
+            <input class="input" id="clientReferralOther" type="text" style="display:none; margin-top:0.5rem;"
+              data-i18n-placeholder="client.form.referral.otherPlaceholder" placeholder="Please specify..." />
+          </div>
+
           <div class="inline-actions" style="margin-top:1.5rem;">
             <button class="button icon-swap" type="submit">
               <span class="button-label" data-i18n="client.form.save">Save Client</span>

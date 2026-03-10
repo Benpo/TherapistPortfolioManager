@@ -1,3 +1,7 @@
+// Module-level storage for search filtering
+let _allClients = [];
+let _sessionsByClient = new Map();
+
 function getDailyQuote(lang) {
   const allQuotes = window.QUOTES || {};
   const langQuotes = allQuotes[lang] || allQuotes["en"] || [];
@@ -65,6 +69,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   setupModal();
 
+  const clientSearchInput = document.getElementById("clientSearch");
+  if (clientSearchInput) {
+    clientSearchInput.addEventListener("input", () => {
+      const query = (clientSearchInput.value || "").trim().toLowerCase();
+      if (!query) {
+        renderClientRows(_allClients, _sessionsByClient);
+      } else {
+        const filtered = _allClients.filter(c => getClientDisplayName(c).toLowerCase().includes(query));
+        renderClientRows(filtered, _sessionsByClient);
+      }
+    });
+  }
+
   document.addEventListener("app:language", async () => {
     renderGreeting();
     await loadOverview();
@@ -92,6 +109,25 @@ async function loadOverview() {
   if (statSessions) statSessions.textContent = sessions.length;
   if (statMonth) statMonth.textContent = countSessionsThisMonth(sessions);
 
+  const sessionsByClient = new Map();
+  sessions.forEach((session) => {
+    const list = sessionsByClient.get(session.clientId) || [];
+    list.push(session);
+    sessionsByClient.set(session.clientId, list);
+  });
+
+  // Store at module level for search filtering
+  _allClients = clients;
+  _sessionsByClient = sessionsByClient;
+
+  // Clear search input on reload
+  const searchInput = document.getElementById("clientSearch");
+  if (searchInput) searchInput.value = "";
+
+  renderClientRows(clients, sessionsByClient);
+}
+
+function renderClientRows(clients, sessionsByClient) {
   const tableBody = document.getElementById("clientTableBody");
   const emptyState = document.getElementById("emptyState");
   if (!tableBody) return;
@@ -102,13 +138,6 @@ async function loadOverview() {
     return;
   }
   if (emptyState) emptyState.style.display = "none";
-
-  const sessionsByClient = new Map();
-  sessions.forEach((session) => {
-    const list = sessionsByClient.get(session.clientId) || [];
-    list.push(session);
-    sessionsByClient.set(session.clientId, list);
-  });
 
   clients.forEach((client) => {
     const clientSessions = sessionsByClient.get(client.id) || [];
