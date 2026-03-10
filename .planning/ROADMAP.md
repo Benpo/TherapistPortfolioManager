@@ -63,12 +63,13 @@ Plans:
   2. User can create clients with types Adult, Child, Animal, or Other (replacing the old Human/Animal split)
   3. User can record a referral source when adding or editing a client
   4. Sessions include fields for Limiting Beliefs, Additional Techniques, Important Points, and Next Session Info (per consolidation decisions)
-  5. User can search clients by name, phone, or email with results filtering in real-time as they type
-**Plans**: TBD
+  5. User can search clients by name with results filtering in real-time as they type
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md — DB migration v2 + client type expansion (Adult/Child/Animal/Other) + referral source dropdown (DATA-02, DATA-03)
+- [ ] 03-02-PLAN.md — Session field consolidation: Important Points, form reorder, severity delta, markdown export (DATA-01, DATA-04)
+- [ ] 03-03-PLAN.md — Client search, daily quotes with attribution, brand mark homepage link (FEAT-01, FEAT-02)
 
 ### Phase 4: Internationalization and Distribution Research
 **Goal**: The app speaks four languages with accurate clinical terminology, and the distribution and payment strategy is decided
@@ -126,7 +127,7 @@ Phases execute in numeric order: 1 -> 1.1 -> 2 -> 2.1 -> 3 -> etc.
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-09 |
 | 2. Visual Transformation | 1/3 | In Progress|  |
-| 3. Data Model and Features | 0/? | Not started | - |
+| 3. Data Model and Features | 0/3 | Not started | - |
 | 4. Internationalization and Distribution Research | 0/? | Not started | - |
 | 5. Legal and Production Packaging | 0/? | Not started | - |
 | 6. Quality and Developer Experience | 0/? | Not started | - |
