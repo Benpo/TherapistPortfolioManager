@@ -14,7 +14,7 @@
   <div class="app-shell">
     <div class="container">
       <header class="app-header">
-        <div class="brand">
+        <a href="./index.html" class="brand brand-link" style="text-decoration:none;color:inherit;">
           <div class="brand-mark">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
               <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
@@ -29,7 +29,7 @@
             <div class="brand-title">Sessions Garden</div>
             <div class="brand-subtitle">Your private practice journal</div>
           </div>
-        </div>
+        </a>
         <div id="nav-placeholder"></div>
         <div class="header-actions">
           <select id="languageSelect" class="select" aria-label="Language">
@@ -150,6 +150,11 @@
                   <span class="icon-badge">🐾</span>
                   <span data-i18n="client.form.type.animal">Animal</span>
                 </label>
+                <label class="toggle-card" data-type="other">
+                  <input type="radio" name="inlineClientType" value="other" />
+                  <span class="icon-badge">&#10067;</span>
+                  <span data-i18n="client.form.type.other">Other</span>
+                </label>
               </div>
             </div>
 
@@ -165,7 +170,7 @@
           <div class="section-divider"></div>
 
           <div class="form-field">
-            <label class="label" data-i18n="session.form.issuesTitle">Issues addressed in this session *</label>
+            <label class="label" data-i18n="session.form.issuesHeading">Issues addressed in this session *</label>
             <div class="helper-text" data-i18n="session.form.issueLimit">You may list up to 3 issues per session</div>
           </div>
           <div id="issueList"></div>

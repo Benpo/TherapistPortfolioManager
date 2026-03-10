@@ -1,6 +1,6 @@
 window.PortfolioDB = (() => {
   const DB_NAME = "emotion_code_portfolio";
-  const DB_VERSION = 1;
+  const DB_VERSION = 2;
 
   const MIGRATIONS = {
     1: function initializeSchema(db) {
@@ -15,8 +15,21 @@ window.PortfolioDB = (() => {
         store.createIndex("date", "date", { unique: false });
       }
     },
-    // Phase 3 will add version 2 here when schema changes are needed:
-    // 2: function addReferralSource(db, transaction) { ... },
+    2: function expandDataModel(db, transaction) {
+      // Migrate existing clients with type "human" to "adult"
+      const clientStore = transaction.objectStore("clients");
+      const cursorReq = clientStore.openCursor();
+      cursorReq.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          const record = cursor.value;
+          if (record.type === "human") {
+            cursor.update({ ...record, type: "adult" });
+          }
+          cursor.continue();
+        }
+      };
+    },
   };
 
   function openDB() {

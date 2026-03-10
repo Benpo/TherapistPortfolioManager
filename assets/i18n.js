@@ -50,6 +50,7 @@ window.I18N = {
     "client.form.type.child": "Child",
     "client.form.type.adult": "Adult",
     "client.form.type.animal": "Animal",
+    "client.form.type.other": "Other",
     "client.form.save": "Save Client",
     "client.form.saveAndSession": "Save & Create First Session",
     "client.form.update": "Update Client",
@@ -155,6 +156,7 @@ window.I18N = {
     "common.type.child": "Child",
     "common.type.adult": "Adult",
     "common.type.animal": "Animal",
+    "common.type.other": "Other",
     "greeting.morning": "Good morning ☀️",
     "greeting.afternoon": "Good afternoon 🌿",
     "greeting.evening": "Good evening 🌙"
@@ -210,6 +212,7 @@ window.I18N = {
     "client.form.type.child": "ילד",
     "client.form.type.adult": "מבוגר",
     "client.form.type.animal": "חיה",
+    "client.form.type.other": "אחר",
     "client.form.save": "שמירת מטופל",
     "client.form.saveAndSession": "שמור וצור מפגש ראשון",
     "client.form.update": "עדכון מטופל",
@@ -315,6 +318,7 @@ window.I18N = {
     "common.type.child": "ילד",
     "common.type.adult": "מבוגר",
     "common.type.animal": "חיה",
+    "common.type.other": "אחר",
     "greeting.morning": "בוקר טוב ☀️",
     "greeting.afternoon": "צהריים טובים 🌿",
     "greeting.evening": "ערב טוב 🌙"
@@ -370,6 +374,7 @@ window.I18N = {
     "client.form.type.child": "Kind",
     "client.form.type.adult": "Erwachsener",
     "client.form.type.animal": "Tier",
+    "client.form.type.other": "Andere",
     "client.form.save": "Klient speichern",
     "client.form.saveAndSession": "Speichern & erste Sitzung erstellen",
     "client.form.update": "Klient aktualisieren",
@@ -475,6 +480,7 @@ window.I18N = {
     "common.type.child": "Kind",
     "common.type.adult": "Erwachsener",
     "common.type.animal": "Tier",
+    "common.type.other": "Andere",
     "greeting.morning": "Guten Morgen ☀️",
     "greeting.afternoon": "Guten Nachmittag 🌿",
     "greeting.evening": "Guten Abend 🌙"
@@ -530,6 +536,7 @@ window.I18N = {
     "client.form.type.child": "Dítě",
     "client.form.type.adult": "Dospělý",
     "client.form.type.animal": "Zvíře",
+    "client.form.type.other": "Ostatní",
     "client.form.save": "Uložit klienta",
     "client.form.saveAndSession": "Uložit a vytvořit první sezení",
     "client.form.update": "Aktualizovat klienta",
@@ -635,6 +642,7 @@ window.I18N = {
     "common.type.child": "Dítě",
     "common.type.adult": "Dospělý",
     "common.type.animal": "Zvíře",
+    "common.type.other": "Ostatní",
     "greeting.morning": "Dobré ráno ☀️",
     "greeting.afternoon": "Dobré odpoledne 🌿",
     "greeting.evening": "Dobrý večer 🌙"
