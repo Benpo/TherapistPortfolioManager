@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const deleteButton = document.getElementById("deleteClientBtn");
   const clientIdParam = new URLSearchParams(window.location.search).get("clientId");
   const clientId = clientIdParam ? Number.parseInt(clientIdParam, 10) : null;
+  const referralSelect = document.getElementById("clientReferralSource");
+  const referralOtherInput = document.getElementById("clientReferralOther");
   let editingClient = null;
   let photoData = "";
 
@@ -55,6 +57,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  if (referralSelect && referralOtherInput) {
+    referralSelect.addEventListener("change", () => {
+      referralOtherInput.style.display = referralSelect.value === "other" ? "" : "none";
+      if (referralSelect.value !== "other") referralOtherInput.value = "";
+    });
+  }
+
   if (clientId && Number.isInteger(clientId)) {
     editingClient = await PortfolioDB.getClient(clientId);
     if (editingClient) {
@@ -81,6 +90,22 @@ document.addEventListener("DOMContentLoaded", async () => {
           card.classList.remove("active");
         }
       });
+
+      // Load referral source
+      if (referralSelect && editingClient.referralSource) {
+        const stored = editingClient.referralSource;
+        const presetValues = Array.from(referralSelect.options).map(o => o.value);
+        if (presetValues.includes(stored)) {
+          referralSelect.value = stored;
+        } else {
+          // Custom "other" value
+          referralSelect.value = "other";
+          if (referralOtherInput) {
+            referralOtherInput.value = stored;
+            referralOtherInput.style.display = "";
+          }
+        }
+      }
 
       if (titleEl) {
         titleEl.setAttribute("data-i18n", "client.title.edit");
@@ -127,6 +152,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       const typeInput = document.querySelector("input[name='clientType']:checked");
       const type = typeInput ? typeInput.value : "adult";
 
+      // Read referral source
+      let referralSource = "";
+      if (referralSelect) {
+        const selVal = referralSelect.value;
+        if (selVal === "other" && referralOtherInput) {
+          referralSource = referralOtherInput.value.trim() || "";
+        } else {
+          referralSource = selVal;
+        }
+      }
+
       const displayName = lastName ? `${firstName} ${lastName}` : firstName;
 
       let savedId = null;
@@ -142,6 +178,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           phone,
           notes,
           type,
+          referralSource,
           photoData,
           updatedAt: new Date().toISOString()
         });
@@ -157,6 +194,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           phone,
           notes,
           type,
+          referralSource,
           photoData,
           createdAt: new Date().toISOString()
         });
