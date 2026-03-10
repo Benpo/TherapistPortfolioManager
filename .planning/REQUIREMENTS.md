@@ -25,8 +25,8 @@ Requirements for sellable product release. Each maps to roadmap phases.
 ### Data Model
 
 - [ ] **DATA-01**: Session field consolidation — interactive step with Sapir to finalize data model (fields to keep, add, rename, remove from both codebases)
-- [ ] **DATA-02**: Expanded client types — Adult / Child / Animal / Other (replacing current Human / Animal)
-- [ ] **DATA-03**: Referral source tracking per client (dropdown or text field)
+- [x] **DATA-02**: Expanded client types — Adult / Child / Animal / Other (replacing current Human / Animal)
+- [x] **DATA-03**: Referral source tracking per client (dropdown or text field)
 - [ ] **DATA-04**: Additional session fields per consolidation decisions (Limiting Beliefs, Additional Techniques, Important Points, Next Session Info — pending DATA-01)
 
 ### Features
@@ -120,8 +120,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DSGN-03 | Phase 2: Visual Transformation | Complete |
 | DSGN-04 | Phase 2: Visual Transformation | Pending |
 | DATA-01 | Phase 3: Data Model and Features | Pending |
-| DATA-02 | Phase 3: Data Model and Features | Pending |
-| DATA-03 | Phase 3: Data Model and Features | Pending |
+| DATA-02 | Phase 3: Data Model and Features | Complete |
+| DATA-03 | Phase 3: Data Model and Features | Complete |
 | DATA-04 | Phase 3: Data Model and Features | Pending |
 | FEAT-01 | Phase 3: Data Model and Features | Pending |
 | FEAT-02 | Phase 3: Data Model and Features | Pending |
