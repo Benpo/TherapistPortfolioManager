@@ -5,12 +5,15 @@ let _sessionsByClient = new Map();
 function getDailyQuote(lang) {
   const allQuotes = window.QUOTES || {};
   const langQuotes = allQuotes[lang] || allQuotes["en"] || [];
-  if (!langQuotes.length) return "";
+  if (!langQuotes.length) return { text: "", author: null };
   const today = new Date();
   const dayOfYear = Math.floor(
     (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
   );
-  return langQuotes[dayOfYear % langQuotes.length];
+  const selected = langQuotes[dayOfYear % langQuotes.length];
+  // Handle both plain string (backward compat) and { text, author } object formats
+  if (typeof selected === "string") return { text: selected, author: null };
+  return { text: selected.text || "", author: selected.author || null };
 }
 
 function renderGreeting() {
@@ -26,7 +29,24 @@ function renderGreeting() {
     : "greeting.evening";
 
   greetingEl.textContent = App.t(greetingKey);
-  quoteEl.textContent = "\u201C" + getDailyQuote(localStorage.getItem("portfolioLang") || "en") + "\u201D";
+  const quote = getDailyQuote(localStorage.getItem("portfolioLang") || "en");
+  quoteEl.textContent = "\u201C" + quote.text + "\u201D";
+
+  // Show or hide author attribution
+  let authorEl = document.getElementById("quote-author");
+  if (quote.author) {
+    if (!authorEl) {
+      authorEl = document.createElement("span");
+      authorEl.id = "quote-author";
+      authorEl.className = "quote-author";
+      authorEl.style.cssText = "display:block;font-size:0.85em;opacity:0.7;margin-top:0.25rem;";
+      quoteEl.parentNode.appendChild(authorEl);
+    }
+    authorEl.textContent = "\u2014 " + quote.author;
+    authorEl.style.display = "block";
+  } else if (authorEl) {
+    authorEl.style.display = "none";
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
