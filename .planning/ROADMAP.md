@@ -72,7 +72,7 @@ Plans:
 - [ ] 03-03-PLAN.md — Client search, daily quotes with attribution, brand mark homepage link (FEAT-01, FEAT-02)
 
 ### Phase 4: Internationalization and Distribution Research
-**Goal**: The app speaks four languages with accurate clinical terminology, and the distribution and payment strategy is decided
+**Goal**: The app speaks four languages with accurate clinical terminology suited to energy healing (not medical), and the distribution and payment strategy is decided and documented
 **Depends on**: Phase 3 (all translatable field names must be finalized before translation)
 **Requirements**: I18N-01, I18N-02, I18N-03, I18N-04, DIST-01, DIST-02
 **Success Criteria** (what must be TRUE):
@@ -80,11 +80,12 @@ Plans:
   2. Hebrew mode displays fully right-to-left with no layout breaks across all pages and features added in Phases 2-3
   3. i18n translations live in separate per-language files (not one monolithic file), and adding a new language requires only adding a new file
   4. A documented decision exists for hosting platform (with rationale) and payment solution (with EU VAT handling confirmed)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md — i18n file split + Heart Shield/Practice/Sessions Garden renames + subtitle wiring (I18N-01, I18N-02, I18N-03)
+- [ ] 04-02-PLAN.md — Quotes overhaul: Hebrew fixes, 7 replacement quotes, DE/CS quality review (I18N-02, I18N-03)
+- [ ] 04-03-PLAN.md — RTL validation for Phase 2-3 features + distribution decision document (I18N-04, DIST-01, DIST-02)
 
 ### Phase 5: Legal and Production Packaging
 **Goal**: The app is legally compliant for EU/German sales and packaged for distribution as a paid product
@@ -128,6 +129,6 @@ Phases execute in numeric order: 1 -> 1.1 -> 2 -> 2.1 -> 3 -> etc.
 | 1. Foundation | 3/3 | Complete   | 2026-03-09 |
 | 2. Visual Transformation | 1/3 | In Progress|  |
 | 3. Data Model and Features | 0/3 | Not started | - |
-| 4. Internationalization and Distribution Research | 0/? | Not started | - |
+| 4. Internationalization and Distribution Research | 0/3 | Not started | - |
 | 5. Legal and Production Packaging | 0/? | Not started | - |
 | 6. Quality and Developer Experience | 0/? | Not started | - |
