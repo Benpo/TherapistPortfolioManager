@@ -24,15 +24,15 @@ Requirements for sellable product release. Each maps to roadmap phases.
 
 ### Data Model
 
-- [ ] **DATA-01**: Session field consolidation — interactive step with Sapir to finalize data model (fields to keep, add, rename, remove from both codebases)
+- [x] **DATA-01**: Session field consolidation — interactive step with Sapir to finalize data model (fields to keep, add, rename, remove from both codebases)
 - [x] **DATA-02**: Expanded client types — Adult / Child / Animal / Other (replacing current Human / Animal)
 - [x] **DATA-03**: Referral source tracking per client (dropdown or text field)
-- [ ] **DATA-04**: Additional session fields per consolidation decisions (Limiting Beliefs, Additional Techniques, Important Points, Next Session Info — pending DATA-01)
+- [x] **DATA-04**: Additional session fields per consolidation decisions (Limiting Beliefs, Additional Techniques, Important Points, Next Session Info — pending DATA-01)
 
 ### Features
 
-- [ ] **FEAT-01**: Client search — text search by name, phone, and email with real-time filtering
-- [ ] **FEAT-02**: Daily greeting — time-of-day greeting with rotating inspirational quotes
+- [x] **FEAT-01**: Client search — text search by name, phone, and email with real-time filtering
+- [x] **FEAT-02**: Daily greeting — time-of-day greeting with rotating inspirational quotes
 
 ### Internationalization
 
@@ -119,12 +119,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DSGN-02 | Phase 2: Visual Transformation | Complete |
 | DSGN-03 | Phase 2: Visual Transformation | Complete |
 | DSGN-04 | Phase 2: Visual Transformation | Pending |
-| DATA-01 | Phase 3: Data Model and Features | Pending |
+| DATA-01 | Phase 3: Data Model and Features | Complete |
 | DATA-02 | Phase 3: Data Model and Features | Complete |
 | DATA-03 | Phase 3: Data Model and Features | Complete |
-| DATA-04 | Phase 3: Data Model and Features | Pending |
-| FEAT-01 | Phase 3: Data Model and Features | Pending |
-| FEAT-02 | Phase 3: Data Model and Features | Pending |
+| DATA-04 | Phase 3: Data Model and Features | Complete |
+| FEAT-01 | Phase 3: Data Model and Features | Complete |
+| FEAT-02 | Phase 3: Data Model and Features | Complete |
 | I18N-01 | Phase 4: Internationalization and Distribution Research | Pending |
 | I18N-02 | Phase 4: Internationalization and Distribution Research | Pending |
 | I18N-03 | Phase 4: Internationalization and Distribution Research | Pending |
