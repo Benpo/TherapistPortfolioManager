@@ -179,7 +179,7 @@ function renderClientRows(clients, sessionsByClient) {
     if (client.heartWall) {
       const heart = document.createElement("span");
       heart.className = "heart-badge";
-      heart.title = App.t("common.heartWall");
+      heart.title = App.t("common.heartShield");
       heart.textContent = "♥";
       nameButton.appendChild(heart);
     }
@@ -251,7 +251,7 @@ function renderClientRows(clients, sessionsByClient) {
         if (client.heartWall && session.heartWallCleared) {
           heartBadge = document.createElement("div");
           heartBadge.className = "heartwall-badge";
-          heartBadge.textContent = App.t("overview.sessions.heartWallCleared");
+          heartBadge.textContent = App.t("overview.sessions.heartShieldCleared");
         }
         const editButton = document.createElement("button");
         editButton.className = "row-toggle edit-button";

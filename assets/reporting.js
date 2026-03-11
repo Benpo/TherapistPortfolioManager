@@ -13,10 +13,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     let beforeCount = 0;
     let afterSum = 0;
     let afterCount = 0;
-    let heartWallCleared = 0;
+    let heartShieldCleared = 0;
 
     sessions.forEach((session) => {
-      if (session.heartWallCleared) heartWallCleared += 1;
+      if (session.heartWallCleared) heartShieldCleared += 1;
       (session.issues || []).forEach((issue) => {
         totalIssues += 1;
         if (issue.before !== null && issue.before !== undefined) {
@@ -39,14 +39,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const avgIssuesEl = document.getElementById("reportAvgIssues");
     const avgBeforeEl = document.getElementById("reportAvgBefore");
     const avgAfterEl = document.getElementById("reportAvgAfter");
-    const heartWallEl = document.getElementById("reportHeartWall");
+    const heartShieldEl = document.getElementById("reportHeartShield");
 
     if (totalClientsEl) totalClientsEl.textContent = totalClients;
     if (totalSessionsEl) totalSessionsEl.textContent = totalSessions;
     if (avgIssuesEl) avgIssuesEl.textContent = avgIssues;
     if (avgBeforeEl) avgBeforeEl.textContent = avgBefore;
     if (avgAfterEl) avgAfterEl.textContent = avgAfter;
-    if (heartWallEl) heartWallEl.textContent = heartWallCleared;
+    if (heartShieldEl) heartShieldEl.textContent = heartShieldCleared;
   }
 
   await renderReporting();

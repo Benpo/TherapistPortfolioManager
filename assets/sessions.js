@@ -114,14 +114,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       trappedCell.className = "trapped-cell";
       trappedCell.textContent = session.trappedEmotions || "-";
 
-      const heartWallCell = document.createElement("td");
+      const heartShieldCell = document.createElement("td");
       if (session.heartWallCleared) {
         const badge = document.createElement("div");
         badge.className = "heartwall-badge";
-        badge.textContent = App.t("overview.sessions.heartWallCleared");
-        heartWallCell.appendChild(badge);
+        badge.textContent = App.t("overview.sessions.heartShieldCleared");
+        heartShieldCell.appendChild(badge);
       } else {
-        heartWallCell.textContent = "-";
+        heartShieldCell.textContent = "-";
       }
 
       const actionCell = document.createElement("td");
@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       row.appendChild(typeCell);
       row.appendChild(issuesCell);
       row.appendChild(trappedCell);
-      row.appendChild(heartWallCell);
+      row.appendChild(heartShieldCell);
       row.appendChild(actionCell);
       tableBody.appendChild(row);
     });
