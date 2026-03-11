@@ -1149,16 +1149,6 @@ body[dir="rtl"] .modal-actions{
   width: 100%;
 }
 
-/* === IMPORTANT POINTS FIELD === */
-.important-field {
-  border-color: var(--color-accent, #f97316);
-}
-
-.important-star {
-  color: var(--color-accent, #f97316);
-  margin-inline-end: 0.35rem;
-}
-
 /* === SEVERITY DELTA === */
 .severity-delta {
   display: inline-block;

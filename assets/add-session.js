@@ -1,5 +1,7 @@
 let clientCache = [];
 let inlinePhotoData = "";
+let formDirty = false;
+let formSaving = false;
 
 document.addEventListener("DOMContentLoaded", async () => {
   App.initCommon();
@@ -31,6 +33,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   let editingSession = null;
   let isReadMode = false;
   const NEW_CLIENT_VALUE = "__new__";
+
+  // Unsaved changes protection
+  if (sessionForm) {
+    sessionForm.addEventListener("input", () => { formDirty = true; });
+    sessionForm.addEventListener("change", () => { formDirty = true; });
+  }
+  window.addEventListener("beforeunload", (e) => {
+    if (formDirty && !formSaving) {
+      e.preventDefault();
+    }
+  });
 
   function setSubmitLabel(key) {
     if (!submitButton) return;
@@ -397,13 +410,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const trappedEl = document.getElementById("trappedEmotions");
     const limitingBeliefsEl = document.getElementById("limitingBeliefs");
     const additionalTechEl = document.getElementById("additionalTech");
-    const importantPointsEl = document.getElementById("importantPoints");
     const commentsEl = document.getElementById("sessionComments");
 
     const trappedValue = (trappedEl ? trappedEl.value : "").trim();
     const limitingBeliefsValue = (limitingBeliefsEl ? limitingBeliefsEl.value : "").trim();
     const additionalTechValue = (additionalTechEl ? additionalTechEl.value : "").trim();
-    const importantPointsValue = (importantPointsEl ? importantPointsEl.value : "").trim();
     const insightsValue = (insightsInput ? insightsInput.value : "").trim();
     const commentsValue = (commentsEl ? commentsEl.value : "").trim();
     const summaryValue = (customerSummaryInput ? customerSummaryInput.value : "").trim();
@@ -428,9 +439,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (additionalTechValue.length > 0) {
       lines.push("", `## ${App.t("session.form.additionalTech")}`, additionalTechValue);
-    }
-    if (importantPointsValue.length > 0) {
-      lines.push("", `## ${App.t("session.form.importantPoints")}`, importantPointsValue);
     }
     if (insightsValue.length > 0) {
       lines.push("", `## ${App.t("session.form.insights")}`, insightsValue);
@@ -571,7 +579,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const insights = insightsInput ? insightsInput.value.trim() : "";
       const limitingBeliefs = (document.getElementById("limitingBeliefs") || {}).value?.trim() || "";
       const additionalTech = (document.getElementById("additionalTech") || {}).value?.trim() || "";
-      const importantPoints = (document.getElementById("importantPoints") || {}).value?.trim() || "";
       const customerSummary = customerSummaryInput ? customerSummaryInput.value.trim() : "";
 
       if (editingSession) {
@@ -585,7 +592,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           insights,
           limitingBeliefs,
           additionalTech,
-          importantPoints,
           customerSummary,
           comments,
           updatedAt: new Date().toISOString()
@@ -601,13 +607,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           insights,
           limitingBeliefs,
           additionalTech,
-          importantPoints,
           customerSummary,
           comments,
           createdAt: new Date().toISOString()
         });
         App.showToast("", "toast.sessionSaved");
       }
+      formSaving = true;
       setTimeout(() => {
         window.location.href = "./index.html";
       }, 600);
@@ -623,6 +629,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
       if (!confirmed) return;
       await PortfolioDB.deleteSession(editingSession.id);
+      formSaving = true;
       App.showToast("", "toast.sessionDeleted");
       setTimeout(() => {
         window.location.href = "./sessions.html";
@@ -840,8 +847,6 @@ function populateSession(session, issues, createIssueBlock) {
   if (limitingBeliefsEl) limitingBeliefsEl.value = session.limitingBeliefs || "";
   const additionalTechEl = document.getElementById("additionalTech");
   if (additionalTechEl) additionalTechEl.value = session.additionalTech || "";
-  const importantPointsEl = document.getElementById("importantPoints");
-  if (importantPointsEl) importantPointsEl.value = session.importantPoints || "";
   updateClientSpotlight();
 
   document.querySelectorAll("input[name='sessionType']").forEach((input) => {
