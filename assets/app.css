@@ -1158,3 +1158,18 @@ body[dir="rtl"] .modal-actions{
   color: var(--color-accent, #f97316);
   margin-inline-end: 0.35rem;
 }
+
+/* === SEVERITY DELTA === */
+.severity-delta {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm, 4px);
+  min-width: 2rem;
+  text-align: center;
+  margin-inline-start: 0.5rem;
+}
+
+.delta-negative { color: var(--color-success, #22c55e); }  /* Improvement */
+.delta-positive { color: var(--color-danger, #ef4444); }   /* Worsening */

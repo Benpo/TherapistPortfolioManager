@@ -163,8 +163,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateRemoveButtons();
   }
 
+  function updateDelta(issueObj) {
+    const beforeValue = App.getSeverityValue(issueObj.beforeScale);
+    const afterValue = App.getSeverityValue(issueObj.afterScale);
+    const deltaEl = issueObj.deltaEl;
+    if (!deltaEl) return;
+    if (beforeValue !== null && afterValue !== null) {
+      const delta = afterValue - beforeValue;
+      if (delta === 0) {
+        deltaEl.style.display = "none";
+      } else {
+        const sign = delta > 0 ? "+" : "";
+        deltaEl.textContent = sign + delta;
+        deltaEl.classList.toggle("delta-positive", delta > 0);
+        deltaEl.classList.toggle("delta-negative", delta < 0);
+        deltaEl.style.display = "";
+      }
+    } else {
+      deltaEl.style.display = "none";
+    }
+  }
+
   function createIssueBlock(initialIssue = {}) {
     const id = `issue-${issueCounter++}`;
+    // issueRef is a shared container so onChange callbacks can reference issueObj
+    // before it is assigned below (avoids temporal dead zone)
+    const issueRef = {};
     const block = document.createElement("div");
     block.className = "issue-block";
     block.dataset.id = id;
@@ -190,7 +214,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     severityLabel.className = "label";
     severityLabel.setAttribute("data-i18n", "session.form.beforeSeverity");
     severityLabel.textContent = App.t("session.form.beforeSeverity");
-    const beforeScale = App.createSeverityScale(initialIssue.before);
+    const beforeScale = App.createSeverityScale(initialIssue.before, () => updateDelta(issueRef.obj));
     severityField.appendChild(severityLabel);
     severityField.appendChild(beforeScale);
 
@@ -219,14 +243,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     summaryNameField.appendChild(summaryInput);
 
     const summarySeverityField = document.createElement("div");
-    summarySeverityField.className = "form-field";
+    summarySeverityField.className = "form-field severity-after-field";
     const afterLabel = document.createElement("label");
     afterLabel.className = "label muted-label";
     afterLabel.setAttribute("data-i18n", "session.form.afterSeverity");
     afterLabel.textContent = App.t("session.form.afterSeverity");
-    const afterScale = App.createSeverityScale(initialIssue.after);
+    const afterScale = App.createSeverityScale(initialIssue.after, () => updateDelta(issueRef.obj));
+    const deltaEl = document.createElement("span");
+    deltaEl.className = "severity-delta";
+    deltaEl.style.display = "none";
     summarySeverityField.appendChild(afterLabel);
     summarySeverityField.appendChild(afterScale);
+    summarySeverityField.appendChild(deltaEl);
 
     summaryGrid.appendChild(summaryNameField);
     summaryGrid.appendChild(summarySeverityField);
@@ -256,13 +284,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       beforeScale,
       afterScale,
       summaryInput,
+      deltaEl,
       block,
       summaryBlock,
       removeButton
     };
+    issueRef.obj = issueObj;
     issues.push(issueObj);
     updateAddIssueState();
     updateRemoveButtons();
+    // Show delta if both values are already set (e.g. loading existing session)
+    updateDelta(issueObj);
+    return issueObj;
   }
 
   function getIssuesPayload() {
@@ -340,46 +373,76 @@ document.addEventListener("DOMContentLoaded", async () => {
     const dateValue = sessionDate && sessionDate.value ? App.formatDate(sessionDate.value) : "-";
     const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
     const sessionType = formatSessionType(sessionTypeInput ? sessionTypeInput.value : "");
+
+    // Issues section: always included, delta shown when both before and after exist
     const issuesPayload = getIssuesPayload();
     const issuesText = issuesPayload.length
       ? issuesPayload
           .map((issue) => {
-            const before = issue.before !== null && issue.before !== undefined ? issue.before : "-";
-            const after = issue.after !== null && issue.after !== undefined ? issue.after : "-";
+            const hasBefore = issue.before !== null && issue.before !== undefined;
+            const hasAfter = issue.after !== null && issue.after !== undefined;
+            const before = hasBefore ? issue.before : "-";
+            const after = hasAfter ? issue.after : "-";
+            if (hasBefore && hasAfter) {
+              const delta = issue.after - issue.before;
+              const sign = delta > 0 ? "+" : "";
+              return `- ${issue.name} (Before: ${before}, After: ${after}, Delta: ${sign}${delta})`;
+            }
             return `- ${issue.name} (Before: ${before}, After: ${after})`;
           })
           .join("\n")
       : `- ${App.t("session.copy.empty")}`;
-    const trappedEl = document.getElementById("trappedEmotions");
-    const commentsEl = document.getElementById("sessionComments");
-    const trappedValue = (trappedEl ? trappedEl.value : "").trim() || App.t("session.copy.empty");
-    const insightsValue = (insightsInput ? insightsInput.value : "").trim() || App.t("session.copy.empty");
-    const commentsValue = (commentsEl ? commentsEl.value : "").trim() || App.t("session.copy.empty");
-    const summaryValue = (customerSummaryInput ? customerSummaryInput.value : "").trim() || App.t("session.copy.empty");
 
-    return [
+    // Collect optional text fields -- only include if non-empty
+    const trappedEl = document.getElementById("trappedEmotions");
+    const limitingBeliefsEl = document.getElementById("limitingBeliefs");
+    const additionalTechEl = document.getElementById("additionalTech");
+    const importantPointsEl = document.getElementById("importantPoints");
+    const commentsEl = document.getElementById("sessionComments");
+
+    const trappedValue = (trappedEl ? trappedEl.value : "").trim();
+    const limitingBeliefsValue = (limitingBeliefsEl ? limitingBeliefsEl.value : "").trim();
+    const additionalTechValue = (additionalTechEl ? additionalTechEl.value : "").trim();
+    const importantPointsValue = (importantPointsEl ? importantPointsEl.value : "").trim();
+    const insightsValue = (insightsInput ? insightsInput.value : "").trim();
+    const commentsValue = (commentsEl ? commentsEl.value : "").trim();
+    const summaryValue = (customerSummaryInput ? customerSummaryInput.value : "").trim();
+
+    const lines = [
       `# ${App.t("session.copy.title")}`,
       "",
       `**${App.t("session.copy.client")}** ${clientName}`,
       `**${App.t("session.copy.date")}** ${dateValue}`,
       `**${App.t("session.copy.type")}** ${sessionType}`,
-      `**${App.t("session.copy.heartWall")}** ${heartWallValue}`,
       "",
       `## ${App.t("session.copy.issues")}`,
-      issuesText,
-      "",
-      `## ${stripRequired(App.t("session.form.trapped"))}`,
-      trappedValue,
-      "",
-      `## ${App.t("session.form.insights")}`,
-      insightsValue,
-      "",
-      `## ${App.t("session.form.comments")}`,
-      commentsValue,
-      "",
-      `## ${App.t("session.form.nextSession")}`,
-      summaryValue
-    ].join("\n");
+      issuesText
+    ];
+
+    // Order: Trapped Emotions, Limiting Beliefs, Additional Techniques, Important Points, Insights, Comments, Next Session
+    if (trappedValue.length > 0) {
+      lines.push("", `## ${stripRequired(App.t("session.form.trapped"))}`, trappedValue);
+    }
+    if (limitingBeliefsValue.length > 0) {
+      lines.push("", `## ${App.t("session.form.limitingBeliefs")}`, limitingBeliefsValue);
+    }
+    if (additionalTechValue.length > 0) {
+      lines.push("", `## ${App.t("session.form.additionalTech")}`, additionalTechValue);
+    }
+    if (importantPointsValue.length > 0) {
+      lines.push("", `## ${App.t("session.form.importantPoints")}`, importantPointsValue);
+    }
+    if (insightsValue.length > 0) {
+      lines.push("", `## ${App.t("session.form.insights")}`, insightsValue);
+    }
+    if (commentsValue.length > 0) {
+      lines.push("", `## ${App.t("session.form.comments")}`, commentsValue);
+    }
+    if (summaryValue.length > 0) {
+      lines.push("", `## ${App.t("session.form.nextSession")}`, summaryValue);
+    }
+
+    return lines.join("\n");
   }
 
   if (addIssueBtn) {
