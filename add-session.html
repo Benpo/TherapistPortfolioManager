@@ -170,7 +170,7 @@
           <div class="section-divider"></div>
 
           <div class="form-field">
-            <label class="label" data-i18n="session.form.issuesHeading">Issues addressed in this session *</label>
+            <label class="label" data-i18n="session.form.issuesHeading">נושאי המפגש *</label>
             <div class="helper-text" data-i18n="session.form.issueLimit">You may list up to 3 issues per session</div>
           </div>
           <div id="issueList"></div>
@@ -185,16 +185,6 @@
             </summary>
             <div class="expandable-body">
               <textarea class="textarea session-textarea" id="trappedEmotions" data-i18n-placeholder="session.form.trapped.placeholder"></textarea>
-            </div>
-          </details>
-
-          <details class="expandable-field">
-            <summary>
-              <span class="label" data-i18n="session.form.insights">Physical Imbalance</span>
-              <span class="expand-arrow" aria-hidden="true">›</span>
-            </summary>
-            <div class="expandable-body">
-              <textarea class="textarea session-textarea" id="sessionInsights" data-i18n-placeholder="session.form.insights.placeholder"></textarea>
             </div>
           </details>
 
@@ -215,6 +205,30 @@
             </summary>
             <div class="expandable-body">
               <textarea class="textarea session-textarea" id="additionalTech" data-i18n-placeholder="session.form.additionalTech.placeholder"></textarea>
+            </div>
+          </details>
+
+          <details class="expandable-field important-field">
+            <summary>
+              <span class="label" data-i18n="session.form.importantPoints">
+                <span class="important-star" aria-hidden="true">&#9733;</span>
+                Important Points
+              </span>
+              <span class="expand-arrow" aria-hidden="true">›</span>
+            </summary>
+            <div class="expandable-body">
+              <textarea class="textarea session-textarea" id="importantPoints"
+                data-i18n-placeholder="session.form.importantPoints.placeholder"></textarea>
+            </div>
+          </details>
+
+          <details class="expandable-field">
+            <summary>
+              <span class="label" data-i18n="session.form.insights">Physical Imbalance</span>
+              <span class="expand-arrow" aria-hidden="true">›</span>
+            </summary>
+            <div class="expandable-body">
+              <textarea class="textarea session-textarea" id="sessionInsights" data-i18n-placeholder="session.form.insights.placeholder"></textarea>
             </div>
           </details>
 

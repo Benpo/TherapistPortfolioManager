@@ -508,6 +508,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const insights = insightsInput ? insightsInput.value.trim() : "";
       const limitingBeliefs = (document.getElementById("limitingBeliefs") || {}).value?.trim() || "";
       const additionalTech = (document.getElementById("additionalTech") || {}).value?.trim() || "";
+      const importantPoints = (document.getElementById("importantPoints") || {}).value?.trim() || "";
       const customerSummary = customerSummaryInput ? customerSummaryInput.value.trim() : "";
 
       if (editingSession) {
@@ -521,6 +522,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           insights,
           limitingBeliefs,
           additionalTech,
+          importantPoints,
           customerSummary,
           comments,
           updatedAt: new Date().toISOString()
@@ -536,6 +538,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           insights,
           limitingBeliefs,
           additionalTech,
+          importantPoints,
           customerSummary,
           comments,
           createdAt: new Date().toISOString()
@@ -774,6 +777,8 @@ function populateSession(session, issues, createIssueBlock) {
   if (limitingBeliefsEl) limitingBeliefsEl.value = session.limitingBeliefs || "";
   const additionalTechEl = document.getElementById("additionalTech");
   if (additionalTechEl) additionalTechEl.value = session.additionalTech || "";
+  const importantPointsEl = document.getElementById("importantPoints");
+  if (importantPointsEl) importantPointsEl.value = session.importantPoints || "";
   updateClientSpotlight();
 
   document.querySelectorAll("input[name='sessionType']").forEach((input) => {
