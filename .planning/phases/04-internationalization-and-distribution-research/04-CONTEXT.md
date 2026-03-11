@@ -100,7 +100,7 @@ The app speaks four languages with accurate clinical terminology suited to energ
 <deferred>
 ## Deferred Ideas
 
-None — discussion stayed within Phase 4 scope.
+- **Landing page FAQ about storage limits** — customers will ask how much data they can store. Answer: IndexedDB holds hundreds of MB to GBs; photos (~500KB each) and session text are negligible. 500 clients with photos = ~250MB, well within limits. Include in Phase 5 landing page / FAQ content.
 
 </deferred>
 
