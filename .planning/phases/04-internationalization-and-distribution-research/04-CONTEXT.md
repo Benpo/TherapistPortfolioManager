@@ -19,12 +19,14 @@ The app speaks four languages with accurate clinical terminology suited to energ
 - Quotes (window.QUOTES) move into the language files — each file contains both translations and quotes for that language
 - A small `i18n.js` remains with the loading logic (App.t, language detection, RTL handling) — but no translations
 - App name: "Sessions Garden" in all languages (not translated, not "Emotion Code Portfolio")
-- Subtitle: translated per language to describe the tool without using trademarked terms
+- Subtitle per language: HE "תיעוד ומעקב אחר מפגשים טיפוליים", EN/DE/CS translated to match this tone (documentation and tracking of therapeutic sessions — NOT "management" which sounds like clinic software)
 
 ### Clinical Terminology and Tone (I18N-02, I18N-03)
 - **Hebrew, English, German**: translations are already correct and validated by user — no changes needed to existing keys
 - **Czech**: translate all clinical terms to Czech (not left in English), same approach as German
-- **Trademarked terms**: avoid "Code" and any Bradley Nelson trademarked terminology in all languages. Use equivalent neutral terms for energy healing/balancing
+- **Trademarked terms**: avoid "Code", "Heart-Wall", and any Bradley Nelson trademarked terminology in all languages. Use equivalent neutral terms for energy healing/balancing
+- **Heart-Wall → Heart Shield rename**: Replace "Heart-Wall" with neutral terms in all languages: EN "Heart Shield", HE "הגנת הלב", DE "Herzschutz", CS "Ochrana srdce". This applies to all translation keys, UI text, and HTML. Internal JS variable names and CSS classes will also be renamed for consistency.
+- **Clinic → Practice rename**: EN "Clinic" → "Practice", CS "Klinika" → "Praxe". DE "Praxis" already correct. HE "קליניקה" user-validated, keep as-is.
 - **Non-medical language**: critical across ALL languages — the app is for energy balancing and treatment, NOT medical. Example: Czech "Klinika" (hospital) → use "Praxe" (practice). Check all languages for similar medical-sounding terms: "clinic", "patient" (use "client"/"Klient"), "diagnosis" (use "session notes"), etc.
 - **Claude approach**: Claude translates, asks user when uncertain about clinical terminology
 - **Formality**: German uses "Sie" (formal) — already correct. Czech should match formality level.
@@ -101,6 +103,7 @@ The app speaks four languages with accurate clinical terminology suited to energ
 ## Deferred Ideas
 
 - **Landing page FAQ about storage limits** — customers will ask how much data they can store. Answer: IndexedDB holds hundreds of MB to GBs; photos (~500KB each) and session text are negligible. 500 clients with photos = ~250MB, well within limits. Include in Phase 5 landing page / FAQ content.
+- **Heart Shield feature deep spec** — The Heart Shield (formerly Heart-Wall) feature exists partially: display works (overview badge, sessions table column, reporting stat) but the add-session form has no UI to mark a session as Heart Shield. Needs full feature spec: add toggle to session form, review data model, ensure end-to-end flow works. Scope for a future phase.
 
 </deferred>
 
