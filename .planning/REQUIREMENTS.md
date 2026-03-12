@@ -51,8 +51,8 @@ Requirements for sellable product release. Each maps to roadmap phases.
 
 - [ ] **DIST-01**: Hosting platform research and decision (Cloudflare Pages / Netlify / Vercel / VPS) — optimized for low recurring cost with one-time sale model
 - [ ] **DIST-02**: Payment solution research and decision (Lemon Squeezy / alternatives) — must handle EU VAT
-- [ ] **DIST-03**: Access gating mechanism for paid product (license key, hash check, or equivalent)
-- [ ] **DIST-04**: PWA setup with service worker for offline capability
+- [x] **DIST-03**: Access gating mechanism for paid product (license key, hash check, or equivalent)
+- [x] **DIST-04**: PWA setup with service worker for offline capability
 - [ ] **DIST-05**: Production packaging — distribution-ready bundle
 
 ### Developer Experience
@@ -134,8 +134,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LEGL-01 | Phase 5: Legal and Production Packaging | Complete |
 | LEGL-02 | Phase 5: Legal and Production Packaging | Complete |
 | LEGL-03 | Phase 5: Legal and Production Packaging | Complete |
-| DIST-03 | Phase 5: Legal and Production Packaging | Pending |
-| DIST-04 | Phase 5: Legal and Production Packaging | Pending |
+| DIST-03 | Phase 5: Legal and Production Packaging | Complete |
+| DIST-04 | Phase 5: Legal and Production Packaging | Complete |
 | DIST-05 | Phase 5: Legal and Production Packaging | Pending |
 | QA-01 | Phase 6: Quality and Developer Experience | Pending |
 | QA-02 | Phase 6: Quality and Developer Experience | Pending |
