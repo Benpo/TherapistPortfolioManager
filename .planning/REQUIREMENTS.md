@@ -43,9 +43,9 @@ Requirements for sellable product release. Each maps to roadmap phases.
 
 ### Legal
 
-- [ ] **LEGL-01**: Disclaimer/T&C screen — blocks app until user accepts, no external API calls
-- [ ] **LEGL-02**: Acceptance receipt — downloadable proof of T&C acceptance for both parties
-- [ ] **LEGL-03**: Disclaimer content — compliant with EU consumer protection, German Widerrufsrecht, per existing legal research
+- [x] **LEGL-01**: Disclaimer/T&C screen — blocks app until user accepts, no external API calls
+- [x] **LEGL-02**: Acceptance receipt — downloadable proof of T&C acceptance for both parties
+- [x] **LEGL-03**: Disclaimer content — compliant with EU consumer protection, German Widerrufsrecht, per existing legal research
 
 ### Distribution
 
@@ -131,9 +131,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | I18N-04 | Phase 4: Internationalization and Distribution Research | Pending |
 | DIST-01 | Phase 4: Internationalization and Distribution Research | Pending |
 | DIST-02 | Phase 4: Internationalization and Distribution Research | Pending |
-| LEGL-01 | Phase 5: Legal and Production Packaging | Pending |
-| LEGL-02 | Phase 5: Legal and Production Packaging | Pending |
-| LEGL-03 | Phase 5: Legal and Production Packaging | Pending |
+| LEGL-01 | Phase 5: Legal and Production Packaging | Complete |
+| LEGL-02 | Phase 5: Legal and Production Packaging | Complete |
+| LEGL-03 | Phase 5: Legal and Production Packaging | Complete |
 | DIST-03 | Phase 5: Legal and Production Packaging | Pending |
 | DIST-04 | Phase 5: Legal and Production Packaging | Pending |
 | DIST-05 | Phase 5: Legal and Production Packaging | Pending |
