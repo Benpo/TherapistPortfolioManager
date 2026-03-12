@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 05-01-PLAN.md (disclaimer/T&C gate)
-last_updated: "2026-03-12T17:00:05.483Z"
+stopped_at: Completed 05-02-PLAN.md (license key gate and PWA infrastructure)
+last_updated: "2026-03-12T17:08:21.011Z"
 last_activity: 2026-03-10 -- Completed 03-03 search, quotes, and brand navigation
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
   percent: 100
 ---
 
@@ -58,6 +58,7 @@ Progress: [██████████] 100%
 | Phase 03 P01 | 5 | 2 tasks | 5 files |
 | Phase 03-data-model-and-features P02 | 25 | 2 tasks | 4 files |
 | Phase 05-legal-and-production-packaging P01 | 5 | 2 tasks | 8 files |
+| Phase 05-legal-and-production-packaging P02 | 8 | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,9 @@ Recent decisions affecting current work:
 - [Phase 03-data-model-and-features]: Markdown export skips blank fields entirely rather than showing 'Not provided' fallback
 - [Phase 05-legal-and-production-packaging]: Widerrufsrecht checkbox uses exact LG Karlsruhe-compliant text (§356 Abs. 5 BGB) in all 4 languages — separate from general terms checkbox
 - [Phase 05-legal-and-production-packaging]: disclaimer.html is standalone (no app JS dependencies); plain .txt receipt via Blob; gate uses window.location.replace() to prevent back-button loop
+- [Phase 05-legal-and-production-packaging]: STORE_ID and PRODUCT_ID constants default to 0 in license.js — cross-product validation skipped when 0 (dev mode); Sapir must replace with real Lemon Squeezy values after product creation
+- [Phase 05-legal-and-production-packaging]: sw.js omits immediate activation — avoids half-old-half-new asset state with multiple open tabs; silent background updates preferred
+- [Phase 05-legal-and-production-packaging]: sw.js uses Promise.allSettled() for precaching — tolerates 404 on not-yet-created files (e.g. landing.html) without blocking install
 
 ### Pending Todos
 
@@ -103,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T17:00:05.482Z
-Stopped at: Completed 05-01-PLAN.md (disclaimer/T&C gate)
+Last session: 2026-03-12T17:08:21.009Z
+Stopped at: Completed 05-02-PLAN.md (license key gate and PWA infrastructure)
 Resume file: None
