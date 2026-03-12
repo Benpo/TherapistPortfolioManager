@@ -9,6 +9,7 @@
   <title>Terms of Use — Sessions Garden</title>
   <link rel="stylesheet" href="./assets/tokens.css" />
   <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="manifest" href="./manifest.json" />
   <style>
     /* -----------------------------------------------------------------------
        Disclaimer page — scoped styles
@@ -321,5 +322,8 @@
 
 <script src="./assets/i18n-disclaimer.js"></script>
 <script src="./assets/disclaimer.js"></script>
+<script>
+  if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
+</script>
 </body>
 </html>

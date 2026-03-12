@@ -5,6 +5,9 @@
     (function(){try{if(!localStorage.getItem('portfolioTermsAccepted')){var n=encodeURIComponent(window.location.pathname+window.location.search);window.location.replace('./disclaimer.html?next='+n);}}catch(e){}})();
   </script>
   <script>
+    (function(){try{if(localStorage.getItem('portfolioTermsAccepted')&&!localStorage.getItem('portfolioLicenseActivated')){window.location.replace('./license.html');}}catch(e){}})();
+  </script>
+  <script>
     (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
   </script>
   <meta charset="utf-8" />
@@ -12,6 +15,7 @@
   <title>Sessions Garden</title>
   <link rel="stylesheet" href="./assets/tokens.css" />
   <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="manifest" href="./manifest.json" />
 </head>
 <body data-nav="overview">
   <div class="app-shell">
@@ -159,5 +163,21 @@
   <script src="./assets/db.js"></script>
   <script src="./assets/app.js"></script>
   <script src="./assets/overview.js"></script>
+  <script>
+    if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
+  </script>
+  <script>
+    /* iOS install prompt — shown once per session when not already in standalone mode */
+    (function(){
+      if(/iP(hone|ad|od)/.test(navigator.userAgent)&&!window.matchMedia('(display-mode: standalone)').matches&&!sessionStorage.getItem('iosPromptDismissed')){
+        var b=document.createElement('div');
+        b.id='ios-install-banner';
+        b.setAttribute('role','banner');
+        b.style.cssText='position:fixed;bottom:0;left:0;right:0;background:var(--color-primary);color:#fff;padding:0.75rem 1rem;font-size:0.875rem;display:flex;align-items:center;justify-content:space-between;z-index:9999;gap:0.5rem;';
+        b.innerHTML='<span>Install Sessions Garden: tap the Share button \u{1F4E4}, then \u201CAdd to Home Screen\u201D</span><button onclick="sessionStorage.setItem(\'iosPromptDismissed\',\'1\');this.parentNode.remove();" style="background:rgba(255,255,255,0.25);border:none;color:#fff;padding:0.25rem 0.625rem;border-radius:0.25rem;cursor:pointer;font-size:0.8rem;flex-shrink:0;">Dismiss</button>';
+        document.body.appendChild(b);
+      }
+    })();
+  </script>
 </body>
 </html>
