@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <!-- Theme detection — must run before any render to avoid flash -->
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sessions Garden — Therapeutic Session Tracking for Energy Healers</title>
+  <meta name="description" content="Organize your Emotion Code and Body Code practice with complete privacy. All data stays on your device. One-time purchase, lifetime license." />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="stylesheet" href="./assets/landing.css" />
+</head>
+<body class="landing-shell">
+
+<!-- =========================================================
+     HEADER
+     ========================================================= -->
+<header class="landing-header">
+  <a class="landing-brand" href="./landing.html" aria-label="Sessions Garden home">
+    <span class="landing-brand-mark" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
+        <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+        <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+        <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+      </svg>
+    </span>
+    <span class="landing-brand-name">Sessions Garden</span>
+  </a>
+
+  <div class="landing-header-actions">
+    <select id="landingLangSelect" class="select" aria-label="Language / שפה / Sprache / Jazyk">
+      <option value="en">English</option>
+      <option value="he">עברית</option>
+      <option value="de">Deutsch</option>
+      <option value="cs">Čeština</option>
+    </select>
+    <a id="hero-enter-link" href="./license.html" class="landing-enter-link">Already have a license?</a>
+  </div>
+</header>
+
+<!-- =========================================================
+     HERO
+     ========================================================= -->
+<section class="landing-hero" aria-labelledby="hero-title">
+  <div id="hero-badge" class="landing-hero-badge">For Energy Healing Practitioners</div>
+
+  <h1 id="hero-title">Sessions Garden</h1>
+
+  <p id="hero-tagline" class="landing-tagline">
+    Organize your therapeutic practice with complete privacy
+  </p>
+
+  <p id="hero-subtitle" class="landing-subtitle">
+    A session tracking tool built for Emotion Code and Body Code practitioners.
+    All data stays on your device — always.
+  </p>
+
+  <div class="landing-cta-group">
+    <!-- TODO: Replace the href below with your actual Lemon Squeezy checkout URL after creating the product.
+         Format: https://YOURSTORE.lemonsqueezy.com/buy/VARIANT_ID
+         Find this URL in: Lemon Squeezy dashboard > Products > Your Product > Share -->
+    <a id="hero-cta"
+       href="https://YOURSTORE.lemonsqueezy.com/buy/VARIANT_ID"
+       class="landing-btn-primary"
+       rel="noopener noreferrer">
+      Get Sessions Garden — EUR 49
+    </a>
+  </div>
+  <p class="landing-price-note">
+    <!-- TODO: Replace price with actual Lemon Squeezy price after product creation -->
+    One-time purchase &middot; No subscription &middot; Lifetime license
+  </p>
+</section>
+
+<!-- =========================================================
+     FEATURES
+     ========================================================= -->
+<section class="landing-section" aria-labelledby="features-title">
+  <h2 id="features-title" class="landing-section-title">Everything you need. Nothing you don't.</h2>
+  <p id="features-subtitle" class="landing-section-subtitle">Built for practitioners who value simplicity, privacy, and focus.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true">🔒</span>
+      <h3>Complete Privacy</h3>
+      <p>All data stored locally on your device. No cloud, no accounts, no data collection. The developer has zero access to your information.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true">📴</span>
+      <h3>Works Offline</h3>
+      <p>Install as an app on any device. Works without internet after first setup — in your office, at home, anywhere.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true">🌍</span>
+      <h3>4 Languages</h3>
+      <p>Full support for English, Hebrew, German, and Czech. Complete right-to-left (RTL) layout for Hebrew.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true">📋</span>
+      <h3>Session Tracking</h3>
+      <p>Track trapped emotions, severity levels, limiting beliefs, inherited energies, Heart-Wall, techniques, and more.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true">👥</span>
+      <h3>Client Management</h3>
+      <p>Organise clients by type (Adult, Child, Animal), track referral sources, and add custom notes.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true">💾</span>
+      <h3>Data Export</h3>
+      <p>Export all your data as a JSON backup at any time. Your data, your control, your device.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     PRICING
+     ========================================================= -->
+<section class="landing-pricing" aria-labelledby="pricing-title">
+  <div class="landing-pricing-inner">
+    <h2 id="pricing-title" class="landing-section-title">Simple, honest pricing</h2>
+    <p id="pricing-subtitle" class="landing-section-subtitle">One payment. Lifetime access. No surprises.</p>
+
+    <div class="pricing-card">
+      <div id="pricing-badge" class="pricing-badge">One-time purchase</div>
+
+      <div id="pricing-price" class="pricing-price">EUR 49</div>
+      <!-- TODO: Replace price with actual Lemon Squeezy price after product creation -->
+      <div id="pricing-price-sub" class="pricing-price-sub">one-time payment</div>
+      <div id="pricing-no-sub" class="pricing-no-subscription">No subscription. No hidden fees.</div>
+
+      <ul class="pricing-features-list" aria-label="What's included">
+        <li>Lifetime license — pay once, use forever</li>
+        <li>Includes 3 device activations</li>
+        <li>All 4 languages included</li>
+        <li>Offline capability (PWA)</li>
+        <li>All future updates</li>
+        <li>Full data export at any time</li>
+      </ul>
+
+      <div class="pricing-actions">
+        <!-- TODO: Replace the href below with your actual Lemon Squeezy checkout URL after creating the product.
+             Format: https://YOURSTORE.lemonsqueezy.com/buy/VARIANT_ID -->
+        <a id="pricing-cta"
+           href="https://YOURSTORE.lemonsqueezy.com/buy/VARIANT_ID"
+           class="landing-btn-primary"
+           rel="noopener noreferrer">
+          Purchase Sessions Garden
+        </a>
+        <a id="pricing-license-link" href="./license.html" class="pricing-license-link">
+          Already have a license? Activate it here
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     IMPRESSUM
+     ========================================================= -->
+<hr class="legal-divider" />
+<section id="impressum" class="legal-section" aria-labelledby="impressum-title">
+  <h2 id="impressum-title">Impressum</h2>
+
+  <h3 id="impressum-angaben">Angaben gemäß DDG § 5</h3>
+
+  <!-- TODO: Generate your complete Impressum at https://www.e-recht24.de/impressum-generator.html
+       Enter your full legal name, address, email, and phone number.
+       Copy the generated text here and remove this placeholder block. -->
+  <p id="impressum-note" class="legal-placeholder" style="white-space:pre-line;">TODO: Generate your Impressum at https://www.e-recht24.de/impressum-generator.html and replace the placeholder below.</p>
+
+  <div class="legal-placeholder" aria-label="Impressum placeholder">
+    <pre id="impressum-placeholder" style="font-family:inherit;margin:0;white-space:pre-wrap;">[Full Legal Name]
+[Street Address]
+[City, Postal Code, Country]
+Email: [Email Address]
+Phone: [Phone Number — optional]</pre>
+  </div>
+</section>
+
+<!-- =========================================================
+     DATENSCHUTZERKLAERUNG / PRIVACY POLICY
+     ========================================================= -->
+<hr class="legal-divider" />
+<section id="datenschutz" class="legal-section" aria-labelledby="datenschutz-title">
+  <h2 id="datenschutz-title">Privacy Policy / Datenschutzerklärung</h2>
+
+  <!-- TODO: Before launch, run a full Datenschutzerklärung through
+       https://www.adsimple.de/datenschutz-generator/ or https://www.e-recht24.de
+       for a finalized, lawyer-reviewed version covering all required GDPR Art. 13/14 disclosures. -->
+
+  <h3 id="datenschutz-art13-title">1. Data Processing (GDPR Art. 13/14)</h3>
+  <p id="datenschutz-art13">
+    Sessions Garden does not collect, store, or transmit any personal data. All session and client data is stored exclusively on your device using IndexedDB browser technology. The developer has zero access to your data.
+  </p>
+
+  <h3 id="datenschutz-hosting-title">2. Hosting</h3>
+  <p id="datenschutz-hosting">
+    This website is hosted on Cloudflare Pages (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA). Cloudflare may process access logs (IP address, browser type, timestamp) as part of standard web hosting operations. For details, see Cloudflare's privacy policy:
+    <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">https://www.cloudflare.com/privacypolicy/</a>
+  </p>
+
+  <h3 id="datenschutz-payment-title">3. Payment Processing</h3>
+  <p id="datenschutz-payment">
+    Payments are processed by Lemon Squeezy (Lemon Squeezy, LLC), who acts as Merchant of Record. Purchase data (name, email, payment information) is handled by Lemon Squeezy. For details, see Lemon Squeezy's privacy policy:
+    <a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener noreferrer">https://www.lemonsqueezy.com/privacy</a>
+  </p>
+
+  <h3 id="datenschutz-storage-title">4. Local Storage</h3>
+  <p id="datenschutz-storage">
+    This application uses localStorage for preferences (language, theme) and license activation status. No tracking cookies are used. All clinical data is stored in your browser's IndexedDB, accessible only on your device.
+  </p>
+
+  <h3 id="datenschutz-rights-title">5. Your Rights (GDPR Art. 15–21)</h3>
+  <p id="datenschutz-rights">
+    Right to access: your data is already on your device — open the app to see it. Right to deletion: clear your browser's site data to remove all stored information. Right to data portability: use the Export function in the app to download your data as a JSON file.
+  </p>
+
+  <p id="datenschutz-note" class="legal-placeholder">
+    TODO: Run the full Datenschutzerklärung through https://www.adsimple.de/datenschutz-generator/ or https://www.e-recht24.de before launch for a finalized, lawyer-reviewed version.
+  </p>
+</section>
+
+<!-- =========================================================
+     FOOTER
+     ========================================================= -->
+<footer class="landing-footer">
+  <nav class="landing-footer-links" aria-label="Footer navigation">
+    <a id="footer-terms" href="./disclaimer.html?readonly=true">Terms of Use</a>
+    <a id="footer-impressum-link" href="#impressum">Impressum</a>
+    <a id="footer-privacy-link" href="#datenschutz">Privacy Policy</a>
+  </nav>
+  <p id="footer-copy" class="landing-footer-copy">&copy; 2026 Sessions Garden</p>
+  <p id="footer-tagline" class="landing-footer-tagline">Made with care for therapeutic practitioners</p>
+</footer>
+
+<!-- =========================================================
+     SCRIPTS
+     ========================================================= -->
+<script src="./assets/landing.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').catch(function(err) {
+        console.warn('SW registration failed:', err);
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
