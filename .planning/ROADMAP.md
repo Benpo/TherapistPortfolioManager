@@ -97,11 +97,12 @@ Plans:
   3. Disclaimer content covers EU consumer protection, German Widerrufsrecht, and privacy disclosure (no data collection) per existing legal research
   4. The app works offline after first load -- service worker caches all assets, and the app is installable via "Add to Home Screen"
   5. A working access-gating mechanism (license key, hash check, or equivalent) controls access for paid users
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md — Disclaimer/T&C gate with 4-language legal content, Widerrufsrecht checkbox, acceptance receipt (LEGL-01, LEGL-02, LEGL-03)
+- [ ] 05-02-PLAN.md — License key gate via Lemon Squeezy API + PWA service worker and manifest (DIST-03, DIST-04)
+- [ ] 05-03-PLAN.md — Marketing landing page with purchase flow, Impressum, Datenschutzerklaerung (DIST-05)
 
 ### Phase 6: Quality and Developer Experience
 **Goal**: The product is validated across all browsers, modes, and languages, with automated tests and documentation enabling Sapir to maintain it independently
@@ -130,5 +131,5 @@ Phases execute in numeric order: 1 -> 1.1 -> 2 -> 2.1 -> 3 -> etc.
 | 2. Visual Transformation | 3/3 | Complete | 2026-03-10 |
 | 3. Data Model and Features | 3/3 | Complete | 2026-03-10 |
 | 4. Internationalization and Distribution Research | 3/3 | Complete | 2026-03-12 |
-| 5. Legal and Production Packaging | 0/? | Not started | - |
+| 5. Legal and Production Packaging | 0/3 | Not started | - |
 | 6. Quality and Developer Experience | 0/? | Not started | - |
