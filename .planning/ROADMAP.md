@@ -13,9 +13,9 @@ Transform the existing functional vanilla JS prototype into a sellable product f
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Design tokens, self-hosted fonts, DB migration infrastructure, and backup safety net (completed 2026-03-09)
-- [ ] **Phase 2: Visual Transformation** - Garden theme overhaul, dark mode, CSS logical properties, and nav extraction
-- [ ] **Phase 3: Data Model and Features** - Session field consolidation (with Sapir), expanded types, new fields, search, and greeting
-- [ ] **Phase 4: Internationalization and Distribution Research** - 4-language i18n, RTL validation, hosting and payment research
+- [x] **Phase 2: Visual Transformation** - Garden theme overhaul, dark mode, CSS logical properties, and nav extraction (completed 2026-03-10)
+- [x] **Phase 3: Data Model and Features** - Session field consolidation (with Sapir), expanded types, new fields, search, and greeting (completed 2026-03-10)
+- [x] **Phase 4: Internationalization and Distribution Research** - 4-language i18n, RTL validation, hosting and payment research (completed 2026-03-12)
 - [ ] **Phase 5: Legal and Production Packaging** - Disclaimer compliance, access gating, PWA setup, distribution-ready bundle
 - [ ] **Phase 6: Quality and Developer Experience** - Playwright tests, cross-browser/RTL/responsive QA, maintainer guides for Sapir
 
@@ -127,8 +127,8 @@ Phases execute in numeric order: 1 -> 1.1 -> 2 -> 2.1 -> 3 -> etc.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-09 |
-| 2. Visual Transformation | 1/3 | In Progress|  |
-| 3. Data Model and Features | 0/3 | Not started | - |
-| 4. Internationalization and Distribution Research | 0/3 | Not started | - |
+| 2. Visual Transformation | 3/3 | Complete | 2026-03-10 |
+| 3. Data Model and Features | 3/3 | Complete | 2026-03-10 |
+| 4. Internationalization and Distribution Research | 3/3 | Complete | 2026-03-12 |
 | 5. Legal and Production Packaging | 0/? | Not started | - |
 | 6. Quality and Developer Experience | 0/? | Not started | - |
