@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <script>
+    /* Terms gate — redirect to disclaimer if terms not accepted yet */
+    (function(){try{if(!localStorage.getItem('portfolioTermsAccepted')){var n=encodeURIComponent('/license.html');window.location.replace('./disclaimer.html?next='+n);}}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Activate — Sessions Garden</title>
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <style>
+    /* -----------------------------------------------------------------------
+       License page — scoped styles
+       ----------------------------------------------------------------------- */
+
+    .license-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-bg);
+      color: var(--color-text);
+      padding: 2rem 1rem;
+    }
+
+    .license-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 1rem;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    }
+
+    .license-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .license-brand-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    .license-heading {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .license-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin: 0;
+    }
+
+    .license-subtitle {
+      font-size: 0.9rem;
+      color: var(--color-text-muted, var(--color-text));
+      opacity: 0.75;
+      margin: 0;
+    }
+
+    .license-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .license-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .license-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .license-key-input {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      background: var(--color-bg);
+      color: var(--color-text);
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color 0.15s;
+    }
+
+    .license-key-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+    }
+
+    .license-activate-btn {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .license-activate-btn:hover:not(:disabled) {
+      opacity: 0.88;
+    }
+
+    .license-activate-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .license-message {
+      font-size: 0.875rem;
+      padding: 0.625rem 0.875rem;
+      border-radius: 0.5rem;
+      line-height: 1.5;
+    }
+
+    .license-message--error {
+      background: color-mix(in srgb, #ef4444 12%, transparent);
+      color: #b91c1c;
+      border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
+    }
+
+    [data-theme="dark"] .license-message--error {
+      color: #fca5a5;
+      background: color-mix(in srgb, #ef4444 18%, transparent);
+    }
+
+    .license-message--success {
+      background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+      color: var(--color-primary);
+      border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+    }
+
+    .license-purchase {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--color-text);
+      opacity: 0.75;
+    }
+
+    .license-purchase a {
+      color: var(--color-primary);
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    .license-purchase a:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <main class="license-page">
+    <div class="license-card">
+
+      <!-- Brand -->
+      <a href="./index.html" class="license-brand" style="text-decoration:none;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
+          <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+          <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+          <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        </svg>
+        <span class="license-brand-title">Sessions Garden</span>
+      </a>
+
+      <!-- Heading -->
+      <div class="license-heading">
+        <h1 id="license-title" class="license-title">Activate Sessions Garden</h1>
+        <p id="license-subtitle" class="license-subtitle">Enter your license key to unlock the app.</p>
+      </div>
+
+      <!-- Form -->
+      <div class="license-form">
+        <div class="license-field">
+          <label id="license-key-label" class="license-label" for="license-key-input">License Key</label>
+          <input
+            id="license-key-input"
+            class="license-key-input"
+            type="text"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="XXXX-XXXX-XXXX-XXXX"
+          />
+        </div>
+
+        <!-- Message area (hidden by default) -->
+        <p id="license-message" class="license-message" hidden></p>
+
+        <button id="license-activate-btn" class="license-activate-btn" type="button">
+          Activate
+        </button>
+      </div>
+
+      <!-- Purchase link -->
+      <p class="license-purchase">
+        <span id="license-purchase-text">Don't have a license key?</span>
+        <br />
+        <a id="license-purchase-link" href="./landing.html">Purchase Sessions Garden</a>
+      </p>
+
+    </div>
+  </main>
+
+  <script src="./assets/license.js"></script>
+</body>
+</html>
