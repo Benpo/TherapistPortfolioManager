@@ -740,6 +740,99 @@
   margin-block-start: 2.5rem;
 }
 
+/* ---- Botanical section accents ---- */
+.botanical-accent {
+  color: var(--color-primary);
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+}
+
+[data-theme="dark"] .botanical-accent {
+  color: var(--color-cream-warm-200);
+}
+
+/* Small inline accent next to section titles */
+.botanical-accent-inline {
+  display: inline-block;
+  vertical-align: middle;
+  color: var(--color-primary);
+  opacity: 0.35;
+  pointer-events: none;
+  margin-inline-start: 0.5rem;
+}
+
+[data-theme="dark"] .botanical-accent-inline {
+  color: var(--color-cream-warm-200);
+}
+
+@media (max-width: 768px) {
+  .botanical-accent-inline {
+    display: none;
+  }
+}
+
+/* Positioned botanical decorations — hidden on mobile */
+.botanical-positioned {
+  position: absolute;
+  color: var(--color-primary);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+[data-theme="dark"] .botanical-positioned {
+  color: var(--color-cream-warm-200);
+}
+
+@media (max-width: 768px) {
+  .botanical-positioned {
+    display: none;
+  }
+}
+
+/* Botanical divider variant — different plant design */
+.botanical-divider-alt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0 2rem;
+  color: var(--color-primary);
+  opacity: 0.55;
+}
+
+.botanical-divider-alt svg {
+  max-inline-size: 400px;
+  inline-size: 80%;
+}
+
+[data-theme="dark"] .botanical-divider-alt {
+  color: var(--color-cream-warm-200);
+}
+
+/* Founder section — relative for positioned botanicals */
+.why-built-quote {
+  position: relative;
+}
+
+/* Footer botanical decoration */
+.botanical-footer-accent {
+  display: flex;
+  justify-content: center;
+  color: var(--color-primary);
+  opacity: 0.4;
+  pointer-events: none;
+  margin-block-end: 1.25rem;
+}
+
+.botanical-footer-accent svg {
+  max-inline-size: 200px;
+  inline-size: 50%;
+}
+
+[data-theme="dark"] .botanical-footer-accent {
+  color: var(--color-cream-warm-200);
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 640px) {
   .landing-header {
