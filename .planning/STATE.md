@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 05.1-01-PLAN.md
-last_updated: "2026-03-15T20:35:19.826Z"
+stopped_at: Checkpoint 05.1-02 Task 2 — awaiting Sapir visual approval
+last_updated: "2026-03-15T20:40:31.687Z"
 last_activity: 2026-03-10 -- Completed 03-03 search, quotes, and brand navigation
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 17
-  completed_plans: 16
+  completed_plans: 17
   percent: 100
 ---
 
@@ -60,6 +60,7 @@ Progress: [██████████] 100%
 | Phase 05-legal-and-production-packaging P01 | 5 | 2 tasks | 8 files |
 | Phase 05-legal-and-production-packaging P02 | 8 | 2 tasks | 13 files |
 | Phase 05.1-landing-page-visual-redesign P01 | 2 | 2 tasks | 2 files |
+| Phase 05.1-landing-page-visual-redesign P02 | 12 | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -97,6 +98,8 @@ Recent decisions affecting current work:
 - [Phase 05-legal-and-production-packaging]: sw.js uses Promise.allSettled() for precaching — tolerates 404 on not-yet-created files (e.g. landing.html) without blocking install
 - [Phase 05.1-landing-page-visual-redesign]: Hero gradient scoped to .landing-hero — cream text contrast overrides scoped inside same selector to prevent global typography leaks
 - [Phase 05.1-landing-page-visual-redesign]: Botanical SVG illustrations use stroke=currentColor on SVG root — CSS .hero-botanical color prop controls entire illustration for clean theming
+- [Phase 05.1-landing-page-visual-redesign]: DOODLE_ICONS uses var declaration for ES5 consistency; i18n renderer uses innerHTML for SVG string parsing
+- [Phase 05.1-landing-page-visual-redesign]: Feature icons use color: var(--color-primary) in both light and dark mode — functional icons stay teal in both themes
 
 ### Roadmap Evolution
 
@@ -114,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T20:35:19.824Z
-Stopped at: Completed 05.1-01-PLAN.md
+Last session: 2026-03-15T20:40:31.685Z
+Stopped at: Checkpoint 05.1-02 Task 2 — awaiting Sapir visual approval
 Resume file: None
