@@ -47,16 +47,62 @@ The app is legally compliant for EU/German sales and packaged for distribution a
 - App icon: deferred — needs design work. Use placeholder for now, create todo for icon design
 - navigator.storage.persist() already implemented in Phase 1 — protects IndexedDB from eviction
 
-### Landing Page and Production Bundle (DIST-05)
-- Landing page as part of the same project (same domain, same deployment)
-- Content: marketing description, feature preview/screenshots, FAQ, purchase button (Lemon Squeezy checkout), 4 languages
-- Impressum (DDG §5, mandatory in Germany): full name, address, email, phone — must be max 2 clicks from any page
-- Datenschutzerklärung (GDPR Art. 13/14): privacy policy explaining local-only data model, no data collection
-- Landing page in all 4 languages (EN, HE, DE, CS) with architecture supporting future language additions
+### Landing Page Strategy and Structure (DIST-05)
+
+#### Target Audience & Pain Points
+Three audience segments:
+1. **New practitioners** — coming from the study tool that was taken away, looking for a direct continuation
+2. **Experienced practitioners** — using paper, random files, or other apps — need to be convinced through emotion + logic
+3. **Word-of-mouth** — herd effect; once some buy, it spreads in the community
+
+Core pain points the page must address:
+1. Paper chaos — drawers full of notes, takes forever to find past sessions
+2. No suitable tool — the study tool was taken away, nothing else fits energy healing workflows
+3. Client privacy fears — sensitive data in files, emails, shared computers
+4. Time wasted on summary emails — practitioners write recap emails to clients after sessions; with this tool, type once and copy-paste
+5. Self-doubt and practitioner confidence — especially early in practice, energy healing constantly raises doubts. The tool serves as a "success garden" — a place to look back at what you've done and achieved, and believe in yourself again
+6. Clients returning after long breaks — hard to remember past treatments and continue effectively
+
+#### Value Proposition (combined)
+- **Organization**: finally everything in one structured place
+- **Success garden**: see the path you've walked, believe in yourself again
+- **The tool you wished existed**: built by a practitioner, for practitioners
+- **Total privacy**: data stays on your device, always
+
+#### Page Structure (updated order)
+1. **Hero** — name, tagline, CTA button, botanical illustrations
+2. **Sound Familiar?** (moved UP from #4) — connect emotionally to pain first, then present the solution. Add new pain: "I spend too much time writing summary emails to clients after sessions"
+3. **Features** — 7 cards (was 6): add new card "Your Success Garden" about seeing achievements and believing in yourself. Existing 6 cards remain
+4. **Screenshots** (NEW section) — 3 screenshots from the app: Dashboard, Session page, Client overview. Shows the product is real and beautiful
+5. **Who Is It For** — list of practitioner types
+6. **Why I Built This** — personal story, strengthened with self-doubt angle: "When I doubt myself, I open my session history and remember all the people I've helped"
+7. **Pricing** — €119 launch / €159 full, one-time purchase, lifetime license
+8. **FAQ** — existing 10 questions
+9. **Impressum + Datenschutzerklärung** — legal sections
+
+#### Languages
+- Landing page in all 4 languages (EN, HE, DE, CS) — same as the app itself
+- Language selector in header (already exists)
+- Each language version feels native, not translated — tone adapted per culture
+- Hebrew version is RTL
+
+#### Pricing (decided)
+- €119 launch price, €159 full price
+- One-time purchase, lifetime license
+- 2 device activations per license
+- 14-day full refund policy
+- Data does NOT sync between devices (clear messaging)
+
+#### Legal Pages
+- Impressum (DDG §5, mandatory in Germany): full name, address, email, phone — must be max 2 clicks from any page. Currently placeholder — needs real details before launch
+- Datenschutzerklärung (GDPR Art. 13/14): privacy policy explaining local-only data model, no data collection. Draft exists, needs proper generator before launch
 - Deployment: Cloudflare Pages, push to GitHub = auto-deploy
-- Domain: start with free *.pages.dev subdomain, custom domain to be decided later (separate task)
-- Price: Claude to research and recommend based on comparable products. Lemon Squeezy supports automatic currency conversion — set base price in EUR, customers see their local currency
-- Lemon Squeezy account setup and product configuration included in this phase
+- Domain: start with free *.pages.dev subdomain, custom domain to be decided later
+
+#### Lemon Squeezy
+- Account setup and product configuration included in this phase
+- Checkout URL to replace placeholder in landing page
+- EUR base price, Lemon Squeezy auto-converts at checkout
 
 ### Claude's Discretion
 - Disclaimer screen UX (full-page gate vs modal, scroll-to-bottom vs sectioned acknowledgment)
@@ -65,16 +111,18 @@ The app is legally compliant for EU/German sales and packaged for distribution a
 - Invalid key error handling UX
 - PWA update strategy (silent vs notification)
 - Install prompt behavior per platform
-- Landing page layout and content structure
-- Pricing recommendation based on market research
+- Landing page visual design details (spacing, typography, card styles, botanical elements)
+- Landing page copy tone adjustments per language (cultural adaptation)
 - Impressum and privacy policy content (using generators + legal research already done)
 - Receipt format and content
+- Screenshots selection and presentation style (carousel vs grid vs side-by-side)
 
 </decisions>
 
 <specifics>
 ## Specific Ideas
 
+### Disclaimer & Legal
 - "אני לא מוכרת שום מידע רפואי אלא רק מערכת ארגונית" — the app is an organizational tool, not medical. Disclaimer must make this crystal clear
 - "אין לי אחריות על המידע ושהמידע לא מגיע אלי ולא נשמר בשום מקום אלא אישי ופרטי ואחריות הגיבוי על המשתמש בלבד" — zero data access, backup is user's responsibility
 - "הקובץ ההורדה אמור להיות אישי ובלתי ניתן להעברה למשתמשים אחרים שלא רכשו" — receipt/license is personal and non-transferable
@@ -83,6 +131,14 @@ The app is legally compliant for EU/German sales and packaged for distribution a
 - Disclaimer screen needs its own language selector since user hasn't entered the app yet
 - Sectioned disclaimer with per-section acknowledgment OR scroll-to-bottom — user liked both ideas, Claude researches and chooses
 - "במידה ועוד מספר שנים לא ארצה לפרסם את זה יותר... עדיין המוצר יעבוד אצל אנשים שרכשו אותו" — PWA architecture ensures installed apps survive website shutdown
+
+### Landing Page (added 2026-03-15)
+- "הרבה פעמים אחרי הטיפול אנחנו כותבות מייל ללקוחות... זה לוקח מלא זמן ועכשיו אפשר פשוט להקליד ישירות לכלי הזה ואח״כ לעשות העתק-הדבק" — email summaries are a real daily time sink. The tool replaces writing from scratch with copy-paste from session notes
+- "בתחילת הדרך יש הרבה רגעים של היסוס וספק עצמי... הכלי הזה ממש מספק גינת הצלחות. לראות ולהזכיר לעצמנו את מה שכן עברנו וכן עשינו וכן הצלחנו" — the "success garden" concept is an emotional differentiator. When practitioners doubt themselves, they open past sessions and remember their impact
+- "כל פעם שאני חושבת שהעולם עומד להגמר ואני צריכה לפרוש — אני קוראת סיפורי הצלחה ונזכרת בעצמי ומאמינה בעצמי מחדש" — the landing page should convey this emotional safety net, not just practical organization
+- Three audience segments: new practitioners (continuation from study tool), experienced practitioners (paper/files), word-of-mouth (herd effect)
+- "Sound Familiar?" section should come BEFORE features — connect to pain first, then present solution
+- Brand name meaning: "Sessions Garden" = the practitioner's garden of sessions. Each client is a plant needing different care. Hebrew: "גינת הטיפולים שלי"
 
 </specifics>
 

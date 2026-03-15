@@ -41,14 +41,30 @@
 - [ ] Overall look and feel: not yet reviewed by Sapir
 - [ ] Logo/brand mark: current leaf SVG — not yet discussed
 
+## F. Page Structure — DECIDED (2026-03-15)
+
+- [x] **Section order**: Hero → Sound Familiar (moved up) → Features (7 cards) → Screenshots (new) → Who Is It For → Why I Built This → Pricing → FAQ → Legal
+- [x] **New Feature card**: "Your Success Garden" — emotional differentiator about seeing achievements and believing in yourself
+- [x] **New pain point**: "I spend too much time writing summary emails to clients" added to Sound Familiar
+- [x] **Why I Built This**: strengthened with self-doubt angle
+- [x] **Languages**: all 4 languages (EN, HE, DE, CS)
+- [x] **Audience segments**: new practitioners (from study tool), experienced (paper/files), word-of-mouth
+
+## G. Strategy & Positioning — DECIDED (2026-03-15)
+
+- [x] **Value proposition**: Organization + Success Garden + Built by practitioner + Total privacy
+- [x] **Emotional hook**: "Success garden" — the place to return when you doubt yourself
+- [x] **Key differentiator**: No other tool offers the emotional confidence-building aspect
+- [x] **Page flow**: Pain first (Sound Familiar), then solution (Features), then proof (Screenshots + Story), then buy (Pricing)
+
 ---
 
 ## Next Steps
 
-1. **Take screenshots** from the app (Dashboard, Session, Client)
-2. **Implement copy** from COPY-DRAFT-v1.md into landing.html
-3. **Visual design review** — Sapir reviews the page in browser
-4. **Impressum** — collect details or defer to launch
-5. **Disclaimer** — add backup responsibility clause
-6. **Set up Lemon Squeezy** — create product, get checkout URL
-7. **Complete Phase 05-03** checkpoint
+1. **Redesign landing page** — implement new section order, add Success Garden card, add screenshots section
+2. **Update copy** — add new pain point (email summaries), strengthen Why I Built This
+3. **Take screenshots** from the app (Dashboard, Session, Client)
+4. **Add all 4 languages** to landing page copy
+5. **Visual design review** — Sapir reviews the page in browser
+6. **Impressum** — collect details or defer to launch
+7. **Set up Lemon Squeezy** — create product, get checkout URL
