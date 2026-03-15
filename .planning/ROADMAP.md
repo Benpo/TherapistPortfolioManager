@@ -104,6 +104,17 @@ Plans:
 - [ ] 05-02-PLAN.md — License key gate via Lemon Squeezy API + PWA service worker and manifest (DIST-03, DIST-04)
 - [ ] 05-03-PLAN.md — Marketing landing page with purchase flow, Impressum, Datenschutzerklaerung (DIST-05)
 
+### Phase 05.1: Landing Page Visual Redesign (INSERTED)
+
+**Goal:** Redesign landing page visual identity — colors, typography, layout elements, botanical illustrations, and overall look and feel — based on Sapir's design preferences
+**Depends on**: Phase 5 (landing page must exist before visual redesign)
+**Requirements**: DIST-05
+**Plans:** 2 plans
+
+Plans:
+- [ ] 05.1-01-PLAN.md — Hero gradient, typography refinements, hand-drawn doodle botanical SVGs for hero and section divider (DIST-05)
+- [ ] 05.1-02-PLAN.md — Feature card doodle icons replacing emoji + Sapir visual approval checkpoint (DIST-05)
+
 ### Phase 6: Quality and Developer Experience
 **Goal**: The product is validated across all browsers, modes, and languages, with automated tests and documentation enabling Sapir to maintain it independently
 **Depends on**: Phase 5 (QA tests the final packaged product)
@@ -132,4 +143,5 @@ Phases execute in numeric order: 1 -> 1.1 -> 2 -> 2.1 -> 3 -> etc.
 | 3. Data Model and Features | 3/3 | Complete | 2026-03-10 |
 | 4. Internationalization and Distribution Research | 3/3 | Complete | 2026-03-12 |
 | 5. Legal and Production Packaging | 2/3 | In Progress|  |
+| 5.1 Landing Page Visual Redesign | 0/2 | Not started | - |
 | 6. Quality and Developer Experience | 0/? | Not started | - |
