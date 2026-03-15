@@ -1,4 +1,4 @@
-# Distribution Decision: Sessions Garden
+א# Distribution Decision: Sessions Garden
 
 **Decided:** 2026-03-11
 **Decided by:** Sapir (product owner) with research support

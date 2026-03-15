@@ -27,8 +27,12 @@ window.DISCLAIMER_I18N = {
         body: 'Sessions Garden is provided "as is" without warranty of any kind, express or implied. The developer makes no representations regarding the accuracy, completeness, or availability of the application. To the fullest extent permitted by applicable law, the developer shall not be liable for any loss of data, loss of profits, or any other direct or indirect damages arising from use of this application.'
       },
       {
+        title: 'Intellectual Property & Restrictions',
+        body: 'Sessions Garden and all its content, code, and design are the intellectual property of the developer. You may not copy, modify, reverse-engineer, decompile, or distribute any part of the application. You may not share your license key with others or make the application available to third parties.'
+      },
+      {
         title: 'Single-User License',
-        body: 'Your license to use Sessions Garden is personal and non-transferable. You may install and use the application on up to three devices that you personally own or control. You may not sublicense, resell, or otherwise transfer your license to any other person. This license remains valid for the lifetime of the product version purchased.'
+        body: 'Your license to use Sessions Garden is personal and non-transferable. You may install and use the application on up to two devices that you personally own or control. You may not sublicense, resell, or otherwise transfer your license to any other person. This license remains valid for the lifetime of the product version purchased.'
       },
       {
         title: 'Right of Withdrawal (Widerrufsrecht)',
@@ -89,8 +93,12 @@ window.DISCLAIMER_I18N = {
         body: 'Sessions Garden מסופקת "כמות שהיא" (as is) ללא כל אחריות, מפורשת או משתמעת. המפתח אינו מתחייב לגבי דיוק, שלמות, או זמינות היישום. במידה המרבית המותרת על פי הדין החל, המפתח לא יהיה אחראי לאובדן נתונים, אובדן רווחים, או כל נזק אחר, ישיר או עקיף, הנובע משימוש ביישום זה.'
       },
       {
+        title: 'קניין רוחני והגבלות',
+        body: 'Sessions Garden וכל תכניו, הקוד והעיצוב שלו הם קניין רוחני של המפתח. אינכם רשאים להעתיק, לשנות, לבצע הנדסה לאחור, לפרק או להפיץ כל חלק מהיישום. אינכם רשאים לשתף את מפתח הרישיון שלכם עם אחרים או להנגיש את היישום לצדדים שלישיים.'
+      },
+      {
         title: 'רישיון למשתמש יחיד',
-        body: 'הרישיון שלכם להשתמש ב-Sessions Garden הוא אישי ואינו ניתן להעברה. תוכלו להתקין ולהשתמש ביישום בעד שלושה מכשירים שבבעלותכם האישית או בשליטתכם. אינכם רשאים להעניק רישיון משנה, למכור מחדש, או להעביר את הרישיון שלכם לאדם אחר. רישיון זה תקף לכל חיי גרסת המוצר שנרכשה.'
+        body: 'הרישיון שלכם להשתמש ב-Sessions Garden הוא אישי ואינו ניתן להעברה. תוכלו להתקין ולהשתמש ביישום בעד שני מכשירים שבבעלותכם האישית או בשליטתכם. אינכם רשאים להעניק רישיון משנה, למכור מחדש, או להעביר את הרישיון שלכם לאדם אחר. רישיון זה תקף לכל חיי גרסת המוצר שנרכשה.'
       },
       {
         title: 'זכות ביטול (Widerrufsrecht)',
@@ -151,8 +159,12 @@ window.DISCLAIMER_I18N = {
         body: 'Sessions Garden wird „wie besehen" (as is) ohne jegliche ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Der Entwickler gibt keine Zusicherungen hinsichtlich Genauigkeit, Vollständigkeit oder Verfügbarkeit der Anwendung. Soweit gesetzlich zulässig, haftet der Entwickler nicht für Datenverluste, entgangene Gewinne oder sonstige direkte oder indirekte Schäden, die aus der Nutzung dieser Anwendung entstehen.'
       },
       {
+        title: 'Geistiges Eigentum & Einschränkungen',
+        body: 'Sessions Garden und alle seine Inhalte, sein Code und sein Design sind geistiges Eigentum des Entwicklers. Sie dürfen keinen Teil der Anwendung kopieren, verändern, zurückentwickeln, dekompilieren oder verbreiten. Sie dürfen Ihren Lizenzschlüssel nicht mit anderen teilen oder die Anwendung Dritten zugänglich machen.'
+      },
+      {
         title: 'Einzelnutzerlizenz',
-        body: 'Ihre Lizenz zur Nutzung von Sessions Garden ist persönlich und nicht übertragbar. Sie dürfen die Anwendung auf bis zu drei Geräten installieren und nutzen, die sich in Ihrem persönlichen Besitz oder unter Ihrer Kontrolle befinden. Sie sind nicht berechtigt, Ihre Lizenz weiterzulizenzieren, weiterzuverkaufen oder auf eine andere Person zu übertragen. Diese Lizenz gilt für die Lebensdauer der erworbenen Produktversion.'
+        body: 'Ihre Lizenz zur Nutzung von Sessions Garden ist persönlich und nicht übertragbar. Sie dürfen die Anwendung auf bis zu zwei Geräten installieren und nutzen, die sich in Ihrem persönlichen Besitz oder unter Ihrer Kontrolle befinden. Sie sind nicht berechtigt, Ihre Lizenz weiterzulizenzieren, weiterzuverkaufen oder auf eine andere Person zu übertragen. Diese Lizenz gilt für die Lebensdauer der erworbenen Produktversion.'
       },
       {
         title: 'Widerrufsrecht',
@@ -213,8 +225,12 @@ window.DISCLAIMER_I18N = {
         body: 'Sessions Garden je poskytována „tak jak je" (as is) bez jakékoli výslovné nebo předpokládané záruky. Vývojář neposkytuje žádná prohlášení ohledně přesnosti, úplnosti nebo dostupnosti aplikace. V maximálním rozsahu povoleném platným právem vývojář nenese odpovědnost za ztrátu dat, ztrátu zisku ani jiné přímé či nepřímé škody vzniklé v důsledku použití této aplikace.'
       },
       {
+        title: 'Duševní vlastnictví a omezení',
+        body: 'Sessions Garden a veškerý jeho obsah, kód a design jsou duševním vlastnictvím vývojáře. Nesmíte kopírovat, upravovat, zpětně analyzovat, dekompilovat ani distribuovat žádnou část aplikace. Nesmíte sdílet svůj licenční klíč s ostatními ani zpřístupňovat aplikaci třetím stranám.'
+      },
+      {
         title: 'Licence pro jednoho uživatele',
-        body: 'Vaše licence k používání aplikace Sessions Garden je osobní a nepřenosná. Aplikaci můžete nainstalovat a používat na nejvýše třech zařízeních, která vlastníte nebo ovládáte. Nejste oprávněni svou licenci sublicencovat, dále prodávat ani převádět na jinou osobu. Tato licence platí po celou dobu životnosti zakoupené verze produktu.'
+        body: 'Vaše licence k používání aplikace Sessions Garden je osobní a nepřenosná. Aplikaci můžete nainstalovat a používat na nejvýše dvou zařízeních, která vlastníte nebo ovládáte. Nejste oprávněni svou licenci sublicencovat, dále prodávat ani převádět na jinou osobu. Tato licence platí po celou dobu životnosti zakoupené verze produktu.'
       },
       {
         title: 'Právo na odstoupení od smlouvy',
