@@ -89,7 +89,7 @@
   position: absolute;
   top: -10px;
   color: var(--color-primary);
-  opacity: 0.18;
+  opacity: 0.4;
   pointer-events: none;
 }
 
@@ -104,7 +104,7 @@
 
 @media (max-width: 1100px) {
   .hero-botanical {
-    opacity: 0.1;
+    opacity: 0.28;
     transform: scale(0.72);
   }
   .hero-botanical-left {
