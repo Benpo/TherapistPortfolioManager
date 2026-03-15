@@ -130,13 +130,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 0 1.5rem;
+  padding: 1.5rem 0 2rem;
   color: var(--color-primary);
-  opacity: 0.45;
+  opacity: 0.55;
 }
 
 .botanical-divider svg {
-  max-inline-size: 320px;
+  max-inline-size: 480px;
   inline-size: 90%;
 }
 
