@@ -53,7 +53,7 @@ Requirements for sellable product release. Each maps to roadmap phases.
 - [ ] **DIST-02**: Payment solution research and decision (Lemon Squeezy / alternatives) — must handle EU VAT
 - [x] **DIST-03**: Access gating mechanism for paid product (license key, hash check, or equivalent)
 - [x] **DIST-04**: PWA setup with service worker for offline capability
-- [ ] **DIST-05**: Production packaging — distribution-ready bundle
+- [x] **DIST-05**: Production packaging — distribution-ready bundle
 
 ### Developer Experience
 
@@ -136,7 +136,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LEGL-03 | Phase 5: Legal and Production Packaging | Complete |
 | DIST-03 | Phase 5: Legal and Production Packaging | Complete |
 | DIST-04 | Phase 5: Legal and Production Packaging | Complete |
-| DIST-05 | Phase 5: Legal and Production Packaging | Pending |
+| DIST-05 | Phase 5: Legal and Production Packaging | Complete |
 | QA-01 | Phase 6: Quality and Developer Experience | Pending |
 | QA-02 | Phase 6: Quality and Developer Experience | Pending |
 | QA-03 | Phase 6: Quality and Developer Experience | Pending |
