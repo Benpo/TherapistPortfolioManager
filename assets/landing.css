@@ -63,17 +63,44 @@
   background: var(--color-surface-hover);
 }
 
+/* ---- Aurora animation ---- */
+@keyframes aurora {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 /* ---- Hero section ---- */
 .landing-hero {
   position: relative;
   overflow: hidden;
   padding: 6.5rem 2rem 5rem;
   text-align: center;
-  background: linear-gradient(160deg, var(--color-green-700) 0%, var(--color-green-600) 30%, var(--color-green-500) 55%, var(--color-cream-warm-400) 100%);
+  background: linear-gradient(
+    135deg,
+    #e8f5e4 0%,
+    #d4edda 20%,
+    #c8f0e0 40%,
+    #e0f5ec 60%,
+    #f0faf5 80%,
+    #e8f5e4 100%
+  );
+  background-size: 300% 300%;
+  animation: aurora 12s ease infinite;
 }
 
 [data-theme="dark"] .landing-hero {
-  background: linear-gradient(160deg, #0f2a1a 0%, #1a3528 40%, var(--color-background) 100%);
+  background: linear-gradient(
+    135deg,
+    #0f2a1a 0%,
+    #142e1e 20%,
+    #1a3a28 40%,
+    #163224 60%,
+    #112618 80%,
+    #0f2a1a 100%
+  );
+  background-size: 300% 300%;
+  animation: aurora 12s ease infinite;
 }
 
 /* Centered text content — sits above botanical illustrations */
@@ -87,19 +114,28 @@
 /* ---- Botanical illustrations ---- */
 .hero-botanical {
   position: absolute;
-  top: -10px;
-  color: var(--color-primary);
+  inset-block-start: -10px;
   opacity: 0.4;
   pointer-events: none;
 }
 
 .hero-botanical-left {
-  left: -15px;
+  inset-inline-start: -15px;
 }
 
 .hero-botanical-right {
-  right: -15px;
-  transform: scaleX(-1);
+  inset-inline-end: -15px;
+}
+
+.hero-botanical-img {
+  display: block;
+  max-inline-size: 100%;
+  opacity: 0.55;
+}
+
+[data-theme="dark"] .hero-botanical-img {
+  filter: invert(1);
+  opacity: 0.45;
 }
 
 @media (max-width: 1100px) {
@@ -110,12 +146,12 @@
   .hero-botanical-left {
     transform: scale(0.72);
     transform-origin: top left;
-    left: -30px;
+    inset-inline-start: -30px;
   }
   .hero-botanical-right {
-    transform: scaleX(-1) scale(0.72);
+    transform: scale(0.72);
     transform-origin: top right;
-    right: -30px;
+    inset-inline-end: -30px;
   }
 }
 
@@ -131,13 +167,18 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem 0 2rem;
-  color: var(--color-primary);
-  opacity: 0.55;
 }
 
-.botanical-divider svg {
-  max-inline-size: 480px;
-  inline-size: 90%;
+.botanical-divider-img {
+  display: block;
+  margin-inline: auto;
+  max-inline-size: min(640px, 90vw);
+  opacity: 0.5;
+}
+
+[data-theme="dark"] .botanical-divider-img {
+  filter: invert(1);
+  opacity: 0.4;
 }
 
 /* ---- Hero badge ---- */
@@ -272,14 +313,7 @@
   color: color-mix(in srgb, var(--color-cream-warm-200) 60%, transparent);
 }
 
-/* Dark mode illustration colors */
-[data-theme="dark"] .hero-botanical {
-  color: var(--color-cream-warm-200);
-}
-
-[data-theme="dark"] .botanical-divider {
-  color: var(--color-cream-warm-200);
-}
+/* Dark mode illustration colors — handled via filter: invert(1) on img elements */
 
 /* ---- Sections ---- */
 .landing-section {
@@ -796,17 +830,6 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem 0 2rem;
-  color: var(--color-primary);
-  opacity: 0.55;
-}
-
-.botanical-divider-alt svg {
-  max-inline-size: 400px;
-  inline-size: 80%;
-}
-
-[data-theme="dark"] .botanical-divider-alt {
-  color: var(--color-cream-warm-200);
 }
 
 /* Founder section — relative for positioned botanicals */
@@ -818,19 +841,21 @@
 .botanical-footer-accent {
   display: flex;
   justify-content: center;
-  color: var(--color-primary);
-  opacity: 0.4;
   pointer-events: none;
   margin-block-end: 1.25rem;
 }
 
-.botanical-footer-accent svg {
+.botanical-footer-img {
+  display: block;
+  margin-inline: auto;
   max-inline-size: 200px;
-  inline-size: 50%;
+  opacity: 0.55;
+  margin-block-end: 1.5rem;
 }
 
-[data-theme="dark"] .botanical-footer-accent {
-  color: var(--color-cream-warm-200);
+[data-theme="dark"] .botanical-footer-img {
+  filter: invert(1);
+  opacity: 0.45;
 }
 
 /* ---- Responsive ---- */
