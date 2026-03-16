@@ -74,7 +74,7 @@
 .landing-hero {
   position: relative;
   overflow: hidden;
-  padding: 6.5rem 2rem 5rem;
+  padding: 6.5rem 2rem 2.5rem;
   text-align: center;
   background: linear-gradient(
     135deg,
@@ -176,8 +176,8 @@
   display: block;
   margin-inline: auto;
   max-inline-size: min(640px, 90vw);
-  max-block-size: 180px;
-  opacity: 0.55;
+  opacity: 0.6;
+  filter: brightness(1.15);
   mix-blend-mode: multiply;
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8% 92%, transparent 100%);
   mask-image: linear-gradient(to right, transparent 0%, black 8% 92%, transparent 100%);
@@ -328,6 +328,12 @@
   padding: 5rem 2rem;
   max-inline-size: 1100px;
   margin-inline: auto;
+}
+
+/* Reduce top padding when section immediately follows a botanical divider */
+.botanical-divider + .landing-section,
+.botanical-divider-alt + .landing-section {
+  padding-block-start: 1.5rem;
 }
 
 .landing-section-title {
@@ -1051,11 +1057,10 @@
   object-position: top center;
 }
 
-/* Portrait/small screenshot — show full image, centered, at natural proportions */
+/* Portrait screenshot — zoom in to top to show actual session content at readable size */
 .screenshot-tile--portrait .screenshot-img {
-  object-fit: contain;
-  object-position: center;
-  background: var(--color-surface);
+  object-fit: cover;
+  object-position: top center;
 }
 
 .screenshot-label {
