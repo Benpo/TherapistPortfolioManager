@@ -112,7 +112,7 @@ var LANDING_I18N = {
     datenschutzNote: 'TODO: Run the full Datenschutzerklärung through https://www.adsimple.de/datenschutz-generator/ or https://www.e-recht24.de before launch for a finalized, lawyer-reviewed version.',
     screenshotsTitle: 'See it in action',
     screenshotsSubtitle: 'A closer look at what\'s inside',
-    screenshotLabels: ['Dashboard', 'Session view', 'Client view'],
+    screenshotLabels: ['Dashboard', 'Session notes', 'Client view', 'New session'],
     contactTitle: 'Get in touch',
     contactText: 'Have questions or need help? We\'d love to hear from you.',
     footerTerms: 'Terms of Use',
@@ -215,7 +215,7 @@ var LANDING_I18N = {
     datenschutzNote: 'TODO: Run the full Datenschutzerklärung through https://www.adsimple.de/datenschutz-generator/ before launch for a finalized version.',
     screenshotsTitle: 'ראו את זה בפעולה',
     screenshotsSubtitle: 'מבט מקרוב על מה שבפנים',
-    screenshotLabels: ['דף הבית', 'תצוגת פגישה', 'תצוגת לקוח'],
+    screenshotLabels: ['דף הבית', 'תיעוד פגישה', 'הוספת לקוח', 'פגישה חדשה'],
     contactTitle: 'צרו קשר',
     contactText: 'יש לכם שאלות או צריכים עזרה? נשמח לשמוע מכם.',
     footerTerms: 'תנאי שימוש',
@@ -318,7 +318,7 @@ var LANDING_I18N = {
     datenschutzNote: 'TODO: Vollständige Datenschutzerklärung vor dem Launch über https://www.adsimple.de/datenschutz-generator/ generieren lassen.',
     screenshotsTitle: 'Sieh es in Aktion',
     screenshotsSubtitle: 'Ein genauerer Blick auf das Innere',
-    screenshotLabels: ['Dashboard', 'Sitzungsansicht', 'Klientenansicht'],
+    screenshotLabels: ['Dashboard', 'Sitzungsnotizen', 'Klientenansicht', 'Neue Sitzung'],
     contactTitle: 'Kontakt',
     contactText: 'Hast du Fragen oder benötigst Hilfe? Wir freuen uns von dir zu hören.',
     footerTerms: 'Nutzungsbedingungen',
@@ -421,7 +421,7 @@ var LANDING_I18N = {
     datenschutzNote: 'TODO: Před spuštěním proveďte Datenschutzerklärung přes https://www.adsimple.de/datenschutz-generator/ pro finalizovanou verzi.',
     screenshotsTitle: 'Podívejte se na to v akci',
     screenshotsSubtitle: 'Bližší pohled na to, co je uvnitř',
-    screenshotLabels: ['Přehled', 'Zobrazení sezení', 'Zobrazení klienta'],
+    screenshotLabels: ['Přehled', 'Poznámky k sezení', 'Zobrazení klienta', 'Nové sezení'],
     contactTitle: 'Kontaktujte nás',
     contactText: 'Máte otázky nebo potřebujete pomoc? Rádi vás uslyšíme.',
     footerTerms: 'Podmínky použití',
@@ -514,6 +514,7 @@ function applyLang(lang) {
   });
   setHref('pricing-cta', LS_CHECKOUT_URL);
   setText2('pricing-cta', t.pricingCta);
+  setText2('features-cta', t.pricingCta);
   setHref('pricing-license-link', './license.html');
   setText2('pricing-license-link', t.pricingLicenseLink);
 
