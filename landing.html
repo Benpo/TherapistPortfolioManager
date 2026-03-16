@@ -368,70 +368,59 @@
 </section>
 
 <!-- =========================================================
-     IMPRESSUM
+     CONTACT
      ========================================================= -->
-<hr class="legal-divider" />
-<section id="impressum" class="legal-section" aria-labelledby="impressum-title">
-  <h2 id="impressum-title">Impressum</h2>
+<section id="contact" class="landing-section contact-section" aria-labelledby="contact-title">
+  <h2 id="contact-title" class="landing-section-title">Get in touch</h2>
+  <p id="contact-text" class="landing-section-subtitle">
+    Have questions or need help? We'd love to hear from you.
+  </p>
+  <!-- TODO: Replace placeholder email with real contact address before launch -->
+  <a id="contact-email" href="mailto:contact@sessions.garden" class="contact-email-link">contact@sessions.garden</a>
+</section>
 
-  <h3 id="impressum-angaben">Angaben gemäß DDG § 5</h3>
+<!-- =========================================================
+     LEGAL ACCORDION
+     ========================================================= -->
+<div class="legal-accordion">
 
-  <!-- TODO: Generate your complete Impressum at https://www.e-recht24.de/impressum-generator.html
-       Enter your full legal name, address, email, and phone number.
-       Copy the generated text here and remove this placeholder block. -->
-  <p id="impressum-note" class="legal-placeholder" style="white-space:pre-line;">TODO: Generate your Impressum at https://www.e-recht24.de/impressum-generator.html and replace the placeholder below.</p>
-
-  <div class="legal-placeholder" aria-label="Impressum placeholder">
-    <pre id="impressum-placeholder" style="font-family:inherit;margin:0;white-space:pre-wrap;">[Full Legal Name]
+  <details class="legal-details">
+    <summary class="legal-summary" id="footer-impressum-toggle">
+      <span id="impressum-title">Impressum</span>
+    </summary>
+    <div class="legal-details-content">
+      <h3 id="impressum-angaben">Angaben gemäß DDG § 5</h3>
+      <p id="impressum-note" class="legal-placeholder" style="white-space:pre-line;">TODO: Generate your Impressum at https://www.e-recht24.de/impressum-generator.html and replace the placeholder below.</p>
+      <div class="legal-placeholder" aria-label="Impressum placeholder">
+        <pre id="impressum-placeholder" style="font-family:inherit;margin:0;white-space:pre-wrap;">[Full Legal Name]
 [Street Address]
 [City, Postal Code, Country]
 Email: [Email Address]
 Phone: [Phone Number — optional]</pre>
-  </div>
-</section>
+      </div>
+    </div>
+  </details>
 
-<!-- =========================================================
-     DATENSCHUTZERKLAERUNG / PRIVACY POLICY
-     ========================================================= -->
-<hr class="legal-divider" />
-<section id="datenschutz" class="legal-section" aria-labelledby="datenschutz-title">
-  <h2 id="datenschutz-title">Privacy Policy / Datenschutzerklärung</h2>
+  <details class="legal-details">
+    <summary class="legal-summary" id="footer-privacy-toggle">
+      <span id="datenschutz-title">Privacy Policy / Datenschutzerklärung</span>
+    </summary>
+    <div class="legal-details-content">
+      <h3 id="datenschutz-art13-title">1. Data Processing (GDPR Art. 13/14)</h3>
+      <p id="datenschutz-art13">Sessions Garden does not collect, store, or transmit any personal data. All session and client data is stored exclusively on your device using IndexedDB browser technology. The development team has zero access to your data.</p>
+      <h3 id="datenschutz-hosting-title">2. Hosting</h3>
+      <p id="datenschutz-hosting">This website is hosted on Cloudflare Pages (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA). Cloudflare may process access logs (IP address, browser type, timestamp) as part of standard web hosting operations. For details, see Cloudflare's privacy policy: <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">https://www.cloudflare.com/privacypolicy/</a></p>
+      <h3 id="datenschutz-payment-title">3. Payment Processing</h3>
+      <p id="datenschutz-payment">Payments are processed by Lemon Squeezy (Lemon Squeezy, LLC), who acts as Merchant of Record. Purchase data (name, email, payment information) is handled by Lemon Squeezy. For details, see Lemon Squeezy's privacy policy: <a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener noreferrer">https://www.lemonsqueezy.com/privacy</a></p>
+      <h3 id="datenschutz-storage-title">4. Local Storage</h3>
+      <p id="datenschutz-storage">This application uses localStorage for preferences (language, theme) and license activation status. No tracking cookies are used. All clinical data is stored in your browser's IndexedDB, accessible only on your device.</p>
+      <h3 id="datenschutz-rights-title">5. Your Rights (GDPR Art. 15–21)</h3>
+      <p id="datenschutz-rights">Right to access: your data is already on your device — open the app to see it. Right to deletion: clear your browser's site data to remove all stored information. Right to data portability: use the Export function in the app to download your data as a JSON file.</p>
+      <p id="datenschutz-note" class="legal-placeholder">TODO: Run the full Datenschutzerklärung through https://www.adsimple.de/datenschutz-generator/ or https://www.e-recht24.de before launch for a finalized, lawyer-reviewed version.</p>
+    </div>
+  </details>
 
-  <!-- TODO: Before launch, run a full Datenschutzerklärung through
-       https://www.adsimple.de/datenschutz-generator/ or https://www.e-recht24.de
-       for a finalized, lawyer-reviewed version covering all required GDPR Art. 13/14 disclosures. -->
-
-  <h3 id="datenschutz-art13-title">1. Data Processing (GDPR Art. 13/14)</h3>
-  <p id="datenschutz-art13">
-    Sessions Garden does not collect, store, or transmit any personal data. All session and client data is stored exclusively on your device using IndexedDB browser technology. The development team has zero access to your data.
-  </p>
-
-  <h3 id="datenschutz-hosting-title">2. Hosting</h3>
-  <p id="datenschutz-hosting">
-    This website is hosted on Cloudflare Pages (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA). Cloudflare may process access logs (IP address, browser type, timestamp) as part of standard web hosting operations. For details, see Cloudflare's privacy policy:
-    <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">https://www.cloudflare.com/privacypolicy/</a>
-  </p>
-
-  <h3 id="datenschutz-payment-title">3. Payment Processing</h3>
-  <p id="datenschutz-payment">
-    Payments are processed by Lemon Squeezy (Lemon Squeezy, LLC), who acts as Merchant of Record. Purchase data (name, email, payment information) is handled by Lemon Squeezy. For details, see Lemon Squeezy's privacy policy:
-    <a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener noreferrer">https://www.lemonsqueezy.com/privacy</a>
-  </p>
-
-  <h3 id="datenschutz-storage-title">4. Local Storage</h3>
-  <p id="datenschutz-storage">
-    This application uses localStorage for preferences (language, theme) and license activation status. No tracking cookies are used. All clinical data is stored in your browser's IndexedDB, accessible only on your device.
-  </p>
-
-  <h3 id="datenschutz-rights-title">5. Your Rights (GDPR Art. 15–21)</h3>
-  <p id="datenschutz-rights">
-    Right to access: your data is already on your device — open the app to see it. Right to deletion: clear your browser's site data to remove all stored information. Right to data portability: use the Export function in the app to download your data as a JSON file.
-  </p>
-
-  <p id="datenschutz-note" class="legal-placeholder">
-    TODO: Run the full Datenschutzerklärung through https://www.adsimple.de/datenschutz-generator/ or https://www.e-recht24.de before launch for a finalized, lawyer-reviewed version.
-  </p>
-</section>
+</div>
 
 <!-- =========================================================
      FOOTER
@@ -443,8 +432,8 @@ Phone: [Phone Number — optional]</pre>
   </div>
   <nav class="landing-footer-links" aria-label="Footer navigation">
     <a id="footer-terms" href="./disclaimer.html?readonly=true">Terms of Use</a>
-    <a id="footer-impressum-link" href="#impressum">Impressum</a>
-    <a id="footer-privacy-link" href="#datenschutz">Privacy Policy</a>
+    <a id="footer-impressum-link" href="#footer-impressum-toggle">Impressum</a>
+    <a id="footer-privacy-link" href="#footer-privacy-toggle">Privacy Policy</a>
   </nav>
   <p id="footer-copy" class="landing-footer-copy">&copy; 2026 Sessions Garden</p>
   <p id="footer-tagline" class="landing-footer-tagline">Made with care for therapeutic practitioners</p>

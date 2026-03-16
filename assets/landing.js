@@ -110,6 +110,11 @@ var LANDING_I18N = {
     datenschutzRightsTitle: '5. Your Rights (GDPR Art. 15–21)',
     datenschutzRights: 'Right to access: your data is already on your device — open the app to see it. Right to deletion: clear your browser\'s site data to remove all stored information. Right to data portability: use the Export function in the app to download your data as a JSON file.',
     datenschutzNote: 'TODO: Run the full Datenschutzerklärung through https://www.adsimple.de/datenschutz-generator/ or https://www.e-recht24.de before launch for a finalized, lawyer-reviewed version.',
+    screenshotsTitle: 'See it in action',
+    screenshotsSubtitle: 'A closer look at what\'s inside',
+    screenshotLabels: ['Dashboard', 'Session view', 'Client view'],
+    contactTitle: 'Get in touch',
+    contactText: 'Have questions or need help? We\'d love to hear from you.',
     footerTerms: 'Terms of Use',
     footerImpressum: 'Impressum',
     footerPrivacy: 'Privacy Policy',
@@ -208,6 +213,11 @@ var LANDING_I18N = {
     datenschutzRightsTitle: '5. הזכויות שלכם (GDPR Art. 15–21)',
     datenschutzRights: 'זכות גישה: הנתונים שלכם כבר נמצאים במכשיר שלכם — פתחו את האפליקציה לצפייה. זכות מחיקה: נקו את נתוני האתר בדפדפן להסרת כל המידע המאוחסן. זכות ניידות נתונים: השתמשו בפונקציית הייצוא באפליקציה להורדת הנתונים כקובץ JSON.',
     datenschutzNote: 'TODO: Run the full Datenschutzerklärung through https://www.adsimple.de/datenschutz-generator/ before launch for a finalized version.',
+    screenshotsTitle: 'ראו את זה בפעולה',
+    screenshotsSubtitle: 'מבט מקרוב על מה שבפנים',
+    screenshotLabels: ['דף הבית', 'תצוגת פגישה', 'תצוגת לקוח'],
+    contactTitle: 'צרו קשר',
+    contactText: 'יש לכם שאלות או צריכים עזרה? נשמח לשמוע מכם.',
     footerTerms: 'תנאי שימוש',
     footerImpressum: 'Impressum',
     footerPrivacy: 'מדיניות פרטיות',
@@ -306,6 +316,11 @@ var LANDING_I18N = {
     datenschutzRightsTitle: '5. Deine Rechte (DSGVO Art. 15–21)',
     datenschutzRights: 'Auskunftsrecht: Deine Daten befinden sich auf deinem Gerät — öffne die App zur Einsichtnahme. Recht auf Löschung: Lösche die Website-Daten deines Browsers. Recht auf Datenübertragbarkeit: Nutze die Exportfunktion in der App.',
     datenschutzNote: 'TODO: Vollständige Datenschutzerklärung vor dem Launch über https://www.adsimple.de/datenschutz-generator/ generieren lassen.',
+    screenshotsTitle: 'Sieh es in Aktion',
+    screenshotsSubtitle: 'Ein genauerer Blick auf das Innere',
+    screenshotLabels: ['Dashboard', 'Sitzungsansicht', 'Klientenansicht'],
+    contactTitle: 'Kontakt',
+    contactText: 'Hast du Fragen oder benötigst Hilfe? Wir freuen uns von dir zu hören.',
     footerTerms: 'Nutzungsbedingungen',
     footerImpressum: 'Impressum',
     footerPrivacy: 'Datenschutzerklärung',
@@ -404,6 +419,11 @@ var LANDING_I18N = {
     datenschutzRightsTitle: '5. Vaše práva (GDPR čl. 15–21)',
     datenschutzRights: 'Právo na přístup: vaše data jsou na vašem zařízení — otevřete aplikaci. Právo na výmaz: vymažte data webu v prohlížeči. Právo na přenositelnost: použijte funkci Export v aplikaci.',
     datenschutzNote: 'TODO: Před spuštěním proveďte Datenschutzerklärung přes https://www.adsimple.de/datenschutz-generator/ pro finalizovanou verzi.',
+    screenshotsTitle: 'Podívejte se na to v akci',
+    screenshotsSubtitle: 'Bližší pohled na to, co je uvnitř',
+    screenshotLabels: ['Přehled', 'Zobrazení sezení', 'Zobrazení klienta'],
+    contactTitle: 'Kontaktujte nás',
+    contactText: 'Máte otázky nebo potřebujete pomoc? Rádi vás uslyšíme.',
     footerTerms: 'Podmínky použití',
     footerImpressum: 'Impressum',
     footerPrivacy: 'Zásady ochrany osobních údajů',
@@ -505,6 +525,20 @@ function applyLang(lang) {
     if (faqDts[i]) faqDts[i].textContent = item.q;
     if (faqDds[i]) faqDds[i].textContent = item.a;
   });
+
+  // Screenshots
+  setText('screenshots-title', t.screenshotsTitle);
+  setText('screenshots-subtitle', t.screenshotsSubtitle);
+  var screenshotLabels = document.querySelectorAll('.screenshot-label');
+  if (t.screenshotLabels) {
+    t.screenshotLabels.forEach(function(label, i) {
+      if (screenshotLabels[i]) screenshotLabels[i].textContent = label;
+    });
+  }
+
+  // Contact
+  setText('contact-title', t.contactTitle);
+  setText('contact-text', t.contactText);
 
   // Impressum
   setText('impressum-title', t.impressumTitle);
