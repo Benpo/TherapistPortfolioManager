@@ -120,7 +120,7 @@ Plans:
 **Goal:** Polish the landing page before launch — aurora hero animation, real PNG botanical images, real PNG feature card icons, spotlight glow on cards, screenshots section, contact section, accordion legal, Hebrew buy button fix, content box glow effects.
 **Depends on**: Phase 05.1 (visual identity must be established before polish)
 **Requirements**: DIST-05
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 05.2-01-PLAN.md — Aurora hero background + real PNG botanical images (hero, dividers, footer) + real PNG card icons + spotlight glow (DIST-05)
