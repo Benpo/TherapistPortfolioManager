@@ -117,15 +117,15 @@ Plans:
 
 ### Phase 05.2: Landing Page Polish (INSERTED)
 
-**Goal:** Polish the landing page before launch — fix botanical illustrations (more delicate/subtle), replace feature card icons with beautiful ones matching the design, add a screenshots placeholder section, add a contact section, fix Impressum placeholder.
+**Goal:** Polish the landing page before launch — aurora hero animation, real PNG botanical images, real PNG feature card icons, spotlight glow on cards, screenshots section, contact section, accordion legal, Hebrew buy button fix, content box glow effects.
 **Depends on**: Phase 05.1 (visual identity must be established before polish)
 **Requirements**: DIST-05
 **Plans:** 3 plans
 
 Plans:
-- [ ] 05.2-01-PLAN.md — Botanical opacity/stroke reduction + DOODLE_ICONS replacement with beautiful hand-drawn icons
-- [ ] 05.2-02-PLAN.md — Screenshots placeholder section + Contact section + i18n for all 4 languages
-- [ ] 05.2-03-PLAN.md — Sapir visual approval checkpoint
+- [ ] 05.2-01-PLAN.md — Aurora hero background + real PNG botanical images (hero, dividers, footer) + real PNG card icons + spotlight glow (DIST-05)
+- [ ] 05.2-02-PLAN.md — Screenshots section (real app photos) + contact section + accordion legal + Hebrew buy button fix + content box glow + i18n for all 4 languages (DIST-05)
+- [ ] 05.2-03-PLAN.md — Sapir visual approval checkpoint (DIST-05)
 
 ### Phase 6: Quality and Developer Experience
 **Goal**: The product is validated across all browsers, modes, and languages, with automated tests and documentation enabling Sapir to maintain it independently
