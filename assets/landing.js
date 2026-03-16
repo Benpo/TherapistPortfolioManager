@@ -6,20 +6,15 @@
 // You can find the checkout URL in your Lemon Squeezy dashboard under Products > Your Product > Share.
 var LS_CHECKOUT_URL = 'https://YOURSTORE.lemonsqueezy.com/buy/VARIANT_ID';
 
-/* ---------- Doodle icon SVGs ---------- */
-/* Hand-drawn botanical style — organic paths, currentColor, 36x36 */
+/* ---------- Feature icon PNGs ---------- */
+/* Real botanical illustration icons — 72x72 PNG images */
 var DOODLE_ICONS = {
-  folder: '<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4,11 C4,9 5,8 7,8 L14,8 C14,8 15,8 16,10 L17,11 L29,11 C31,11 32,12 32,14 L32,26 C32,28 31,29 29,29 L7,29 C5,29 4,28 4,26 Z" stroke-width="1.7"/><path d="M14,8 C14.5,6 15.5,4 17,3 C18,2.5 19,3 19.5,4 C20,5 19.5,6.5 18.5,7.5" stroke-width="1.1"/><path d="M17,3 L17,8" stroke-width="0.9"/><path d="M15,5.5 C16.5,5 18,5 19,5.5" stroke-width="0.8"/></svg>',
-
-  lock: '<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="17" width="18" height="14" rx="2.5" stroke-width="1.7"/><path d="M13,17 L13,11.5 C13,8.5 23,8.5 23,11.5 L23,17" stroke-width="1.6"/><circle cx="18" cy="23" r="2" stroke-width="1.3"/><path d="M23,13 C25,11.5 27,10.5 28.5,12 C30,13.5 29,15.5 27.5,16.5 C26.5,17 25.5,17.5 24.5,17.5" stroke-width="1.1"/><path d="M28.5,12 C29.5,10 30,9 30,9" stroke-width="0.8"/><path d="M27,11 C28,9.5 28.5,9 29,8.5" stroke-width="0.8"/><ellipse cx="30.5" cy="8" rx="1.5" ry="1" stroke-width="1.0" transform="rotate(-20 30.5 8)"/></svg>',
-
-  offline: '<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="9" width="26" height="17" rx="2" stroke-width="1.7"/><path d="M12,26 L24,26 L25,30 L11,30 Z" stroke-width="1.4"/><path d="M9,30 L27,30" stroke-width="1.5"/><path d="M18,9 C18,7 18.5,5 20,4 C21,3.5 22,4 22.5,5 C23,6 22,8 21,9" stroke-width="1.1"/><path d="M20,4 C21,2.5 22,1.5 23,2 C24,2.5 23.5,4 22.5,5" stroke-width="0.9"/><circle cx="22" cy="2.5" r="1.3" stroke-width="1.0"/></svg>',
-
-  sparkle: '<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18,7 C17.5,10 17,13 18,15.5 C19,13 18.5,10 18,7Z" stroke-width="1.5"/><path d="M18,20.5 C17.5,23 17,26 18,29 C19,26 18.5,23 18,20.5Z" stroke-width="1.5"/><path d="M7,18 C10,17.5 13,17 15.5,18 C13,19 10,18.5 7,18Z" stroke-width="1.5"/><path d="M20.5,18 C23.5,17.5 26.5,17 29,18 C26.5,19 23.5,18.5 20.5,18Z" stroke-width="1.5"/><path d="M10.5,10.5 C12.5,12 14,13.5 14.5,15.5 C12.5,15 11,13.5 10.5,10.5Z" stroke-width="1.3"/><path d="M21.5,20.5 C23.5,22 25,23.5 25.5,25.5 C23.5,25 22,23.5 21.5,20.5Z" stroke-width="1.3"/><path d="M25.5,10.5 C23.5,12 22,13.5 21.5,15.5 C23.5,15 25,13.5 25.5,10.5Z" stroke-width="1.3"/><path d="M14.5,20.5 C12.5,22 11,23.5 10.5,25.5 C12.5,25 14,23.5 14.5,20.5Z" stroke-width="1.3"/><circle cx="18" cy="18" r="2.2" stroke-width="1.4"/><path d="M16,28 C15.5,30 14.5,32 13,33 C14,33.5 15.5,33 16.5,32 C17.5,31 17.5,29.5 16,28Z" stroke-width="1.1"/><path d="M20,28 C20.5,30 21.5,32 23,33 C22,33.5 20.5,33 19.5,32 C18.5,31 18.5,29.5 20,28Z" stroke-width="1.1"/></svg>',
-
-  coin: '<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="19" r="12" stroke-width="1.8"/><path d="M17,13 L17,15" stroke-width="1.5"/><path d="M17,23 L17,25" stroke-width="1.5"/><path d="M14,15.5 C14,15.5 14.5,14 17,14 C19.5,14 20.5,15.5 20.5,16.5 C20.5,18 19,18.5 17,19 C15,19.5 13.5,20 13.5,21.5 C13.5,22.5 14.5,24 17,24 C19.5,24 20.5,22.5 20.5,22.5" stroke-width="1.4"/><path d="M27,8 C28.5,7 30,6.5 31,7.5 C32,8.5 31,10.5 29.5,11 C28,11.5 27,11 27,11" stroke-width="1.1"/><path d="M31,7.5 C31.5,6 32,5 32.5,5" stroke-width="0.85"/><circle cx="33" cy="4.5" rx="1.2" ry="1.2" stroke-width="1.0"/></svg>',
-
-  notebook: '<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="5" width="18" height="26" rx="2" stroke-width="1.7"/><path d="M7,9 L25,9" stroke-width="1.0"/><path d="M10,13.5 L22,13.5" stroke-width="0.9"/><path d="M10,17 L22,17" stroke-width="0.9"/><path d="M10,20.5 L18,20.5" stroke-width="0.9"/><path d="M5,9 L7,9" stroke-width="1.5"/><path d="M5,14 L7,14" stroke-width="1.5"/><path d="M5,19 L7,19" stroke-width="1.5"/><path d="M5,24 L7,24" stroke-width="1.5"/><path d="M25,20 C27,18 29,17 31,18 C32.5,19 32,21 30.5,22.5 C29,24 27,24.5 26,24" stroke-width="1.2"/><path d="M31,18 C32,16.5 33,15.5 33.5,16 C34,16.5 33.5,18 32.5,19" stroke-width="0.9"/><circle cx="33" cy="15.5" r="1.2" stroke-width="1.0"/></svg>'
+  folder:   '<img src="./assets/illustrations/icons/alim.png"    width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  lock:     '<img src="./assets/illustrations/icons/ale.png"     width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  offline:  '<img src="./assets/illustrations/icons/atsitz.png"  width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  sparkle:  '<img src="./assets/illustrations/icons/tulip.png"   width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  coin:     '<img src="./assets/illustrations/icons/vassa.png"   width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  notebook: '<img src="./assets/illustrations/icons/merizza.png" width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">'
 };
 
 /* ---------- i18n ---------- */
@@ -598,9 +593,21 @@ function initLangSelector() {
   });
 }
 
+/* ---------- Spotlight glow on feature cards ---------- */
+function initSpotlight() {
+  document.querySelectorAll('.feature-card').forEach(function(card) {
+    card.addEventListener('pointermove', function(e) {
+      var rect = card.getBoundingClientRect();
+      card.style.setProperty('--x', (e.clientX - rect.left) + 'px');
+      card.style.setProperty('--y', (e.clientY - rect.top) + 'px');
+    });
+  });
+}
+
 /* ---------- Init ---------- */
 document.addEventListener('DOMContentLoaded', function() {
   applyTheme();
   initLangSelector();
   initSmoothScroll();
+  initSpotlight();
 });
