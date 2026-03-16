@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Checkpoint 05.1-02 Task 2 — awaiting Sapir visual approval
-last_updated: "2026-03-15T20:40:31.687Z"
+stopped_at: Completed 05.2-01-PLAN.md
+last_updated: "2026-03-16T12:26:53.734Z"
 last_activity: 2026-03-10 -- Completed 03-03 search, quotes, and brand navigation
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 6
-  total_plans: 17
-  completed_plans: 17
+  total_plans: 20
+  completed_plans: 18
   percent: 100
 ---
 
@@ -61,6 +61,7 @@ Progress: [██████████] 100%
 | Phase 05-legal-and-production-packaging P02 | 8 | 2 tasks | 13 files |
 | Phase 05.1-landing-page-visual-redesign P01 | 2 | 2 tasks | 2 files |
 | Phase 05.1-landing-page-visual-redesign P02 | 12 | 1 tasks | 3 files |
+| Phase 05.2-landing-page-polish P01 | 6 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,9 @@ Recent decisions affecting current work:
 - [Phase 05.1-landing-page-visual-redesign]: Botanical SVG illustrations use stroke=currentColor on SVG root — CSS .hero-botanical color prop controls entire illustration for clean theming
 - [Phase 05.1-landing-page-visual-redesign]: DOODLE_ICONS uses var declaration for ES5 consistency; i18n renderer uses innerHTML for SVG string parsing
 - [Phase 05.1-landing-page-visual-redesign]: Feature icons use color: var(--color-primary) in both light and dark mode — functional icons stay teal in both themes
+- [Phase 05.2-landing-page-polish]: Aurora uses pastel greens (#e8f5e4 to #c8f0e0) with 300% background-size animation — dark mode uses deep forest tones
+- [Phase 05.2-landing-page-polish]: Botanical PNG images use filter: invert(1) for dark mode — replaces SVG currentColor pattern
+- [Phase 05.2-landing-page-polish]: Spotlight effect: pointermove sets --x/--y on .feature-card; ::before radial-gradient reads them — opacity 0->1 on hover
 
 ### Roadmap Evolution
 
@@ -117,6 +121,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T20:40:31.685Z
-Stopped at: Checkpoint 05.1-02 Task 2 — awaiting Sapir visual approval
+Last session: 2026-03-16T12:26:53.732Z
+Stopped at: Completed 05.2-01-PLAN.md
 Resume file: None
