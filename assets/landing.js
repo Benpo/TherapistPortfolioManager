@@ -110,9 +110,9 @@ var LANDING_I18N = {
     datenschutzRightsTitle: '5. Your Rights (GDPR Art. 15–21)',
     datenschutzRights: 'Right to access: your data is already on your device — open the app to see it. Right to deletion: clear your browser\'s site data to remove all stored information. Right to data portability: use the Export function in the app to download your data as a JSON file.',
     datenschutzNote: 'TODO: Run the full Datenschutzerklärung through https://www.adsimple.de/datenschutz-generator/ or https://www.e-recht24.de before launch for a finalized, lawyer-reviewed version.',
-    screenshotsTitle: 'See it in action',
-    screenshotsSubtitle: 'A closer look at what\'s inside',
-    screenshotLabels: ['Dashboard', 'Session in action', 'Add Client'],
+    demoTitle: 'Try it yourself',
+    demoSubtitle: 'Explore a live demo with sample data — no signup needed',
+    demoNote: 'This demo runs entirely in your browser. No data is stored or sent anywhere.',
     contactTitle: 'Get in touch',
     contactText: 'Have questions or need help? We\'d love to hear from you.',
     footerTerms: 'Terms of Use',
@@ -213,9 +213,9 @@ var LANDING_I18N = {
     datenschutzRightsTitle: '5. הזכויות שלכם (GDPR Art. 15–21)',
     datenschutzRights: 'זכות גישה: הנתונים שלכם כבר נמצאים במכשיר שלכם — פתחו את האפליקציה לצפייה. זכות מחיקה: נקו את נתוני האתר בדפדפן להסרת כל המידע המאוחסן. זכות ניידות נתונים: השתמשו בפונקציית הייצוא באפליקציה להורדת הנתונים כקובץ JSON.',
     datenschutzNote: 'TODO: Run the full Datenschutzerklärung through https://www.adsimple.de/datenschutz-generator/ before launch for a finalized version.',
-    screenshotsTitle: 'ראו את זה בפעולה',
-    screenshotsSubtitle: 'מבט מקרוב על מה שבפנים',
-    screenshotLabels: ['דף הבית', 'פגישה אמיתית', 'הוספת לקוח'],
+    demoTitle: 'נסו בעצמכם',
+    demoSubtitle: 'הדגמה חיה עם נתונים לדוגמה — ללא הרשמה',
+    demoNote: 'ההדגמה רצה לגמרי בדפדפן שלכם. אין נתונים שנשמרים או נשלחים לשום מקום.',
     contactTitle: 'צרו קשר',
     contactText: 'יש לכם שאלות או צריכים עזרה? נשמח לשמוע מכם.',
     footerTerms: 'תנאי שימוש',
@@ -316,9 +316,9 @@ var LANDING_I18N = {
     datenschutzRightsTitle: '5. Deine Rechte (DSGVO Art. 15–21)',
     datenschutzRights: 'Auskunftsrecht: Deine Daten befinden sich auf deinem Gerät — öffne die App zur Einsichtnahme. Recht auf Löschung: Lösche die Website-Daten deines Browsers. Recht auf Datenübertragbarkeit: Nutze die Exportfunktion in der App.',
     datenschutzNote: 'TODO: Vollständige Datenschutzerklärung vor dem Launch über https://www.adsimple.de/datenschutz-generator/ generieren lassen.',
-    screenshotsTitle: 'Sieh es in Aktion',
-    screenshotsSubtitle: 'Ein genauerer Blick auf das Innere',
-    screenshotLabels: ['Dashboard', 'Sitzung live', 'Klient hinzufügen'],
+    demoTitle: 'Probieren Sie es selbst',
+    demoSubtitle: 'Erkunden Sie eine Live-Demo mit Beispieldaten — keine Anmeldung nötig',
+    demoNote: 'Diese Demo läuft vollständig in Ihrem Browser. Es werden keine Daten gespeichert oder gesendet.',
     contactTitle: 'Kontakt',
     contactText: 'Hast du Fragen oder benötigst Hilfe? Wir freuen uns von dir zu hören.',
     footerTerms: 'Nutzungsbedingungen',
@@ -419,9 +419,9 @@ var LANDING_I18N = {
     datenschutzRightsTitle: '5. Vaše práva (GDPR čl. 15–21)',
     datenschutzRights: 'Právo na přístup: vaše data jsou na vašem zařízení — otevřete aplikaci. Právo na výmaz: vymažte data webu v prohlížeči. Právo na přenositelnost: použijte funkci Export v aplikaci.',
     datenschutzNote: 'TODO: Před spuštěním proveďte Datenschutzerklärung přes https://www.adsimple.de/datenschutz-generator/ pro finalizovanou verzi.',
-    screenshotsTitle: 'Podívejte se na to v akci',
-    screenshotsSubtitle: 'Bližší pohled na to, co je uvnitř',
-    screenshotLabels: ['Přehled', 'Sezení v akci', 'Přidat klienta'],
+    demoTitle: 'Vyzkoušejte si to',
+    demoSubtitle: 'Prozkoumejte živou ukázku s ukázkovými daty — bez registrace',
+    demoNote: 'Tato ukázka běží kompletně ve vašem prohlížeči. Žádná data nejsou ukládána ani odesílána.',
     contactTitle: 'Kontaktujte nás',
     contactText: 'Máte otázky nebo potřebujete pomoc? Rádi vás uslyšíme.',
     footerTerms: 'Podmínky použití',
@@ -527,14 +527,17 @@ function applyLang(lang) {
     if (faqDds[i]) faqDds[i].textContent = item.a;
   });
 
-  // Screenshots
-  setText('screenshots-title', t.screenshotsTitle);
-  setText('screenshots-subtitle', t.screenshotsSubtitle);
-  var screenshotLabels = document.querySelectorAll('.screenshot-label');
-  if (t.screenshotLabels) {
-    t.screenshotLabels.forEach(function(label, i) {
-      if (screenshotLabels[i]) screenshotLabels[i].textContent = label;
-    });
+  // Demo
+  setText('demo-title', t.demoTitle);
+  setText('demo-subtitle', t.demoSubtitle);
+  setText('demo-note', t.demoNote);
+
+  // Sync language to demo iframe
+  var demoIframe = document.getElementById('demo-iframe');
+  if (demoIframe && demoIframe.contentWindow) {
+    try {
+      demoIframe.contentWindow.postMessage({ type: 'demo-lang', lang: lang }, '*');
+    } catch(e) {}
   }
 
   // Contact
@@ -645,4 +648,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initLangSelector();
   initSmoothScroll();
   initSpotlight();
+
+  // Clean up any leftover demo database (safety net)
+  try { indexedDB.deleteDatabase('demo_portfolio'); } catch(e) {}
 });

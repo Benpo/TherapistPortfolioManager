@@ -299,6 +299,22 @@
   margin-block-start: 0.875rem;
 }
 
+/* Hero CTA button override — cream so it pops on the green background */
+.landing-hero .landing-btn-primary {
+  background: var(--color-cream-warm-100);
+  color: var(--color-primary-deeper);
+  font-size: 1.1875rem;
+  padding: 1.05rem 2.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.22), 0 0 40px rgba(255, 255, 255, 0.15);
+}
+
+.landing-hero .landing-btn-primary:hover {
+  background: #fff;
+  color: var(--color-primary-dark);
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.28);
+}
+
 /* Hero price note override — readable on gradient */
 .landing-hero .landing-price-note {
   color: color-mix(in srgb, var(--color-cream-warm-100) 70%, transparent);
@@ -390,7 +406,7 @@
 
 /* Feature card with botanical accent line at top */
 .feature-card {
-  background: var(--color-surface);
+  background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: 1.25rem;
   border-block-start: 3px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
@@ -1011,64 +1027,86 @@
   );
 }
 
-/* ---- Screenshots section ---- */
-.screenshots-section {
+/* ---- Interactive Demo section ---- */
+.demo-section {
   padding-block: 5rem;
   padding-inline: 2rem;
   max-inline-size: 1100px;
   margin-inline: auto;
 }
 
-.screenshots-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  margin-block-start: 2.5rem;
-}
-
-@media (max-width: 900px) {
-  .screenshots-grid {
-    grid-template-columns: 1fr;
-    max-inline-size: 440px;
-    margin-inline: auto;
-  }
-}
-
-.screenshot-tile {
-  border-radius: 1rem;
-  border: 1.5px solid color-mix(in srgb, var(--color-primary) 25%, transparent);
-  background: var(--color-surface);
+.demo-window {
+  max-inline-size: 900px;
+  margin: 2rem auto 0;
+  border-radius: 12px;
   overflow: hidden;
+  border: 1.5px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  box-shadow: 0 8px 40px color-mix(in srgb, var(--color-primary) 15%, transparent);
+}
+
+.demo-window-toolbar {
   display: flex;
-  flex-direction: column;
-  transition: box-shadow 0.25s, transform 0.25s;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #2d2d2d;
 }
 
-.screenshot-tile:hover {
-  box-shadow: 0 4px 24px color-mix(in srgb, var(--color-primary) 20%, transparent);
-  transform: translateY(-2px);
+.demo-window-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
 }
 
-.screenshot-img {
+.demo-window-dot:nth-child(1) { background: #ff5f57; }
+.demo-window-dot:nth-child(2) { background: #ffbd2e; }
+.demo-window-dot:nth-child(3) { background: #28c840; }
+
+.demo-window-title {
+  color: #999;
+  font-size: 0.8125rem;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+  user-select: none;
+}
+
+.demo-iframe {
+  width: 100%;
+  height: 520px;
+  border: none;
+  background: var(--color-background);
   display: block;
-  inline-size: 100%;
-  block-size: 260px;
-  object-fit: cover;
-  object-position: top center;
 }
 
-/* Portrait screenshot — zoom in to top to show actual session content at readable size */
-.screenshot-tile--portrait .screenshot-img {
-  object-fit: cover;
-  object-position: top center;
-}
-
-.screenshot-label {
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-primary);
+.demo-note {
   text-align: center;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin-top: 1rem;
+}
+
+/* Responsive demo */
+@media (max-width: 640px) {
+  .demo-section {
+    padding-inline: 1rem;
+  }
+
+  .demo-iframe {
+    height: 400px;
+  }
+
+  .demo-window-toolbar {
+    padding: 8px 10px;
+  }
+
+  .demo-window-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .demo-window-title {
+    font-size: 0.6875rem;
+  }
 }
 
 /* ---- Responsive ---- */
