@@ -649,6 +649,4 @@ document.addEventListener('DOMContentLoaded', function() {
   initSmoothScroll();
   initSpotlight();
 
-  // Clean up any leftover demo database (safety net)
-  try { indexedDB.deleteDatabase('demo_portfolio'); } catch(e) {}
 });

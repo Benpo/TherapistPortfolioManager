@@ -1,7 +1,13 @@
 <!doctype html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
-  <!-- Theme detection — must run before any render to avoid flash -->
+  <!-- Bypass disclaimer/license gates for demo -->
+  <script>
+    (function(){
+      localStorage.setItem('portfolioTermsAccepted', '1');
+      localStorage.setItem('portfolioLicenseActivated', '1');
+    })();
+  </script>
   <script>
     (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
   </script>
@@ -11,38 +17,18 @@
   <link rel="stylesheet" href="./assets/tokens.css" />
   <link rel="stylesheet" href="./assets/app.css" />
   <link rel="stylesheet" href="./assets/demo.css" />
-
-  <!-- Override DB name for demo isolation — MUST run before db.js -->
-  <script>
-    (function() {
-      var _origOpen = indexedDB.open.bind(indexedDB);
-      indexedDB.open = function(name, version) {
-        if (name === 'emotion_code_portfolio') {
-          return _origOpen('demo_portfolio', version);
-        }
-        return _origOpen(name, version);
-      };
-      // Set localStorage flags so app gates don't redirect
-      localStorage.setItem('portfolioTermsAccepted', '1');
-      localStorage.setItem('portfolioLicenseActivated', '1');
-      // Set Hebrew as default for demo
-      if (!localStorage.getItem('portfolioLang')) {
-        localStorage.setItem('portfolioLang', 'he');
-      }
-    })();
-  </script>
 </head>
 <body data-nav="overview" data-demo="true">
 
   <!-- Demo banner -->
   <div class="demo-banner" role="status">
-    <span class="demo-banner-text" data-demo-i18n="banner">זוהי הדגמה חיה — נסו בחופשיות! השינויים לא יישמרו.</span>
+    <span class="demo-banner-text">This is a live demo — try it out! Your changes won't be saved.</span>
   </div>
 
   <div class="app-shell">
     <div class="container">
       <header class="app-header">
-        <a href="./demo.html" class="brand brand-link" style="text-decoration:none;color:inherit;">
+        <a href="./index.html" class="brand brand-link" style="text-decoration:none;color:inherit;">
           <div class="brand-mark">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
               <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
@@ -93,6 +79,21 @@
       </section>
 
       <section class="card">
+        <div class="inline-actions" style="margin-bottom:1rem;">
+          <button class="button icon-swap" id="addClientBtn">
+            <span class="button-label" data-i18n="overview.addClient">Add Client</span>
+            <span class="button-icon" aria-hidden="true">+&#128100;</span>
+          </button>
+          <button class="button secondary icon-swap" id="addSessionBtn">
+            <span class="button-label" data-i18n="overview.addSession">Add Session</span>
+            <span class="button-icon" aria-hidden="true">+&#128197;</span>
+          </button>
+          <button class="button ghost" id="exportBtn" data-i18n="overview.export">Export Data</button>
+          <label class="button ghost import-label">
+            <span data-i18n="overview.import">Import Data</span>
+            <input id="importInput" type="file" accept="application/json" class="is-hidden" />
+          </label>
+        </div>
         <h2 class="section-title" data-i18n="overview.clients.title">Clients</h2>
         <div class="search-wrapper" style="margin-bottom:1rem;">
           <input type="text" id="clientSearch" class="input search-input"
