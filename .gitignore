@@ -1,0 +1,25 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Backup files
+*.bak
+*.swp
+*.swo
+*~
+
+# Node
+node_modules/
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
