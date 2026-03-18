@@ -176,4 +176,4 @@ Phases execute in numeric order: 1 -> 1.1 -> 2 -> 2.1 -> 3 -> etc.
 | 5.1 Landing Page Visual Redesign | 0/2 | Not started | - |
 | 5.2 Landing Page Polish | 0/3 | Not started | - |
 | 6. Quality and Developer Experience | 0/? | Not started | - |
-| 7. Investigate Data Backup Strategy | 0/2 | Not started | - |
+| 7. Investigate Data Backup Strategy | 1/2 | In Progress|  |
