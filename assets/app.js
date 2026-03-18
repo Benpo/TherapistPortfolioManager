@@ -75,7 +75,43 @@ window.App = (() => {
     actions.prepend(btn);
   }
 
+  function initDemoMode() {
+    if (window.name !== 'demo-mode') return;
+    // Mark body for CSS rules
+    document.body.setAttribute('data-demo', 'true');
+    // Inject demo banner if not already present
+    if (!document.querySelector('.demo-banner')) {
+      var banner = document.createElement('div');
+      banner.className = 'demo-banner';
+      banner.setAttribute('role', 'status');
+      banner.innerHTML = '<span class="demo-banner-text"></span>';
+      document.body.prepend(banner);
+    }
+    // Load demo.css if not already loaded
+    if (!document.querySelector('link[href*="demo.css"]')) {
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = './assets/demo.css';
+      document.head.appendChild(link);
+    }
+    // Update banner text for current language
+    var DEMO_BANNER_TEXT = {
+      en: 'This is a live demo \u2014 try it out! Your changes won\'t be saved.',
+      he: '\u05d6\u05d5\u05d4\u05d9 \u05d4\u05d3\u05d2\u05de\u05d4 \u05d7\u05d9\u05d4 \u2014 \u05e0\u05e1\u05d5 \u05d1\u05d7\u05d5\u05e4\u05e9\u05d9\u05d5\u05ea! \u05d4\u05e9\u05d9\u05e0\u05d5\u05d9\u05d9\u05dd \u05dc\u05d0 \u05d9\u05d9\u05e9\u05de\u05e8\u05d5.',
+      de: 'Dies ist eine Live-Demo \u2014 probieren Sie es aus! Ihre \u00c4nderungen werden nicht gespeichert.',
+      cs: 'Toto je \u017eiv\u00e1 uk\u00e1zka \u2014 vyzkou\u0161ejte si to! Va\u0161e zm\u011bny nebudou ulo\u017eeny.'
+    };
+    var updateBanner = function() {
+      var lang = localStorage.getItem('portfolioLang') || 'en';
+      var el = document.querySelector('.demo-banner-text');
+      if (el) el.textContent = DEMO_BANNER_TEXT[lang] || DEMO_BANNER_TEXT.en;
+    };
+    updateBanner();
+    document.addEventListener('app:language', updateBanner);
+  }
+
   function initCommon() {
+    initDemoMode();
     renderNav();
     initThemeToggle();
     const savedLang = localStorage.getItem("portfolioLang") || window.I18N_DEFAULT || "en";

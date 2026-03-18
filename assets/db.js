@@ -1,5 +1,5 @@
 window.PortfolioDB = (() => {
-  const DB_NAME = "emotion_code_portfolio";
+  const DB_NAME = window.name === "demo-mode" ? "demo_portfolio" : "emotion_code_portfolio";
   const DB_VERSION = 2;
 
   const MIGRATIONS = {
