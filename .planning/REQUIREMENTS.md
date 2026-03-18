@@ -55,6 +55,12 @@ Requirements for sellable product release. Each maps to roadmap phases.
 - [x] **DIST-04**: PWA setup with service worker for offline capability
 - [x] **DIST-05**: Production packaging — distribution-ready bundle
 
+### Backup
+
+- [ ] **BKUP-01**: ZIP-based export — backup as ZIP archive with JSON text data + separate photo files, replacing base64-embedded JSON export
+- [ ] **BKUP-02**: ZIP-based import — single-click restore from ZIP with backward compatibility for old JSON backups, replace strategy with confirmation dialog
+- [ ] **BKUP-03**: Backup UI enhancements — "send backup to myself" mailto button, auto-save to user-chosen folder via File System Access API, i18n for all 4 languages, demo mode guard
+
 ### Developer Experience
 
 - [ ] **DEVX-01**: "How to modify this app" guide for non-technical maintainer (Sapir)
@@ -137,6 +143,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DIST-03 | Phase 5: Legal and Production Packaging | Complete |
 | DIST-04 | Phase 5: Legal and Production Packaging | Complete |
 | DIST-05 | Phase 5: Legal and Production Packaging | Complete |
+| BKUP-01 | Phase 7: Investigate Data Backup Strategy | Pending |
+| BKUP-02 | Phase 7: Investigate Data Backup Strategy | Pending |
+| BKUP-03 | Phase 7: Investigate Data Backup Strategy | Pending |
 | QA-01 | Phase 6: Quality and Developer Experience | Pending |
 | QA-02 | Phase 6: Quality and Developer Experience | Pending |
 | QA-03 | Phase 6: Quality and Developer Experience | Pending |
@@ -146,10 +155,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DEVX-03 | Phase 6: Quality and Developer Experience | Pending |
 
 **Coverage:**
-- v1 requirements: 34 total
-- Mapped to phases: 34
+- v1 requirements: 37 total
+- Mapped to phases: 37
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-09 after roadmap creation*
+*Last updated: 2026-03-18 after Phase 7 planning*

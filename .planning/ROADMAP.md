@@ -143,6 +143,24 @@ Plans:
 - [ ] 06-01: TBD
 - [ ] 06-02: TBD
 
+### Phase 7: Investigate data backup strategy
+
+**Goal:** Replace JSON export (which embeds base64 photos causing enormous files) with ZIP-based backup, add auto-save to folder, and "send backup to myself" email flow -- all without external servers
+**Depends on:** Phase 6
+**Requirements**: BKUP-01, BKUP-02, BKUP-03
+**Success Criteria** (what must be TRUE):
+  1. Export produces a ZIP file containing a small JSON (text data only) and a photos/ subfolder with individual image files
+  2. Importing a ZIP restores all data including photos to IndexedDB with a single click
+  3. Old JSON backups (pre-ZIP format) can still be imported without errors
+  4. User can click "Send backup to myself" to download ZIP and open email client
+  5. On Chrome/Edge, user can set a backup folder for automatic saves via File System Access API
+  6. All backup UI strings appear in EN, HE, DE, and CS
+**Plans**: 2 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — BackupManager module (backup.js) with ZIP export/import logic + self-hosted JSZip (BKUP-01, BKUP-02)
+- [ ] 07-02-PLAN.md — Wire BackupManager into UI, add send-to-self and auto-save buttons, i18n, service worker update (BKUP-03)
+
 ## Progress
 
 **Execution Order:**
@@ -158,3 +176,4 @@ Phases execute in numeric order: 1 -> 1.1 -> 2 -> 2.1 -> 3 -> etc.
 | 5.1 Landing Page Visual Redesign | 0/2 | Not started | - |
 | 5.2 Landing Page Polish | 0/3 | Not started | - |
 | 6. Quality and Developer Experience | 0/? | Not started | - |
+| 7. Investigate Data Backup Strategy | 0/2 | Not started | - |
