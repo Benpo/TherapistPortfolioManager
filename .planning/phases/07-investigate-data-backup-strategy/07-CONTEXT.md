@@ -91,6 +91,7 @@ Investigate and implement a robust data backup/restore strategy for the therapis
 
 - Email-based backup delivery — requires server infrastructure, out of scope for local-only app. Could revisit if a backend is ever added (v2+).
 - Cloud backup (encrypted) — already listed as PLAT-02 in v2 requirements.
+- **Auto-save drafts** — save form data to IndexedDB every few seconds so unsaved work survives unexpected shutdowns (battery death, crash). No cost, negligible performance impact. Should be its own phase/feature.
 
 </deferred>
 
