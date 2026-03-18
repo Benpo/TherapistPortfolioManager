@@ -158,7 +158,9 @@ window.BackupManager = (function () {
     var yyyy = today.getFullYear();
     var mm = String(today.getMonth() + 1).padStart(2, "0");
     var dd = String(today.getDate()).padStart(2, "0");
-    var filename = "sessions-garden-backup-" + yyyy + "-" + mm + "-" + dd + ".zip";
+    var hh = String(today.getHours()).padStart(2, "0");
+    var min = String(today.getMinutes()).padStart(2, "0");
+    var filename = "Sessions-Garden-" + yyyy + "-" + mm + "-" + dd + "-" + hh + min + ".zip";
 
     return { blob: blob, filename: filename };
   }
