@@ -114,21 +114,22 @@ window.BackupManager = (function () {
     var clientsClean = allClients.map(function (client) {
       var c = Object.assign({}, client);
 
-      if (c.photo) {
-        var mime = _mimeFromDataUrl(c.photo);
+      // Check both `photo` and `photoData` fields — the app uses `photoData`
+      var photoField = c.photo || c.photoData;
+      if (photoField) {
+        var mime = _mimeFromDataUrl(photoField);
         if (mime) {
-          // It's a proper base64 data URL — extract and store separately
           var ext = _extFromMime(mime);
           var filename = "client-" + c.id + ext;
-          var base64Data = c.photo.replace(/^data:image\/\w+;base64,/, "");
+          var base64Data = photoField.replace(/^data:image\/\w+;base64,/, "");
           photosFolder.file(filename, base64Data, {
             base64: true,
             compression: "STORE",
           });
+          // Store reference in photoData (the field the app actually uses)
+          c.photoData = "photos/" + filename;
           c.photo = "photos/" + filename;
         }
-        // If photo doesn't match data URL pattern (e.g. already a path ref),
-        // leave it as-is.
       }
 
       return c;
@@ -233,18 +234,21 @@ window.BackupManager = (function () {
         manifest.clients = await Promise.all(
           manifest.clients.map(async function (client) {
             var c = Object.assign({}, client);
-            if (c.photo && typeof c.photo === "string" && c.photo.startsWith("photos/")) {
-              // Extract just the filename portion after "photos/"
-              var photoFilename = c.photo.replace(/^photos\//, "");
+            // Check both fields — photo and photoData
+            var photoRef = c.photoData || c.photo;
+            if (photoRef && typeof photoRef === "string" && photoRef.startsWith("photos/")) {
+              var photoFilename = photoRef.replace(/^photos\//, "");
               var photoExt = photoFilename.split(".").pop();
-              var photoEntry = zip.file(c.photo);
+              var photoEntry = zip.file(photoRef);
               if (photoEntry) {
                 var base64Data = await photoEntry.async("base64");
                 var mime = _mimeFromExt(photoExt);
-                c.photo = "data:" + mime + ";base64," + base64Data;
+                var dataUrl = "data:" + mime + ";base64," + base64Data;
+                c.photoData = dataUrl;
+                c.photo = dataUrl;
               } else {
-                // Photo file missing in ZIP — degrade gracefully
-                console.warn("BackupManager: missing photo file in ZIP:", c.photo);
+                console.warn("BackupManager: missing photo file in ZIP:", photoRef);
+                c.photoData = null;
                 c.photo = null;
               }
             }
