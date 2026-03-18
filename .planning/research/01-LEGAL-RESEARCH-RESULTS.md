@@ -445,6 +445,51 @@ Under **ss356 Abs. 5 BGB**, the withdrawal right expires when ALL conditions are
 
 ---
 
+## Q&A: Local-Only App — Who Is Liable for Unencrypted Data?
+
+**Question:** If the PWA only stores data in the user's browser (IndexedDB) and we offer a JSON export with no passphrase or encryption, are we liable for providing software with basically open GDPR health data? Or is that the therapist's problem?
+
+**Answer: Primarily the therapist's responsibility, but the developer should add minimal safeguards.**
+
+**Confidence: HIGH**
+
+### Why it's the therapist's problem
+
+In Option A (local-only), the developer is **not a data processor**. The therapist is the **data controller** — they decide to store health data in their browser, they're responsible for securing their device, and if they export a JSON file, that file is their data on their device.
+
+The JSON export is actually a **GDPR requirement** (Art. 20, data portability). The developer is legally *obligated* to provide it. Refusing to give users their data in a usable format to "protect" them would itself be a GDPR violation.
+
+**Analogy:** Microsoft isn't liable if a therapist saves patient notes in an unencrypted Word document on their desktop. The tool provides functionality; the controller decides how to use it.
+
+### Where the developer has some exposure
+
+**GDPR Article 25 — Data Protection by Design and by Default** says that data protection principles should be built into the design of tools that process personal data. For a local-only PWA where the developer never touches the data, this is a soft obligation — the developer is a tool vendor, not a processor. But because the app is **specifically marketed to people who will store health data**, a DPA could argue the developer should have implemented reasonable safeguards in the app design.
+
+This does NOT mean the developer must:
+- Encrypt IndexedDB (the browser/OS handles device security via FileVault, BitLocker, etc.)
+- Encrypt the JSON export (it's the therapist's file on their device)
+- Add a passphrase to the app (nice-to-have, not legally required for local-only)
+
+### What the developer SHOULD do (low effort, high protection)
+
+These three things shift liability clearly to the therapist and demonstrate responsible tool design:
+
+1. **First-launch notice in the app:** "This app stores sensitive client data on your device. You are responsible for securing your device (screen lock, disk encryption) and any exported files. As the data controller under GDPR, you are responsible for protecting your clients' data."
+
+2. **Export warning before JSON download:** "This file contains unencrypted personal data including health information. Store it securely and delete it when no longer needed."
+
+3. **Template documents** for the therapist (consent forms for their clients, privacy notice template in German).
+
+**Cost: zero. Time: one afternoon. Legal protection: substantial.**
+
+### When encryption DOES become the developer's problem
+
+The moment the developer adds **Option B (backup to their server)**, everything changes. Then they hold data, and the encryption question becomes critical. But as long as data stays purely on the user's device, the security responsibility is the therapist's.
+
+**Bottom line:** For local-only, add warnings + templates, and the developer is well-covered. The JSON export is a feature, not a liability — it's literally required by GDPR.
+
+---
+
 ## Remaining Uncertainty (What a Lawyer Would Add)
 
 | Area | What Research Can't Resolve |
