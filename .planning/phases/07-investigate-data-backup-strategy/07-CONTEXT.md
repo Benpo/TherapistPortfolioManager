@@ -24,6 +24,7 @@ Investigate and implement a robust data backup/restore strategy for the therapis
   1. **Periodic reminder** (existing 7-day banner) — keep as-is
   2. **Automatic save to user-chosen folder** via File System Access API — user picks a folder once, backups save there automatically
 - Manual export button also always available
+- **"Send backup to myself" button** — downloads the ZIP and opens the user's email client (mailto:) with a reminder to attach it. Not automatic, but gives the user an off-device copy without any server. Key selling point: answers the "what if my device is stolen?" objection.
 
 ### Photo Handling
 - Photos stored separately in ZIP, not as base64 in JSON
