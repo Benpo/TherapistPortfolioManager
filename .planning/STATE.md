@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-03-18T13:53:29.127Z"
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-03-18T19:46:08.540Z"
 last_activity: 2026-03-10 -- Completed 03-03 search, quotes, and brand navigation
 progress:
   total_phases: 9
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 22
-  completed_plans: 20
+  completed_plans: 21
   percent: 100
 ---
 
@@ -64,6 +64,7 @@ Progress: [██████████] 100%
 | Phase 05.2-landing-page-polish P01 | 6 | 2 tasks | 3 files |
 | Phase 05.2-landing-page-polish P02 | 4 | 2 tasks | 3 files |
 | Phase 07-investigate-data-backup-strategy P01 | 2 | 1 tasks | 2 files |
+| Phase 07-investigate-data-backup-strategy P02 | 45 | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -110,6 +111,9 @@ Recent decisions affecting current work:
 - [Phase 07-investigate-data-backup-strategy]: ZIP backup format: backup.json (DEFLATE) + photos/ subfolder (STORE) — separates photo binary data from text to fix file-size problem
 - [Phase 07-investigate-data-backup-strategy]: normalizeManifest handles v0 (old JSON, inline base64) and v1 (ZIP, photo filename refs) — backward compatible import
 - [Phase 07-investigate-data-backup-strategy]: Replace strategy on import (clearAll then re-add) chosen over merge to avoid duplicate/conflict edge cases
+- [Phase 07-investigate-data-backup-strategy]: Backup file renamed to Sessions-Garden-YYYY-MM-DD-HHmm.zip for user-friendly identification
+- [Phase 07-investigate-data-backup-strategy]: Photo extraction reads photoData field (not photo) to correctly capture stored photos
+- [Phase 07-investigate-data-backup-strategy]: Old importData() removed from overview.js; BackupManager.importBackup() is the sole import path
 
 ### Roadmap Evolution
 
@@ -128,6 +132,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T13:53:29.125Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-03-18T19:46:08.538Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None

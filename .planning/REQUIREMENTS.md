@@ -59,7 +59,7 @@ Requirements for sellable product release. Each maps to roadmap phases.
 
 - [x] **BKUP-01**: ZIP-based export — backup as ZIP archive with JSON text data + separate photo files, replacing base64-embedded JSON export
 - [x] **BKUP-02**: ZIP-based import — single-click restore from ZIP with backward compatibility for old JSON backups, replace strategy with confirmation dialog
-- [ ] **BKUP-03**: Backup UI enhancements — "send backup to myself" mailto button, auto-save to user-chosen folder via File System Access API, i18n for all 4 languages, demo mode guard
+- [x] **BKUP-03**: Backup UI enhancements — "send backup to myself" mailto button, auto-save to user-chosen folder via File System Access API, i18n for all 4 languages, demo mode guard
 
 ### Developer Experience
 
@@ -145,7 +145,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DIST-05 | Phase 5: Legal and Production Packaging | Complete |
 | BKUP-01 | Phase 7: Investigate Data Backup Strategy | Complete |
 | BKUP-02 | Phase 7: Investigate Data Backup Strategy | Complete |
-| BKUP-03 | Phase 7: Investigate Data Backup Strategy | Pending |
+| BKUP-03 | Phase 7: Investigate Data Backup Strategy | Complete |
 | QA-01 | Phase 6: Quality and Developer Experience | Pending |
 | QA-02 | Phase 6: Quality and Developer Experience | Pending |
 | QA-03 | Phase 6: Quality and Developer Experience | Pending |
