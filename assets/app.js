@@ -324,8 +324,11 @@ window.App = (() => {
     exportBtn.style.cssText = "background:var(--color-primary,#2d6a4f);color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:600;font-size:13px;";
     exportBtn.addEventListener("click", async () => {
       try {
-        const data = await exportData();
-        downloadJSON(data); // this sets portfolioLastExport
+        const { blob, filename } = await BackupManager.exportBackup();
+        BackupManager.triggerDownload(blob, filename);
+        if (BackupManager.isAutoBackupActive()) {
+          await BackupManager.autoSaveToFolder(blob, filename);
+        }
         banner.remove();
       } catch (err) {
         console.error("Backup failed:", err);

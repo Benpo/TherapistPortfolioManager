@@ -65,8 +65,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (exportBtn) {
     exportBtn.addEventListener("click", async () => {
-      const data = await App.exportData();
-      App.downloadJSON(data);
+      try {
+        const { blob, filename } = await BackupManager.exportBackup();
+        BackupManager.triggerDownload(blob, filename);
+        // Also auto-save to folder if active
+        if (BackupManager.isAutoBackupActive()) {
+          await BackupManager.autoSaveToFolder(blob, filename);
+        }
+        App.showToast("", "toast.exportSuccess");
+      } catch (err) {
+        App.showToast("", "toast.exportError");
+      }
     });
   }
 
@@ -74,16 +83,49 @@ document.addEventListener("DOMContentLoaded", async () => {
     importInput.addEventListener("change", async () => {
       const file = importInput.files && importInput.files[0];
       if (!file) return;
+      // Guard against demo mode
+      if (window.name === "demo-mode") {
+        App.showToast("", "toast.importDisabledDemo");
+        importInput.value = "";
+        return;
+      }
       try {
-        const content = await file.text();
-        const data = JSON.parse(content);
-        await importData(data);
+        const confirmed = await App.confirmDialog({
+          messageKey: "backup.confirmReplace",
+          confirmKey: "confirm.import",
+          cancelKey: "confirm.cancel"
+        });
+        if (!confirmed) { importInput.value = ""; return; }
+        await BackupManager.importBackup(file);
         App.showToast("", "toast.importSuccess");
         await loadOverview();
       } catch (err) {
         App.showToast("", "toast.importError");
       } finally {
         importInput.value = "";
+      }
+    });
+  }
+
+  const sendBackupBtn = document.getElementById("sendBackupBtn");
+  if (sendBackupBtn) {
+    sendBackupBtn.addEventListener("click", async () => {
+      try {
+        const { blob, filename } = await BackupManager.exportBackup();
+        await BackupManager.sendToMyself(blob, filename);
+      } catch (err) {
+        App.showToast("", "toast.exportError");
+      }
+    });
+  }
+
+  const autoBackupBtn = document.getElementById("autoBackupBtn");
+  if (autoBackupBtn && BackupManager.isAutoBackupSupported()) {
+    autoBackupBtn.style.display = "";
+    autoBackupBtn.addEventListener("click", async () => {
+      const handle = await BackupManager.pickBackupFolder();
+      if (handle) {
+        App.showToast("", "toast.autoBackupSet");
       }
     });
   }
@@ -440,15 +482,3 @@ function averageDaysBetween(sessions) {
   return (total / (dates.length - 1)).toFixed(1);
 }
 
-async function importData(data) {
-  if (!data || !Array.isArray(data.clients) || !Array.isArray(data.sessions)) {
-    throw new Error("Invalid data");
-  }
-  await PortfolioDB.clearAll();
-  for (const client of data.clients) {
-    await PortfolioDB.addClient(client);
-  }
-  for (const session of data.sessions) {
-    await PortfolioDB.addSession(session);
-  }
-}
