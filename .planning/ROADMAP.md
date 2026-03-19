@@ -178,7 +178,7 @@ Plans:
 
 **Milestone Goal:** Polish the app for free trial users, fix UX pain points, update visual identity, and complete all launch prerequisites so the product can be sold.
 
-- [ ] **Phase 8: Terminology and Quick UX Fixes** - Update מפגש/לקוח terminology across all 4 languages; replace text action buttons with icon buttons
+- [x] **Phase 8: Terminology and Quick UX Fixes** - Update מפגש/לקוח terminology across all 4 languages; replace text action buttons with icon buttons (completed 2026-03-19)
 - [ ] **Phase 9: Heart Shield Redesign** - Session-level Heart Shield toggle with removal tracking, client table indicators, and session type filter
 - [ ] **Phase 10: UX Power Features** - Photo crop/reposition after upload; edit client directly from add-session screen
 - [ ] **Phase 11: Visual Identity Update** - Garden decorations in app UI; updated logo; final app icon
@@ -278,7 +278,7 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 5.2 Landing Page Polish | v1.0 | 3/3 | Complete | - |
 | 6. Quality and Developer Experience | v1.0 | 2/2 | Complete | - |
 | 7. ZIP Backup Strategy | v1.0 | 2/2 | Complete | 2026-03-18 |
-| 8. Terminology and Quick UX Fixes | 1/2 | In Progress|  | - |
+| 8. Terminology and Quick UX Fixes | 2/2 | Complete   | 2026-03-19 | - |
 | 9. Heart Shield Redesign | v1.1 | 0/2 | Not started | - |
 | 10. UX Power Features | v1.1 | 0/2 | Not started | - |
 | 11. Visual Identity Update | v1.1 | 0/2 | Not started | - |

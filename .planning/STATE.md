@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: planning
-stopped_at: Completed 08-01-PLAN.md
-last_updated: "2026-03-19T10:36:28.881Z"
+stopped_at: Completed 08-02-PLAN.md
+last_updated: "2026-03-19T10:40:01.170Z"
 last_activity: 2026-03-19 — v1.1 roadmap created; phases 8-12 defined
 progress:
   total_phases: 14
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 24
-  completed_plans: 22
+  completed_plans: 23
   percent: 0
 ---
 
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 08 P01 | 3min | 2 tasks | 3 files |
+| Phase 08 P02 | 3min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,8 @@ Recent decisions affecting current work:
 - [Roadmap v1.1]: Phase 12 (QA) placed last — app must be feature-complete before QA pass
 - [Phase 07-investigate-data-backup-strategy]: ZIP backup format, normalizeManifest v0/v1 compat, replace-on-import strategy — see full log in STATE history
 - [Phase 08]: Hebrew subtitle changed to אנרגטיים; all מטופל replaced with לקוח; EN/CS additionalTech de-clinicalized; DE verified clean
+- [Phase 08]: Icon buttons always visible (no hover reveal) for better discoverability on mobile and desktop
+- [Phase 08]: Actions column header removed — icon buttons self-explanatory with tooltips
 
 ### Pending Todos
 
@@ -83,6 +86,6 @@ These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
 
 ## Session Continuity
 
-Last session: 2026-03-19T10:36:28.879Z
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-03-19T10:40:01.169Z
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None
