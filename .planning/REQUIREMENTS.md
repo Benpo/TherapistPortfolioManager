@@ -16,7 +16,7 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 
 ### Heart Shield
 
-- [ ] **HSHLD-01**: Each session has optional "Heart Shield session" toggle; when active, "Shield removed?" field is required (yes/no)
+- [x] **HSHLD-01**: Each session has optional "Heart Shield session" toggle; when active, "Shield removed?" field is required (yes/no)
 - [ ] **HSHLD-02**: Client with active Heart Shield shows ❤️ icon next to name in clients table; icon changes to ✓ when removed
 - [ ] **HSHLD-03**: Sessions page has "session type" filter dropdown (all / Heart Shield / regular)
 
@@ -93,7 +93,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UX-02 | Phase 8 | Complete |
 | UX-03 | Phase 10 | Pending |
 | UX-04 | Phase 10 | Pending |
-| HSHLD-01 | Phase 9 | Pending |
+| HSHLD-01 | Phase 9 | Complete |
 | HSHLD-02 | Phase 9 | Pending |
 | HSHLD-03 | Phase 9 | Pending |
 | DSGN-05 | Phase 11 | Pending |
