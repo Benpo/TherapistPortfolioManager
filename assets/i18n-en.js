@@ -96,7 +96,7 @@ window.I18N.en = {
   "session.form.insights.placeholder": "Physical imbalance notes",
   "session.form.limitingBeliefs": "Limiting Beliefs",
   "session.form.limitingBeliefs.placeholder": "Notes on limiting beliefs",
-  "session.form.additionalTech": "Additional Treatment Techniques and Methods",
+  "session.form.additionalTech": "Additional Techniques and Tools",
   "session.form.additionalTech.placeholder": "Additional techniques used in this session",
   "session.form.sessionNotes": "Session Notes and Observations",
   "session.form.sessionNotes.placeholder": "Notes and observations from this session",

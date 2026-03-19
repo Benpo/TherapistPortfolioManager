@@ -96,7 +96,7 @@ window.I18N.cs = {
   "session.form.insights.placeholder": "Poznámky k fyzické nerovnováze",
   "session.form.limitingBeliefs": "Omezující přesvědčení",
   "session.form.limitingBeliefs.placeholder": "Poznámky k omezujícím přesvědčením",
-  "session.form.additionalTech": "Další léčebné techniky a metody",
+  "session.form.additionalTech": "Další techniky a nástroje",
   "session.form.additionalTech.placeholder": "Další techniky použité v tomto sezení",
   "session.form.sessionNotes": "Poznámky a dojmy ze sezení",
   "session.form.sessionNotes.placeholder": "Poznámky a dojmy z tohoto sezení",
