@@ -174,13 +174,68 @@ a {
   display:grid;
 }
 
+@keyframes greeting-border-spin {
+  from { --greeting-border-angle: 0deg; }
+  to { --greeting-border-angle: 360deg; }
+}
+
+@property --greeting-border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
 .greeting-card {
+  --_radius: 16px;
+  position: relative;
   background: var(--color-surface);
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-card);
+  border-radius: var(--_radius);
   padding: 1.25rem 1.5rem;
   margin-bottom: 1rem;
   box-shadow: var(--shadow-soft);
+  border: none;
+  z-index: 0;
+}
+
+.greeting-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--_radius) + 2px);
+  background: conic-gradient(
+    from var(--greeting-border-angle),
+    var(--color-green-400),
+    var(--color-green-200),
+    transparent 40%,
+    transparent 60%,
+    var(--color-green-200),
+    var(--color-green-400)
+  );
+  z-index: -2;
+  animation: greeting-border-spin 4s linear infinite;
+  opacity: 0.7;
+}
+
+.greeting-card::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: calc(var(--_radius) - 1px);
+  background: var(--color-surface);
+  z-index: -1;
+}
+
+[data-theme="dark"] .greeting-card::before {
+  background: conic-gradient(
+    from var(--greeting-border-angle),
+    var(--color-green-600),
+    var(--color-green-700),
+    transparent 40%,
+    transparent 60%,
+    var(--color-green-700),
+    var(--color-green-600)
+  );
+  opacity: 0.6;
 }
 
 .greeting-text {
@@ -1403,6 +1458,16 @@ body.read-mode .heart-shield-section input {
   mask-image: linear-gradient(to right, transparent 0%, black 10% 90%, transparent 100%);
 }
 
+/* Watering can at footer — centered, subtle */
+.app-botanical-footer {
+  padding: 1.5rem 0 0.5rem;
+}
+
+.app-botanical-footer .app-botanical-img {
+  width: 100px;
+  opacity: 0.35;
+}
+
 /* Dark mode treatment — same pattern as landing page */
 [data-theme="dark"] .app-botanical-img {
   filter: invert(1);
@@ -1410,9 +1475,16 @@ body.read-mode .heart-shield-section input {
   mix-blend-mode: screen;
 }
 
+[data-theme="dark"] .app-botanical-footer .app-botanical-img {
+  opacity: 0.2;
+}
+
 /* Responsive — shrink elements on small screens */
 @media (max-width: 600px) {
   .app-botanical-divider-img {
     max-inline-size: min(300px, 80vw);
+  }
+  .app-botanical-footer .app-botanical-img {
+    width: 70px;
   }
 }
