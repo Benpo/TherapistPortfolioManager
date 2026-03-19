@@ -241,12 +241,14 @@ function renderClientRows(clients, sessionsByClient) {
     const detailButton = document.createElement("button");
     detailButton.className = "row-toggle";
     detailButton.type = "button";
-    detailButton.textContent = App.t("overview.table.details");
+    detailButton.title = App.t("overview.table.previousSessions");
+    detailButton.setAttribute("aria-label", App.t("overview.table.previousSessions"));
+    detailButton.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
     const quickAddButton = document.createElement("button");
     quickAddButton.className = "row-quick-add";
     quickAddButton.type = "button";
-    quickAddButton.title = App.t("overview.table.addSession");
-    quickAddButton.setAttribute("aria-label", App.t("overview.table.addSession"));
+    quickAddButton.title = App.t("overview.table.newSession");
+    quickAddButton.setAttribute("aria-label", App.t("overview.table.newSession"));
     quickAddButton.textContent = "+";
     quickAddButton.addEventListener("click", () => {
       window.location.href = `./add-session.html?clientId=${client.id}`;
@@ -264,7 +266,7 @@ function renderClientRows(clients, sessionsByClient) {
     const detailRow = document.createElement("tr");
     detailRow.className = "detail-row";
     const detailCell = document.createElement("td");
-    detailCell.colSpan = 5;
+    detailCell.colSpan = 4;
 
     if (!clientSessions.length) {
       detailCell.innerHTML = `<div class="helper-text">${App.t("overview.sessions.none")}</div>`;

@@ -335,12 +335,15 @@ a {
 }
 
 .table .row-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  padding: 0;
+  display: grid;
+  place-items: center;
   border: 0;
   background: var(--color-primary-soft);
   color: var(--color-text);
-  border-radius: 10px;
-  padding: 0.4rem 0.6rem;
-  font-weight: 600;
   cursor: pointer;
 }
 
@@ -363,16 +366,6 @@ a {
   display:grid;
   place-items:center;
   cursor:pointer;
-  opacity:0;
-  transform:scale(0.9);
-  pointer-events:none;
-  transition:opacity 0.2s ease, transform 0.2s ease;
-}
-
-.client-row:hover .row-quick-add{
-  opacity:1;
-  transform:scale(1);
-  pointer-events:auto;
 }
 
 .session-list {
@@ -788,12 +781,6 @@ body[dir="rtl"] .issue-grid {
 
   .app-nav {
     width: 100%;
-  }
-
-  .row-quick-add{
-    opacity:1;
-    transform:scale(1);
-    pointer-events:auto;
   }
 
   .session-edit{
