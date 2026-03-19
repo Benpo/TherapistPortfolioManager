@@ -92,6 +92,31 @@
             </div>
           </div>
 
+          <div class="heart-shield-section" id="heartShieldSection">
+            <div class="heart-shield-toggle">
+              <label class="toggle-switch">
+                <input type="checkbox" id="heartShieldToggle" />
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="label" data-i18n="session.form.heartShield">Heart Shield Session</span>
+            </div>
+            <div class="heart-shield-conditional is-hidden" id="heartShieldConditional">
+              <div class="form-field">
+                <label class="label" data-i18n="session.form.shieldRemoved">Shield Removed?</label>
+                <div class="shield-removed-options">
+                  <label class="radio-option">
+                    <input type="radio" name="shieldRemoved" value="yes" />
+                    <span data-i18n="session.form.shieldRemoved.yes">Yes</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="shieldRemoved" value="no" />
+                    <span data-i18n="session.form.shieldRemoved.no">No</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div id="clientSpotlight" class="client-spotlight is-hidden">
             <div class="client-spotlight-media">
               <img id="clientSpotlightPhoto" class="client-spotlight-photo is-hidden" alt="Client photo" />

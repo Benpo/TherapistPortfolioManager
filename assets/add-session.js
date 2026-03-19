@@ -34,6 +34,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   let isReadMode = false;
   const NEW_CLIENT_VALUE = "__new__";
 
+  const heartShieldToggle = document.getElementById("heartShieldToggle");
+  const heartShieldConditional = document.getElementById("heartShieldConditional");
+
   // Unsaved changes protection
   if (sessionForm) {
     sessionForm.addEventListener("input", () => { formDirty = true; });
@@ -44,6 +47,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       e.preventDefault();
     }
   });
+
+  // Heart Shield toggle handler
+  if (heartShieldToggle) {
+    heartShieldToggle.addEventListener("change", () => {
+      if (heartShieldConditional) {
+        heartShieldConditional.classList.toggle("is-hidden", !heartShieldToggle.checked);
+      }
+      if (!heartShieldToggle.checked) {
+        document.querySelectorAll("input[name='shieldRemoved']").forEach(r => r.checked = false);
+      }
+      formDirty = true;
+    });
+  }
 
   function setSubmitLabel(key) {
     if (!submitButton) return;
@@ -419,12 +435,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     const commentsValue = (commentsEl ? commentsEl.value : "").trim();
     const summaryValue = (customerSummaryInput ? customerSummaryInput.value : "").trim();
 
+    // Heart Shield status for copy
+    const heartShieldChecked = heartShieldToggle ? heartShieldToggle.checked : false;
+    const shieldRemovedCopyInput = document.querySelector("input[name='shieldRemoved']:checked");
+    const shieldRemovedCopyValue = shieldRemovedCopyInput ? shieldRemovedCopyInput.value : null;
+    const heartShieldCopyLine = heartShieldChecked
+      ? `**${App.t("session.copy.heartShield")}** ${shieldRemovedCopyValue === "yes" ? App.t("session.form.shieldRemoved.yes") : App.t("session.form.shieldRemoved.no")}`
+      : null;
+
     const lines = [
       `# ${App.t("session.copy.title")}`,
       "",
       `**${App.t("session.copy.client")}** ${clientName}`,
       `**${App.t("session.copy.date")}** ${dateValue}`,
       `**${App.t("session.copy.type")}** ${sessionType}`,
+      ...(heartShieldCopyLine ? [heartShieldCopyLine] : []),
       "",
       `## ${App.t("session.copy.issues")}`,
       issuesText
@@ -548,7 +573,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (inlineForm) inlineForm.style.display = "none";
       if (clientSelect) clientSelect.value = "";
       updateClientSpotlight();
-      updateHeartWallSection();
     });
   }
 
@@ -570,6 +594,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!validateIssues(issuesPayload)) {
         App.showToast("", "toast.issueMissing");
         return;
+      }
+
+      // Heart Shield validation
+      const isHeartShield = heartShieldToggle ? heartShieldToggle.checked : false;
+      let shieldRemoved = null;
+      if (isHeartShield) {
+        const shieldRemovedInput = document.querySelector("input[name='shieldRemoved']:checked");
+        if (!shieldRemovedInput) {
+          App.showToast("", "toast.heartShieldRequired");
+          return;
+        }
+        shieldRemoved = shieldRemovedInput.value === "yes";
       }
 
       const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
@@ -594,6 +630,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           additionalTech,
           customerSummary,
           comments,
+          isHeartShield,
+          shieldRemoved,
           updatedAt: new Date().toISOString()
         });
         App.showToast("", "toast.sessionUpdated");
@@ -609,6 +647,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           additionalTech,
           customerSummary,
           comments,
+          isHeartShield,
+          shieldRemoved,
           createdAt: new Date().toISOString()
         });
         App.showToast("", "toast.sessionSaved");
@@ -859,6 +899,21 @@ function populateSession(session, issues, createIssueBlock) {
       card.classList.remove("active");
     }
   });
+
+  // Heart Shield population
+  const heartShieldToggleEl = document.getElementById("heartShieldToggle");
+  const heartShieldConditionalEl = document.getElementById("heartShieldConditional");
+  if (heartShieldToggleEl) {
+    heartShieldToggleEl.checked = !!session.isHeartShield;
+    if (heartShieldConditionalEl) {
+      heartShieldConditionalEl.classList.toggle("is-hidden", !session.isHeartShield);
+    }
+  }
+  if (session.isHeartShield && session.shieldRemoved !== null && session.shieldRemoved !== undefined) {
+    const value = session.shieldRemoved ? "yes" : "no";
+    const radio = document.querySelector(`input[name='shieldRemoved'][value='${value}']`);
+    if (radio) radio.checked = true;
+  }
 
   issues.splice(0, issues.length);
   const issueList = document.getElementById("issueList");

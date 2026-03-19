@@ -1150,3 +1150,91 @@ body[dir="rtl"] .modal-actions{
 
 .delta-negative { color: var(--color-success, #22c55e); }  /* Improvement */
 .delta-positive { color: var(--color-danger, #ef4444); }   /* Worsening */
+
+/* ── Heart Shield Section ────────────────────────────────────────── */
+
+.heart-shield-section {
+  margin-block: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt, var(--color-surface));
+}
+
+.heart-shield-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--color-border);
+  border-radius: 26px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  inset-inline-start: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--color-primary);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(22px);
+}
+
+body[dir="rtl"] .toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(-22px);
+}
+
+.heart-shield-conditional {
+  margin-block-start: 1rem;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 3px solid var(--color-primary);
+}
+
+.shield-removed-options {
+  display: flex;
+  gap: 1rem;
+  margin-block-start: 0.5rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+  accent-color: var(--color-primary);
+}
+
+body.read-mode .heart-shield-section input {
+  pointer-events: none;
+}
