@@ -186,8 +186,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderClientRows(filtered, _sessionsByClient);
   }
 
+  const clearFiltersBtn = document.getElementById("clearFiltersBtn");
+
+  function updateClearButton() {
+    if (!clearFiltersBtn) return;
+    const hasFilters = (clientSearchInput && clientSearchInput.value) ||
+      (clientTypeFilter && clientTypeFilter.value) ||
+      (clientHeartShieldFilter && clientHeartShieldFilter.value) ||
+      (clientYearFilter && clientYearFilter.value) ||
+      (clientSortSelect && clientSortSelect.value !== "name");
+    clearFiltersBtn.classList.toggle("is-hidden", !hasFilters);
+  }
+
+  function onFilterChange() {
+    applyFiltersAndSort();
+    updateClearButton();
+  }
+
+  if (clearFiltersBtn) {
+    clearFiltersBtn.addEventListener("click", () => {
+      if (clientSearchInput) clientSearchInput.value = "";
+      if (clientTypeFilter) clientTypeFilter.value = "";
+      if (clientHeartShieldFilter) clientHeartShieldFilter.value = "";
+      if (clientYearFilter) clientYearFilter.value = "";
+      if (clientSortSelect) clientSortSelect.value = "name";
+      applyFiltersAndSort();
+      updateClearButton();
+    });
+  }
+
   [clientSearchInput, clientTypeFilter, clientHeartShieldFilter, clientYearFilter, clientSortSelect].forEach(el => {
-    if (el) el.addEventListener(el.tagName === "INPUT" ? "input" : "change", applyFiltersAndSort);
+    if (el) el.addEventListener(el.tagName === "INPUT" ? "input" : "change", onFilterChange);
   });
 
   document.addEventListener("app:language", async () => {

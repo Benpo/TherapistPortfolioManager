@@ -49,6 +49,7 @@ window.I18N.cs = {
   "overview.filter.sort.name": "Jmeno",
   "overview.filter.sort.lastSession": "Posledni sezeni",
   "overview.filter.sort.sessions": "Pocet sezeni",
+  "overview.filter.clear": "Zrusit filtry",
   "overview.addClient": "Přidat klienta",
   "overview.addSession": "Přidat sezení",
   "client.title": "Přidat nového klienta",

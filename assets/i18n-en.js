@@ -49,6 +49,7 @@ window.I18N.en = {
   "overview.filter.sort.name": "Name",
   "overview.filter.sort.lastSession": "Last Session",
   "overview.filter.sort.sessions": "Number of Sessions",
+  "overview.filter.clear": "Clear Filters",
   "overview.addClient": "Add Client",
   "overview.addSession": "Add Session",
   "client.title": "Add New Client",

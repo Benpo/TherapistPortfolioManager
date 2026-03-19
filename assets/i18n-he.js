@@ -49,6 +49,7 @@ window.I18N.he = {
   "overview.filter.sort.name": "שם",
   "overview.filter.sort.lastSession": "מפגש אחרון",
   "overview.filter.sort.sessions": "מספר מפגשים",
+  "overview.filter.clear": "נקה סינון",
   "overview.addClient": "הוספת לקוח",
   "overview.addSession": "הוספת מפגש",
   "client.title": "הוספת לקוח חדש",
