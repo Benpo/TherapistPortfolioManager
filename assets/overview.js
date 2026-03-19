@@ -133,17 +133,62 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupModal();
 
   const clientSearchInput = document.getElementById("clientSearch");
-  if (clientSearchInput) {
-    clientSearchInput.addEventListener("input", () => {
-      const query = (clientSearchInput.value || "").trim().toLowerCase();
-      if (!query) {
-        renderClientRows(_allClients, _sessionsByClient);
-      } else {
-        const filtered = _allClients.filter(c => getClientDisplayName(c).toLowerCase().includes(query));
-        renderClientRows(filtered, _sessionsByClient);
+  const clientTypeFilter = document.getElementById("clientTypeFilter");
+  const clientHeartShieldFilter = document.getElementById("clientHeartShieldFilter");
+  const clientYearFilter = document.getElementById("clientYearFilter");
+  const clientSortSelect = document.getElementById("clientSortSelect");
+
+  function applyFiltersAndSort() {
+    const query = (clientSearchInput ? clientSearchInput.value : "").trim().toLowerCase();
+    const typeVal = clientTypeFilter ? clientTypeFilter.value : "";
+    const shieldVal = clientHeartShieldFilter ? clientHeartShieldFilter.value : "";
+    const yearVal = clientYearFilter ? clientYearFilter.value : "";
+    const sortVal = clientSortSelect ? clientSortSelect.value : "name";
+
+    let filtered = _allClients.filter(c => {
+      // Name search
+      if (query && !getClientDisplayName(c).toLowerCase().includes(query)) return false;
+      // Client type filter
+      if (typeVal && c.type !== typeVal) return false;
+      // Heart Shield filter
+      if (shieldVal) {
+        const sessions = _sessionsByClient.get(c.id) || [];
+        const hasShield = sessions.some(s => s.isHeartShield);
+        if (shieldVal === "heartShield" && !hasShield) return false;
+        if (shieldVal === "regular" && hasShield) return false;
       }
+      // Year filter
+      if (yearVal) {
+        const sessions = _sessionsByClient.get(c.id) || [];
+        const hasSessionInYear = sessions.some(s => s.date && s.date.startsWith(yearVal));
+        if (!hasSessionInYear) return false;
+      }
+      return true;
     });
+
+    // Sort
+    filtered.sort((a, b) => {
+      if (sortVal === "lastSession") {
+        const aSessions = _sessionsByClient.get(a.id) || [];
+        const bSessions = _sessionsByClient.get(b.id) || [];
+        const aLast = aSessions.length ? aSessions.reduce((max, s) => s.date > max ? s.date : max, "") : "";
+        const bLast = bSessions.length ? bSessions.reduce((max, s) => s.date > max ? s.date : max, "") : "";
+        return bLast.localeCompare(aLast); // most recent first
+      }
+      if (sortVal === "sessions") {
+        const aCount = (_sessionsByClient.get(a.id) || []).length;
+        const bCount = (_sessionsByClient.get(b.id) || []).length;
+        return bCount - aCount; // most sessions first
+      }
+      return getClientDisplayName(a).localeCompare(getClientDisplayName(b), undefined, { sensitivity: "base" });
+    });
+
+    renderClientRows(filtered, _sessionsByClient);
   }
+
+  [clientSearchInput, clientTypeFilter, clientHeartShieldFilter, clientYearFilter, clientSortSelect].forEach(el => {
+    if (el) el.addEventListener(el.tagName === "INPUT" ? "input" : "change", applyFiltersAndSort);
+  });
 
   document.addEventListener("app:language", async () => {
     renderGreeting();
@@ -186,6 +231,28 @@ async function loadOverview() {
   // Clear search input on reload
   const searchInput = document.getElementById("clientSearch");
   if (searchInput) searchInput.value = "";
+
+  // Populate year filter from session dates
+  const yearSelect = document.getElementById("clientYearFilter");
+  if (yearSelect) {
+    const currentVal = yearSelect.value;
+    const years = new Set();
+    sessions.forEach(s => { if (s.date) years.add(s.date.substring(0, 4)); });
+    const sortedYears = [...years].sort().reverse();
+    yearSelect.innerHTML = "";
+    const allOpt = document.createElement("option");
+    allOpt.value = "";
+    allOpt.setAttribute("data-i18n", "overview.filter.year.all");
+    allOpt.textContent = App.t("overview.filter.year.all");
+    yearSelect.appendChild(allOpt);
+    sortedYears.forEach(y => {
+      const opt = document.createElement("option");
+      opt.value = y;
+      opt.textContent = y;
+      yearSelect.appendChild(opt);
+    });
+    if (currentVal) yearSelect.value = currentVal;
+  }
 
   renderClientRows(clients, sessionsByClient);
 }

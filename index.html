@@ -90,9 +90,43 @@
           <button class="button ghost" id="autoBackupBtn" data-i18n="overview.autoBackup" style="display:none">Set backup folder</button>
         </div>
         <h2 class="section-title" data-i18n="overview.clients.title">Clients</h2>
-        <div class="search-wrapper" style="margin-bottom:1rem;">
-          <input type="text" id="clientSearch" class="input search-input"
-            data-i18n-placeholder="overview.search.placeholder" placeholder="Search by name..." />
+        <div class="filter-bar">
+          <div class="filter-field" style="flex:1;min-width:200px;">
+            <input type="text" id="clientSearch" class="input search-input"
+              data-i18n-placeholder="overview.search.placeholder" placeholder="Search by name..." />
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="overview.filter.type">Client Type</label>
+            <select class="select-field" id="clientTypeFilter">
+              <option value="" data-i18n="overview.filter.type.all">All Types</option>
+              <option value="child" data-i18n="common.type.child">Child</option>
+              <option value="adult" data-i18n="common.type.adult">Adult</option>
+              <option value="animal" data-i18n="common.type.animal">Animal</option>
+              <option value="other" data-i18n="common.type.other">Other</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="overview.filter.heartShield">Session Type</label>
+            <select class="select-field" id="clientHeartShieldFilter">
+              <option value="" data-i18n="sessions.filter.type.all">All</option>
+              <option value="heartShield" data-i18n="sessions.filter.type.heartShield">Heart Shield</option>
+              <option value="regular" data-i18n="sessions.filter.type.regular">Regular</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="overview.filter.year">Year</label>
+            <select class="select-field" id="clientYearFilter">
+              <option value="" data-i18n="overview.filter.year.all">All Years</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="overview.filter.sort">Sort By</label>
+            <select class="select-field" id="clientSortSelect">
+              <option value="name" data-i18n="overview.filter.sort.name">Name</option>
+              <option value="lastSession" data-i18n="overview.filter.sort.lastSession">Last Session</option>
+              <option value="sessions" data-i18n="overview.filter.sort.sessions">Number of Sessions</option>
+            </select>
+          </div>
         </div>
         <div id="emptyState" class="helper-text" data-i18n="overview.clients.empty" style="display:none;"></div>
         <table class="table">
