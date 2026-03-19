@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A browser-based session management app for Emotion Code / Body Code therapists. Tracks clients, sessions, trapped emotions, severity ratings, Heart-Wall progress, and generates reports. Currently a functional vanilla HTML/JS/CSS app with IndexedDB storage — being enhanced into a sellable product with professional design, expanded features, and multi-language support.
+A browser-based session management app for Emotion Code / Body Code practitioners. Tracks clients, sessions, trapped emotions, severity ratings, Heart Shield (מגננת הלב) progress, and generates reports. Vanilla HTML/JS/CSS app with IndexedDB storage, garden-themed design, dark mode, 4-language support (EN/HE/DE/CS), ZIP backup, legal compliance, and a marketing landing page. Preparing for first paid release.
 
 ## Core Value
 
@@ -12,44 +12,52 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 
 ### Validated
 
-<!-- Shipped and confirmed valuable — inferred from existing codebase. -->
+<!-- Shipped and confirmed valuable. -->
 
-- ✓ Client CRUD with photo upload — existing
-- ✓ Session CRUD with trapped emotions tracking — existing
-- ✓ Multi-issue severity tracking (before/after, 0-10 scale per issue) — existing
-- ✓ Heart-Wall tracking across sessions — existing
-- ✓ Body Code notes per session — existing
-- ✓ Session browsing with filters (by client, date range) — existing
-- ✓ Reporting page with 6 KPIs — existing
-- ✓ Copy-to-clipboard Markdown export — existing
-- ✓ Read mode for viewing past sessions — existing
-- ✓ Inline client creation during session add — existing
-- ✓ "Save client & create first session" flow — existing
-- ✓ RTL support (Hebrew) — existing
-- ✓ Bilingual UI (English/Hebrew) — existing
-- ✓ Zero network calls, works from file:// protocol — existing
-- ✓ IndexedDB storage (scales to hundreds of MB) — existing
-- ✓ Client types: Human / Animal — existing
+- ✓ Client CRUD with photo upload — v1.0
+- ✓ Session CRUD with trapped emotions tracking — v1.0
+- ✓ Multi-issue severity tracking (before/after, 0-10 scale per issue) — v1.0
+- ✓ Heart Shield tracking across sessions — v1.0
+- ✓ Body Code notes per session — v1.0
+- ✓ Session browsing with filters (by client, date range) — v1.0
+- ✓ Reporting page with 6 KPIs — v1.0
+- ✓ Copy-to-clipboard Markdown export — v1.0
+- ✓ Read mode for viewing past sessions — v1.0
+- ✓ Inline client creation during session add — v1.0
+- ✓ "Save client & create first session" flow — v1.0
+- ✓ RTL support (Hebrew) — v1.0
+- ✓ 4-language UI (EN/HE/DE/CS) — v1.0
+- ✓ Zero network calls, works from file:// protocol — v1.0
+- ✓ IndexedDB storage with migration infrastructure — v1.0
+- ✓ Client types: Adult / Child / Animal / Other — v1.0
+- ✓ Client referral source tracking — v1.0
+- ✓ Client search by name — v1.0
+- ✓ Daily greeting with inspirational quotes — v1.0
+- ✓ Design tokens + garden theme + dark mode — v1.0
+- ✓ CSS logical properties (RTL-safe) — v1.0
+- ✓ Legal disclaimer/T&C gate with Widerrufsrecht — v1.0
+- ✓ License key access gating — v1.0
+- ✓ PWA service worker for offline — v1.0
+- ✓ Marketing landing page with botanical design — v1.0
+- ✓ ZIP-based backup with photo support — v1.0
+- ✓ Backup reminder system — v1.0
 
 ### Active
 
-<!-- Current scope. Building toward these. -->
+<!-- Current scope: v1.1 — Final polish + launch readiness -->
 
-- [ ] Design overhaul — garden/nature theme (warm cream, garden green, orange accents, Rubik font)
-- [ ] Dark mode with full light/dark toggle via CSS custom properties
-- [ ] Session field consolidation — reconcile data models from both codebases (requires Sapir input)
-- [ ] Additional session fields — Limiting Beliefs, Additional Techniques, Important Points, Next Session Info (pending field consolidation)
-- [ ] Expanded client types — Adult / Child / Animal / Other (replacing Human / Animal)
-- [ ] Client referral source tracking
-- [ ] Client search — text search by name/phone/email
-- [ ] Backup reminder — weekly prompt with snooze, remind user to export data
-- [ ] Daily greeting — time-of-day greeting with rotating inspirational quotes
-- [ ] Legal disclaimer screen — block app until accepted, receipt download, no external API calls
-- [ ] 4-language support — Hebrew (RTL), English, German, Czech
-- [ ] Automated tests for critical paths — IndexedDB CRUD, data integrity
-- [ ] Distribution research — explore hosting (Cloudflare Pages, Netlify, Vercel, VPS) and payment solutions for one-time purchase model with low ongoing costs
-- [ ] Production packaging — offline capability, distribution-ready
-- [ ] Developer experience simplification — make ongoing development accessible for non-technical maintainer (Sapir)
+- [ ] Terminology update — "מפגש/לקוח" replacing "טיפול/מטופל" across all 4 languages
+- [ ] Garden elements in app UI — botanical decorations inspired by landing page
+- [ ] Actions column redesign — icon buttons (🕐, +) with tooltips replacing text buttons
+- [ ] Client photo crop/reposition after upload
+- [ ] "Edit client" shortcut from add-session screen
+- [ ] Heart Shield (מגננת הלב) redesign — session-level field, removal tracking, heart icon, session type filter
+- [ ] Logo update for app and landing page
+- [ ] Real Impressum and Datenschutzerklarung content
+- [ ] Lemon Squeezy account and product setup
+- [ ] Landing page translation verification (DE/CS)
+- [ ] App icon (replacing placeholder)
+- [ ] Basic QA — cross-browser, RTL, mobile
 
 ### Out of Scope
 
@@ -98,7 +106,20 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 | Distribution platform | Cloudflare Pages / Netlify / Vercel / VPS — needs research | — Pending |
 | Payment solution | Lemon Squeezy / alternatives — needs research | — Pending |
 | All 4 languages in v1 | Target market spans Hebrew, English, German, Czech speakers | — Pending |
-| Dark mode required for v1 | User requirement | — Pending |
+| Dark mode required for v1 | User requirement | ✓ Good |
+| Terminology: "session/client" not "treatment/patient" | Non-clinical framing for energy healing practitioners | — Pending |
+| Heart Shield at session level, not client level | Clients transition from Heart Shield to regular sessions without reopening files | — Pending |
+
+## Current Milestone: v1.1 Final Polish & Launch
+
+**Goal:** Polish the app for free trial users, fix UX pain points, and complete all launch prerequisites so the product can be sold.
+
+**Target features:**
+- Terminology cleanup (מפגש/לקוח)
+- Garden elements in app UI
+- Heart Shield redesign
+- UX improvements (photo crop, edit client shortcut, action icons)
+- Launch prerequisites (Impressum, Lemon Squeezy, translations, QA)
 
 ---
-*Last updated: 2026-03-09 after initialization*
+*Last updated: 2026-03-19 after milestone v1.1 start*
