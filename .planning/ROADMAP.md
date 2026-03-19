@@ -174,7 +174,7 @@ Plans:
 
 ---
 
-### 🚧 v1.1 Final Polish & Launch (In Progress)
+### v1.1 Final Polish & Launch (In Progress)
 
 **Milestone Goal:** Polish the app for free trial users, fix UX pain points, update visual identity, and complete all launch prerequisites so the product can be sold.
 
@@ -253,14 +253,13 @@ Plans:
   3. The Lemon Squeezy product is configured with real pricing; the landing page buy button links to the live checkout
   4. A native DE or CS speaker (or Sapir) has reviewed and corrected the landing page German and Czech translations
   5. The app opens and functions correctly in Chrome, Firefox, Safari, and Edge; Hebrew RTL layout has no breakage; the layout is usable on mobile viewport
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — Impressum real content (requires Sapir to provide business details) (LNCH-01)
-- [ ] 12-02-PLAN.md — Datenschutzerklarung generated and integrated (LNCH-02)
-- [ ] 12-03-PLAN.md — Lemon Squeezy product setup (requires Sapir account + details) (LNCH-03)
-- [ ] 12-04-PLAN.md — DE/CS translation verification and corrections (LNCH-04)
-- [ ] 12-05-PLAN.md — Manual QA pass: cross-browser, RTL, mobile (LNCH-06)
+- [ ] 12-01-PLAN.md — Comprehensive Datenschutzerklarung in German and English (LNCH-02)
+- [ ] 12-02-PLAN.md — DE/CS translation deep review and corrections (LNCH-04)
+- [ ] 12-03-PLAN.md — Impressum real content + Lemon Squeezy product setup (LNCH-01, LNCH-03)
+- [ ] 12-04-PLAN.md — Manual QA pass: cross-browser, RTL, mobile (LNCH-06)
 
 ## Progress
 
@@ -282,4 +281,4 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 9. Heart Shield Redesign | 1/2 | In Progress|  | - |
 | 10. UX Power Features | 2/2 | Complete    | 2026-03-19 | - |
 | 11. Visual Identity Update | 2/2 | Complete    | 2026-03-19 | - |
-| 12. Launch Prerequisites | v1.1 | 0/5 | Not started | - |
+| 12. Launch Prerequisites | v1.1 | 0/4 | Not started | - |
