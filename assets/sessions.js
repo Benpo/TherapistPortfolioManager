@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const clientFilter = document.getElementById("sessionClientFilter");
   const dateFrom = document.getElementById("sessionDateFrom");
   const dateTo = document.getElementById("sessionDateTo");
+  const typeFilter = document.getElementById("sessionTypeFilter");
   const tableBody = document.getElementById("sessionsTableBody");
   const emptyState = document.getElementById("sessionsEmpty");
 
@@ -61,10 +62,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const selectedClient = clientFilter ? clientFilter.value : "";
     const startDate = dateFrom ? dateFrom.value : "";
     const endDate = dateTo ? dateTo.value : "";
+    const selectedType = typeFilter ? typeFilter.value : "";
 
     const filtered = sessions.filter((session) => {
       if (selectedClient && String(session.clientId) !== selectedClient) return false;
       if ((startDate || endDate) && !matchesDateRange(session.date, startDate, endDate)) return false;
+      if (selectedType === "heartShield" && !session.isHeartShield) return false;
+      if (selectedType === "regular" && session.isHeartShield) return false;
       return true;
     });
 
@@ -160,6 +164,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   if (dateTo) {
     dateTo.addEventListener("change", renderSessions);
+  }
+  if (typeFilter) {
+    typeFilter.addEventListener("change", renderSessions);
   }
 
   await loadClients();

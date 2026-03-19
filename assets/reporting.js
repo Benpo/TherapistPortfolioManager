@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let heartShieldCleared = 0;
 
     sessions.forEach((session) => {
-      if (session.heartWallCleared) heartShieldCleared += 1;
+      if (session.isHeartShield && session.shieldRemoved) heartShieldCleared += 1;
       (session.issues || []).forEach((issue) => {
         totalIssues += 1;
         if (issue.before !== null && issue.before !== undefined) {

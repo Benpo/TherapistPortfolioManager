@@ -65,6 +65,14 @@
             <label class="label" data-i18n="sessions.filters.dateTo">To</label>
             <input class="input" id="sessionDateTo" type="date" />
           </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="sessions.filter.type">Session Type</label>
+            <select class="select-field" id="sessionTypeFilter">
+              <option value="" data-i18n="sessions.filter.type.all">All Sessions</option>
+              <option value="heartShield" data-i18n="sessions.filter.type.heartShield">Heart Shield</option>
+              <option value="regular" data-i18n="sessions.filter.type.regular">Regular</option>
+            </select>
+          </div>
         </div>
         <div id="sessionsEmpty" class="helper-text" data-i18n="sessions.empty" style="display:none;"></div>
         <table class="table sessions-table">
