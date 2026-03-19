@@ -27,9 +27,9 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 
 ### Launch
 
-- [ ] **LNCH-01**: Real Impressum content with Sapir's business details
+- [x] **LNCH-01**: Real Impressum content with Sapir's business details
 - [ ] **LNCH-02**: Real Datenschutzerklarung generated via e-recht24.de or adsimple.de
-- [ ] **LNCH-03**: Lemon Squeezy product configured with real pricing and buy button
+- [x] **LNCH-03**: Lemon Squeezy product configured with real pricing and buy button
 - [ ] **LNCH-04**: Landing page DE/CS translations verified and corrected
 - [x] **LNCH-05**: Final app icon replacing placeholder
 - [ ] **LNCH-06**: Basic QA pass — cross-browser (Chrome/Firefox/Safari/Edge), RTL, mobile viewports
@@ -98,9 +98,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HSHLD-03 | Phase 9 | Complete |
 | DSGN-05 | Phase 11 | Complete |
 | DSGN-06 | Phase 11 | Complete |
-| LNCH-01 | Phase 12 | Pending |
+| LNCH-01 | Phase 12 | Complete |
 | LNCH-02 | Phase 12 | Pending |
-| LNCH-03 | Phase 12 | Pending |
+| LNCH-03 | Phase 12 | Complete |
 | LNCH-04 | Phase 12 | Pending |
 | LNCH-05 | Phase 11 | Complete |
 | LNCH-06 | Phase 12 | Pending |
