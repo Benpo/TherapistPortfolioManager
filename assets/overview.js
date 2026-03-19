@@ -221,7 +221,7 @@ function renderClientRows(clients, sessionsByClient) {
     nameButton.appendChild(nameText);
     const heartShieldSessions = clientSessions.filter(s => s.isHeartShield);
     if (heartShieldSessions.length > 0) {
-      const allRemoved = heartShieldSessions.every(s => s.shieldRemoved === true);
+      const allRemoved = heartShieldSessions.some(s => s.shieldRemoved === true);
       const heart = document.createElement("span");
       heart.className = "heart-badge";
       if (allRemoved) {
