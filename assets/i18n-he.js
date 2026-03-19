@@ -204,7 +204,11 @@ window.I18N.he = {
   "common.type.other": "אחר",
   "greeting.morning": "בוקר טוב ☀️",
   "greeting.afternoon": "צהריים טובים 🌿",
-  "greeting.evening": "ערב טוב 🌙"
+  "greeting.evening": "ערב טוב 🌙",
+  "crop.title": "התאם תמונה",
+  "crop.confirm": "אישור",
+  "crop.cancel": "ביטול",
+  "crop.recrop": "חיתוך מחדש"
 };
 
 window.QUOTES.he = [

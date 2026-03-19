@@ -204,7 +204,11 @@ window.I18N.cs = {
   "common.type.other": "Ostatní",
   "greeting.morning": "Dobré ráno ☀️",
   "greeting.afternoon": "Dobré odpoledne 🌿",
-  "greeting.evening": "Dobrý večer 🌙"
+  "greeting.evening": "Dobrý večer 🌙",
+  "crop.title": "Upravit fotografii",
+  "crop.confirm": "Potvrdit",
+  "crop.cancel": "Zrusit",
+  "crop.recrop": "Orezat znovu"
 };
 
 window.QUOTES.cs = [

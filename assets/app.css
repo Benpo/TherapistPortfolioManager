@@ -533,6 +533,67 @@ a {
   margin: 0.5rem 0 0.5rem;
 }
 
+/* Edit client button inside client spotlight */
+.client-spotlight {
+  position: relative;
+}
+
+.edit-client-btn {
+  position: absolute;
+  inset-inline-end: 0.75rem;
+  top: 0.75rem;
+  background: var(--color-surface-modal-close);
+  border: 0;
+  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.edit-client-btn:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* Edit client modal */
+.edit-client-card {
+  width: min(640px, 92vw);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.edit-client-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.edit-client-form .form-grid {
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.edit-client-form .form-field {
+  margin-bottom: 0.75rem;
+}
+
+.edit-client-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.toggle-group-sm .toggle-card {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.9rem;
+}
+
 .heartwall-badge{
   align-self: flex-start;
   background:var(--color-heartwall-badge);
@@ -1248,4 +1309,66 @@ body[dir="rtl"] .toggle-switch input:checked + .toggle-slider::before {
 
 body.read-mode .heart-shield-section input {
   pointer-events: none;
+}
+
+/* === CROP MODAL === */
+.crop-card {
+  width: min(480px, 92vw);
+  text-align: center;
+}
+
+.crop-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.crop-canvas-container {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 0 auto;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--color-background);
+  cursor: grab;
+  touch-action: none;
+}
+
+.crop-canvas-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.crop-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.crop-zoom-slider {
+  width: 140px;
+  accent-color: var(--color-primary);
+}
+
+.crop-zoom-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 1.2rem;
+  border-radius: 12px;
+}
+
+.crop-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.crop-recrop-btn {
+  margin-top: 0.5rem;
 }

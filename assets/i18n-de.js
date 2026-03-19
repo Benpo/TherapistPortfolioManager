@@ -204,7 +204,11 @@ window.I18N.de = {
   "common.type.other": "Andere",
   "greeting.morning": "Guten Morgen ☀️",
   "greeting.afternoon": "Guten Tag 🌿",
-  "greeting.evening": "Guten Abend 🌙"
+  "greeting.evening": "Guten Abend 🌙",
+  "crop.title": "Foto anpassen",
+  "crop.confirm": "Bestaetigen",
+  "crop.cancel": "Abbrechen",
+  "crop.recrop": "Neu zuschneiden"
 };
 
 window.QUOTES.de = [

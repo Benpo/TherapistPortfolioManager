@@ -204,7 +204,11 @@ window.I18N.en = {
   "common.type.other": "Other",
   "greeting.morning": "Good morning ☀️",
   "greeting.afternoon": "Good afternoon 🌿",
-  "greeting.evening": "Good evening 🌙"
+  "greeting.evening": "Good evening 🌙",
+  "crop.title": "Adjust Photo",
+  "crop.confirm": "Confirm",
+  "crop.cancel": "Cancel",
+  "crop.recrop": "Recrop"
 };
 
 window.QUOTES.en = [
