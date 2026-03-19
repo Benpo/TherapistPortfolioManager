@@ -23,7 +23,7 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 ### Design
 
 - [x] **DSGN-05**: Botanical/garden decorative elements added to app pages (inspired by landing page style)
-- [ ] **DSGN-06**: Updated logo for app and landing page
+- [x] **DSGN-06**: Updated logo for app and landing page
 
 ### Launch
 
@@ -31,7 +31,7 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 - [ ] **LNCH-02**: Real Datenschutzerklarung generated via e-recht24.de or adsimple.de
 - [ ] **LNCH-03**: Lemon Squeezy product configured with real pricing and buy button
 - [ ] **LNCH-04**: Landing page DE/CS translations verified and corrected
-- [ ] **LNCH-05**: Final app icon replacing placeholder
+- [x] **LNCH-05**: Final app icon replacing placeholder
 - [ ] **LNCH-06**: Basic QA pass — cross-browser (Chrome/Firefox/Safari/Edge), RTL, mobile viewports
 
 ## Future Requirements
@@ -97,12 +97,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HSHLD-02 | Phase 9 | Complete |
 | HSHLD-03 | Phase 9 | Complete |
 | DSGN-05 | Phase 11 | Complete |
-| DSGN-06 | Phase 11 | Pending |
+| DSGN-06 | Phase 11 | Complete |
 | LNCH-01 | Phase 12 | Pending |
 | LNCH-02 | Phase 12 | Pending |
 | LNCH-03 | Phase 12 | Pending |
 | LNCH-04 | Phase 12 | Pending |
-| LNCH-05 | Phase 11 | Pending |
+| LNCH-05 | Phase 11 | Complete |
 | LNCH-06 | Phase 12 | Pending |
 
 **Coverage:**
