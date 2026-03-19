@@ -2,121 +2,84 @@
 phase: 11-visual-identity-update
 plan: 02
 subsystem: ui
-tags: [logo, brand-mark, pwa-icons, pillow, image-processing]
+tags: [logo, brand-mark, pwa-icons, globe-icon, language-picker, layout]
 
 # Dependency graph
 requires: []
 provides:
-  - "assets/logo.png — watering can PNG copied from screenshots for use as brand mark"
-  - "Updated brand-mark in all 5 app pages + demo page (IMG replaces leaf SVG)"
-  - "Updated landing-brand-mark in landing.html (IMG replaces leaf SVG)"
-  - "CSS .brand-mark-img rule + dark mode treatment for image-based logo"
-  - "192px and 512px PWA icons with watering can on green rounded background"
-affects: [12-qa-testing, future-landing-updates]
+  - "Globe icon next to language picker on all app pages"
+  - "Vertical header-actions layout (moon above, globe+lang below)"
+  - "192px and 512px PWA icons with watering can on green background"
+  - "Service worker cache bump to v14"
+affects: [12-qa-testing]
 
 # Tech tracking
 tech-stack:
   added: []
   patterns:
-    - "Brand mark uses <img> with .brand-mark-img class instead of inline SVG"
-    - "Dark mode logo: filter:invert(1) on image + dark green background swap"
-    - "PWA icons generated via Python/Pillow: rounded-rect mask + centered illustration at 70% fill"
+    - "Inline SVG globe icon (Lucide-style) wrapped with select in .lang-picker"
+    - "Header actions stacked vertically with flex-direction: column"
 
 key-files:
-  created:
-    - "assets/logo.png — watering can illustration as brand mark source"
+  created: []
   modified:
-    - "index.html — brand-mark updated to IMG"
-    - "add-client.html — brand-mark updated to IMG"
-    - "add-session.html — brand-mark updated to IMG"
-    - "sessions.html — brand-mark updated to IMG"
-    - "reporting.html — brand-mark updated to IMG"
-    - "demo.html — brand-mark updated to IMG"
-    - "landing.html — landing-brand-mark updated to IMG"
-    - "assets/app.css — .brand-mark updated, .brand-mark-img added, dark mode rules added"
-    - "assets/icons/icon-192.png — regenerated with watering can on green background"
-    - "assets/icons/icon-512.png — regenerated with watering can on green background"
+    - "index.html — lang-picker wrapper added, header-actions vertical"
+    - "add-client.html — lang-picker wrapper added"
+    - "add-session.html — lang-picker wrapper added"
+    - "sessions.html — lang-picker wrapper added"
+    - "reporting.html — lang-picker wrapper added"
+    - "demo.html — lang-picker wrapper added"
+    - "landing.html — logo reverted to leaf SVG"
+    - "assets/app.css — .lang-picker styles, .header-actions vertical, brand-mark restored"
+    - "assets/icons/icon-192.png — watering can on green background"
+    - "assets/icons/icon-512.png — watering can on green background"
+    - "sw.js — cache bumped to v14"
 
 key-decisions:
-  - "Use screenshots/new logo option.png directly as logo (Sapir's chosen image), copied to assets/logo.png"
-  - "Dark mode: invert(1) filter makes line art white-on-dark; background swaps to --color-primary-dark"
-  - "PWA icons: Python/Pillow used (available on macOS without install); 20% corner radius, 70% illustration fill, solid RGB output"
-
-patterns-established:
-  - "Brand mark is now image-based, not SVG — future logo changes only need assets/logo.png replaced"
+  - "Logo reverted to original leaf SVG — watering can too detailed for small logo size"
+  - "PWA icons kept as watering can (larger size works well)"
+  - "Globe icon added to language picker for visual affordance"
+  - "Header actions stacked vertically — moon on top, globe+lang below for cleaner grouping"
 
 requirements-completed: [DSGN-06, LNCH-05]
 
 # Metrics
-duration: 12min
+duration: 20min
 completed: 2026-03-19
 ---
 
-# Phase 11 Plan 02: Visual Identity — Logo and PWA Icons Summary
+# Phase 11 Plan 02: Visual Identity — Logo, Icons & UI Polish Summary
 
-**Watering can PNG logo replaces leaf SVG across all 7 HTML files; 192px and 512px PWA app icons generated with green rounded background using Python/Pillow**
+**Logo reverted to leaf SVG after visual review; PWA icons updated to watering can; globe icon added to language picker; header actions reorganized vertically**
 
 ## Performance
 
-- **Duration:** 12 min
-- **Started:** 2026-03-19T14:00:00Z
-- **Completed:** 2026-03-19T14:12:00Z
-- **Tasks:** 2 (Task 3 is checkpoint:human-verify — awaiting Sapir approval)
-- **Files modified:** 10
+- **Duration:** 20 min (including visual review iteration)
+- **Completed:** 2026-03-19
+- **Tasks:** 3 (including visual approval checkpoint)
+- **Files modified:** 11
 
 ## Accomplishments
 
-- Replaced leaf SVG logo with watering can illustration in all 5 app pages + demo page
-- Replaced leaf SVG logo with watering can illustration in landing page header
-- Updated CSS for image-based brand mark with dark mode treatment (invert + dark background)
-- Generated final 192px and 512px PWA app icons from watering can illustration using Python/Pillow
+- Reverted logo from watering can back to original leaf SVG across all 7 HTML pages
+- Generated 192px and 512px PWA app icons with watering can on green rounded background
+- Added globe SVG icon next to language picker on all 6 app pages
+- Reorganized header actions: vertical stack with dark mode toggle above language picker
+- Bumped service worker cache to v14 for immediate asset refresh
 
 ## Task Commits
 
-Each task was committed atomically:
-
-1. **Task 1: Replace leaf SVG with watering can logo in all HTML files** — `4959409` (feat)
-2. **Task 2: Generate PWA app icons from watering can illustration** — `6fa830b` (feat)
-3. **Task 3: Visual approval** — awaiting checkpoint approval
-
-## Files Created/Modified
-
-- `assets/logo.png` — Watering can illustration copied from screenshots for use as brand mark
-- `index.html` — brand-mark div: SVG replaced with `<img class="brand-mark-img">`
-- `add-client.html` — same brand-mark update
-- `add-session.html` — same brand-mark update
-- `sessions.html` — same brand-mark update
-- `reporting.html` — same brand-mark update
-- `demo.html` — same brand-mark update
-- `landing.html` — landing-brand-mark span: SVG replaced with `<img class="landing-brand-mark-img">`
-- `assets/app.css` — `.brand-mark` updated (overflow:hidden, color removed); `.brand-mark-img` added; dark mode rules added
-- `assets/icons/icon-192.png` — Regenerated: watering can on #2d6a4f rounded background, 192x192
-- `assets/icons/icon-512.png` — Regenerated: watering can on #2d6a4f rounded background, 512x512
-
-## Decisions Made
-
-- Used `screenshots/new logo option.png` directly (Sapir's chosen image), copied to `assets/logo.png` for clean path
-- Dark mode treatment: `filter:invert(1)` turns black line art to white; background swaps to `--color-primary-dark` (dark green)
-- PWA icons use Python/Pillow (available by default on macOS): 20% corner radius, watering can fills 70% of icon area, solid RGB (no transparency) for best home screen rendering
-- `manifest.json` icon paths unchanged — already pointing to correct locations
+1. **Task 1: Logo replacement (then reverted)** — `57f7f4f` (feat), `cd844ed` (fix/revert)
+2. **Task 2: PWA icon generation** — `6fa830b` (feat)
+3. **Task 3: Visual approval + polish** — `9e0d129`, `6790abc`, `a9264b9` (feat/chore)
 
 ## Deviations from Plan
 
-None - plan executed exactly as written.
+- Logo change reverted — watering can illustration too detailed at 48px, leaf SVG clearer
+- Globe icon and vertical header layout added (not in original plan, requested during review)
 
 ## Issues Encountered
-
-None.
-
-## User Setup Required
-
-None - no external service configuration required.
-
-## Next Phase Readiness
-
-- Task 3 checkpoint pending: Sapir must visually verify logo appearance in app and landing page headers, and PWA icons
-- Once approved, Phase 11 Plan 02 is complete
-- Plans 11-03 onward can proceed (if any), or Phase 12 QA can begin
+- Service worker cached old assets causing confusion on page navigation — resolved by bumping cache version
 
 ---
 *Phase: 11-visual-identity-update*
