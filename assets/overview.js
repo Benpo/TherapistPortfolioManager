@@ -219,11 +219,20 @@ function renderClientRows(clients, sessionsByClient) {
     const nameText = document.createElement("span");
     nameText.textContent = displayName;
     nameButton.appendChild(nameText);
-    if (client.heartWall) {
+    const heartShieldSessions = clientSessions.filter(s => s.isHeartShield);
+    if (heartShieldSessions.length > 0) {
+      const allRemoved = heartShieldSessions.every(s => s.shieldRemoved === true);
       const heart = document.createElement("span");
       heart.className = "heart-badge";
-      heart.title = App.t("common.heartShield");
-      heart.textContent = "♥";
+      if (allRemoved) {
+        heart.textContent = "✅";
+        heart.title = App.t("overview.heartShield.removed");
+        heart.classList.add("heart-badge-removed");
+      } else {
+        heart.textContent = "❤️";
+        heart.title = App.t("overview.heartShield.active");
+        heart.classList.add("heart-badge-active");
+      }
       nameButton.appendChild(heart);
     }
     nameButton.addEventListener("click", () => openClientModal({ ...client, name: displayName }, clientSessions));
@@ -293,10 +302,16 @@ function renderClientRows(clients, sessionsByClient) {
           commentsLine.textContent = `${App.t("session.form.comments")}: ${commentsText}`;
         }
         let heartBadge = null;
-        if (client.heartWall && session.heartWallCleared) {
+        if (session.isHeartShield) {
           heartBadge = document.createElement("div");
           heartBadge.className = "heartwall-badge";
-          heartBadge.textContent = App.t("overview.sessions.heartShieldCleared");
+          if (session.shieldRemoved) {
+            heartBadge.textContent = App.t("sessions.badge.removed");
+            heartBadge.classList.add("badge-removed");
+          } else {
+            heartBadge.textContent = App.t("sessions.badge.active");
+            heartBadge.classList.add("badge-active");
+          }
         }
         const editButton = document.createElement("button");
         editButton.className = "row-toggle edit-button";

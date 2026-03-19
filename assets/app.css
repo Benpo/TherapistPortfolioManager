@@ -550,6 +550,19 @@ a {
   content:"♥";
 }
 
+.heartwall-badge.badge-active{
+  background:var(--color-heartwall-badge);
+}
+
+.heartwall-badge.badge-removed{
+  background:var(--color-success);
+}
+
+.heart-badge.heart-badge-removed{
+  background:transparent;
+  color:inherit;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

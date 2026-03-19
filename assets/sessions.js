@@ -115,13 +115,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       trappedCell.textContent = session.trappedEmotions || "-";
 
       const heartShieldCell = document.createElement("td");
-      if (session.heartWallCleared) {
+      if (session.isHeartShield) {
         const badge = document.createElement("div");
         badge.className = "heartwall-badge";
-        badge.textContent = App.t("overview.sessions.heartShieldCleared");
+        if (session.shieldRemoved) {
+          badge.textContent = App.t("sessions.badge.removed");
+          badge.classList.add("badge-removed");
+        } else {
+          badge.textContent = App.t("sessions.badge.active");
+          badge.classList.add("badge-active");
+        }
         heartShieldCell.appendChild(badge);
       } else {
-        heartShieldCell.textContent = "-";
+        heartShieldCell.textContent = "−";
       }
 
       const actionCell = document.createElement("td");
