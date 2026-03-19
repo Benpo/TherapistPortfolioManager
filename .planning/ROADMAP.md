@@ -180,7 +180,7 @@ Plans:
 
 - [x] **Phase 8: Terminology and Quick UX Fixes** - Update מפגש/לקוח terminology across all 4 languages; replace text action buttons with icon buttons (completed 2026-03-19)
 - [ ] **Phase 9: Heart Shield Redesign** - Session-level Heart Shield toggle with removal tracking, client table indicators, and session type filter
-- [ ] **Phase 10: UX Power Features** - Photo crop/reposition after upload; edit client directly from add-session screen
+- [x] **Phase 10: UX Power Features** - Photo crop/reposition after upload; edit client directly from add-session screen (completed 2026-03-19)
 - [ ] **Phase 11: Visual Identity Update** - Garden decorations in app UI; updated logo; final app icon
 - [ ] **Phase 12: Launch Prerequisites** - Real Impressum and Datenschutzerklarung; Lemon Squeezy product setup; DE/CS translation verification; cross-browser and mobile QA
 
@@ -280,6 +280,6 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 7. ZIP Backup Strategy | v1.0 | 2/2 | Complete | 2026-03-18 |
 | 8. Terminology and Quick UX Fixes | 2/2 | Complete   | 2026-03-19 | - |
 | 9. Heart Shield Redesign | 1/2 | In Progress|  | - |
-| 10. UX Power Features | 1/2 | In Progress|  | - |
+| 10. UX Power Features | 2/2 | Complete   | 2026-03-19 | - |
 | 11. Visual Identity Update | v1.1 | 0/2 | Not started | - |
 | 12. Launch Prerequisites | v1.1 | 0/5 | Not started | - |
