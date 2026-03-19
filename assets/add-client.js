@@ -17,6 +17,223 @@ document.addEventListener("DOMContentLoaded", async () => {
   let editingClient = null;
   let photoData = "";
 
+  // === CROP MODAL STATE ===
+  let cropImage = null;
+  let cropScale = 1;
+  let cropOffsetX = 0, cropOffsetY = 0;
+  let isDragging = false;
+  let dragStartX = 0, dragStartY = 0;
+  let cropIsRecrop = false;
+  let cropBaseScale = 1;
+
+  // === CROP MODAL DOM REFS ===
+  const cropModal = document.getElementById("cropModal");
+  const cropCanvas = document.getElementById("cropCanvas");
+  const cropCtx = cropCanvas ? cropCanvas.getContext("2d") : null;
+  const cropCanvasContainer = cropCanvas ? cropCanvas.parentElement : null;
+  const cropClose = document.getElementById("cropClose");
+  const cropZoomSlider = document.getElementById("cropZoomSlider");
+  const cropZoomIn = document.getElementById("cropZoomIn");
+  const cropZoomOut = document.getElementById("cropZoomOut");
+  const cropConfirmBtn = document.getElementById("cropConfirmBtn");
+  const cropCancelBtn = document.getElementById("cropCancelBtn");
+  const recropBtn = document.getElementById("recropBtn");
+
+  // === CROP FUNCTIONS ===
+  const CANVAS_SIZE = 300;
+
+  function drawCrop() {
+    if (!cropCtx || !cropImage) return;
+    const dpr = window.devicePixelRatio || 1;
+    cropCanvas.width = CANVAS_SIZE * dpr;
+    cropCanvas.height = CANVAS_SIZE * dpr;
+    cropCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cropCtx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    cropCtx.drawImage(
+      cropImage,
+      cropOffsetX, cropOffsetY,
+      cropImage.naturalWidth * cropScale,
+      cropImage.naturalHeight * cropScale
+    );
+  }
+
+  function clampOffset() {
+    const imgW = cropImage.naturalWidth * cropScale;
+    const imgH = cropImage.naturalHeight * cropScale;
+    // Ensure the canvas frame is always covered (cover behavior)
+    const minX = CANVAS_SIZE - imgW;
+    const minY = CANVAS_SIZE - imgH;
+    cropOffsetX = Math.min(0, Math.max(minX, cropOffsetX));
+    cropOffsetY = Math.min(0, Math.max(minY, cropOffsetY));
+  }
+
+  function openCropModal(dataURL, isRecrop) {
+    if (!cropModal || !cropCanvas || !cropCtx) return;
+    cropIsRecrop = !!isRecrop;
+    const img = new Image();
+    img.onload = () => {
+      cropImage = img;
+      // Calculate initial scale so image covers the 300x300 canvas (fit-cover)
+      const baseScale = Math.max(CANVAS_SIZE / img.naturalWidth, CANVAS_SIZE / img.naturalHeight);
+      cropBaseScale = baseScale;
+      cropScale = baseScale;
+      // Center image
+      cropOffsetX = (CANVAS_SIZE - img.naturalWidth * cropScale) / 2;
+      cropOffsetY = (CANVAS_SIZE - img.naturalHeight * cropScale) / 2;
+      // Set slider range
+      if (cropZoomSlider) {
+        cropZoomSlider.min = baseScale;
+        cropZoomSlider.max = baseScale * 3;
+        cropZoomSlider.step = baseScale * 0.05;
+        cropZoomSlider.value = baseScale;
+      }
+      drawCrop();
+      cropModal.classList.remove("is-hidden");
+      App.applyTranslations(cropModal);
+    };
+    img.src = dataURL;
+  }
+
+  function closeCropModal() {
+    if (cropModal) cropModal.classList.add("is-hidden");
+    cropImage = null;
+  }
+
+  // === DRAG HANDLERS (pointer events) ===
+  if (cropCanvasContainer) {
+    cropCanvasContainer.addEventListener("pointerdown", (e) => {
+      isDragging = true;
+      dragStartX = e.clientX - cropOffsetX;
+      dragStartY = e.clientY - cropOffsetY;
+      cropCanvasContainer.style.cursor = "grabbing";
+      cropCanvasContainer.setPointerCapture(e.pointerId);
+    });
+
+    cropCanvasContainer.addEventListener("pointermove", (e) => {
+      if (!isDragging || !cropImage) return;
+      cropOffsetX = e.clientX - dragStartX;
+      cropOffsetY = e.clientY - dragStartY;
+      clampOffset();
+      drawCrop();
+    });
+
+    cropCanvasContainer.addEventListener("pointerup", () => {
+      isDragging = false;
+      cropCanvasContainer.style.cursor = "grab";
+    });
+
+    cropCanvasContainer.addEventListener("pointercancel", () => {
+      isDragging = false;
+      cropCanvasContainer.style.cursor = "grab";
+    });
+
+    // Wheel zoom
+    cropCanvasContainer.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      if (!cropZoomSlider || !cropImage) return;
+      const delta = e.deltaY > 0 ? -cropBaseScale * 0.1 : cropBaseScale * 0.1;
+      const newVal = Math.min(
+        parseFloat(cropZoomSlider.max),
+        Math.max(parseFloat(cropZoomSlider.min), parseFloat(cropZoomSlider.value) + delta)
+      );
+      cropZoomSlider.value = newVal;
+      cropZoomSlider.dispatchEvent(new Event("input"));
+    }, { passive: false });
+  }
+
+  // === ZOOM SLIDER ===
+  if (cropZoomSlider) {
+    cropZoomSlider.addEventListener("input", () => {
+      if (!cropImage) return;
+      const newScale = parseFloat(cropZoomSlider.value);
+      // Zoom toward center: adjust offsets so canvas center stays centered
+      const centerX = CANVAS_SIZE / 2;
+      const centerY = CANVAS_SIZE / 2;
+      const ratio = newScale / cropScale;
+      cropOffsetX = centerX - ratio * (centerX - cropOffsetX);
+      cropOffsetY = centerY - ratio * (centerY - cropOffsetY);
+      cropScale = newScale;
+      clampOffset();
+      drawCrop();
+    });
+  }
+
+  if (cropZoomIn) {
+    cropZoomIn.addEventListener("click", () => {
+      if (!cropZoomSlider) return;
+      const step = cropBaseScale * 0.1;
+      cropZoomSlider.value = Math.min(parseFloat(cropZoomSlider.max), parseFloat(cropZoomSlider.value) + step);
+      cropZoomSlider.dispatchEvent(new Event("input"));
+    });
+  }
+
+  if (cropZoomOut) {
+    cropZoomOut.addEventListener("click", () => {
+      if (!cropZoomSlider) return;
+      const step = cropBaseScale * 0.1;
+      cropZoomSlider.value = Math.max(parseFloat(cropZoomSlider.min), parseFloat(cropZoomSlider.value) - step);
+      cropZoomSlider.dispatchEvent(new Event("input"));
+    });
+  }
+
+  // === CONFIRM ===
+  if (cropConfirmBtn) {
+    cropConfirmBtn.addEventListener("click", () => {
+      if (!cropImage) return;
+      // Create offscreen canvas at output resolution
+      const offCanvas = document.createElement("canvas");
+      offCanvas.width = CANVAS_SIZE;
+      offCanvas.height = CANVAS_SIZE;
+      const offCtx = offCanvas.getContext("2d");
+      offCtx.drawImage(
+        cropImage,
+        cropOffsetX, cropOffsetY,
+        cropImage.naturalWidth * cropScale,
+        cropImage.naturalHeight * cropScale
+      );
+      photoData = offCanvas.toDataURL("image/jpeg", 0.85);
+      if (photoPreview) {
+        photoPreview.src = photoData;
+        photoPreview.classList.remove("is-hidden");
+      }
+      if (recropBtn) recropBtn.classList.remove("is-hidden");
+      closeCropModal();
+    });
+  }
+
+  // === CANCEL / CLOSE ===
+  function handleCropCancel() {
+    if (!cropIsRecrop) {
+      // New upload cancelled — revert
+      photoData = "";
+      if (photoPreview) {
+        photoPreview.src = "";
+        photoPreview.classList.add("is-hidden");
+      }
+      if (recropBtn) recropBtn.classList.add("is-hidden");
+      if (photoInput) photoInput.value = "";
+    }
+    // If recrop cancelled — keep old photoData as-is
+    closeCropModal();
+  }
+
+  if (cropCancelBtn) cropCancelBtn.addEventListener("click", handleCropCancel);
+  if (cropClose) cropClose.addEventListener("click", handleCropCancel);
+  if (cropModal) {
+    cropModal.addEventListener("click", (e) => {
+      if (e.target === cropModal || e.target.classList.contains("modal-overlay")) {
+        handleCropCancel();
+      }
+    });
+  }
+
+  // === RECROP BUTTON ===
+  if (recropBtn) {
+    recropBtn.addEventListener("click", () => {
+      if (photoData) openCropModal(photoData, true);
+    });
+  }
+
   function setSubmitLabel(key) {
     if (!submitButton) return;
     if (submitLabel) {
@@ -49,11 +266,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     photoInput.addEventListener("change", async () => {
       const file = photoInput.files && photoInput.files[0];
       if (!file) return;
-      photoData = await readFileAsDataURL(file);
-      if (photoPreview) {
-        photoPreview.src = photoData;
-        photoPreview.classList.remove("is-hidden");
-      }
+      const rawDataURL = await readFileAsDataURL(file);
+      openCropModal(rawDataURL, false);
     });
   }
 
@@ -77,6 +291,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (photoData && photoPreview) {
         photoPreview.src = photoData;
         photoPreview.classList.remove("is-hidden");
+        if (recropBtn) recropBtn.classList.remove("is-hidden");
       }
 
       const type = editingClient.type || "human";
