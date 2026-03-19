@@ -92,35 +92,6 @@
             </div>
           </div>
 
-          <div class="heart-shield-section" id="heartShieldSection">
-            <div class="heart-shield-toggle">
-              <label class="toggle-switch">
-                <input type="checkbox" id="heartShieldToggle" />
-                <span class="toggle-slider"></span>
-              </label>
-              <span class="label" data-i18n="session.form.heartShield">Heart Shield Session</span>
-            </div>
-            <div class="heart-shield-conditional is-hidden" id="heartShieldConditional">
-              <div class="form-field">
-                <label class="label" data-i18n="session.form.shieldRemoved">Shield Removed? *</label>
-                <div class="shield-removed-options">
-                  <label class="radio-option">
-                    <input type="radio" name="shieldRemoved" value="yes" />
-                    <span data-i18n="session.form.shieldRemoved.yes">Yes</span>
-                  </label>
-                  <label class="radio-option">
-                    <input type="radio" name="shieldRemoved" value="no" />
-                    <span data-i18n="session.form.shieldRemoved.no">No</span>
-                  </label>
-                </div>
-              </div>
-              <div class="form-field" style="margin-block-start:0.75rem;">
-                <label class="label" data-i18n="session.form.heartShieldEmotions">Emotions in the Heart Shield</label>
-                <textarea class="textarea session-textarea" id="heartShieldEmotions" data-i18n-placeholder="session.form.heartShieldEmotions.placeholder"></textarea>
-              </div>
-            </div>
-          </div>
-
           <div id="clientSpotlight" class="client-spotlight is-hidden">
             <div class="client-spotlight-media">
               <img id="clientSpotlightPhoto" class="client-spotlight-photo is-hidden" alt="Client photo" />
@@ -205,6 +176,16 @@
 
           <div class="section-divider"></div>
 
+          <div class="heart-shield-section" id="heartShieldSection">
+            <div class="heart-shield-toggle">
+              <label class="toggle-switch">
+                <input type="checkbox" id="heartShieldToggle" />
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="label" data-i18n="session.form.heartShield">Heart Shield Session</span>
+            </div>
+          </div>
+
           <div class="form-field">
             <label class="label" data-i18n="session.form.issuesHeading">נושאי המפגש *</label>
             <div class="helper-text" data-i18n="session.form.issueLimit">You may list up to 3 issues per session</div>
@@ -213,6 +194,16 @@
           <button class="button secondary" type="button" id="addIssueBtn" data-i18n="session.form.addIssue">Add Another Issue</button>
 
           <div class="section-divider"></div>
+
+          <details class="expandable-field is-hidden" id="heartShieldEmotionsField">
+            <summary>
+              <span class="label" data-i18n="session.form.heartShieldEmotions">Emotions in the Heart Shield</span>
+              <span class="expand-arrow" aria-hidden="true">›</span>
+            </summary>
+            <div class="expandable-body">
+              <textarea class="textarea session-textarea" id="heartShieldEmotions" data-i18n-placeholder="session.form.heartShieldEmotions.placeholder"></textarea>
+            </div>
+          </details>
 
           <details class="expandable-field">
             <summary>
@@ -281,6 +272,22 @@
               </button>
             </div>
             <textarea class="textarea session-textarea" id="customerSummary" data-i18n-placeholder="session.form.nextSession.placeholder"></textarea>
+          </div>
+
+          <div class="heart-shield-conditional is-hidden" id="heartShieldConditional" style="margin-top:1.5rem;">
+            <div class="form-field">
+              <label class="label" data-i18n="session.form.shieldRemoved">Was the Heart Shield removed? *</label>
+              <div class="shield-removed-options">
+                <label class="radio-option">
+                  <input type="radio" name="shieldRemoved" value="yes" />
+                  <span data-i18n="session.form.shieldRemoved.yes">Yes</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="shieldRemoved" value="no" />
+                  <span data-i18n="session.form.shieldRemoved.no">No</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           <div class="inline-actions" style="margin-top:1.5rem;">

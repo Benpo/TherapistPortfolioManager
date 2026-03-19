@@ -49,10 +49,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // Heart Shield toggle handler
+  const heartShieldEmotionsField = document.getElementById("heartShieldEmotionsField");
   if (heartShieldToggle) {
     heartShieldToggle.addEventListener("change", () => {
       if (heartShieldConditional) {
         heartShieldConditional.classList.toggle("is-hidden", !heartShieldToggle.checked);
+      }
+      if (heartShieldEmotionsField) {
+        heartShieldEmotionsField.classList.toggle("is-hidden", !heartShieldToggle.checked);
       }
       if (!heartShieldToggle.checked) {
         document.querySelectorAll("input[name='shieldRemoved']").forEach(r => r.checked = false);
@@ -913,10 +917,14 @@ function populateSession(session, issues, createIssueBlock) {
   // Heart Shield population
   const heartShieldToggleEl = document.getElementById("heartShieldToggle");
   const heartShieldConditionalEl = document.getElementById("heartShieldConditional");
+  const heartShieldEmotionsFieldEl = document.getElementById("heartShieldEmotionsField");
   if (heartShieldToggleEl) {
     heartShieldToggleEl.checked = !!session.isHeartShield;
     if (heartShieldConditionalEl) {
       heartShieldConditionalEl.classList.toggle("is-hidden", !session.isHeartShield);
+    }
+    if (heartShieldEmotionsFieldEl) {
+      heartShieldEmotionsFieldEl.classList.toggle("is-hidden", !session.isHeartShield);
     }
   }
   const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
