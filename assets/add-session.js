@@ -455,6 +455,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       issuesText
     ];
 
+    // Heart Shield Emotions (only when Heart Shield is on)
+    const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
+    const heartShieldEmotionsValue = (heartShieldEmotionsEl ? heartShieldEmotionsEl.value : "").trim();
+    if (heartShieldChecked && heartShieldEmotionsValue.length > 0) {
+      lines.push("", `## ${App.t("session.form.heartShieldEmotions")}`, heartShieldEmotionsValue);
+    }
+
     // Order: Trapped Emotions, Limiting Beliefs, Additional Techniques, Important Points, Insights, Comments, Next Session
     if (trappedValue.length > 0) {
       lines.push("", `## ${stripRequired(App.t("session.form.trapped"))}`, trappedValue);
@@ -611,6 +618,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
       const sessionType = sessionTypeInput ? sessionTypeInput.value : "clinic";
       const trappedEmotions = document.getElementById("trappedEmotions").value.trim();
+      const heartShieldEmotions = isHeartShield ? (document.getElementById("heartShieldEmotions") || {}).value?.trim() || "" : "";
       const comments = document.getElementById("sessionComments").value.trim();
       const insights = insightsInput ? insightsInput.value.trim() : "";
       const limitingBeliefs = (document.getElementById("limitingBeliefs") || {}).value?.trim() || "";
@@ -625,6 +633,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           sessionType,
           issues: issuesPayload,
           trappedEmotions,
+          heartShieldEmotions,
           insights,
           limitingBeliefs,
           additionalTech,
@@ -642,6 +651,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           sessionType,
           issues: issuesPayload,
           trappedEmotions,
+          heartShieldEmotions,
           insights,
           limitingBeliefs,
           additionalTech,
@@ -909,6 +919,8 @@ function populateSession(session, issues, createIssueBlock) {
       heartShieldConditionalEl.classList.toggle("is-hidden", !session.isHeartShield);
     }
   }
+  const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
+  if (heartShieldEmotionsEl) heartShieldEmotionsEl.value = session.heartShieldEmotions || "";
   if (session.isHeartShield && session.shieldRemoved !== null && session.shieldRemoved !== undefined) {
     const value = session.shieldRemoved ? "yes" : "no";
     const radio = document.querySelector(`input[name='shieldRemoved'][value='${value}']`);

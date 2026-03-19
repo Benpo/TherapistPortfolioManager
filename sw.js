@@ -9,7 +9,7 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v7';
+const CACHE_NAME = 'sessions-garden-v8';
 
 /**
  * All static assets to precache on install.
@@ -76,10 +76,10 @@ self.addEventListener('install', function (event) {
       );
     })
   );
-  // NOTE: Immediate activation is intentionally NOT triggered.
-  // The new SW waits for all existing tabs to close before activating.
-  // This prevents a half-old-half-new asset state when the user has
-  // multiple tabs open. Silent background updates are preferred.
+  // Activate immediately so users get the latest assets without waiting
+  // for all tabs to close. Combined with clients.claim() in activate,
+  // this ensures updates take effect on the next navigation.
+  self.skipWaiting();
 });
 
 /**

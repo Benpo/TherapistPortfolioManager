@@ -560,7 +560,6 @@ a {
 
 .heart-badge.heart-badge-removed{
   background:transparent;
-  color:inherit;
 }
 
 .form-grid {
@@ -887,10 +886,9 @@ body[dir="rtl"] .session-header{
 
 .heart-badge{
   margin-inline-start:.35rem;
-  background:var(--color-heartwall-badge);
-  color:var(--color-surface);
+  background:transparent;
   border-radius:999px;
-  padding:.15rem .6rem;
+  padding:.15rem .2rem;
   font-size:.85rem;
   display:inline-flex;
   align-items:center;

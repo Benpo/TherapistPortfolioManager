@@ -90,6 +90,8 @@ window.I18N.he = {
   "session.form.shieldRemoved": "המגננה הוסרה?",
   "session.form.shieldRemoved.yes": "כן",
   "session.form.shieldRemoved.no": "לא",
+  "session.form.heartShieldEmotions": "רגשות במגננת הלב",
+  "session.form.heartShieldEmotions.placeholder": "רשום את הרגשות שנמצאו במגננת הלב",
   "session.form.issuesTitle": "נושאים שטופלו במפגש *",
   "session.form.issueLimit": "ניתן להוסיף עד 3 נושאים",
   "session.form.issuesHeading": "נושאי המפגש *",

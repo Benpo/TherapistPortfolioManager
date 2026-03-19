@@ -90,6 +90,8 @@ window.I18N.en = {
   "session.form.shieldRemoved": "Shield Removed?",
   "session.form.shieldRemoved.yes": "Yes",
   "session.form.shieldRemoved.no": "No",
+  "session.form.heartShieldEmotions": "Emotions in the Heart Shield",
+  "session.form.heartShieldEmotions.placeholder": "List the emotions found in the heart shield",
   "session.form.issuesTitle": "Issues addressed in this session *",
   "session.form.issueLimit": "You may list up to 3 issues per session",
   "session.form.issuesHeading": "Issues addressed in this session *",

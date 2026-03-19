@@ -90,6 +90,8 @@ window.I18N.de = {
   "session.form.shieldRemoved": "Schutz entfernt?",
   "session.form.shieldRemoved.yes": "Ja",
   "session.form.shieldRemoved.no": "Nein",
+  "session.form.heartShieldEmotions": "Emotionen im Herzschutz",
+  "session.form.heartShieldEmotions.placeholder": "Die im Herzschutz gefundenen Emotionen auflisten",
   "session.form.issuesTitle": "In dieser Sitzung behandelte Themen *",
   "session.form.issueLimit": "Sie können bis zu 3 Themen pro Sitzung angeben",
   "session.form.issuesHeading": "In dieser Sitzung behandelte Themen *",

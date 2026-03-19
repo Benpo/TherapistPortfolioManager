@@ -90,6 +90,8 @@ window.I18N.cs = {
   "session.form.shieldRemoved": "Ochrana odstraněna?",
   "session.form.shieldRemoved.yes": "Ano",
   "session.form.shieldRemoved.no": "Ne",
+  "session.form.heartShieldEmotions": "Emoce v Ochraně srdce",
+  "session.form.heartShieldEmotions.placeholder": "Uveďte emoce nalezené v ochraně srdce",
   "session.form.issuesTitle": "Problémy řešené v tomto sezení *",
   "session.form.issueLimit": "Můžete zadat až 3 problémy na sezení",
   "session.form.issuesHeading": "Problémy řešené v tomto sezení *",
