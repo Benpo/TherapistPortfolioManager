@@ -209,7 +209,7 @@ Plans:
   2. A client who has had a Heart Shield session and has not yet had it removed shows a heart icon next to their name in the clients table; after removal, the icon changes to a checkmark
   3. The sessions list has a "session type" dropdown that filters to show all sessions, only Heart Shield sessions, or only regular sessions
   4. Saving a Heart Shield session without answering "Shield removed?" is blocked with a visible validation message
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 - [ ] 09-01-PLAN.md — DB migration for Heart Shield session fields + form toggle and validation (HSHLD-01)
@@ -223,7 +223,7 @@ Plans:
   1. After uploading a photo, user can drag to reposition it within the circular crop area and confirm the result before saving
   2. The cropped/repositioned photo is what appears in the client card and throughout the app (not the raw uploaded image)
   3. From the add-session screen, user can open an edit-client panel or modal without navigating away; changes saved there immediately reflect in the session form
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 - [ ] 10-01-PLAN.md — Photo crop/reposition UI: drag-to-position within circular canvas crop (UX-03)
@@ -237,7 +237,7 @@ Plans:
   1. At least the home/overview page and one secondary page display botanical decorative elements (leaves, flowers, or garden motifs) that match the landing page aesthetic
   2. The same updated logo appears in both the app header and the landing page header
   3. The app icon (home screen / PWA install icon) is a final branded image, not a placeholder
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 - [ ] 11-01-PLAN.md — Botanical decorations added to app pages (DSGN-05)
