@@ -46,25 +46,11 @@ a {
   height: 48px;
   border-radius: 16px;
   background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
   display: grid;
   place-items: center;
   font-weight: 800;
   box-shadow: var(--shadow-brand);
-  overflow: hidden;
-}
-
-.brand-mark-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-[data-theme="dark"] .brand-mark {
-  background: var(--color-primary-dark);
-}
-
-[data-theme="dark"] .brand-mark-img {
-  filter: invert(1);
 }
 
 .brand-title {
@@ -1405,20 +1391,7 @@ body.read-mode .heart-shield-section input {
   mix-blend-mode: multiply;
 }
 
-/* Flower pot near greeting — small, positioned to the side */
-.app-botanical-greeting {
-  display: flex;
-  justify-content: flex-end;
-  padding-inline-end: 1rem;
-  margin-block: -0.5rem 0.5rem;
-}
-
-.app-botanical-greeting .app-botanical-img {
-  width: 120px;
-  opacity: 0.4;
-}
-
-/* Garden divider between stats and clients table */
+/* Garden divider between greeting and stats */
 .app-botanical-divider {
   padding: 0.5rem 0;
 }
@@ -1430,16 +1403,6 @@ body.read-mode .heart-shield-section input {
   mask-image: linear-gradient(to right, transparent 0%, black 10% 90%, transparent 100%);
 }
 
-/* Watering can at footer — centered, subtle */
-.app-botanical-footer {
-  padding: 1.5rem 0 0.5rem;
-}
-
-.app-botanical-footer .app-botanical-img {
-  width: 100px;
-  opacity: 0.35;
-}
-
 /* Dark mode treatment — same pattern as landing page */
 [data-theme="dark"] .app-botanical-img {
   filter: invert(1);
@@ -1447,23 +1410,9 @@ body.read-mode .heart-shield-section input {
   mix-blend-mode: screen;
 }
 
-[data-theme="dark"] .app-botanical-greeting .app-botanical-img {
-  opacity: 0.2;
-}
-
-[data-theme="dark"] .app-botanical-footer .app-botanical-img {
-  opacity: 0.2;
-}
-
 /* Responsive — shrink elements on small screens */
 @media (max-width: 600px) {
-  .app-botanical-greeting .app-botanical-img {
-    width: 80px;
-  }
   .app-botanical-divider-img {
     max-inline-size: min(300px, 80vw);
-  }
-  .app-botanical-footer .app-botanical-img {
-    width: 70px;
   }
 }
