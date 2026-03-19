@@ -1,5 +1,7 @@
 let clientCache = [];
 let inlinePhotoData = "";
+let editClientPhotoData = "";
+let editingClientId = null;
 let formDirty = false;
 let formSaving = false;
 
@@ -36,6 +38,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const heartShieldToggle = document.getElementById("heartShieldToggle");
   const heartShieldConditional = document.getElementById("heartShieldConditional");
+
+  // Edit client modal references
+  const editClientBtn = document.getElementById("editClientBtn");
+  const editClientModal = document.getElementById("editClientModal");
+  const editClientClose = document.getElementById("editClientClose");
+  const editClientSaveBtn = document.getElementById("editClientSaveBtn");
+  const editClientCancelBtn = document.getElementById("editClientCancelBtn");
+  const editClientPhotoInput = document.getElementById("editClientPhoto");
+  const editClientPhotoPreview = document.getElementById("editClientPhotoPreview");
+  const editClientReferralSelect = document.getElementById("editClientReferralSource");
+  const editClientReferralOther = document.getElementById("editClientReferralOther");
 
   // Unsaved changes protection
   if (sessionForm) {
@@ -143,6 +156,186 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (sessionForm) {
     sessionForm.noValidate = true;
   }
+
+  // --- Edit client modal setup ---
+  setupToggleGroup("editClientTypeGroup");
+
+  async function openEditClientModal(clientId) {
+    let client = getSelectedClient(clientId, clientCache);
+    if (!client) {
+      client = await PortfolioDB.getClient(clientId);
+    }
+    if (!client) return;
+
+    editingClientId = clientId;
+    editClientPhotoData = client.photoData || "";
+
+    // Populate text fields
+    const firstName = client.firstName || (client.name ? client.name.split(" ")[0] : "");
+    const lastName = client.lastName || (client.name && client.name.includes(" ") ? client.name.split(" ").slice(1).join(" ") : "");
+    const fNameEl = document.getElementById("editClientFirstName");
+    const lNameEl = document.getElementById("editClientLastName");
+    const bdEl = document.getElementById("editClientBirthDate");
+    const emailEl = document.getElementById("editClientEmail");
+    const phoneEl = document.getElementById("editClientPhone");
+    const notesEl = document.getElementById("editClientNotes");
+    if (fNameEl) fNameEl.value = firstName;
+    if (lNameEl) lNameEl.value = lastName;
+    if (bdEl) bdEl.value = client.birthDate || "";
+    if (emailEl) emailEl.value = client.email || "";
+    if (phoneEl) phoneEl.value = client.phone || "";
+    if (notesEl) notesEl.value = client.notes || "";
+
+    // Set type radio
+    const typeValue = client.type || "adult";
+    document.querySelectorAll("input[name='editClientType']").forEach((input) => {
+      const card = input.closest(".toggle-card");
+      const isSelected = input.value === typeValue;
+      input.checked = isSelected;
+      if (card) card.classList.toggle("active", isSelected);
+    });
+
+    // Set referral source
+    const referralValue = client.referralSource || "";
+    const referralOptions = editClientReferralSelect ? Array.from(editClientReferralSelect.options).map(o => o.value) : [];
+    if (editClientReferralSelect) {
+      if (referralOptions.includes(referralValue)) {
+        editClientReferralSelect.value = referralValue;
+      } else if (referralValue) {
+        editClientReferralSelect.value = "other";
+        if (editClientReferralOther) {
+          editClientReferralOther.value = referralValue;
+          editClientReferralOther.style.display = "";
+        }
+      } else {
+        editClientReferralSelect.value = "";
+      }
+      if (editClientReferralOther && editClientReferralSelect.value !== "other") {
+        editClientReferralOther.style.display = "none";
+        editClientReferralOther.value = "";
+      }
+    }
+
+    // Set photo preview
+    if (editClientPhotoPreview) {
+      if (editClientPhotoData) {
+        editClientPhotoPreview.src = editClientPhotoData;
+        editClientPhotoPreview.classList.remove("is-hidden");
+      } else {
+        editClientPhotoPreview.src = "";
+        editClientPhotoPreview.classList.add("is-hidden");
+      }
+    }
+
+    if (editClientModal) editClientModal.classList.remove("is-hidden");
+    App.applyTranslations(editClientModal);
+  }
+
+  function closeEditClientModal() {
+    if (editClientModal) editClientModal.classList.add("is-hidden");
+    editClientPhotoData = "";
+    editingClientId = null;
+    // Reset photo input
+    if (editClientPhotoInput) editClientPhotoInput.value = "";
+    if (editClientPhotoPreview) {
+      editClientPhotoPreview.src = "";
+      editClientPhotoPreview.classList.add("is-hidden");
+    }
+  }
+
+  if (editClientBtn) {
+    editClientBtn.addEventListener("click", () => {
+      const cid = Number.parseInt(clientSelect.value, 10);
+      if (cid) openEditClientModal(cid);
+    });
+  }
+
+  if (editClientClose) {
+    editClientClose.addEventListener("click", closeEditClientModal);
+  }
+
+  if (editClientCancelBtn) {
+    editClientCancelBtn.addEventListener("click", closeEditClientModal);
+  }
+
+  if (editClientModal) {
+    const overlay = editClientModal.querySelector(".modal-overlay");
+    if (overlay) overlay.addEventListener("click", closeEditClientModal);
+  }
+
+  if (editClientPhotoInput) {
+    editClientPhotoInput.addEventListener("change", async () => {
+      const file = editClientPhotoInput.files && editClientPhotoInput.files[0];
+      if (!file) return;
+      editClientPhotoData = await readFileAsDataURL(file);
+      if (editClientPhotoPreview) {
+        editClientPhotoPreview.src = editClientPhotoData;
+        editClientPhotoPreview.classList.remove("is-hidden");
+      }
+    });
+  }
+
+  if (editClientReferralSelect) {
+    editClientReferralSelect.addEventListener("change", () => {
+      if (editClientReferralOther) {
+        editClientReferralOther.style.display = editClientReferralSelect.value === "other" ? "" : "none";
+        if (editClientReferralSelect.value !== "other") {
+          editClientReferralOther.value = "";
+        }
+      }
+    });
+  }
+
+  if (editClientSaveBtn) {
+    editClientSaveBtn.addEventListener("click", async () => {
+      const firstName = (document.getElementById("editClientFirstName") || {}).value?.trim() || "";
+      if (!firstName) {
+        App.showToast("", "toast.errorRequired");
+        return;
+      }
+      const lastName = (document.getElementById("editClientLastName") || {}).value?.trim() || "";
+      const birthDate = (document.getElementById("editClientBirthDate") || {}).value || null;
+      const age = birthDate ? Math.floor((Date.now() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000)) : null;
+      const email = (document.getElementById("editClientEmail") || {}).value?.trim() || "";
+      const phone = (document.getElementById("editClientPhone") || {}).value?.trim() || "";
+      const notes = (document.getElementById("editClientNotes") || {}).value?.trim() || "";
+      const typeInput = document.querySelector("input[name='editClientType']:checked");
+      const type = typeInput ? typeInput.value : "adult";
+      const displayName = lastName ? `${firstName} ${lastName}` : firstName;
+
+      let referralSource = editClientReferralSelect ? editClientReferralSelect.value : "";
+      if (referralSource === "other" && editClientReferralOther) {
+        referralSource = editClientReferralOther.value.trim() || "other";
+      }
+
+      const existing = getSelectedClient(editingClientId, clientCache) || await PortfolioDB.getClient(editingClientId);
+      if (!existing) return;
+
+      await PortfolioDB.updateClient({
+        ...existing,
+        name: displayName,
+        firstName,
+        lastName,
+        birthDate,
+        age,
+        email,
+        phone,
+        notes,
+        type,
+        referralSource,
+        photoData: editClientPhotoData,
+        updatedAt: new Date().toISOString()
+      });
+
+      // Reload clients and re-select the current one to refresh the cache
+      const savedClientId = editingClientId;
+      closeEditClientModal();
+      clientCache = (await loadClients(savedClientId)) || [];
+      updateClientSpotlight();
+      App.showToast("", "toast.clientSaved");
+    });
+  }
+  // --- End edit client modal setup ---
 
   if (sessionDate) {
     sessionDate.valueAsDate = new Date();
@@ -786,18 +979,29 @@ function updateClientSpotlight() {
   const placeholder = document.getElementById("clientSpotlightPlaceholder");
   const name = document.getElementById("clientSpotlightName");
   const clientSelect = document.getElementById("clientSelect");
+  const editBtn = document.getElementById("editClientBtn");
   if (!spotlight || !clientSelect) return;
   const clientId = Number.parseInt(clientSelect.value, 10);
   if (!clientId) {
     spotlight.classList.add("is-hidden");
+    if (editBtn) editBtn.classList.add("is-hidden");
     return;
   }
   const selectedClient = getSelectedClient(clientId, clientCache);
   if (!selectedClient) {
     spotlight.classList.add("is-hidden");
+    if (editBtn) editBtn.classList.add("is-hidden");
     return;
   }
   spotlight.classList.remove("is-hidden");
+  // Show edit button only for real existing clients (not __new__)
+  if (editBtn) {
+    const isExistingClient = clientSelect.value !== "__new__" && !!clientId;
+    editBtn.classList.toggle("is-hidden", !isExistingClient);
+    // Update tooltip text
+    editBtn.title = (window.App && App.t) ? App.t("session.editClient") : "Edit Client";
+    editBtn.setAttribute("aria-label", editBtn.title);
+  }
   const displayName = getClientDisplayName(selectedClient);
   if (name) name.textContent = displayName || "-";
   const ageEl = document.getElementById("clientSpotlightAge");
