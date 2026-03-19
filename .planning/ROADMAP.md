@@ -194,7 +194,7 @@ Plans:
   1. Every visible string that previously said "treatment" or "patient" (or equivalents in DE/CS/HE) now reads "session" or "client" across all 4 languages
   2. The clients table shows a history icon and a plus icon instead of text buttons; hovering either shows a tooltip naming the action
   3. Switching the app language and re-checking the clients table still shows icon buttons with correct tooltip text in the selected language
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 - [ ] 08-01-PLAN.md — Terminology sweep: update i18n files for EN/HE/DE/CS (UX-01)
