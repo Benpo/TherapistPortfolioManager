@@ -124,6 +124,13 @@ window.App = (() => {
     checkBackupReminder();
     requestPersistentStorage();
 
+    // Auto-reload when a new service worker takes control (ensures fresh assets)
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        window.location.reload();
+      });
+    }
+
     // Load demo hints when inside an iframe (demo context)
     if (window !== window.top) {
       var s = document.createElement('script');
