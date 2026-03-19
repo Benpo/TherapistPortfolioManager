@@ -35,7 +35,7 @@ window.I18N.de = {
   "overview.modal.avgAfter": "Durchschn. Schweregrad (Nachher)",
   "overview.modal.avgDays": "Durchschn. Tage zwischen Sitzungen",
   "overview.modal.notes": "Notizen",
-  "overview.sessions.heartShieldCleared": "Gelöscht",
+  "overview.sessions.heartShieldCleared": "Aufgelöst",
   "overview.heartShield.active": "Aktiver Herzschutz",
   "overview.heartShield.removed": "Herzschutz entfernt",
   "overview.sessions.none": "Noch keine Sitzungen.",
@@ -127,7 +127,7 @@ window.I18N.de = {
   "session.copy.client": "Klient:",
   "session.copy.date": "Datum:",
   "session.copy.type": "Sitzungstyp:",
-  "session.copy.heartShield": "Herzschutz gelöscht:",
+  "session.copy.heartShield": "Herzschutz aufgelöst:",
   "session.copy.issues": "Behandelte Themen",
   "session.copy.empty": "Nicht angegeben",
   "session.copy.unknownClient": "Unbekannter Klient",
@@ -150,7 +150,7 @@ window.I18N.de = {
   "toast.clientCreated": "Klient erstellt",
   "toast.selectClient": "Klienten auswählen",
   "toast.issueMissing": "Mindestens ein Thema hinzufügen",
-  "toast.heartShieldRequired": "Bitte auswählen, ob Herzschutz gelöscht wurde",
+  "toast.heartShieldRequired": "Bitte auswählen, ob der Herzschutz aufgelöst wurde",
   "toast.importSuccess": "Daten importiert",
   "toast.importError": "Import fehlgeschlagen",
   "overview.sendBackup": "Backup an mich senden",
@@ -194,7 +194,7 @@ window.I18N.de = {
   "reporting.avgIssues": "Durchschn. Themen pro Sitzung",
   "reporting.avgBefore": "Durchschn. Schweregrad (Vorher)",
   "reporting.avgAfter": "Durchschn. Schweregrad (Nachher)",
-  "reporting.heartShieldCleared": "Herzschutz-gelöschte Sitzungen",
+  "reporting.heartShieldCleared": "Sitzungen mit aufgelöstem Herzschutz",
   "common.backToOverview": "Zurück zur Startseite",
   "common.age": "Alter",
   "common.heartShield": "Herzschutz",
@@ -206,12 +206,12 @@ window.I18N.de = {
   "greeting.afternoon": "Guten Tag 🌿",
   "greeting.evening": "Guten Abend 🌙",
   "crop.title": "Foto anpassen",
-  "crop.confirm": "Bestaetigen",
+  "crop.confirm": "Bestätigen",
   "crop.cancel": "Abbrechen",
   "crop.recrop": "Neu zuschneiden",
   "session.editClient": "Klient bearbeiten",
   "session.editClient.title": "Klient bearbeiten",
-  "session.editClient.save": "Aenderungen speichern"
+  "session.editClient.save": "Änderungen speichern"
 };
 
 window.QUOTES.de = [
