@@ -1,10 +1,9 @@
 /* === LANDING PAGE LOGIC === */
 /* Language switching, theme detection, smooth scroll */
 
-// TODO: Replace this placeholder URL with your actual Lemon Squeezy checkout URL after creating the product.
+// PLACEHOLDER: Replace with your actual Lemon Squeezy checkout URL.
 // Format: https://YOURSTORE.lemonsqueezy.com/buy/VARIANT_ID
-// You can find the checkout URL in your Lemon Squeezy dashboard under Products > Your Product > Share.
-var LS_CHECKOUT_URL = 'https://YOURSTORE.lemonsqueezy.com/buy/VARIANT_ID';
+var LS_CHECKOUT_URL = 'https://YOURSTORE.lemonsqueezy.com/buy/PLACEHOLDER';
 
 /* ---------- Feature icon PNGs ---------- */
 /* Real botanical illustration icons — 72x72 PNG images */
