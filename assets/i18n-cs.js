@@ -3,7 +3,7 @@ window.QUOTES = window.QUOTES || {};
 
 window.I18N.cs = {
   "app.title": "Sessions Garden",
-  "app.subtitle": "Dokumentace a sledování terapeutických sezení",
+  "app.subtitle": "Dokumentace a sledování energetických sezení",
   "nav.overview": "Přehled",
   "nav.sessions": "Sezení",
   "nav.reporting": "Přehledy",

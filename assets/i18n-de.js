@@ -3,7 +3,7 @@ window.QUOTES = window.QUOTES || {};
 
 window.I18N.de = {
   "app.title": "Sessions Garden",
-  "app.subtitle": "Dokumentation und Begleitung therapeutischer Sitzungen",
+  "app.subtitle": "Dokumentation und Begleitung energetischer Sitzungen",
   "nav.overview": "Übersicht",
   "nav.sessions": "Sitzungen",
   "nav.reporting": "Statistiken",
