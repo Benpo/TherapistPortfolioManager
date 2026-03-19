@@ -182,7 +182,7 @@ Plans:
 - [ ] **Phase 9: Heart Shield Redesign** - Session-level Heart Shield toggle with removal tracking, client table indicators, and session type filter
 - [x] **Phase 10: UX Power Features** - Photo crop/reposition after upload; edit client directly from add-session screen (completed 2026-03-19)
 - [x] **Phase 11: Visual Identity Update** - Garden decorations in app UI; updated logo; final app icon (completed 2026-03-19)
-- [ ] **Phase 12: Launch Prerequisites** - Real Impressum and Datenschutzerklarung; Lemon Squeezy product setup; DE/CS translation verification; cross-browser and mobile QA
+- [x] **Phase 12: Launch Prerequisites** - Real Impressum and Datenschutzerklarung; Lemon Squeezy product setup; DE/CS translation verification; cross-browser and mobile QA (completed 2026-03-19)
 
 ## Phase Details
 
@@ -281,4 +281,4 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 9. Heart Shield Redesign | 1/2 | In Progress|  | - |
 | 10. UX Power Features | 2/2 | Complete    | 2026-03-19 | - |
 | 11. Visual Identity Update | 2/2 | Complete    | 2026-03-19 | - |
-| 12. Launch Prerequisites | 3/4 | In Progress|  | - |
+| 12. Launch Prerequisites | 4/4 | Complete   | 2026-03-19 | - |
