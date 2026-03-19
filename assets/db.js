@@ -1,6 +1,6 @@
 window.PortfolioDB = (() => {
   const DB_NAME = window.name === "demo-mode" ? "demo_portfolio" : "emotion_code_portfolio";
-  const DB_VERSION = 2;
+  const DB_VERSION = 3;
 
   const MIGRATIONS = {
     1: function initializeSchema(db) {
@@ -25,6 +25,38 @@ window.PortfolioDB = (() => {
           const record = cursor.value;
           if (record.type === "human") {
             cursor.update({ ...record, type: "adult" });
+          }
+          cursor.continue();
+        }
+      };
+    },
+    3: function heartShieldRedesign(db, transaction) {
+      // Migrate sessions: convert heartWallCleared -> isHeartShield + shieldRemoved
+      const sessionStore = transaction.objectStore("sessions");
+      const sessionCursorReq = sessionStore.openCursor();
+      sessionCursorReq.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          const record = cursor.value;
+          if ("heartWallCleared" in record) {
+            record.isHeartShield = true;
+            record.shieldRemoved = !!record.heartWallCleared;
+            delete record.heartWallCleared;
+            cursor.update(record);
+          }
+          cursor.continue();
+        }
+      };
+      // Migrate clients: remove heartWall field
+      const clientStore = transaction.objectStore("clients");
+      const clientCursorReq = clientStore.openCursor();
+      clientCursorReq.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          const record = cursor.value;
+          if ("heartWall" in record) {
+            delete record.heartWall;
+            cursor.update(record);
           }
           cursor.continue();
         }
