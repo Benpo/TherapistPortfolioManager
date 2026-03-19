@@ -89,27 +89,27 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UX-01 | — | Pending |
-| UX-02 | — | Pending |
-| UX-03 | — | Pending |
-| UX-04 | — | Pending |
-| HSHLD-01 | — | Pending |
-| HSHLD-02 | — | Pending |
-| HSHLD-03 | — | Pending |
-| DSGN-05 | — | Pending |
-| DSGN-06 | — | Pending |
-| LNCH-01 | — | Pending |
-| LNCH-02 | — | Pending |
-| LNCH-03 | — | Pending |
-| LNCH-04 | — | Pending |
-| LNCH-05 | — | Pending |
-| LNCH-06 | — | Pending |
+| UX-01 | Phase 8 | Pending |
+| UX-02 | Phase 8 | Pending |
+| UX-03 | Phase 10 | Pending |
+| UX-04 | Phase 10 | Pending |
+| HSHLD-01 | Phase 9 | Pending |
+| HSHLD-02 | Phase 9 | Pending |
+| HSHLD-03 | Phase 9 | Pending |
+| DSGN-05 | Phase 11 | Pending |
+| DSGN-06 | Phase 11 | Pending |
+| LNCH-01 | Phase 12 | Pending |
+| LNCH-02 | Phase 12 | Pending |
+| LNCH-03 | Phase 12 | Pending |
+| LNCH-04 | Phase 12 | Pending |
+| LNCH-05 | Phase 11 | Pending |
+| LNCH-06 | Phase 12 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15 ⚠️
+- Mapped to phases: 15
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after initial definition*
+*Last updated: 2026-03-19 after roadmap creation (phases 8-12)*

@@ -4,7 +4,15 @@
 
 Transform the existing functional vanilla JS prototype into a sellable product for Emotion Code / Body Code therapists. The journey moves through six phases: establishing the technical foundation (design tokens, fonts, migration infrastructure, backup safety), visually transforming the app (garden theme, dark mode, RTL-safe CSS), consolidating and expanding the data model with new features, internationalizing to 4 languages while researching distribution options, implementing legal compliance and production packaging, and finally validating quality across all dimensions while creating maintainer documentation for Sapir.
 
+## Milestones
+
+- ✅ **v1.0 MVP** - Phases 1-7 (shipped 2026-03-18)
+- 🚧 **v1.1 Final Polish & Launch** - Phases 8-12 (in progress)
+
 ## Phases
+
+<details>
+<summary>✅ v1.0 MVP (Phases 1-7) - SHIPPED 2026-03-18</summary>
 
 **Phase Numbering:**
 - Integer phases (1, 2, 3): Planned milestone work
@@ -16,10 +24,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Visual Transformation** - Garden theme overhaul, dark mode, CSS logical properties, and nav extraction (completed 2026-03-10)
 - [x] **Phase 3: Data Model and Features** - Session field consolidation (with Sapir), expanded types, new fields, search, and greeting (completed 2026-03-10)
 - [x] **Phase 4: Internationalization and Distribution Research** - 4-language i18n, RTL validation, hosting and payment research (completed 2026-03-12)
-- [ ] **Phase 5: Legal and Production Packaging** - Disclaimer compliance, access gating, PWA setup, distribution-ready bundle
-- [ ] **Phase 6: Quality and Developer Experience** - Playwright tests, cross-browser/RTL/responsive QA, maintainer guides for Sapir
-
-## Phase Details
+- [x] **Phase 5: Legal and Production Packaging** - Disclaimer compliance, access gating, PWA setup, distribution-ready bundle
+- [x] **Phase 05.1: Landing Page Visual Redesign (INSERTED)** - Redesign landing page visual identity
+- [x] **Phase 05.2: Landing Page Polish (INSERTED)** - Aurora hero, botanical images, screenshots, legal accordion
+- [x] **Phase 6: Quality and Developer Experience** - Cross-browser/RTL/responsive QA, maintainer guides
+- [x] **Phase 7: ZIP Backup Strategy** - ZIP export/import replacing JSON backup
 
 ### Phase 1: Foundation
 **Goal**: All technical prerequisites are in place so that visual, data, and feature work can build on solid ground without rework
@@ -34,9 +43,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — CSS design token system (tokens.css) + Rubik self-hosted fonts (FOUND-01, FOUND-02)
-- [ ] 01-02-PLAN.md — IndexedDB sequential migration infrastructure (FOUND-03)
-- [ ] 01-03-PLAN.md — Backup reminder banner + navigator.storage.persist() (FOUND-04)
+- [x] 01-01-PLAN.md — CSS design token system (tokens.css) + Rubik self-hosted fonts (FOUND-01, FOUND-02)
+- [x] 01-02-PLAN.md — IndexedDB sequential migration infrastructure (FOUND-03)
+- [x] 01-03-PLAN.md — Backup reminder banner + navigator.storage.persist() (FOUND-04)
 
 ### Phase 2: Visual Transformation
 **Goal**: The app looks and feels like a professional, sellable product with garden theme aesthetics and full dark mode support
@@ -50,9 +59,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Garden palette (tokens.css) + brand area + nav component extraction + no-flash scripts (DSGN-01, DSGN-04)
-- [ ] 02-02-PLAN.md — Night-garden dark mode palette (tokens.css) + theme toggle (DSGN-02)
-- [ ] 02-03-PLAN.md — CSS logical properties migration (app.css) (DSGN-03)
+- [x] 02-01-PLAN.md — Garden palette (tokens.css) + brand area + nav component extraction + no-flash scripts (DSGN-01, DSGN-04)
+- [x] 02-02-PLAN.md — Night-garden dark mode palette (tokens.css) + theme toggle (DSGN-02)
+- [x] 02-03-PLAN.md — CSS logical properties migration (app.css) (DSGN-03)
 
 ### Phase 3: Data Model and Features
 **Goal**: The clinical data model is finalized with Sapir's input, expanded client types and session fields are live, and key usability features work
@@ -67,9 +76,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — DB migration v2 + client type expansion (Adult/Child/Animal/Other) + referral source dropdown (DATA-02, DATA-03)
-- [ ] 03-02-PLAN.md — Session field consolidation: Important Points, form reorder, severity delta, markdown export (DATA-01, DATA-04)
-- [ ] 03-03-PLAN.md — Client search, daily quotes with attribution, brand mark homepage link (FEAT-01, FEAT-02)
+- [x] 03-01-PLAN.md — DB migration v2 + client type expansion (Adult/Child/Animal/Other) + referral source dropdown (DATA-02, DATA-03)
+- [x] 03-02-PLAN.md — Session field consolidation: Important Points, form reorder, severity delta, markdown export (DATA-01, DATA-04)
+- [x] 03-03-PLAN.md — Client search, daily quotes with attribution, brand mark homepage link (FEAT-01, FEAT-02)
 
 ### Phase 4: Internationalization and Distribution Research
 **Goal**: The app speaks four languages with accurate clinical terminology suited to energy healing (not medical), and the distribution and payment strategy is decided and documented
@@ -83,9 +92,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — i18n file split + Heart Shield/Practice/Sessions Garden renames + subtitle wiring (I18N-01, I18N-02, I18N-03)
-- [ ] 04-02-PLAN.md — Quotes overhaul: Hebrew fixes, 7 replacement quotes, DE/CS quality review (I18N-02, I18N-03)
-- [ ] 04-03-PLAN.md — RTL validation for Phase 2-3 features + distribution decision document (I18N-04, DIST-01, DIST-02)
+- [x] 04-01-PLAN.md — i18n file split + Heart Shield/Practice/Sessions Garden renames + subtitle wiring (I18N-01, I18N-02, I18N-03)
+- [x] 04-02-PLAN.md — Quotes overhaul: Hebrew fixes, 7 replacement quotes, DE/CS quality review (I18N-02, I18N-03)
+- [x] 04-03-PLAN.md — RTL validation for Phase 2-3 features + distribution decision document (I18N-04, DIST-01, DIST-02)
 
 ### Phase 5: Legal and Production Packaging
 **Goal**: The app is legally compliant for EU/German sales and packaged for distribution as a paid product
@@ -100,9 +109,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Disclaimer/T&C gate with 4-language legal content, Widerrufsrecht checkbox, acceptance receipt (LEGL-01, LEGL-02, LEGL-03)
-- [ ] 05-02-PLAN.md — License key gate via Lemon Squeezy API + PWA service worker and manifest (DIST-03, DIST-04)
-- [ ] 05-03-PLAN.md — Marketing landing page with purchase flow, Impressum, Datenschutzerklaerung (DIST-05)
+- [x] 05-01-PLAN.md — Disclaimer/T&C gate with 4-language legal content, Widerrufsrecht checkbox, acceptance receipt (LEGL-01, LEGL-02, LEGL-03)
+- [x] 05-02-PLAN.md — License key gate via Lemon Squeezy API + PWA service worker and manifest (DIST-03, DIST-04)
+- [x] 05-03-PLAN.md — Marketing landing page with purchase flow, Impressum, Datenschutzerklaerung (DIST-05)
 
 ### Phase 05.1: Landing Page Visual Redesign (INSERTED)
 
@@ -112,8 +121,8 @@ Plans:
 **Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 05.1-01-PLAN.md — Hero gradient, typography refinements, hand-drawn doodle botanical SVGs for hero and section divider (DIST-05)
-- [ ] 05.1-02-PLAN.md — Feature card doodle icons replacing emoji + Sapir visual approval checkpoint (DIST-05)
+- [x] 05.1-01-PLAN.md — Hero gradient, typography refinements, hand-drawn doodle botanical SVGs for hero and section divider (DIST-05)
+- [x] 05.1-02-PLAN.md — Feature card doodle icons replacing emoji + Sapir visual approval checkpoint (DIST-05)
 
 ### Phase 05.2: Landing Page Polish (INSERTED)
 
@@ -123,9 +132,9 @@ Plans:
 **Plans:** 2/3 plans executed
 
 Plans:
-- [ ] 05.2-01-PLAN.md — Aurora hero background + real PNG botanical images (hero, dividers, footer) + real PNG card icons + spotlight glow (DIST-05)
-- [ ] 05.2-02-PLAN.md — Screenshots section (real app photos) + contact section + accordion legal + Hebrew buy button fix + content box glow + i18n for all 4 languages (DIST-05)
-- [ ] 05.2-03-PLAN.md — Sapir visual approval checkpoint (DIST-05)
+- [x] 05.2-01-PLAN.md — Aurora hero background + real PNG botanical images (hero, dividers, footer) + real PNG card icons + spotlight glow (DIST-05)
+- [x] 05.2-02-PLAN.md — Screenshots section (real app photos) + contact section + accordion legal + Hebrew buy button fix + content box glow + i18n for all 4 languages (DIST-05)
+- [x] 05.2-03-PLAN.md — Sapir visual approval checkpoint (DIST-05)
 
 ### Phase 6: Quality and Developer Experience
 **Goal**: The product is validated across all browsers, modes, and languages, with automated tests and documentation enabling Sapir to maintain it independently
@@ -140,8 +149,8 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [x] 06-01: TBD
+- [x] 06-02: TBD
 
 ### Phase 7: Investigate data backup strategy
 
@@ -158,22 +167,119 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — BackupManager module (backup.js) with ZIP export/import logic + self-hosted JSZip (BKUP-01, BKUP-02)
-- [ ] 07-02-PLAN.md — Wire BackupManager into UI, add send-to-self and auto-save buttons, i18n, service worker update (BKUP-03)
+- [x] 07-01-PLAN.md — BackupManager module (backup.js) with ZIP export/import logic + self-hosted JSZip (BKUP-01, BKUP-02)
+- [x] 07-02-PLAN.md — Wire BackupManager into UI, add send-to-self and auto-save buttons, i18n, service worker update (BKUP-03)
+
+</details>
+
+---
+
+### 🚧 v1.1 Final Polish & Launch (In Progress)
+
+**Milestone Goal:** Polish the app for free trial users, fix UX pain points, update visual identity, and complete all launch prerequisites so the product can be sold.
+
+- [ ] **Phase 8: Terminology and Quick UX Fixes** - Update מפגש/לקוח terminology across all 4 languages; replace text action buttons with icon buttons
+- [ ] **Phase 9: Heart Shield Redesign** - Session-level Heart Shield toggle with removal tracking, client table indicators, and session type filter
+- [ ] **Phase 10: UX Power Features** - Photo crop/reposition after upload; edit client directly from add-session screen
+- [ ] **Phase 11: Visual Identity Update** - Garden decorations in app UI; updated logo; final app icon
+- [ ] **Phase 12: Launch Prerequisites** - Real Impressum and Datenschutzerklarung; Lemon Squeezy product setup; DE/CS translation verification; cross-browser and mobile QA
+
+## Phase Details
+
+### Phase 8: Terminology and Quick UX Fixes
+**Goal**: The app uses practitioner-appropriate terminology in all 4 languages and the clients table actions are compact and intuitive
+**Depends on**: Phase 7 (v1.0 complete)
+**Requirements**: UX-01, UX-02
+**Success Criteria** (what must be TRUE):
+  1. Every visible string that previously said "treatment" or "patient" (or equivalents in DE/CS/HE) now reads "session" or "client" across all 4 languages
+  2. The clients table shows a history icon and a plus icon instead of text buttons; hovering either shows a tooltip naming the action
+  3. Switching the app language and re-checking the clients table still shows icon buttons with correct tooltip text in the selected language
+**Plans**: TBD
+
+Plans:
+- [ ] 08-01-PLAN.md — Terminology sweep: update i18n files for EN/HE/DE/CS (UX-01)
+- [ ] 08-02-PLAN.md — Icon buttons with tooltips in clients table actions column (UX-02)
+
+### Phase 9: Heart Shield Redesign
+**Goal**: Heart Shield tracking works at the session level with visual indicators and filtering, replacing the old client-level approach
+**Depends on**: Phase 8
+**Requirements**: HSHLD-01, HSHLD-02, HSHLD-03
+**Success Criteria** (what must be TRUE):
+  1. When adding or editing a session, user can toggle "Heart Shield session" on or off; toggling it on reveals a required "Shield removed?" yes/no field
+  2. A client who has had a Heart Shield session and has not yet had it removed shows a heart icon next to their name in the clients table; after removal, the icon changes to a checkmark
+  3. The sessions list has a "session type" dropdown that filters to show all sessions, only Heart Shield sessions, or only regular sessions
+  4. Saving a Heart Shield session without answering "Shield removed?" is blocked with a visible validation message
+**Plans**: TBD
+
+Plans:
+- [ ] 09-01-PLAN.md — DB migration for Heart Shield session fields + form toggle and validation (HSHLD-01)
+- [ ] 09-02-PLAN.md — Heart icon in clients table + session type filter dropdown (HSHLD-02, HSHLD-03)
+
+### Phase 10: UX Power Features
+**Goal**: Users can adjust client photos after upload and edit client details without leaving the add-session flow
+**Depends on**: Phase 8
+**Requirements**: UX-03, UX-04
+**Success Criteria** (what must be TRUE):
+  1. After uploading a photo, user can drag to reposition it within the circular crop area and confirm the result before saving
+  2. The cropped/repositioned photo is what appears in the client card and throughout the app (not the raw uploaded image)
+  3. From the add-session screen, user can open an edit-client panel or modal without navigating away; changes saved there immediately reflect in the session form
+**Plans**: TBD
+
+Plans:
+- [ ] 10-01-PLAN.md — Photo crop/reposition UI: drag-to-position within circular canvas crop (UX-03)
+- [ ] 10-02-PLAN.md — Edit client shortcut from add-session screen (UX-04)
+
+### Phase 11: Visual Identity Update
+**Goal**: The app interior has botanical character matching the landing page, the logo is refreshed, and the app icon is final
+**Depends on**: Phase 8 (stable UI before decorating)
+**Requirements**: DSGN-05, DSGN-06, LNCH-05
+**Success Criteria** (what must be TRUE):
+  1. At least the home/overview page and one secondary page display botanical decorative elements (leaves, flowers, or garden motifs) that match the landing page aesthetic
+  2. The same updated logo appears in both the app header and the landing page header
+  3. The app icon (home screen / PWA install icon) is a final branded image, not a placeholder
+**Plans**: TBD
+
+Plans:
+- [ ] 11-01-PLAN.md — Botanical decorations added to app pages (DSGN-05)
+- [ ] 11-02-PLAN.md — Updated logo for app and landing page + final app icon (DSGN-06, LNCH-05)
+
+### Phase 12: Launch Prerequisites
+**Goal**: All legal content is real, the payment product is live, translations are verified, and the app passes a manual QA pass
+**Depends on**: Phases 9, 10, 11 (app must be feature-complete before QA)
+**Requirements**: LNCH-01, LNCH-02, LNCH-03, LNCH-04, LNCH-06
+**Success Criteria** (what must be TRUE):
+  1. The Impressum page shows Sapir's real business name, address, and contact details (not placeholder text)
+  2. The Datenschutzerklarung is a complete, generated privacy policy applicable to a local-only app sold in Germany
+  3. The Lemon Squeezy product is configured with real pricing; the landing page buy button links to the live checkout
+  4. A native DE or CS speaker (or Sapir) has reviewed and corrected the landing page German and Czech translations
+  5. The app opens and functions correctly in Chrome, Firefox, Safari, and Edge; Hebrew RTL layout has no breakage; the layout is usable on mobile viewport
+**Plans**: TBD
+
+Plans:
+- [ ] 12-01-PLAN.md — Impressum real content (requires Sapir to provide business details) (LNCH-01)
+- [ ] 12-02-PLAN.md — Datenschutzerklarung generated and integrated (LNCH-02)
+- [ ] 12-03-PLAN.md — Lemon Squeezy product setup (requires Sapir account + details) (LNCH-03)
+- [ ] 12-04-PLAN.md — DE/CS translation verification and corrections (LNCH-04)
+- [ ] 12-05-PLAN.md — Manual QA pass: cross-browser, RTL, mobile (LNCH-06)
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 1.1 -> 2 -> 2.1 -> 3 -> etc.
+Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Foundation | 3/3 | Complete   | 2026-03-09 |
-| 2. Visual Transformation | 3/3 | Complete | 2026-03-10 |
-| 3. Data Model and Features | 3/3 | Complete | 2026-03-10 |
-| 4. Internationalization and Distribution Research | 3/3 | Complete | 2026-03-12 |
-| 5. Legal and Production Packaging | 2/3 | In Progress|  |
-| 5.1 Landing Page Visual Redesign | 0/2 | Not started | - |
-| 5.2 Landing Page Polish | 0/3 | Not started | - |
-| 6. Quality and Developer Experience | 0/? | Not started | - |
-| 7. Investigate Data Backup Strategy | 1/2 | In Progress|  |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Foundation | v1.0 | 3/3 | Complete | 2026-03-09 |
+| 2. Visual Transformation | v1.0 | 3/3 | Complete | 2026-03-10 |
+| 3. Data Model and Features | v1.0 | 3/3 | Complete | 2026-03-10 |
+| 4. Internationalization and Distribution Research | v1.0 | 3/3 | Complete | 2026-03-12 |
+| 5. Legal and Production Packaging | v1.0 | 3/3 | Complete | - |
+| 5.1 Landing Page Visual Redesign | v1.0 | 2/2 | Complete | - |
+| 5.2 Landing Page Polish | v1.0 | 3/3 | Complete | - |
+| 6. Quality and Developer Experience | v1.0 | 2/2 | Complete | - |
+| 7. ZIP Backup Strategy | v1.0 | 2/2 | Complete | 2026-03-18 |
+| 8. Terminology and Quick UX Fixes | v1.1 | 0/2 | Not started | - |
+| 9. Heart Shield Redesign | v1.1 | 0/2 | Not started | - |
+| 10. UX Power Features | v1.1 | 0/2 | Not started | - |
+| 11. Visual Identity Update | v1.1 | 0/2 | Not started | - |
+| 12. Launch Prerequisites | v1.1 | 0/5 | Not started | - |
