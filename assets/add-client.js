@@ -266,8 +266,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     photoInput.addEventListener("change", async () => {
       const file = photoInput.files && photoInput.files[0];
       if (!file) return;
-      const rawDataURL = await readFileAsDataURL(file);
-      openCropModal(rawDataURL, false);
+      try {
+        const rawDataURL = await readFileAsDataURL(file);
+        openCropModal(rawDataURL, false);
+      } catch (err) {
+        console.error("Photo read failed:", err);
+        App.showToast("", "toast.errorGeneric");
+      }
     });
   }
 
