@@ -101,6 +101,11 @@
               <div id="clientSpotlightName" class="client-spotlight-name"></div>
               <div id="clientSpotlightAge" class="client-spotlight-age is-hidden"></div>
             </div>
+            <button type="button" class="edit-client-btn is-hidden" id="editClientBtn" data-i18n-title="session.editClient">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M11.5 1.5l3 3L5 14H2v-3L11.5 1.5z"/>
+              </svg>
+            </button>
           </div>
 
           <div id="inlineClientForm" class="card" style="margin-top:1.5rem; display:none;">
@@ -314,6 +319,77 @@
       <div class="modal-actions confirm-actions">
         <button class="button ghost" type="button" id="confirmCancelBtn" data-i18n="confirm.cancel">Cancel</button>
         <button class="button danger" type="button" id="confirmOkBtn" data-i18n="confirm.delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="editClientModal" class="modal is-hidden" role="dialog" aria-modal="true">
+    <div class="modal-overlay"></div>
+    <div class="modal-card edit-client-card">
+      <button class="modal-close" id="editClientClose" aria-label="Close"></button>
+      <h3 class="edit-client-title" data-i18n="session.editClient.title">Edit Client</h3>
+      <div class="edit-client-form">
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.firstName">First Name *</label>
+            <input class="input" id="editClientFirstName" type="text" required />
+          </div>
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.lastName">Last Name</label>
+            <input class="input" id="editClientLastName" type="text" />
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.birthDate">Date of Birth</label>
+            <input class="input" id="editClientBirthDate" type="date" />
+          </div>
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.email">Email</label>
+            <input class="input" id="editClientEmail" type="email" />
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.phone">Phone</label>
+            <input class="input" id="editClientPhone" type="tel" />
+          </div>
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.type">Client Type</label>
+            <div class="toggle-group toggle-group-sm" id="editClientTypeGroup">
+              <label class="toggle-card active"><input type="radio" name="editClientType" value="adult" checked /><span data-i18n="client.form.type.adult">Adult</span></label>
+              <label class="toggle-card"><input type="radio" name="editClientType" value="child" /><span data-i18n="client.form.type.child">Child</span></label>
+              <label class="toggle-card"><input type="radio" name="editClientType" value="animal" /><span data-i18n="client.form.type.animal">Animal</span></label>
+              <label class="toggle-card"><input type="radio" name="editClientType" value="other" /><span data-i18n="client.form.type.other">Other</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="label" data-i18n="client.form.photo">Client Photo (Optional)</label>
+          <input class="input" id="editClientPhoto" type="file" accept="image/*" capture="environment" />
+          <img id="editClientPhotoPreview" class="photo-preview is-hidden" alt="Client preview" />
+        </div>
+        <div class="form-field">
+          <label class="label" data-i18n="client.form.notes">Notes</label>
+          <textarea class="input" id="editClientNotes" rows="3"></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.referralSource">Referral Source</label>
+            <select class="select-field" id="editClientReferralSource">
+              <option value="" data-i18n="client.form.referral.placeholder">Select...</option>
+              <option value="wordOfMouth" data-i18n="client.form.referral.wordOfMouth">Word of mouth</option>
+              <option value="colleague" data-i18n="client.form.referral.colleague">Colleague/therapist referral</option>
+              <option value="internet" data-i18n="client.form.referral.internet">Internet search</option>
+              <option value="other" data-i18n="client.form.referral.other">Other</option>
+            </select>
+            <input class="input edit-client-referral-other" id="editClientReferralOther" type="text" style="display:none" data-i18n-placeholder="client.form.referral.otherPlaceholder" />
+          </div>
+        </div>
+        <div class="edit-client-actions">
+          <button type="button" class="button button-ghost" id="editClientCancelBtn" data-i18n="client.form.cancel">Cancel</button>
+          <button type="button" class="button button-primary" id="editClientSaveBtn" data-i18n="session.editClient.save">Save</button>
+        </div>
       </div>
     </div>
   </div>

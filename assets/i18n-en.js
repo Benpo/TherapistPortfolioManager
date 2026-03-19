@@ -208,7 +208,10 @@ window.I18N.en = {
   "crop.title": "Adjust Photo",
   "crop.confirm": "Confirm",
   "crop.cancel": "Cancel",
-  "crop.recrop": "Recrop"
+  "crop.recrop": "Recrop",
+  "session.editClient": "Edit Client",
+  "session.editClient.title": "Edit Client",
+  "session.editClient.save": "Save Changes"
 };
 
 window.QUOTES.en = [

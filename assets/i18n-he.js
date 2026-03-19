@@ -208,7 +208,10 @@ window.I18N.he = {
   "crop.title": "התאם תמונה",
   "crop.confirm": "אישור",
   "crop.cancel": "ביטול",
-  "crop.recrop": "חיתוך מחדש"
+  "crop.recrop": "חיתוך מחדש",
+  "session.editClient": "ערוך לקוח",
+  "session.editClient.title": "עריכת לקוח",
+  "session.editClient.save": "שמור שינויים"
 };
 
 window.QUOTES.he = [

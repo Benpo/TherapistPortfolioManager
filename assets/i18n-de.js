@@ -208,7 +208,10 @@ window.I18N.de = {
   "crop.title": "Foto anpassen",
   "crop.confirm": "Bestaetigen",
   "crop.cancel": "Abbrechen",
-  "crop.recrop": "Neu zuschneiden"
+  "crop.recrop": "Neu zuschneiden",
+  "session.editClient": "Klient bearbeiten",
+  "session.editClient.title": "Klient bearbeiten",
+  "session.editClient.save": "Aenderungen speichern"
 };
 
 window.QUOTES.de = [

@@ -208,7 +208,10 @@ window.I18N.cs = {
   "crop.title": "Upravit fotografii",
   "crop.confirm": "Potvrdit",
   "crop.cancel": "Zrusit",
-  "crop.recrop": "Orezat znovu"
+  "crop.recrop": "Orezat znovu",
+  "session.editClient": "Upravit klienta",
+  "session.editClient.title": "Upravit klienta",
+  "session.editClient.save": "Ulozit zmeny"
 };
 
 window.QUOTES.cs = [
