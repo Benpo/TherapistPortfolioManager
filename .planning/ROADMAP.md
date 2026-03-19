@@ -278,7 +278,7 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 5.2 Landing Page Polish | v1.0 | 3/3 | Complete | - |
 | 6. Quality and Developer Experience | v1.0 | 2/2 | Complete | - |
 | 7. ZIP Backup Strategy | v1.0 | 2/2 | Complete | 2026-03-18 |
-| 8. Terminology and Quick UX Fixes | v1.1 | 0/2 | Not started | - |
+| 8. Terminology and Quick UX Fixes | 1/2 | In Progress|  | - |
 | 9. Heart Shield Redesign | v1.1 | 0/2 | Not started | - |
 | 10. UX Power Features | v1.1 | 0/2 | Not started | - |
 | 11. Visual Identity Update | v1.1 | 0/2 | Not started | - |

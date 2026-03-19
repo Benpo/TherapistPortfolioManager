@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: planning
-stopped_at: Phase 8 context gathered
-last_updated: "2026-03-19T10:20:14.975Z"
+stopped_at: Completed 08-01-PLAN.md
+last_updated: "2026-03-19T10:36:28.881Z"
 last_activity: 2026-03-19 — v1.1 roadmap created; phases 8-12 defined
 progress:
   total_phases: 14
   completed_phases: 7
-  total_plans: 22
-  completed_plans: 21
+  total_plans: 24
+  completed_plans: 22
   percent: 0
 ---
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 08 P01 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,7 @@ Recent decisions affecting current work:
 - [Roadmap v1.1]: LNCH-01, LNCH-02, LNCH-03 flagged as partially manual — Sapir must supply business details and create Lemon Squeezy account
 - [Roadmap v1.1]: Phase 12 (QA) placed last — app must be feature-complete before QA pass
 - [Phase 07-investigate-data-backup-strategy]: ZIP backup format, normalizeManifest v0/v1 compat, replace-on-import strategy — see full log in STATE history
+- [Phase 08]: Hebrew subtitle changed to אנרגטיים; all מטופל replaced with לקוח; EN/CS additionalTech de-clinicalized; DE verified clean
 
 ### Pending Todos
 
@@ -81,6 +83,6 @@ These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
 
 ## Session Continuity
 
-Last session: 2026-03-19T10:20:14.964Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-terminology-and-quick-ux-fixes/08-CONTEXT.md
+Last session: 2026-03-19T10:36:28.879Z
+Stopped at: Completed 08-01-PLAN.md
+Resume file: None

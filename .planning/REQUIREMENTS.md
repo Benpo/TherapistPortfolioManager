@@ -9,7 +9,7 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 
 ### UX Polish
 
-- [ ] **UX-01**: Terminology updated to "מפגש/לקוח" (session/client) replacing "טיפול/מטופל" across all 4 languages
+- [x] **UX-01**: Terminology updated to "מפגש/לקוח" (session/client) replacing "טיפול/מטופל" across all 4 languages
 - [ ] **UX-02**: Actions column uses icon buttons (history 🕐, add +) with hover tooltips instead of text buttons
 - [ ] **UX-03**: User can crop/reposition client photo after upload
 - [ ] **UX-04**: User can edit client details directly from add-session screen without navigating away
@@ -89,7 +89,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UX-01 | Phase 8 | Pending |
+| UX-01 | Phase 8 | Complete |
 | UX-02 | Phase 8 | Pending |
 | UX-03 | Phase 10 | Pending |
 | UX-04 | Phase 10 | Pending |
