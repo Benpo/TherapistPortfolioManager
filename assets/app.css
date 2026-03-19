@@ -540,7 +540,7 @@ a {
 
 .edit-client-btn {
   position: absolute;
-  inset-inline-end: 0.75rem;
+  inset-inline-start: 0.75rem;
   top: 0.75rem;
   background: var(--color-surface-modal-close);
   border: 0;
@@ -1371,4 +1371,85 @@ body.read-mode .heart-shield-section input {
 
 .crop-recrop-btn {
   margin-top: 0.5rem;
+}
+
+/* ---- App botanical decorations (home page only) ---- */
+
+.app-botanical {
+  pointer-events: none;
+  user-select: none;
+  text-align: center;
+  overflow: hidden;
+}
+
+.app-botanical-img {
+  display: block;
+  margin-inline: auto;
+  height: auto;
+  opacity: 0.5;
+  filter: brightness(1.1);
+  mix-blend-mode: multiply;
+}
+
+/* Flower pot near greeting — small, positioned to the side */
+.app-botanical-greeting {
+  display: flex;
+  justify-content: flex-end;
+  padding-inline-end: 1rem;
+  margin-block: -0.5rem 0.5rem;
+}
+
+.app-botanical-greeting .app-botanical-img {
+  width: 120px;
+  opacity: 0.4;
+}
+
+/* Garden divider between stats and clients table */
+.app-botanical-divider {
+  padding: 0.5rem 0;
+}
+
+.app-botanical-divider-img {
+  max-inline-size: min(500px, 85vw);
+  opacity: 0.55;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10% 90%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 10% 90%, transparent 100%);
+}
+
+/* Watering can at footer — centered, subtle */
+.app-botanical-footer {
+  padding: 1.5rem 0 0.5rem;
+}
+
+.app-botanical-footer .app-botanical-img {
+  width: 100px;
+  opacity: 0.35;
+}
+
+/* Dark mode treatment — same pattern as landing page */
+[data-theme="dark"] .app-botanical-img {
+  filter: invert(1);
+  opacity: 0.3;
+  mix-blend-mode: screen;
+}
+
+[data-theme="dark"] .app-botanical-greeting .app-botanical-img {
+  opacity: 0.2;
+}
+
+[data-theme="dark"] .app-botanical-footer .app-botanical-img {
+  opacity: 0.2;
+}
+
+/* Responsive — shrink elements on small screens */
+@media (max-width: 600px) {
+  .app-botanical-greeting .app-botanical-img {
+    width: 80px;
+  }
+  .app-botanical-divider-img {
+    max-inline-size: min(300px, 80vw);
+  }
+  .app-botanical-footer .app-botanical-img {
+    width: 70px;
+  }
 }
