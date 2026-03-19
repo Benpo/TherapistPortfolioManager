@@ -23,7 +23,7 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 ### Design
 
 - [x] **DSGN-05**: Botanical/garden decorative elements added to app pages (inspired by landing page style)
-- [x] **DSGN-06**: Updated logo for app and landing page
+- [x] **DSGN-06**: Finalize app logo identity (leaf SVG confirmed as final after visual review of alternatives)
 
 ### Launch
 
