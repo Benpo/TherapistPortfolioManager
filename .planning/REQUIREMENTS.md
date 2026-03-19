@@ -22,7 +22,7 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 
 ### Design
 
-- [ ] **DSGN-05**: Botanical/garden decorative elements added to app pages (inspired by landing page style)
+- [x] **DSGN-05**: Botanical/garden decorative elements added to app pages (inspired by landing page style)
 - [ ] **DSGN-06**: Updated logo for app and landing page
 
 ### Launch
@@ -96,7 +96,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HSHLD-01 | Phase 9 | Complete |
 | HSHLD-02 | Phase 9 | Complete |
 | HSHLD-03 | Phase 9 | Complete |
-| DSGN-05 | Phase 11 | Pending |
+| DSGN-05 | Phase 11 | Complete |
 | DSGN-06 | Phase 11 | Pending |
 | LNCH-01 | Phase 12 | Pending |
 | LNCH-02 | Phase 12 | Pending |
