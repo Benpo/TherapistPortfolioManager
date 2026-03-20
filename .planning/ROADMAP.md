@@ -177,7 +177,7 @@ Plans:
 **Goal:** Every greeting quote across all 4 languages sounds natural and idiomatic, has verified attribution, follows Hebrew gender rules, and maintains the healing/inspirational tone
 **Requirements**: QUOTE-01, QUOTE-02, QUOTE-03
 **Depends on:** Phase 12
-**Plans:** 1 plans
+**Plans:** 1/1 plans complete
 
 Plans:
 - [ ] 13-01-PLAN.md — Review and fix all quotes: EN attribution verification + HE/DE/CS native idiom sync (QUOTE-01, QUOTE-02, QUOTE-03)
