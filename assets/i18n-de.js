@@ -215,13 +215,13 @@ window.I18N.de = {
 };
 
 window.QUOTES.de = [
-  // Custom quotes
+  // Eigene Zitate (ohne Autor)
   { text: "Heilung beginnt, wenn sich jemand wirklich gesehen fühlt" },
   { text: "Jede freigesetzte Emotion ist ein Schritt zur inneren Freiheit" },
   { text: "Energie fließt dorthin, wohin die Absicht führt" },
   { text: "Der Körper erinnert sich an das, was Worte vergessen" },
-  { text: "Ein kleines Licht in der Dunkelheit ist mehr wert als tausend Worte" },
-  { text: "Wenn du andere heilst, heilst du auch dich selbst" },
+  { text: "Selbst ein kleines Licht kann die Dunkelheit verändern" },
+  { text: "Wenn wir anderen bei der Heilung helfen, heilt in uns etwas mit" },
   { text: "Deine Anwesenheit allein ist bereits der Beginn der Heilung" },
   { text: "Hinter jedem Schmerz verbirgt sich eine Kraft, die darauf wartet zu erwachen" },
   { text: "Wahre Veränderung geschieht, wenn die Seele bereit ist" },
@@ -231,13 +231,13 @@ window.QUOTES.de = [
   { text: "Heilung ist keine Reparatur — es ist eine Rückkehr zur Ganzheit" },
   { text: "Dem Prozess zu vertrauen ist die halbe Heilung" },
   { text: "Jeder Atemzug ist eine Chance, neu zu beginnen" },
-  { text: "Die Verbindung zwischen Heiler und Klient ist fruchtbarer Boden für Wachstum" },
+  { text: "Die Verbindung zwischen Therapeut und Klient ist fruchtbarer Boden für Wachstum" },
   { text: "Auch die Stille ist Teil der Heilung" },
   { text: "Heilung ist eine Reise — kein Ziel" },
   { text: "Das Licht in dir hilft anderen, ihr eigenes zu finden" },
   { text: "Die tiefste Heilung geschieht in einem Raum der Liebe" },
   { text: "Manchmal beginnt Genesung damit, einfach da zu sein" },
-  { text: "Deine Energie ist das größte Geschenk, das du geben kannst" },
+  { text: "Deine Energie ist das größte Geschenk, das du anbieten kannst" },
   { text: "Jeder Klient, der zu dir kommt, kommt genau zur richtigen Zeit" },
   { text: "Der Körper spricht — wir müssen nur lernen zuzuhören" },
   { text: "Wahre Stärke lebt in der Sanftheit" },
@@ -246,16 +246,16 @@ window.QUOTES.de = [
   { text: "Die größte Veränderung beginnt mit dem kleinsten Schritt" },
   { text: "Die Seele weiß, was sie braucht — vertraue ihr" },
   { text: "Ein sicherer Raum ist die Grundlage jeder Transformation" },
-  // Famous quotes
+  // Bekannte Zitate (mit Autor)
+  { text: "Jenseits von Richtig und Falsch liegt ein Feld. Ich werde dich dort treffen", author: "Rumi" },
   { text: "Lächle, atme und gehe langsam", author: "Thich Nhat Hanh" },
-  { text: "Das wahre Wunder ist, gewöhnliche Dinge mit Achtsamkeit zu tun", author: "Thich Nhat Hanh" },
   { text: "Wer nach außen schaut, träumt; wer nach innen schaut, erwacht", author: "Carl Jung" },
   { text: "Wir können nichts verändern, solange wir es nicht akzeptieren", author: "Carl Jung" },
-  { text: "Mitgefühl ist die Sprache der Welt", author: "Dalai Lama" },
-  { text: "Sei die Veränderung, die du in der Welt sehen möchtest", author: "Mahatma Gandhi" },
-  { text: "Alles was wir sind, ist das Ergebnis dessen, was wir gedacht haben", author: "Buddha" },
-  { text: "Ein Licht genügt, um alle Dunkelheit zu erhellen", author: "Nelson Mandela" },
-  { text: "Mut ist nicht die Abwesenheit von Angst, sondern die Fähigkeit, trotz Angst zu handeln", author: "Brené Brown" },
-  { text: "Gehe nicht hinter mir, ich führe vielleicht nicht. Gehe nicht vor mir, ich folge vielleicht nicht. Gehe neben mir und sei mein Freund", author: "Albert Camus" },
-  { text: "Frieden kommt von innen. Suche ihn nicht außerhalb", author: "Buddha" }
+  { text: "Frage nicht, was die Welt braucht. Frage, was dich lebendig macht — denn die Welt braucht Menschen, die lebendig sind", author: "Howard Thurman" },
+  { text: "Alles, was wir sind, ist das Ergebnis dessen, was wir gedacht haben", author: "Buddha" },
+  { text: "Der gegenwärtige Moment ist der einzige Moment, der uns gehört, und er ist die Tür zu allen Momenten", author: "Thich Nhat Hanh" },
+  { text: "Mitgefühl ist keine Beziehung zwischen Heiler und Verwundetem — es ist eine Beziehung unter Gleichen", author: "Pema Chödrön" },
+  { text: "Das merkwürdige Paradox ist: Wenn ich mich selbst so annehme, wie ich bin, dann kann ich mich verändern", author: "Carl Rogers" },
+  { text: "In der Mitte jeder Schwierigkeit liegt eine Möglichkeit", author: "Albert Einstein" },
+  { text: "Was hinter uns liegt und was vor uns liegt, sind winzige Angelegenheiten verglichen mit dem, was in uns liegt", author: "Ralph Waldo Emerson" }
 ];

@@ -215,13 +215,13 @@ window.I18N.cs = {
 };
 
 window.QUOTES.cs = [
-  // Custom quotes (no author)
+  // Vlastní citáty (bez autora)
   { text: "Léčení začíná ve chvíli, kdy se někdo cítí skutečně viděn" },
   { text: "Každá uvolněná emoce je krokem k vnitřní svobodě" },
   { text: "Energie proudí tam, kam směřuje záměr" },
   { text: "Tělo si pamatuje, co slova zapomínají" },
-  { text: "Malé světlo ve tmě má větší cenu než tisíc slov" },
-  { text: "Když léčíte druhé, léčíte i sebe" },
+  { text: "Malé světlo ve tmě dokáže změnit vše" },
+  { text: "Když pomáháme druhým léčit se, léčí se i v nás něco spolu s nimi" },
   { text: "Vaše přítomnost je již začátkem léčení" },
   { text: "Za každou bolestí se skrývá síla čekající na probuzení" },
   { text: "Skutečná změna nastává, když je duše připravena" },
@@ -231,13 +231,13 @@ window.QUOTES.cs = [
   { text: "Léčení není oprava — je to návrat k celistvosti" },
   { text: "Důvěra v proces je polovina léčení" },
   { text: "Každý nádech je šance začít znovu" },
-  { text: "Pouto mezi léčitelem a klientem je úrodnou půdou pro růst" },
+  { text: "Pouto mezi terapeutem a klientem je úrodnou půdou pro růst" },
   { text: "I ticho je součástí léčení" },
   { text: "Léčení je cesta — ne cíl" },
   { text: "Světlo ve vás pomáhá ostatním najít to jejich" },
   { text: "Nejhlubší léčení se děje v prostoru lásky" },
   { text: "Někdy uzdravení začíná tím, že prostě jste přítomni" },
-  { text: "Vaše energie je ten největší dar, který můžete dát" },
+  { text: "Vaše energie je ten největší dar, který můžete nabídnout" },
   { text: "Každý klient, který k vám přijde, přichází přesně ve správný čas" },
   { text: "Tělo mluví — stačí se naučit naslouchat" },
   { text: "Skutečná síla žije v jemnosti" },
@@ -246,16 +246,16 @@ window.QUOTES.cs = [
   { text: "Největší změna začíná tím nejmenším krokem" },
   { text: "Duše ví, co potřebuje — důvěřujte jí" },
   { text: "Bezpečný prostor je základem každé transformace" },
-  // Famous quotes (with author)
+  // Slavné citáty (s autorem)
+  { text: "Za hranicemi dobra a zla je pole. Setkám se s vámi tam", author: "Rúmí" },
   { text: "Usmívejte se, dýchejte a jděte pomalu", author: "Thich Nhat Hanh" },
-  { text: "Skutečný zázrak je dělat obyčejné věci s uvědoměním", author: "Thich Nhat Hanh" },
-  { text: "Kdo hledí ven, sní; kdo hledí dovnitř, probírá se", author: "Carl Jung" },
+  { text: "Kdo hledí ven, sní; kdo hledí dovnitř, probouzí se", author: "Carl Jung" },
   { text: "Nemůžeme nic změnit, dokud to nepřijmeme", author: "Carl Jung" },
-  { text: "Soucit je jazykem světa", author: "Dalajláma" },
-  { text: "Buďte změnou, kterou chcete vidět ve světě", author: "Mahátma Gándhí" },
+  { text: "Neptejte se, co svět potřebuje. Ptejte se, co vás oživuje — protože svět potřebuje lidi, kteří jsou plní života", author: "Howard Thurman" },
   { text: "Vše, co jsme, je výsledkem toho, co jsme mysleli", author: "Buddha" },
-  { text: "Jedno světlo stačí k osvětlení vší temnoty", author: "Nelson Mandela" },
-  { text: "Odvaha není nepřítomnost strachu, ale schopnost jednat navíc", author: "Brené Brown" },
-  { text: "Nejděž za mnou, nemusela bych vést. Nejdi přede mnou, nemusela bych následovat. Jdi vedle mě a buď můj přítel", author: "Albert Camus" },
-  { text: "Mír přichází zevnitř. Nehledejte ho venku", author: "Buddha" }
+  { text: "Přítomný okamžik je jediný okamžik, který nám patří, a je branou ke všem ostatním", author: "Thich Nhat Hanh" },
+  { text: "Soucit není vztah mezi léčitelem a zraněným — je to vztah mezi rovnými", author: "Pema Chödrön" },
+  { text: "Podivný paradox spočívá v tom, že když přijmu sám sebe takového, jaký jsem, pak se mohu změnit", author: "Carl Rogers" },
+  { text: "Uprostřed každé obtíže leží příležitost", author: "Albert Einstein" },
+  { text: "To, co leží za námi, a to, co leží před námi, jsou maličkosti ve srovnání s tím, co leží v nás", author: "Ralph Waldo Emerson" }
 ];
