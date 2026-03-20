@@ -172,6 +172,16 @@ Plans:
 
 </details>
 
+### Phase 13: Review and fix greeting quotes
+
+**Goal:** Every greeting quote across all 4 languages sounds natural and idiomatic, has verified attribution, follows Hebrew gender rules, and maintains the healing/inspirational tone
+**Requirements**: QUOTE-01, QUOTE-02, QUOTE-03
+**Depends on:** Phase 12
+**Plans:** 1 plans
+
+Plans:
+- [ ] 13-01-PLAN.md — Review and fix all quotes: EN attribution verification + HE/DE/CS native idiom sync (QUOTE-01, QUOTE-02, QUOTE-03)
+
 ---
 
 ### v1.1 Final Polish & Launch (In Progress)
