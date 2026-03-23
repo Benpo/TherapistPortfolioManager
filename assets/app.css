@@ -1500,3 +1500,108 @@ body.read-mode .heart-shield-section input {
     width: 70px;
   }
 }
+
+/* === DB Error Banners === */
+.db-error-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-md, 12px) var(--space-lg, 16px);
+  text-align: center;
+  z-index: 10000;
+  font-family: var(--font-family, Rubik, system-ui, sans-serif);
+  font-size: var(--text-base, 14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.db-error-banner--blocked {
+  background: var(--color-warning-bg, #fff3cd);
+  color: var(--color-warning-text, #856404);
+}
+
+.db-error-banner--version {
+  background: var(--color-info-bg, #cce5ff);
+  color: var(--color-info-text, #004085);
+}
+
+.db-error-banner--migration {
+  background: var(--color-danger-bg, #f8d7da);
+  color: var(--color-danger-text, #721c24);
+}
+
+.db-error-btn {
+  margin-top: var(--space-sm, 4px);
+  padding: var(--space-xs, 2px) var(--space-md, 12px);
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  font-family: var(--font-family, Rubik, system-ui, sans-serif);
+  font-size: var(--text-sm, 13px);
+  font-weight: 600;
+  background: var(--color-primary, #2d6a4f);
+  color: var(--color-text-inverse, #fff);
+}
+
+.db-error-btn:hover {
+  opacity: 0.9;
+}
+
+/* ── Backup Reminder Banner ──────────────────────────────────────── */
+
+.backup-reminder-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm, 8px);
+  padding: var(--space-sm, 8px) var(--space-md, 16px);
+  background: var(--color-primary-soft, #c8e6d4);
+  border-bottom: 1px solid var(--color-border, rgba(45, 106, 79, 0.2));
+  font-family: var(--font-family, Rubik, system-ui, sans-serif);
+  font-size: var(--text-sm, 14px);
+  color: var(--color-text, #2f2d38);
+}
+
+.backup-reminder-btn {
+  padding: var(--space-xs, 6px) var(--space-md, 14px);
+  border: 1px solid var(--color-border, rgba(45, 106, 79, 0.2));
+  border-radius: var(--radius-sm, 8px);
+  background: transparent;
+  color: var(--color-text, #2f2d38);
+  cursor: pointer;
+  font-family: var(--font-family, Rubik, system-ui, sans-serif);
+  font-size: var(--text-sm, 13px);
+  white-space: nowrap;
+}
+
+.backup-reminder-btn:hover {
+  background: var(--color-surface-hover, rgba(45, 106, 79, 0.08));
+}
+
+.backup-reminder-btn--primary {
+  background: var(--color-primary, #2d6a4f);
+  color: var(--color-surface, #fff);
+  border-color: var(--color-primary, #2d6a4f);
+  font-weight: 600;
+}
+
+.backup-reminder-btn--primary:hover {
+  opacity: 0.9;
+}
+
+.backup-reminder-btn--close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--color-text-muted, #5f5c72);
+  padding: 0 4px;
+}
+
+.backup-reminder-btn--close:hover {
+  color: var(--color-text, #2f2d38);
+}

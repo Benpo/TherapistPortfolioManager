@@ -2,6 +2,43 @@ window.PortfolioDB = (() => {
   const DB_NAME = window.name === "demo-mode" ? "demo_portfolio" : "emotion_code_portfolio";
   const DB_VERSION = 3;
 
+  const DB_STRINGS = {
+    en: {
+      blocked: "Please close other tabs of this app to continue.",
+      versionChanged: "A newer version of this app is open. Please refresh to continue.",
+      refresh: "Refresh",
+      migrationFailed: "Database update failed. Your data is safe. Please refresh the page to try again.",
+      refreshPage: "Refresh page"
+    },
+    he: {
+      blocked: "נא לסגור כרטיסיות אחרות של האפליקציה כדי להמשיך.",
+      versionChanged: "גרסה חדשה יותר של האפליקציה פתוחה. נא לרענן כדי להמשיך.",
+      refresh: "רענון",
+      migrationFailed: "עדכון מסד הנתונים נכשל. הנתונים שלך בטוחים. נא לרענן את הדף ולנסות שוב.",
+      refreshPage: "רענון דף"
+    },
+    de: {
+      blocked: "Bitte schliesse andere Tabs dieser App, um fortzufahren.",
+      versionChanged: "Eine neuere Version dieser App ist geoeffnet. Bitte aktualisiere, um fortzufahren.",
+      refresh: "Aktualisieren",
+      migrationFailed: "Datenbankaktualisierung fehlgeschlagen. Deine Daten sind sicher. Bitte lade die Seite neu und versuche es erneut.",
+      refreshPage: "Seite aktualisieren"
+    },
+    cs: {
+      blocked: "Pro pokracovani prosim zavri ostatni karty teto aplikace.",
+      versionChanged: "Je otevrena novejsi verze teto aplikace. Pro pokracovani prosim obnov stranku.",
+      refresh: "Obnovit",
+      migrationFailed: "Aktualizace databaze se nezdarila. Tvoje data jsou v bezpeci. Prosim obnov stranku a zkus to znovu.",
+      refreshPage: "Obnovit stranku"
+    }
+  };
+
+  function dbStr(key) {
+    var lang = localStorage.getItem('portfolioLang') || 'en';
+    var strings = DB_STRINGS[lang] || DB_STRINGS.en;
+    return strings[key] || DB_STRINGS.en[key] || key;
+  }
+
   const MIGRATIONS = {
     1: function initializeSchema(db) {
       // v1: original schema — only runs on fresh installs (oldVersion === 0)
@@ -120,20 +157,8 @@ window.PortfolioDB = (() => {
     const banner = document.createElement("div");
     banner.id = "dbBlockedBanner";
     banner.setAttribute("role", "alert");
-    banner.style.cssText = [
-      "position:fixed",
-      "top:0",
-      "left:0",
-      "right:0",
-      "z-index:9999",
-      "background:var(--color-danger, #ea4b4b)",
-      "color:#fff",
-      "padding:12px 16px",
-      "text-align:center",
-      "font-family:Rubik,system-ui,sans-serif",
-      "font-size:14px",
-    ].join(";");
-    banner.textContent = "Please close other tabs of this app to continue.";
+    banner.className = "db-error-banner db-error-banner--blocked";
+    banner.textContent = dbStr('blocked');
     document.body.prepend(banner);
   }
 
@@ -145,30 +170,14 @@ window.PortfolioDB = (() => {
     const banner = document.createElement("div");
     banner.id = "dbVersionChangedBanner";
     banner.setAttribute("role", "alert");
-    banner.style.cssText = [
-      "position:fixed",
-      "top:0",
-      "left:0",
-      "right:0",
-      "z-index:9999",
-      "background:var(--color-primary, #7c66ff)",
-      "color:#fff",
-      "padding:12px 16px",
-      "text-align:center",
-      "font-family:Rubik,system-ui,sans-serif",
-      "font-size:14px",
-      "display:flex",
-      "align-items:center",
-      "justify-content:center",
-      "gap:12px",
-    ].join(";");
+    banner.className = "db-error-banner db-error-banner--version";
 
     const msg = document.createElement("span");
-    msg.textContent = "A newer version of this app is open. Please refresh to continue.";
+    msg.textContent = dbStr('versionChanged');
 
     const btn = document.createElement("button");
-    btn.textContent = "Refresh";
-    btn.style.cssText = "background:#fff;color:var(--color-primary,#7c66ff);border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-weight:600;";
+    btn.textContent = dbStr('refresh');
+    btn.className = "db-error-btn";
     btn.onclick = () => location.reload();
 
     banner.append(msg, btn);
@@ -184,30 +193,14 @@ window.PortfolioDB = (() => {
     const banner = document.createElement("div");
     banner.id = "dbMigrationErrorBanner";
     banner.setAttribute("role", "alert");
-    banner.style.cssText = [
-      "position:fixed",
-      "top:0",
-      "left:0",
-      "right:0",
-      "z-index:9999",
-      "background:var(--color-danger, #ea4b4b)",
-      "color:#fff",
-      "padding:12px 16px",
-      "text-align:center",
-      "font-family:Rubik,system-ui,sans-serif",
-      "font-size:14px",
-      "display:flex",
-      "align-items:center",
-      "justify-content:center",
-      "gap:12px",
-    ].join(";");
+    banner.className = "db-error-banner db-error-banner--migration";
 
     const msg = document.createElement("span");
-    msg.textContent = "Database update failed. Your data is safe. Please refresh the page to try again.";
+    msg.textContent = dbStr('migrationFailed');
 
     const btn = document.createElement("button");
-    btn.textContent = "Refresh page";
-    btn.style.cssText = "background:#fff;color:var(--color-danger,#ea4b4b);border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-weight:600;";
+    btn.textContent = dbStr('refreshPage');
+    btn.className = "db-error-btn";
     btn.onclick = () => location.reload();
 
     banner.append(msg, btn);
@@ -226,8 +219,8 @@ window.PortfolioDB = (() => {
   }
 
   async function addRecord(storeName, record) {
-    return new Promise(async (resolve, reject) => {
-      const db = await openDB();
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
       const tx = db.transaction(storeName, "readwrite");
       const store = tx.objectStore(storeName);
       const request = store.add(record);
@@ -245,8 +238,8 @@ window.PortfolioDB = (() => {
   }
 
   async function getClient(id) {
-    return new Promise(async (resolve, reject) => {
-      const db = await openDB();
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
       const tx = db.transaction("clients", "readonly");
       const store = tx.objectStore("clients");
       const request = store.get(id);
@@ -256,8 +249,8 @@ window.PortfolioDB = (() => {
   }
 
   async function getAllClients() {
-    return new Promise(async (resolve, reject) => {
-      const db = await openDB();
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
       const tx = db.transaction("clients", "readonly");
       const store = tx.objectStore("clients");
       const request = store.getAll();
@@ -267,8 +260,8 @@ window.PortfolioDB = (() => {
   }
 
   async function getSession(id) {
-    return new Promise(async (resolve, reject) => {
-      const db = await openDB();
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
       const tx = db.transaction("sessions", "readonly");
       const store = tx.objectStore("sessions");
       const request = store.get(id);
@@ -290,8 +283,8 @@ window.PortfolioDB = (() => {
   }
 
   async function getAllSessions() {
-    return new Promise(async (resolve, reject) => {
-      const db = await openDB();
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
       const tx = db.transaction("sessions", "readonly");
       const store = tx.objectStore("sessions");
       const request = store.getAll();
@@ -310,8 +303,8 @@ window.PortfolioDB = (() => {
   }
 
   async function getSessionsByClient(clientId) {
-    return new Promise(async (resolve, reject) => {
-      const db = await openDB();
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
       const tx = db.transaction("sessions", "readonly");
       const store = tx.objectStore("sessions");
       const index = store.index("clientId");

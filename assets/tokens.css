@@ -102,6 +102,13 @@
   --color-text-meta: var(--color-green-deeper);
   --color-success: var(--color-success-green);
   --color-danger: var(--color-red-500);
+  --color-danger-bg: #f8d7da;
+  --color-danger-text: #721c24;
+  --color-warning-bg: #fff3cd;
+  --color-warning-text: #856404;
+  --color-info-bg: #cce5ff;
+  --color-info-text: #004085;
+  --color-text-inverse: #ffffff;
   --color-heartwall-badge: var(--color-heartwall);
   --color-border: var(--color-green-border);
   --color-border-soft: var(--color-green-border-soft);
