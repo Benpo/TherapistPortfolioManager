@@ -1612,3 +1612,19 @@ body.read-mode .heart-shield-section input {
 .backup-reminder-btn--close:hover {
   color: var(--color-text, #2f2d38);
 }
+
+/* ── License Link (header) ───────────────────────────────────────── */
+
+.header-license-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+.header-license-link:hover {
+  color: var(--color-primary);
+}

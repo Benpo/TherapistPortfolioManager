@@ -9,6 +9,7 @@ window.I18N.de = {
   "nav.reporting": "Statistiken",
   "nav.addClient": "Neuer Klient",
   "nav.addSession": "Neue Sitzung",
+  "nav.license": "Lizenz",
   "overview.title": "Übersicht",
   "overview.stats.clients": "Klienten gesamt",
   "overview.stats.sessions": "Sitzungen gesamt",
@@ -259,5 +260,7 @@ window.QUOTES.de = [
   { text: "Mitgefühl ist keine Beziehung zwischen einem Heiler und einem Verwundeten — es ist eine Beziehung unter Gleichen", author: "Pema Chödrön" },
   { text: "Das merkwürdige Paradox ist: Wenn ich mich selbst so annehme, wie ich bin, kann ich mich verändern", author: "Carl Rogers" },
   { text: "Inmitten jeder Schwierigkeit liegt eine Möglichkeit", author: "Albert Einstein" },
-  { text: "Was hinter uns liegt und was vor uns liegt, ist nichts im Vergleich zu dem, was in uns liegt.", author: "Ralph Waldo Emerson" }
+  { text: "Was hinter uns liegt und was vor uns liegt, ist nichts im Vergleich zu dem, was in uns liegt.", author: "Ralph Waldo Emerson" },
+  { text: "Wenn ich loslasse, was ich bin, werde ich, was ich sein könnte", author: "Lao Tzu" },
+  { text: "Wenn du etwas wirklich willst, verschwört sich das ganze Universum, um dir zu helfen, es zu erreichen", author: "Paulo Coelho" }
 ];

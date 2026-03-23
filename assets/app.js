@@ -110,10 +110,24 @@ window.App = (() => {
     document.addEventListener('app:language', updateBanner);
   }
 
+  function initLicenseLink() {
+    var actions = document.querySelector('.header-actions');
+    if (!actions) return;
+    var link = document.createElement('a');
+    link.href = './license.html';
+    link.className = 'header-license-link';
+    link.setAttribute('aria-label', t('nav.license') || 'License');
+    link.setAttribute('title', t('nav.license') || 'License');
+    // Key SVG icon (16x16)
+    link.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>';
+    actions.prepend(link);
+  }
+
   function initCommon() {
     initDemoMode();
     renderNav();
     initThemeToggle();
+    initLicenseLink();
     const savedLang = localStorage.getItem("portfolioLang") || window.I18N_DEFAULT || "en";
     const select = document.getElementById("languageSelect");
     setLanguage(savedLang);
@@ -380,6 +394,7 @@ window.App = (() => {
     initCommon,
     renderNav,
     initThemeToggle,
+    initLicenseLink,
     showToast,
     confirmDialog,
     formatDate,

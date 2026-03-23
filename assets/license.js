@@ -225,6 +225,16 @@ document.addEventListener('DOMContentLoaded', function () {
     showMessage(strings.reactivateMsg, false);
   }
 
+  // Auto-populate ?key= from URL (post-purchase redirect from Lemon Squeezy)
+  var keyParams = new URLSearchParams(window.location.search);
+  var keyFromUrl = keyParams.get('key');
+  if (keyFromUrl && el('license-key-input')) {
+    el('license-key-input').value = keyFromUrl.trim();
+    // Focus the activate button for one-click activation
+    var activateBtn = document.getElementById('activate-btn') || el('license-activate-btn');
+    if (activateBtn) activateBtn.focus();
+  }
+
   // Activate button click handler
   el('license-activate-btn').addEventListener('click', handleActivate);
 

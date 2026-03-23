@@ -9,6 +9,7 @@ window.I18N.cs = {
   "nav.reporting": "Přehledy",
   "nav.addClient": "Přidat klienta",
   "nav.addSession": "Přidat sezení",
+  "nav.license": "Licence",
   "overview.title": "Přehled",
   "overview.stats.clients": "Celkem klientů",
   "overview.stats.sessions": "Celkem sezení",
@@ -259,5 +260,7 @@ window.QUOTES.cs = [
   { text: "Soucit není vztah mezi léčitelem a tím, kdo trpí — je to vztah mezi rovnými", author: "Pema Chödrön" },
   { text: "Podivný paradox spočívá v tom, že když přijmu sám sebe takového, jaký jsem, mohu se změnit", author: "Carl Rogers" },
   { text: "Uprostřed každé obtíže se skrývá příležitost", author: "Albert Einstein" },
-  { text: "To, co je za námi, a to, co je před námi, jsou maličkosti ve srovnání s tím, co je v nás", author: "Ralph Waldo Emerson" }
+  { text: "To, co je za námi, a to, co je před námi, jsou maličkosti ve srovnání s tím, co je v nás", author: "Ralph Waldo Emerson" },
+  { text: "Když pustím to, čím jsem, stanu se tím, čím bych mohl být", author: "Lao Tzu" },
+  { text: "Když něco opravdu chceš, celý vesmír se spolčí, aby ti pomohl toho dosáhnout", author: "Paulo Coelho" }
 ];

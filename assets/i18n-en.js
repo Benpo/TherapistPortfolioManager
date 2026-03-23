@@ -9,6 +9,7 @@ window.I18N.en = {
   "nav.reporting": "Reporting",
   "nav.addClient": "Add Client",
   "nav.addSession": "Add Session",
+  "nav.license": "License",
   "overview.title": "Overview",
   "overview.stats.clients": "Total Clients",
   "overview.stats.sessions": "Total Sessions",
@@ -259,5 +260,7 @@ window.QUOTES.en = [
   { text: "Compassion is not a relationship between the healer and the wounded. It's a relationship between equals", author: "Pema Chödrön" },
   { text: "The curious paradox is that when I accept myself just as I am, then I can change", author: "Carl Rogers" },
   { text: "In the middle of difficulty lies opportunity", author: "Albert Einstein" },
-  { text: "What lies behind us and what lies before us are tiny matters compared to what lies within us", author: "Ralph Waldo Emerson" }
+  { text: "What lies behind us and what lies before us are tiny matters compared to what lies within us", author: "Ralph Waldo Emerson" },
+  { text: "When I let go of what I am, I become what I might be", author: "Lao Tzu" },
+  { text: "When you want something, all the universe conspires in helping you to achieve it", author: "Paulo Coelho" }
 ];
