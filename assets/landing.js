@@ -117,6 +117,7 @@ var LANDING_I18N = {
     demoHint3: 'Check the severity scale \u2014 rate before and after each session, and watch the numbers tell the story of healing over time.',
     contactTitle: 'Get in touch',
     contactText: 'Have questions or need help? We\'d love to hear from you.',
+    priceNote: 'Launch pricing \u00b7 One-time purchase \u00b7 Lifetime license',
     footerTerms: 'Terms of Use',
     footerImpressum: 'Impressum',
     footerPrivacy: 'Privacy Policy',
@@ -223,6 +224,7 @@ var LANDING_I18N = {
     demoHint3: 'שימו לב לסולם החומרה — דרגו לפני ואחרי כל טיפול, וצפו במספרים מספרים את סיפור הריפוי.',
     contactTitle: 'צרו קשר',
     contactText: 'יש לכם שאלות או צריכים עזרה? נשמח לשמוע מכם.',
+    priceNote: '\u05de\u05d7\u05d9\u05e8 \u05d4\u05e9\u05e7\u05d4 \u00b7 \u05e8\u05db\u05d9\u05e9\u05d4 \u05d7\u05d3-\u05e4\u05e2\u05de\u05d9\u05ea \u00b7 \u05e8\u05d9\u05e9\u05d9\u05d5\u05df \u05dc\u05db\u05dc \u05d4\u05d7\u05d9\u05d9\u05dd',
     footerTerms: 'תנאי שימוש',
     footerImpressum: 'Impressum',
     footerPrivacy: 'מדיניות פרטיות',
@@ -329,6 +331,7 @@ var LANDING_I18N = {
     demoHint3: 'Schau dir die Schweregradskala an — bewerte vor und nach jeder Sitzung und beobachte die Geschichte der Heilung.',
     contactTitle: 'Kontakt',
     contactText: 'Hast du Fragen oder brauchst du Hilfe? Wir freuen uns, von dir zu hören.',
+    priceNote: 'Einf\u00fchrungspreis \u00b7 Einmalzahlung \u00b7 Lebenslange Lizenz',
     footerTerms: 'Nutzungsbedingungen',
     footerImpressum: 'Impressum',
     footerPrivacy: 'Datenschutzerklärung',
@@ -435,6 +438,7 @@ var LANDING_I18N = {
     demoHint3: 'Zkontrolujte stupnici z\u00e1va\u017enosti \u2014 hodino\u0165te p\u0159ed a po ka\u017ed\u00e9m sezen\u00ed a sledujte p\u0159\u00edb\u011bh uzdravov\u00e1n\u00ed.',
     contactTitle: 'Kontaktujte nás',
     contactText: 'Máte otázky nebo potřebujete pomoc? Rádi vás uslyšíme.',
+    priceNote: 'Uv\u00e1d\u011bc\u00ed cena \u00b7 Jednor\u00e1zov\u00fd n\u00e1kup \u00b7 Do\u017eivotn\u00ed licence',
     footerTerms: 'Podmínky použití',
     footerImpressum: 'Impressum',
     footerPrivacy: 'Zásady ochrany osobních údajů',
@@ -471,6 +475,7 @@ function applyLang(lang) {
   setText2('hero-cta', t.heroCta);
   setHref('hero-enter-link', './license.html');
   setText2('hero-enter-link', t.heroEnterApp);
+  setText('price-note', t.priceNote);
 
   // Features
   setText('features-title', t.featuresTitle);
@@ -577,6 +582,8 @@ function applyLang(lang) {
 
   // Footer
   setText2('footer-terms', t.footerTerms);
+  var termsLink = document.getElementById('footer-terms');
+  if (termsLink) termsLink.href = './disclaimer.html?readonly=true&lang=' + lang;
   setText2('footer-impressum-link', t.footerImpressum);
   setText2('footer-privacy-link', t.footerPrivacy);
   setText('footer-copy', t.footerCopy);
@@ -629,17 +636,62 @@ function applyTheme() {
 
 /* ---------- Language selector ---------- */
 function initLangSelector() {
-  var sel = document.getElementById('landingLangSelect');
-  if (!sel) return;
   var lang = detectLang();
-  sel.value = lang;
   applyLang(lang);
 
-  sel.addEventListener('change', function() {
-    var newLang = this.value;
-    try { localStorage.setItem('portfolioLang', newLang); } catch(e) {}
-    applyLang(newLang);
-  });
+  /* ---------- Language popover ---------- */
+  (function() {
+    var globeBtn = document.getElementById('lang-globe-btn');
+    var popover = document.getElementById('lang-popover');
+    if (!globeBtn || !popover) return;
+
+    function togglePopover() {
+      var isOpen = !popover.hidden;
+      popover.hidden = isOpen;
+      globeBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+    function closePopover() {
+      popover.hidden = true;
+      globeBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    function highlightCurrent(l) {
+      popover.querySelectorAll('.lang-option').forEach(function(btn) {
+        btn.setAttribute('aria-selected', btn.dataset.lang === l ? 'true' : 'false');
+      });
+    }
+
+    globeBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      togglePopover();
+    });
+
+    popover.addEventListener('click', function(e) {
+      var btn = e.target.closest('.lang-option');
+      if (!btn) return;
+      var newLang = btn.dataset.lang;
+      applyLang(newLang);
+      try { localStorage.setItem('portfolioLang', newLang); } catch(ex) {}
+      highlightCurrent(newLang);
+      closePopover();
+      // Sync demo iframe
+      var demoIframe = document.getElementById('demo-iframe');
+      if (demoIframe && demoIframe.contentWindow) {
+        try { demoIframe.contentWindow.postMessage({ type: 'demo-lang', lang: newLang }, '*'); } catch(ex) {}
+      }
+    });
+
+    // Close on click outside
+    document.addEventListener('click', function(e) {
+      if (!popover.hidden && !globeBtn.contains(e.target) && !popover.contains(e.target)) {
+        closePopover();
+      }
+    });
+
+    // Highlight current language on init
+    highlightCurrent(lang);
+  })();
 }
 
 /* ---------- Spotlight glow on feature cards ---------- */

@@ -35,12 +35,21 @@
   </a>
 
   <div class="landing-header-actions">
-    <select id="landingLangSelect" class="select" aria-label="Language / שפה / Sprache / Jazyk">
-      <option value="en">English</option>
-      <option value="he">עברית</option>
-      <option value="de">Deutsch</option>
-      <option value="cs">Čeština</option>
-    </select>
+    <div class="lang-selector">
+      <button id="lang-globe-btn" class="lang-globe-btn" type="button" aria-label="Language / שפה / Sprache / Jazyk" aria-expanded="false" aria-controls="lang-popover">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </button>
+      <div id="lang-popover" class="lang-popover" role="listbox" aria-label="Select language" hidden>
+        <button class="lang-option" role="option" data-lang="en">English</button>
+        <button class="lang-option" role="option" data-lang="he">עברית</button>
+        <button class="lang-option" role="option" data-lang="de">Deutsch</button>
+        <button class="lang-option" role="option" data-lang="cs">Čeština</button>
+      </div>
+    </div>
     <a id="hero-enter-link" href="./license.html" class="landing-enter-link">Already have a license?</a>
   </div>
 </header>

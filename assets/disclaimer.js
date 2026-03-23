@@ -198,6 +198,9 @@
   // -------------------------------------------------------------------------
 
   function handleContinue() {
+    try {
+      localStorage.setItem('portfolioLang', currentLang);
+    } catch (e) {}
     var next = getParam('next');
     if (next) {
       // next is URL-encoded pathname
