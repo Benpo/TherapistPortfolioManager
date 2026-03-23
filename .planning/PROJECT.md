@@ -122,4 +122,4 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - Launch prerequisites (Impressum, Lemon Squeezy, translations, QA)
 
 ---
-*Last updated: 2026-03-23 after Phase 14 complete — i18n bugs fixed, legal pages extracted, contact email unified, landing UX polished*
+*Last updated: 2026-03-23 after Phase 16 complete — all Phase 15 audit code fixes applied: SW cache, CSP headers, postMessage security, shared code extraction, dead code cleanup, i18n for backup/DB banners, localStorage key bug, CSS token compliance, Promise refactor*
