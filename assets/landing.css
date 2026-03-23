@@ -116,16 +116,18 @@
 }
 
 .landing-enter-link {
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 1.1875rem;
+  font-weight: 600;
   color: var(--color-primary);
   text-decoration: none;
-  padding: 0.5rem 1.25rem;
+  padding: 0.6875rem 2rem;
   border-radius: 0.625rem;
   background: color-mix(in srgb, var(--color-primary) 12%, transparent);
   border: 1.5px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
   transition: background 0.15s, border-color 0.15s;
   white-space: nowrap;
+  min-inline-size: 220px;
+  text-align: center;
 }
 
 .landing-enter-link:hover {
