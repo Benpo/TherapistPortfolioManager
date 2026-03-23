@@ -234,16 +234,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  function setSubmitLabel(key) {
-    if (!submitButton) return;
-    if (submitLabel) {
-      submitLabel.setAttribute("data-i18n", key);
-      submitLabel.textContent = App.t(key);
-    } else {
-      submitButton.setAttribute("data-i18n", key);
-      submitButton.textContent = App.t(key);
-    }
-  }
 
   if (typeGroup) {
     typeGroup.addEventListener("click", (event) => {
@@ -331,7 +321,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         titleEl.setAttribute("data-i18n", "client.title.edit");
         titleEl.textContent = App.t("client.title.edit");
       }
-      setSubmitLabel("client.form.update");
+      App.setSubmitLabel("client.form.update", submitButton, submitLabel);
       if (deleteButton) deleteButton.classList.remove("is-hidden");
       App.applyTranslations();
     }

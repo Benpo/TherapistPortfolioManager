@@ -377,6 +377,13 @@ window.App = (() => {
     return t(key);
   }
 
+  function setSubmitLabel(key, submitButton, submitLabel) {
+    if (!submitButton) return;
+    var el = submitLabel || submitButton;
+    el.setAttribute("data-i18n", key);
+    el.textContent = t(key);
+  }
+
   function readFileAsDataURL(file) {
     return new Promise(function(resolve, reject) {
       const reader = new FileReader();
@@ -403,6 +410,7 @@ window.App = (() => {
     exportData,
     downloadJSON,
     formatSessionType,
+    setSubmitLabel,
     readFileAsDataURL,
   };
 })();

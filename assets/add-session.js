@@ -78,16 +78,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  function setSubmitLabel(key) {
-    if (!submitButton) return;
-    if (submitLabel) {
-      submitLabel.setAttribute("data-i18n", key);
-      submitLabel.textContent = App.t(key);
-    } else {
-      submitButton.setAttribute("data-i18n", key);
-      submitButton.textContent = App.t(key);
-    }
-  }
 
   function applyCopyLabels() {
     const copyLabel = App.t("session.copyField");
@@ -880,7 +870,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     applyCopyLabels();
     if (editingSession) {
       updateSessionTitle(editingSession);
-      setSubmitLabel("session.form.update");
+      App.setSubmitLabel("session.form.update", submitButton, submitLabel);
     }
     if (isReadMode) resizeReadModeTextareas();
     updateClientSpotlight();
@@ -892,7 +882,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       populateSession(editingSession, issues, createIssueBlock);
       updateClientSpotlight();
       updateSessionTitle(editingSession);
-      setSubmitLabel("session.form.update");
+      App.setSubmitLabel("session.form.update", submitButton, submitLabel);
       if (deleteButton) deleteButton.classList.remove("is-hidden");
       setReadMode(true);
     }
