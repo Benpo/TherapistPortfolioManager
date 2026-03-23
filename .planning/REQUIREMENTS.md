@@ -50,8 +50,8 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 ### Audit Fix: Code (Phase 16)
 
 - [x] **FIX-01**: SW cache lists correct font files and includes app-critical images; all pages register SW
-- [ ] **FIX-02**: Backup export/import uses correct `portfolioLang` localStorage key
-- [ ] **FIX-03**: Backup reminder banner text translated in all 4 languages via i18n system
+- [x] **FIX-02**: Backup export/import uses correct `portfolioLang` localStorage key
+- [x] **FIX-03**: Backup reminder banner text translated in all 4 languages via i18n system
 - [x] **FIX-04**: DB error banners translated, hardcoded styles replaced with tokens, Promise anti-pattern refactored
 - [x] **FIX-05**: Landing page postMessage uses explicit origin; broken image path fixed; RTL CSS logical properties
 - [x] **FIX-06**: Demo page validates postMessage origin; localStorage gate bypass fixed (sessionStorage)
@@ -59,7 +59,7 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 - [ ] **FIX-08**: formatSessionType() and readFileAsDataURL() extracted to shared app.js API
 - [ ] **FIX-09**: Dead code removed (old session types, unused i18n keys); event binding standardized in touched files
 - [ ] **FIX-10**: Hardcoded CSS colors replaced with design tokens
-- [ ] **FIX-11**: New i18n keys added for backup banner and DB error strings in all 4 language files
+- [x] **FIX-11**: New i18n keys added for backup banner and DB error strings in all 4 language files
 
 ### Audit Fix: Business/Operational (Phase 17)
 
@@ -159,8 +159,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUDIT-10 | Phase 15 | Complete |
 
 | FIX-01 | Phase 16 | Complete |
-| FIX-02 | Phase 16 | Pending |
-| FIX-03 | Phase 16 | Pending |
+| FIX-02 | Phase 16 | Complete |
+| FIX-03 | Phase 16 | Complete |
 | FIX-04 | Phase 16 | Complete |
 | FIX-05 | Phase 16 | Complete |
 | FIX-06 | Phase 16 | Complete |
@@ -168,7 +168,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIX-08 | Phase 16 | Pending |
 | FIX-09 | Phase 16 | Pending |
 | FIX-10 | Phase 16 | Pending |
-| FIX-11 | Phase 16 | Pending |
+| FIX-11 | Phase 16 | Complete |
 | BIZ-01 | Phase 17 | Pending |
 | BIZ-02 | Phase 17 | Pending |
 | BIZ-03 | Phase 17 | Pending |

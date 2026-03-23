@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 16-05-PLAN.md
-last_updated: "2026-03-23T12:33:26.906Z"
+stopped_at: Completed 16-04-PLAN.md
+last_updated: "2026-03-23T12:34:40.257Z"
 progress:
   total_phases: 11
   completed_phases: 8
   total_plans: 27
-  completed_plans: 25
+  completed_plans: 26
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 16 (audit-fix-code) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Plan: 4 of 5
 | Phase 16-audit-fix-code P02 | 5min | 2 tasks | 5 files |
 | Phase 16-audit-fix-code P01 | 10min | 2 tasks | 12 files |
 | Phase 16 P05 | 5min | 1 tasks | 3 files |
+| Phase 16-audit-fix-code P04 | 8min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -112,6 +113,8 @@ Recent decisions affecting current work:
 - [Phase 16-audit-fix-code]: CSP unsafe-inline required for all pages due to inline script blocks for theme/gate detection; connect-src includes api.lemonsqueezy.com; img-src includes data: and blob: for photo handling
 - [Phase 16]: DB error banners use inline DB_STRINGS object (not i18n.js) because db.js loads before the i18n system
 - [Phase 16]: CSS class modifiers --blocked/--version/--migration distinguish severity levels for DB error banners
+- [Phase 16-audit-fix-code]: backup.js uses portfolioLang (not portfolioLanguage) -- the correct key matching App.setLanguage(); language preference now survives backup/restore
+- [Phase 16-audit-fix-code]: Backup banner now uses CSS classes with design tokens (backup-reminder-banner, backup-reminder-btn) instead of inline style.cssText
 
 ### Pending Todos
 
@@ -138,6 +141,6 @@ These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
 
 ## Session Continuity
 
-Last session: 2026-03-23T12:33:26.904Z
-Stopped at: Completed 16-05-PLAN.md
+Last session: 2026-03-23T12:34:40.254Z
+Stopped at: Completed 16-04-PLAN.md
 Resume file: None

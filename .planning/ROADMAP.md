@@ -241,13 +241,13 @@ Plans:
   6. formatSessionType() and readFileAsDataURL() exist once in app.js, not duplicated
   7. No dead code referencing old session types (inPerson/proxy/surrogate)
   8. No hardcoded colors in app.css outside design token system
-**Plans:** 3/5 plans executed
+**Plans:** 4/5 plans executed
 
 Plans:
 - [x] 16-01-PLAN.md — SW font cache fix, image precaching, SW registration on all pages, CSP meta tags (FIX-01, FIX-07)
 - [x] 16-02-PLAN.md — Landing and demo postMessage security hardening, broken image fix, RTL CSS (FIX-05, FIX-06)
 - [ ] 16-03-PLAN.md — Shared code extraction (formatSessionType, readFileAsDataURL), dead code cleanup, CSS token (FIX-08, FIX-09, FIX-10)
-- [ ] 16-04-PLAN.md — Backup banner i18n keys, portfolioLang key bug fix, backup banner styling (FIX-02, FIX-03, FIX-11)
+- [x] 16-04-PLAN.md — Backup banner i18n keys, portfolioLang key bug fix, backup banner styling (FIX-02, FIX-03, FIX-11)
 - [x] 16-05-PLAN.md — DB error banner i18n, CSS classes, Promise anti-pattern refactor (FIX-04)
 
 ### Phase 17: Audit fix — Business and operational
@@ -390,6 +390,6 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 13. Greeting Quotes | 1/1 | Complete | - | - |
 | 14. i18n/Footer/Email | 6/6 | Complete | - | - |
 | 15. Architecture/UI Audit | 3/3 | Complete | 2026-03-23 | - |
-| 16. Audit Fix: Code | 0/5 | 3/5 | In Progress|  |
+| 16. Audit Fix: Code | 0/5 | 4/5 | In Progress|  |
 | 17. Audit Fix: Business | 0/? | Not Started | - | - |
 | 18. Technical Debt | 0/? | Not Started | - | - |
