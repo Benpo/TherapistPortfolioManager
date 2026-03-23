@@ -39,11 +39,11 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 - [x] **AUDIT-01**: Security vulnerabilities scanned across all JS/HTML files with severity classification
 - [x] **AUDIT-02**: Dead code (unused JS functions, orphaned CSS, unreferenced i18n keys) identified for cleanup
 - [x] **AUDIT-03**: Architecture consistency reviewed (duplicate logic, pattern contradictions, token adoption)
-- [ ] **AUDIT-04**: PWA manifest and service worker verified for correct start_url and offline capability
-- [ ] **AUDIT-05**: Purchase-to-usage customer journey mapped with every gap flagged
-- [ ] **AUDIT-06**: CloudFlare Pages GDPR compliance investigated with clear verdict
-- [ ] **AUDIT-07**: Legal document placeholder status documented with exact missing content listed
-- [ ] **AUDIT-08**: Lemon Squeezy integration readiness assessed
+- [x] **AUDIT-04**: PWA manifest and service worker verified for correct start_url and offline capability
+- [x] **AUDIT-05**: Purchase-to-usage customer journey mapped with every gap flagged
+- [x] **AUDIT-06**: CloudFlare Pages GDPR compliance investigated with clear verdict
+- [x] **AUDIT-07**: Legal document placeholder status documented with exact missing content listed
+- [x] **AUDIT-08**: Lemon Squeezy integration readiness assessed
 - [ ] **AUDIT-09**: i18n key completeness verified across all 4 languages
 - [ ] **AUDIT-10**: RTL layout issues and wrong-language display bugs documented
 
@@ -120,11 +120,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUDIT-01 | Phase 15 | Complete |
 | AUDIT-02 | Phase 15 | Complete |
 | AUDIT-03 | Phase 15 | Complete |
-| AUDIT-04 | Phase 15 | Pending |
-| AUDIT-05 | Phase 15 | Pending |
-| AUDIT-06 | Phase 15 | Pending |
-| AUDIT-07 | Phase 15 | Pending |
-| AUDIT-08 | Phase 15 | Pending |
+| AUDIT-04 | Phase 15 | Complete |
+| AUDIT-05 | Phase 15 | Complete |
+| AUDIT-06 | Phase 15 | Complete |
+| AUDIT-07 | Phase 15 | Complete |
+| AUDIT-08 | Phase 15 | Complete |
 | AUDIT-09 | Phase 15 | Pending |
 | AUDIT-10 | Phase 15 | Pending |
 
