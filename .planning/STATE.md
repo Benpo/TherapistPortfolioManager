@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 14-05-PLAN.md
-last_updated: "2026-03-23T01:22:13.670Z"
+stopped_at: Completed 14-06-PLAN.md
+last_updated: "2026-03-23T01:25:54.415Z"
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 19
-  completed_plans: 18
+  completed_plans: 19
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 14 (i18n-bugs-legal-footer-cleanup-and-contact-email-update) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Plan: 3 of 6
 | Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P03 | 15 | 2 tasks | 6 files |
 | Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P04 | 5min | 2 tasks | 5 files |
 | Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P05 | 12min | 2 tasks | 7 files |
+| Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P06 | 15min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,9 @@ Recent decisions affecting current work:
 - [Phase 14]: Legal content extracted from accordion into dedicated impressum.html and datenschutz.html pages following disclaimer.html pattern
 - [Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update]: URL param takes priority over localStorage in getLicenseLang() — ?lang= from landing always wins over stored preference
 - [Phase 14]: Globe selector on impressum/datenschutz uses reload-on-change for simplicity; disclaimer uses in-page re-render to preserve checkbox state
+- [Phase 14]: Pointer capture (setPointerCapture) used for demo resize drag — guarantees all pointermove events route to handle even over iframe
+- [Phase 14]: HE/CS datenschutz: native 2-sentence notice + full EN policy; full legal translation not practical
+- [Phase 14]: EN datenschutz users see EN only (not DE+EN); DE users see both
 
 ### Pending Todos
 
@@ -118,6 +122,6 @@ These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
 
 ## Session Continuity
 
-Last session: 2026-03-23T01:22:13.668Z
-Stopped at: Completed 14-05-PLAN.md
+Last session: 2026-03-23T01:25:54.413Z
+Stopped at: Completed 14-06-PLAN.md
 Resume file: None

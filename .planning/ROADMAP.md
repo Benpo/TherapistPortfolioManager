@@ -195,7 +195,7 @@ Plans:
 4. Demo app window must be resizable
 5. Footer legal links (Impressum/Datenschutz) should be plain links, not expandable sections, and must match the displayed language (no mixing like Hebrew + "Impressum")
 6. Update email to contact@sessionsgarden.app everywhere
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans complete
 
 Plans:
 - [x] 14-01-PLAN.md — Fix language persistence, trust badge i18n, Hebrew disclaimer, contact email (D-01, D-02, D-03, D-07)
@@ -203,7 +203,7 @@ Plans:
 - [x] 14-03-PLAN.md — Impressum and Datenschutz as dedicated pages, footer cleanup, SW update (D-05, D-06)
 - [x] 14-04-PLAN.md — [GAP] License lang passthrough, disclaimer brand link, Impressum Hebrew heading, CTA enlargement (D-01, D-02, D-08)
 - [x] 14-05-PLAN.md — [GAP] Globe language selector on all legal pages (D-09)
-- [ ] 14-06-PLAN.md — [GAP] Demo horizontal resize fix, datenschutz multilingual content (D-04, D-05)
+- [x] 14-06-PLAN.md — [GAP] Demo horizontal resize fix, datenschutz multilingual content (D-04, D-05)
 
 ### Phase 15: Architecture and UI audit
 
