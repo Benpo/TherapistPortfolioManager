@@ -93,22 +93,6 @@ var LANDING_I18N = {
       { q: 'Can I restore my data on a new device?', a: 'Yes. Import your exported backup file into Sessions Garden on your new device and your sessions and clients will be restored.' },
       { q: 'Do you offer refunds?', a: 'Yes. If the tool doesn\'t fit your needs, contact us within 14 days of purchase and you\'ll receive a full refund.' }
     ],
-    impressumTitle: 'Impressum',
-    impressumAngaben: 'Angaben gemäß § 5 DDG',
-    impressumNote: 'TODO: Generate your Impressum at https://www.e-recht24.de/impressum-generator.html and replace the placeholder below.',
-    impressumPlaceholder: '[Full Legal Name]\n[Street Address]\n[City, Postal Code, Country]\nEmail: [Email Address]\nPhone: [Phone Number — optional]',
-    datenschutzTitle: 'Privacy Policy / Datenschutzerklärung',
-    datenschutzArt13Title: '1. Data Processing (GDPR Art. 13/14)',
-    datenschutzArt13: 'Sessions Garden does not collect, store, or transmit any personal data. All session and client data is stored exclusively on your device using IndexedDB browser technology. The development team has zero access to your data.',
-    datenschutzHostingTitle: '2. Hosting',
-    datenschutzHosting: 'This website is hosted on Cloudflare Pages (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA). Cloudflare may process access logs (IP address, browser type, timestamp) as part of standard web hosting operations. For details, see Cloudflare\'s privacy policy: https://www.cloudflare.com/privacypolicy/',
-    datenschutzPaymentTitle: '3. Payment Processing',
-    datenschutzPayment: 'Payments are processed by Lemon Squeezy (Lemon Squeezy, LLC), who acts as Merchant of Record. Purchase data (name, email, payment information) is handled by Lemon Squeezy. For details, see Lemon Squeezy\'s privacy policy: https://www.lemonsqueezy.com/privacy',
-    datenschutzStorageTitle: '4. Local Storage',
-    datenschutzStorage: 'This application uses localStorage for preferences (language, theme) and license activation status. No tracking cookies are used. All clinical data is stored in your browser\'s IndexedDB, accessible only on your device.',
-    datenschutzRightsTitle: '5. Your Rights (GDPR Art. 15–21)',
-    datenschutzRights: 'Right to access: your data is already on your device — open the app to see it. Right to deletion: clear your browser\'s site data to remove all stored information. Right to data portability: use the Export function in the app to download your data as a JSON file.',
-    datenschutzNote: 'TODO: Run the full Datenschutzerklärung through https://www.adsimple.de/datenschutz-generator/ or https://www.e-recht24.de before launch for a finalized, lawyer-reviewed version.',
     demoTitle: 'Try it yourself',
     demoSubtitle: 'Explore a live demo with sample data — no signup needed',
     demoNote: 'This demo runs entirely in your browser. No data is stored or sent anywhere.',
@@ -200,22 +184,6 @@ var LANDING_I18N = {
       { q: 'האם אפשר לשחזר נתונים על מכשיר חדש?', a: 'כן. ייבאו את קובץ הגיבוי ל-Sessions Garden על המכשיר החדש, והפגישות והלקוחות ישוחזרו.' },
       { q: 'האם יש החזרים?', a: 'כן. אם הכלי לא מתאים לכם, פנו אלינו תוך 14 יום מהרכישה ותקבלו החזר מלא.' }
     ],
-    impressumTitle: 'Impressum',
-    impressumAngaben: 'Angaben gemäß § 5 DDG',
-    impressumNote: 'TODO: Generate your Impressum at https://www.e-recht24.de/impressum-generator.html and replace the placeholder below.',
-    impressumPlaceholder: '[Full Legal Name]\n[Street Address]\n[City, Postal Code, Country]\nEmail: [Email Address]\nPhone: [Phone Number — optional]',
-    datenschutzTitle: 'מדיניות פרטיות / Datenschutzerklärung',
-    datenschutzArt13Title: '1. עיבוד נתונים (GDPR Art. 13/14)',
-    datenschutzArt13: 'Sessions Garden אינו אוסף, מאחסן או מעביר נתונים אישיים. כל נתוני הפגישות והלקוחות נשמרים באופן בלעדי במכשיר שלכם באמצעות טכנולוגיית IndexedDB של הדפדפן. לצוות הפיתוח אין גישה לנתונים שלכם.',
-    datenschutzHostingTitle: '2. אחסון אתר',
-    datenschutzHosting: 'אתר זה מתארח ב-Cloudflare Pages (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA). Cloudflare עשויה לעבד יומני גישה (כתובת IP, סוג דפדפן, חותמת זמן) כחלק מפעולות אחסון אתר רגילות. לפרטים, ראו את מדיניות הפרטיות של Cloudflare: https://www.cloudflare.com/privacypolicy/',
-    datenschutzPaymentTitle: '3. עיבוד תשלומים',
-    datenschutzPayment: 'תשלומים מעובדים על ידי Lemon Squeezy (Lemon Squeezy, LLC), הפועל כ-Merchant of Record. נתוני הרכישה (שם, דוא"ל, פרטי תשלום) מטופלים על ידי Lemon Squeezy. לפרטים, ראו את מדיניות הפרטיות של Lemon Squeezy: https://www.lemonsqueezy.com/privacy',
-    datenschutzStorageTitle: '4. אחסון מקומי',
-    datenschutzStorage: 'אפליקציה זו משתמשת ב-localStorage להגדרות (שפה, ערכת נושא) וסטטוס הפעלת רישיון. לא נעשה שימוש בעוגיות מעקב. כל הנתונים הקליניים נשמרים ב-IndexedDB של הדפדפן שלכם, נגיש רק במכשיר שלכם.',
-    datenschutzRightsTitle: '5. הזכויות שלכם (GDPR Art. 15–21)',
-    datenschutzRights: 'זכות גישה: הנתונים שלכם כבר נמצאים במכשיר שלכם — פתחו את האפליקציה לצפייה. זכות מחיקה: נקו את נתוני האתר בדפדפן להסרת כל המידע המאוחסן. זכות ניידות נתונים: השתמשו בפונקציית הייצוא באפליקציה להורדת הנתונים כקובץ JSON.',
-    datenschutzNote: 'TODO: Run the full Datenschutzerklärung through https://www.adsimple.de/datenschutz-generator/ before launch for a finalized version.',
     demoTitle: 'נסו בעצמכם',
     demoSubtitle: 'הדגמה חיה עם נתונים לדוגמה — ללא הרשמה',
     demoNote: 'ההדגמה רצה לגמרי בדפדפן שלכם. אין נתונים שנשמרים או נשלחים לשום מקום.',
@@ -307,22 +275,6 @@ var LANDING_I18N = {
       { q: 'Kann ich meine Daten auf einem neuen Gerät wiederherstellen?', a: 'Ja. Importiere deine exportierte Backup-Datei in Sessions Garden auf deinem neuen Gerät — deine Sitzungen und Klienten werden wiederhergestellt.' },
       { q: 'Gibt es Rückerstattungen?', a: 'Ja. Wenn das Tool nicht zu dir passt, kontaktiere uns innerhalb von 14 Tagen nach dem Kauf und du erhältst eine vollständige Rückerstattung.' }
     ],
-    impressumTitle: 'Impressum',
-    impressumAngaben: 'Angaben gemäß § 5 DDG',
-    impressumNote: 'TODO: Impressum unter https://www.e-recht24.de/impressum-generator.html generieren und den Platzhalter unten ersetzen.',
-    impressumPlaceholder: '[Vollständiger rechtlicher Name]\n[Straße, Hausnummer]\n[Stadt, PLZ, Land]\nE-Mail: [E-Mail-Adresse]\nTelefon: [Telefonnummer — optional]',
-    datenschutzTitle: 'Datenschutzerklärung',
-    datenschutzArt13Title: '1. Datenverarbeitung (DSGVO Art. 13/14)',
-    datenschutzArt13: 'Sessions Garden erhebt, speichert oder überträgt keine personenbezogenen Daten. Alle Sitzungs- und Klientendaten werden ausschließlich auf deinem Gerät mittels IndexedDB-Browsertechnologie gespeichert. Das Entwicklungsteam hat keinerlei Zugriff auf deine Daten.',
-    datenschutzHostingTitle: '2. Hosting',
-    datenschutzHosting: 'Diese Website wird auf Cloudflare Pages gehostet (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA). Cloudflare kann im Rahmen des standardmäßigen Webhosting-Betriebs Zugriffsprotokolle verarbeiten. Details: https://www.cloudflare.com/privacypolicy/',
-    datenschutzPaymentTitle: '3. Zahlungsabwicklung',
-    datenschutzPayment: 'Zahlungen werden von Lemon Squeezy (Lemon Squeezy, LLC) als Merchant of Record abgewickelt. Kaufdaten werden von Lemon Squeezy verarbeitet. Details: https://www.lemonsqueezy.com/privacy',
-    datenschutzStorageTitle: '4. Lokale Speicherung',
-    datenschutzStorage: 'Diese Anwendung nutzt localStorage für Einstellungen (Sprache, Theme) und den Lizenzaktivierungsstatus. Es werden keine Tracking-Cookies verwendet.',
-    datenschutzRightsTitle: '5. Deine Rechte (DSGVO Art. 15–21)',
-    datenschutzRights: 'Auskunftsrecht: Deine Daten befinden sich auf deinem Gerät — öffne die App zur Einsichtnahme. Recht auf Löschung: Lösche die Website-Daten deines Browsers. Recht auf Datenübertragbarkeit: Nutze die Exportfunktion in der App.',
-    datenschutzNote: 'TODO: Vollständige Datenschutzerklärung vor dem Launch über https://www.adsimple.de/datenschutz-generator/ generieren lassen.',
     demoTitle: 'Probier es selbst',
     demoSubtitle: 'Erkunde eine Live-Demo mit Beispieldaten — keine Anmeldung nötig',
     demoNote: 'Diese Demo läuft vollständig in deinem Browser. Es werden keine Daten gespeichert oder gesendet.',
@@ -414,22 +366,6 @@ var LANDING_I18N = {
       { q: 'Mohu obnovit data na novém zařízení?', a: 'Ano. Importujte exportovaný záložní soubor do Sessions Garden na novém zařízení a vaše sezení a klienti budou obnoveni.' },
       { q: 'Nabízíte vrácení peněz?', a: 'Ano. Pokud vám nástroj nevyhovuje, kontaktujte nás do 14 dnů od nákupu a obdržíte plnou náhradu.' }
     ],
-    impressumTitle: 'Impressum',
-    impressumAngaben: 'Angaben gemäß § 5 DDG',
-    impressumNote: 'TODO: Generate your Impressum at https://www.e-recht24.de/impressum-generator.html',
-    impressumPlaceholder: '[Celé právní jméno]\n[Ulice, číslo popisné]\n[Město, PSČ, Země]\nE-mail: [E-mailová adresa]\nTelefon: [Telefonní číslo — volitelné]',
-    datenschutzTitle: 'Zásady ochrany osobních údajů',
-    datenschutzArt13Title: '1. Zpracování dat (GDPR čl. 13/14)',
-    datenschutzArt13: 'Sessions Garden neshromažďuje, neukládá ani nepřenáší žádné osobní údaje. Všechna data sezení a klientů jsou uložena výhradně na vašem zařízení pomocí technologie IndexedDB prohlížeče. Vývojový tým nemá přístup k vašim datům.',
-    datenschutzHostingTitle: '2. Hosting',
-    datenschutzHosting: 'Tato webová stránka je hostována na Cloudflare Pages (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA). Podrobnosti: https://www.cloudflare.com/privacypolicy/',
-    datenschutzPaymentTitle: '3. Zpracování plateb',
-    datenschutzPayment: 'Platby zpracovává Lemon Squeezy (Lemon Squeezy, LLC) jako Merchant of Record. Podrobnosti: https://www.lemonsqueezy.com/privacy',
-    datenschutzStorageTitle: '4. Lokální úložiště',
-    datenschutzStorage: 'Tato aplikace používá localStorage pro nastavení (jazyk, motiv) a stav aktivace licence. Nepoužívají se žádné sledovací soubory cookie.',
-    datenschutzRightsTitle: '5. Vaše práva (GDPR čl. 15–21)',
-    datenschutzRights: 'Právo na přístup: vaše data jsou na vašem zařízení — otevřete aplikaci. Právo na výmaz: vymažte data webu v prohlížeči. Právo na přenositelnost: použijte funkci Export v aplikaci.',
-    datenschutzNote: 'TODO: Před spuštěním proveďte Datenschutzerklärung přes https://www.adsimple.de/datenschutz-generator/ pro finalizovanou verzi.',
     demoTitle: 'Vyzkoušejte si to',
     demoSubtitle: 'Prozkoumejte živou ukázku s ukázkovými daty — bez registrace',
     demoNote: 'Tato ukázka běží kompletně ve vašem prohlížeči. Žádná data nejsou ukládána ani odesílána.',
@@ -560,32 +496,18 @@ function applyLang(lang) {
   setText('contact-title', t.contactTitle);
   setText('contact-text', t.contactText);
 
-  // Impressum
-  setText('impressum-title', t.impressumTitle);
-  setText('impressum-angaben', t.impressumAngaben);
-  setText('impressum-note', t.impressumNote);
-  setPreText('impressum-placeholder', t.impressumPlaceholder);
-
-  // Datenschutz
-  setText('datenschutz-title', t.datenschutzTitle);
-  setText('datenschutz-art13-title', t.datenschutzArt13Title);
-  setText('datenschutz-art13', t.datenschutzArt13);
-  setText('datenschutz-hosting-title', t.datenschutzHostingTitle);
-  setText('datenschutz-hosting', t.datenschutzHosting);
-  setText('datenschutz-payment-title', t.datenschutzPaymentTitle);
-  setText('datenschutz-payment', t.datenschutzPayment);
-  setText('datenschutz-storage-title', t.datenschutzStorageTitle);
-  setText('datenschutz-storage', t.datenschutzStorage);
-  setText('datenschutz-rights-title', t.datenschutzRightsTitle);
-  setText('datenschutz-rights', t.datenschutzRights);
-  setText('datenschutz-note', t.datenschutzNote);
-
   // Footer
   setText2('footer-terms', t.footerTerms);
   var termsLink = document.getElementById('footer-terms');
   if (termsLink) termsLink.href = './disclaimer.html?readonly=true&lang=' + lang;
   setText2('footer-impressum-link', t.footerImpressum);
   setText2('footer-privacy-link', t.footerPrivacy);
+
+  // Footer legal links — pass lang param so dedicated pages detect language
+  var impLink = document.getElementById('footer-impressum-link');
+  if (impLink) impLink.href = './impressum.html?lang=' + lang;
+  var privLink = document.getElementById('footer-privacy-link');
+  if (privLink) privLink.href = './datenschutz.html?lang=' + lang;
   setText('footer-copy', t.footerCopy);
   setText('footer-tagline', t.footerTagline);
 }
