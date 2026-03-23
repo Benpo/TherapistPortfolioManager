@@ -2,16 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
-status: planning
-stopped_at: Completed 13-review-and-fix-greeting-quotes-01-PLAN.md
-last_updated: "2026-03-20T14:06:35.336Z"
-last_activity: 2026-03-19 — v1.1 roadmap created; phases 8-12 defined
+status: unknown
+stopped_at: Completed 14-02-PLAN.md
+last_updated: "2026-03-23T00:22:13.711Z"
 progress:
-  total_phases: 15
-  completed_phases: 13
-  total_plans: 35
-  completed_plans: 34
-  percent: 0
+  total_phases: 8
+  completed_phases: 6
+  total_plans: 16
+  completed_plans: 14
 ---
 
 # Project State
@@ -21,20 +19,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 8 — Terminology and Quick UX Fixes
+**Current focus:** Phase 14 — i18n-bugs-legal-footer-cleanup-and-contact-email-update
 
 ## Current Position
 
-Phase: 8 of 12 (Terminology and Quick UX Fixes)
-Plan: — (not started)
-Status: Ready to plan
-Last activity: 2026-03-19 — v1.1 roadmap created; phases 8-12 defined
-
-Progress: [░░░░░░░░░░] 0%
+Phase: 14 (i18n-bugs-legal-footer-cleanup-and-contact-email-update) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed (v1.1): 0
 - Average duration: -
 - Total execution time: 0 hours
@@ -46,6 +41,7 @@ Progress: [░░░░░░░░░░] 0%
 | - | - | - | - |
 
 **Recent Trend:**
+
 - Last 5 plans: -
 - Trend: -
 
@@ -61,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 12 P03 | 10min | 1 tasks | 2 files |
 | Phase 13-review-and-fix-greeting-quotes P01 | 525666min | 2 tasks | 4 files |
 | Phase 13-review-and-fix-greeting-quotes P01 | 20min | 2 tasks | 4 files |
+| Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P02 | 15 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -85,10 +82,13 @@ Recent decisions affecting current work:
 - [Phase 12]: 12-03: Use [YOUR_*] placeholders for Impressum and Lemon Squeezy checkout URL — allows launch prep to complete without blocking on real business data
 - [Phase 13-review-and-fix-greeting-quotes]: Removed Gandhi misquote, Mandela unverifiable quote, paraphrased Thich Nhat Hanh; added Pema Chodron, Carl Rogers, Howard Thurman, Emerson as verified sources
 - [Phase 13-review-and-fix-greeting-quotes]: Hebrew gender: all masculine-only forms neutralized; all 4 languages synced to 41 quotes in matching thematic order
+- [Phase 14-02]: Globe button replaces native select for language switching — more polished, works with CSS animations, RTL-safe via inset-inline-end
+- [Phase 14-02]: Demo resize handles use pointer events and disable iframe pointer capture during drag to prevent event stealing
 
 ### Pending Todos
 
 4 pending todos in .planning/todos/pending/:
+
 - 2026-03-18-edit-client-from-add-session.md
 - 2026-03-18-heart-wall-redesign-discussion.md
 - 2026-03-18-photo-crop-reposition.md
@@ -99,6 +99,8 @@ These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
 ### Roadmap Evolution
 
 - Phase 13 added: Review and fix greeting quotes
+- Phase 14 added: i18n bugs, legal footer cleanup, and contact email update
+- Phase 15 added: Architecture and UI audit (dual-mode: Opus subagents for arch review + /gsd:ui-review for frontend)
 
 ### Blockers/Concerns
 
@@ -108,6 +110,6 @@ These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
 
 ## Session Continuity
 
-Last session: 2026-03-20T14:06:35.334Z
-Stopped at: Completed 13-review-and-fix-greeting-quotes-01-PLAN.md
+Last session: 2026-03-23T00:22:13.709Z
+Stopped at: Completed 14-02-PLAN.md
 Resume file: None
