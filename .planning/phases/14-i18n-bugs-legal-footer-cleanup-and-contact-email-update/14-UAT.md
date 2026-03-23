@@ -1,5 +1,5 @@
 ---
-status: diagnosed
+status: resolved
 phase: 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update
 source: [14-01-SUMMARY.md, 14-02-SUMMARY.md, 14-03-SUMMARY.md]
 started: 2026-03-23T12:00:00Z
