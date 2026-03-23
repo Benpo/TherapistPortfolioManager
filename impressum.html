@@ -14,7 +14,7 @@
   <style>
     .legal-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--color-bg); color: var(--color-text); }
     .legal-topbar { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
-    .legal-topbar-brand { font-weight: 600; font-size: 1.125rem; color: var(--color-primary); text-decoration: none; flex: 1; }
+    .legal-topbar-brand { font-weight: 600; font-size: 1.125rem; color: var(--color-primary); text-decoration: none; flex: 1; display: flex; align-items: center; gap: 0.6rem; }
     .legal-back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; }
     .legal-back-link:hover { text-decoration: underline; }
     .legal-content { flex: 1; max-width: 720px; margin: 2rem auto; padding: 0 1.5rem; line-height: 1.7; }
@@ -29,7 +29,17 @@
 <body>
   <div class="legal-page">
     <div class="legal-topbar">
-      <a class="legal-topbar-brand" href="./landing.html">Sessions Garden</a>
+      <a class="legal-topbar-brand" href="./landing.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" style="color:var(--color-primary)">
+          <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+          <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+          <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        </svg>
+        Sessions Garden
+      </a>
       <div id="globe-container"></div>
       <a id="back-link" class="legal-back-link" href="./landing.html">Back to home</a>
     </div>
