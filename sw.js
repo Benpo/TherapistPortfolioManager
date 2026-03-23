@@ -9,7 +9,7 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v18';
+const CACHE_NAME = 'sessions-garden-v19';
 
 /**
  * All static assets to precache on install.
@@ -48,7 +48,12 @@ const PRECACHE_URLS = [
   '/assets/disclaimer.js',
   '/assets/license.js',
   '/assets/i18n-disclaimer.js',
-  '/assets/fonts/Rubik-Variable.woff2',
+  '/assets/fonts/Rubik-Regular.woff2',
+  '/assets/fonts/Rubik-SemiBold.woff2',
+  '/assets/fonts/Rubik-Bold.woff2',
+  '/assets/logo.png',
+  '/assets/illustrations/גינה.png',
+  '/assets/illustrations/משפך.png',
   '/demo.html',
   '/assets/demo.js',
   '/assets/demo-seed.js',
