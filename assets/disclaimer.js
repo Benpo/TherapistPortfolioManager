@@ -37,6 +37,8 @@
   // -------------------------------------------------------------------------
 
   var currentLang = detectLang();
+  // Persist detected language so it carries across page navigations
+  try { localStorage.setItem('portfolioLang', currentLang); } catch (e) {}
   var isReadonly = (getParam('readonly') === 'true');
   var accepted = false;
 
@@ -89,22 +91,20 @@
     // Sections
     renderSections();
 
-    if (!isReadonly) {
-      // Checkbox labels
-      if (els.labelGeneral) els.labelGeneral.textContent = strings.checkboxGeneral;
-      if (els.labelWiderruf) els.labelWiderruf.textContent = strings.checkboxWiderruf;
+    // Checkbox labels (guards handle missing elements in readonly mode)
+    if (els.labelGeneral) els.labelGeneral.textContent = strings.checkboxGeneral;
+    if (els.labelWiderruf) els.labelWiderruf.textContent = strings.checkboxWiderruf;
 
-      // Buttons
-      if (els.acceptBtn) els.acceptBtn.textContent = strings.acceptButton;
-      if (els.downloadBtn) els.downloadBtn.textContent = strings.downloadReceiptButton;
-      if (els.continueBtn) els.continueBtn.textContent = strings.continueButton;
+    // Buttons
+    if (els.acceptBtn) els.acceptBtn.textContent = strings.acceptButton;
+    if (els.downloadBtn) els.downloadBtn.textContent = strings.downloadReceiptButton;
+    if (els.continueBtn) els.continueBtn.textContent = strings.continueButton;
 
-      if (accepted && els.acceptedMsg) {
-        els.acceptedMsg.textContent = strings.acceptedMessage;
-      }
-    } else {
-      if (els.readonlyNote) els.readonlyNote.textContent = strings.readonlyNote;
+    if (accepted && els.acceptedMsg) {
+      els.acceptedMsg.textContent = strings.acceptedMessage;
     }
+
+    if (els.readonlyNote) els.readonlyNote.textContent = strings.readonlyNote;
 
   }
 

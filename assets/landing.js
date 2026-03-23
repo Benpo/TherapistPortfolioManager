@@ -194,7 +194,7 @@ var LANDING_I18N = {
     contactText: 'יש לכם שאלות או צריכים עזרה? נשמח לשמוע מכם.',
     priceNote: '\u05de\u05d7\u05d9\u05e8 \u05d4\u05e9\u05e7\u05d4 \u00b7 \u05e8\u05db\u05d9\u05e9\u05d4 \u05d7\u05d3-\u05e4\u05e2\u05de\u05d9\u05ea \u00b7 \u05e8\u05d9\u05e9\u05d9\u05d5\u05df \u05dc\u05db\u05dc \u05d4\u05d7\u05d9\u05d9\u05dd',
     footerTerms: 'תנאי שימוש',
-    footerImpressum: 'Impressum',
+    footerImpressum: 'אודות',
     footerPrivacy: 'מדיניות פרטיות',
     footerCopy: '© 2026 Sessions Garden',
     footerTagline: 'נבנה באהבה עבור מטפלים'
@@ -376,7 +376,7 @@ var LANDING_I18N = {
     contactText: 'Máte otázky nebo potřebujete pomoc? Rádi vás uslyšíme.',
     priceNote: 'Uv\u00e1d\u011bc\u00ed cena \u00b7 Jednor\u00e1zov\u00fd n\u00e1kup \u00b7 Do\u017eivotn\u00ed licence',
     footerTerms: 'Podmínky použití',
-    footerImpressum: 'Impressum',
+    footerImpressum: 'O nás',
     footerPrivacy: 'Zásady ochrany osobních údajů',
     footerCopy: '© 2026 Sessions Garden',
     footerTagline: 'Vytvořeno s péčí pro terapeutické praktiky'
@@ -629,39 +629,44 @@ function initSpotlight() {
 
 /* ---------- Demo resize handles ---------- */
 (function() {
-  var handles = document.querySelectorAll('.demo-resize-handle');
-  if (!handles.length) return;
+  var sideHandles = document.querySelectorAll('.demo-resize-handle--start, .demo-resize-handle--end');
+  var bottomHandle = document.querySelector('.demo-resize-handle--bottom');
 
   var demoWindow = document.querySelector('.demo-window');
   var iframe = document.getElementById('demo-iframe');
   if (!demoWindow || !iframe) return;
 
-  var startX, startWidth, activeHandle;
+  var startX, startY, startWidth, startHeight, activeHandle, isVertical;
 
   function onPointerDown(e) {
     e.preventDefault();
     activeHandle = e.currentTarget;
     activeHandle.classList.add('dragging');
-    // Capture pointer so all subsequent events route to this element even over iframe
     activeHandle.setPointerCapture(e.pointerId);
+    isVertical = activeHandle.classList.contains('demo-resize-handle--bottom');
     startX = e.clientX;
+    startY = e.clientY;
     startWidth = demoWindow.offsetWidth;
-    // Prevent iframe from stealing pointer events
+    startHeight = iframe.offsetHeight;
     iframe.style.pointerEvents = 'none';
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
   }
 
   function onPointerMove(e) {
-    var isEnd = activeHandle.classList.contains('demo-resize-handle--end');
-    var rtl = document.documentElement.dir === 'rtl';
-    var dx = e.clientX - startX;
-    // For end handle: dragging right = wider; for start handle: dragging left = wider
-    // In RTL, directions are mirrored
-    var multiplier = isEnd ? 2 : -2; // 2x because we grow from center
-    if (rtl) multiplier *= -1;
-    var newWidth = Math.max(320, Math.min(startWidth + dx * multiplier, 1100));
-    demoWindow.style.maxInlineSize = newWidth + 'px';
+    if (isVertical) {
+      var dy = e.clientY - startY;
+      var newHeight = Math.max(300, Math.min(startHeight + dy, 1200));
+      iframe.style.height = newHeight + 'px';
+    } else {
+      var isEnd = activeHandle.classList.contains('demo-resize-handle--end');
+      var rtl = document.documentElement.dir === 'rtl';
+      var dx = e.clientX - startX;
+      var multiplier = isEnd ? 2 : -2;
+      if (rtl) multiplier *= -1;
+      var newWidth = Math.max(320, Math.min(startWidth + dx * multiplier, 1100));
+      demoWindow.style.maxInlineSize = newWidth + 'px';
+    }
   }
 
   function onPointerUp(e) {
@@ -676,9 +681,12 @@ function initSpotlight() {
     document.removeEventListener('pointerup', onPointerUp);
   }
 
-  handles.forEach(function(h) {
+  sideHandles.forEach(function(h) {
     h.addEventListener('pointerdown', onPointerDown);
   });
+  if (bottomHandle) {
+    bottomHandle.addEventListener('pointerdown', onPointerDown);
+  }
 })();
 
 /* ---------- Init ---------- */
