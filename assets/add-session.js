@@ -267,7 +267,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     editClientPhotoInput.addEventListener("change", async () => {
       const file = editClientPhotoInput.files && editClientPhotoInput.files[0];
       if (!file) return;
-      editClientPhotoData = await readFileAsDataURL(file);
+      editClientPhotoData = await App.readFileAsDataURL(file);
       if (editClientPhotoPreview) {
         editClientPhotoPreview.src = editClientPhotoData;
         editClientPhotoPreview.classList.remove("is-hidden");
@@ -581,15 +581,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     return `${clientName}\n\n${value}`;
   }
 
-  function formatSessionType(value) {
-    const labels = {
-      clinic: App.t("session.form.clinic"),
-      online: App.t("session.form.online"),
-      other: App.t("session.form.other")
-    };
-    return labels[value] || value || "-";
-  }
-
   function stripRequired(label) {
     return label.replace(/\s*\*$/, "");
   }
@@ -598,7 +589,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const clientName = getClientNameForCopy();
     const dateValue = sessionDate && sessionDate.value ? App.formatDate(sessionDate.value) : "-";
     const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
-    const sessionType = formatSessionType(sessionTypeInput ? sessionTypeInput.value : "");
+    const sessionType = App.formatSessionType(sessionTypeInput ? sessionTypeInput.value : "");
 
     // Issues section: always included, delta shown when both before and after exist
     const issuesPayload = getIssuesPayload();
@@ -724,7 +715,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     inlinePhotoInput.addEventListener("change", async () => {
       const file = inlinePhotoInput.files && inlinePhotoInput.files[0];
       if (!file) return;
-      inlinePhotoData = await readFileAsDataURL(file);
+      inlinePhotoData = await App.readFileAsDataURL(file);
       if (inlinePhotoPreview) {
         inlinePhotoPreview.src = inlinePhotoData;
         inlinePhotoPreview.classList.remove("is-hidden");
@@ -1075,15 +1066,6 @@ function resetInlineClientForm() {
     const isAdult = input.value === "adult";
     input.checked = isAdult;
     if (card) card.classList.toggle("active", isAdult);
-  });
-}
-
-function readFileAsDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
   });
 }
 

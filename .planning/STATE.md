@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 15-03-PLAN.md
-last_updated: "2026-03-23T02:54:54.661Z"
+stopped_at: Completed 16-02-PLAN.md
+last_updated: "2026-03-23T12:31:55.688Z"
 progress:
-  total_phases: 8
+  total_phases: 11
   completed_phases: 8
-  total_plans: 22
-  completed_plans: 22
+  total_plans: 27
+  completed_plans: 23
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 15 — architecture-and-ui-audit
+**Current focus:** Phase 16 — audit-fix-code
 
 ## Current Position
 
-Phase: 15
-Plan: Not started
+Phase: 16 (audit-fix-code) — EXECUTING
+Plan: 2 of 5
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Plan: Not started
 | Phase 15 P01 | 3min | 1 tasks | 1 files |
 | Phase 15 P02 | 4min | 1 tasks | 1 files |
 | Phase 15-architecture-and-ui-audit P03 | 4min | 1 tasks | 1 files |
+| Phase 16-audit-fix-code P02 | 5min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,8 @@ Recent decisions affecting current work:
 - [Phase 15]: GDPR: CloudFlare Pages compliant via EU-US DPF; local-only app = zero processor obligations; customer journey has 2 blocking gaps (no LS product, undefined post-purchase flow); SW font cache mismatch needs fixing
 - [Phase 15-03]: All 210 main app i18n keys verified complete across 4 languages
 - [Phase 15-03]: Backup banner hardcoded English strings are highest priority i18n fix
+- [Phase 16-audit-fix-code]: postMessage always uses window.location.origin (never wildcard) — closes HIGH severity audit finding
+- [Phase 16-audit-fix-code]: Demo gate bypass uses sessionStorage — bypass scoped to tab session only, prevents persistent license bypass
 
 ### Pending Todos
 
@@ -130,6 +133,6 @@ These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
 
 ## Session Continuity
 
-Last session: 2026-03-23T02:52:06.165Z
-Stopped at: Completed 15-03-PLAN.md
+Last session: 2026-03-23T12:31:55.686Z
+Stopped at: Completed 16-02-PLAN.md
 Resume file: None

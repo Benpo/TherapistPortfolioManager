@@ -35,15 +35,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  function formatSessionType(type) {
-    const map = {
-      inPerson: App.t("session.form.inPerson"),
-      proxy: App.t("session.form.proxy"),
-      surrogate: App.t("session.form.surrogate")
-    };
-    return map[type] || type || "-";
-  }
-
   function matchesDateRange(dateValue, start, end) {
     if (!dateValue) return false;
     if (start && dateValue < start) return false;
@@ -93,7 +84,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       clientCell.textContent = getClientName(session.clientId);
 
       const typeCell = document.createElement("td");
-      typeCell.textContent = formatSessionType(session.sessionType);
+      typeCell.textContent = App.formatSessionType(session.sessionType);
 
       const issuesCell = document.createElement("td");
       issuesCell.className = "issues-cell";

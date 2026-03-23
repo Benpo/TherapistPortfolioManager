@@ -298,37 +298,19 @@ window.App = (() => {
     banner.id = "backupBanner";
     banner.setAttribute("role", "alert");
     banner.setAttribute("aria-live", "polite");
-    banner.className = "backup-banner";
-
-    // Inline styles as fallback — tokens.css may not be loaded yet at this point,
-    // but by Task 2 in plan 01-01 tokens.css IS loaded first, so var() calls work.
-    banner.style.cssText = [
-      "display:flex",
-      "align-items:center",
-      "justify-content:space-between",
-      "flex-wrap:wrap",
-      "gap:8px",
-      "padding:10px 16px",
-      "background:var(--color-primary-soft,#c8e6d4)",
-      "border-bottom:1px solid var(--color-border,rgba(45,106,79,0.2))",
-      "font-family:Rubik,system-ui,sans-serif",
-      "font-size:14px",
-      "color:var(--color-text,#2f2d38)",
-    ].join(";");
+    banner.className = "backup-banner backup-reminder-banner";
 
     const msg = document.createElement("span");
     msg.className = "backup-banner-message";
-    msg.textContent = "It has been a while — consider backing up your data.";
+    msg.textContent = t("backup.banner.message");
 
     const actions = document.createElement("div");
     actions.className = "backup-banner-actions";
-    actions.style.cssText = "display:flex;align-items:center;gap:8px;flex-wrap:wrap;";
 
     // "Back up now" button
     const exportBtn = document.createElement("button");
-    exportBtn.className = "button backup-banner-export";
-    exportBtn.textContent = "Back up now";
-    exportBtn.style.cssText = "background:var(--color-primary,#2d6a4f);color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:600;font-size:13px;";
+    exportBtn.className = "button backup-banner-export backup-reminder-btn backup-reminder-btn--primary";
+    exportBtn.textContent = t("backup.banner.backupNow");
     exportBtn.addEventListener("click", async () => {
       try {
         const { blob, filename } = await BackupManager.exportBackup();
@@ -344,9 +326,8 @@ window.App = (() => {
 
     // "Postpone to tomorrow" button
     const tomorrowBtn = document.createElement("button");
-    tomorrowBtn.className = "button ghost backup-banner-tomorrow";
-    tomorrowBtn.textContent = "Postpone to tomorrow";
-    tomorrowBtn.style.cssText = "background:transparent;color:var(--color-text,#2f2d38);border:1px solid var(--color-border,rgba(45,106,79,0.2));border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;";
+    tomorrowBtn.className = "button ghost backup-banner-tomorrow backup-reminder-btn";
+    tomorrowBtn.textContent = t("backup.banner.postponeTomorrow");
     tomorrowBtn.addEventListener("click", () => {
       localStorage.setItem("portfolioBackupSnoozedUntil", String(Date.now() + 24 * 60 * 60 * 1000));
       banner.remove();
@@ -354,9 +335,8 @@ window.App = (() => {
 
     // "Postpone 1 week" button
     const weekBtn = document.createElement("button");
-    weekBtn.className = "button ghost backup-banner-week";
-    weekBtn.textContent = "Postpone 1 week";
-    weekBtn.style.cssText = "background:transparent;color:var(--color-text,#2f2d38);border:1px solid var(--color-border,rgba(45,106,79,0.2));border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;";
+    weekBtn.className = "button ghost backup-banner-week backup-reminder-btn";
+    weekBtn.textContent = t("backup.banner.postponeWeek");
     weekBtn.addEventListener("click", () => {
       localStorage.setItem("portfolioBackupSnoozedUntil", String(Date.now() + 7 * 24 * 60 * 60 * 1000));
       banner.remove();
@@ -364,10 +344,9 @@ window.App = (() => {
 
     // X close button (no snooze — hides for this page load only)
     const closeBtn = document.createElement("button");
-    closeBtn.className = "backup-banner-close";
+    closeBtn.className = "backup-banner-close backup-reminder-btn--close";
     closeBtn.setAttribute("aria-label", "Close backup reminder");
     closeBtn.textContent = "\u2715";
-    closeBtn.style.cssText = "background:none;border:none;cursor:pointer;font-size:16px;color:var(--color-text-muted,#5f5c72);padding:0 4px;";
     closeBtn.addEventListener("click", () => {
       banner.remove(); // No localStorage change — banner reappears next page load if still overdue
     });
@@ -379,10 +358,25 @@ window.App = (() => {
     document.body.prepend(banner);
   }
 
+  function formatSessionType(type) {
+    const key = 'session.type.' + (type || 'clinic');
+    return t(key);
+  }
+
+  function readFileAsDataURL(file) {
+    return new Promise(function(resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = function() { resolve(reader.result); };
+      reader.onerror = function() { reject(reader.error); };
+      reader.readAsDataURL(file);
+    });
+  }
+
   return {
     t,
     applyTranslations,
     setLanguage,
+    getLanguage: function() { return currentLang; },
     initCommon,
     renderNav,
     initThemeToggle,
@@ -393,5 +387,7 @@ window.App = (() => {
     getSeverityValue,
     exportData,
     downloadJSON,
+    formatSessionType,
+    readFileAsDataURL,
   };
 })();

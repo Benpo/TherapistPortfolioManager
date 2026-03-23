@@ -225,15 +225,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-function formatSessionType(type) {
-  const map = {
-    inPerson: App.t("session.form.inPerson"),
-    proxy: App.t("session.form.proxy"),
-    surrogate: App.t("session.form.surrogate")
-  };
-  return map[type] || type;
-}
-
 async function loadOverview() {
   const clients = await PortfolioDB.getAllClients();
   const sessions = await PortfolioDB.getAllSessions();
@@ -386,7 +377,7 @@ function renderClientRows(clients, sessionsByClient) {
           .join(", ");
         const meta = document.createElement("div");
         meta.className = "session-meta";
-        meta.textContent = `${App.formatDate(session.date)} • ${formatSessionType(session.sessionType)}`;
+        meta.textContent = `${App.formatDate(session.date)} • ${App.formatSessionType(session.sessionType)}`;
         const issueText = document.createElement("div");
         issueText.className = "session-issues";
         issueText.textContent = issues || App.t("overview.sessions.none");

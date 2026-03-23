@@ -267,7 +267,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const file = photoInput.files && photoInput.files[0];
       if (!file) return;
       try {
-        const rawDataURL = await readFileAsDataURL(file);
+        const rawDataURL = await App.readFileAsDataURL(file);
         openCropModal(rawDataURL, false);
       } catch (err) {
         console.error("Photo read failed:", err);
@@ -428,11 +428,3 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-function readFileAsDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
-}
