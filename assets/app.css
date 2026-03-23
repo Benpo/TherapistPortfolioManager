@@ -1566,6 +1566,13 @@ body.read-mode .heart-shield-section input {
   color: var(--color-text, #2f2d38);
 }
 
+.backup-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm, 8px);
+  flex-wrap: wrap;
+}
+
 .backup-reminder-btn {
   padding: var(--space-xs, 6px) var(--space-md, 14px);
   border: 1px solid var(--color-border, rgba(45, 106, 79, 0.2));

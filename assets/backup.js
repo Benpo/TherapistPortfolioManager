@@ -142,7 +142,7 @@ window.BackupManager = (function () {
       clients: clientsClean,
       sessions: allSessions,
       settings: {
-        language: localStorage.getItem("portfolioLanguage"),
+        language: localStorage.getItem("portfolioLang"),
         theme: localStorage.getItem("portfolioTheme"),
       },
     };
@@ -277,7 +277,7 @@ window.BackupManager = (function () {
     // Restore settings
     if (manifest.settings) {
       if (manifest.settings.language) {
-        localStorage.setItem("portfolioLanguage", manifest.settings.language);
+        localStorage.setItem("portfolioLang", manifest.settings.language);
       }
       if (manifest.settings.theme) {
         localStorage.setItem("portfolioTheme", manifest.settings.theme);
