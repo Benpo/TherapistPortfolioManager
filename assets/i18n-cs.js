@@ -257,7 +257,6 @@ window.QUOTES.cs = [
   { text: "Neptejte se, co svět potřebuje. Ptejte se, co vás oživuje…", author: "Howard Thurman" },
   { text: "Vše, čím jsme, je výsledkem toho, co jsme si mysleli", author: "Buddha" },
   { text: "Přítomný okamžik je jediný okamžik, který nám patří…", author: "Thich Nhat Hanh" },
-  { text: "Soucit není vztah mezi léčitelem a tím, kdo trpí — je to vztah mezi rovnými", author: "Pema Chödrön" },
   { text: "Podivný paradox spočívá v tom, že když přijmu sám sebe takového, jaký jsem, mohu se změnit", author: "Carl Rogers" },
   { text: "Uprostřed každé obtíže se skrývá příležitost", author: "Albert Einstein" },
   { text: "To, co je za námi, a to, co je před námi, jsou maličkosti ve srovnání s tím, co je v nás", author: "Ralph Waldo Emerson" },

@@ -257,7 +257,6 @@ window.QUOTES.en = [
   { text: "Don't ask what the world needs. Ask what makes you come alive and do that, because the world needs people who have come alive", author: "Howard Thurman" },
   { text: "All that we are is the result of what we have thought", author: "Buddha" },
   { text: "The present moment is the only moment available to us, and it is the door to all moments", author: "Thich Nhat Hanh" },
-  { text: "Compassion is not a relationship between the healer and the wounded. It's a relationship between equals", author: "Pema Chödrön" },
   { text: "The curious paradox is that when I accept myself just as I am, then I can change", author: "Carl Rogers" },
   { text: "In the middle of difficulty lies opportunity", author: "Albert Einstein" },
   { text: "What lies behind us and what lies before us are tiny matters compared to what lies within us", author: "Ralph Waldo Emerson" },

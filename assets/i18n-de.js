@@ -257,7 +257,6 @@ window.QUOTES.de = [
   { text: "Frage nicht, was die Welt braucht. Frage, was dich lebendig macht.", author: "Howard Thurman" },
   { text: "Alles, was wir sind, ist das Ergebnis dessen, was wir gedacht haben", author: "Buddha" },
   { text: "Der gegenwärtige Moment ist der einzige Moment, der uns wirklich gehört.", author: "Thich Nhat Hanh" },
-  { text: "Mitgefühl ist keine Beziehung zwischen einem Heiler und einem Verwundeten — es ist eine Beziehung unter Gleichen", author: "Pema Chödrön" },
   { text: "Das merkwürdige Paradox ist: Wenn ich mich selbst so annehme, wie ich bin, kann ich mich verändern", author: "Carl Rogers" },
   { text: "Inmitten jeder Schwierigkeit liegt eine Möglichkeit", author: "Albert Einstein" },
   { text: "Was hinter uns liegt und was vor uns liegt, ist nichts im Vergleich zu dem, was in uns liegt.", author: "Ralph Waldo Emerson" },
