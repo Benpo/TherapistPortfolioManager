@@ -226,6 +226,50 @@ Plans:
 - [x] 15-02-PLAN.md — PWA, customer journey, GDPR, legal status, and Lemon Squeezy readiness audit (AUDIT-04, AUDIT-05, AUDIT-06, AUDIT-07, AUDIT-08)
 - [x] 15-03-PLAN.md — i18n key completeness and RTL layout audit (AUDIT-09, AUDIT-10)
 
+### Phase 16: Audit fix — Code
+
+**Goal:** Fix all code-level findings from Phase 15 audit: SW cache, security hardening, i18n gaps, dead code cleanup, shared code extraction, and CSS token compliance. Grouped by file to minimize redundant edits.
+**Requirements**: FIX-01, FIX-02, FIX-03, FIX-04, FIX-05, FIX-06, FIX-07, FIX-08, FIX-09, FIX-10, FIX-11
+**Depends on:** Phase 15
+**Source:** `.planning/phases/15-architecture-and-ui-audit/15-CONSOLIDATED-FINDINGS.md` (CODE-01 through CODE-11)
+**Success Criteria** (what must be TRUE):
+  1. SW caches correct font files (3 weights, not Variable); app images cached; all pages register SW
+  2. Backup export/import correctly saves and restores language preference
+  3. Zero hardcoded English strings in user-visible banners (backup + DB errors)
+  4. All 11 HTML pages have CSP meta tag
+  5. postMessage calls use explicit origins; demo localStorage gate doesn't persist
+  6. formatSessionType() and readFileAsDataURL() exist once in app.js, not duplicated
+  7. No dead code referencing old session types (inPerson/proxy/surrogate)
+  8. No hardcoded colors in app.css outside design token system
+**Plans:** TBD
+
+### Phase 17: Audit fix — Business and operational
+
+**Goal:** Complete all business/operational items identified in Phase 15 audit that require human input: Lemon Squeezy product setup, real legal content, Hebrew quote translations, and post-purchase UX flow.
+**Requirements**: BIZ-01, BIZ-02, BIZ-03, BIZ-04, BIZ-05, BIZ-06
+**Depends on:** Phase 16 (code fixes should be clean before business wiring)
+**Source:** `.planning/phases/15-architecture-and-ui-audit/15-CONSOLIDATED-FINDINGS.md` (BIZ-01 through BIZ-06)
+**Success Criteria** (what must be TRUE):
+  1. Lemon Squeezy product live with real checkout URL, Store ID, and Product ID wired into code
+  2. Impressum and Datenschutz display real business details (no placeholders)
+  3. Hebrew quotes total 41 (matching other languages)
+  4. Customer can complete purchase → receive key → activate → use app without getting stranded
+  5. Licensed user can navigate back to license page for re-activation
+**Plans:** TBD
+
+### Phase 18: Technical debt
+
+**Goal:** Address deferred technical debt from Phase 15 audit: license key obfuscation, module structure separation, webhook handling strategy, and dir attribute standardization.
+**Requirements**: DEBT-01, DEBT-02, DEBT-03, DEBT-04
+**Depends on:** Phase 17 (launch first, then address debt)
+**Source:** `.planning/phases/15-architecture-and-ui-audit/15-CONSOLIDATED-FINDINGS.md` (Deferred Items section)
+**Success Criteria** (what must be TRUE):
+  1. License key in localStorage is obfuscated (not readable via casual DevTools inspection)
+  2. Pure business logic functions live in utils.js, separate from DOM manipulation
+  3. LS refund handling has a documented process (webhook or manual SOP)
+  4. All pages set dir attribute on `<html>` element consistently
+**Plans:** TBD
+
 ---
 
 ### v1.1 Final Polish & Launch (In Progress)
@@ -336,3 +380,9 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 10. UX Power Features | 2/2 | Complete    | 2026-03-19 | - |
 | 11. Visual Identity Update | 2/2 | Complete    | 2026-03-19 | - |
 | 12. Launch Prerequisites | 4/4 | Complete   | 2026-03-19 | - |
+| 13. Greeting Quotes | 1/1 | Complete | - | - |
+| 14. i18n/Footer/Email | 6/6 | Complete | - | - |
+| 15. Architecture/UI Audit | 3/3 | Complete | 2026-03-23 | - |
+| 16. Audit Fix: Code | 0/? | Not Started | - | - |
+| 17. Audit Fix: Business | 0/? | Not Started | - | - |
+| 18. Technical Debt | 0/? | Not Started | - | - |

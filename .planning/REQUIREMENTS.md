@@ -47,6 +47,36 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 - [x] **AUDIT-09**: i18n key completeness verified across all 4 languages
 - [x] **AUDIT-10**: RTL layout issues and wrong-language display bugs documented
 
+### Audit Fix: Code (Phase 16)
+
+- [ ] **FIX-01**: SW cache lists correct font files and includes app-critical images; all pages register SW
+- [ ] **FIX-02**: Backup export/import uses correct `portfolioLang` localStorage key
+- [ ] **FIX-03**: Backup reminder banner text translated in all 4 languages via i18n system
+- [ ] **FIX-04**: DB error banners translated, hardcoded styles replaced with tokens, Promise anti-pattern refactored
+- [ ] **FIX-05**: Landing page postMessage uses explicit origin; broken image path fixed; RTL CSS logical properties
+- [ ] **FIX-06**: Demo page validates postMessage origin; localStorage gate bypass fixed (sessionStorage)
+- [ ] **FIX-07**: All 11 HTML pages have Content-Security-Policy meta tag
+- [ ] **FIX-08**: formatSessionType() and readFileAsDataURL() extracted to shared app.js API
+- [ ] **FIX-09**: Dead code removed (old session types, unused i18n keys); event binding standardized in touched files
+- [ ] **FIX-10**: Hardcoded CSS colors replaced with design tokens
+- [ ] **FIX-11**: New i18n keys added for backup banner and DB error strings in all 4 language files
+
+### Audit Fix: Business/Operational (Phase 17)
+
+- [ ] **BIZ-01**: Lemon Squeezy account created, product configured (EUR 119, 2-device license), checkout URL live
+- [ ] **BIZ-02**: Impressum contains real business name, address, contact, tax ID
+- [ ] **BIZ-03**: Datenschutz has real business details and documents license activation API call
+- [ ] **BIZ-04**: Hebrew quotes brought to 41 (matching EN/DE/CS) with native translations
+- [ ] **BIZ-05**: Post-purchase flow designed and implemented (LS redirect, email template, ?key= auto-populate)
+- [ ] **BIZ-06**: In-app navigation path to license page for re-activation
+
+### Technical Debt (Phase 18)
+
+- [ ] **DEBT-01**: License key obfuscated in localStorage (XOR with device-derived salt)
+- [ ] **DEBT-02**: Business logic extracted from DOM manipulation into shared utils.js
+- [ ] **DEBT-03**: LS refund webhook handling (Cloudflare Worker or documented manual SOP)
+- [ ] **DEBT-04**: dir attribute standardized to `<html>` element across all pages
+
 ## Future Requirements
 
 Deferred to v2. Tracked but not in current roadmap.
@@ -128,9 +158,31 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUDIT-09 | Phase 15 | Complete |
 | AUDIT-10 | Phase 15 | Complete |
 
+| FIX-01 | Phase 16 | Pending |
+| FIX-02 | Phase 16 | Pending |
+| FIX-03 | Phase 16 | Pending |
+| FIX-04 | Phase 16 | Pending |
+| FIX-05 | Phase 16 | Pending |
+| FIX-06 | Phase 16 | Pending |
+| FIX-07 | Phase 16 | Pending |
+| FIX-08 | Phase 16 | Pending |
+| FIX-09 | Phase 16 | Pending |
+| FIX-10 | Phase 16 | Pending |
+| FIX-11 | Phase 16 | Pending |
+| BIZ-01 | Phase 17 | Pending |
+| BIZ-02 | Phase 17 | Pending |
+| BIZ-03 | Phase 17 | Pending |
+| BIZ-04 | Phase 17 | Pending |
+| BIZ-05 | Phase 17 | Pending |
+| BIZ-06 | Phase 17 | Pending |
+| DEBT-01 | Phase 18 | Pending |
+| DEBT-02 | Phase 18 | Pending |
+| DEBT-03 | Phase 18 | Pending |
+| DEBT-04 | Phase 18 | Pending |
+
 **Coverage:**
-- v1.1 requirements: 25 total
-- Mapped to phases: 25
+- v1.1 requirements: 46 total
+- Mapped to phases: 46
 - Unmapped: 0
 
 ---
