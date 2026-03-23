@@ -106,6 +106,10 @@
 
     if (els.readonlyNote) els.readonlyNote.textContent = strings.readonlyNote;
 
+    // Footer link
+    var footerLink = document.getElementById('footer-terms-link');
+    if (footerLink) footerLink.textContent = strings.heading;
+
   }
 
   // -------------------------------------------------------------------------
