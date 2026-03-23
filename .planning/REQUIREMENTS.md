@@ -44,8 +44,8 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 - [x] **AUDIT-06**: CloudFlare Pages GDPR compliance investigated with clear verdict
 - [x] **AUDIT-07**: Legal document placeholder status documented with exact missing content listed
 - [x] **AUDIT-08**: Lemon Squeezy integration readiness assessed
-- [ ] **AUDIT-09**: i18n key completeness verified across all 4 languages
-- [ ] **AUDIT-10**: RTL layout issues and wrong-language display bugs documented
+- [x] **AUDIT-09**: i18n key completeness verified across all 4 languages
+- [x] **AUDIT-10**: RTL layout issues and wrong-language display bugs documented
 
 ## Future Requirements
 
@@ -125,8 +125,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUDIT-06 | Phase 15 | Complete |
 | AUDIT-07 | Phase 15 | Complete |
 | AUDIT-08 | Phase 15 | Complete |
-| AUDIT-09 | Phase 15 | Pending |
-| AUDIT-10 | Phase 15 | Pending |
+| AUDIT-09 | Phase 15 | Complete |
+| AUDIT-10 | Phase 15 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 25 total
