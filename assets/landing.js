@@ -488,7 +488,7 @@ function applyLang(lang) {
   var demoIframe = document.getElementById('demo-iframe');
   if (demoIframe && demoIframe.contentWindow) {
     try {
-      demoIframe.contentWindow.postMessage({ type: 'demo-lang', lang: lang }, '*');
+      demoIframe.contentWindow.postMessage({ type: 'demo-lang', lang: lang }, window.location.origin);
     } catch(e) {}
   }
 
@@ -600,7 +600,7 @@ function initLangSelector() {
       // Sync demo iframe
       var demoIframe = document.getElementById('demo-iframe');
       if (demoIframe && demoIframe.contentWindow) {
-        try { demoIframe.contentWindow.postMessage({ type: 'demo-lang', lang: newLang }, '*'); } catch(ex) {}
+        try { demoIframe.contentWindow.postMessage({ type: 'demo-lang', lang: newLang }, window.location.origin); } catch(ex) {}
       }
     });
 

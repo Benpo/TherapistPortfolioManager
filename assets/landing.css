@@ -208,7 +208,7 @@
 
 /* Left — watering can, positioned bottom-center of left side */
 .hero-botanical-left {
-  left: -10px;
+  inset-inline-start: -10px;
   bottom: 10px;
 }
 
@@ -218,7 +218,7 @@
 
 /* Right — flower pots strip, centered vertically */
 .hero-botanical-right {
-  right: -10px;
+  inset-inline-end: -10px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -241,8 +241,8 @@
 @media (max-width: 1100px) {
   .hero-botanical-left .hero-botanical-img { width: 240px; }
   .hero-botanical-right .hero-botanical-img { width: 140px; }
-  .hero-botanical-left { left: -30px; }
-  .hero-botanical-right { right: -30px; }
+  .hero-botanical-left { inset-inline-start: -30px; }
+  .hero-botanical-right { inset-inline-end: -30px; }
   .hero-botanical-img { opacity: 0.3; }
 }
 
