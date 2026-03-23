@@ -207,18 +207,24 @@ Plans:
 
 ### Phase 15: Architecture and UI audit
 
-**Goal:** Comprehensive dual-mode quality audit — (1) Architecture review using parallel Opus subagents to find security vulnerabilities, code inconsistencies, contradicting patterns, and documentation gaps, synthesized into a single report; (2) Frontend UI audit via /gsd:ui-audit for visual/UX quality scoring. Both outputs combined into actionable findings.
-**Requirements**: TBD
+**Goal:** Comprehensive dual-mode quality audit -- (1) Architecture review via parallel executor plans covering security, code quality, PWA correctness, GDPR compliance, customer journey, and i18n completeness; (2) Frontend UI audit via /gsd:ui-review for visual/UX quality scoring. All outputs combined into actionable findings reports.
+**Requirements**: AUDIT-01, AUDIT-02, AUDIT-03, AUDIT-04, AUDIT-05, AUDIT-06, AUDIT-07, AUDIT-08, AUDIT-09, AUDIT-10
 **Depends on:** Phase 14
-
-**Execution approach:**
-- Architecture review: parallel Opus subagents (security, code quality, consistency) → Opus synthesis
-- UI review: /gsd:ui-review (6-pillar visual audit)
-- Final: combined findings report with prioritized action items
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. Security audit report exists with severity-classified findings across all JS/HTML files
+  2. Dead code report identifies unused JS functions, orphaned CSS, unreferenced i18n keys
+  3. PWA manifest and service worker verified for offline capability
+  4. Customer journey from landing page through purchase to app usage is fully mapped with gaps flagged
+  5. CloudFlare Pages GDPR compliance has clear verdict
+  6. Legal page placeholder status documented with exact missing content
+  7. i18n completeness verified across all 4 languages with missing keys listed
+  8. RTL layout issues documented
+**Plans:** 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 15 to break down)
+- [ ] 15-01-PLAN.md — Security, dead code, and architecture consistency audit (AUDIT-01, AUDIT-02, AUDIT-03)
+- [ ] 15-02-PLAN.md — PWA, customer journey, GDPR, legal status, and Lemon Squeezy readiness audit (AUDIT-04, AUDIT-05, AUDIT-06, AUDIT-07, AUDIT-08)
+- [ ] 15-03-PLAN.md — i18n key completeness and RTL layout audit (AUDIT-09, AUDIT-10)
 
 ---
 

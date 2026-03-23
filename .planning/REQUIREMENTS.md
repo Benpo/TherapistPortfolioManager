@@ -34,6 +34,19 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 - [x] **LNCH-05**: Final app icon replacing placeholder
 - [ ] **LNCH-06**: Basic QA pass — cross-browser (Chrome/Firefox/Safari/Edge), RTL, mobile viewports
 
+### Audit (Phase 15)
+
+- [ ] **AUDIT-01**: Security vulnerabilities scanned across all JS/HTML files with severity classification
+- [ ] **AUDIT-02**: Dead code (unused JS functions, orphaned CSS, unreferenced i18n keys) identified for cleanup
+- [ ] **AUDIT-03**: Architecture consistency reviewed (duplicate logic, pattern contradictions, token adoption)
+- [ ] **AUDIT-04**: PWA manifest and service worker verified for correct start_url and offline capability
+- [ ] **AUDIT-05**: Purchase-to-usage customer journey mapped with every gap flagged
+- [ ] **AUDIT-06**: CloudFlare Pages GDPR compliance investigated with clear verdict
+- [ ] **AUDIT-07**: Legal document placeholder status documented with exact missing content listed
+- [ ] **AUDIT-08**: Lemon Squeezy integration readiness assessed
+- [ ] **AUDIT-09**: i18n key completeness verified across all 4 languages
+- [ ] **AUDIT-10**: RTL layout issues and wrong-language display bugs documented
+
 ## Future Requirements
 
 Deferred to v2. Tracked but not in current roadmap.
@@ -104,12 +117,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LNCH-04 | Phase 12 | Pending |
 | LNCH-05 | Phase 11 | Complete |
 | LNCH-06 | Phase 12 | Pending |
+| AUDIT-01 | Phase 15 | Pending |
+| AUDIT-02 | Phase 15 | Pending |
+| AUDIT-03 | Phase 15 | Pending |
+| AUDIT-04 | Phase 15 | Pending |
+| AUDIT-05 | Phase 15 | Pending |
+| AUDIT-06 | Phase 15 | Pending |
+| AUDIT-07 | Phase 15 | Pending |
+| AUDIT-08 | Phase 15 | Pending |
+| AUDIT-09 | Phase 15 | Pending |
+| AUDIT-10 | Phase 15 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 15 total
-- Mapped to phases: 15
-- Unmapped: 0 ✓
+- v1.1 requirements: 25 total
+- Mapped to phases: 25
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after roadmap creation (phases 8-12)*
+*Last updated: 2026-03-23 after Phase 15 planning (audit requirements added)*
