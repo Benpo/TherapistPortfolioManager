@@ -106,8 +106,6 @@
       if (els.readonlyNote) els.readonlyNote.textContent = strings.readonlyNote;
     }
 
-    // Language selector label
-    if (els.langLabel) els.langLabel.textContent = strings.langLabel + ':';
   }
 
   // -------------------------------------------------------------------------
@@ -240,31 +238,17 @@
   function buildPage() {
     var strings = t();
 
-    // Language selector row
-    var langRow = document.getElementById('lang-row');
-    if (langRow) {
-      var labelEl = document.createElement('label');
-      labelEl.htmlFor = 'lang-select';
-      labelEl.className = 'disclaimer-lang-label';
-      els.langLabel = labelEl;
-
-      var selectEl = document.createElement('select');
-      selectEl.id = 'lang-select';
-      selectEl.className = 'select';
-
-      ['en', 'he', 'de', 'cs'].forEach(function (code) {
-        var opt = document.createElement('option');
-        opt.value = code;
-        opt.textContent = strings.languageNames[code];
-        if (code === currentLang) opt.selected = true;
-        selectEl.appendChild(opt);
-      });
-
-      selectEl.addEventListener('change', handleLangChange);
-
-      langRow.appendChild(labelEl);
-      langRow.appendChild(selectEl);
-    }
+    // Globe language selector
+    initGlobeLang({
+      containerId: 'globe-container',
+      currentLang: currentLang,
+      onLangChange: function (newLang) {
+        currentLang = newLang;
+        applyDirection();
+        renderText();
+        try { localStorage.setItem('portfolioLang', newLang); } catch (e) {}
+      }
+    });
 
     // Heading
     els.heading = document.getElementById('disclaimer-heading');

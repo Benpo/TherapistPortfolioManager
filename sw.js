@@ -9,7 +9,7 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v15';
+const CACHE_NAME = 'sessions-garden-v16';
 
 /**
  * All static assets to precache on install.
@@ -56,7 +56,9 @@ const PRECACHE_URLS = [
   '/assets/demo-hints.js',
   '/assets/demo.css',
   '/assets/landing.css',
-  '/assets/landing.js'
+  '/assets/landing.js',
+  '/assets/globe-lang.css',
+  '/assets/globe-lang.js'
 ];
 
 /**

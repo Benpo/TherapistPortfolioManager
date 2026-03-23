@@ -9,6 +9,7 @@
   <title>Impressum — Sessions Garden</title>
   <link rel="stylesheet" href="./assets/tokens.css" />
   <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="stylesheet" href="./assets/globe-lang.css" />
   <link rel="manifest" href="./manifest.json" />
   <style>
     .legal-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--color-bg); color: var(--color-text); }
@@ -26,6 +27,7 @@
   <div class="legal-page">
     <div class="legal-topbar">
       <a class="legal-topbar-brand" href="./landing.html">Sessions Garden</a>
+      <div id="globe-container"></div>
       <a id="back-link" class="legal-back-link" href="./landing.html">Back to home</a>
     </div>
     <div class="legal-content">
@@ -42,6 +44,7 @@ Telefon: [YOUR_PHONE_NUMBER]
 Steuernummer: [YOUR_TAX_ID]</pre>
     </div>
   </div>
+  <script src="./assets/globe-lang.js"></script>
   <script>
     (function() {
       var TITLES = { en: 'Impressum', he: 'אודות / Impressum', de: 'Impressum', cs: 'Impressum' };
@@ -64,6 +67,14 @@ Steuernummer: [YOUR_TAX_ID]</pre>
       if (a) a.textContent = ANGABEN[lang];
       var b = document.getElementById('back-link');
       if (b) b.textContent = BACK[lang];
+      initGlobeLang({
+        containerId: 'globe-container',
+        currentLang: lang,
+        onLangChange: function(newLang) {
+          try { localStorage.setItem('portfolioLang', newLang); } catch(e) {}
+          window.location.search = '?lang=' + newLang;
+        }
+      });
     })();
   </script>
 </body>

@@ -9,6 +9,7 @@
   <title>Privacy Policy — Sessions Garden</title>
   <link rel="stylesheet" href="./assets/tokens.css" />
   <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="stylesheet" href="./assets/globe-lang.css" />
   <link rel="manifest" href="./manifest.json" />
   <style>
     .legal-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--color-bg); color: var(--color-text); }
@@ -25,6 +26,7 @@
   <div class="legal-page">
     <div class="legal-topbar">
       <a class="legal-topbar-brand" href="./landing.html">Sessions Garden</a>
+      <div id="globe-container"></div>
       <a id="back-link" class="legal-back-link" href="./landing.html">Back to home</a>
     </div>
     <div class="legal-content">
@@ -168,6 +170,7 @@
 
     </div>
   </div>
+  <script src="./assets/globe-lang.js"></script>
   <script>
     (function() {
       var TITLES = { en: 'Privacy Policy', he: 'מדיניות פרטיות', de: 'Datenschutzerklärung', cs: 'Zásady ochrany osobních údajů' };
@@ -189,6 +192,14 @@
       if (b) b.textContent = BACK[lang];
       // Update page title
       document.title = TITLES[lang] + ' — Sessions Garden';
+      initGlobeLang({
+        containerId: 'globe-container',
+        currentLang: lang,
+        onLangChange: function(newLang) {
+          try { localStorage.setItem('portfolioLang', newLang); } catch(e) {}
+          window.location.search = '?lang=' + newLang;
+        }
+      });
     })();
   </script>
 </body>

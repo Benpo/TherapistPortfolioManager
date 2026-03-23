@@ -9,6 +9,7 @@
   <title>Terms of Use — Sessions Garden</title>
   <link rel="stylesheet" href="./assets/tokens.css" />
   <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="stylesheet" href="./assets/globe-lang.css" />
   <link rel="manifest" href="./manifest.json" />
   <style>
     /* -----------------------------------------------------------------------
@@ -46,18 +47,6 @@
       font-size: 1.1rem;
       font-weight: 700;
       color: var(--color-primary);
-    }
-
-    .disclaimer-lang-row {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-    }
-
-    .disclaimer-lang-label {
-      color: var(--color-text-muted);
-      font-size: 0.85rem;
     }
 
     .disclaimer-main {
@@ -261,9 +250,7 @@
       <span class="disclaimer-brand-title">Sessions Garden</span>
     </a>
 
-    <div class="disclaimer-lang-row" id="lang-row">
-      <!-- Populated by disclaimer.js -->
-    </div>
+    <div id="globe-container"></div>
   </div>
 
   <!-- Main content -->
@@ -321,6 +308,7 @@
 </div><!-- /disclaimer-page -->
 
 <script src="./assets/i18n-disclaimer.js"></script>
+<script src="./assets/globe-lang.js"></script>
 <script src="./assets/disclaimer.js"></script>
 <script>
   if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
