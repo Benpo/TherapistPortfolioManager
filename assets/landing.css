@@ -1100,10 +1100,11 @@
 .demo-resize-handle {
   position: absolute;
   top: 0;
-  width: 8px;
+  width: 24px;
   height: 100%;
   cursor: col-resize;
   z-index: 10;
+  touch-action: none;
   background: color-mix(in srgb, var(--color-primary) 25%, transparent);
   opacity: 0;
   transition: opacity 0.2s;
@@ -1111,19 +1112,38 @@
 
 .demo-resize-handle:hover,
 .demo-resize-handle.dragging {
-  opacity: 1;
+  opacity: 0.85;
 }
 
 .demo-resize-handle--start {
-  inset-inline-start: 0;
+  inset-inline-start: -12px;
   border-start-start-radius: 0;
   border-end-start-radius: 0;
 }
 
 .demo-resize-handle--end {
-  inset-inline-end: 0;
+  inset-inline-end: -12px;
   border-start-end-radius: 0;
   border-end-end-radius: 0;
+}
+
+/* Transparent edge overlays to prevent iframe from stealing pointer events */
+.demo-window-body::before,
+.demo-window-body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 24px;
+  height: 100%;
+  z-index: 5;
+}
+
+.demo-window-body::before {
+  inset-inline-start: 0;
+}
+
+.demo-window-body::after {
+  inset-inline-end: 0;
 }
 
 /* Visible grip dots on handles */
@@ -1133,8 +1153,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 3px;
-  height: 32px;
+  width: 4px;
+  height: 40px;
   background: var(--color-primary);
   border-radius: 2px;
   opacity: 0.6;

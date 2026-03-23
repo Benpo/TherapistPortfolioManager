@@ -642,6 +642,8 @@ function initSpotlight() {
     e.preventDefault();
     activeHandle = e.currentTarget;
     activeHandle.classList.add('dragging');
+    // Capture pointer so all subsequent events route to this element even over iframe
+    activeHandle.setPointerCapture(e.pointerId);
     startX = e.clientX;
     startWidth = demoWindow.offsetWidth;
     // Prevent iframe from stealing pointer events
@@ -662,8 +664,13 @@ function initSpotlight() {
     demoWindow.style.maxInlineSize = newWidth + 'px';
   }
 
-  function onPointerUp() {
-    if (activeHandle) activeHandle.classList.remove('dragging');
+  function onPointerUp(e) {
+    if (activeHandle) {
+      if (e && activeHandle.hasPointerCapture(e.pointerId)) {
+        activeHandle.releasePointerCapture(e.pointerId);
+      }
+      activeHandle.classList.remove('dragging');
+    }
     iframe.style.pointerEvents = '';
     document.removeEventListener('pointermove', onPointerMove);
     document.removeEventListener('pointerup', onPointerUp);
