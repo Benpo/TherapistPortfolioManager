@@ -390,6 +390,6 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 13. Greeting Quotes | 1/1 | Complete | - | - |
 | 14. i18n/Footer/Email | 6/6 | Complete | - | - |
 | 15. Architecture/UI Audit | 3/3 | Complete | 2026-03-23 | - |
-| 16. Audit Fix: Code | 0/5 | 5/5 | Complete   | 2026-03-23 |
+| 16. Audit Fix: Code | 0/5 | 5/5 | Complete    | 2026-03-23 |
 | 17. Audit Fix: Business | 0/? | Not Started | - | - |
 | 18. Technical Debt | 0/? | Not Started | - | - |
