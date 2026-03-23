@@ -32,7 +32,18 @@
     <div class="legal-content">
       <h2 id="datenschutz-page-heading">Privacy Policy / Datenschutzerklärung</h2>
 
+      <!-- ===== NOTICES FOR HE/CS USERS ===== -->
+      <div id="content-notice-he" lang="he" dir="rtl" style="display:none; margin-bottom: 2rem; padding: 1rem; background: color-mix(in srgb, var(--color-primary, #4a7c59) 8%, transparent); border-radius: 8px;">
+        <p style="margin:0 0 0.5rem; font-weight:600;">מדיניות הפרטיות זמינה בגרמנית ובאנגלית.</p>
+        <p style="margin:0;">Sessions Garden היא אפליקציה מקומית בלבד — כל הנתונים נשמרים רק במכשיר שלך ואינם נשלחים לשום שרת. למטה תוכל/י לקרוא את מדיניות הפרטיות המלאה באנגלית.</p>
+      </div>
+      <div id="content-notice-cs" lang="cs" style="display:none; margin-bottom: 2rem; padding: 1rem; background: color-mix(in srgb, var(--color-primary, #4a7c59) 8%, transparent); border-radius: 8px;">
+        <p style="margin:0 0 0.5rem; font-weight:600;">Zásady ochrany osobních údajů jsou k dispozici v němčině a angličtině.</p>
+        <p style="margin:0;">Sessions Garden je čistě lokální aplikace — všechna data jsou uložena pouze ve vašem zařízení a nikdy nejsou odesílána na žádný server. Níže si můžete přečíst úplné zásady ochrany osobních údajů v angličtině.</p>
+      </div>
+
       <!-- ===== GERMAN VERSION (primary / Primärversion) ===== -->
+      <div id="content-de">
       <h2 id="datenschutz-de-heading" lang="de">Datenschutzerklärung</h2>
       <p id="datenschutz-de-intro" lang="de">Diese Datenschutzerklärung informiert Sie gemäß Art. 13 und 14 der Datenschutz-Grundverordnung (DSGVO) darüber, wie Sessions Garden mit personenbezogenen Daten umgeht. Sessions Garden ist eine Progressive Web App (PWA) für Wellness- und Energiearbeit-Praktizierende.</p>
 
@@ -99,9 +110,12 @@
       <h3 id="datenschutz-aktualitaet-title" lang="de">10. Aktualität und Änderung dieser Datenschutzerklärung</h3>
       <p id="datenschutz-aktualitaet" lang="de">Diese Datenschutzerklärung ist aktuell gültig und entspricht dem Stand von 2026. Da Sessions Garden kontinuierlich weiterentwickelt wird, kann es erforderlich sein, diese Datenschutzerklärung gelegentlich anzupassen. Die jeweils aktuelle Fassung ist stets über den Footer-Link „Privacy Policy / Datenschutzerklärung" abrufbar.</p>
 
+      </div><!-- end #content-de -->
+
       <!-- ===== ENGLISH VERSION (translation) ===== -->
       <hr id="datenschutz-divider" style="margin: 2rem 0; border: none; border-top: 1px solid var(--color-border, #ddd);">
 
+      <div id="content-en">
       <h2 id="datenschutz-en-heading" lang="en">Privacy Policy (English)</h2>
       <p id="datenschutz-en-intro" lang="en">This Privacy Policy informs you in accordance with Art. 13 and 14 of the General Data Protection Regulation (GDPR) about how Sessions Garden handles personal data. Sessions Garden is a Progressive Web App (PWA) for wellness and energy work practitioners.</p>
 
@@ -168,6 +182,8 @@
       <h3 id="datenschutz-en-updates-title" lang="en">10. Currency and Amendments to This Privacy Policy</h3>
       <p id="datenschutz-en-updates" lang="en">This Privacy Policy is current as of 2026. As Sessions Garden is continuously developed, it may occasionally be necessary to update this policy. The current version is always available via the "Privacy Policy / Datenschutzerklärung" link in the footer.</p>
 
+      </div><!-- end #content-en -->
+
     </div>
   </div>
   <script src="./assets/globe-lang.js"></script>
@@ -192,6 +208,38 @@
       if (b) b.textContent = BACK[lang];
       // Update page title
       document.title = TITLES[lang] + ' — Sessions Garden';
+
+      // Language-aware content visibility
+      var contentDe = document.getElementById('content-de');
+      var contentEn = document.getElementById('content-en');
+      var divider = document.getElementById('datenschutz-divider');
+      var noticeHe = document.getElementById('content-notice-he');
+      var noticeCs = document.getElementById('content-notice-cs');
+
+      if (lang === 'de') {
+        // Show DE primary, EN secondary (both visible, divider shown)
+        if (contentDe) contentDe.style.display = '';
+        if (contentEn) contentEn.style.display = '';
+        if (divider) divider.style.display = '';
+      } else if (lang === 'en') {
+        // Show EN only, hide DE
+        if (contentDe) contentDe.style.display = 'none';
+        if (contentEn) contentEn.style.display = '';
+        if (divider) divider.style.display = 'none';
+      } else if (lang === 'he') {
+        // Show Hebrew notice + EN content as reference
+        if (noticeHe) noticeHe.style.display = '';
+        if (contentDe) contentDe.style.display = 'none';
+        if (contentEn) contentEn.style.display = '';
+        if (divider) divider.style.display = 'none';
+      } else if (lang === 'cs') {
+        // Show Czech notice + EN content as reference
+        if (noticeCs) noticeCs.style.display = '';
+        if (contentDe) contentDe.style.display = 'none';
+        if (contentEn) contentEn.style.display = '';
+        if (divider) divider.style.display = 'none';
+      }
+
       initGlobeLang({
         containerId: 'globe-container',
         currentLang: lang,
