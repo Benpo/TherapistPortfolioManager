@@ -219,12 +219,12 @@ Plans:
   6. Legal page placeholder status documented with exact missing content
   7. i18n completeness verified across all 4 languages with missing keys listed
   8. RTL layout issues documented
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 15-01-PLAN.md — Security, dead code, and architecture consistency audit (AUDIT-01, AUDIT-02, AUDIT-03)
-- [ ] 15-02-PLAN.md — PWA, customer journey, GDPR, legal status, and Lemon Squeezy readiness audit (AUDIT-04, AUDIT-05, AUDIT-06, AUDIT-07, AUDIT-08)
-- [ ] 15-03-PLAN.md — i18n key completeness and RTL layout audit (AUDIT-09, AUDIT-10)
+- [x] 15-01-PLAN.md — Security, dead code, and architecture consistency audit (AUDIT-01, AUDIT-02, AUDIT-03)
+- [x] 15-02-PLAN.md — PWA, customer journey, GDPR, legal status, and Lemon Squeezy readiness audit (AUDIT-04, AUDIT-05, AUDIT-06, AUDIT-07, AUDIT-08)
+- [x] 15-03-PLAN.md — i18n key completeness and RTL layout audit (AUDIT-09, AUDIT-10)
 
 ---
 

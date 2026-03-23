@@ -36,9 +36,9 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 
 ### Audit (Phase 15)
 
-- [ ] **AUDIT-01**: Security vulnerabilities scanned across all JS/HTML files with severity classification
-- [ ] **AUDIT-02**: Dead code (unused JS functions, orphaned CSS, unreferenced i18n keys) identified for cleanup
-- [ ] **AUDIT-03**: Architecture consistency reviewed (duplicate logic, pattern contradictions, token adoption)
+- [x] **AUDIT-01**: Security vulnerabilities scanned across all JS/HTML files with severity classification
+- [x] **AUDIT-02**: Dead code (unused JS functions, orphaned CSS, unreferenced i18n keys) identified for cleanup
+- [x] **AUDIT-03**: Architecture consistency reviewed (duplicate logic, pattern contradictions, token adoption)
 - [ ] **AUDIT-04**: PWA manifest and service worker verified for correct start_url and offline capability
 - [ ] **AUDIT-05**: Purchase-to-usage customer journey mapped with every gap flagged
 - [ ] **AUDIT-06**: CloudFlare Pages GDPR compliance investigated with clear verdict
@@ -117,9 +117,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LNCH-04 | Phase 12 | Pending |
 | LNCH-05 | Phase 11 | Complete |
 | LNCH-06 | Phase 12 | Pending |
-| AUDIT-01 | Phase 15 | Pending |
-| AUDIT-02 | Phase 15 | Pending |
-| AUDIT-03 | Phase 15 | Pending |
+| AUDIT-01 | Phase 15 | Complete |
+| AUDIT-02 | Phase 15 | Complete |
+| AUDIT-03 | Phase 15 | Complete |
 | AUDIT-04 | Phase 15 | Pending |
 | AUDIT-05 | Phase 15 | Pending |
 | AUDIT-06 | Phase 15 | Pending |
