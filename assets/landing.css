@@ -49,18 +49,21 @@
 }
 
 .landing-enter-link {
-  font-size: 0.875rem;
+  font-size: 1rem;
+  font-weight: 500;
   color: var(--color-primary);
   text-decoration: none;
-  padding: 0.375rem 0.875rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--color-border);
-  transition: background 0.15s;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.625rem;
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+  transition: background 0.15s, border-color 0.15s;
   white-space: nowrap;
 }
 
 .landing-enter-link:hover {
-  background: var(--color-surface-hover);
+  background: color-mix(in srgb, var(--color-primary) 22%, transparent);
+  border-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
 }
 
 /* ---- Aurora animation ---- */
@@ -1085,10 +1088,59 @@
 
 .demo-iframe {
   width: 100%;
-  height: 600px;
+  height: 700px;
   border: none;
   background: var(--color-background);
   display: block;
+  flex: 1;
+}
+
+.demo-window-body {
+  position: relative;
+  display: flex;
+}
+
+.demo-resize-handle {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+  background: color-mix(in srgb, var(--color-primary) 25%, transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.demo-resize-handle:hover,
+.demo-resize-handle.dragging {
+  opacity: 1;
+}
+
+.demo-resize-handle--start {
+  inset-inline-start: 0;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+.demo-resize-handle--end {
+  inset-inline-end: 0;
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+/* Visible grip dots on handles */
+.demo-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px;
+  height: 32px;
+  background: var(--color-primary);
+  border-radius: 2px;
+  opacity: 0.6;
 }
 
 .demo-note {
@@ -1120,6 +1172,8 @@
   .demo-window-title {
     font-size: 0.6875rem;
   }
+
+  .demo-resize-handle { display: none; }
 }
 
 /* ---- Responsive ---- */

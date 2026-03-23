@@ -653,6 +653,53 @@ function initSpotlight() {
   });
 }
 
+/* ---------- Demo resize handles ---------- */
+(function() {
+  var handles = document.querySelectorAll('.demo-resize-handle');
+  if (!handles.length) return;
+
+  var demoWindow = document.querySelector('.demo-window');
+  var iframe = document.getElementById('demo-iframe');
+  if (!demoWindow || !iframe) return;
+
+  var startX, startWidth, activeHandle;
+
+  function onPointerDown(e) {
+    e.preventDefault();
+    activeHandle = e.currentTarget;
+    activeHandle.classList.add('dragging');
+    startX = e.clientX;
+    startWidth = demoWindow.offsetWidth;
+    // Prevent iframe from stealing pointer events
+    iframe.style.pointerEvents = 'none';
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup', onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    var isEnd = activeHandle.classList.contains('demo-resize-handle--end');
+    var rtl = document.documentElement.dir === 'rtl';
+    var dx = e.clientX - startX;
+    // For end handle: dragging right = wider; for start handle: dragging left = wider
+    // In RTL, directions are mirrored
+    var multiplier = isEnd ? 2 : -2; // 2x because we grow from center
+    if (rtl) multiplier *= -1;
+    var newWidth = Math.max(320, Math.min(startWidth + dx * multiplier, 1100));
+    demoWindow.style.maxInlineSize = newWidth + 'px';
+  }
+
+  function onPointerUp() {
+    if (activeHandle) activeHandle.classList.remove('dragging');
+    iframe.style.pointerEvents = '';
+    document.removeEventListener('pointermove', onPointerMove);
+    document.removeEventListener('pointerup', onPointerUp);
+  }
+
+  handles.forEach(function(h) {
+    h.addEventListener('pointerdown', onPointerDown);
+  });
+})();
+
 /* ---------- Init ---------- */
 document.addEventListener('DOMContentLoaded', function() {
   applyTheme();

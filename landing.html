@@ -86,7 +86,7 @@
         Get Sessions Garden — €119
       </a>
     </div>
-    <p class="landing-price-note">
+    <p id="price-note" class="landing-price-note">
       Launch pricing &middot; One-time purchase &middot; Lifetime license
     </p>
   </div>
@@ -200,14 +200,18 @@
       <span class="demo-window-dot"></span>
       <span class="demo-window-title">Sessions Garden — Demo</span>
     </div>
-    <iframe
-      id="demo-iframe"
-      src="./demo.html"
-      class="demo-iframe"
-      title="Sessions Garden interactive demo"
-      loading="lazy"
-      sandbox="allow-scripts allow-same-origin allow-popups allow-forms">
-    </iframe>
+    <div class="demo-window-body">
+      <div class="demo-resize-handle demo-resize-handle--start" aria-hidden="true"></div>
+      <iframe
+        id="demo-iframe"
+        src="./demo.html"
+        class="demo-iframe"
+        title="Sessions Garden interactive demo"
+        loading="lazy"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-forms">
+      </iframe>
+      <div class="demo-resize-handle demo-resize-handle--end" aria-hidden="true"></div>
+    </div>
   </div>
   <p id="demo-note" class="demo-note">ההדגמה רצה לגמרי בדפדפן שלכם. אין נתונים שנשמרים או נשלחים לשום מקום.</p>
 </section>
