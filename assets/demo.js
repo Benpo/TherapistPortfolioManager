@@ -9,6 +9,7 @@
 
   // Listen for language sync from parent (landing page)
   window.addEventListener('message', function(event) {
+    if (event.origin !== window.location.origin) return;
     if (event.data && event.data.type === 'demo-lang') {
       var lang = event.data.lang;
       if (lang && window.App) {
