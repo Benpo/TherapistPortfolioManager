@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Impressum — Sessions Garden</title>
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="manifest" href="./manifest.json" />
+  <style>
+    .legal-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--color-bg); color: var(--color-text); }
+    .legal-topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
+    .legal-topbar-brand { font-weight: 600; font-size: 1.125rem; color: var(--color-primary); text-decoration: none; }
+    .legal-back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; }
+    .legal-back-link:hover { text-decoration: underline; }
+    .legal-content { flex: 1; max-width: 720px; margin: 2rem auto; padding: 0 1.5rem; line-height: 1.7; }
+    .legal-content h2 { margin-top: 0; color: var(--color-primary); }
+    .legal-content h3 { margin-top: 1.5rem; }
+    .legal-content pre { font-family: inherit; white-space: pre-wrap; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="legal-page">
+    <div class="legal-topbar">
+      <a class="legal-topbar-brand" href="./landing.html">Sessions Garden</a>
+      <a id="back-link" class="legal-back-link" href="./landing.html">Back to home</a>
+    </div>
+    <div class="legal-content">
+      <h2 id="impressum-heading">Impressum</h2>
+      <h3 id="impressum-angaben">Angaben gemäß § 5 DDG</h3>
+      <pre id="impressum-placeholder" style="font-family:inherit;margin:0;white-space:pre-wrap;">[YOUR_BUSINESS_NAME]
+[YOUR_STREET_ADDRESS]
+[YOUR_CITY_POSTAL_CODE]
+
+Kontakt:
+E-Mail: [YOUR_BUSINESS_EMAIL]
+Telefon: [YOUR_PHONE_NUMBER]
+
+Steuernummer: [YOUR_TAX_ID]</pre>
+    </div>
+  </div>
+  <script>
+    (function() {
+      var TITLES = { en: 'Impressum', he: 'Impressum', de: 'Impressum', cs: 'Impressum' };
+      var BACK = { en: 'Back to home', he: 'חזרה לדף הבית', de: 'Zurück zur Startseite', cs: 'Zpět na hlavní stránku' };
+      var ANGABEN = { en: 'Information pursuant to DDG § 5', he: 'פרטים בהתאם ל-DDG סעיף 5', de: 'Angaben gemäß § 5 DDG', cs: 'Údaje podle § 5 DDG' };
+      function detectLang() {
+        var params = new URLSearchParams(window.location.search);
+        var p = params.get('lang');
+        if (p && TITLES[p]) return p;
+        try { var s = localStorage.getItem('portfolioLang'); if (s && TITLES[s]) return s; } catch(e) {}
+        var nav = (navigator.language || '').split('-')[0].toLowerCase();
+        return TITLES[nav] ? nav : 'en';
+      }
+      var lang = detectLang();
+      document.documentElement.setAttribute('lang', lang);
+      document.documentElement.setAttribute('dir', lang === 'he' ? 'rtl' : 'ltr');
+      var h = document.getElementById('impressum-heading');
+      if (h) h.textContent = TITLES[lang];
+      var a = document.getElementById('impressum-angaben');
+      if (a) a.textContent = ANGABEN[lang];
+      var b = document.getElementById('back-link');
+      if (b) b.textContent = BACK[lang];
+    })();
+  </script>
+</body>
+</html>
