@@ -211,7 +211,11 @@ window.I18N.he = {
   "crop.recrop": "חיתוך מחדש",
   "session.editClient": "ערוך לקוח",
   "session.editClient.title": "עריכת לקוח",
-  "session.editClient.save": "שמור שינויים"
+  "session.editClient.save": "שמור שינויים",
+  "backup.banner.message": "עבר זמן מה -- כדאי לגבות את הנתונים שלך.",
+  "backup.banner.backupNow": "גיבוי עכשיו",
+  "backup.banner.postponeTomorrow": "דחה למחר",
+  "backup.banner.postponeWeek": "דחה לשבוע"
 };
 
 window.QUOTES.he = [

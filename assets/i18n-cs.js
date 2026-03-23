@@ -211,7 +211,11 @@ window.I18N.cs = {
   "crop.recrop": "Orezat znovu",
   "session.editClient": "Upravit klienta",
   "session.editClient.title": "Upravit klienta",
-  "session.editClient.save": "Ulozit zmeny"
+  "session.editClient.save": "Ulozit zmeny",
+  "backup.banner.message": "Uz je to delsi dobu -- zvaz zalohovani svych dat.",
+  "backup.banner.backupNow": "Zalohovat nyni",
+  "backup.banner.postponeTomorrow": "Odlozit na zitra",
+  "backup.banner.postponeWeek": "Odlozit o tyden"
 };
 
 window.QUOTES.cs = [

@@ -211,7 +211,11 @@ window.I18N.en = {
   "crop.recrop": "Recrop",
   "session.editClient": "Edit Client",
   "session.editClient.title": "Edit Client",
-  "session.editClient.save": "Save Changes"
+  "session.editClient.save": "Save Changes",
+  "backup.banner.message": "It has been a while -- consider backing up your data.",
+  "backup.banner.backupNow": "Back up now",
+  "backup.banner.postponeTomorrow": "Postpone to tomorrow",
+  "backup.banner.postponeWeek": "Postpone 1 week"
 };
 
 window.QUOTES.en = [

@@ -211,7 +211,11 @@ window.I18N.de = {
   "crop.recrop": "Neu zuschneiden",
   "session.editClient": "Klient bearbeiten",
   "session.editClient.title": "Klient bearbeiten",
-  "session.editClient.save": "Änderungen speichern"
+  "session.editClient.save": "Änderungen speichern",
+  "backup.banner.message": "Es ist eine Weile her -- denke daran, deine Daten zu sichern.",
+  "backup.banner.backupNow": "Jetzt sichern",
+  "backup.banner.postponeTomorrow": "Auf morgen verschieben",
+  "backup.banner.postponeWeek": "1 Woche verschieben"
 };
 
 window.QUOTES.de = [
