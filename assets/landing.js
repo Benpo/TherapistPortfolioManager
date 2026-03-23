@@ -409,7 +409,7 @@ function applyLang(lang) {
   setText('hero-subtitle', t.heroSubtitle);
   setHref('hero-cta', LS_CHECKOUT_URL);
   setText2('hero-cta', t.heroCta);
-  setHref('hero-enter-link', './license.html');
+  setHref('hero-enter-link', './license.html?lang=' + lang);
   setText2('hero-enter-link', t.heroEnterApp);
   setText('price-note', t.priceNote);
 
@@ -467,7 +467,7 @@ function applyLang(lang) {
   setHref('pricing-cta', LS_CHECKOUT_URL);
   setText2('pricing-cta', t.pricingCta);
   setText2('features-cta', t.pricingCta);
-  setHref('pricing-license-link', './license.html');
+  setHref('pricing-license-link', './license.html?lang=' + lang);
   setText2('pricing-license-link', t.pricingLicenseLink);
 
   // FAQ

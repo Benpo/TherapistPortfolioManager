@@ -95,6 +95,9 @@ const LICENSE_I18N = {
 // ---------------------------------------------------------------------------
 function getLicenseLang() {
   try {
+    var params = new URLSearchParams(window.location.search);
+    var urlLang = params.get('lang');
+    if (urlLang && LICENSE_I18N[urlLang]) return urlLang;
     var stored = localStorage.getItem('portfolioTermsLang') || localStorage.getItem('portfolioLang');
     if (stored && LICENSE_I18N[stored]) return stored;
     var nav = (navigator.language || '').toLowerCase().slice(0, 2);
