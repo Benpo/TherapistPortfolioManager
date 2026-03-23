@@ -182,6 +182,41 @@ Plans:
 Plans:
 - [ ] 13-01-PLAN.md — Review and fix all quotes: EN attribution verification + HE/DE/CS native idiom sync (QUOTE-01, QUOTE-02, QUOTE-03)
 
+### Phase 14: i18n bugs, legal footer cleanup, and contact email update
+
+**Goal:** Fix i18n language persistence and untranslated strings, make the demo window resizable, convert footer legal sections from expandable accordions to simple links that match the active language, and update contact email to contact@sessionsgarden.app across the entire site
+**Requirements**: D-01, D-02, D-03, D-04, D-05, D-06, D-07, D-08, D-09
+**Depends on:** Phase 13
+
+**Specific issues:**
+1. Hebrew login page shows German text in parentheses for the cancel concept
+2. Language doesn't persist when navigating between landing page and app — returns to English
+3. Hebrew version shows "Launch pricing · One-time purchase · Lifetime license" untranslated
+4. Demo app window must be resizable
+5. Footer legal links (Impressum/Datenschutz) should be plain links, not expandable sections, and must match the displayed language (no mixing like Hebrew + "Impressum")
+6. Update email to contact@sessionsgarden.app everywhere
+**Plans:** 3 plans
+
+Plans:
+- [ ] 14-01-PLAN.md — Fix language persistence, trust badge i18n, Hebrew disclaimer, contact email (D-01, D-02, D-03, D-07)
+- [ ] 14-02-PLAN.md — Demo resize handles, header license CTA, globe language popover (D-04, D-08, D-09)
+- [ ] 14-03-PLAN.md — Impressum and Datenschutz as dedicated pages, footer cleanup, SW update (D-05, D-06)
+
+### Phase 15: Architecture and UI audit
+
+**Goal:** Comprehensive dual-mode quality audit — (1) Architecture review using parallel Opus subagents to find security vulnerabilities, code inconsistencies, contradicting patterns, and documentation gaps, synthesized into a single report; (2) Frontend UI audit via /gsd:ui-audit for visual/UX quality scoring. Both outputs combined into actionable findings.
+**Requirements**: TBD
+**Depends on:** Phase 14
+
+**Execution approach:**
+- Architecture review: parallel Opus subagents (security, code quality, consistency) → Opus synthesis
+- UI review: /gsd:ui-review (6-pillar visual audit)
+- Final: combined findings report with prioritized action items
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 15 to break down)
+
 ---
 
 ### v1.1 Final Polish & Launch (In Progress)
