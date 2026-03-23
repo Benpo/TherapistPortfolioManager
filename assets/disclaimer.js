@@ -106,9 +106,20 @@
 
     if (els.readonlyNote) els.readonlyNote.textContent = strings.readonlyNote;
 
-    // Footer link
-    var footerLink = document.getElementById('footer-terms-link');
-    if (footerLink) footerLink.textContent = strings.heading;
+    // Footer links — translate and pass lang param
+    var FOOTER_LABELS = {
+      en: { terms: 'Terms of Use', impressum: 'Impressum', privacy: 'Privacy Policy' },
+      he: { terms: 'תנאי שימוש', impressum: 'אודות', privacy: 'מדיניות פרטיות' },
+      de: { terms: 'Nutzungsbedingungen', impressum: 'Impressum', privacy: 'Datenschutzerklärung' },
+      cs: { terms: 'Podmínky použití', impressum: 'O nás', privacy: 'Zásady ochrany osobních údajů' }
+    };
+    var fl = FOOTER_LABELS[currentLang] || FOOTER_LABELS.en;
+    var fTerms = document.getElementById('footer-terms-link');
+    var fImp = document.getElementById('footer-impressum-link');
+    var fPriv = document.getElementById('footer-privacy-link');
+    if (fTerms) { fTerms.textContent = fl.terms; fTerms.href = './disclaimer.html?readonly=true&lang=' + currentLang; }
+    if (fImp) { fImp.textContent = fl.impressum; fImp.href = './impressum.html?lang=' + currentLang; }
+    if (fPriv) { fPriv.textContent = fl.privacy; fPriv.href = './datenschutz.html?lang=' + currentLang; }
 
   }
 
@@ -268,6 +279,11 @@
         els.readonlyNote = note;
         note.style.display = '';
       }
+      // Hide checkboxes and accept button in readonly mode
+      var cbArea = document.getElementById('checkbox-area');
+      if (cbArea) cbArea.style.display = 'none';
+      var acceptArea = document.getElementById('accept-btn-area');
+      if (acceptArea) acceptArea.style.display = 'none';
       return; // No checkboxes, no buttons in readonly mode
     }
 

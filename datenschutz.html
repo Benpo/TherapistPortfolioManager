@@ -14,12 +14,15 @@
   <style>
     .legal-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--color-bg); color: var(--color-text); }
     .legal-topbar { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
-    .legal-topbar-brand { font-weight: 600; font-size: 1.125rem; color: var(--color-primary); text-decoration: none; }
+    .legal-topbar-brand { font-weight: 600; font-size: 1.125rem; color: var(--color-primary); text-decoration: none; flex: 1; }
     .legal-back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; }
     .legal-back-link:hover { text-decoration: underline; }
     .legal-content { flex: 1; max-width: 720px; margin: 2rem auto; padding: 0 1.5rem; line-height: 1.7; }
     .legal-content h2 { margin-top: 0; color: var(--color-primary); }
     .legal-content h3 { margin-top: 1.5rem; }
+    .legal-footer { text-align: center; padding: 1.5rem; border-top: 1px solid var(--color-border); font-size: 0.875rem; display: flex; justify-content: center; gap: 1.5rem; }
+    .legal-footer a { color: var(--color-primary); text-decoration: none; }
+    .legal-footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -186,6 +189,11 @@
 
     </div>
   </div>
+  <footer class="legal-footer" id="legal-footer">
+    <a id="footer-terms-link" href="./disclaimer.html?readonly=true">Terms of Use</a>
+    <a id="footer-impressum-link" href="./impressum.html">Impressum</a>
+    <a id="footer-privacy-link" href="./datenschutz.html">Privacy Policy</a>
+  </footer>
   <script src="./assets/globe-lang.js"></script>
   <script>
     (function() {
@@ -208,6 +216,12 @@
       if (b) b.textContent = BACK[lang];
       // Update page title
       document.title = TITLES[lang] + ' — Sessions Garden';
+      // Footer links
+      var FL = { en: { t: 'Terms of Use', i: 'Impressum', p: 'Privacy Policy' }, he: { t: 'תנאי שימוש', i: 'אודות', p: 'מדיניות פרטיות' }, de: { t: 'Nutzungsbedingungen', i: 'Impressum', p: 'Datenschutzerklärung' }, cs: { t: 'Podmínky použití', i: 'O nás', p: 'Zásady ochrany osobních údajů' } };
+      var fl = FL[lang] || FL.en;
+      var fT = document.getElementById('footer-terms-link'); if (fT) { fT.textContent = fl.t; fT.href = './disclaimer.html?readonly=true&lang=' + lang; }
+      var fI = document.getElementById('footer-impressum-link'); if (fI) { fI.textContent = fl.i; fI.href = './impressum.html?lang=' + lang; }
+      var fP = document.getElementById('footer-privacy-link'); if (fP) { fP.textContent = fl.p; fP.href = './datenschutz.html?lang=' + lang; }
 
       // Language-aware content visibility
       var contentDe = document.getElementById('content-de');
