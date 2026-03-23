@@ -259,10 +259,15 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Lemon Squeezy product live with real checkout URL, Store ID, and Product ID wired into code
   2. Impressum and Datenschutz display real business details (no placeholders)
-  3. Hebrew quotes total 41 (matching other languages)
+  3. All 4 languages have 43 quotes each (Hebrew parity restored, 2 HE extras added to EN/DE/CS)
   4. Customer can complete purchase → receive key → activate → use app without getting stranded
   5. Licensed user can navigate back to license page for re-activation
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 17-01-PLAN.md — Hebrew quote parity: add 6 missing HE quotes + 2 HE extras to EN/DE/CS (BIZ-04)
+- [ ] 17-02-PLAN.md — Post-purchase UX flow (?key= auto-populate, license link, Datenschutz LS note) (BIZ-05, BIZ-06, BIZ-03)
+- [ ] 17-03-PLAN.md — Wire real LS values + Impressum/Datenschutz business details (BIZ-01, BIZ-02)
 
 ### Phase 18: Technical debt
 
@@ -390,6 +395,6 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 13. Greeting Quotes | 1/1 | Complete | - | - |
 | 14. i18n/Footer/Email | 6/6 | Complete | - | - |
 | 15. Architecture/UI Audit | 3/3 | Complete | 2026-03-23 | - |
-| 16. Audit Fix: Code | 0/5 | 5/5 | Complete    | 2026-03-23 |
-| 17. Audit Fix: Business | 0/? | Not Started | - | - |
+| 16. Audit Fix: Code | 5/5 | Complete    | 2026-03-23 | - |
+| 17. Audit Fix: Business | 0/3 | Not Started | - | - |
 | 18. Technical Debt | 0/? | Not Started | - | - |
