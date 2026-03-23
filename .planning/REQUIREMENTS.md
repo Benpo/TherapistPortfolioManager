@@ -49,13 +49,13 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 
 ### Audit Fix: Code (Phase 16)
 
-- [ ] **FIX-01**: SW cache lists correct font files and includes app-critical images; all pages register SW
+- [x] **FIX-01**: SW cache lists correct font files and includes app-critical images; all pages register SW
 - [ ] **FIX-02**: Backup export/import uses correct `portfolioLang` localStorage key
 - [ ] **FIX-03**: Backup reminder banner text translated in all 4 languages via i18n system
-- [ ] **FIX-04**: DB error banners translated, hardcoded styles replaced with tokens, Promise anti-pattern refactored
-- [ ] **FIX-05**: Landing page postMessage uses explicit origin; broken image path fixed; RTL CSS logical properties
-- [ ] **FIX-06**: Demo page validates postMessage origin; localStorage gate bypass fixed (sessionStorage)
-- [ ] **FIX-07**: All 11 HTML pages have Content-Security-Policy meta tag
+- [x] **FIX-04**: DB error banners translated, hardcoded styles replaced with tokens, Promise anti-pattern refactored
+- [x] **FIX-05**: Landing page postMessage uses explicit origin; broken image path fixed; RTL CSS logical properties
+- [x] **FIX-06**: Demo page validates postMessage origin; localStorage gate bypass fixed (sessionStorage)
+- [x] **FIX-07**: All 11 HTML pages have Content-Security-Policy meta tag
 - [ ] **FIX-08**: formatSessionType() and readFileAsDataURL() extracted to shared app.js API
 - [ ] **FIX-09**: Dead code removed (old session types, unused i18n keys); event binding standardized in touched files
 - [ ] **FIX-10**: Hardcoded CSS colors replaced with design tokens
@@ -158,13 +158,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUDIT-09 | Phase 15 | Complete |
 | AUDIT-10 | Phase 15 | Complete |
 
-| FIX-01 | Phase 16 | Pending |
+| FIX-01 | Phase 16 | Complete |
 | FIX-02 | Phase 16 | Pending |
 | FIX-03 | Phase 16 | Pending |
-| FIX-04 | Phase 16 | Pending |
-| FIX-05 | Phase 16 | Pending |
-| FIX-06 | Phase 16 | Pending |
-| FIX-07 | Phase 16 | Pending |
+| FIX-04 | Phase 16 | Complete |
+| FIX-05 | Phase 16 | Complete |
+| FIX-06 | Phase 16 | Complete |
+| FIX-07 | Phase 16 | Complete |
 | FIX-08 | Phase 16 | Pending |
 | FIX-09 | Phase 16 | Pending |
 | FIX-10 | Phase 16 | Pending |
