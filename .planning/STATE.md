@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 14-03-PLAN.md
-last_updated: "2026-03-23T00:25:19.625Z"
+stopped_at: Completed 14-04-PLAN.md
+last_updated: "2026-03-23T01:17:19.594Z"
 progress:
   total_phases: 8
-  completed_phases: 7
-  total_plans: 16
-  completed_plans: 16
+  completed_phases: 6
+  total_plans: 19
+  completed_plans: 17
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 14 (i18n-bugs-legal-footer-cleanup-and-contact-email-update) — EXECUTING
-Plan: 3 of 3
+Plan: 2 of 6
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Plan: 3 of 3
 | Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P02 | 15 | 2 tasks | 3 files |
 | Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P01 | 12min | 2 tasks | 5 files |
 | Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P03 | 15 | 2 tasks | 6 files |
+| Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P04 | 5min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,7 @@ Recent decisions affecting current work:
 - [Phase 14-02]: Demo resize handles use pointer events and disable iframe pointer capture during drag to prevent event stealing
 - [Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update]: footer-terms link uses &lang= URL param for language persistence; handleContinue saves portfolioLang; contact@sessionsgarden.app is the canonical email replacing both contact@sessions.garden and support@sessionsgarden.app
 - [Phase 14]: Legal content extracted from accordion into dedicated impressum.html and datenschutz.html pages following disclaimer.html pattern
+- [Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update]: URL param takes priority over localStorage in getLicenseLang() — ?lang= from landing always wins over stored preference
 
 ### Pending Todos
 
@@ -114,6 +116,6 @@ These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
 
 ## Session Continuity
 
-Last session: 2026-03-23T00:25:19.623Z
-Stopped at: Completed 14-03-PLAN.md
+Last session: 2026-03-23T01:17:19.591Z
+Stopped at: Completed 14-04-PLAN.md
 Resume file: None
