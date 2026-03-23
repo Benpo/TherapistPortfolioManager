@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 14-01-PLAN.md
-last_updated: "2026-03-23T00:22:49.639Z"
+stopped_at: Completed 14-03-PLAN.md
+last_updated: "2026-03-23T00:25:19.625Z"
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 16
-  completed_plans: 15
+  completed_plans: 16
 ---
 
 # Project State
@@ -59,6 +59,7 @@ Plan: 3 of 3
 | Phase 13-review-and-fix-greeting-quotes P01 | 20min | 2 tasks | 4 files |
 | Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P02 | 15 | 2 tasks | 3 files |
 | Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P01 | 12min | 2 tasks | 5 files |
+| Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update P03 | 15 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,7 @@ Recent decisions affecting current work:
 - [Phase 14-02]: Globe button replaces native select for language switching — more polished, works with CSS animations, RTL-safe via inset-inline-end
 - [Phase 14-02]: Demo resize handles use pointer events and disable iframe pointer capture during drag to prevent event stealing
 - [Phase 14-i18n-bugs-legal-footer-cleanup-and-contact-email-update]: footer-terms link uses &lang= URL param for language persistence; handleContinue saves portfolioLang; contact@sessionsgarden.app is the canonical email replacing both contact@sessions.garden and support@sessionsgarden.app
+- [Phase 14]: Legal content extracted from accordion into dedicated impressum.html and datenschutz.html pages following disclaimer.html pattern
 
 ### Pending Todos
 
@@ -112,6 +114,6 @@ These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
 
 ## Session Continuity
 
-Last session: 2026-03-23T00:22:49.637Z
-Stopped at: Completed 14-01-PLAN.md
+Last session: 2026-03-23T00:25:19.623Z
+Stopped at: Completed 14-03-PLAN.md
 Resume file: None
