@@ -56,9 +56,9 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 - [x] **FIX-05**: Landing page postMessage uses explicit origin; broken image path fixed; RTL CSS logical properties
 - [x] **FIX-06**: Demo page validates postMessage origin; localStorage gate bypass fixed (sessionStorage)
 - [x] **FIX-07**: All 11 HTML pages have Content-Security-Policy meta tag
-- [ ] **FIX-08**: formatSessionType() and readFileAsDataURL() extracted to shared app.js API
-- [ ] **FIX-09**: Dead code removed (old session types, unused i18n keys); event binding standardized in touched files
-- [ ] **FIX-10**: Hardcoded CSS colors replaced with design tokens
+- [x] **FIX-08**: formatSessionType() and readFileAsDataURL() extracted to shared app.js API
+- [x] **FIX-09**: Dead code removed (old session types, unused i18n keys); event binding standardized in touched files
+- [x] **FIX-10**: Hardcoded CSS colors replaced with design tokens
 - [x] **FIX-11**: New i18n keys added for backup banner and DB error strings in all 4 language files
 
 ### Audit Fix: Business/Operational (Phase 17)
@@ -165,9 +165,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIX-05 | Phase 16 | Complete |
 | FIX-06 | Phase 16 | Complete |
 | FIX-07 | Phase 16 | Complete |
-| FIX-08 | Phase 16 | Pending |
-| FIX-09 | Phase 16 | Pending |
-| FIX-10 | Phase 16 | Pending |
+| FIX-08 | Phase 16 | Complete |
+| FIX-09 | Phase 16 | Complete |
+| FIX-10 | Phase 16 | Complete |
 | FIX-11 | Phase 16 | Complete |
 | BIZ-01 | Phase 17 | Pending |
 | BIZ-02 | Phase 17 | Pending |

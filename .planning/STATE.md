@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 16-04-PLAN.md
-last_updated: "2026-03-23T12:34:40.257Z"
+stopped_at: Completed 16-03-PLAN.md
+last_updated: "2026-03-23T12:35:34.759Z"
 progress:
   total_phases: 11
-  completed_phases: 8
+  completed_phases: 9
   total_plans: 27
-  completed_plans: 26
+  completed_plans: 27
 ---
 
 # Project State
@@ -70,6 +70,7 @@ Plan: 5 of 5
 | Phase 16-audit-fix-code P01 | 10min | 2 tasks | 12 files |
 | Phase 16 P05 | 5min | 1 tasks | 3 files |
 | Phase 16-audit-fix-code P04 | 8min | 2 tasks | 7 files |
+| Phase 16-audit-fix-code P03 | 15min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,8 @@ Recent decisions affecting current work:
 - [Phase 16]: CSS class modifiers --blocked/--version/--migration distinguish severity levels for DB error banners
 - [Phase 16-audit-fix-code]: backup.js uses portfolioLang (not portfolioLanguage) -- the correct key matching App.setLanguage(); language preference now survives backup/restore
 - [Phase 16-audit-fix-code]: Backup banner now uses CSS classes with design tokens (backup-reminder-banner, backup-reminder-btn) instead of inline style.cssText
+- [Phase 16-audit-fix-code]: formatSessionType uses only clinic/online/other in shared App API; dead inPerson/proxy/surrogate types from pre-Phase-3 removed
+- [Phase 16-audit-fix-code]: App.readFileAsDataURL exposed as shared utility to eliminate duplicate FileReader Promise wrappers in add-session.js and add-client.js
 
 ### Pending Todos
 
@@ -141,6 +144,6 @@ These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
 
 ## Session Continuity
 
-Last session: 2026-03-23T12:34:40.254Z
-Stopped at: Completed 16-04-PLAN.md
+Last session: 2026-03-23T12:35:34.757Z
+Stopped at: Completed 16-03-PLAN.md
 Resume file: None
