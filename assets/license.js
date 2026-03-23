@@ -34,7 +34,7 @@ const LICENSE_I18N = {
     errorNetwork: 'Activation requires an internet connection. Please connect and try again.',
     errorInvalid: 'Invalid license key. Please check your key and try again.',
     errorCrossProduct: 'This license key is not valid for Sessions Garden.',
-    errorDeviceLimit: 'You have reached the device limit for this license. Contact support@sessionsgarden.app to deactivate an existing device.',
+    errorDeviceLimit: 'You have reached the device limit for this license. Contact contact@sessionsgarden.app to deactivate an existing device.',
     errorGeneric: 'Activation failed. Please try again.',
   },
   he: {
@@ -51,7 +51,7 @@ const LICENSE_I18N = {
     errorNetwork: 'ההפעלה דורשת חיבור לאינטרנט. התחבר ונסה שוב.',
     errorInvalid: 'מפתח רישיון שגוי. בדוק את המפתח ונסה שוב.',
     errorCrossProduct: 'מפתח רישיון זה אינו תקף עבור Sessions Garden.',
-    errorDeviceLimit: 'הגעת למגבלת המכשירים עבור רישיון זה. צור קשר עם support@sessionsgarden.app להסרת מכשיר קיים.',
+    errorDeviceLimit: 'הגעת למגבלת המכשירים עבור רישיון זה. צור קשר עם contact@sessionsgarden.app להסרת מכשיר קיים.',
     errorGeneric: 'ההפעלה נכשלה. נסה שוב.',
   },
   de: {
@@ -68,7 +68,7 @@ const LICENSE_I18N = {
     errorNetwork: 'Für die Aktivierung ist eine Internetverbindung erforderlich. Bitte verbinde dich und versuche es erneut.',
     errorInvalid: 'Ungültiger Lizenzschlüssel. Bitte überprüfe den Schlüssel und versuche es erneut.',
     errorCrossProduct: 'Dieser Lizenzschlüssel ist nicht für Sessions Garden gültig.',
-    errorDeviceLimit: 'Du hast das Gerätelimit für diese Lizenz erreicht. Kontaktiere support@sessionsgarden.app, um ein vorhandenes Gerät zu deaktivieren.',
+    errorDeviceLimit: 'Du hast das Gerätelimit für diese Lizenz erreicht. Kontaktiere contact@sessionsgarden.app, um ein vorhandenes Gerät zu deaktivieren.',
     errorGeneric: 'Aktivierung fehlgeschlagen. Bitte versuche es erneut.',
   },
   cs: {
@@ -85,7 +85,7 @@ const LICENSE_I18N = {
     errorNetwork: 'Aktivace vyžaduje připojení k internetu. Připoj se a zkus to znovu.',
     errorInvalid: 'Neplatný licenční klíč. Zkontroluj klíč a zkus to znovu.',
     errorCrossProduct: 'Tento licenční klíč není platný pro Sessions Garden.',
-    errorDeviceLimit: 'Dosáhl/a jsi limitu zařízení pro tuto licenci. Kontaktuj support@sessionsgarden.app pro deaktivaci stávajícího zařízení.',
+    errorDeviceLimit: 'Dosáhl/a jsi limitu zařízení pro tuto licenci. Kontaktuj contact@sessionsgarden.app pro deaktivaci stávajícího zařízení.',
     errorGeneric: 'Aktivace se nezdařila. Zkus to znovu.',
   }
 };
