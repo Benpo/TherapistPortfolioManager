@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 16-03-PLAN.md
-last_updated: "2026-03-23T12:40:43.581Z"
+stopped_at: Completed 17-02-PLAN.md
+last_updated: "2026-03-23T21:11:39.957Z"
 progress:
   total_phases: 11
   completed_phases: 9
-  total_plans: 27
-  completed_plans: 27
+  total_plans: 30
+  completed_plans: 28
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 16 — audit-fix-code
+**Current focus:** Phase 17 — audit-fix-business
 
 ## Current Position
 
-Phase: 17
-Plan: Not started
+Phase: 17 (audit-fix-business) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -71,6 +71,7 @@ Plan: Not started
 | Phase 16 P05 | 5min | 1 tasks | 3 files |
 | Phase 16-audit-fix-code P04 | 8min | 2 tasks | 7 files |
 | Phase 16-audit-fix-code P03 | 15min | 2 tasks | 11 files |
+| Phase 17-audit-fix-business P02 | 2min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,7 @@ Recent decisions affecting current work:
 - [Phase 16-audit-fix-code]: Backup banner now uses CSS classes with design tokens (backup-reminder-banner, backup-reminder-btn) instead of inline style.cssText
 - [Phase 16-audit-fix-code]: formatSessionType uses only clinic/online/other in shared App API; dead inPerson/proxy/surrogate types from pre-Phase-3 removed
 - [Phase 16-audit-fix-code]: App.readFileAsDataURL exposed as shared utility to eliminate duplicate FileReader Promise wrappers in add-session.js and add-client.js
+- [Phase 17-audit-fix-business]: License link uses SVG key icon prepended to header-actions; auto-focus activate button after ?key= auto-populate
 
 ### Pending Todos
 
@@ -144,6 +146,6 @@ These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
 
 ## Session Continuity
 
-Last session: 2026-03-23T12:35:34.757Z
-Stopped at: Completed 16-03-PLAN.md
+Last session: 2026-03-23T21:11:39.955Z
+Stopped at: Completed 17-02-PLAN.md
 Resume file: None
