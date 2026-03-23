@@ -53,7 +53,7 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - [ ] "Edit client" shortcut from add-session screen
 - [ ] Heart Shield (מגננת הלב) redesign — session-level field, removal tracking, heart icon, session type filter
 - [ ] Logo update for app and landing page
-- [ ] Real Impressum and Datenschutzerklarung content
+- [x] Standalone Impressum and Datenschutz pages — Validated in Phase 14 (placeholder content, awaiting Sapir's real business details)
 - [ ] Lemon Squeezy account and product setup
 - [ ] Landing page translation verification (DE/CS)
 - [ ] App icon (replacing placeholder)
@@ -122,4 +122,4 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - Launch prerequisites (Impressum, Lemon Squeezy, translations, QA)
 
 ---
-*Last updated: 2026-03-19 after milestone v1.1 start*
+*Last updated: 2026-03-23 after Phase 14 complete — i18n bugs fixed, legal pages extracted, contact email unified, landing UX polished*
