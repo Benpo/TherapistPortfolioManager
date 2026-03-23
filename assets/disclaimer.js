@@ -121,6 +121,11 @@
     if (fImp) { fImp.textContent = fl.impressum; fImp.href = './impressum.html?lang=' + currentLang; }
     if (fPriv) { fPriv.textContent = fl.privacy; fPriv.href = './datenschutz.html?lang=' + currentLang; }
 
+    // Back link
+    var BACK = { en: 'Back to home', he: 'חזרה לדף הבית', de: 'Zurück zur Startseite', cs: 'Zpět na hlavní stránku' };
+    var backLink = document.getElementById('back-link');
+    if (backLink) backLink.textContent = BACK[currentLang] || BACK.en;
+
   }
 
   // -------------------------------------------------------------------------
