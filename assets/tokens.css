@@ -150,6 +150,7 @@
   --color-text: #e8eeed;
   --color-text-muted: #7aa8a8;
   --color-text-meta: #7aa8a8;
+  --color-text-inverse: #fff;
   /* Primary — soft teal, visible on dark backgrounds */
   --color-primary: #5aacac;
   --color-primary-soft: #253030;
