@@ -9,7 +9,7 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v26';
+const CACHE_NAME = 'sessions-garden-v27';
 
 /**
  * All static assets to precache on install.
@@ -133,6 +133,13 @@ self.addEventListener('fetch', function (event) {
   var url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
+  // Don't intercept navigation requests for extensionless URLs (CF Pages pretty URLs)
+  // These trigger server-side redirects that should not be cached
+  var pathname = url.pathname;
+  if (event.request.mode === 'navigate' && !pathname.includes('.')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(function (cached) {
       if (cached) {
@@ -140,7 +147,7 @@ self.addEventListener('fetch', function (event) {
       }
       // Not in cache — fetch from network
       return fetch(event.request).then(function (response) {
-        // Cache successful responses for future use
+        // Only cache successful 200 responses — never cache redirects (301/302)
         if (response && response.status === 200 && response.type === 'basic') {
           var responseToCache = response.clone();
           caches.open(CACHE_NAME).then(function (cache) {
