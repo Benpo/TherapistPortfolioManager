@@ -6,12 +6,12 @@ var LS_CHECKOUT_URL = 'https://sessionsgarden.lemonsqueezy.com/checkout/buy/1560
 /* ---------- Feature icon PNGs ---------- */
 /* Real botanical illustration icons — 72x72 PNG images */
 var DOODLE_ICONS = {
-  folder:   '<img src="./assets/illustrations/icons/alim.png"    width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
-  lock:     '<img src="./assets/illustrations/icons/ale.png"     width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
-  offline:  '<img src="./assets/illustrations/icons/atsitz.png"  width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
-  sparkle:  '<img src="./assets/illustrations/icons/tulip.png"   width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
-  coin:     '<img src="./assets/illustrations/icons/vassa.png"   width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
-  notebook: '<img src="./assets/illustrations/icons/merizza.png" width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">'
+  folder:   '<img src="./assets/illustrations/features/alim.png"    width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  lock:     '<img src="./assets/illustrations/features/ale.png"     width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  offline:  '<img src="./assets/illustrations/features/atsitz.png"  width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  sparkle:  '<img src="./assets/illustrations/features/tulip.png"   width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  coin:     '<img src="./assets/illustrations/features/vassa.png"   width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  notebook: '<img src="./assets/illustrations/features/merizza.png" width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">'
 };
 
 /* ---------- i18n ---------- */
