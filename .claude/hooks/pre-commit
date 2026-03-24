@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# pre-commit hook: auto-bump sw.js CACHE_NAME version when cached assets change.
+#
+# Logic:
+#   1. If sw.js is already staged (manual bump), skip — avoid double-bump.
+#   2. Collect staged files and check whether any match patterns listed in
+#      sw.js PRECACHE_URLS (assets/*, *.html, manifest.json).
+#   3. If a match is found, read the current version number from the
+#      `const CACHE_NAME` line only, increment it, write it back, and stage sw.js.
+
+SW="sw.js"
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+SW_PATH="$REPO_ROOT/$SW"
+
+# 1. If sw.js is already staged, the developer bumped it manually — nothing to do.
+if git diff --cached --name-only | grep -qx "$SW"; then
+  echo "[pre-commit] sw.js already staged — skipping auto-bump."
+  exit 0
+fi
+
+# 2. Get all staged file paths (relative to repo root).
+STAGED=$(git diff --cached --name-only)
+
+# Match patterns that correspond to PRECACHE_URLS in sw.js:
+#   - any file under assets/
+#   - any .html file
+#   - manifest.json
+MATCHED=0
+while IFS= read -r file; do
+  [ -z "$file" ] && continue
+  if [[ "$file" == assets/* ]] || \
+     [[ "$file" == *.html ]] || \
+     [[ "$file" == "manifest.json" ]]; then
+    MATCHED=1
+    break
+  fi
+done <<< "$STAGED"
+
+if [ "$MATCHED" -eq 0 ]; then
+  exit 0
+fi
+
+# 3. Parse version from the `const CACHE_NAME = '...'` line only.
+CURRENT=$(grep "^const CACHE_NAME" "$SW_PATH" | grep -oE "v([0-9]+)" | grep -oE "[0-9]+")
+
+if [ -z "$CURRENT" ]; then
+  echo "[pre-commit] WARNING: Could not parse version from $SW — skipping auto-bump."
+  exit 0
+fi
+
+NEXT=$((CURRENT + 1))
+
+# sed -i '' for macOS compatibility.
+sed -i '' "s/\(^const CACHE_NAME = 'sessions-garden-v\)${CURRENT}'/\1${NEXT}'/" "$SW_PATH"
+
+echo "[pre-commit] Cached assets changed — bumped CACHE_NAME: sessions-garden-v${CURRENT} → sessions-garden-v${NEXT}"
+
+git add "$SW_PATH"
+
+exit 0
