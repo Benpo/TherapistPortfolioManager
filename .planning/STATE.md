@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 19-03-PLAN.md
-last_updated: "2026-03-24T19:32:35.715Z"
+stopped_at: Completed 19-04-PLAN.md
+last_updated: "2026-03-24T19:34:10.365Z"
 last_activity: 2026-03-24
 progress:
   total_phases: 12
   completed_phases: 11
   total_plans: 41
-  completed_plans: 35
+  completed_plans: 36
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 19 (go-live-preparation) — EXECUTING
-Plan: 3 of 8
+Plan: 4 of 8
 
 ## Performance Metrics
 
@@ -79,6 +79,7 @@ Plan: 3 of 8
 | Phase 18-technical-debt P02 | 62min | 2 tasks | 3 files |
 | Phase 19 P07 | 5 | 2 tasks | 2 files |
 | Phase 19-go-live-preparation P03 | 15min | 2 tasks | 2 files |
+| Phase 19 P04 | 8min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -135,6 +136,9 @@ Recent decisions affecting current work:
 - [Phase 18-technical-debt]: Custom Promise-based confirm dialog for license page (no app.js access); [hidden] override for flex containers; gender-neutral Hebrew; German Geraete-Aktivierungen
 - [Phase 19]: Deploy branch is force-pushed ephemeral on each main push; explicit cp whitelist for auditable include list; sensitive file verification in CI; no CSP in _headers (already in HTML meta tags); GITHUB_TOKEN only (no CF secrets)
 - [Phase 19]: Encrypted backup: passphrase never stored, lost passphrase = unrecoverable (D-22). Fresh salt+IV per encrypt call via crypto.getRandomValues(). OperationError maps to friendly message.
+- [Phase 19]: Gate hardening: both portfolioLicenseActivated AND portfolioLicenseInstance required, matching isLicensed() dual-key check
+- [Phase 19]: License page context-aware chrome: app nav for activated users, legal topbar for non-activated
+- [Phase 19]: Landing auto-detect: progressive enhancement with href fallback, JS intercept only when both keys present, 2s banner then redirect
 
 ### Pending Todos
 
@@ -169,5 +173,5 @@ Earlier todos (UX-03, UX-04, HSHLD-01-03, LNCH-04) completed in prior phases but
 ## Session Continuity
 
 Last activity: 2026-03-24
-Stopped at: Completed 19-03-PLAN.md
+Stopped at: Completed 19-04-PLAN.md
 Resume file: None

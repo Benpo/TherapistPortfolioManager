@@ -84,8 +84,8 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 - [ ] **LIVE-02**: Impressum + Datenschutz as separate HTML files per language (de/en/he/cs) — not JSON i18n. German is authoritative; other languages get "German version is legally binding" banner. Pattern: SapphireHealing legal pages.
 - [x] **LIVE-03**: Clean deployment repo — no .planning/, .claude/, or sensitive files; GH Action to sync app-only files
 - [ ] **LIVE-04**: Cloudflare Pages deployment — live and tested end-to-end (purchase → activate → use)
-- [ ] **LIVE-05**: License page chrome consistency — header, footer, logo, language switcher, correct "home" navigation per context
-- [ ] **LIVE-06**: Landing page strategy for activated users — show, hide, redirect, or repurpose
+- [x] **LIVE-05**: License page chrome consistency — header, footer, logo, language switcher, correct "home" navigation per context
+- [x] **LIVE-06**: Landing page strategy for activated users — show, hide, redirect, or repurpose
 - [ ] **LIVE-07**: Demo data cleanup on first activation — paid users start with clean slate
 - [x] **LIVE-08**: App passcode/PIN lock — research-backed security for local-only browser storage
 - [ ] **LIVE-09**: Innovator research for v1.1 feature backlog
