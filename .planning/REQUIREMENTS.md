@@ -81,7 +81,7 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 ### Go-Live Preparation (Phase 19)
 
 - [ ] **LIVE-01**: Impressum legal research — all required sections for German Kleinunternehmer selling PWA software (Opus-level research)
-- [ ] **LIVE-02**: Impressum + Datenschutz full i18n (4 languages) with "German is authoritative" disclaimer on non-DE versions
+- [ ] **LIVE-02**: Impressum + Datenschutz as separate HTML files per language (de/en/he/cs) — not JSON i18n. German is authoritative; other languages get "German version is legally binding" banner. Pattern: SapphireHealing legal pages.
 - [ ] **LIVE-03**: Clean deployment repo — no .planning/, .claude/, or sensitive files; GH Action to sync app-only files
 - [ ] **LIVE-04**: Cloudflare Pages deployment — live and tested end-to-end (purchase → activate → use)
 - [ ] **LIVE-05**: License page chrome consistency — header, footer, logo, language switcher, correct "home" navigation per context
