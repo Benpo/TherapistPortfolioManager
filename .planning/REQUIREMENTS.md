@@ -72,10 +72,10 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 
 ### Technical Debt (Phase 18)
 
-- [ ] **DEBT-01**: License key obfuscated in localStorage (XOR with device-derived salt)
+- [x] **DEBT-01**: License key obfuscated in localStorage (XOR with device-derived salt)
 - [ ] **DEBT-02**: Business logic extracted from DOM manipulation into shared utils.js
 - [ ] **DEBT-03**: LS refund webhook handling (Cloudflare Worker or documented manual SOP)
-- [ ] **DEBT-04**: dir attribute standardized to `<html>` element across all pages
+- [x] **DEBT-04**: dir attribute standardized to `<html>` element across all pages
 
 ## Future Requirements
 
@@ -175,10 +175,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BIZ-04 | Phase 17 | Complete |
 | BIZ-05 | Phase 17 | Complete |
 | BIZ-06 | Phase 17 | Complete |
-| DEBT-01 | Phase 18 | Pending |
+| DEBT-01 | Phase 18 | Complete |
 | DEBT-02 | Phase 18 | Pending |
 | DEBT-03 | Phase 18 | Pending |
-| DEBT-04 | Phase 18 | Pending |
+| DEBT-04 | Phase 18 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 46 total
