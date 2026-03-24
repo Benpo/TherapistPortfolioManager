@@ -23,6 +23,7 @@ jobs:
           mkdir -p deploy-staging
           # Include per D-08: _headers, *.html, assets/, manifest.json, sw.js
           cp _headers deploy-staging/
+          cp _redirects deploy-staging/
           cp LICENSE deploy-staging/
           cp README.md deploy-staging/
           cp *.html deploy-staging/
