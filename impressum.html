@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="de" dir="ltr">
 <head>
   <script>
     (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
@@ -28,6 +28,16 @@
     .legal-footer { text-align: center; padding: 1.5rem; border-top: 1px solid var(--color-border); font-size: 0.875rem; display: flex; justify-content: center; gap: 1.5rem; }
     .legal-footer a { color: var(--color-primary); text-decoration: none; }
     .legal-footer a:hover { text-decoration: underline; }
+    .courtesy-banner {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+    }
+    .courtesy-banner a { color: var(--color-primary); }
   </style>
 </head>
 <body>
@@ -45,60 +55,56 @@
         Sessions Garden
       </a>
       <div id="globe-container"></div>
-      <a id="back-link" class="legal-back-link" href="./landing.html">Back to home</a>
+      <a class="legal-back-link" href="./landing.html">Zurück zur Startseite</a>
     </div>
     <div class="legal-content">
-      <h2 id="impressum-heading">Impressum</h2>
-      <h3 id="impressum-angaben">Angaben gemäß § 5 DDG</h3>
-      <pre id="impressum-placeholder" style="font-family:inherit;margin:0;white-space:pre-wrap;">Sapir Ben-Porath
-Pettenkoferstr. 4E
-10247 Berlin
+      <h2>Impressum</h2>
 
-Kontakt:
-E-Mail: contact@sessionsgarden.app
-Telefon: +49 178 6858230</pre>
+      <h3>Angaben gemäß § 5 DDG</h3>
+      <p>Sapir Ben-Porath<br>
+      Pettenkoferstr. 4E<br>
+      10247 Berlin</p>
+
+      <h3>Kontakt</h3>
+      <p>E-Mail: <a href="mailto:contact@sessionsgarden.app">contact@sessionsgarden.app</a><br>
+      Telefon: +49 178 6858230</p>
+
+      <!-- Wirtschafts-Identifikationsnummer: Add here when received from BZSt.
+           As a Kleinunternehmer (§19 UStG), no USt-IdNr is required.
+           The personal Steuernummer is NOT displayed (not required, privacy). -->
+
+      <h3>Verbraucherstreitbeilegung/Universalschlichtungsstelle</h3>
+      <p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+
+      <h3>Haftung für Inhalte</h3>
+      <p>Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+      <p>Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p>
+
+      <h3>Haftung für Links</h3>
+      <p>Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.</p>
+      <p>Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.</p>
+
+      <h3>Urheberrecht</h3>
+      <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.</p>
+      <p>Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.</p>
     </div>
   </div>
-  <footer class="legal-footer" id="legal-footer">
-    <a id="footer-terms-link" href="./disclaimer.html?readonly=true">Terms of Use</a>
-    <a id="footer-impressum-link" href="./impressum.html">Impressum</a>
-    <a id="footer-privacy-link" href="./datenschutz.html">Privacy Policy</a>
+  <footer class="legal-footer">
+    <a href="./disclaimer.html">Nutzungsbedingungen</a>
+    <a href="./impressum.html">Impressum</a>
+    <a href="./datenschutz.html">Datenschutz</a>
   </footer>
   <script src="./assets/globe-lang.js"></script>
   <script>
     (function() {
-      var TITLES = { en: 'Impressum', he: 'אודות / Impressum', de: 'Impressum', cs: 'Impressum' };
-      var BACK = { en: 'Back to home', he: 'חזרה לדף הבית', de: 'Zurück zur Startseite', cs: 'Zpět na hlavní stránku' };
-      var ANGABEN = { en: 'Information pursuant to DDG § 5', he: 'פרטים בהתאם ל-DDG סעיף 5', de: 'Angaben gemäß § 5 DDG', cs: 'Údaje podle § 5 DDG' };
-      function detectLang() {
-        var params = new URLSearchParams(window.location.search);
-        var p = params.get('lang');
-        if (p && TITLES[p]) return p;
-        try { var s = localStorage.getItem('portfolioLang'); if (s && TITLES[s]) return s; } catch(e) {}
-        var nav = (navigator.language || '').split('-')[0].toLowerCase();
-        return TITLES[nav] ? nav : 'en';
-      }
-      var lang = detectLang();
-      document.documentElement.setAttribute('lang', lang);
-      document.documentElement.setAttribute('dir', lang === 'he' ? 'rtl' : 'ltr');
-      var h = document.getElementById('impressum-heading');
-      if (h) h.textContent = TITLES[lang];
-      var a = document.getElementById('impressum-angaben');
-      if (a) a.textContent = ANGABEN[lang];
-      var b = document.getElementById('back-link');
-      if (b) b.textContent = BACK[lang];
-      // Footer links
-      var FL = { en: { t: 'Terms of Use', i: 'Impressum', p: 'Privacy Policy' }, he: { t: 'תנאי שימוש', i: 'אודות', p: 'מדיניות פרטיות' }, de: { t: 'Nutzungsbedingungen', i: 'Impressum', p: 'Datenschutzerklärung' }, cs: { t: 'Podmínky použití', i: 'O nás', p: 'Zásady ochrany osobních údajů' } };
-      var fl = FL[lang] || FL.en;
-      var fT = document.getElementById('footer-terms-link'); if (fT) { fT.textContent = fl.t; fT.href = './disclaimer.html?readonly=true&lang=' + lang; }
-      var fI = document.getElementById('footer-impressum-link'); if (fI) { fI.textContent = fl.i; fI.href = './impressum.html?lang=' + lang; }
-      var fP = document.getElementById('footer-privacy-link'); if (fP) { fP.textContent = fl.p; fP.href = './datenschutz.html?lang=' + lang; }
+      // Language variants: impressum-en.html, impressum-he.html, impressum-cs.html
       initGlobeLang({
         containerId: 'globe-container',
-        currentLang: lang,
+        currentLang: 'de',
         onLangChange: function(newLang) {
           try { localStorage.setItem('portfolioLang', newLang); } catch(e) {}
-          window.location.search = '?lang=' + newLang;
+          if (newLang === 'de') { window.location.href = './impressum.html'; }
+          else { window.location.href = './impressum-' + newLang + '.html'; }
         }
       });
     })();
