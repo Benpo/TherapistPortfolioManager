@@ -9,7 +9,7 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v24';
+const CACHE_NAME = 'sessions-garden-v25';
 
 /**
  * All static assets to precache on install.
@@ -23,11 +23,20 @@ const PRECACHE_URLS = [
   '/add-client.html',
   '/add-session.html',
   '/reporting.html',
+  '/impressum.html',
+  '/impressum-en.html',
+  '/impressum-he.html',
+  '/impressum-cs.html',
+  '/datenschutz.html',
+  '/datenschutz-en.html',
+  '/datenschutz-he.html',
+  '/datenschutz-cs.html',
   '/disclaimer.html',
+  '/disclaimer-en.html',
+  '/disclaimer-he.html',
+  '/disclaimer-cs.html',
   '/license.html',
   '/landing.html',
-  '/impressum.html',
-  '/datenschutz.html',
   '/manifest.json',
   '/assets/tokens.css',
   '/assets/app.css',
