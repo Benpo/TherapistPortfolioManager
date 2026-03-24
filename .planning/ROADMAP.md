@@ -271,16 +271,22 @@ Plans:
 
 ### Phase 18: Technical debt
 
-**Goal:** Address deferred technical debt from Phase 15 audit: license key obfuscation, module structure separation, webhook handling strategy, and dir attribute standardization.
+**Goal:** Address deferred technical debt from Phase 15 audit: license key obfuscation, App.js API cleanup, refund handling SOP, dir attribute standardization, and license page self-service deactivation.
 **Requirements**: DEBT-01, DEBT-02, DEBT-03, DEBT-04
 **Depends on:** Phase 17 (launch first, then address debt)
 **Source:** `.planning/phases/15-architecture-and-ui-audit/15-CONSOLIDATED-FINDINGS.md` (Deferred Items section)
 **Success Criteria** (what must be TRUE):
-  1. License key in localStorage is obfuscated (not readable via casual DevTools inspection)
-  2. Pure business logic functions live in utils.js, separate from DOM manipulation
-  3. LS refund handling has a documented process (webhook or manual SOP)
+  1. License key in localStorage is Base64-obfuscated (not readable via casual DevTools inspection)
+  2. App.js public API has JSDoc comments and logical grouping by concern
+  3. LS refund handling has a documented manual SOP with step-by-step instructions
   4. All pages set dir attribute on `<html>` element consistently
-**Plans:** TBD
+  5. Licensed users can self-service deactivate from the license page
+**Plans:** 3 plans
+
+Plans:
+- [ ] 18-01-PLAN.md — Base64 license key obfuscation + dir attribute standardization (DEBT-01, DEBT-04)
+- [ ] 18-02-PLAN.md — License page two-mode UX with deactivation (DEBT-01)
+- [ ] 18-03-PLAN.md — App.js JSDoc cleanup + refund handling SOP (DEBT-02, DEBT-03)
 
 ---
 
@@ -396,5 +402,5 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 14. i18n/Footer/Email | 6/6 | Complete | - | - |
 | 15. Architecture/UI Audit | 3/3 | Complete | 2026-03-23 | - |
 | 16. Audit Fix: Code | 5/5 | Complete    | 2026-03-23 | - |
-| 17. Audit Fix: Business | 0/3 | 2/3 | Complete    | 2026-03-24 |
-| 18. Technical Debt | 0/? | Not Started | - | - |
+| 17. Audit Fix: Business | 3/3 | Complete    | 2026-03-24 | - |
+| 18. Technical Debt | 0/3 | Not Started | - | - |
