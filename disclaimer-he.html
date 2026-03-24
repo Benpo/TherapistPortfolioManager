@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de" dir="ltr">
+<html lang="he" dir="rtl">
 <head>
   <script>
     (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nutzungsbedingungen — Sessions Garden</title>
+  <title>תנאי שימוש — Sessions Garden</title>
   <link rel="stylesheet" href="./assets/tokens.css" />
   <link rel="stylesheet" href="./assets/app.css" />
   <link rel="stylesheet" href="./assets/globe-lang.css" />
@@ -48,6 +48,8 @@
     .disclaimer-footer { text-align: center; padding: 1.5rem; font-size: 0.875rem; color: var(--color-text-muted); border-top: 1px solid var(--color-border); display: flex; justify-content: center; gap: 1.5rem; }
     .disclaimer-footer a { color: var(--color-primary); text-decoration: none; }
     .disclaimer-footer a:hover { text-decoration: underline; }
+    .courtesy-banner { background: var(--color-primary-soft, #c8e6d4); border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 16px; font-size: 14px; margin-bottom: 1.5rem; color: var(--color-text); }
+    .courtesy-banner a { color: var(--color-primary); }
     @media (max-width: 500px) { .disclaimer-card { padding: 1.25rem 1rem; } .disclaimer-post-accept { flex-direction: column; } }
   </style>
 </head>
@@ -67,45 +69,49 @@
       <span class="disclaimer-brand-title">Sessions Garden</span>
     </a>
     <div id="globe-container"></div>
-    <a class="disclaimer-back-link" href="./landing.html">Zurück zur Startseite</a>
+    <a class="disclaimer-back-link" href="./landing.html">חזרה לדף הבית</a>
   </div>
 
   <main class="disclaimer-main">
     <div class="disclaimer-card">
 
-      <h1 class="disclaimer-heading">Nutzungsbedingungen</h1>
-      <p class="disclaimer-subheading">Bitte lesen und bestätigen Sie die folgenden Bedingungen, bevor Sie Sessions Garden nutzen.</p>
+      <aside class="courtesy-banner">
+        זהו תרגום לנוחיות בלבד. במקרה של סתירות, <a href="./disclaimer.html">הגרסה הגרמנית</a> היא המחייבת משפטית.
+      </aside>
 
-      <div class="disclaimer-readonly-note" id="readonly-note" style="display:none">Sie sehen die Nutzungsbedingungen im Nur-Lese-Modus.</div>
+      <h1 class="disclaimer-heading">תנאי שימוש</h1>
+      <p class="disclaimer-subheading">אנא קראו ואשרו את התנאים הבאים לפני השימוש ב-Sessions Garden.</p>
+
+      <div class="disclaimer-readonly-note" id="readonly-note" style="display:none">את/ה צופה בתנאי השימוש במצב קריאה בלבד.</div>
 
       <div id="disclaimer-sections">
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Kein Medizinprodukt</h2>
-          <p class="disclaimer-section-body">Sessions Garden ist ein organisatorisches und administratives Werkzeug für Praktizierende im Bereich Energiebalance und ganzheitliche Gesundheit. Es ist kein Medizinprodukt, gibt keine medizinische Beratung und ist kein Ersatz für eine professionelle medizinische Diagnose oder Behandlung. Alle eingegebenen Informationen dienen ausschließlich den eigenen organisatorischen Zwecken des Anwenders. Nutzer dürfen diese Anwendung nicht für klinische Entscheidungen heranziehen.</p>
+          <h2 class="disclaimer-section-title">אינו מכשיר רפואי</h2>
+          <p class="disclaimer-section-body">Sessions Garden הוא כלי ארגוני ומנהלי המיועד לעוסקים באיזון אנרגיות וריפוי הוליסטי. הוא אינו מכשיר רפואי, אינו מספק ייעוץ רפואי, ואינו תחליף לאבחון או טיפול רפואי מקצועי. כל מידע שהוזן הינו לצרכי הארגון האישי של המטפל בלבד. אין להסתמך על יישום זה לצורך קבלת החלטות קליניות כלשהן.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Datenschutz — Ausschließlich lokale Speicherung</h2>
-          <p class="disclaimer-section-body">Alle Daten, die Sie in Sessions Garden eingeben, werden ausschließlich auf Ihrem eigenen Gerät im browserbasierten lokalen Speicher (IndexedDB) gespeichert. Der Entwickler hat keinerlei Zugriff auf Ihre Daten. Es werden keine Daten an Server, Cloud-Dienste oder Dritte übertragen. Sie haben jederzeit die volle Kontrolle über Ihre Daten.</p>
+          <h2 class="disclaimer-section-title">פרטיות מידע — אחסון מקומי בלבד</h2>
+          <p class="disclaimer-section-body">כל הנתונים שאתם מזינים ב-Sessions Garden נשמרים אך ורק במכשיר שלכם באמצעות אחסון מקומי מבוסס דפדפן (IndexedDB). למפתח אין שום גישה לנתוניכם. לא מועבר מידע לאף שרת, שירות ענן, או גורם צד שלישי. לכם שליטה מלאה על הנתונים שלכם בכל עת.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Datensicherungspflicht</h2>
-          <p class="disclaimer-section-body">Sie sind allein verantwortlich für die Sicherung Ihrer Daten. Sessions Garden stellt zu diesem Zweck eine Exportfunktion bereit. Der Entwickler übernimmt keine Haftung für Datenverluste durch Geräteausfälle, Browser-Updates, das Löschen des Browser-Speichers oder sonstige Ereignisse. Es wird dringend empfohlen, Ihre Daten regelmäßig zu exportieren.</p>
+          <h2 class="disclaimer-section-title">אחריות לגיבוי</h2>
+          <p class="disclaimer-section-body">האחריות לגיבוי הנתונים שלכם מוטלת עליכם בלבד. Sessions Garden מספקת פונקציית ייצוא לצורך זה. המפתח אינו נושא בשום אחריות לאובדן נתונים עקב תקלה במכשיר, עדכוני דפדפן, מחיקת אחסון הדפדפן, או כל אירוע אחר. מומלץ מאוד לייצא את הנתונים שלכם באופן קבוע.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Keine Gewährleistung — Haftungsbeschränkung</h2>
-          <p class="disclaimer-section-body">Sessions Garden wird „wie besehen" (as is) ohne jegliche ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Der Entwickler gibt keine Zusicherungen hinsichtlich Genauigkeit, Vollständigkeit oder Verfügbarkeit der Anwendung. Soweit gesetzlich zulässig, haftet der Entwickler nicht für Datenverluste, entgangene Gewinne oder sonstige direkte oder indirekte Schäden, die aus der Nutzung dieser Anwendung entstehen.</p>
+          <h2 class="disclaimer-section-title">ללא אחריות — הגבלת חבות</h2>
+          <p class="disclaimer-section-body">Sessions Garden מסופקת "כמות שהיא" (as is) ללא כל אחריות, מפורשת או משתמעת. המפתח אינו מתחייב לגבי דיוק, שלמות, או זמינות היישום. במידה המרבית המותרת על פי הדין החל, המפתח לא יהיה אחראי לאובדן נתונים, אובדן רווחים, או כל נזק אחר, ישיר או עקיף, הנובע משימוש ביישום זה.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Geistiges Eigentum &amp; Einschränkungen</h2>
-          <p class="disclaimer-section-body">Sessions Garden und alle seine Inhalte, sein Code und sein Design sind geistiges Eigentum des Entwicklers. Sie dürfen keinen Teil der Anwendung kopieren, verändern, zurückentwickeln, dekompilieren oder verbreiten. Sie dürfen Ihren Lizenzschlüssel nicht mit anderen teilen oder die Anwendung Dritten zugänglich machen.</p>
+          <h2 class="disclaimer-section-title">קניין רוחני והגבלות</h2>
+          <p class="disclaimer-section-body">Sessions Garden וכל תכניו, הקוד והעיצוב שלו הם קניין רוחני של המפתח. אינכם רשאים להעתיק, לשנות, לבצע הנדסה לאחור, לפרק או להפיץ כל חלק מהיישום. אינכם רשאים לשתף את מפתח הרישיון שלכם עם אחרים או להנגיש את היישום לצדדים שלישיים.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Einzelnutzerlizenz</h2>
-          <p class="disclaimer-section-body">Ihre Lizenz zur Nutzung von Sessions Garden ist persönlich und nicht übertragbar. Sie dürfen die Anwendung auf bis zu zwei Geräten installieren und nutzen, die sich in Ihrem persönlichen Besitz oder unter Ihrer Kontrolle befinden. Sie sind nicht berechtigt, Ihre Lizenz weiterzulizenzieren, weiterzuverkaufen oder auf eine andere Person zu übertragen. Diese Lizenz gilt für die Lebensdauer der erworbenen Produktversion.</p>
+          <h2 class="disclaimer-section-title">רישיון למשתמש יחיד</h2>
+          <p class="disclaimer-section-body">הרישיון שלכם להשתמש ב-Sessions Garden הוא אישי ואינו ניתן להעברה. תוכלו להתקין ולהשתמש ביישום בעד שני מכשירים שבבעלותכם האישית או בשליטתכם. אינכם רשאים להעניק רישיון משנה, למכור מחדש, או להעביר את הרישיון שלכם לאדם אחר. רישיון זה תקף לכל חיי גרסת המוצר שנרכשה.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Widerrufsrecht</h2>
-          <p class="disclaimer-section-body">Als Verbraucher, der digitale Inhalte erwirbt, haben Sie nach geltendem Verbraucherrecht ein gesetzliches Widerrufsrecht von 14 Tagen ab dem Kaufdatum. Durch Ankreuzen des unten stehenden Kästchens stimmen Sie jedoch zu, dass die Lieferung der digitalen Inhalte unmittelbar nach dem Kauf, vor Ablauf der Widerrufsfrist, beginnt, und Sie nehmen zur Kenntnis, dass Ihr Widerrufsrecht dadurch erlischt.</p>
+          <h2 class="disclaimer-section-title">זכות ביטול</h2>
+          <p class="disclaimer-section-body">כצרכן הרוכש תוכן דיגיטלי, יש לכם זכות ביטול חוקית של 14 יום ממועד הרכישה, בהתאם לדיני הגנת הצרכן החלים. עם זאת, על ידי סימון התיבה להלן, אתם מסכימים שאספקת התוכן הדיגיטלי מתחילה מיידית עם הרכישה, לפני תום תקופת הביטול, ואתם מאשרים שזכות הביטול שלכם פוקעת בכך.</p>
         </section>
       </div>
 
@@ -114,31 +120,31 @@
       <div class="disclaimer-checkbox-area" id="checkbox-area">
         <div class="disclaimer-checkbox-row">
           <input type="checkbox" id="check-general" name="check-general" />
-          <label for="check-general">Ich habe die Nutzungsbedingungen gelesen und akzeptiere sie.</label>
+          <label for="check-general">קראתי את תנאי השימוש ואני מסכים/ה להם.</label>
         </div>
         <div class="disclaimer-checkbox-row disclaimer-widerruf-row">
           <input type="checkbox" id="check-widerruf" name="check-widerruf" />
-          <label for="check-widerruf">Ich stimme der Vertragsausführung vor Ablauf der Widerrufsfrist zu und weiß, dass dadurch mein Widerrufsrecht erlischt.</label>
+          <label for="check-widerruf">אני מסכים/ה לביצוע החוזה לפני תום תקופת הביטול, ומאשר/ת שזכות הביטול שלי פוקעת בעת תחילת הגישה למוצר.</label>
         </div>
       </div>
 
       <div id="accept-btn-area">
-        <button type="button" class="disclaimer-accept-btn" id="accept-btn" disabled>Akzeptieren und fortfahren</button>
+        <button type="button" class="disclaimer-accept-btn" id="accept-btn" disabled>קבל והמשך</button>
       </div>
 
-      <p class="disclaimer-accepted-msg" id="accepted-msg" style="display:none">Vielen Dank. Ihre Zustimmung wurde gespeichert.</p>
+      <p class="disclaimer-accepted-msg" id="accepted-msg" style="display:none">תודה. קבלתך נרשמה.</p>
       <div class="disclaimer-post-accept" id="post-accept-area" style="display:none">
-        <button type="button" id="download-receipt-btn">Bestätigung herunterladen</button>
-        <button type="button" id="continue-btn">Zur App</button>
+        <button type="button" id="download-receipt-btn">הורד אישור קבלה</button>
+        <button type="button" id="continue-btn">המשך לאפליקציה</button>
       </div>
 
     </div>
   </main>
 
   <footer class="disclaimer-footer">
-    <a href="./disclaimer.html">Nutzungsbedingungen</a>
-    <a href="./impressum.html">Impressum</a>
-    <a href="./datenschutz.html">Datenschutzerklärung</a>
+    <a href="./disclaimer-he.html">תנאי שימוש</a>
+    <a href="./impressum-he.html">אודות</a>
+    <a href="./datenschutz-he.html">מדיניות פרטיות</a>
   </footer>
 
 </div>
@@ -157,7 +163,7 @@
   // Globe switcher — preserve ?readonly and ?next params on language change
   initGlobeLang({
     containerId: 'globe-container',
-    currentLang: 'de',
+    currentLang: 'he',
     onLangChange: function(newLang) {
       try { localStorage.setItem('portfolioLang', newLang); } catch(e) {}
       var params = window.location.search || '';
@@ -197,7 +203,7 @@
       var timestamp = new Date().toISOString();
       try {
         localStorage.setItem('portfolioTermsAccepted', timestamp);
-        localStorage.setItem('portfolioTermsLang', 'de');
+        localStorage.setItem('portfolioTermsLang', 'he');
       } catch(e) {}
       var cbArea = document.getElementById('checkbox-area');
       if (cbArea) cbArea.style.display = 'none';
@@ -216,15 +222,15 @@
       var licenseKey = '';
       try { licenseKey = atob(localStorage.getItem('portfolioLicenseKey') || ''); } catch(e) {}
       var lines = [
-        'Sessions Garden — Bestätigung der Nutzungsbedingungen',
+        'Sessions Garden — אישור קבלת תנאי שימוש',
         '==========================================',
-        'Akzeptiert am: ' + timestamp,
-        'Sprache: Deutsch'
+        'אושר בתאריך: ' + timestamp,
+        'שפה: עברית'
       ];
-      if (licenseKey) lines.push('Lizenzschlüssel: ' + licenseKey);
-      lines.push('', 'Der Nutzer hat die Nutzungsbedingungen und den Datenschutzhinweis von Sessions Garden akzeptiert.',
-        'Dieses Dokument dient als persönlicher Nachweis der Zustimmung.',
-        'Diese Bestätigung ist nicht übertragbar und persönlich für den Käufer.');
+      if (licenseKey) lines.push('מפתח רישיון: ' + licenseKey);
+      lines.push('', 'המשתמש/ת אישר/ה את תנאי השימוש וגילוי הפרטיות של Sessions Garden.',
+        'מסמך זה משמש כרשומה אישית של האישור.',
+        'אישור זה אינו ניתן להעברה והוא אישי לרוכש/ת.');
       var blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
@@ -240,7 +246,7 @@
   var continueBtn = document.getElementById('continue-btn');
   if (continueBtn) {
     continueBtn.addEventListener('click', function() {
-      try { localStorage.setItem('portfolioLang', 'de'); } catch(e) {}
+      try { localStorage.setItem('portfolioLang', 'he'); } catch(e) {}
       var next = getParam('next');
       if (next) {
         window.location.href = decodeURIComponent(next);

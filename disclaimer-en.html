@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de" dir="ltr">
+<html lang="en" dir="ltr">
 <head>
   <script>
     (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nutzungsbedingungen — Sessions Garden</title>
+  <title>Terms of Use — Sessions Garden</title>
   <link rel="stylesheet" href="./assets/tokens.css" />
   <link rel="stylesheet" href="./assets/app.css" />
   <link rel="stylesheet" href="./assets/globe-lang.css" />
@@ -48,6 +48,8 @@
     .disclaimer-footer { text-align: center; padding: 1.5rem; font-size: 0.875rem; color: var(--color-text-muted); border-top: 1px solid var(--color-border); display: flex; justify-content: center; gap: 1.5rem; }
     .disclaimer-footer a { color: var(--color-primary); text-decoration: none; }
     .disclaimer-footer a:hover { text-decoration: underline; }
+    .courtesy-banner { background: var(--color-primary-soft, #c8e6d4); border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 16px; font-size: 14px; margin-bottom: 1.5rem; color: var(--color-text); }
+    .courtesy-banner a { color: var(--color-primary); }
     @media (max-width: 500px) { .disclaimer-card { padding: 1.25rem 1rem; } .disclaimer-post-accept { flex-direction: column; } }
   </style>
 </head>
@@ -67,45 +69,49 @@
       <span class="disclaimer-brand-title">Sessions Garden</span>
     </a>
     <div id="globe-container"></div>
-    <a class="disclaimer-back-link" href="./landing.html">Zurück zur Startseite</a>
+    <a class="disclaimer-back-link" href="./landing.html">Back to home</a>
   </div>
 
   <main class="disclaimer-main">
     <div class="disclaimer-card">
 
-      <h1 class="disclaimer-heading">Nutzungsbedingungen</h1>
-      <p class="disclaimer-subheading">Bitte lesen und bestätigen Sie die folgenden Bedingungen, bevor Sie Sessions Garden nutzen.</p>
+      <aside class="courtesy-banner">
+        This is a courtesy translation. In case of discrepancies, the <a href="./disclaimer.html">German version</a> is legally binding.
+      </aside>
 
-      <div class="disclaimer-readonly-note" id="readonly-note" style="display:none">Sie sehen die Nutzungsbedingungen im Nur-Lese-Modus.</div>
+      <h1 class="disclaimer-heading">Terms of Use</h1>
+      <p class="disclaimer-subheading">Please read and accept the following terms before using Sessions Garden.</p>
+
+      <div class="disclaimer-readonly-note" id="readonly-note" style="display:none">You are viewing the Terms of Use in read-only mode.</div>
 
       <div id="disclaimer-sections">
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Kein Medizinprodukt</h2>
-          <p class="disclaimer-section-body">Sessions Garden ist ein organisatorisches und administratives Werkzeug für Praktizierende im Bereich Energiebalance und ganzheitliche Gesundheit. Es ist kein Medizinprodukt, gibt keine medizinische Beratung und ist kein Ersatz für eine professionelle medizinische Diagnose oder Behandlung. Alle eingegebenen Informationen dienen ausschließlich den eigenen organisatorischen Zwecken des Anwenders. Nutzer dürfen diese Anwendung nicht für klinische Entscheidungen heranziehen.</p>
+          <h2 class="disclaimer-section-title">Not a Medical Device</h2>
+          <p class="disclaimer-section-body">Sessions Garden is an organizational and administrative tool designed for energy balancing and holistic health practitioners. It is not a medical device, does not provide medical advice, and is not a substitute for professional medical diagnosis or treatment. Any information entered is for the practitioner's own organizational purposes only. Users must not rely on this application for any clinical decision-making.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Datenschutz — Ausschließlich lokale Speicherung</h2>
-          <p class="disclaimer-section-body">Alle Daten, die Sie in Sessions Garden eingeben, werden ausschließlich auf Ihrem eigenen Gerät im browserbasierten lokalen Speicher (IndexedDB) gespeichert. Der Entwickler hat keinerlei Zugriff auf Ihre Daten. Es werden keine Daten an Server, Cloud-Dienste oder Dritte übertragen. Sie haben jederzeit die volle Kontrolle über Ihre Daten.</p>
+          <h2 class="disclaimer-section-title">Data Privacy — Local Storage Only</h2>
+          <p class="disclaimer-section-body">All data you enter into Sessions Garden is stored exclusively on your own device using browser-based local storage (IndexedDB). The developer has absolutely no access to your data. No data is transmitted to any server, cloud service, or third party. You have full control over your data at all times.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Datensicherungspflicht</h2>
-          <p class="disclaimer-section-body">Sie sind allein verantwortlich für die Sicherung Ihrer Daten. Sessions Garden stellt zu diesem Zweck eine Exportfunktion bereit. Der Entwickler übernimmt keine Haftung für Datenverluste durch Geräteausfälle, Browser-Updates, das Löschen des Browser-Speichers oder sonstige Ereignisse. Es wird dringend empfohlen, Ihre Daten regelmäßig zu exportieren.</p>
+          <h2 class="disclaimer-section-title">Backup Responsibility</h2>
+          <p class="disclaimer-section-body">You are solely responsible for backing up your data. Sessions Garden provides an export function for this purpose. The developer assumes no liability for data loss due to device failure, browser updates, clearing of browser storage, or any other event. It is strongly recommended to export your data regularly.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Keine Gewährleistung — Haftungsbeschränkung</h2>
-          <p class="disclaimer-section-body">Sessions Garden wird „wie besehen" (as is) ohne jegliche ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Der Entwickler gibt keine Zusicherungen hinsichtlich Genauigkeit, Vollständigkeit oder Verfügbarkeit der Anwendung. Soweit gesetzlich zulässig, haftet der Entwickler nicht für Datenverluste, entgangene Gewinne oder sonstige direkte oder indirekte Schäden, die aus der Nutzung dieser Anwendung entstehen.</p>
+          <h2 class="disclaimer-section-title">No Warranty — Limitation of Liability</h2>
+          <p class="disclaimer-section-body">Sessions Garden is provided "as is" without warranty of any kind, express or implied. The developer makes no representations regarding the accuracy, completeness, or availability of the application. To the fullest extent permitted by applicable law, the developer shall not be liable for any loss of data, loss of profits, or any other direct or indirect damages arising from use of this application.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Geistiges Eigentum &amp; Einschränkungen</h2>
-          <p class="disclaimer-section-body">Sessions Garden und alle seine Inhalte, sein Code und sein Design sind geistiges Eigentum des Entwicklers. Sie dürfen keinen Teil der Anwendung kopieren, verändern, zurückentwickeln, dekompilieren oder verbreiten. Sie dürfen Ihren Lizenzschlüssel nicht mit anderen teilen oder die Anwendung Dritten zugänglich machen.</p>
+          <h2 class="disclaimer-section-title">Intellectual Property &amp; Restrictions</h2>
+          <p class="disclaimer-section-body">Sessions Garden and all its content, code, and design are the intellectual property of the developer. You may not copy, modify, reverse-engineer, decompile, or distribute any part of the application. You may not share your license key with others or make the application available to third parties.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Einzelnutzerlizenz</h2>
-          <p class="disclaimer-section-body">Ihre Lizenz zur Nutzung von Sessions Garden ist persönlich und nicht übertragbar. Sie dürfen die Anwendung auf bis zu zwei Geräten installieren und nutzen, die sich in Ihrem persönlichen Besitz oder unter Ihrer Kontrolle befinden. Sie sind nicht berechtigt, Ihre Lizenz weiterzulizenzieren, weiterzuverkaufen oder auf eine andere Person zu übertragen. Diese Lizenz gilt für die Lebensdauer der erworbenen Produktversion.</p>
+          <h2 class="disclaimer-section-title">Single-User License</h2>
+          <p class="disclaimer-section-body">Your license to use Sessions Garden is personal and non-transferable. You may install and use the application on up to two devices that you personally own or control. You may not sublicense, resell, or otherwise transfer your license to any other person. This license remains valid for the lifetime of the product version purchased.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Widerrufsrecht</h2>
-          <p class="disclaimer-section-body">Als Verbraucher, der digitale Inhalte erwirbt, haben Sie nach geltendem Verbraucherrecht ein gesetzliches Widerrufsrecht von 14 Tagen ab dem Kaufdatum. Durch Ankreuzen des unten stehenden Kästchens stimmen Sie jedoch zu, dass die Lieferung der digitalen Inhalte unmittelbar nach dem Kauf, vor Ablauf der Widerrufsfrist, beginnt, und Sie nehmen zur Kenntnis, dass Ihr Widerrufsrecht dadurch erlischt.</p>
+          <h2 class="disclaimer-section-title">Right of Withdrawal (Widerrufsrecht)</h2>
+          <p class="disclaimer-section-body">As a consumer purchasing digital content, you have a statutory right of withdrawal of 14 days from the date of purchase, pursuant to applicable consumer protection law. However, by checking the box below, you agree that delivery of the digital content begins immediately upon purchase, before the expiry of the withdrawal period, and you acknowledge that this causes your right of withdrawal to expire.</p>
         </section>
       </div>
 
@@ -114,31 +120,31 @@
       <div class="disclaimer-checkbox-area" id="checkbox-area">
         <div class="disclaimer-checkbox-row">
           <input type="checkbox" id="check-general" name="check-general" />
-          <label for="check-general">Ich habe die Nutzungsbedingungen gelesen und akzeptiere sie.</label>
+          <label for="check-general">I have read and accept the Terms of Use.</label>
         </div>
         <div class="disclaimer-checkbox-row disclaimer-widerruf-row">
           <input type="checkbox" id="check-widerruf" name="check-widerruf" />
-          <label for="check-widerruf">Ich stimme der Vertragsausführung vor Ablauf der Widerrufsfrist zu und weiß, dass dadurch mein Widerrufsrecht erlischt.</label>
+          <label for="check-widerruf">I agree to the execution of the contract before the expiry of the withdrawal period and acknowledge that my right of withdrawal expires upon commencement of the download/access.</label>
         </div>
       </div>
 
       <div id="accept-btn-area">
-        <button type="button" class="disclaimer-accept-btn" id="accept-btn" disabled>Akzeptieren und fortfahren</button>
+        <button type="button" class="disclaimer-accept-btn" id="accept-btn" disabled>Accept and Continue</button>
       </div>
 
-      <p class="disclaimer-accepted-msg" id="accepted-msg" style="display:none">Vielen Dank. Ihre Zustimmung wurde gespeichert.</p>
+      <p class="disclaimer-accepted-msg" id="accepted-msg" style="display:none">Thank you. Your acceptance has been recorded.</p>
       <div class="disclaimer-post-accept" id="post-accept-area" style="display:none">
-        <button type="button" id="download-receipt-btn">Bestätigung herunterladen</button>
-        <button type="button" id="continue-btn">Zur App</button>
+        <button type="button" id="download-receipt-btn">Download Acceptance Receipt</button>
+        <button type="button" id="continue-btn">Continue to App</button>
       </div>
 
     </div>
   </main>
 
   <footer class="disclaimer-footer">
-    <a href="./disclaimer.html">Nutzungsbedingungen</a>
-    <a href="./impressum.html">Impressum</a>
-    <a href="./datenschutz.html">Datenschutzerklärung</a>
+    <a href="./disclaimer-en.html">Terms of Use</a>
+    <a href="./impressum-en.html">Impressum</a>
+    <a href="./datenschutz-en.html">Privacy Policy</a>
   </footer>
 
 </div>
@@ -157,7 +163,7 @@
   // Globe switcher — preserve ?readonly and ?next params on language change
   initGlobeLang({
     containerId: 'globe-container',
-    currentLang: 'de',
+    currentLang: 'en',
     onLangChange: function(newLang) {
       try { localStorage.setItem('portfolioLang', newLang); } catch(e) {}
       var params = window.location.search || '';
@@ -197,7 +203,7 @@
       var timestamp = new Date().toISOString();
       try {
         localStorage.setItem('portfolioTermsAccepted', timestamp);
-        localStorage.setItem('portfolioTermsLang', 'de');
+        localStorage.setItem('portfolioTermsLang', 'en');
       } catch(e) {}
       var cbArea = document.getElementById('checkbox-area');
       if (cbArea) cbArea.style.display = 'none';
@@ -216,15 +222,15 @@
       var licenseKey = '';
       try { licenseKey = atob(localStorage.getItem('portfolioLicenseKey') || ''); } catch(e) {}
       var lines = [
-        'Sessions Garden — Bestätigung der Nutzungsbedingungen',
+        'Sessions Garden — Terms Acceptance Receipt',
         '==========================================',
-        'Akzeptiert am: ' + timestamp,
-        'Sprache: Deutsch'
+        'Accepted: ' + timestamp,
+        'Language: English'
       ];
-      if (licenseKey) lines.push('Lizenzschlüssel: ' + licenseKey);
-      lines.push('', 'Der Nutzer hat die Nutzungsbedingungen und den Datenschutzhinweis von Sessions Garden akzeptiert.',
-        'Dieses Dokument dient als persönlicher Nachweis der Zustimmung.',
-        'Diese Bestätigung ist nicht übertragbar und persönlich für den Käufer.');
+      if (licenseKey) lines.push('License Key: ' + licenseKey);
+      lines.push('', 'The user accepted the Sessions Garden Terms of Use and Privacy Disclosure.',
+        'This document serves as a personal record of acceptance.',
+        'This receipt is non-transferable and personal to the purchaser.');
       var blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
@@ -240,7 +246,7 @@
   var continueBtn = document.getElementById('continue-btn');
   if (continueBtn) {
     continueBtn.addEventListener('click', function() {
-      try { localStorage.setItem('portfolioLang', 'de'); } catch(e) {}
+      try { localStorage.setItem('portfolioLang', 'en'); } catch(e) {}
       var next = getParam('next');
       if (next) {
         window.location.href = decodeURIComponent(next);

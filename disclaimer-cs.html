@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de" dir="ltr">
+<html lang="cs" dir="ltr">
 <head>
   <script>
     (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nutzungsbedingungen — Sessions Garden</title>
+  <title>Podmínky použití — Sessions Garden</title>
   <link rel="stylesheet" href="./assets/tokens.css" />
   <link rel="stylesheet" href="./assets/app.css" />
   <link rel="stylesheet" href="./assets/globe-lang.css" />
@@ -48,6 +48,8 @@
     .disclaimer-footer { text-align: center; padding: 1.5rem; font-size: 0.875rem; color: var(--color-text-muted); border-top: 1px solid var(--color-border); display: flex; justify-content: center; gap: 1.5rem; }
     .disclaimer-footer a { color: var(--color-primary); text-decoration: none; }
     .disclaimer-footer a:hover { text-decoration: underline; }
+    .courtesy-banner { background: var(--color-primary-soft, #c8e6d4); border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 16px; font-size: 14px; margin-bottom: 1.5rem; color: var(--color-text); }
+    .courtesy-banner a { color: var(--color-primary); }
     @media (max-width: 500px) { .disclaimer-card { padding: 1.25rem 1rem; } .disclaimer-post-accept { flex-direction: column; } }
   </style>
 </head>
@@ -67,45 +69,49 @@
       <span class="disclaimer-brand-title">Sessions Garden</span>
     </a>
     <div id="globe-container"></div>
-    <a class="disclaimer-back-link" href="./landing.html">Zurück zur Startseite</a>
+    <a class="disclaimer-back-link" href="./landing.html">Zpět na hlavní stránku</a>
   </div>
 
   <main class="disclaimer-main">
     <div class="disclaimer-card">
 
-      <h1 class="disclaimer-heading">Nutzungsbedingungen</h1>
-      <p class="disclaimer-subheading">Bitte lesen und bestätigen Sie die folgenden Bedingungen, bevor Sie Sessions Garden nutzen.</p>
+      <aside class="courtesy-banner">
+        Tento text je nezávazný překlad. V případě nesrovnalostí je rozhodující <a href="./disclaimer.html">německá verze</a>.
+      </aside>
 
-      <div class="disclaimer-readonly-note" id="readonly-note" style="display:none">Sie sehen die Nutzungsbedingungen im Nur-Lese-Modus.</div>
+      <h1 class="disclaimer-heading">Podmínky použití</h1>
+      <p class="disclaimer-subheading">Před použitím aplikace Sessions Garden si přečtěte a odsouhlaste následující podmínky.</p>
+
+      <div class="disclaimer-readonly-note" id="readonly-note" style="display:none">Podmínky použití prohlížíte v režimu jen pro čtení.</div>
 
       <div id="disclaimer-sections">
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Kein Medizinprodukt</h2>
-          <p class="disclaimer-section-body">Sessions Garden ist ein organisatorisches und administratives Werkzeug für Praktizierende im Bereich Energiebalance und ganzheitliche Gesundheit. Es ist kein Medizinprodukt, gibt keine medizinische Beratung und ist kein Ersatz für eine professionelle medizinische Diagnose oder Behandlung. Alle eingegebenen Informationen dienen ausschließlich den eigenen organisatorischen Zwecken des Anwenders. Nutzer dürfen diese Anwendung nicht für klinische Entscheidungen heranziehen.</p>
+          <h2 class="disclaimer-section-title">Není zdravotnický prostředek</h2>
+          <p class="disclaimer-section-body">Sessions Garden je organizační a administrativní nástroj určený pro odborníky v oblasti energetické rovnováhy a holistického zdraví. Není zdravotnickým prostředkem, neposkytuje lékařské poradenství a nenahrazuje profesionální lékařskou diagnózu ani léčbu. Veškeré zadané informace slouží výhradně pro organizační potřeby odborníka. Uživatelé nesmějí tuto aplikaci používat pro klinická rozhodnutí.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Datenschutz — Ausschließlich lokale Speicherung</h2>
-          <p class="disclaimer-section-body">Alle Daten, die Sie in Sessions Garden eingeben, werden ausschließlich auf Ihrem eigenen Gerät im browserbasierten lokalen Speicher (IndexedDB) gespeichert. Der Entwickler hat keinerlei Zugriff auf Ihre Daten. Es werden keine Daten an Server, Cloud-Dienste oder Dritte übertragen. Sie haben jederzeit die volle Kontrolle über Ihre Daten.</p>
+          <h2 class="disclaimer-section-title">Ochrana osobních údajů — pouze místní úložiště</h2>
+          <p class="disclaimer-section-body">Všechna data, která zadáte do aplikace Sessions Garden, jsou uložena výhradně na vašem vlastním zařízení pomocí místního úložiště prohlížeče (IndexedDB). Vývojář nemá vůbec přístup k vašim datům. Žádná data nejsou přenášena na žádný server, cloudovou službu ani třetím stranám. Máte plnou kontrolu nad svými daty kdykoli.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Datensicherungspflicht</h2>
-          <p class="disclaimer-section-body">Sie sind allein verantwortlich für die Sicherung Ihrer Daten. Sessions Garden stellt zu diesem Zweck eine Exportfunktion bereit. Der Entwickler übernimmt keine Haftung für Datenverluste durch Geräteausfälle, Browser-Updates, das Löschen des Browser-Speichers oder sonstige Ereignisse. Es wird dringend empfohlen, Ihre Daten regelmäßig zu exportieren.</p>
+          <h2 class="disclaimer-section-title">Odpovědnost za zálohy</h2>
+          <p class="disclaimer-section-body">Výhradně vy jste zodpovědni za zálohování svých dat. K tomuto účelu poskytuje Sessions Garden funkci exportu. Vývojář nepřebírá žádnou odpovědnost za ztrátu dat způsobenou selháním zařízení, aktualizacemi prohlížeče, vymazáním úložiště prohlížeče nebo jakoukoli jinou událostí. Důrazně doporučujeme pravidelně exportovat svá data.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Keine Gewährleistung — Haftungsbeschränkung</h2>
-          <p class="disclaimer-section-body">Sessions Garden wird „wie besehen" (as is) ohne jegliche ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Der Entwickler gibt keine Zusicherungen hinsichtlich Genauigkeit, Vollständigkeit oder Verfügbarkeit der Anwendung. Soweit gesetzlich zulässig, haftet der Entwickler nicht für Datenverluste, entgangene Gewinne oder sonstige direkte oder indirekte Schäden, die aus der Nutzung dieser Anwendung entstehen.</p>
+          <h2 class="disclaimer-section-title">Bez záruky — omezení odpovědnosti</h2>
+          <p class="disclaimer-section-body">Sessions Garden je poskytována „tak jak je" (as is) bez jakékoli výslovné nebo předpokládané záruky. Vývojář neposkytuje žádná prohlášení ohledně přesnosti, úplnosti nebo dostupnosti aplikace. V maximálním rozsahu povoleném platným právem vývojář nenese odpovědnost za ztrátu dat, ztrátu zisku ani jiné přímé či nepřímé škody vzniklé v důsledku použití této aplikace.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Geistiges Eigentum &amp; Einschränkungen</h2>
-          <p class="disclaimer-section-body">Sessions Garden und alle seine Inhalte, sein Code und sein Design sind geistiges Eigentum des Entwicklers. Sie dürfen keinen Teil der Anwendung kopieren, verändern, zurückentwickeln, dekompilieren oder verbreiten. Sie dürfen Ihren Lizenzschlüssel nicht mit anderen teilen oder die Anwendung Dritten zugänglich machen.</p>
+          <h2 class="disclaimer-section-title">Duševní vlastnictví a omezení</h2>
+          <p class="disclaimer-section-body">Sessions Garden a veškerý jeho obsah, kód a design jsou duševním vlastnictvím vývojáře. Nesmíte kopírovat, upravovat, zpětně analyzovat, dekompilovat ani distribuovat žádnou část aplikace. Nesmíte sdílet svůj licenční klíč s ostatními ani zpřístupňovat aplikaci třetím stranám.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Einzelnutzerlizenz</h2>
-          <p class="disclaimer-section-body">Ihre Lizenz zur Nutzung von Sessions Garden ist persönlich und nicht übertragbar. Sie dürfen die Anwendung auf bis zu zwei Geräten installieren und nutzen, die sich in Ihrem persönlichen Besitz oder unter Ihrer Kontrolle befinden. Sie sind nicht berechtigt, Ihre Lizenz weiterzulizenzieren, weiterzuverkaufen oder auf eine andere Person zu übertragen. Diese Lizenz gilt für die Lebensdauer der erworbenen Produktversion.</p>
+          <h2 class="disclaimer-section-title">Licence pro jednoho uživatele</h2>
+          <p class="disclaimer-section-body">Vaše licence k používání aplikace Sessions Garden je osobní a nepřenosná. Aplikaci můžete nainstalovat a používat na nejvýše dvou zařízeních, která vlastníte nebo ovládáte. Nejste oprávněni svou licenci sublicencovat, dále prodávat ani převádět na jinou osobu. Tato licence platí po celou dobu životnosti zakoupené verze produktu.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Widerrufsrecht</h2>
-          <p class="disclaimer-section-body">Als Verbraucher, der digitale Inhalte erwirbt, haben Sie nach geltendem Verbraucherrecht ein gesetzliches Widerrufsrecht von 14 Tagen ab dem Kaufdatum. Durch Ankreuzen des unten stehenden Kästchens stimmen Sie jedoch zu, dass die Lieferung der digitalen Inhalte unmittelbar nach dem Kauf, vor Ablauf der Widerrufsfrist, beginnt, und Sie nehmen zur Kenntnis, dass Ihr Widerrufsrecht dadurch erlischt.</p>
+          <h2 class="disclaimer-section-title">Právo na odstoupení od smlouvy</h2>
+          <p class="disclaimer-section-body">Jako spotřebitel nakupující digitální obsah máte zákonné právo na odstoupení od smlouvy ve lhůtě 14 dnů od data nákupu podle platných předpisů na ochranu spotřebitele. Zaškrtnutím políčka níže však souhlasíte s tím, že dodání digitálního obsahu začíná ihned po nákupu, před uplynutím lhůty pro odstoupení, a berete na vědomí, že tím vaše právo na odstoupení od smlouvy zaniká.</p>
         </section>
       </div>
 
@@ -114,31 +120,31 @@
       <div class="disclaimer-checkbox-area" id="checkbox-area">
         <div class="disclaimer-checkbox-row">
           <input type="checkbox" id="check-general" name="check-general" />
-          <label for="check-general">Ich habe die Nutzungsbedingungen gelesen und akzeptiere sie.</label>
+          <label for="check-general">Přečetl/a jsem podmínky použití a souhlasím s nimi.</label>
         </div>
         <div class="disclaimer-checkbox-row disclaimer-widerruf-row">
           <input type="checkbox" id="check-widerruf" name="check-widerruf" />
-          <label for="check-widerruf">Ich stimme der Vertragsausführung vor Ablauf der Widerrufsfrist zu und weiß, dass dadurch mein Widerrufsrecht erlischt.</label>
+          <label for="check-widerruf">Souhlasím s plněním smlouvy před uplynutím lhůty pro odstoupení od smlouvy a beru na vědomí, že tím zaniká mé právo na odstoupení od smlouvy.</label>
         </div>
       </div>
 
       <div id="accept-btn-area">
-        <button type="button" class="disclaimer-accept-btn" id="accept-btn" disabled>Akzeptieren und fortfahren</button>
+        <button type="button" class="disclaimer-accept-btn" id="accept-btn" disabled>Přijmout a pokračovat</button>
       </div>
 
-      <p class="disclaimer-accepted-msg" id="accepted-msg" style="display:none">Vielen Dank. Ihre Zustimmung wurde gespeichert.</p>
+      <p class="disclaimer-accepted-msg" id="accepted-msg" style="display:none">Děkujeme. Váš souhlas byl zaznamenán.</p>
       <div class="disclaimer-post-accept" id="post-accept-area" style="display:none">
-        <button type="button" id="download-receipt-btn">Bestätigung herunterladen</button>
-        <button type="button" id="continue-btn">Zur App</button>
+        <button type="button" id="download-receipt-btn">Stáhnout potvrzení o přijetí</button>
+        <button type="button" id="continue-btn">Přejít do aplikace</button>
       </div>
 
     </div>
   </main>
 
   <footer class="disclaimer-footer">
-    <a href="./disclaimer.html">Nutzungsbedingungen</a>
-    <a href="./impressum.html">Impressum</a>
-    <a href="./datenschutz.html">Datenschutzerklärung</a>
+    <a href="./disclaimer-cs.html">Podmínky použití</a>
+    <a href="./impressum-cs.html">Impressum</a>
+    <a href="./datenschutz-cs.html">Zásady ochrany osobních údajů</a>
   </footer>
 
 </div>
@@ -157,7 +163,7 @@
   // Globe switcher — preserve ?readonly and ?next params on language change
   initGlobeLang({
     containerId: 'globe-container',
-    currentLang: 'de',
+    currentLang: 'cs',
     onLangChange: function(newLang) {
       try { localStorage.setItem('portfolioLang', newLang); } catch(e) {}
       var params = window.location.search || '';
@@ -197,7 +203,7 @@
       var timestamp = new Date().toISOString();
       try {
         localStorage.setItem('portfolioTermsAccepted', timestamp);
-        localStorage.setItem('portfolioTermsLang', 'de');
+        localStorage.setItem('portfolioTermsLang', 'cs');
       } catch(e) {}
       var cbArea = document.getElementById('checkbox-area');
       if (cbArea) cbArea.style.display = 'none';
@@ -216,15 +222,15 @@
       var licenseKey = '';
       try { licenseKey = atob(localStorage.getItem('portfolioLicenseKey') || ''); } catch(e) {}
       var lines = [
-        'Sessions Garden — Bestätigung der Nutzungsbedingungen',
+        'Sessions Garden — Potvrzení přijetí podmínek použití',
         '==========================================',
-        'Akzeptiert am: ' + timestamp,
-        'Sprache: Deutsch'
+        'Přijato: ' + timestamp,
+        'Jazyk: Čeština'
       ];
-      if (licenseKey) lines.push('Lizenzschlüssel: ' + licenseKey);
-      lines.push('', 'Der Nutzer hat die Nutzungsbedingungen und den Datenschutzhinweis von Sessions Garden akzeptiert.',
-        'Dieses Dokument dient als persönlicher Nachweis der Zustimmung.',
-        'Diese Bestätigung ist nicht übertragbar und persönlich für den Käufer.');
+      if (licenseKey) lines.push('Licenční klíč: ' + licenseKey);
+      lines.push('', 'Uživatel přijal Podmínky použití a Zásady ochrany osobních údajů aplikace Sessions Garden.',
+        'Tento dokument slouží jako osobní záznam o přijetí.',
+        'Toto potvrzení je nepřenosné a osobní pro kupujícího.');
       var blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
@@ -240,7 +246,7 @@
   var continueBtn = document.getElementById('continue-btn');
   if (continueBtn) {
     continueBtn.addEventListener('click', function() {
-      try { localStorage.setItem('portfolioLang', 'de'); } catch(e) {}
+      try { localStorage.setItem('portfolioLang', 'cs'); } catch(e) {}
       var next = getParam('next');
       if (next) {
         window.location.href = decodeURIComponent(next);
