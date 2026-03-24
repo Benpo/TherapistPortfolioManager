@@ -19,6 +19,185 @@ window.BackupManager = (function () {
   let _savedDirHandle = null;
 
   // ---------------------------------------------------------------------------
+  // Encryption constants — .sgbackup format (AES-256-GCM via PBKDF2)
+  // ---------------------------------------------------------------------------
+
+  var SGBACKUP_MAGIC = new Uint8Array([0x53, 0x47, 0x30, 0x31]); // "SG01"
+  var PBKDF2_ITERATIONS = 310000;
+  var SALT_LENGTH = 16;
+  var IV_LENGTH = 12;
+
+  // ---------------------------------------------------------------------------
+  // Key derivation — PBKDF2 SHA-256 → AES-256-GCM key
+  // ---------------------------------------------------------------------------
+
+  async function _deriveKey(passphrase, salt) {
+    var enc = new TextEncoder();
+    var keyMaterial = await crypto.subtle.importKey(
+      'raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Encrypt a ZIP Blob → .sgbackup Blob
+  // Format: [4B magic][16B salt][12B IV][ciphertext+GCM tag]
+  // ---------------------------------------------------------------------------
+
+  async function _encryptBlob(zipBlob, passphrase) {
+    var salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
+    var iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+    var key = await _deriveKey(passphrase, salt);
+    var plaintext = await zipBlob.arrayBuffer();
+    var ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, plaintext);
+    var result = new Uint8Array(SGBACKUP_MAGIC.length + salt.length + iv.length + ciphertext.byteLength);
+    result.set(SGBACKUP_MAGIC, 0);
+    result.set(salt, 4);
+    result.set(iv, 20);
+    result.set(new Uint8Array(ciphertext), 32);
+    return new Blob([result], { type: 'application/octet-stream' });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Decrypt a .sgbackup Blob → ZIP Blob (or null if magic mismatch)
+  // ---------------------------------------------------------------------------
+
+  async function _decryptBlob(sgbackupBlob, passphrase) {
+    var buffer = await sgbackupBlob.arrayBuffer();
+    var data = new Uint8Array(buffer);
+    for (var i = 0; i < SGBACKUP_MAGIC.length; i++) {
+      if (data[i] !== SGBACKUP_MAGIC[i]) return null;
+    }
+    var salt = data.slice(4, 20);
+    var iv = data.slice(20, 32);
+    var ciphertext = data.slice(32);
+    var key = await _deriveKey(passphrase, salt);
+    var plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ciphertext);
+    return new Blob([plaintext], { type: 'application/zip' });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Passphrase modal — dynamically created and destroyed per use
+  // ---------------------------------------------------------------------------
+
+  function _showPassphraseModal(opts) {
+    // opts: { mode: 'encrypt'|'decrypt', onConfirm: fn(passphrase), onCancel: fn() }
+    var overlay = document.createElement('div');
+    overlay.className = 'passphrase-modal-overlay';
+
+    var modal = document.createElement('div');
+    modal.className = 'passphrase-modal';
+
+    var isEncrypt = opts.mode === 'encrypt';
+    var heading = document.createElement('h3');
+    heading.textContent = isEncrypt ? 'Create a backup passphrase' : 'Enter your backup passphrase';
+    modal.appendChild(heading);
+
+    var warning = document.createElement('div');
+    warning.className = 'passphrase-warning';
+    warning.textContent = isEncrypt
+      ? 'Enter a passphrase to encrypt your backup. If you forget this passphrase, the backup cannot be recovered.'
+      : 'This backup is encrypted. Enter the passphrase you used when creating it.';
+    modal.appendChild(warning);
+
+    if (isEncrypt) {
+      var irreversible = document.createElement('div');
+      irreversible.className = 'passphrase-irreversible';
+      irreversible.textContent = 'If you forget your passphrase, this backup cannot be recovered. There is no reset option.';
+      modal.appendChild(irreversible);
+    }
+
+    var input1 = document.createElement('input');
+    input1.type = 'password';
+    input1.className = 'passphrase-input';
+    input1.placeholder = 'Passphrase';
+    input1.autocomplete = 'off';
+    modal.appendChild(input1);
+
+    var input2 = null;
+    if (isEncrypt) {
+      input2 = document.createElement('input');
+      input2.type = 'password';
+      input2.className = 'passphrase-input';
+      input2.placeholder = 'Confirm passphrase';
+      input2.autocomplete = 'off';
+      modal.appendChild(input2);
+    }
+
+    var errorEl = document.createElement('div');
+    errorEl.className = 'passphrase-error';
+    errorEl.hidden = true;
+    modal.appendChild(errorEl);
+
+    var actions = document.createElement('div');
+    actions.className = 'passphrase-actions';
+
+    var cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'passphrase-btn-cancel';
+    cancelBtn.textContent = isEncrypt ? 'Skip encryption' : 'Go back';
+    actions.appendChild(cancelBtn);
+
+    var confirmBtn = document.createElement('button');
+    confirmBtn.type = 'button';
+    confirmBtn.className = 'passphrase-btn-confirm';
+    confirmBtn.textContent = isEncrypt ? 'Encrypt and save' : 'Decrypt';
+    confirmBtn.disabled = true;
+    actions.appendChild(confirmBtn);
+
+    modal.appendChild(actions);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    setTimeout(function() { input1.focus(); }, 50);
+
+    function validate() {
+      var v1 = input1.value;
+      if (!v1) { confirmBtn.disabled = true; return; }
+      if (isEncrypt && input2) {
+        confirmBtn.disabled = v1 !== input2.value || !v1;
+      } else {
+        confirmBtn.disabled = false;
+      }
+    }
+    input1.addEventListener('input', validate);
+    if (input2) input2.addEventListener('input', validate);
+
+    function cleanup() { overlay.remove(); }
+
+    confirmBtn.addEventListener('click', function() {
+      if (isEncrypt && input2 && input1.value !== input2.value) {
+        errorEl.textContent = 'Passphrases do not match. Please re-enter both fields.';
+        errorEl.hidden = false;
+        input1.value = '';
+        input2.value = '';
+        input1.focus();
+        confirmBtn.disabled = true;
+        return;
+      }
+      var passphrase = input1.value;
+      cleanup();
+      opts.onConfirm(passphrase);
+    });
+
+    cancelBtn.addEventListener('click', function() {
+      cleanup();
+      if (opts.onCancel) opts.onCancel();
+    });
+
+    modal.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !confirmBtn.disabled) confirmBtn.click();
+      if (e.key === 'Escape') cancelBtn.click();
+    });
+  }
+
+  // ---------------------------------------------------------------------------
   // MIME / extension helpers
   // ---------------------------------------------------------------------------
 
@@ -188,15 +367,59 @@ window.BackupManager = (function () {
   }
 
   // ---------------------------------------------------------------------------
+  // exportEncryptedBackup — passphrase modal → ZIP → encrypt → .sgbackup
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Show passphrase modal, build ZIP via exportBackup(), encrypt it, download
+   * as .sgbackup file.
+   *
+   * Returns a Promise that resolves to:
+   *   true  — user confirmed and file downloaded
+   *   false — user clicked "Skip encryption"
+   */
+  async function exportEncryptedBackup() {
+    return new Promise(function(resolve, reject) {
+      _showPassphraseModal({
+        mode: 'encrypt',
+        onConfirm: async function(passphrase) {
+          try {
+            var result = await exportBackup();
+            var encBlob = await _encryptBlob(result.blob, passphrase);
+            var url = URL.createObjectURL(encBlob);
+            var a = document.createElement('a');
+            a.href = url;
+            var dateStr = new Date().toISOString().slice(0, 10);
+            a.download = 'sessions-garden-' + dateStr + '.sgbackup';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
+            localStorage.setItem("portfolioLastExport", String(Date.now()));
+            resolve(true);
+          } catch (err) {
+            console.error('Encrypted backup failed:', err);
+            reject(err);
+          }
+        },
+        onCancel: function() { resolve(false); }
+      });
+    });
+  }
+
+  // ---------------------------------------------------------------------------
   // importBackup — accept a File, detect format, restore
   // ---------------------------------------------------------------------------
 
   /**
-   * Import a backup file (ZIP or legacy JSON).
-   * Does NOT show any confirmation dialog — callers must do that before calling.
+   * Import a backup file (.sgbackup encrypted, ZIP, or legacy JSON).
+   * Does NOT show any confirmation dialog for ZIP/JSON — callers must do that
+   * before calling. For .sgbackup files the passphrase modal is shown internally.
+   *
+   * File input callers should accept: .sgbackup,.zip,.json
    *
    * Steps:
-   *  1. Detect format by file extension
+   *  1. Detect format by file extension (.sgbackup → decrypt first)
    *  2. Parse manifest (normalize for version compatibility)
    *  3. If ZIP: reconstruct photo data URLs from the photos/ subfolder
    *  4. clearAll() then addClient() / addSession() for every record
@@ -208,6 +431,38 @@ window.BackupManager = (function () {
 
     var name = file.name || "";
     var ext = name.split(".").pop().toLowerCase();
+
+    // .sgbackup — encrypted format: prompt for passphrase, decrypt, then
+    // re-enter importBackup with the decrypted ZIP blob
+    if (ext === "sgbackup") {
+      return new Promise(function(resolve, reject) {
+        _showPassphraseModal({
+          mode: 'decrypt',
+          onConfirm: async function(passphrase) {
+            try {
+              var zipBlob = await _decryptBlob(file, passphrase);
+              if (!zipBlob) {
+                reject(new Error('Not a valid .sgbackup file'));
+                return;
+              }
+              // Create a File-like object from the decrypted ZIP blob and
+              // recursively call importBackup to process via normal ZIP path
+              var zipFile = new File([zipBlob], 'backup.zip', { type: 'application/zip' });
+              var result = await importBackup(zipFile);
+              resolve(result);
+            } catch (err) {
+              if (err.name === 'OperationError') {
+                // AES-GCM authentication failure = wrong passphrase
+                reject(new Error('Incorrect passphrase. The backup could not be decrypted.'));
+              } else {
+                reject(err);
+              }
+            }
+          },
+          onCancel: function() { resolve(null); }
+        });
+      });
+    }
 
     var manifest;
 
@@ -415,6 +670,7 @@ window.BackupManager = (function () {
 
   return {
     exportBackup: exportBackup,
+    exportEncryptedBackup: exportEncryptedBackup,
     triggerDownload: triggerDownload,
     importBackup: importBackup,
     sendToMyself: sendToMyself,
