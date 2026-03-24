@@ -78,6 +78,18 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 - [x] **DEBT-04**: dir attribute standardized to `<html>` element across all pages
 - [x] **DEBT-05**: License page two-mode UX — activated view with self-service deactivation via LS API
 
+### Go-Live Preparation (Phase 19)
+
+- [ ] **LIVE-01**: Impressum legal research — all required sections for German Kleinunternehmer selling PWA software (Opus-level research)
+- [ ] **LIVE-02**: Impressum + Datenschutz full i18n (4 languages) with "German is authoritative" disclaimer on non-DE versions
+- [ ] **LIVE-03**: Clean deployment repo — no .planning/, .claude/, or sensitive files; GH Action to sync app-only files
+- [ ] **LIVE-04**: Cloudflare Pages deployment — live and tested end-to-end (purchase → activate → use)
+- [ ] **LIVE-05**: License page chrome consistency — header, footer, logo, language switcher, correct "home" navigation per context
+- [ ] **LIVE-06**: Landing page strategy for activated users — show, hide, redirect, or repurpose
+- [ ] **LIVE-07**: Demo data cleanup on first activation — paid users start with clean slate
+- [ ] **LIVE-08**: App passcode/PIN lock — research-backed security for local-only browser storage
+- [ ] **LIVE-09**: Innovator research for v1.1 feature backlog
+
 ## Future Requirements
 
 Deferred to v2. Tracked but not in current roadmap.

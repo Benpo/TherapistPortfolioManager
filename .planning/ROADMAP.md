@@ -267,7 +267,7 @@ Plans:
 Plans:
 - [x] 17-01-PLAN.md — Hebrew quote parity: add 6 missing HE quotes + 2 HE extras to EN/DE/CS (BIZ-04)
 - [x] 17-02-PLAN.md — Post-purchase UX flow (?key= auto-populate, license link, Datenschutz LS note) (BIZ-05, BIZ-06, BIZ-03)
-- [ ] 17-03-PLAN.md — Wire real LS values + Impressum/Datenschutz business details (BIZ-01, BIZ-02)
+- [x] 17-03-PLAN.md — Wire real LS values + Impressum/Datenschutz business details (BIZ-01, BIZ-02) ⚠ GAP: Impressum has contact info only — missing Umsatzsteuer, Verbraucherstreitbeilegung, Haftung, Urheberrecht sections. Carried to Phase 19.
 
 ### Phase 18: Technical debt
 
@@ -287,6 +287,23 @@ Plans:
 - [x] 18-01-PLAN.md — Base64 license key obfuscation + dir attribute standardization (DEBT-01, DEBT-04)
 - [x] 18-02-PLAN.md — License page two-mode UX with deactivation (DEBT-01)
 - [x] 18-03-PLAN.md — App.js JSDoc cleanup + refund handling SOP (DEBT-02, DEBT-03)
+
+### Phase 19: Go-Live Preparation
+
+**Goal:** Complete all remaining prerequisites to take Sessions Garden live on Cloudflare Pages: legal compliance (Impressum research + full content), i18n for legal pages, deployment pipeline (clean repo + CF setup), license page UX consistency, post-purchase cleanup, app passcode security, and innovation research for v1.1 backlog.
+**Requirements**: LIVE-01, LIVE-02, LIVE-03, LIVE-04, LIVE-05, LIVE-06, LIVE-07, LIVE-08, LIVE-09
+**Depends on:** Phase 18
+**Success Criteria** (what must be TRUE):
+  1. Impressum has all legally required sections for a German Kleinunternehmer selling software (researched, not guessed)
+  2. Impressum + Datenschutz fully translated in all 4 languages with "German is authoritative" disclaimer on non-DE versions
+  3. Clean GitHub repo exists for CF deployment with no .planning/, .claude/, or sensitive files exposed
+  4. App is live on Cloudflare Pages and full purchase→activate→use flow works end-to-end
+  5. License page has consistent chrome (header, footer, logo, language switcher) matching other app pages, with correct "home" navigation per context
+  6. Landing page behavior for activated/paid users is resolved (show, hide, or redirect)
+  7. Demo data is cleared on first activation so paid users start fresh
+  8. App has a passcode/PIN lock option with research-backed security approach for local-only storage
+  9. Innovator research completed — v1.1 feature candidates collected in backlog
+**Plans:** TBD
 
 ---
 
