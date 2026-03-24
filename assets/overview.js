@@ -110,7 +110,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         App.showToast("", "toast.importSuccess");
         await loadOverview();
       } catch (err) {
-        App.showToast("", "toast.importError");
+        if (err === null) return; // User cancelled passphrase modal
+        console.error("Import failed:", err);
+        // Show specific error message (e.g., wrong passphrase) instead of generic "Import failed"
+        var msg = (err && err.message) ? err.message : "";
+        App.showToast(msg || App.t("toast.importError"));
       } finally {
         importInput.value = "";
       }

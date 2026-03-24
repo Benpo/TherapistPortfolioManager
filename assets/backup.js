@@ -104,6 +104,8 @@ window.BackupManager = (function () {
       'backup.passphrase.placeholder': 'Passphrase',
       'backup.passphrase.confirmPlaceholder': 'Confirm passphrase',
       'backup.passphrase.mismatch': 'Passphrases do not match. Please re-enter both fields.',
+      'backup.passphrase.tooShort': 'Passphrase must be at least 6 characters.',
+      'backup.passphrase.tooSimple': 'Passphrase is too simple. Use a mix of letters and numbers.',
       'backup.passphrase.skipEncryption': 'Skip encryption',
       'backup.passphrase.goBack': 'Go back',
       'backup.passphrase.encryptAndSave': 'Encrypt and save',
@@ -189,11 +191,28 @@ window.BackupManager = (function () {
 
     setTimeout(function() { input1.focus(); }, 50);
 
+    function isWeakPassphrase(p) {
+      if (p.length < 6) return _t('backup.passphrase.tooShort');
+      // All same character (e.g., "aaaaaa")
+      if (/^(.)\1+$/.test(p)) return _t('backup.passphrase.tooSimple');
+      // Pure sequential digits (e.g., "123456", "654321")
+      if (/^\d+$/.test(p)) return _t('backup.passphrase.tooSimple');
+      return null;
+    }
+
     function validate() {
       var v1 = input1.value;
-      if (!v1) { confirmBtn.disabled = true; return; }
-      if (isEncrypt && input2) {
-        confirmBtn.disabled = v1 !== input2.value || !v1;
+      if (!v1) { confirmBtn.disabled = true; errorEl.hidden = true; return; }
+      if (isEncrypt) {
+        var weakness = isWeakPassphrase(v1);
+        if (weakness) {
+          errorEl.textContent = weakness;
+          errorEl.hidden = false;
+          confirmBtn.disabled = true;
+          return;
+        }
+        errorEl.hidden = true;
+        confirmBtn.disabled = !input2 || v1 !== input2.value || !v1;
       } else {
         confirmBtn.disabled = false;
       }
