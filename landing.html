@@ -401,15 +401,8 @@
      SCRIPTS
      ========================================================= -->
 <script src="./assets/landing.js"></script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-      navigator.serviceWorker.register('/sw.js').catch(function(err) {
-        console.warn('SW registration failed:', err);
-      });
-    });
-  }
-</script>
+<!-- SW registration intentionally omitted — marketing page, not the app.
+     The SW is registered by app pages (index.html, sessions.html, etc.). -->
 
 </body>
 </html>
