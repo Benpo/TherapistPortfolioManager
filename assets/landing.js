@@ -6,12 +6,12 @@ var LS_CHECKOUT_URL = 'https://sessionsgarden.lemonsqueezy.com/checkout/buy/1560
 /* ---------- Feature icon PNGs ---------- */
 /* Real botanical illustration icons — 72x72 PNG images */
 var DOODLE_ICONS = {
-  folder:   '<img src="./assets/illustrations/features/alim.png"    width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
-  lock:     '<img src="./assets/illustrations/features/ale.png"     width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
-  offline:  '<img src="./assets/illustrations/features/atsitz.png"  width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
-  sparkle:  '<img src="./assets/illustrations/features/tulip.png"   width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
-  coin:     '<img src="./assets/illustrations/features/vassa.png"   width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
-  notebook: '<img src="./assets/illustrations/features/merizza.png" width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">'
+  folder:   '<img src="./assets/illustrations/features/potted-plant.png"    width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  lock:     '<img src="./assets/illustrations/features/leaf-branch.png"    width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  offline:  '<img src="./assets/illustrations/features/flower-planter.png" width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  sparkle:  '<img src="./assets/illustrations/features/tulip.png"          width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  coin:     '<img src="./assets/illustrations/features/flower-vase.png"    width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">',
+  notebook: '<img src="./assets/illustrations/features/wheelbarrow.png"    width="72" height="72" alt="" aria-hidden="true" class="feature-icon-img">'
 };
 
 /* ---------- i18n ---------- */
