@@ -307,6 +307,7 @@ a {
   border: 0;
   border-radius: 999px;
   padding: 0.6rem 1.3rem;
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   background: var(--color-primary);

@@ -32,6 +32,9 @@ window.BackupManager = (function () {
   // ---------------------------------------------------------------------------
 
   async function _deriveKey(passphrase, salt) {
+    if (!crypto || !crypto.subtle) {
+      throw new Error('Web Crypto API not available. Encrypted backups require HTTPS or localhost.');
+    }
     var enc = new TextEncoder();
     var keyMaterial = await crypto.subtle.importKey(
       'raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey']

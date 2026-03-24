@@ -78,7 +78,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         App.showToast("", "toast.exportSuccess");
       } catch (err) {
-        App.showToast("", "toast.exportError");
+        console.error("Backup export failed:", err);
+        // Show the actual error for debugging
+        var msg = (err && err.message) ? err.message : String(err);
+        if (msg.includes("subtle") || msg.includes("crypto")) {
+          msg = "Encrypted backup requires HTTPS or localhost. Try accessing via localhost instead of IP.";
+        }
+        App.showToast(msg, "toast.exportError");
       }
     });
   }
