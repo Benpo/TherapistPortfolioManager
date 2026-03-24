@@ -214,7 +214,14 @@ window.I18N.de = {
   "backup.banner.message": "Es ist eine Weile her -- denke daran, deine Daten zu sichern.",
   "backup.banner.backupNow": "Jetzt sichern",
   "backup.banner.postponeTomorrow": "Auf morgen verschieben",
-  "backup.banner.postponeWeek": "1 Woche verschieben"
+  "backup.banner.postponeWeek": "1 Woche verschieben",
+  // Security guidance messaging (D-23: multiple touchpoints)
+  "security.note.heading": "Deine Daten sind hier \u2014 sch\u00FCtze sie.",
+  "security.note.body": "Sessions Garden speichert alles nur in diesem Browser. Das L\u00F6schen deiner Browserdaten l\u00F6scht alle Sitzungen unwiderruflich. Richte regelm\u00E4\u00DFige Backups ein, um die Aufzeichnungen deiner Klienten zu sch\u00FCtzen.",
+  "security.note.dismiss": "Verstanden",
+  "security.persistent.heading": "Datenschutz & Datensicherheit",
+  "security.persistent.body": "Alle deine Daten werden nur in diesem Browser gespeichert \u2014 nichts wird an einen Server gesendet. Das L\u00F6schen der Browserdaten oder Deinstallieren der App l\u00F6scht alle Aufzeichnungen unwiderruflich. Nutze verschl\u00FCsselte Backups und sperre dein Ger\u00E4t, um die Privatsph\u00E4re deiner Klienten zu sch\u00FCtzen.",
+  "security.backup.body": "Deine Sitzungen werden nur in diesem Browser gespeichert. Ein Backup sch\u00FCtzt die Aufzeichnungen deiner Klienten, falls diesem Ger\u00E4t oder Browser etwas zust\u00F6\u00DFt. Wir empfehlen w\u00F6chentliche Backups."
 };
 
 window.QUOTES.de = [

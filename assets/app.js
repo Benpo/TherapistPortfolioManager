@@ -175,6 +175,8 @@ window.App = (() => {
     }
     checkBackupReminder();
     requestPersistentStorage();
+    showFirstLaunchSecurityNote();
+    initPersistentSecuritySection();
 
     // Auto-reload when a new service worker takes control (ensures fresh assets)
     if ("serviceWorker" in navigator) {
@@ -400,7 +402,8 @@ window.App = (() => {
 
     const msg = document.createElement("span");
     msg.className = "backup-banner-message";
-    msg.textContent = t("backup.banner.message");
+    // D-25: Enhanced copy communicates data-loss risk (touchpoint #2)
+    msg.textContent = t("security.backup.body") || t("backup.banner.message");
 
     const actions = document.createElement("div");
     actions.className = "backup-banner-actions";
@@ -454,6 +457,48 @@ window.App = (() => {
 
     // Insert at the very top of <body> so it sits above everything
     document.body.prepend(banner);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Security guidance (D-23: multiple touchpoints)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Show security guidance note on first launch after activation.
+   * Shown once, dismissed with "I understand" button.
+   * D-23: Must appear multiple times — this is touchpoint #1.
+   */
+  function showFirstLaunchSecurityNote() {
+    // Only show if licensed and not yet dismissed
+    var isActivated = localStorage.getItem('portfolioLicenseActivated') === '1';
+    var dismissed = localStorage.getItem('securityGuidanceDismissed');
+    if (!isActivated || dismissed) return;
+
+    var container = document.getElementById('security-guidance-container');
+    if (!container) return;
+
+    container.innerHTML =
+      '<div class="security-guidance-note">' +
+      '<h3 id="security-guidance-heading">' + t('security.note.heading') + '</h3>' +
+      '<p id="security-guidance-body">' + t('security.note.body') + '</p>' +
+      '<button class="security-guidance-dismiss" id="security-guidance-dismiss">' + t('security.note.dismiss') + '</button>' +
+      '</div>';
+
+    document.getElementById('security-guidance-dismiss').addEventListener('click', function() {
+      localStorage.setItem('securityGuidanceDismissed', '1');
+      container.innerHTML = '';
+    });
+  }
+
+  /**
+   * Apply i18n translations to the persistent privacy section.
+   * D-23: touchpoint #3 — always visible, never dismissable.
+   */
+  function initPersistentSecuritySection() {
+    var headingEl = document.getElementById('security-persistent-heading');
+    var bodyEl = document.getElementById('security-persistent-body');
+    if (headingEl) headingEl.textContent = t('security.persistent.heading');
+    if (bodyEl) bodyEl.textContent = t('security.persistent.body');
   }
 
   // ---------------------------------------------------------------------------
@@ -525,5 +570,9 @@ window.App = (() => {
     formatSessionType,
     setSubmitLabel,
     readFileAsDataURL,
+
+    // Security guidance
+    showFirstLaunchSecurityNote,
+    initPersistentSecuritySection,
   };
 })();

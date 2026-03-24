@@ -1748,3 +1748,75 @@ body.read-mode .heart-shield-section input {
 .header-license-link:hover {
   color: var(--color-primary);
 }
+
+/* ---------------------------------------------------------------------------
+   Security Guidance Note — appears at multiple touchpoints
+   --------------------------------------------------------------------------- */
+
+.security-guidance-note {
+  background: var(--color-primary-soft, #c8e6d4);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.security-guidance-note h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.security-guidance-note p {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.security-guidance-note p:last-of-type {
+  margin-bottom: 1rem;
+}
+
+.security-guidance-dismiss {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 44px;
+  float: inline-end;
+}
+
+.security-guidance-dismiss:hover {
+  opacity: 0.9;
+}
+
+/* Persistent privacy section (always visible on overview page) */
+.security-guidance-persistent {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.security-guidance-persistent h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.security-guidance-persistent p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}

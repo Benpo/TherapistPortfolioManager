@@ -214,7 +214,14 @@ window.I18N.cs = {
   "backup.banner.message": "Uz je to delsi dobu -- zvaz zalohovani svych dat.",
   "backup.banner.backupNow": "Zalohovat nyni",
   "backup.banner.postponeTomorrow": "Odlozit na zitra",
-  "backup.banner.postponeWeek": "Odlozit o tyden"
+  "backup.banner.postponeWeek": "Odlozit o tyden",
+  // Security guidance messaging (D-23: multiple touchpoints)
+  "security.note.heading": "Va\u0161e data jsou zde \u2014 chra\u0148te je.",
+  "security.note.body": "Sessions Garden ukl\u00E1d\u00E1 v\u0161e pouze v tomto prohl\u00ED\u017Ee\u010Di. Vymaz\u00E1n\u00ED dat prohl\u00ED\u017Ee\u010De trvale sma\u017Ee v\u0161echny relace. Nastavte pravideln\u00E9 z\u00E1lohy pro ochranu z\u00E1znam\u016F va\u0161ich klient\u016F.",
+  "security.note.dismiss": "Rozum\u00EDm",
+  "security.persistent.heading": "Soukrom\u00ED a zabezpe\u010Den\u00ED dat",
+  "security.persistent.body": "V\u0161echna va\u0161e data jsou ulo\u017Eena pouze v tomto prohl\u00ED\u017Ee\u010Di \u2014 nic se neodes\u00EDl\u00E1 na \u017E\u00E1dn\u00FD server. Vymaz\u00E1n\u00ED dat prohl\u00ED\u017Ee\u010De nebo odinstalace aplikace trvale sma\u017Ee v\u0161echny z\u00E1znamy. Pou\u017E\u00EDvejte \u0161ifrovan\u00E9 z\u00E1lohy a zamykejte sv\u00E9 za\u0159\u00EDzen\u00ED pro ochranu soukrom\u00ED sv\u00FDch klient\u016F.",
+  "security.backup.body": "Va\u0161e relace jsou ulo\u017Eeny pouze v tomto prohl\u00ED\u017Ee\u010Di. Z\u00E1loha chr\u00E1n\u00ED z\u00E1znamy va\u0161ich klient\u016F, pokud by se n\u011Bco stalo tomuto za\u0159\u00EDzen\u00ED nebo prohl\u00ED\u017Ee\u010Di. Doporu\u010Dujeme t\u00FDdenn\u00ED z\u00E1lohov\u00E1n\u00ED."
 };
 
 window.QUOTES.cs = [

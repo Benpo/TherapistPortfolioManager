@@ -221,6 +221,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.addEventListener("app:language", async () => {
     renderGreeting();
+    App.initPersistentSecuritySection();
     await loadOverview();
   });
 });

@@ -214,7 +214,14 @@ window.I18N.he = {
   "backup.banner.message": "עבר זמן מה -- כדאי לגבות את הנתונים שלך.",
   "backup.banner.backupNow": "גיבוי עכשיו",
   "backup.banner.postponeTomorrow": "דחה למחר",
-  "backup.banner.postponeWeek": "דחה לשבוע"
+  "backup.banner.postponeWeek": "דחה לשבוע",
+  // Security guidance messaging (D-23: multiple touchpoints)
+  "security.note.heading": "הנתונים שלך נמצאים כאן \u2014 שמור עליהם.",
+  "security.note.body": "Sessions Garden שומר הכל רק בדפדפן הזה. מחיקת נתוני הדפדפן תמחק לצמיתות את כל המפגשים. הגדר גיבויים סדירים כדי להגן על הרשומות של הלקוחות שלך.",
+  "security.note.dismiss": "הבנתי",
+  "security.persistent.heading": "פרטיות ואבטחת מידע",
+  "security.persistent.body": "כל הנתונים שלך נשמרים רק בדפדפן הזה \u2014 שום דבר לא נשלח לשרת כלשהו. מחיקת נתוני הדפדפן או הסרת האפליקציה מוחקת את כל הרשומות לצמיתות. השתמש בגיבויים מוצפנים ונעל את המכשיר שלך כדי להגן על הפרטיות של הלקוחות שלך.",
+  "security.backup.body": "המפגשים שלך נשמרים רק בדפדפן הזה. גיבוי מגן על הרשומות של הלקוחות שלך אם משהו יקרה למכשיר או לדפדפן. אנו ממליצים על גיבוי שבועי."
 };
 
 window.QUOTES.he = [

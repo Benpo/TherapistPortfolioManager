@@ -67,6 +67,9 @@
         <img src="./assets/illustrations/garden.png" alt="" class="app-botanical-img app-botanical-divider-img" />
       </div>
 
+      <!-- Security guidance note: populated by JS on first launch after activation (D-23 touchpoint #1) -->
+      <div id="security-guidance-container"></div>
+
       <section class="stat-grid">
         <div class="stat-card">
           <div class="stat-value" id="statClients">0</div>
@@ -155,6 +158,12 @@
           <tbody id="clientTableBody"></tbody>
         </table>
       </section>
+
+      <!-- Persistent privacy section: always visible, D-23 touchpoint #3 -->
+      <div class="security-guidance-persistent" id="security-persistent">
+        <h3 id="security-persistent-heading">Privacy &amp; Data Security</h3>
+        <p id="security-persistent-body">All your data is stored only in this browser — nothing is sent to any server. Clearing browser data or uninstalling the app permanently deletes all records. Use encrypted backups and keep your device locked to protect your clients' privacy.</p>
+      </div>
 
       <div class="app-botanical app-botanical-footer" aria-hidden="true">
         <img src="./assets/illustrations/watering-can.png" alt="" class="app-botanical-img" />

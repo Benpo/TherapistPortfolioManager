@@ -214,7 +214,14 @@ window.I18N.en = {
   "backup.banner.message": "It has been a while -- consider backing up your data.",
   "backup.banner.backupNow": "Back up now",
   "backup.banner.postponeTomorrow": "Postpone to tomorrow",
-  "backup.banner.postponeWeek": "Postpone 1 week"
+  "backup.banner.postponeWeek": "Postpone 1 week",
+  // Security guidance messaging (D-23: multiple touchpoints)
+  "security.note.heading": "Your data lives here \u2014 keep it safe.",
+  "security.note.body": "Sessions Garden stores everything only in this browser. Clearing your browser data will permanently delete all sessions. Set up regular backups to protect your clients\u2019 records.",
+  "security.note.dismiss": "I understand",
+  "security.persistent.heading": "Privacy & Data Security",
+  "security.persistent.body": "All your data is stored only in this browser \u2014 nothing is sent to any server. Clearing browser data or uninstalling the app permanently deletes all records. Use encrypted backups and keep your device locked to protect your clients\u2019 privacy.",
+  "security.backup.body": "Your sessions live only in this browser. A backup protects your clients\u2019 records if anything happens to this device or browser. We recommend weekly backups."
 };
 
 window.QUOTES.en = [
