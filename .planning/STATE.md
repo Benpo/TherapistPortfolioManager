@@ -125,14 +125,15 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-4 pending todos in .planning/todos/pending/:
+10 pending todos in .planning/todos/pending/:
 
 - 2026-03-18-edit-client-from-add-session.md
 - 2026-03-18-heart-wall-redesign-discussion.md
 - 2026-03-18-photo-crop-reposition.md
 - 2026-03-18-verify-landing-page-translations.md
+- 2026-03-24-license-page-ui-polish-add-app-chrome.md
 
-These map directly to UX-03, UX-04, HSHLD-01-03, LNCH-04 respectively.
+Earlier todos (UX-03, UX-04, HSHLD-01-03, LNCH-04) completed in prior phases but files not archived. New todo for license page chrome added during Phase 18 discussion.
 
 ### Roadmap Evolution
 
