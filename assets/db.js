@@ -1,6 +1,151 @@
 window.PortfolioDB = (() => {
-  const DB_NAME = window.name === "demo-mode" ? "demo_portfolio" : "emotion_code_portfolio";
+  const DB_NAME = window.name === "demo-mode" ? "demo_portfolio" : "sessions_garden";
+  const OLD_DB_NAME = "emotion_code_portfolio";
   const DB_VERSION = 3;
+
+  let _migrationDone = false;
+
+  /**
+   * One-time migration: copies data from "emotion_code_portfolio" to "sessions_garden"
+   * for existing users after the rebrand. Safe to call multiple times (idempotent).
+   */
+  async function migrateOldDB() {
+    // Only run once per page load, and never in demo mode
+    if (_migrationDone || DB_NAME !== "sessions_garden") {
+      _migrationDone = true;
+      return;
+    }
+    _migrationDone = true;
+
+    try {
+      // Detect whether the old DB exists
+      let oldDBExists = false;
+
+      if (typeof indexedDB.databases === "function") {
+        // Modern browsers: enumerate databases
+        const dbs = await indexedDB.databases();
+        oldDBExists = dbs.some((d) => d.name === OLD_DB_NAME);
+      } else {
+        // Firefox < 126 fallback: attempt to open without triggering upgradeneeded
+        oldDBExists = await new Promise((resolve) => {
+          const probe = indexedDB.open(OLD_DB_NAME, 1);
+          let isNew = false;
+          probe.onupgradeneeded = () => {
+            // DB did not exist — it is being created fresh; mark as new and abort
+            isNew = true;
+            probe.result.close();
+            probe.transaction.abort();
+          };
+          probe.onsuccess = () => {
+            const db = probe.result;
+            const hasStores = db.objectStoreNames.length > 0;
+            db.close();
+            if (!hasStores) {
+              // Empty DB was accidentally created; clean it up
+              indexedDB.deleteDatabase(OLD_DB_NAME);
+              resolve(false);
+            } else {
+              resolve(true);
+            }
+          };
+          probe.onerror = () => resolve(false);
+          // onblocked fires if another tab already has old DB open
+          probe.onblocked = () => resolve(false);
+          // Give the probe result time; if upgradeneeded fired, mark as not existing
+          setTimeout(() => {
+            if (isNew) resolve(false);
+          }, 0);
+        });
+      }
+
+      if (!oldDBExists) return;
+
+      // Open the new DB first so its schema is ready
+      const newDB = await openDB();
+
+      // Check idempotency: if new DB already has clients, migration already ran
+      const existingClients = await new Promise((resolve, reject) => {
+        const tx = newDB.transaction("clients", "readonly");
+        const req = tx.objectStore("clients").count();
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+
+      if (existingClients > 0) {
+        newDB.close();
+        // Old DB still exists but new DB has data — just delete the old DB
+        indexedDB.deleteDatabase(OLD_DB_NAME);
+        console.log("Skipped migration: sessions_garden already has data. Deleted emotion_code_portfolio.");
+        return;
+      }
+
+      // Open the old DB (read-only; no upgradeneeded since it exists at its current version)
+      const oldDB = await new Promise((resolve, reject) => {
+        // Open without specifying a version so we get whatever version it is at
+        const req = indexedDB.open(OLD_DB_NAME);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+        req.onupgradeneeded = () => {
+          // Should not happen since we confirmed the DB exists; abort to be safe
+          req.transaction.abort();
+          reject(new Error("Unexpected upgradeneeded on old DB during migration"));
+        };
+      });
+
+      // Copy clients
+      const clients = await new Promise((resolve, reject) => {
+        if (!oldDB.objectStoreNames.contains("clients")) return resolve([]);
+        const tx = oldDB.transaction("clients", "readonly");
+        const req = tx.objectStore("clients").getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+
+      // Copy sessions
+      const sessions = await new Promise((resolve, reject) => {
+        if (!oldDB.objectStoreNames.contains("sessions")) return resolve([]);
+        const tx = oldDB.transaction("sessions", "readonly");
+        const req = tx.objectStore("sessions").getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+
+      oldDB.close();
+
+      // Write clients to new DB
+      if (clients.length > 0) {
+        await new Promise((resolve, reject) => {
+          const tx = newDB.transaction("clients", "readwrite");
+          const store = tx.objectStore("clients");
+          clients.forEach((c) => store.put(c));
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+      }
+
+      // Write sessions to new DB
+      if (sessions.length > 0) {
+        await new Promise((resolve, reject) => {
+          const tx = newDB.transaction("sessions", "readwrite");
+          const store = tx.objectStore("sessions");
+          sessions.forEach((s) => store.put(s));
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+      }
+
+      newDB.close();
+
+      // Delete the old database
+      indexedDB.deleteDatabase(OLD_DB_NAME);
+
+      console.log("Migrated database from emotion_code_portfolio to sessions_garden");
+    } catch (err) {
+      // Migration failure is non-fatal: user keeps their data in new (empty) DB;
+      // log for debugging but do not surface to user
+      console.error("DB name migration failed (non-fatal):", err);
+    }
+  }
 
   const DB_STRINGS = {
     en: {
@@ -101,7 +246,8 @@ window.PortfolioDB = (() => {
     },
   };
 
-  function openDB() {
+  async function openDB() {
+    await migrateOldDB();
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
