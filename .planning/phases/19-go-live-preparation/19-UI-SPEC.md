@@ -21,7 +21,7 @@ created: 2026-03-24
 | Preset | not applicable |
 | Component library | none (custom components in app.css) |
 | Icon library | inline SVG (no external icon library) |
-| Font | Rubik (self-hosted woff2: Regular 400, SemiBold 600, Bold 700) |
+| Font | Rubik (self-hosted woff2: Regular 400, SemiBold 600) |
 
 **Source:** codebase scan — `assets/tokens.css`, `assets/app.css`
 
@@ -45,7 +45,7 @@ Declared values (derived from inline fallback values observed in `app.css` — `
 
 Exceptions:
 - Legal page content area: `max-width: 720px; margin: 2rem auto; padding: 0 1.5rem` — existing pattern from `impressum.html`, replicate exactly for all 12 per-language legal files.
-- Courtesy translation banner: `padding: 12px 16px` (sm/md), `border-radius: 8px` — matches SapphireHealing aside pattern.
+- Courtesy translation banner: `padding: 8px 16px` (sm/md), `border-radius: 8px` — matches SapphireHealing aside pattern.
 - Passphrase prompt modal: minimum touch target 44px height for confirm/cancel buttons.
 - Security guidance modal/banner: no new spacing tokens — reuse `.backup-reminder-banner` padding pattern (`8px 16px`).
 
@@ -58,7 +58,9 @@ Exceptions:
 | Body | 16px (1rem) | 400 | 1.5 | Legal page body paragraphs, security guidance copy |
 | Label | 14px (0.875rem) | 600 | 1.4 | Banner text, form labels, footer links, courtesy banner |
 | Heading | 20px (1.25rem) | 600 | 1.2 | Legal page h2, section headings, modal headings |
-| Display | 28px (1.75rem) | 700 | 1.1 | Page-level h1 only (not used in Phase 19 — legal pages use h2 as primary heading) |
+| Display | 28px (1.75rem) | 600 | 1.1 | Page-level h1 only (not used in Phase 19 — legal pages use h2 as primary heading) |
+
+**Weights: exactly 2 — Regular (400) and SemiBold (600). Bold (700) is not used in Phase 19.**
 
 **Source:** codebase — `assets/app.css` declares `.section-title` at `1.4rem / weight 800`, `.brand-title` at `1.25rem / weight 800`, `.legal-back-link` at `0.875rem`. Phase 19 new UI elements use the 4 roles above.
 
@@ -121,9 +123,38 @@ New components required:
 
 | Component | CSS Location | Description |
 |-----------|-------------|-------------|
-| `.courtesy-banner` | Per-language legal HTML `<style>` block | Courtesy translation banner (`<aside>`). Soft green background (`--color-primary-soft`), 1px border (`--color-border`), `border-radius: 8px`, `padding: 12px 16px`, `font-size: 14px`. Link to German version. |
+| `.courtesy-banner` | Per-language legal HTML `<style>` block | Courtesy translation banner (`<aside>`). Soft green background (`--color-primary-soft`), 1px border (`--color-border`), `border-radius: 8px`, `padding: 8px 16px`, `font-size: 14px`. Link to German version. |
 | `.passphrase-modal` | `assets/app.css` (new section) | Passphrase entry modal for encrypted backup. Builds on existing modal pattern. Input field + warning note + confirm/cancel buttons. |
 | `.security-guidance-note` | `assets/app.css` (new section) | Inline security reminder block (not modal). Same structure as `.backup-reminder-banner` but with privacy framing copy. Appears on first launch, every backup reminder, and in settings/help. |
+
+---
+
+## Visual Hierarchy
+
+### Passphrase Prompt Modal
+
+Primary anchor: the heading "Create a backup passphrase" (Heading role, 20px/600, centered or left-aligned at top of modal).
+
+Hierarchy order (top to bottom):
+1. Heading — primary anchor, establishes task context.
+2. Body copy — one sentence explaining the irreversibility consequence (warning background `--color-warning-bg`, `--color-warning-text`).
+3. Passphrase input field — receives focus on modal open.
+4. Confirm passphrase input field.
+5. Inline error (if mismatch) — `--color-danger`, appears below confirm field.
+6. Action row — Confirm button (accent, right-aligned or full-width), Skip encryption button (text style, left-aligned or secondary position).
+
+The confirm button is the visual terminus; the user's eye travels top-to-bottom from task framing to action.
+
+### Security Guidance First-Launch Note
+
+Primary anchor: the heading "Your data lives here — keep it safe." (Heading role, 20px/600).
+
+Hierarchy order:
+1. Heading — anchors the message.
+2. Body copy — explains consequence in plain language.
+3. "Got it" dismiss button — single CTA, full-width on mobile, right-aligned on desktop.
+
+The note renders at the top of the first app screen after activation, above all other content, so the heading is the first element the user encounters.
 
 ---
 
@@ -166,6 +197,8 @@ New components required:
 | Passphrase prompt body | "Enter a passphrase to encrypt your backup. If you forget this passphrase, the backup cannot be recovered." |
 | Passphrase field placeholder | "Passphrase" |
 | Passphrase confirm field placeholder | "Confirm passphrase" |
+| Passphrase modal confirm button | "Encrypt and save" |
+| Passphrase modal cancel button | "Skip encryption" |
 | Passphrase mismatch error | "Passphrases do not match. Please try again." |
 | Import — passphrase prompt heading | "Enter your backup passphrase" |
 | Import — passphrase prompt body | "This backup is encrypted. Enter the passphrase you used when creating it." |
@@ -199,7 +232,7 @@ Tone: empathetic, not alarming. Frame as protecting clients' privacy. Non-techni
 | Action | Confirmation approach |
 |--------|----------------------|
 | Deactivate license (license page) | Existing Phase 18 pattern — modal confirm dialog. "Deactivate on this browser? This will remove your access until you reactivate with your license key." Confirm: "Deactivate" (danger button). Cancel: "Keep active". |
-| Overwrite data on backup import | Existing backup import flow warning — confirm before proceeding. "Importing will replace all current data. This cannot be undone." Confirm: "Import and replace". Cancel: "Cancel". |
+| Overwrite data on backup import | Existing backup import flow warning — confirm before proceeding. "Importing will replace all current data. This cannot be undone." Confirm: "Import and replace". Cancel: "Go back". |
 
 ---
 
@@ -243,8 +276,8 @@ Tone: empathetic, not alarming. Frame as protecting clients' privacy. Non-techni
 - Two fields: passphrase + confirm passphrase.
 - Validation: fields must match, minimum 1 character.
 - Mismatch: inline error below confirm field (red text, `--color-danger`), fields cleared.
-- Confirm button: disabled until both fields match and are non-empty.
-- Cancel: closes modal, no backup created.
+- Confirm button ("Encrypt and save"): disabled until both fields match and are non-empty.
+- Cancel button ("Skip encryption"): closes modal, no backup created.
 - Uses existing modal pattern from `assets/app.css`.
 
 ### Security Guidance Notes
