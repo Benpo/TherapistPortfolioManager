@@ -46,6 +46,8 @@ const LICENSE_I18N = {
     deactivateSuccess: 'License deactivated. You can re-activate anytime.',
     deactivateErrorNetwork: 'Deactivation requires an internet connection. Please connect and try again.',
     deactivateErrorGeneric: 'Deactivation failed. Please try again.',
+    backToApp: 'Back to app',
+    backToHome: 'Back to home',
   },
   he: {
     title: 'הפעלת Sessions Garden',
@@ -75,6 +77,8 @@ const LICENSE_I18N = {
     deactivateSuccess: 'הרישיון בוטל. ניתן להפעיל מחדש בכל עת.',
     deactivateErrorNetwork: 'ביטול ההפעלה דורש חיבור לאינטרנט. התחבר ונסה שוב.',
     deactivateErrorGeneric: 'ביטול ההפעלה נכשל. נסה שוב.',
+    backToApp: 'חזרה לאפליקציה',
+    backToHome: 'חזרה לדף הבית',
   },
   de: {
     title: 'Sessions Garden aktivieren',
@@ -104,6 +108,8 @@ const LICENSE_I18N = {
     deactivateSuccess: 'Lizenz deaktiviert. Du kannst jederzeit erneut aktivieren.',
     deactivateErrorNetwork: 'Deaktivierung erfordert eine Internetverbindung. Bitte verbinde dich und versuche es erneut.',
     deactivateErrorGeneric: 'Deaktivierung fehlgeschlagen. Bitte versuche es erneut.',
+    backToApp: 'Zurück zur App',
+    backToHome: 'Zurück zur Startseite',
   },
   cs: {
     title: 'Aktivovat Sessions Garden',
@@ -133,6 +139,8 @@ const LICENSE_I18N = {
     deactivateSuccess: 'Licence deaktivována. Můžeš kdykoli znovu aktivovat.',
     deactivateErrorNetwork: 'Deaktivace vyžaduje připojení k internetu. Připoj se a zkus to znovu.',
     deactivateErrorGeneric: 'Deaktivace se nezdařila. Zkus to znovu.',
+    backToApp: 'Zpět do aplikace',
+    backToHome: 'Zpět na hlavní stránku',
   }
 };
 
