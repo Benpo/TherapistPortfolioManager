@@ -9,7 +9,7 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v19';
+const CACHE_NAME = 'sessions-garden-v20';
 
 /**
  * All static assets to precache on install.
@@ -51,7 +51,7 @@ const PRECACHE_URLS = [
   '/assets/fonts/Rubik-Regular.woff2',
   '/assets/fonts/Rubik-SemiBold.woff2',
   '/assets/fonts/Rubik-Bold.woff2',
-  '/assets/logo.png',
+  '/assets/branding/logo-512.png',
   '/assets/illustrations/garden.png',
   '/assets/illustrations/watering-can.png',
   '/demo.html',
