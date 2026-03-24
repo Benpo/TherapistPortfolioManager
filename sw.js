@@ -9,7 +9,7 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v25';
+const CACHE_NAME = 'sessions-garden-v26';
 
 /**
  * All static assets to precache on install.
@@ -36,7 +36,7 @@ const PRECACHE_URLS = [
   '/disclaimer-he.html',
   '/disclaimer-cs.html',
   '/license.html',
-  '/landing.html',
+  // landing.html intentionally excluded — marketing page, not part of the PWA
   '/manifest.json',
   '/assets/tokens.css',
   '/assets/app.css',
@@ -77,8 +77,6 @@ const PRECACHE_URLS = [
 
 /**
  * Install event: precache all static assets.
- * Note: landing.js is not included here as landing.html (plan 03) is not yet
- * created. Add '/assets/landing.js' to PRECACHE_URLS when plan 03 is complete.
  */
 self.addEventListener('install', function (event) {
   event.waitUntil(
