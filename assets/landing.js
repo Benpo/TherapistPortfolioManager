@@ -464,6 +464,7 @@ function applyLang(lang) {
   });
   setHref('pricing-cta', LS_CHECKOUT_URL);
   setText2('pricing-cta', t.pricingCta);
+  setHref('features-cta', LS_CHECKOUT_URL);
   setText2('features-cta', t.pricingCta);
   setHref('pricing-license-link', './license.html?lang=' + lang);
   setText2('pricing-license-link', t.pricingLicenseLink);
