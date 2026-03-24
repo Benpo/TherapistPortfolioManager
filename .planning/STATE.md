@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
-status: unknown
-stopped_at: "Completed 19-06-PLAN.md: Security guidance messaging at 3 touchpoints"
-last_updated: "2026-03-24T19:49:56.451Z"
+status: complete
+stopped_at: "Phase 19 complete — all 8 plans executed, deployed to CF Pages, domain live"
+last_updated: "2026-03-24T22:42:20.746Z"
 last_activity: 2026-03-24
 progress:
   total_phases: 12
-  completed_phases: 11
+  completed_phases: 12
   total_plans: 41
-  completed_plans: 40
+  completed_plans: 41
 ---
 
 # Project State
@@ -20,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 19 — go-live-preparation
+**Current focus:** v1.1 milestone complete — deployed to sessionsgarden.app
 
 ## Current Position
 
-Phase: 19 (go-live-preparation) — EXECUTING
-Plan: 8 of 8
+Phase: 19 (complete)
+Plan: 8/8 complete — deployed to production
 
 ## Performance Metrics
 
@@ -150,18 +150,47 @@ Recent decisions affecting current work:
 - [Phase 19]: Footer link ?lang= URL param approach eliminated — direct per-language file navigation used instead (DE primary file, others -{lang}.html suffix)
 - [Phase 19]: Security guidance uses dot-notation i18n keys (security.note.heading pattern) matching existing project convention
 - [Phase 19]: Three security touchpoints: first-launch dismissable note, enhanced backup reminder body, persistent always-visible privacy section
+- [Phase 19 UAT]: Terms gate removed from license.html — TOC only gates the 5 app pages, not the license page
+- [Phase 19 UAT]: Terms gate on app pages redirects to language-aware disclaimer (reads portfolioLang, navigates to disclaimer-{lang}.html)
+- [Phase 19 UAT]: Backup merged to single "Export / Backup Data" button — passphrase-first flow with "Skip encryption" option
+- [Phase 19 UAT]: Passphrase modal fully i18n'd (EN/DE/HE/CS) with RTL support for Hebrew
+- [Phase 19 UAT]: Passphrase complexity: min 6 chars, rejects all-same-char and pure digits
+- [Phase 19 UAT]: Deactivation clears portfolioTermsAccepted + portfolioTermsLang + securityGuidanceDismissed — forces re-acceptance on reactivation
+- [Phase 19 UAT]: License page chrome uses legal-topbar (not app-nav) to avoid pill-shaped hover styles
+- [Phase 19 UAT]: Security note uses data-i18n attributes for language-reactive rendering; weekly recurrence (7-day ISO timestamp)
+- [Phase 19 UAT]: Legal page footer links to disclaimer use ?readonly=true — viewing terms, not accepting
+- [Phase 19 UAT]: Landing page removed from SW precache (marketing page, not PWA); SW bumped to v26
+- [Phase 19 UAT]: Phone number removed from all Impressum pages — email sufficient for DDG §5 Kleinunternehmer
+- [Phase 19 UAT]: Missing i18n keys added: common.type.human (→Adult), session.type.inPerson/clinic/online/other
+- [Phase 19 Deploy]: CF Pages deployment via GH Action deploy branch; _redirects / → /landing.html 302
+- [Phase 19 Deploy]: X-Frame-Options changed from DENY to SAMEORIGIN — demo iframe on landing page requires same-origin framing
+- [Phase 19 Deploy]: CF Pages auto-strips .html extensions (pretty URLs) — all internal links work without extension
+- [Phase 19 Deploy]: LIVE-07 confirmed zero-implementation: demo_portfolio vs sessions_garden (separate IndexedDB)
 
 ### Pending Todos
 
-10 pending todos in .planning/todos/pending/:
+17 pending todos in .planning/todos/pending/:
 
-- 2026-03-18-edit-client-from-add-session.md
-- 2026-03-18-heart-wall-redesign-discussion.md
-- 2026-03-18-photo-crop-reposition.md
-- 2026-03-18-verify-landing-page-translations.md
-- 2026-03-24-license-page-ui-polish-add-app-chrome.md
+**Pre-existing:**
+- edit-client-from-add-session
+- heart-wall-redesign-discussion
+- photo-crop-reposition
+- verify-landing-page-translations
+- license-page-ui-polish-add-app-chrome
+- add-scheduled-backup-reminder-and-auto-backup-setting
+- design-landing-page-content-and-pricing-with-sapir
+- research-legal-disclaimer-signature-storage-and-gdpr-compliance
+- birth-date-picker-improvement
+- copy-button-session-text-fields
+- add-app-footer-with-contact-email-and-legal-links
+- device-browser-terminology-fix
+- pwa-install-guidance-and-user-manual
+- v12-full-indexeddb-encryption
 
-Earlier todos (UX-03, UX-04, HSHLD-01-03, LNCH-04) completed in prior phases but files not archived. New todo for license page chrome added during Phase 18 discussion.
+**Added during Phase 19 UAT:**
+- dark-mode-persists-on-landing-after-deactivation
+- deactivation-data-loss-warning (stronger confirmation when client data exists)
+- terms-acceptance-business-notification (webhook to n8n)
 
 ### Roadmap Evolution
 
@@ -184,5 +213,6 @@ Earlier todos (UX-03, UX-04, HSHLD-01-03, LNCH-04) completed in prior phases but
 ## Session Continuity
 
 Last activity: 2026-03-24
-Stopped at: Completed 19-06-PLAN.md: Security guidance messaging at 3 touchpoints
+Stopped at: Phase 19 complete — deployed to sessionsgarden.app via CF Pages
 Resume file: None
+Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
