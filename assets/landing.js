@@ -708,9 +708,17 @@ function showActiveLicenseBanner() {
   banner.textContent = msg;
   document.body.prepend(banner);
 
-  // Redirect after 2 seconds
+  // Redirect after 2 seconds — check if terms accepted first
   setTimeout(function() {
-    window.location.href = './index.html';
+    var termsAccepted = localStorage.getItem('portfolioTermsAccepted');
+    if (termsAccepted) {
+      window.location.href = './index.html';
+    } else {
+      // Need to accept terms first, then go to app
+      var lang = localStorage.getItem('portfolioLang') || 'en';
+      var disclaimer = (lang === 'de') ? './disclaimer.html' : './disclaimer-' + lang + '.html';
+      window.location.href = disclaimer + '?next=/index.html';
+    }
   }, 2000);
 }
 
