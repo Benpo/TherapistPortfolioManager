@@ -23,8 +23,7 @@ window.I18N.de = {
   "overview.table.edit": "Bearbeiten",
   "overview.table.previousSessions": "Vorherige Sitzungen",
   "overview.table.newSession": "Neue Sitzung",
-  "overview.export": "Daten exportieren",
-  "overview.exportEncrypted": "Verschlüsseltes Backup exportieren",
+  "overview.export": "Daten exportieren / sichern",
   "overview.import": "Daten importieren",
   "overview.modal.title": "Klientenzusammenfassung",
   "overview.modal.editClient": "Klient bearbeiten",
@@ -216,13 +215,28 @@ window.I18N.de = {
   "backup.banner.backupNow": "Jetzt sichern",
   "backup.banner.postponeTomorrow": "Auf morgen verschieben",
   "backup.banner.postponeWeek": "1 Woche verschieben",
-  // Security guidance messaging (D-23: multiple touchpoints)
+  // Security guidance messaging
   "security.note.heading": "Deine Daten sind hier \u2014 sch\u00FCtze sie.",
   "security.note.body": "Sessions Garden speichert alles nur in diesem Browser. Das L\u00F6schen deiner Browserdaten l\u00F6scht alle Sitzungen unwiderruflich. Richte regelm\u00E4\u00DFige Backups ein, um die Aufzeichnungen deiner Klienten zu sch\u00FCtzen.",
   "security.note.dismiss": "Verstanden",
   "security.persistent.heading": "Datenschutz & Datensicherheit",
   "security.persistent.body": "Alle deine Daten werden nur in diesem Browser gespeichert \u2014 nichts wird an einen Server gesendet. Das L\u00F6schen der Browserdaten oder Deinstallieren der App l\u00F6scht alle Aufzeichnungen unwiderruflich. Nutze verschl\u00FCsselte Backups und sperre dein Ger\u00E4t, um die Privatsph\u00E4re deiner Klienten zu sch\u00FCtzen.",
-  "security.backup.body": "Deine Sitzungen werden nur in diesem Browser gespeichert. Ein Backup sch\u00FCtzt die Aufzeichnungen deiner Klienten, falls diesem Ger\u00E4t oder Browser etwas zust\u00F6\u00DFt. Wir empfehlen w\u00F6chentliche Backups."
+  "security.backup.body": "Deine Sitzungen werden nur in diesem Browser gespeichert. Ein Backup sch\u00FCtzt die Aufzeichnungen deiner Klienten, falls diesem Ger\u00E4t oder Browser etwas zust\u00F6\u00DFt. Wir empfehlen w\u00F6chentliche Backups.",
+
+  // Backup passphrase modal
+  "backup.passphrase.headingEncrypt": "Backup-Passphrase erstellen",
+  "backup.passphrase.headingDecrypt": "Backup-Passphrase eingeben",
+  "backup.passphrase.warningEncrypt": "Gib eine Passphrase ein, um dein Backup zu verschl\u00FCsseln. Wenn du diese Passphrase vergisst, kann das Backup nicht wiederhergestellt werden.",
+  "backup.passphrase.warningDecrypt": "Dieses Backup ist verschl\u00FCsselt. Gib die Passphrase ein, die du beim Erstellen verwendet hast.",
+  "backup.passphrase.irreversible": "Wenn du deine Passphrase vergisst, kann dieses Backup nicht wiederhergestellt werden. Es gibt keine R\u00FCcksetzm\u00F6glichkeit.",
+  "backup.passphrase.placeholder": "Passphrase",
+  "backup.passphrase.confirmPlaceholder": "Passphrase best\u00E4tigen",
+  "backup.passphrase.mismatch": "Passphrasen stimmen nicht \u00FCberein. Bitte gib beide Felder erneut ein.",
+  "backup.passphrase.wrongPassphrase": "Falsche Passphrase. Das Backup konnte nicht entschl\u00FCsselt werden.",
+  "backup.passphrase.skipEncryption": "Ohne Verschl\u00FCsselung",
+  "backup.passphrase.goBack": "Zur\u00FCck",
+  "backup.passphrase.encryptAndSave": "Verschl\u00FCsseln und speichern",
+  "backup.passphrase.decrypt": "Entschl\u00FCsseln"
 };
 
 window.QUOTES.de = [

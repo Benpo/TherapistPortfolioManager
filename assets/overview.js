@@ -66,26 +66,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (exportBtn) {
     exportBtn.addEventListener("click", async () => {
       try {
-        const { blob, filename } = await BackupManager.exportBackup();
-        BackupManager.triggerDownload(blob, filename);
-        // Also auto-save to folder if active
-        if (BackupManager.isAutoBackupActive()) {
-          await BackupManager.autoSaveToFolder(blob, filename);
+        // Passphrase-first flow: modal shows with "Skip encryption" option
+        var encrypted = await BackupManager.exportEncryptedBackup();
+        if (encrypted === false) {
+          // User chose "Skip encryption" — do regular export
+          const { blob, filename } = await BackupManager.exportBackup();
+          BackupManager.triggerDownload(blob, filename);
+          if (BackupManager.isAutoBackupActive()) {
+            await BackupManager.autoSaveToFolder(blob, filename);
+          }
         }
         App.showToast("", "toast.exportSuccess");
       } catch (err) {
         App.showToast("", "toast.exportError");
-      }
-    });
-  }
-
-  const exportEncryptedBtn = document.getElementById("exportEncryptedBtn");
-  if (exportEncryptedBtn) {
-    exportEncryptedBtn.addEventListener("click", async () => {
-      try {
-        await BackupManager.exportEncryptedBackup();
-      } catch (err) {
-        if (err !== 'cancelled') App.showToast("", "toast.exportError");
       }
     });
   }

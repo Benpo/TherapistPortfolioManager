@@ -23,8 +23,7 @@ window.I18N.en = {
   "overview.table.edit": "Edit",
   "overview.table.previousSessions": "Previous sessions",
   "overview.table.newSession": "New session",
-  "overview.export": "Export Data",
-  "overview.exportEncrypted": "Export Encrypted Backup",
+  "overview.export": "Export / Backup Data",
   "overview.import": "Import Data",
   "overview.modal.title": "Client Summary",
   "overview.modal.editClient": "Edit Client",
@@ -216,13 +215,28 @@ window.I18N.en = {
   "backup.banner.backupNow": "Back up now",
   "backup.banner.postponeTomorrow": "Postpone to tomorrow",
   "backup.banner.postponeWeek": "Postpone 1 week",
-  // Security guidance messaging (D-23: multiple touchpoints)
+  // Security guidance messaging
   "security.note.heading": "Your data lives here \u2014 keep it safe.",
   "security.note.body": "Sessions Garden stores everything only in this browser. Clearing your browser data will permanently delete all sessions. Set up regular backups to protect your clients\u2019 records.",
   "security.note.dismiss": "I understand",
   "security.persistent.heading": "Privacy & Data Security",
   "security.persistent.body": "All your data is stored only in this browser \u2014 nothing is sent to any server. Clearing browser data or uninstalling the app permanently deletes all records. Use encrypted backups and keep your device locked to protect your clients\u2019 privacy.",
-  "security.backup.body": "Your sessions live only in this browser. A backup protects your clients\u2019 records if anything happens to this device or browser. We recommend weekly backups."
+  "security.backup.body": "Your sessions live only in this browser. A backup protects your clients\u2019 records if anything happens to this device or browser. We recommend weekly backups.",
+
+  // Backup passphrase modal
+  "backup.passphrase.headingEncrypt": "Create a backup passphrase",
+  "backup.passphrase.headingDecrypt": "Enter your backup passphrase",
+  "backup.passphrase.warningEncrypt": "Enter a passphrase to encrypt your backup. If you forget this passphrase, the backup cannot be recovered.",
+  "backup.passphrase.warningDecrypt": "This backup is encrypted. Enter the passphrase you used when creating it.",
+  "backup.passphrase.irreversible": "If you forget your passphrase, this backup cannot be recovered. There is no reset option.",
+  "backup.passphrase.placeholder": "Passphrase",
+  "backup.passphrase.confirmPlaceholder": "Confirm passphrase",
+  "backup.passphrase.mismatch": "Passphrases do not match. Please re-enter both fields.",
+  "backup.passphrase.wrongPassphrase": "Incorrect passphrase. The backup could not be decrypted.",
+  "backup.passphrase.skipEncryption": "Skip encryption",
+  "backup.passphrase.goBack": "Go back",
+  "backup.passphrase.encryptAndSave": "Encrypt and save",
+  "backup.passphrase.decrypt": "Decrypt"
 };
 
 window.QUOTES.en = [

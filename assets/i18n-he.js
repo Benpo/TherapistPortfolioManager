@@ -23,8 +23,7 @@ window.I18N.he = {
   "overview.table.edit": "עריכה",
   "overview.table.previousSessions": "מפגשים קודמים",
   "overview.table.newSession": "מפגש חדש",
-  "overview.export": "ייצוא נתונים",
-  "overview.exportEncrypted": "ייצוא גיבוי מוצפן",
+  "overview.export": "ייצוא / גיבוי נתונים",
   "overview.import": "ייבוא נתונים",
   "overview.modal.title": "סיכום לקוח",
   "overview.modal.editClient": "עריכת לקוח",
@@ -216,13 +215,28 @@ window.I18N.he = {
   "backup.banner.backupNow": "גיבוי עכשיו",
   "backup.banner.postponeTomorrow": "דחה למחר",
   "backup.banner.postponeWeek": "דחה לשבוע",
-  // Security guidance messaging (D-23: multiple touchpoints)
+  // Security guidance messaging
   "security.note.heading": "הנתונים שלך נמצאים כאן \u2014 שמור עליהם.",
   "security.note.body": "Sessions Garden שומר הכל רק בדפדפן הזה. מחיקת נתוני הדפדפן תמחק לצמיתות את כל המפגשים. הגדר גיבויים סדירים כדי להגן על הרשומות של הלקוחות שלך.",
   "security.note.dismiss": "הבנתי",
   "security.persistent.heading": "פרטיות ואבטחת מידע",
   "security.persistent.body": "כל הנתונים שלך נשמרים רק בדפדפן הזה \u2014 שום דבר לא נשלח לשרת כלשהו. מחיקת נתוני הדפדפן או הסרת האפליקציה מוחקת את כל הרשומות לצמיתות. השתמש בגיבויים מוצפנים ונעל את המכשיר שלך כדי להגן על הפרטיות של הלקוחות שלך.",
-  "security.backup.body": "המפגשים שלך נשמרים רק בדפדפן הזה. גיבוי מגן על הרשומות של הלקוחות שלך אם משהו יקרה למכשיר או לדפדפן. אנו ממליצים על גיבוי שבועי."
+  "security.backup.body": "המפגשים שלך נשמרים רק בדפדפן הזה. גיבוי מגן על הרשומות של הלקוחות שלך אם משהו יקרה למכשיר או לדפדפן. אנו ממליצים על גיבוי שבועי.",
+
+  // Backup passphrase modal
+  "backup.passphrase.headingEncrypt": "צור סיסמת גיבוי",
+  "backup.passphrase.headingDecrypt": "הזן את סיסמת הגיבוי",
+  "backup.passphrase.warningEncrypt": "הזן סיסמה להצפנת הגיבוי. אם תשכח את הסיסמה, לא ניתן יהיה לשחזר את הגיבוי.",
+  "backup.passphrase.warningDecrypt": "גיבוי זה מוצפן. הזן את הסיסמה שהשתמשת בה בעת יצירתו.",
+  "backup.passphrase.irreversible": "אם תשכח את הסיסמה, לא ניתן יהיה לשחזר את הגיבוי. אין אפשרות לאיפוס.",
+  "backup.passphrase.placeholder": "סיסמה",
+  "backup.passphrase.confirmPlaceholder": "אישור סיסמה",
+  "backup.passphrase.mismatch": "הסיסמאות אינן תואמות. אנא הזן שוב את שני השדות.",
+  "backup.passphrase.wrongPassphrase": "סיסמה שגויה. לא ניתן לפענח את הגיבוי.",
+  "backup.passphrase.skipEncryption": "דלג על הצפנה",
+  "backup.passphrase.goBack": "חזרה",
+  "backup.passphrase.encryptAndSave": "הצפן ושמור",
+  "backup.passphrase.decrypt": "פענוח"
 };
 
 window.QUOTES.he = [

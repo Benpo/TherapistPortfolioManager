@@ -460,13 +460,12 @@ window.App = (() => {
   }
 
   // ---------------------------------------------------------------------------
-  // Security guidance (D-23: multiple touchpoints)
+  // Security guidance (multiple touchpoints)
   // ---------------------------------------------------------------------------
 
   /**
    * Show security guidance note after activation.
    * Re-appears weekly (every 7 days) after dismissal.
-   * D-23: Must appear multiple times — this is touchpoint #1.
    */
   function showFirstLaunchSecurityNote() {
     var isActivated = localStorage.getItem('portfolioLicenseActivated') === '1';
@@ -499,7 +498,7 @@ window.App = (() => {
 
   /**
    * Apply i18n translations to the persistent privacy section.
-   * D-23: touchpoint #3 — always visible, never dismissable.
+   * Always visible, never dismissable.
    */
   function initPersistentSecuritySection() {
     var headingEl = document.getElementById('security-persistent-heading');

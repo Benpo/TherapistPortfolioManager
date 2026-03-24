@@ -86,6 +86,29 @@ window.BackupManager = (function () {
   // Passphrase modal — dynamically created and destroyed per use
   // ---------------------------------------------------------------------------
 
+  // i18n helper — use App.t() if available, otherwise English fallback
+  function _t(key) {
+    if (typeof window.App !== 'undefined' && typeof window.App.t === 'function') {
+      return window.App.t(key);
+    }
+    // English fallbacks for when App isn't loaded
+    var fallbacks = {
+      'backup.passphrase.headingEncrypt': 'Create a backup passphrase',
+      'backup.passphrase.headingDecrypt': 'Enter your backup passphrase',
+      'backup.passphrase.warningEncrypt': 'Enter a passphrase to encrypt your backup. If you forget this passphrase, the backup cannot be recovered.',
+      'backup.passphrase.warningDecrypt': 'This backup is encrypted. Enter the passphrase you used when creating it.',
+      'backup.passphrase.irreversible': 'If you forget your passphrase, this backup cannot be recovered. There is no reset option.',
+      'backup.passphrase.placeholder': 'Passphrase',
+      'backup.passphrase.confirmPlaceholder': 'Confirm passphrase',
+      'backup.passphrase.mismatch': 'Passphrases do not match. Please re-enter both fields.',
+      'backup.passphrase.skipEncryption': 'Skip encryption',
+      'backup.passphrase.goBack': 'Go back',
+      'backup.passphrase.encryptAndSave': 'Encrypt and save',
+      'backup.passphrase.decrypt': 'Decrypt'
+    };
+    return fallbacks[key] || key;
+  }
+
   function _showPassphraseModal(opts) {
     // opts: { mode: 'encrypt'|'decrypt', onConfirm: fn(passphrase), onCancel: fn() }
     var overlay = document.createElement('div');
@@ -94,29 +117,35 @@ window.BackupManager = (function () {
     var modal = document.createElement('div');
     modal.className = 'passphrase-modal';
 
+    // RTL support
+    var lang = '';
+    try { lang = localStorage.getItem('portfolioLang') || 'en'; } catch(e) {}
+    if (lang === 'he') {
+      modal.setAttribute('dir', 'rtl');
+      modal.style.textAlign = 'right';
+    }
+
     var isEncrypt = opts.mode === 'encrypt';
     var heading = document.createElement('h3');
-    heading.textContent = isEncrypt ? 'Create a backup passphrase' : 'Enter your backup passphrase';
+    heading.textContent = _t(isEncrypt ? 'backup.passphrase.headingEncrypt' : 'backup.passphrase.headingDecrypt');
     modal.appendChild(heading);
 
     var warning = document.createElement('div');
     warning.className = 'passphrase-warning';
-    warning.textContent = isEncrypt
-      ? 'Enter a passphrase to encrypt your backup. If you forget this passphrase, the backup cannot be recovered.'
-      : 'This backup is encrypted. Enter the passphrase you used when creating it.';
+    warning.textContent = _t(isEncrypt ? 'backup.passphrase.warningEncrypt' : 'backup.passphrase.warningDecrypt');
     modal.appendChild(warning);
 
     if (isEncrypt) {
       var irreversible = document.createElement('div');
       irreversible.className = 'passphrase-irreversible';
-      irreversible.textContent = 'If you forget your passphrase, this backup cannot be recovered. There is no reset option.';
+      irreversible.textContent = _t('backup.passphrase.irreversible');
       modal.appendChild(irreversible);
     }
 
     var input1 = document.createElement('input');
     input1.type = 'password';
     input1.className = 'passphrase-input';
-    input1.placeholder = 'Passphrase';
+    input1.placeholder = _t('backup.passphrase.placeholder');
     input1.autocomplete = 'off';
     modal.appendChild(input1);
 
@@ -125,7 +154,7 @@ window.BackupManager = (function () {
       input2 = document.createElement('input');
       input2.type = 'password';
       input2.className = 'passphrase-input';
-      input2.placeholder = 'Confirm passphrase';
+      input2.placeholder = _t('backup.passphrase.confirmPlaceholder');
       input2.autocomplete = 'off';
       modal.appendChild(input2);
     }
@@ -141,13 +170,13 @@ window.BackupManager = (function () {
     var cancelBtn = document.createElement('button');
     cancelBtn.type = 'button';
     cancelBtn.className = 'passphrase-btn-cancel';
-    cancelBtn.textContent = isEncrypt ? 'Skip encryption' : 'Go back';
+    cancelBtn.textContent = _t(isEncrypt ? 'backup.passphrase.skipEncryption' : 'backup.passphrase.goBack');
     actions.appendChild(cancelBtn);
 
     var confirmBtn = document.createElement('button');
     confirmBtn.type = 'button';
     confirmBtn.className = 'passphrase-btn-confirm';
-    confirmBtn.textContent = isEncrypt ? 'Encrypt and save' : 'Decrypt';
+    confirmBtn.textContent = _t(isEncrypt ? 'backup.passphrase.encryptAndSave' : 'backup.passphrase.decrypt');
     confirmBtn.disabled = true;
     actions.appendChild(confirmBtn);
 
@@ -173,7 +202,7 @@ window.BackupManager = (function () {
 
     confirmBtn.addEventListener('click', function() {
       if (isEncrypt && input2 && input1.value !== input2.value) {
-        errorEl.textContent = 'Passphrases do not match. Please re-enter both fields.';
+        errorEl.textContent = _t('backup.passphrase.mismatch');
         errorEl.hidden = false;
         input1.value = '';
         input2.value = '';
@@ -453,7 +482,7 @@ window.BackupManager = (function () {
             } catch (err) {
               if (err.name === 'OperationError') {
                 // AES-GCM authentication failure = wrong passphrase
-                reject(new Error('Incorrect passphrase. The backup could not be decrypted.'));
+                reject(new Error(_t('backup.passphrase.wrongPassphrase')));
               } else {
                 reject(err);
               }
