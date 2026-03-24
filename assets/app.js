@@ -25,7 +25,7 @@ window.App = (() => {
     }
     localStorage.setItem("portfolioLang", currentLang);
     document.documentElement.lang = currentLang;
-    document.body.setAttribute("dir", currentLang === "he" ? "rtl" : "ltr");
+    document.documentElement.setAttribute("dir", currentLang === "he" ? "rtl" : "ltr");
     applyTranslations();
     document.dispatchEvent(new CustomEvent("app:language", { detail: { lang: currentLang } }));
   }

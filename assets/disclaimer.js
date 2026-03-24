@@ -9,6 +9,10 @@
   // Helpers
   // -------------------------------------------------------------------------
 
+  function decodeLicenseValue(encoded) {
+    try { return atob(encoded); } catch (e) { return encoded; }
+  }
+
   function getParam(name) {
     return new URLSearchParams(window.location.search).get(name);
   }
@@ -180,7 +184,7 @@
 
     var licenseKey = '';
     try {
-      licenseKey = localStorage.getItem('portfolioLicenseKey') || '';
+      licenseKey = decodeLicenseValue(localStorage.getItem('portfolioLicenseKey') || '');
     } catch (e) {}
 
     var lines = [

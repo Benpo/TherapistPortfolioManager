@@ -89,6 +89,19 @@ const LICENSE_I18N = {
 };
 
 // ---------------------------------------------------------------------------
+// Base64 encoding helpers — cosmetic obfuscation of license credentials
+// in localStorage (DEBT-01). Prevents casual DevTools inspection.
+// Real security is Lemon Squeezy's 2-device activation limit.
+// ---------------------------------------------------------------------------
+function encodeLicenseValue(val) {
+  try { return btoa(val); } catch (e) { return val; }
+}
+
+function decodeLicenseValue(encoded) {
+  try { return atob(encoded); } catch (e) { return encoded; }
+}
+
+// ---------------------------------------------------------------------------
 // Language detection (reuse stored preference from terms acceptance)
 // ---------------------------------------------------------------------------
 function getLicenseLang() {
@@ -110,7 +123,7 @@ function getLicenseLang() {
 function isLicensed() {
   try {
     return localStorage.getItem('portfolioLicenseActivated') === '1' &&
-           !!localStorage.getItem('portfolioLicenseInstance');
+           !!decodeLicenseValue(localStorage.getItem('portfolioLicenseInstance') || '');
   } catch (e) {
     return false;
   }
@@ -177,9 +190,9 @@ async function activateLicenseKey(key) {
     }
   }
 
-  // Store credentials for offline daily use
-  localStorage.setItem('portfolioLicenseKey', key);
-  localStorage.setItem('portfolioLicenseInstance', data.instance.id);
+  // Store credentials for offline daily use (Base64-encoded for cosmetic obfuscation)
+  localStorage.setItem('portfolioLicenseKey', encodeLicenseValue(key));
+  localStorage.setItem('portfolioLicenseInstance', encodeLicenseValue(data.instance.id));
   localStorage.setItem('portfolioLicenseActivated', '1');
 
   return data;
@@ -189,6 +202,20 @@ async function activateLicenseKey(key) {
 // Page initialization — runs on DOMContentLoaded
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
+  // One-time migration: encode plain-text keys from pre-v18 installs
+  (function migratePlainKeys() {
+    try {
+      ['portfolioLicenseKey', 'portfolioLicenseInstance'].forEach(function(k) {
+        var raw = localStorage.getItem(k);
+        if (!raw) return;
+        try { atob(raw); } catch (e) {
+          // Not valid Base64 — encode it
+          localStorage.setItem(k, encodeLicenseValue(raw));
+        }
+      });
+    } catch (e) { /* ignore */ }
+  })();
+
   var lang = getLicenseLang();
   var strings = LICENSE_I18N[lang] || LICENSE_I18N.en;
   var isRTL = lang === 'he';
@@ -215,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Check for re-activation scenario: key stored but not activated
   var storedKey = '';
   try {
-    storedKey = localStorage.getItem('portfolioLicenseKey') || '';
+    storedKey = decodeLicenseValue(localStorage.getItem('portfolioLicenseKey') || '');
   } catch (e) { /* ignore */ }
 
   if (storedKey && !isLicensed()) {
