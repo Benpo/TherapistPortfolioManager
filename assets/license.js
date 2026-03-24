@@ -32,8 +32,20 @@ const LICENSE_I18N = {
     errorNetwork: 'Activation requires an internet connection. Please connect and try again.',
     errorInvalid: 'Invalid license key. Please check your key and try again.',
     errorCrossProduct: 'This license key is not valid for Sessions Garden.',
-    errorDeviceLimit: 'You have reached the device limit for this license. Contact contact@sessionsgarden.app to deactivate an existing device.',
+    errorDeviceLimit: "You've reached the device limit. Deactivate a device from within the app on that device, or contact contact@sessionsgarden.app if you no longer have access to it.",
     errorGeneric: 'Activation failed. Please try again.',
+    statusLicensed: 'Licensed',
+    displayLabel: 'License Key',
+    deactivateBtn: 'Deactivate This Device',
+    deactivatingBtn: 'Deactivating...',
+    deactivateInfo: 'Frees one of your 2 device slots.',
+    deactivateConfirmTitle: 'Deactivate License?',
+    deactivateConfirmMsg: "You will need to re-activate with an internet connection. This frees up one of your 2 device slots.",
+    deactivateConfirmYes: 'Yes, Deactivate',
+    deactivateConfirmNo: 'Cancel',
+    deactivateSuccess: 'License deactivated. You can re-activate anytime.',
+    deactivateErrorNetwork: 'Deactivation requires an internet connection. Please connect and try again.',
+    deactivateErrorGeneric: 'Deactivation failed. Please try again.',
   },
   he: {
     title: 'הפעלת Sessions Garden',
@@ -49,8 +61,20 @@ const LICENSE_I18N = {
     errorNetwork: 'ההפעלה דורשת חיבור לאינטרנט. התחבר ונסה שוב.',
     errorInvalid: 'מפתח רישיון שגוי. בדוק את המפתח ונסה שוב.',
     errorCrossProduct: 'מפתח רישיון זה אינו תקף עבור Sessions Garden.',
-    errorDeviceLimit: 'הגעת למגבלת המכשירים עבור רישיון זה. צור קשר עם contact@sessionsgarden.app להסרת מכשיר קיים.',
+    errorDeviceLimit: 'הגעת למגבלת המכשירים. בטל הפעלה ממכשיר אחר מתוך האפליקציה באותו מכשיר, או פנה אל contact@sessionsgarden.app אם אין לך גישה אליו.',
     errorGeneric: 'ההפעלה נכשלה. נסה שוב.',
+    statusLicensed: 'מורשה',
+    displayLabel: 'מפתח רישיון',
+    deactivateBtn: 'בטל הפעלה במכשיר זה',
+    deactivatingBtn: 'מבטל...',
+    deactivateInfo: 'משחרר אחד מ-2 מקומות המכשירים שלך.',
+    deactivateConfirmTitle: 'לבטל את הרישיון?',
+    deactivateConfirmMsg: 'תצטרך להפעיל מחדש עם חיבור לאינטרנט. זה משחרר אחד מ-2 מקומות המכשירים שלך.',
+    deactivateConfirmYes: 'כן, בטל',
+    deactivateConfirmNo: 'ביטול',
+    deactivateSuccess: 'הרישיון בוטל. ניתן להפעיל מחדש בכל עת.',
+    deactivateErrorNetwork: 'ביטול ההפעלה דורש חיבור לאינטרנט. התחבר ונסה שוב.',
+    deactivateErrorGeneric: 'ביטול ההפעלה נכשל. נסה שוב.',
   },
   de: {
     title: 'Sessions Garden aktivieren',
@@ -66,8 +90,20 @@ const LICENSE_I18N = {
     errorNetwork: 'Für die Aktivierung ist eine Internetverbindung erforderlich. Bitte verbinde dich und versuche es erneut.',
     errorInvalid: 'Ungültiger Lizenzschlüssel. Bitte überprüfe den Schlüssel und versuche es erneut.',
     errorCrossProduct: 'Dieser Lizenzschlüssel ist nicht für Sessions Garden gültig.',
-    errorDeviceLimit: 'Du hast das Gerätelimit für diese Lizenz erreicht. Kontaktiere contact@sessionsgarden.app, um ein vorhandenes Gerät zu deaktivieren.',
+    errorDeviceLimit: 'Du hast das Gerätelimit erreicht. Deaktiviere ein Gerät direkt in der App auf diesem Gerät oder kontaktiere contact@sessionsgarden.app, falls du keinen Zugang mehr hast.',
     errorGeneric: 'Aktivierung fehlgeschlagen. Bitte versuche es erneut.',
+    statusLicensed: 'Lizenziert',
+    displayLabel: 'Lizenzschlüssel',
+    deactivateBtn: 'Dieses Gerät deaktivieren',
+    deactivatingBtn: 'Deaktiviere...',
+    deactivateInfo: 'Gibt einen deiner 2 Geräteplätze frei.',
+    deactivateConfirmTitle: 'Lizenz deaktivieren?',
+    deactivateConfirmMsg: 'Du musst mit einer Internetverbindung erneut aktivieren. Dies gibt einen deiner 2 Geräteplätze frei.',
+    deactivateConfirmYes: 'Ja, deaktivieren',
+    deactivateConfirmNo: 'Abbrechen',
+    deactivateSuccess: 'Lizenz deaktiviert. Du kannst jederzeit erneut aktivieren.',
+    deactivateErrorNetwork: 'Deaktivierung erfordert eine Internetverbindung. Bitte verbinde dich und versuche es erneut.',
+    deactivateErrorGeneric: 'Deaktivierung fehlgeschlagen. Bitte versuche es erneut.',
   },
   cs: {
     title: 'Aktivovat Sessions Garden',
@@ -83,8 +119,20 @@ const LICENSE_I18N = {
     errorNetwork: 'Aktivace vyžaduje připojení k internetu. Připoj se a zkus to znovu.',
     errorInvalid: 'Neplatný licenční klíč. Zkontroluj klíč a zkus to znovu.',
     errorCrossProduct: 'Tento licenční klíč není platný pro Sessions Garden.',
-    errorDeviceLimit: 'Dosáhl/a jsi limitu zařízení pro tuto licenci. Kontaktuj contact@sessionsgarden.app pro deaktivaci stávajícího zařízení.',
+    errorDeviceLimit: 'Dosáhl/a jsi limitu zařízení. Deaktivuj zařízení přímo v aplikaci na daném zařízení nebo kontaktuj contact@sessionsgarden.app, pokud k němu už nemáš přístup.',
     errorGeneric: 'Aktivace se nezdařila. Zkus to znovu.',
+    statusLicensed: 'Licencováno',
+    displayLabel: 'Licenční klíč',
+    deactivateBtn: 'Deaktivovat toto zařízení',
+    deactivatingBtn: 'Deaktivu ji...',
+    deactivateInfo: 'Uvolní jedno z tvých 2 míst pro zařízení.',
+    deactivateConfirmTitle: 'Deaktivovat licenci?',
+    deactivateConfirmMsg: 'Budeš muset znovu aktivovat s připojením k internetu. Uvolní jedno z tvých 2 míst pro zařízení.',
+    deactivateConfirmYes: 'Ano, deaktivovat',
+    deactivateConfirmNo: 'Zrušit',
+    deactivateSuccess: 'Licence deaktivována. Můžeš kdykoli znovu aktivovat.',
+    deactivateErrorNetwork: 'Deaktivace vyžaduje připojení k internetu. Připoj se a zkus to znovu.',
+    deactivateErrorGeneric: 'Deaktivace se nezdařila. Zkus to znovu.',
   }
 };
 
@@ -199,6 +247,85 @@ async function activateLicenseKey(key) {
 }
 
 // ---------------------------------------------------------------------------
+// Deactivation function — calls Lemon Squeezy License API
+// ---------------------------------------------------------------------------
+async function deactivateLicenseKey(key, instanceId) {
+  let resp;
+  try {
+    resp = await fetch('https://api.lemonsqueezy.com/v1/licenses/deactivate', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        license_key: key,
+        instance_id: instanceId
+      })
+    });
+  } catch (networkErr) {
+    throw { type: 'network', message: networkErr.message };
+  }
+
+  let data;
+  try {
+    data = await resp.json();
+  } catch (parseErr) {
+    throw { type: 'generic', message: 'Invalid response from server' };
+  }
+
+  if (!data.deactivated) {
+    throw { type: 'generic', message: data.error || 'Deactivation failed' };
+  }
+
+  return data;
+}
+
+// ---------------------------------------------------------------------------
+// Custom confirmation dialog for deactivation
+// (license.html does NOT load app.js — App.confirmDialog unavailable)
+// ---------------------------------------------------------------------------
+function showDeactivateConfirm(strings) {
+  return new Promise(function(resolve) {
+    var overlay = document.getElementById('license-confirm-overlay');
+    var titleEl = document.getElementById('license-confirm-title');
+    var msgEl = document.getElementById('license-confirm-msg');
+    var yesBtn = document.getElementById('license-confirm-yes');
+    var noBtn = document.getElementById('license-confirm-cancel');
+
+    // Populate with i18n strings
+    titleEl.textContent = strings.deactivateConfirmTitle;
+    msgEl.textContent = strings.deactivateConfirmMsg;
+    yesBtn.textContent = strings.deactivateConfirmYes;
+    noBtn.textContent = strings.deactivateConfirmNo;
+
+    // Show overlay
+    overlay.removeAttribute('hidden');
+
+    function close(result) {
+      overlay.setAttribute('hidden', '');
+      yesBtn.removeEventListener('click', onYes);
+      noBtn.removeEventListener('click', onNo);
+      overlay.removeEventListener('click', onOverlay);
+      document.removeEventListener('keydown', onKey);
+      resolve(result);
+    }
+
+    function onYes() { close(true); }
+    function onNo() { close(false); }
+    function onOverlay(e) { if (e.target === overlay) close(false); }
+    function onKey(e) { if (e.key === 'Escape') close(false); }
+
+    yesBtn.addEventListener('click', onYes);
+    noBtn.addEventListener('click', onNo);
+    overlay.addEventListener('click', onOverlay);
+    document.addEventListener('keydown', onKey);
+
+    setTimeout(function() { noBtn.focus(); }, 0);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Page initialization — runs on DOMContentLoaded
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
@@ -266,6 +393,81 @@ document.addEventListener('DOMContentLoaded', function () {
   // Allow Enter key submission
   el('license-key-input').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') handleActivate();
+  });
+
+  // -------------------------------------------------------------------------
+  // Mode switching: show activated view if already licensed
+  // -------------------------------------------------------------------------
+  var activatedView = document.getElementById('license-activated-view');
+
+  // Elements to hide/show for mode switching
+  var formElements = [
+    document.querySelector('.license-heading'),
+    document.querySelector('.license-form'),
+    document.querySelector('.license-purchase')
+  ];
+
+  function showActivatedMode() {
+    // Hide activation form elements
+    formElements.forEach(function(e) { if (e) e.setAttribute('hidden', ''); });
+    // Show activated view
+    activatedView.removeAttribute('hidden');
+    // Populate activated view strings
+    document.getElementById('license-status-text').textContent = strings.statusLicensed;
+    document.getElementById('license-display-label').textContent = strings.displayLabel;
+    document.getElementById('license-deactivate-btn').textContent = strings.deactivateBtn;
+    document.getElementById('license-deactivate-info').textContent = strings.deactivateInfo;
+    // Mask the key: show first 4 and last 4 chars
+    var fullKey = decodeLicenseValue(localStorage.getItem('portfolioLicenseKey') || '');
+    var masked = fullKey.length > 8
+      ? fullKey.slice(0, 4) + '-....-' + fullKey.slice(-4)
+      : fullKey;
+    document.getElementById('license-masked-key').textContent = masked;
+  }
+
+  function showActivationMode() {
+    // Show activation form elements
+    formElements.forEach(function(e) { if (e) e.removeAttribute('hidden'); });
+    // Hide activated view
+    activatedView.setAttribute('hidden', '');
+  }
+
+  if (isLicensed()) {
+    showActivatedMode();
+  }
+
+  // Deactivate button handler — uses custom styled dialog per D-18 (bold red warning text)
+  document.getElementById('license-deactivate-btn').addEventListener('click', async function() {
+    var confirmed = await showDeactivateConfirm(strings);
+    if (!confirmed) return;
+
+    var btn = document.getElementById('license-deactivate-btn');
+    btn.disabled = true;
+    btn.textContent = strings.deactivatingBtn;
+    clearMessage();
+
+    try {
+      var key = decodeLicenseValue(localStorage.getItem('portfolioLicenseKey') || '');
+      var instanceId = decodeLicenseValue(localStorage.getItem('portfolioLicenseInstance') || '');
+
+      await deactivateLicenseKey(key, instanceId);
+
+      // Per D-19: Clear localStorage keys, drop back to Mode A
+      localStorage.removeItem('portfolioLicenseKey');
+      localStorage.removeItem('portfolioLicenseInstance');
+      localStorage.removeItem('portfolioLicenseActivated');
+
+      showMessage(strings.deactivateSuccess, false);
+      showActivationMode();
+    } catch (err) {
+      var msg = err.type === 'network'
+        ? strings.deactivateErrorNetwork
+        : strings.deactivateErrorGeneric;
+      showMessage(msg, true);
+      // Per D-19: offline attempt shows error, does NOT clear local state
+      btn.disabled = false;
+      btn.textContent = strings.deactivateBtn;
+    }
   });
 
   async function handleActivate() {

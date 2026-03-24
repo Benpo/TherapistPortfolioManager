@@ -180,6 +180,172 @@
     .license-purchase a:hover {
       opacity: 0.8;
     }
+
+    /* Activated view */
+    .license-activated-view {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .license-status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      color: var(--color-success, #16a34a);
+      font-size: 1.125rem;
+      font-weight: 700;
+      padding: 0.75rem 1rem;
+      background: color-mix(in srgb, var(--color-success, #16a34a) 10%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-success, #16a34a) 25%, transparent);
+      border-radius: 0.625rem;
+    }
+
+    [data-theme="dark"] .license-status-badge {
+      background: color-mix(in srgb, var(--color-success, #16a34a) 15%, transparent);
+    }
+
+    .license-key-display {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .license-key-display-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-text-muted, var(--color-text));
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .license-masked-key {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      padding: 0.5rem 0.75rem;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 0.375rem;
+      color: var(--color-text-muted, var(--color-text));
+    }
+
+    .license-deactivate-btn {
+      width: 100%;
+      padding: 0.625rem 1rem;
+      background: transparent;
+      color: #b91c1c;
+      border: 1px solid color-mix(in srgb, #ef4444 40%, transparent);
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .license-deactivate-btn:hover {
+      background: color-mix(in srgb, #ef4444 8%, transparent);
+      border-color: color-mix(in srgb, #ef4444 60%, transparent);
+    }
+
+    [data-theme="dark"] .license-deactivate-btn {
+      color: #fca5a5;
+    }
+
+    .license-deactivate-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .license-deactivate-info {
+      font-size: 0.8rem;
+      color: var(--color-text-muted, var(--color-text));
+      opacity: 0.6;
+      text-align: center;
+      margin: 0;
+    }
+
+    /* Custom confirmation dialog — per D-18: bold red consequence text */
+    .license-confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .license-confirm-dialog {
+      background: var(--color-surface, #fff);
+      border: 1px solid var(--color-border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    [data-theme="dark"] .license-confirm-dialog {
+      background: var(--color-surface, #1e1e1e);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .license-confirm-title {
+      margin: 0 0 0.75rem 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    .license-confirm-msg {
+      margin: 0 0 1.25rem 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #b91c1c;
+      font-weight: 700;
+    }
+
+    [data-theme="dark"] .license-confirm-msg {
+      color: #fca5a5;
+    }
+
+    .license-confirm-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    .license-confirm-cancel {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      color: var(--color-text);
+    }
+
+    .license-confirm-cancel:hover {
+      background: var(--color-bg);
+    }
+
+    .license-confirm-yes {
+      padding: 0.5rem 1rem;
+      background: #b91c1c;
+      color: #fff;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .license-confirm-yes:hover {
+      background: #991b1b;
+    }
   </style>
 </head>
 <body>
@@ -235,6 +401,44 @@
         <br />
         <a id="license-purchase-link" href="./landing.html">Purchase Sessions Garden</a>
       </p>
+
+      <!-- Activated view (shown when license is active) -->
+      <div id="license-activated-view" class="license-activated-view" hidden>
+        <div class="license-status-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <span id="license-status-text">Licensed</span>
+        </div>
+
+        <div class="license-key-display">
+          <span class="license-key-display-label" id="license-display-label">License Key</span>
+          <code id="license-masked-key" class="license-masked-key">XXXX-....-XXXX</code>
+        </div>
+
+        <button id="license-deactivate-btn" class="license-deactivate-btn" type="button">
+          Deactivate This Device
+        </button>
+
+        <p id="license-deactivate-info" class="license-deactivate-info">
+          Frees one of your 2 device slots.
+        </p>
+      </div>
+
+      <!-- Deactivation confirmation dialog (per D-18: bold red warning text) -->
+      <div id="license-confirm-overlay" class="license-confirm-overlay" hidden>
+        <div class="license-confirm-dialog">
+          <h3 id="license-confirm-title" class="license-confirm-title">Deactivate License?</h3>
+          <p id="license-confirm-msg" class="license-confirm-msg">
+            <!-- Consequence text rendered bold+red per D-18 -->
+          </p>
+          <div class="license-confirm-actions">
+            <button id="license-confirm-cancel" class="license-confirm-cancel" type="button">Cancel</button>
+            <button id="license-confirm-yes" class="license-confirm-yes" type="button">Yes, Deactivate</button>
+          </div>
+        </div>
+      </div>
 
     </div>
   </main>
