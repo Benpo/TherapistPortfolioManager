@@ -9,34 +9,18 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v27';
+const CACHE_NAME = 'sessions-garden-v28';
 
 /**
  * All static assets to precache on install.
  * Update CACHE_NAME (e.g. 'sessions-garden-v2') to trigger a cache refresh
  * for all users on their next visit.
  */
+// HTML pages are NOT precached — CF Pages "pretty URLs" turns .html fetches
+// into redirects, and browsers reject redirected responses from SW cache for
+// navigations.  Navigation requests skip the SW entirely (see fetch handler),
+// so caching HTML here would be wasted space anyway.
 const PRECACHE_URLS = [
-  '/',
-  '/index.html',
-  '/sessions.html',
-  '/add-client.html',
-  '/add-session.html',
-  '/reporting.html',
-  '/impressum.html',
-  '/impressum-en.html',
-  '/impressum-he.html',
-  '/impressum-cs.html',
-  '/datenschutz.html',
-  '/datenschutz-en.html',
-  '/datenschutz-he.html',
-  '/datenschutz-cs.html',
-  '/disclaimer.html',
-  '/disclaimer-en.html',
-  '/disclaimer-he.html',
-  '/disclaimer-cs.html',
-  '/license.html',
-  // landing.html intentionally excluded — marketing page, not part of the PWA
   '/manifest.json',
   '/assets/tokens.css',
   '/assets/app.css',
@@ -63,7 +47,6 @@ const PRECACHE_URLS = [
   '/assets/branding/logo-512.png',
   '/assets/illustrations/garden.png',
   '/assets/illustrations/watering-can.png',
-  '/demo.html',
   '/assets/demo.js',
   '/assets/demo-seed.js',
   '/assets/demo-seed-data.json',
@@ -133,10 +116,12 @@ self.addEventListener('fetch', function (event) {
   var url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Don't intercept navigation requests for extensionless URLs (CF Pages pretty URLs)
-  // These trigger server-side redirects that should not be cached
-  var pathname = url.pathname;
-  if (event.request.mode === 'navigate' && !pathname.includes('.')) {
+  // Never intercept navigation requests (page loads, link clicks, iframes).
+  // CF Pages "pretty URLs" redirects .html → extensionless (301), and the
+  // redirected responses cached during precache cause browsers to reject them
+  // with "Response served by service worker has redirections".
+  // Static sub-resources (CSS, JS, images, fonts) still use cache-first.
+  if (event.request.mode === 'navigate') {
     return;
   }
 
@@ -147,8 +132,8 @@ self.addEventListener('fetch', function (event) {
       }
       // Not in cache — fetch from network
       return fetch(event.request).then(function (response) {
-        // Only cache successful 200 responses — never cache redirects (301/302)
-        if (response && response.status === 200 && response.type === 'basic') {
+        // Only cache successful, non-redirected 200 responses
+        if (response && response.status === 200 && response.type === 'basic' && !response.redirected) {
           var responseToCache = response.clone();
           caches.open(CACHE_NAME).then(function (cache) {
             cache.put(event.request, responseToCache);
