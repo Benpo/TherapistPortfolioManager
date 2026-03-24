@@ -485,9 +485,9 @@ window.App = (() => {
 
     container.innerHTML =
       '<div class="security-guidance-note">' +
-      '<h3 id="security-guidance-heading">' + t('security.note.heading') + '</h3>' +
-      '<p id="security-guidance-body">' + t('security.note.body') + '</p>' +
-      '<button class="security-guidance-dismiss" id="security-guidance-dismiss">' + t('security.note.dismiss') + '</button>' +
+      '<h3 data-i18n="security.note.heading">' + t('security.note.heading') + '</h3>' +
+      '<p data-i18n="security.note.body">' + t('security.note.body') + '</p>' +
+      '<button class="security-guidance-dismiss" id="security-guidance-dismiss" data-i18n="security.note.dismiss">' + t('security.note.dismiss') + '</button>' +
       '</div>';
 
     document.getElementById('security-guidance-dismiss').addEventListener('click', function() {
