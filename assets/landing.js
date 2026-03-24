@@ -496,16 +496,16 @@ function applyLang(lang) {
 
   // Footer
   setText2('footer-terms', t.footerTerms);
-  var termsLink = document.getElementById('footer-terms');
-  if (termsLink) termsLink.href = './disclaimer.html?readonly=true&lang=' + lang;
   setText2('footer-impressum-link', t.footerImpressum);
   setText2('footer-privacy-link', t.footerPrivacy);
 
-  // Footer legal links — pass lang param so dedicated pages detect language
+  // Footer legal links — navigate to per-language files (not ?lang= params)
+  var termsLink = document.getElementById('footer-terms');
+  if (termsLink) termsLink.href = lang === 'de' ? './disclaimer.html?readonly=true' : './disclaimer-' + lang + '.html?readonly=true';
   var impLink = document.getElementById('footer-impressum-link');
-  if (impLink) impLink.href = './impressum.html?lang=' + lang;
+  if (impLink) impLink.href = lang === 'de' ? './impressum.html' : './impressum-' + lang + '.html';
   var privLink = document.getElementById('footer-privacy-link');
-  if (privLink) privLink.href = './datenschutz.html?lang=' + lang;
+  if (privLink) privLink.href = lang === 'de' ? './datenschutz.html' : './datenschutz-' + lang + '.html';
   setText('footer-copy', t.footerCopy);
   setText('footer-tagline', t.footerTagline);
 }
