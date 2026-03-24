@@ -378,11 +378,6 @@
       color: var(--color-primary);
       background: transparent;
     }
-    /* Override .app-nav a:hover from app.css for all links in license chrome */
-    #license-chrome .app-nav a:hover {
-      background: transparent;
-      color: var(--color-primary);
-    }
   </style>
 </head>
 <body>
@@ -495,10 +490,10 @@
 
       if (typeof isLicensed === 'function' && isLicensed()) {
         // Activated user: show app navigation bar
-        chrome.innerHTML = '<nav class="app-nav" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.25rem;border-bottom:1px solid var(--color-border);background:var(--color-surface);">' +
-          '<a href="./index.html" style="display:flex;align-items:center;gap:0.6rem;text-decoration:none;color:var(--color-primary);font-weight:600;font-size:1.125rem;flex:1;">' + logoSvg + ' Sessions Garden</a>' +
+        chrome.innerHTML = '<div class="legal-topbar">' +
+          '<a class="legal-topbar-brand" href="./index.html">' + logoSvg + ' Sessions Garden</a>' +
           '<a class="legal-back-link" href="./index.html">' + strings.backToApp + '</a>' +
-          '</nav>';
+          '</div>';
       } else {
         // Non-activated user: show legal page topbar
         chrome.innerHTML = '<div class="legal-topbar">' +
