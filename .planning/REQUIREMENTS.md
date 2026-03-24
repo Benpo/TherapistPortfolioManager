@@ -63,8 +63,8 @@ Requirements for final polish and launch. Each maps to roadmap phases.
 
 ### Audit Fix: Business/Operational (Phase 17)
 
-- [ ] **BIZ-01**: Lemon Squeezy account created, product configured (EUR 119, 2-device license), checkout URL live
-- [ ] **BIZ-02**: Impressum contains real business name, address, contact, tax ID
+- [x] **BIZ-01**: Lemon Squeezy account created, product configured (EUR 119, 2-device license), checkout URL live
+- [x] **BIZ-02**: Impressum contains real business name, address, contact (tax ID omitted — Kleinunternehmer)
 - [x] **BIZ-03**: Datenschutz has real business details and documents license activation API call
 - [x] **BIZ-04**: Hebrew quotes brought to 43 (matching EN/DE/CS) with native translations
 - [x] **BIZ-05**: Post-purchase flow designed and implemented (LS redirect, email template, ?key= auto-populate)
@@ -169,8 +169,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIX-09 | Phase 16 | Complete |
 | FIX-10 | Phase 16 | Complete |
 | FIX-11 | Phase 16 | Complete |
-| BIZ-01 | Phase 17 | Pending |
-| BIZ-02 | Phase 17 | Pending |
+| BIZ-01 | Phase 17 | Complete |
+| BIZ-02 | Phase 17 | Complete |
 | BIZ-03 | Phase 17 | Complete |
 | BIZ-04 | Phase 17 | Complete |
 | BIZ-05 | Phase 17 | Complete |
