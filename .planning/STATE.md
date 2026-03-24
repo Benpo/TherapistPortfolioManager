@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: "Completed 19-02-PLAN.md: Datenschutz + Disclaimer per-language split"
-last_updated: "2026-03-24T19:42:07.268Z"
+stopped_at: "Completed 19-05-PLAN.md: SW cache + landing footer cross-link update"
+last_updated: "2026-03-24T19:45:52.658Z"
 last_activity: 2026-03-24
 progress:
   total_phases: 12
   completed_phases: 11
   total_plans: 41
-  completed_plans: 38
+  completed_plans: 39
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 19 (go-live-preparation) — EXECUTING
-Plan: 6 of 8
+Plan: 7 of 8
 
 ## Performance Metrics
 
@@ -82,6 +82,7 @@ Plan: 6 of 8
 | Phase 19 P04 | 8min | 3 tasks | 8 files |
 | Phase 19 P01 | 5min | 2 tasks | 4 files |
 | Phase 19 P02 | 11min | 2 tasks | 8 files |
+| Phase 19 P05 | 8min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -144,6 +145,8 @@ Recent decisions affecting current work:
 - [Phase 19]: Globe switcher uses string concatenation for sibling navigation on Impressum pages — direct file paths (no URL params), DE hardcoded, others use impressum-{lang}.html pattern
 - [Phase 19]: Wirtschafts-Identifikationsnummer placeholder kept as HTML comment only — not displayed to users, will be added when BZSt issues ID (Kleinunternehmer status means no USt-IdNr required)
 - [Phase 19]: Per-language standalone files replace single-file + ?lang= approach for all legal pages
+- [Phase 19]: SW CACHE_NAME bumped from v24 to v25 and all 12 legal page variants added to PRECACHE_URLS — forces cache refresh for installed PWA users picking up new per-language legal files
+- [Phase 19]: Footer link ?lang= URL param approach eliminated — direct per-language file navigation used instead (DE primary file, others -{lang}.html suffix)
 
 ### Pending Todos
 
@@ -178,5 +181,5 @@ Earlier todos (UX-03, UX-04, HSHLD-01-03, LNCH-04) completed in prior phases but
 ## Session Continuity
 
 Last activity: 2026-03-24
-Stopped at: Completed 19-02-PLAN.md: Datenschutz + Disclaimer per-language split
+Stopped at: Completed 19-05-PLAN.md: SW cache + landing footer cross-link update
 Resume file: None
