@@ -1,0 +1,55 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare deploy directory
+        run: |
+          mkdir -p deploy-staging
+          # Include per D-08: _headers, *.html, assets/, manifest.json, sw.js
+          cp _headers deploy-staging/
+          cp *.html deploy-staging/
+          cp -r assets deploy-staging/
+          cp manifest.json deploy-staging/
+          cp sw.js deploy-staging/
+
+      - name: Verify no sensitive files
+        run: |
+          # Ensure no dev/planning files leaked into deploy
+          if [ -d "deploy-staging/.planning" ] || [ -d "deploy-staging/.claude" ] || [ -f "deploy-staging/CLAUDE.md" ] || [ -f "deploy-staging/.env" ]; then
+            echo "ERROR: Sensitive files found in deploy-staging!"
+            ls -la deploy-staging/
+            exit 1
+          fi
+          echo "Deploy directory is clean."
+          echo "HTML files:"
+          ls deploy-staging/*.html | wc -l
+          echo "Asset files:"
+          ls deploy-staging/assets/ | wc -l
+
+      - name: Push to deploy branch
+        run: |
+          cd deploy-staging
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b deploy
+          git add -A
+          git commit -m "Deploy from ${GITHUB_SHA::7}"
+          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git push -f origin deploy
