@@ -1,9 +1,7 @@
 /* === LANDING PAGE LOGIC === */
 /* Language switching, theme detection, smooth scroll */
 
-// PLACEHOLDER: Replace with your actual Lemon Squeezy checkout URL.
-// Format: https://YOURSTORE.lemonsqueezy.com/buy/VARIANT_ID
-var LS_CHECKOUT_URL = 'https://YOURSTORE.lemonsqueezy.com/buy/PLACEHOLDER';
+var LS_CHECKOUT_URL = 'https://sessionsgarden.lemonsqueezy.com/checkout/buy/1560f959-d29f-4652-8e5b-4e47711fe11d';
 
 /* ---------- Feature icon PNGs ---------- */
 /* Real botanical illustration icons — 72x72 PNG images */

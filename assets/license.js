@@ -9,12 +9,10 @@
  */
 
 // ---------------------------------------------------------------------------
-// Product constants
-// TODO: Replace with actual values from Lemon Squeezy dashboard after product creation
-// Find these at: https://app.lemonsqueezy.com/products → select product → Overview
+// Product constants (Sessions Garden @ Lemon Squeezy)
 // ---------------------------------------------------------------------------
-const STORE_ID = 0;   // TODO: e.g. 12345 — your Lemon Squeezy store numeric ID
-const PRODUCT_ID = 0; // TODO: e.g. 67890 — your Sessions Garden product numeric ID
+const STORE_ID = 324581;
+const PRODUCT_ID = 915325;
 
 // ---------------------------------------------------------------------------
 // i18n strings for the license page (4 languages)
