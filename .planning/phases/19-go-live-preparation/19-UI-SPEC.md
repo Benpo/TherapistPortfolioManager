@@ -1,7 +1,7 @@
 ---
 phase: 19
 slug: go-live-preparation
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-03-24
@@ -152,7 +152,7 @@ Primary anchor: the heading "Your data lives here — keep it safe." (Heading ro
 Hierarchy order:
 1. Heading — anchors the message.
 2. Body copy — explains consequence in plain language.
-3. "Got it" dismiss button — single CTA, full-width on mobile, right-aligned on desktop.
+3. "I understand" dismiss button — single CTA, full-width on mobile, right-aligned on desktop.
 
 The note renders at the top of the first app screen after activation, above all other content, so the heading is the first element the user encounters.
 
@@ -231,7 +231,7 @@ Tone: empathetic, not alarming. Frame as protecting clients' privacy. Non-techni
 
 | Action | Confirmation approach |
 |--------|----------------------|
-| Deactivate license (license page) | Existing Phase 18 pattern — modal confirm dialog. "Deactivate on this browser? This will remove your access until you reactivate with your license key." Confirm: "Deactivate" (danger button). Cancel: "Keep active". |
+| Deactivate license (license page) | Existing Phase 18 pattern — modal confirm dialog. "Deactivate on this browser? This will remove your access until you reactivate with your license key." Confirm: "Deactivate license" (danger button). Cancel: "Keep active". |
 | Overwrite data on backup import | Existing backup import flow warning — confirm before proceeding. "Importing will replace all current data. This cannot be undone." Confirm: "Import and replace". Cancel: "Go back". |
 
 ---
@@ -282,7 +282,7 @@ Tone: empathetic, not alarming. Frame as protecting clients' privacy. Non-techni
 
 ### Security Guidance Notes
 
-- First-launch note: shown once on first app load after activation. Dismissable with "Got it" button. NOT shown again after dismiss.
+- First-launch note: shown once on first app load after activation. Dismissable with "I understand" button. NOT shown again after dismiss.
 - Backup reminder banner: shown on schedule per existing backup reminder logic. Body copy updated to include data-loss consequence (see Copywriting above).
 - Settings/Help section: always visible, not dismissable. Persistent location as required by D-23.
 
@@ -308,4 +308,4 @@ No component registries. All UI is vanilla HTML/CSS/JS. No npm packages introduc
 - [ ] Dimension 5 Spacing: PASS
 - [ ] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-03-24
