@@ -24,6 +24,7 @@ window.I18N.en = {
   "overview.table.previousSessions": "Previous sessions",
   "overview.table.newSession": "New session",
   "overview.export": "Export Data",
+  "overview.exportEncrypted": "Export Encrypted Backup",
   "overview.import": "Import Data",
   "overview.modal.title": "Client Summary",
   "overview.modal.editClient": "Edit Client",

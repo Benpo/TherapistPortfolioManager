@@ -24,6 +24,7 @@ window.I18N.de = {
   "overview.table.previousSessions": "Vorherige Sitzungen",
   "overview.table.newSession": "Neue Sitzung",
   "overview.export": "Daten exportieren",
+  "overview.exportEncrypted": "Verschlüsseltes Backup exportieren",
   "overview.import": "Daten importieren",
   "overview.modal.title": "Klientenzusammenfassung",
   "overview.modal.editClient": "Klient bearbeiten",

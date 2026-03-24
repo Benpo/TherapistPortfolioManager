@@ -464,9 +464,16 @@ document.addEventListener('DOMContentLoaded', function () {
       localStorage.removeItem('portfolioLicenseKey');
       localStorage.removeItem('portfolioLicenseInstance');
       localStorage.removeItem('portfolioLicenseActivated');
+      // Reset terms acceptance — user must re-accept on reactivation
+      localStorage.removeItem('portfolioTermsAccepted');
+      localStorage.removeItem('portfolioTermsLang');
+      // Reset security guidance so it re-appears after reactivation
+      localStorage.removeItem('securityGuidanceDismissed');
 
       showMessage(strings.deactivateSuccess, false);
       showActivationMode();
+      // Re-render chrome to show "Back to home" instead of "Back to app"
+      if (typeof window.renderLicenseChrome === 'function') window.renderLicenseChrome();
     } catch (err) {
       var msg = err.type === 'network'
         ? strings.deactivateErrorNetwork

@@ -79,6 +79,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  const exportEncryptedBtn = document.getElementById("exportEncryptedBtn");
+  if (exportEncryptedBtn) {
+    exportEncryptedBtn.addEventListener("click", async () => {
+      try {
+        await BackupManager.exportEncryptedBackup();
+      } catch (err) {
+        if (err !== 'cancelled') App.showToast("", "toast.exportError");
+      }
+    });
+  }
+
   if (importInput) {
     importInput.addEventListener("change", async () => {
       const file = importInput.files && importInput.files[0];

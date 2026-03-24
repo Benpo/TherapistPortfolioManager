@@ -464,15 +464,22 @@ window.App = (() => {
   // ---------------------------------------------------------------------------
 
   /**
-   * Show security guidance note on first launch after activation.
-   * Shown once, dismissed with "I understand" button.
+   * Show security guidance note after activation.
+   * Re-appears weekly (every 7 days) after dismissal.
    * D-23: Must appear multiple times — this is touchpoint #1.
    */
   function showFirstLaunchSecurityNote() {
-    // Only show if licensed and not yet dismissed
     var isActivated = localStorage.getItem('portfolioLicenseActivated') === '1';
-    var dismissed = localStorage.getItem('securityGuidanceDismissed');
-    if (!isActivated || dismissed) return;
+    if (!isActivated) return;
+
+    // Check if dismissed recently (within 7 days)
+    var dismissedAt = localStorage.getItem('securityGuidanceDismissed');
+    if (dismissedAt && dismissedAt !== '1') {
+      var daysSince = (Date.now() - new Date(dismissedAt).getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSince < 7) return;
+    } else if (dismissedAt === '1') {
+      // Legacy boolean value — treat as expired, show again
+    }
 
     var container = document.getElementById('security-guidance-container');
     if (!container) return;
@@ -485,7 +492,7 @@ window.App = (() => {
       '</div>';
 
     document.getElementById('security-guidance-dismiss').addEventListener('click', function() {
-      localStorage.setItem('securityGuidanceDismissed', '1');
+      localStorage.setItem('securityGuidanceDismissed', new Date().toISOString());
       container.innerHTML = '';
     });
   }

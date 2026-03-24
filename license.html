@@ -476,7 +476,7 @@
   <script src="./assets/license.js"></script>
   <script>
     // Render context-aware chrome based on license state (D-11, LIVE-05)
-    (function renderLicenseChrome() {
+    window.renderLicenseChrome = function renderLicenseChrome() {
       var chrome = document.getElementById('license-chrome');
       if (!chrome) return;
 
@@ -498,7 +498,8 @@
           '<a class="legal-back-link" href="./landing.html">' + strings.backToHome + '</a>' +
           '</div>';
       }
-    })();
+    };
+    window.renderLicenseChrome();
   </script>
   <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}</script>
 </body>

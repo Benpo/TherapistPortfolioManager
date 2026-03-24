@@ -24,6 +24,7 @@ window.I18N.cs = {
   "overview.table.previousSessions": "Předchozí sezení",
   "overview.table.newSession": "Nové sezení",
   "overview.export": "Exportovat data",
+  "overview.exportEncrypted": "Exportovat šifrovanou zálohu",
   "overview.import": "Importovat data",
   "overview.modal.title": "Přehled klienta",
   "overview.modal.editClient": "Upravit klienta",

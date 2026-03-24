@@ -688,11 +688,23 @@ function initSpotlight() {
 })();
 
 /* ---------- Active license auto-detection ---------- */
+var LICENSE_DETECT_I18N = {
+  en: 'Active license detected. Taking you to the app.',
+  he: 'זוהה רישיון פעיל. מעביר אותך לאפליקציה.',
+  de: 'Aktive Lizenz erkannt. Du wirst zur App weitergeleitet.',
+  cs: 'Aktivní licence nalezena. Přesměrování do aplikace.'
+};
+
 function showActiveLicenseBanner() {
-  // Create a banner at the top of the page matching backup-reminder-banner pattern
+  var lang = 'en';
+  try { lang = localStorage.getItem('portfolioLang') || 'en'; } catch(e) {}
+  var msg = LICENSE_DETECT_I18N[lang] || LICENSE_DETECT_I18N.en;
+  var isRtl = (lang === 'he');
+
   var banner = document.createElement('div');
   banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;padding:1rem;background:var(--color-primary-soft,#c8e6d4);border-bottom:1px solid var(--color-border);text-align:center;font-size:1rem;color:var(--color-text);';
-  banner.textContent = 'Active license detected. Taking you to the app.';
+  if (isRtl) banner.setAttribute('dir', 'rtl');
+  banner.textContent = msg;
   document.body.prepend(banner);
 
   // Redirect after 2 seconds
