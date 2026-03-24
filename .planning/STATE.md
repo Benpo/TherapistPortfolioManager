@@ -3,13 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 18-02-PLAN.md
-last_updated: "2026-03-24T14:40:34.613Z"
+stopped_at: Completed 19-07-PLAN.md
+last_updated: "2026-03-24T19:31:38.627Z"
+last_activity: 2026-03-24
 progress:
-  total_phases: 11
+  total_phases: 12
   completed_phases: 11
-  total_plans: 33
-  completed_plans: 33
+  total_plans: 41
+  completed_plans: 34
 ---
 
 # Project State
@@ -19,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 18 — technical-debt
+**Current focus:** Phase 19 — go-live-preparation
 
 ## Current Position
 
-Phase: 18
-Plan: Not started
+Phase: 19 (go-live-preparation) — EXECUTING
+Plan: 2 of 8
 
 ## Performance Metrics
 
@@ -76,6 +77,7 @@ Plan: Not started
 | Phase 18-technical-debt P01 | 3min | 2 tasks | 4 files |
 | Phase 18-technical-debt P03 | 5min | 2 tasks | 2 files |
 | Phase 18-technical-debt P02 | 62min | 2 tasks | 3 files |
+| Phase 19 P07 | 5 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -130,6 +132,7 @@ Recent decisions affecting current work:
 - [Phase 18-03]: No new utils.js — JSDoc documentation only on existing App API (D-06, D-07)
 - [Phase 18-03]: Refund SOP only — no webhook/Cloudflare Worker; enforcement via LS key deactivation (D-09, D-10, D-11)
 - [Phase 18-technical-debt]: Custom Promise-based confirm dialog for license page (no app.js access); [hidden] override for flex containers; gender-neutral Hebrew; German Geraete-Aktivierungen
+- [Phase 19]: Deploy branch is force-pushed ephemeral on each main push; explicit cp whitelist for auditable include list; sensitive file verification in CI; no CSP in _headers (already in HTML meta tags); GITHUB_TOKEN only (no CF secrets)
 
 ### Pending Todos
 
@@ -163,6 +166,6 @@ Earlier todos (UX-03, UX-04, HSHLD-01-03, LNCH-04) completed in prior phases but
 
 ## Session Continuity
 
-Last activity: 2026-03-24 - Completed quick task 260324-oh5: Rename browser storage key from emotion_code_portfolio to sessions_garden
-Stopped at: Completed quick task 260324-oh5
+Last activity: 2026-03-24
+Stopped at: Completed 19-07-PLAN.md
 Resume file: None
