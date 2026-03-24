@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/branding/favicon-32.png">
+  <link rel="icon" type="image/x-icon" href="./assets/branding/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>מדיניות פרטיות — Sessions Garden</title>
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="stylesheet" href="./assets/globe-lang.css" />
+  <link rel="manifest" href="./manifest.json" />
+  <style>
+    .legal-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--color-bg); color: var(--color-text); }
+    .legal-topbar { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
+    .legal-topbar-brand { font-weight: 600; font-size: 1.125rem; color: var(--color-primary); text-decoration: none; flex: 1; display: flex; align-items: center; gap: 0.6rem; }
+    .legal-back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; }
+    .legal-back-link:hover { text-decoration: underline; }
+    .legal-content { flex: 1; max-width: 720px; margin: 2rem auto; padding: 0 1.5rem; line-height: 1.7; }
+    .legal-content h2 { margin-top: 0; color: var(--color-primary); }
+    .legal-content h3 { margin-top: 1.5rem; }
+    .legal-footer { text-align: center; padding: 1.5rem; border-top: 1px solid var(--color-border); font-size: 0.875rem; display: flex; justify-content: center; gap: 1.5rem; }
+    .legal-footer a { color: var(--color-primary); text-decoration: none; }
+    .legal-footer a:hover { text-decoration: underline; }
+    .courtesy-banner { background: var(--color-primary-soft, #c8e6d4); border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 16px; font-size: 14px; margin-bottom: 1.5rem; color: var(--color-text); }
+    .courtesy-banner a { color: var(--color-primary); }
+  </style>
+</head>
+<body>
+  <div class="legal-page">
+    <div class="legal-topbar">
+      <a class="legal-topbar-brand" href="./landing.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" style="color:var(--color-primary)">
+          <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+          <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+          <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        </svg>
+        Sessions Garden
+      </a>
+      <div id="globe-container"></div>
+      <a class="legal-back-link" href="./landing.html">חזרה לדף הבית</a>
+    </div>
+    <div class="legal-content">
+      <aside class="courtesy-banner">
+        זהו תרגום לנוחיות בלבד. במקרה של סתירות, <a href="./datenschutz.html">הגרסה הגרמנית</a> היא המחייבת משפטית.
+      </aside>
+
+      <h2>מדיניות פרטיות</h2>
+      <p>מדיניות הפרטיות זמינה בגרמנית ובאנגלית. Sessions Garden היא אפליקציה מקומית בלבד — כל הנתונים נשמרים רק במכשיר שלך ואינם נשלחים לשום שרת. למטה תוכל/י לקרוא את מדיניות הפרטיות המלאה באנגלית.</p>
+
+      <h3>1. Data Controller</h3>
+      <p>
+        The data controller within the meaning of the GDPR is:<br>
+        <strong>Sapir Ben-Porath</strong><br>
+        Pettenkoferstr. 4E, 10247 Berlin<br>
+        contact@sessionsgarden.app
+      </p>
+      <p><em>Note: Full contact details of the data controller are provided in the Impressum (legal notice).</em></p>
+
+      <h3>2. Overview of Data Processing</h3>
+      <p>Sessions Garden is deliberately designed as a <strong>local-first application</strong>. This means:</p>
+      <ul>
+        <li>All clinical and client-related data you enter into the app (names, session notes, energy work records) is stored <strong>exclusively on your device</strong> — in your browser's IndexedDB.</li>
+        <li>This data never leaves your device and is never transmitted to any server or third party.</li>
+        <li>The developer of Sessions Garden has <strong>no access</strong> to your client data.</li>
+        <li>Personal data is only processed in the context of web hosting (Cloudflare) and payment processing (Lemon Squeezy), as described below.</li>
+      </ul>
+
+      <h3>3. Legal Basis for Processing</h3>
+      <p>Personal data is processed on the following legal bases under Art. 6 GDPR:</p>
+      <ul>
+        <li><strong>Art. 6(1)(b) GDPR (performance of a contract):</strong> For payment processing when you purchase a licence.</li>
+        <li><strong>Art. 6(1)(f) GDPR (legitimate interest):</strong> For technical access data generated during hosting. The legitimate interest consists in the secure and stable operation of the website.</li>
+      </ul>
+
+      <h3>4. Hosting (Cloudflare Pages)</h3>
+      <p>This website is served via <strong>Cloudflare Pages</strong>:</p>
+      <p>Cloudflare, Inc.<br>101 Townsend St, San Francisco, CA 94107, USA</p>
+      <p>As part of operating the website, Cloudflare may process technical access data including IP address, browser type and version, pages visited, and the date and time of access. Cloudflare uses this data to ensure stable operation and to protect against abuse (e.g. DDoS mitigation).</p>
+      <p>As Cloudflare is a US-based company, data transfers to the USA may occur. Cloudflare participates in the EU–US Data Privacy Framework, which has been recognised by the European Commission as providing an adequate level of data protection (adequacy decision under Art. 45 GDPR).</p>
+      <p>Cloudflare Privacy Policy: <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">https://www.cloudflare.com/privacypolicy/</a></p>
+
+      <h3>5. Payment Processing (Lemon Squeezy)</h3>
+      <p>Licence purchases are processed via <strong>Lemon Squeezy</strong>:</p>
+      <p>Lemon Squeezy, LLC<br>A subsidiary of Stripe, Inc.</p>
+      <p>Lemon Squeezy acts as the <strong>Merchant of Record</strong> (reseller). This means Lemon Squeezy is the legal seller of your licence and processes all payment transactions in its own name and on its own account. Lemon Squeezy processes your purchase data — including name, email address, and payment information — under its own data protection responsibility.</p>
+      <p>Sessions Garden only receives a licence confirmation (licence key) after a successful purchase. No payment or card details are shared with Sessions Garden.</p>
+      <p>Lemon Squeezy Privacy Policy: <a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener noreferrer">https://www.lemonsqueezy.com/privacy</a></p>
+
+      <h3>6. Local Data Storage</h3>
+      <p><strong>IndexedDB (client data):</strong> All data you enter into the app — client names, session notes, energy work records and similar information — is stored exclusively in your browser's IndexedDB. This data is accessible only on your device and is never transmitted or synchronised. The developer of Sessions Garden has no access to this data at any time.</p>
+      <p><strong>localStorage (preferences):</strong> The app stores your personal preferences in your browser's localStorage, including your language preference, colour scheme (light or dark mode), and your licence activation status (as an encrypted key). This information is used solely to provide app functionality and contains no client data.</p>
+
+      <h3>7. License Activation</h3>
+      <p>During first-time license activation, the app makes a single connection to <strong>api.lemonsqueezy.com</strong> (Lemon Squeezy, Inc., USA). The following data is transmitted:</p>
+      <ul>
+        <li>Your license key</li>
+        <li>A device name (generated by your browser)</li>
+      </ul>
+      <p>Your IP address is technically visible to Lemon Squeezy during this process. After successful activation, no further connections to external servers are made. License verification is performed entirely locally.</p>
+      <p>Lemon Squeezy processes data under the EU-US Data Privacy Framework. More information: <a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener">Lemon Squeezy Privacy Policy</a>.</p>
+
+      <h3>8. No Cookies, No Tracking</h3>
+      <p>Sessions Garden does <strong>not use cookies</strong>. No tracking, analytics, or advertising tools are used. There are no embedded social media elements, no Google Analytics, no Facebook Pixel, and no similar services. Your behaviour on this website and within the app is not recorded or analysed.</p>
+
+      <h3>9. SSL/TLS Encryption</h3>
+      <p>This website and app are delivered over an SSL/TLS-encrypted connection (HTTPS). All data exchanged between your browser and Cloudflare's servers is protected against unauthorised third-party access.</p>
+
+      <h3>10. Your Rights as a Data Subject (Art. 15–21 GDPR)</h3>
+      <p>You have the following rights regarding your personal data:</p>
+      <ul>
+        <li><strong>Right of access (Art. 15 GDPR):</strong> Since all client data is stored exclusively on your device, you have full access to it at all times by opening the app.</li>
+        <li><strong>Right to erasure (Art. 17 GDPR):</strong> You can delete all your data by clearing your browser's site data (using the "Clear site data" or "Clear cache and cookies" option in your browser settings). This will remove both your IndexedDB data and localStorage preferences.</li>
+        <li><strong>Right to data portability (Art. 20 GDPR):</strong> Use the built-in Export function in the app to download your data as a file and transfer it to another system.</li>
+        <li><strong>Right to rectification (Art. 16 GDPR):</strong> Your data can be edited directly within the app at any time.</li>
+        <li><strong>Right to object (Art. 21 GDPR):</strong> Where processing is based on a legitimate interest (Art. 6(1)(f) GDPR), you may object to such processing. Please contact us at the address given above.</li>
+        <li><strong>Right to lodge a complaint:</strong> You have the right to lodge a complaint with a data protection supervisory authority. The competent authority is determined by your place of residence or the location of the alleged infringement.</li>
+      </ul>
+
+      <h3>11. Currency and Amendments to This Privacy Policy</h3>
+      <p>This Privacy Policy is current as of 2026. As Sessions Garden is continuously developed, it may occasionally be necessary to update this policy. The current version is always available via the "Privacy Policy" link in the footer.</p>
+    </div>
+  </div>
+  <footer class="legal-footer">
+    <a href="./disclaimer-he.html">תנאי שימוש</a>
+    <a href="./impressum-he.html">אודות</a>
+    <a href="./datenschutz-he.html">מדיניות פרטיות</a>
+  </footer>
+  <script src="./assets/globe-lang.js"></script>
+  <script>
+    (function() {
+      initGlobeLang({
+        containerId: 'globe-container',
+        currentLang: 'he',
+        onLangChange: function(newLang) {
+          try { localStorage.setItem('portfolioLang', newLang); } catch(e) {}
+          // Sibling navigation: datenschutz.html (de), datenschutz-en.html, datenschutz-he.html, datenschutz-cs.html
+          if (newLang === 'de') {
+            window.location.href = './datenschutz.html';
+          } else {
+            window.location.href = './datenschutz-' + newLang + '.html';
+          }
+        }
+      });
+    })();
+  </script>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}</script>
+</body>
+</html>
