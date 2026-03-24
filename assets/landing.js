@@ -687,11 +687,44 @@ function initSpotlight() {
   }
 })();
 
+/* ---------- Active license auto-detection ---------- */
+function showActiveLicenseBanner() {
+  // Create a banner at the top of the page matching backup-reminder-banner pattern
+  var banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;padding:1rem;background:var(--color-primary-soft,#c8e6d4);border-bottom:1px solid var(--color-border);text-align:center;font-size:1rem;color:var(--color-text);';
+  banner.textContent = 'Active license detected. Taking you to the app.';
+  document.body.prepend(banner);
+
+  // Redirect after 2 seconds
+  setTimeout(function() {
+    window.location.href = './index.html';
+  }, 2000);
+}
+
+function initLicenseAutoDetect() {
+  var enterLink = document.getElementById('hero-enter-link');
+  var pricingLicenseLink = document.getElementById('pricing-license-link');
+  [enterLink, pricingLicenseLink].forEach(function(link) {
+    if (!link) return;
+    link.addEventListener('click', function(e) {
+      var hasFlag = localStorage.getItem('portfolioLicenseActivated') === '1';
+      var hasInstance = !!localStorage.getItem('portfolioLicenseInstance');
+      if (hasFlag && hasInstance) {
+        e.preventDefault();
+        // Show redirect banner
+        showActiveLicenseBanner();
+      }
+      // If not licensed, default href (./license.html) handles it — no preventDefault
+    });
+  });
+}
+
 /* ---------- Init ---------- */
 document.addEventListener('DOMContentLoaded', function() {
   applyTheme();
   initLangSelector();
   initSmoothScroll();
   initSpotlight();
+  initLicenseAutoDetect();
 
 });
