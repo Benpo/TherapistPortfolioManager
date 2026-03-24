@@ -281,12 +281,12 @@ Plans:
   3. LS refund handling has a documented manual SOP with step-by-step instructions
   4. All pages set dir attribute on `<html>` element consistently
   5. Licensed users can self-service deactivate from the license page
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [x] 18-01-PLAN.md — Base64 license key obfuscation + dir attribute standardization (DEBT-01, DEBT-04)
 - [ ] 18-02-PLAN.md — License page two-mode UX with deactivation (DEBT-01)
-- [ ] 18-03-PLAN.md — App.js JSDoc cleanup + refund handling SOP (DEBT-02, DEBT-03)
+- [x] 18-03-PLAN.md — App.js JSDoc cleanup + refund handling SOP (DEBT-02, DEBT-03)
 
 ---
 
@@ -403,4 +403,4 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 15. Architecture/UI Audit | 3/3 | Complete | 2026-03-23 | - |
 | 16. Audit Fix: Code | 5/5 | Complete    | 2026-03-23 | - |
 | 17. Audit Fix: Business | 3/3 | Complete    | 2026-03-24 | - |
-| 18. Technical Debt | 0/3 | 1/3 | In Progress|  |
+| 18. Technical Debt | 0/3 | 2/3 | In Progress|  |
