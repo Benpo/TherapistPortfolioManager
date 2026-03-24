@@ -1,11 +1,25 @@
 window.App = (() => {
   let currentLang = window.I18N_DEFAULT || "en";
 
+  // ---------------------------------------------------------------------------
+  // i18n — translation and language management
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Translate a key using the current language dictionary.
+   * Falls back to English, then returns the key itself.
+   * @param {string} key - i18n key (e.g., 'nav.overview')
+   * @returns {string} Translated string
+   */
   function t(key) {
     const dict = window.I18N || {};
     return (dict[currentLang] && dict[currentLang][key]) || (dict.en && dict.en[key]) || key;
   }
 
+  /**
+   * Apply translations to all elements with data-i18n and data-i18n-placeholder attributes.
+   * @param {Document|Element} [root=document] - Root element to scan
+   */
   function applyTranslations(root = document) {
     root.querySelectorAll("[data-i18n]").forEach((el) => {
       const key = el.getAttribute("data-i18n");
@@ -17,6 +31,10 @@ window.App = (() => {
     });
   }
 
+  /**
+   * Set the active language, persist to localStorage, update dir attribute, and dispatch event.
+   * @param {string} lang - Language code ('en', 'he', 'de', 'cs')
+   */
   function setLanguage(lang) {
     if (!window.I18N || !window.I18N[lang]) {
       currentLang = window.I18N_DEFAULT || "en";
@@ -30,6 +48,14 @@ window.App = (() => {
     document.dispatchEvent(new CustomEvent("app:language", { detail: { lang: currentLang } }));
   }
 
+  // ---------------------------------------------------------------------------
+  // Navigation and chrome
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Render the main navigation bar into the #nav-placeholder element.
+   * Marks the active nav item using the body's data-nav attribute.
+   */
   function renderNav() {
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
@@ -51,6 +77,10 @@ window.App = (() => {
     applyTranslations(placeholder);
   }
 
+  /**
+   * Initialize the dark/light theme toggle button and mount it into .header-actions.
+   * Reads initial theme from the data-theme attribute on <html>.
+   */
   function initThemeToggle() {
     // Stub — full implementation in Plan 02
     // Creates and mounts the toggle button now so HTML structure is ready
@@ -110,6 +140,10 @@ window.App = (() => {
     document.addEventListener('app:language', updateBanner);
   }
 
+  /**
+   * Prepend the license key icon link to .header-actions.
+   * Links to ./license.html with an SVG key icon.
+   */
   function initLicenseLink() {
     var actions = document.querySelector('.header-actions');
     if (!actions) return;
@@ -123,6 +157,10 @@ window.App = (() => {
     actions.prepend(link);
   }
 
+  /**
+   * Initialize page: render nav, apply translations, set up theme toggle, license link, backup
+   * reminder, and persistent storage request. Call this in DOMContentLoaded on every app page.
+   */
   function initCommon() {
     initDemoMode();
     renderNav();
@@ -153,6 +191,15 @@ window.App = (() => {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // UI utilities
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Show a temporary toast notification that auto-dismisses after ~1.8 seconds.
+   * @param {string} message - Text to display (used if key is not provided)
+   * @param {string} [key] - i18n key to look up instead of using message directly
+   */
   function showToast(message, key) {
     const toast = document.getElementById("toast");
     if (!toast) return;
@@ -162,6 +209,15 @@ window.App = (() => {
     showToast._timer = setTimeout(() => toast.classList.remove("is-visible"), 1800);
   }
 
+  /**
+   * Show a modal confirmation dialog with OK/Cancel buttons.
+   * @param {Object} options - Dialog configuration
+   * @param {string} options.titleKey - i18n key for dialog title
+   * @param {string} options.messageKey - i18n key for dialog message
+   * @param {string} [options.confirmKey='confirm.delete'] - i18n key for confirm button
+   * @param {string} [options.cancelKey='confirm.cancel'] - i18n key for cancel button
+   * @returns {Promise<boolean>} Resolves true if confirmed, false if cancelled
+   */
   function confirmDialog({ titleKey, messageKey, confirmKey = "confirm.delete", cancelKey = "confirm.cancel" }) {
     const modal = document.getElementById("confirmModal");
     if (!modal) {
@@ -208,6 +264,15 @@ window.App = (() => {
     });
   }
 
+  // ---------------------------------------------------------------------------
+  // Data formatting and export
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Format a date string for display in the current locale.
+   * @param {string} dateString - ISO date string (e.g., '2024-03-15')
+   * @returns {string} Formatted date (e.g., 'Mar 15, 2024'), or empty string if falsy
+   */
   function formatDate(dateString) {
     if (!dateString) return "";
     const locale = currentLang === "he" ? "he-IL" : "en-US";
@@ -221,6 +286,12 @@ window.App = (() => {
     return `hsl(${hue}, 70%, 48%)`;
   }
 
+  /**
+   * Create a 0-10 severity picker widget (a row of numbered buttons).
+   * @param {number|null} initialValue - Initially selected value (0-10), or null for none
+   * @param {Function} [onChange] - Called with the selected number when a button is clicked
+   * @returns {HTMLElement} The severity scale container element
+   */
   function createSeverityScale(initialValue, onChange) {
     const wrap = document.createElement("div");
     wrap.className = "severity-scale";
@@ -246,6 +317,11 @@ window.App = (() => {
     return wrap;
   }
 
+  /**
+   * Read the current selected value from a severity scale widget.
+   * @param {HTMLElement} wrapper - The severity scale container returned by createSeverityScale
+   * @returns {number|null} Selected value (0-10), or null if none selected
+   */
   function getSeverityValue(wrapper) {
     if (!wrapper) return null;
     const value = wrapper.dataset.value;
@@ -253,6 +329,10 @@ window.App = (() => {
     return Number.parseInt(value, 10);
   }
 
+  /**
+   * Export all clients and sessions from the database as a plain object.
+   * @returns {Promise<{clients: Array, sessions: Array, exportedAt: string, version: number}>}
+   */
   async function exportData() {
     const clients = await window.PortfolioDB.getAllClients();
     const sessions = await window.PortfolioDB.getAllSessions();
@@ -264,6 +344,10 @@ window.App = (() => {
     };
   }
 
+  /**
+   * Trigger a browser download of a JSON data object as a .json file.
+   * @param {Object} data - Data to serialize and download
+   */
   function downloadJSON(data) {
     const json = JSON.stringify(data, null, 2);
     const blob = new Blob([json], { type: "application/json" });
@@ -372,11 +456,26 @@ window.App = (() => {
     document.body.prepend(banner);
   }
 
+  // ---------------------------------------------------------------------------
+  // Shared form helpers (extracted Phase 16)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Format session type key to translated display string.
+   * @param {string} type - Session type ('clinic', 'online', 'other')
+   * @returns {string} Translated type label
+   */
   function formatSessionType(type) {
     const key = 'session.type.' + (type || 'clinic');
     return t(key);
   }
 
+  /**
+   * Set a submit button's label via i18n key.
+   * @param {string} key - i18n key for the label
+   * @param {HTMLElement} submitButton - The button element to update
+   * @param {HTMLElement} [submitLabel] - Optional separate label element (updated instead of button if provided)
+   */
   function setSubmitLabel(key, submitButton, submitLabel) {
     if (!submitButton) return;
     var el = submitLabel || submitButton;
@@ -384,6 +483,11 @@ window.App = (() => {
     el.textContent = t(key);
   }
 
+  /**
+   * Read a File object as a base64 data URL string.
+   * @param {File} file - File to read
+   * @returns {Promise<string>} Base64 data URL
+   */
   function readFileAsDataURL(file) {
     return new Promise(function(resolve, reject) {
       const reader = new FileReader();
@@ -394,21 +498,30 @@ window.App = (() => {
   }
 
   return {
+    // i18n
     t,
     applyTranslations,
     setLanguage,
     getLanguage: function() { return currentLang; },
+
+    // Navigation and chrome
     initCommon,
     renderNav,
     initThemeToggle,
     initLicenseLink,
+
+    // UI utilities
     showToast,
     confirmDialog,
+
+    // Data formatting and export
     formatDate,
     createSeverityScale,
     getSeverityValue,
     exportData,
     downloadJSON,
+
+    // Shared form helpers
     formatSessionType,
     setSubmitLabel,
     readFileAsDataURL,
