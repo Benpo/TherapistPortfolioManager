@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 19-04-PLAN.md
-last_updated: "2026-03-24T19:34:10.365Z"
+stopped_at: Completed 19-01-PLAN.md (Impressum 4-language files)
+last_updated: "2026-03-24T19:35:34.485Z"
 last_activity: 2026-03-24
 progress:
   total_phases: 12
   completed_phases: 11
   total_plans: 41
-  completed_plans: 36
+  completed_plans: 37
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 19 (go-live-preparation) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 
 ## Performance Metrics
 
@@ -80,6 +80,7 @@ Plan: 4 of 8
 | Phase 19 P07 | 5 | 2 tasks | 2 files |
 | Phase 19-go-live-preparation P03 | 15min | 2 tasks | 2 files |
 | Phase 19 P04 | 8min | 3 tasks | 8 files |
+| Phase 19 P01 | 5min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -139,6 +140,8 @@ Recent decisions affecting current work:
 - [Phase 19]: Gate hardening: both portfolioLicenseActivated AND portfolioLicenseInstance required, matching isLicensed() dual-key check
 - [Phase 19]: License page context-aware chrome: app nav for activated users, legal topbar for non-activated
 - [Phase 19]: Landing auto-detect: progressive enhancement with href fallback, JS intercept only when both keys present, 2s banner then redirect
+- [Phase 19]: Globe switcher uses string concatenation for sibling navigation on Impressum pages — direct file paths (no URL params), DE hardcoded, others use impressum-{lang}.html pattern
+- [Phase 19]: Wirtschafts-Identifikationsnummer placeholder kept as HTML comment only — not displayed to users, will be added when BZSt issues ID (Kleinunternehmer status means no USt-IdNr required)
 
 ### Pending Todos
 
@@ -173,5 +176,5 @@ Earlier todos (UX-03, UX-04, HSHLD-01-03, LNCH-04) completed in prior phases but
 ## Session Continuity
 
 Last activity: 2026-03-24
-Stopped at: Completed 19-04-PLAN.md
+Stopped at: Completed 19-01-PLAN.md (Impressum 4-language files)
 Resume file: None
