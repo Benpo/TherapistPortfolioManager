@@ -697,6 +697,20 @@ window.App = (() => {
     monthSel.addEventListener('change', function() { updateDays(); syncHidden(); });
     daySel.addEventListener('change', syncHidden);
 
+    function updateMonthNames(newLang) {
+      var selectedMonth = monthSel.value;
+      monthSel.innerHTML = '<option value="">\u2014</option>';
+      for (var m = 0; m < 12; m++) {
+        var mName = new Intl.DateTimeFormat(newLang, { month: 'long' }).format(new Date(2000, m, 1));
+        monthSel.innerHTML += '<option value="' + m + '">' + mName + '</option>';
+      }
+      if (selectedMonth !== '') monthSel.value = selectedMonth;
+    }
+
+    document.addEventListener('app:language', function(e) {
+      if (e.detail && e.detail.lang) updateMonthNames(e.detail.lang);
+    });
+
     container.appendChild(yearSel);
     container.appendChild(monthSel);
     container.appendChild(daySel);
