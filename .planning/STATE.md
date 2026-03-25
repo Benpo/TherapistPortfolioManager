@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
-status: complete
-stopped_at: "Phase 19 complete — all 8 plans executed, deployed to CF Pages, domain live"
-last_updated: "2026-03-24T22:42:20.746Z"
-last_activity: 2026-03-24
+status: unknown
+stopped_at: Completed 20-02-PLAN.md — header redesign and shared footer
+last_updated: "2026-03-25T01:28:27.889Z"
+last_activity: 2026-03-25
 progress:
-  total_phases: 12
+  total_phases: 13
   completed_phases: 12
-  total_plans: 41
-  completed_plans: 41
+  total_plans: 44
+  completed_plans: 43
 ---
 
 # Project State
@@ -20,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** v1.1 milestone complete — deployed to sessionsgarden.app
+**Current focus:** Phase 20 — pre-launch-ui-polish
 
 ## Current Position
 
-Phase: 19 (complete)
-Plan: 8/8 complete — deployed to production
+Phase: 20 (pre-launch-ui-polish) — EXECUTING
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -84,6 +84,7 @@ Plan: 8/8 complete — deployed to production
 | Phase 19 P02 | 11min | 2 tasks | 8 files |
 | Phase 19 P05 | 8min | 2 tasks | 3 files |
 | Phase 19 P06 | 5min | 2 tasks | 8 files |
+| Phase 20 P02 | 4min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -166,12 +167,15 @@ Recent decisions affecting current work:
 - [Phase 19 Deploy]: X-Frame-Options changed from DENY to SAMEORIGIN — demo iframe on landing page requires same-origin framing
 - [Phase 19 Deploy]: CF Pages auto-strips .html extensions (pretty URLs) — all internal links work without extension
 - [Phase 19 Deploy]: LIVE-07 confirmed zero-implementation: demo_portfolio vs sessions_garden (separate IndexedDB)
+- [Phase 20]: Globe popover replaces native select for language switching on app pages — matches landing page pattern
+- [Phase 20]: SharedChrome uses inline FOOTER_STRINGS for portability across pages without i18n.js
 
 ### Pending Todos
 
 17 pending todos in .planning/todos/pending/:
 
 **Pre-existing:**
+
 - edit-client-from-add-session
 - heart-wall-redesign-discussion
 - photo-crop-reposition
@@ -188,6 +192,7 @@ Recent decisions affecting current work:
 - v12-full-indexeddb-encryption
 
 **Added during Phase 19 UAT:**
+
 - dark-mode-persists-on-landing-after-deactivation
 - deactivation-data-loss-warning (stronger confirmation when client data exists)
 - terms-acceptance-business-notification (webhook to n8n)
@@ -212,7 +217,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last activity: 2026-03-24
-Stopped at: Phase 19 complete — deployed to sessionsgarden.app via CF Pages
+Last activity: 2026-03-25
+Stopped at: Completed 20-02-PLAN.md — header redesign and shared footer
 Resume file: None
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
