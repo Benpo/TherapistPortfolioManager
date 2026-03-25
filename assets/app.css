@@ -1908,3 +1908,66 @@ body.read-mode .heart-shield-section input {
   line-height: 1.5;
   color: var(--color-text-secondary);
 }
+
+/* --- App Footer (shared-chrome.js) --- */
+.app-footer {
+  text-align: center;
+  padding: var(--space-lg, 2rem) var(--space-md, 1rem) var(--space-md, 1rem);
+  margin-top: var(--space-xl, 3rem);
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+.app-footer:hover {
+  opacity: 1;
+}
+.app-footer-botanical {
+  margin-bottom: var(--space-sm, 0.5rem);
+}
+.app-footer-botanical-img {
+  width: 60px;
+  height: auto;
+  opacity: 0.6;
+}
+[data-theme="dark"] .app-footer-botanical-img {
+  filter: invert(1);
+  mix-blend-mode: screen;
+  opacity: 0.4;
+}
+.app-footer-links {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md, 1rem);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-xs, 0.25rem);
+}
+.app-footer-links a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+.app-footer-links a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+.app-footer-contact {
+  margin: var(--space-xs, 0.25rem) 0;
+}
+.app-footer-contact a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+.app-footer-contact a:hover {
+  color: var(--color-primary);
+}
+.app-footer-copy {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  margin: var(--space-xs, 0.25rem) 0 0;
+}
+.app-footer-tagline {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  margin: 0.25rem 0 0;
+  font-style: italic;
+}

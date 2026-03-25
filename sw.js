@@ -9,7 +9,7 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v33';
+const CACHE_NAME = 'sessions-garden-v34';
 
 /**
  * Static assets to precache on install (cache-first strategy).
@@ -22,6 +22,7 @@ const PRECACHE_URLS = [
   '/assets/app.css',
   '/assets/jszip.min.js',
   '/assets/backup.js',
+  '/assets/shared-chrome.js',
   '/assets/app.js',
   '/assets/db.js',
   '/assets/i18n.js',

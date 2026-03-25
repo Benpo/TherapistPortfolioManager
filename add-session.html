@@ -117,7 +117,8 @@
               </div>
               <div class="form-field">
                 <label class="label" data-i18n="client.form.birthDate">Date of Birth</label>
-                <input class="input" id="inlineClientBirthDate" type="date" />
+                <div id="inlineBirthDatePicker" class="birth-date-picker"></div>
+                <input type="hidden" id="inlineClientBirthDate" />
               </div>
               <div class="form-field">
                 <label class="label" data-i18n="client.form.email">Email</label>
@@ -339,7 +340,8 @@
         <div class="form-grid">
           <div class="form-field">
             <label class="label" data-i18n="client.form.birthDate">Date of Birth</label>
-            <input class="input" id="editClientBirthDate" type="date" />
+            <div id="editBirthDatePicker" class="birth-date-picker"></div>
+            <input type="hidden" id="editClientBirthDate" />
           </div>
           <div class="form-field">
             <label class="label" data-i18n="client.form.email">Email</label>
@@ -399,6 +401,7 @@
   <script src="./assets/i18n-cs.js"></script>
   <script src="./assets/i18n.js"></script>
   <script src="./assets/db.js"></script>
+  <script src="./assets/shared-chrome.js"></script>
   <script src="./assets/app.js"></script>
   <script src="./assets/add-session.js"></script>
   <script>
