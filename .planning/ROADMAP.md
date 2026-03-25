@@ -64,8 +64,8 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
-- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
+- [x] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
+- [x] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
 - [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
 
 Plans:

@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 20-02-PLAN.md — header redesign and shared footer
-last_updated: "2026-03-25T01:28:27.889Z"
+stopped_at: Completed 20-01-PLAN.md
+last_updated: "2026-03-25T01:28:43.045Z"
 last_activity: 2026-03-25
 progress:
   total_phases: 13
@@ -85,6 +85,7 @@ Plan: 3 of 3
 | Phase 19 P05 | 8min | 2 tasks | 3 files |
 | Phase 19 P06 | 5min | 2 tasks | 8 files |
 | Phase 20 P02 | 4min | 2 tasks | 9 files |
+| Phase 20 P01 | 5min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -169,6 +170,8 @@ Recent decisions affecting current work:
 - [Phase 19 Deploy]: LIVE-07 confirmed zero-implementation: demo_portfolio vs sessions_garden (separate IndexedDB)
 - [Phase 20]: Globe popover replaces native select for language switching on app pages — matches landing page pattern
 - [Phase 20]: SharedChrome uses inline FOOTER_STRINGS for portability across pages without i18n.js
+- [Phase 20]: initBirthDatePicker placed in shared app.js (not duplicated) since both pages load it
+- [Phase 20]: Hidden inputs preserve YYYY-MM-DD format for zero-change form submission logic
 
 ### Pending Todos
 
@@ -218,6 +221,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last activity: 2026-03-25
-Stopped at: Completed 20-02-PLAN.md — header redesign and shared footer
+Stopped at: Completed 20-01-PLAN.md
 Resume file: None
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
