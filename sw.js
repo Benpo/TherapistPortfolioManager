@@ -9,17 +9,13 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v30';
+const CACHE_NAME = 'sessions-garden-v31';
 
 /**
- * All static assets to precache on install.
- * Update CACHE_NAME (e.g. 'sessions-garden-v2') to trigger a cache refresh
- * for all users on their next visit.
+ * Static assets to precache on install (cache-first strategy).
+ * These have no redirect issues because they are fetched as sub-resources,
+ * not navigations, so cache.add() works fine for them.
  */
-// HTML pages are NOT precached — CF Pages "pretty URLs" turns .html fetches
-// into redirects, and browsers reject redirected responses from SW cache for
-// navigations.  Navigation requests skip the SW entirely (see fetch handler),
-// so caching HTML here would be wasted space anyway.
 const PRECACHE_URLS = [
   '/manifest.json',
   '/assets/tokens.css',
@@ -59,20 +55,77 @@ const PRECACHE_URLS = [
 ];
 
 /**
- * Install event: precache all static assets.
+ * HTML pages to precache for offline navigation support.
+ *
+ * CF Pages "pretty URLs" serves /page.html at the extensionless path /page,
+ * returning a 301 redirect when the .html extension is requested.
+ * We MUST NOT use cache.add() for these, because cache.add() follows the
+ * redirect and stores a response with redirected:true — browsers reject
+ * such responses when served for navigation requests.
+ *
+ * Instead we use fetch(url, { redirect: 'follow' }) + cache.put(url, response)
+ * to store the final 200 response under the extensionless key we control.
+ *
+ * landing.html is intentionally excluded — it does not register the SW
+ * and must not be served from cache (it is the pre-license entry point).
+ */
+const PRECACHE_HTML = [
+  '/',
+  '/license',
+  '/reporting',
+  '/sessions',
+  '/add-session',
+  '/add-client',
+  '/demo',
+  '/disclaimer',
+  '/disclaimer-en',
+  '/disclaimer-he',
+  '/disclaimer-cs',
+  '/datenschutz',
+  '/datenschutz-en',
+  '/datenschutz-he',
+  '/datenschutz-cs',
+  '/impressum',
+  '/impressum-en',
+  '/impressum-he',
+  '/impressum-cs'
+];
+
+/**
+ * Fetch and cache a single HTML URL using the redirect-safe pattern.
+ * Follows any CF Pages redirect and stores the final 200 response
+ * under the requested URL key (not the redirect destination URL).
+ */
+function precacheHtml(cache, url) {
+  return fetch(url, { redirect: 'follow' }).then(function (response) {
+    if (response && response.status === 200) {
+      return cache.put(url, response);
+    }
+    console.warn('SW: Could not precache HTML (non-200):', url, response && response.status);
+  }).catch(function (err) {
+    console.warn('SW: Could not precache HTML:', url, err.message);
+  });
+}
+
+/**
+ * Install event: precache all static assets and HTML pages.
  */
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
-      // addAll fails if any URL 404s — use individual adds to be resilient
-      // for URLs that may not exist yet (e.g. landing.html before plan 03)
-      return Promise.allSettled(
-        PRECACHE_URLS.map(function (url) {
-          return cache.add(url).catch(function (err) {
-            console.warn('SW: Could not precache', url, err.message);
-          });
-        })
-      );
+      // Static assets: cache.add() is fine (no redirect issues for sub-resources)
+      var staticPromises = PRECACHE_URLS.map(function (url) {
+        return cache.add(url).catch(function (err) {
+          console.warn('SW: Could not precache', url, err.message);
+        });
+      });
+
+      // HTML pages: fetch+put pattern to avoid caching redirected responses
+      var htmlPromises = PRECACHE_HTML.map(function (url) {
+        return precacheHtml(cache, url);
+      });
+
+      return Promise.allSettled(staticPromises.concat(htmlPromises));
     })
   );
   // Activate immediately so users get the latest assets without waiting
@@ -83,7 +136,6 @@ self.addEventListener('install', function (event) {
 
 /**
  * Activate event: delete outdated caches, then take control of all clients.
- * Called when all tabs using the previous SW version are closed.
  */
 self.addEventListener('activate', function (event) {
   event.waitUntil(
@@ -94,16 +146,24 @@ self.addEventListener('activate', function (event) {
           .map(function (name) { return caches.delete(name); })
       );
     }).then(function () {
-      // Claim all clients so this SW controls pages loaded without it
       return self.clients.claim();
     })
   );
 });
 
 /**
- * Fetch event: cache-first strategy for GET requests only.
- * - GET requests: serve from cache, fall back to network (and update cache).
- * - Non-GET requests: pass through to network without caching.
+ * Fetch event handler.
+ *
+ * Navigation requests (page loads, link clicks):
+ *   Network-first with cache fallback. This gives users the latest HTML
+ *   when online, and falls back to the precached version when offline.
+ *   /landing is excluded — it is not an app page and has no SW registration.
+ *
+ * Static sub-resources (CSS, JS, images, fonts):
+ *   Cache-first. Served instantly from cache; fetched from network only on
+ *   first access or after a cache version bump.
+ *
+ * Non-GET and cross-origin requests: pass through unchanged.
  *
  * This does NOT intercept IndexedDB operations — those happen outside
  * the network layer entirely and are unaffected by this service worker.
@@ -112,25 +172,52 @@ self.addEventListener('fetch', function (event) {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
-  // Do not intercept cross-origin requests (e.g. Lemon Squeezy API)
   var url = new URL(event.request.url);
+
+  // Do not intercept cross-origin requests (e.g. Lemon Squeezy API)
   if (url.origin !== self.location.origin) return;
 
-  // Never intercept navigation requests (page loads, link clicks, iframes).
-  // CF Pages "pretty URLs" redirects .html → extensionless (301), and the
-  // redirected responses cached during precache cause browsers to reject them
-  // with "Response served by service worker has redirections".
-  // Static sub-resources (CSS, JS, images, fonts) still use cache-first.
+  // Navigation requests: network-first with cache fallback.
+  // Excludes /landing — not an app page, not cached by SW.
   if (event.request.mode === 'navigate') {
+    if (url.pathname === '/landing' || url.pathname === '/landing.html') {
+      // Let the browser handle landing.html directly — no SW involvement
+      return;
+    }
+
+    event.respondWith(
+      fetch(event.request).then(function (response) {
+        // Network succeeded — update cache with fresh response (redirect-safe)
+        if (response && response.status === 200) {
+          var responseToCache = response.clone();
+          caches.open(CACHE_NAME).then(function (cache) {
+            // Cache under the canonical pathname so it matches future lookups
+            cache.put(url.pathname || '/', responseToCache);
+          });
+        }
+        return response;
+      }).catch(function () {
+        // Offline — serve from cache
+        // Try exact pathname first, then root as fallback
+        return caches.open(CACHE_NAME).then(function (cache) {
+          return cache.match(url.pathname || '/').then(function (cached) {
+            if (cached) return cached;
+            // Last resort: serve root index for unknown paths
+            return cache.match('/');
+          });
+        });
+      })
+    );
     return;
   }
 
+  // Static sub-resources: cache-first strategy
   event.respondWith(
     caches.match(event.request).then(function (cached) {
       if (cached) {
         return cached;
       }
-      // Not in cache — fetch from network
+      // Not in cache — fetch from network and cache the result
       return fetch(event.request).then(function (response) {
         // Only cache successful, non-redirected 200 responses
         if (response && response.status === 200 && response.type === 'basic' && !response.redirected) {
