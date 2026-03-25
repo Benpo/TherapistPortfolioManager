@@ -56,3 +56,13 @@ jobs:
           git commit -m "Deploy from ${GITHUB_SHA::7}"
           git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git push -f origin deploy
+
+      - name: Purge Cloudflare cache
+        if: success()
+        run: |
+          curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CF_PURGE_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}' \
+            | grep -q '"success":true' && echo "Cache purged" || echo "Cache purge failed (non-blocking)"
