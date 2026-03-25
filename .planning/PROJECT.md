@@ -81,7 +81,7 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 
 **Target users**: Emotion Code / Body Code practitioners. Non-technical. Sapir (Ben's wife, also a practitioner) is the primary ongoing developer — workflow must be simplified for her.
 
-**Business model**: One-time purchase. Distribution platform and payment solution TBD — must research options that minimize recurring hosting costs.
+**Business model**: One-time purchase (EUR 119). Hosted on Cloudflare Pages (free). Payments via Lemon Squeezy (MoR, 5% + $0.50/sale). Sold under Sapir's Gewerbe.
 
 ## Constraints
 
@@ -99,16 +99,17 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Keep vanilla JS codebase as base | IndexedDB scales, deep clinical model, zero deps, ~50KB | — Pending |
-| Adopt Lovable's garden design system | Professional look, warm/approachable for therapists | — Pending |
-| Local-only data (no backend) | Eliminates GDPR processor burden, simplifies everything | — Pending |
-| Session field model | Two apps conflict — needs Sapir's practitioner input | — Pending |
-| Distribution platform | Cloudflare Pages / Netlify / Vercel / VPS — needs research | — Pending |
-| Payment solution | Lemon Squeezy / alternatives — needs research | — Pending |
-| All 4 languages in v1 | Target market spans Hebrew, English, German, Czech speakers | — Pending |
-| Dark mode required for v1 | User requirement | ✓ Good |
-| Terminology: "session/client" not "treatment/patient" | Non-clinical framing for energy healing practitioners | — Pending |
-| Heart Shield at session level, not client level | Clients transition from Heart Shield to regular sessions without reopening files | — Pending |
+| Keep vanilla JS codebase as base | IndexedDB scales, deep clinical model, zero deps, ~50KB | ✓ Shipped v1.0 |
+| Adopt Lovable's garden design system | Professional look, warm/approachable for therapists | ✓ Shipped v1.0 |
+| Local-only data (no backend) | Eliminates GDPR processor burden, simplifies everything | ✓ Shipped v1.0 |
+| Session field model | Consolidated with Sapir's input in Phase 3 | ✓ Shipped v1.0 |
+| Distribution platform | Cloudflare Pages — free, global CDN, zero maintenance, GDPR compliant (EU-US DPF) | ✓ Decided Phase 4, confirmed 2026-03-24 |
+| Payment solution | Lemon Squeezy — MoR model, handles EU VAT, 5% + $0.50/sale, license key generation | ✓ Decided Phase 4 |
+| All 4 languages in v1 | Target market spans Hebrew, English, German, Czech speakers | ✓ Shipped v1.0 |
+| Dark mode required for v1 | User requirement | ✓ Shipped v1.0 |
+| Terminology: "session/client" not "treatment/patient" | Non-clinical framing for energy healing practitioners | ✓ Shipped Phase 8 |
+| Heart Shield at session level, not client level | Clients transition from Heart Shield to regular sessions without reopening files | ✓ Shipped Phase 9 |
+| Sold under Sapir's Gewerbe | Ben's employment contract requires HR approval for Nebentätigkeit; Sapir is co-creator, no employment blockers | ✓ Decided 2026-03-24 |
 
 ## Current Milestone: v1.1 Final Polish & Launch
 
@@ -122,4 +123,4 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - Launch prerequisites (Impressum, Lemon Squeezy, translations, QA)
 
 ---
-*Last updated: 2026-03-23 after Phase 16 complete — all Phase 15 audit code fixes applied: SW cache, CSP headers, postMessage security, shared code extraction, dead code cleanup, i18n for backup/DB banners, localStorage key bug, CSS token compliance, Promise refactor*
+*Last updated: 2026-03-25 after Phase 20 complete — pre-launch UI polish: birth date pickers, header redesign (globe popover), shared footer on all pages, license/legal page chrome, 4 UAT bugs fixed inline. Phase 20 is the LAST phase of v1.1 milestone.*
