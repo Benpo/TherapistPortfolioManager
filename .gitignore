@@ -5,7 +5,9 @@ Thumbs.db
 # Environment & secrets
 .env
 .env.*
-!.env.example
+
+# Local scripts (not deployed)
+scripts/
 
 # Backup files
 *.bak
