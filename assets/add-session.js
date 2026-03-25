@@ -36,6 +36,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   let isReadMode = false;
   const NEW_CLIENT_VALUE = "__new__";
 
+  // Birth date pickers (three-dropdown replacement for native date inputs)
+  const inlineBirthDatePicker = App.initBirthDatePicker('inlineBirthDatePicker', 'inlineClientBirthDate');
+  const editBirthDatePicker = App.initBirthDatePicker('editBirthDatePicker', 'editClientBirthDate');
+
   const heartShieldToggle = document.getElementById("heartShieldToggle");
   const heartShieldConditional = document.getElementById("heartShieldConditional");
 
@@ -165,13 +169,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const lastName = client.lastName || (client.name && client.name.includes(" ") ? client.name.split(" ").slice(1).join(" ") : "");
     const fNameEl = document.getElementById("editClientFirstName");
     const lNameEl = document.getElementById("editClientLastName");
-    const bdEl = document.getElementById("editClientBirthDate");
     const emailEl = document.getElementById("editClientEmail");
     const phoneEl = document.getElementById("editClientPhone");
     const notesEl = document.getElementById("editClientNotes");
     if (fNameEl) fNameEl.value = firstName;
     if (lNameEl) lNameEl.value = lastName;
-    if (bdEl) bdEl.value = client.birthDate || "";
+    if (editBirthDatePicker && client.birthDate) {
+      editBirthDatePicker.setValue(client.birthDate);
+    } else if (editBirthDatePicker) {
+      editBirthDatePicker.clear();
+    }
     if (emailEl) emailEl.value = client.email || "";
     if (phoneEl) phoneEl.value = client.phone || "";
     if (notesEl) notesEl.value = client.notes || "";
@@ -1044,8 +1051,7 @@ function resetInlineClientForm() {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
-  const birthDateEl = document.getElementById("inlineClientBirthDate");
-  if (birthDateEl) birthDateEl.value = "";
+  if (inlineBirthDatePicker) inlineBirthDatePicker.clear();
   const photoInput = document.getElementById("inlineClientPhoto");
   if (photoInput) photoInput.value = "";
   const photoPreview = document.getElementById("inlineClientPhotoPreview");

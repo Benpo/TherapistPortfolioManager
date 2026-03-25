@@ -751,6 +751,21 @@ a {
   gap: 0.5rem;
 }
 
+.birth-date-picker {
+  display: flex;
+  gap: var(--space-xs, 0.5rem);
+}
+.birth-date-picker select {
+  flex: 1;
+  min-width: 0;
+}
+.birth-date-year {
+  flex: 1.2 !important;
+}
+.birth-date-month {
+  flex: 1.5 !important;
+}
+
 .label {
   font-weight: 700;
 }

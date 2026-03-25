@@ -625,6 +625,98 @@ window.App = (() => {
     });
   }
 
+  // ---------------------------------------------------------------------------
+  // Birth Date Picker — three-dropdown (Year / Month / Day) replacement
+  // for native <input type="date"> (POLISH-01)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Initialize a three-dropdown birth date picker (Year / Month / Day).
+   * Replaces native date input with localized dropdowns.
+   * @param {string} containerId - ID of the container div for the dropdowns
+   * @param {string} hiddenInputId - ID of the hidden input that stores YYYY-MM-DD value
+   * @returns {{ setValue: function, clear: function }|null} Picker API or null if elements not found
+   */
+  function initBirthDatePicker(containerId, hiddenInputId) {
+    var container = document.getElementById(containerId);
+    var hidden = document.getElementById(hiddenInputId);
+    if (!container || !hidden) return null;
+
+    var lang = localStorage.getItem('portfolioLang') || 'en';
+    var currentYear = new Date().getFullYear();
+
+    // Year select: current year down to 1920
+    var yearSel = document.createElement('select');
+    yearSel.className = 'input birth-date-year';
+    yearSel.innerHTML = '<option value="">\u2014</option>';
+    for (var y = currentYear; y >= 1920; y--) {
+      yearSel.innerHTML += '<option value="' + y + '">' + y + '</option>';
+    }
+
+    // Month select: localized month names via Intl API
+    var monthSel = document.createElement('select');
+    monthSel.className = 'input birth-date-month';
+    monthSel.innerHTML = '<option value="">\u2014</option>';
+    for (var m = 0; m < 12; m++) {
+      var mName = new Intl.DateTimeFormat(lang, { month: 'long' }).format(new Date(2000, m, 1));
+      monthSel.innerHTML += '<option value="' + m + '">' + mName + '</option>';
+    }
+
+    // Day select: populated dynamically based on year/month
+    var daySel = document.createElement('select');
+    daySel.className = 'input birth-date-day';
+    daySel.innerHTML = '<option value="">\u2014</option>';
+
+    function updateDays() {
+      var y = parseInt(yearSel.value, 10);
+      var m = parseInt(monthSel.value, 10);
+      var oldDay = daySel.value;
+      daySel.innerHTML = '<option value="">\u2014</option>';
+      if (isNaN(y) || isNaN(m)) return;
+      var maxDay = new Date(y, m + 1, 0).getDate();
+      for (var d = 1; d <= maxDay; d++) {
+        daySel.innerHTML += '<option value="' + d + '">' + d + '</option>';
+      }
+      if (parseInt(oldDay, 10) <= maxDay) daySel.value = oldDay;
+    }
+
+    function syncHidden() {
+      var y = yearSel.value;
+      var m = monthSel.value;
+      var d = daySel.value;
+      if (y && m !== '' && d) {
+        var mm = String(parseInt(m, 10) + 1).padStart(2, '0');
+        var dd = String(parseInt(d, 10)).padStart(2, '0');
+        hidden.value = y + '-' + mm + '-' + dd;
+      } else {
+        hidden.value = '';
+      }
+    }
+
+    yearSel.addEventListener('change', function() { updateDays(); syncHidden(); });
+    monthSel.addEventListener('change', function() { updateDays(); syncHidden(); });
+    daySel.addEventListener('change', syncHidden);
+
+    container.appendChild(yearSel);
+    container.appendChild(monthSel);
+    container.appendChild(daySel);
+
+    return {
+      setValue: function(isoDate) {
+        if (!isoDate) { yearSel.value = ''; monthSel.value = ''; daySel.value = ''; hidden.value = ''; return; }
+        var parts = isoDate.split('-');
+        yearSel.value = parts[0];
+        monthSel.value = String(parseInt(parts[1], 10) - 1);
+        updateDays();
+        daySel.value = String(parseInt(parts[2], 10));
+        syncHidden();
+      },
+      clear: function() {
+        yearSel.value = ''; monthSel.value = ''; daySel.value = ''; hidden.value = '';
+      }
+    };
+  }
+
   return {
     // i18n
     t,
@@ -653,6 +745,7 @@ window.App = (() => {
     formatSessionType,
     setSubmitLabel,
     readFileAsDataURL,
+    initBirthDatePicker,
 
     // Security guidance
     showFirstLaunchSecurityNote,

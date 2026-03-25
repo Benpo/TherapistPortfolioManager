@@ -17,6 +17,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   let editingClient = null;
   let photoData = "";
 
+  // Birth date picker (three-dropdown replacement for native date input)
+  const birthDatePicker = App.initBirthDatePicker('birthDatePicker', 'clientBirthDate');
+
   // === CROP MODAL STATE ===
   let cropImage = null;
   let cropScale = 1;
@@ -278,7 +281,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (editingClient) {
       document.getElementById("clientFirstName").value = editingClient.firstName || editingClient.name || "";
       document.getElementById("clientLastName").value = editingClient.lastName || editingClient.lastInitial || "";
-      document.getElementById("clientBirthDate").value = editingClient.birthDate || "";
+      if (birthDatePicker && editingClient.birthDate) {
+        birthDatePicker.setValue(editingClient.birthDate);
+      }
       document.getElementById("clientEmail").value = editingClient.email || "";
       document.getElementById("clientPhone").value = editingClient.phone || "";
       document.getElementById("clientNotes").value = editingClient.notes || "";
