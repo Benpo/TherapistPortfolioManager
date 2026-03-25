@@ -1,7 +1,7 @@
 ---
 created: 2026-03-18T20:00:00.000Z
-title: Photo crop/reposition — let user move and center client photo
-area: feature
+title: Photo crop bug — breaks when editing client from session screen
+area: bug
 priority: high
 files:
   - assets/add-client.js
