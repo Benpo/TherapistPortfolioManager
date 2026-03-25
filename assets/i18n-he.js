@@ -243,7 +243,8 @@ window.I18N.he = {
   "backup.passphrase.skipEncryption": "דלג על הצפנה",
   "backup.passphrase.goBack": "חזרה",
   "backup.passphrase.encryptAndSave": "הצפן ושמור",
-  "backup.passphrase.decrypt": "פענוח"
+  "backup.passphrase.decrypt": "פענוח",
+  "backup.passphrase.cancel": "ביטול"
 };
 
 window.QUOTES.he = [

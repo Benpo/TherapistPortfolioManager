@@ -243,7 +243,8 @@ window.I18N.en = {
   "backup.passphrase.skipEncryption": "Skip encryption",
   "backup.passphrase.goBack": "Go back",
   "backup.passphrase.encryptAndSave": "Encrypt and save",
-  "backup.passphrase.decrypt": "Decrypt"
+  "backup.passphrase.decrypt": "Decrypt",
+  "backup.passphrase.cancel": "Cancel"
 };
 
 window.QUOTES.en = [

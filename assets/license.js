@@ -469,6 +469,9 @@ document.addEventListener('DOMContentLoaded', function () {
       localStorage.removeItem('portfolioTermsLang');
       // Reset security guidance so it re-appears after reactivation
       localStorage.removeItem('securityGuidanceDismissed');
+      // Clear dark mode theme so deactivation returns to light mode
+      localStorage.removeItem('portfolioTheme');
+      document.documentElement.removeAttribute('data-theme');
 
       showMessage(strings.deactivateSuccess, false);
       showActivationMode();

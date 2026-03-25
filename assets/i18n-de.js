@@ -243,7 +243,8 @@ window.I18N.de = {
   "backup.passphrase.skipEncryption": "Ohne Verschl\u00FCsselung",
   "backup.passphrase.goBack": "Zur\u00FCck",
   "backup.passphrase.encryptAndSave": "Verschl\u00FCsseln und speichern",
-  "backup.passphrase.decrypt": "Entschl\u00FCsseln"
+  "backup.passphrase.decrypt": "Entschl\u00FCsseln",
+  "backup.passphrase.cancel": "Abbrechen"
 };
 
 window.QUOTES.de = [

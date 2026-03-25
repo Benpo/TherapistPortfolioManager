@@ -243,7 +243,8 @@ window.I18N.cs = {
   "backup.passphrase.skipEncryption": "P\u0159esko\u010Dit \u0161ifrov\u00E1n\u00ED",
   "backup.passphrase.goBack": "Zp\u011Bt",
   "backup.passphrase.encryptAndSave": "Za\u0161ifrovat a ulo\u017Eit",
-  "backup.passphrase.decrypt": "De\u0161ifrovat"
+  "backup.passphrase.decrypt": "De\u0161ifrovat",
+  "backup.passphrase.cancel": "Zru\u0161it"
 };
 
 window.QUOTES.cs = [

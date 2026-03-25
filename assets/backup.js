@@ -122,6 +122,18 @@ window.BackupManager = (function () {
     var modal = document.createElement('div');
     modal.className = 'passphrase-modal';
 
+    // X close button (top-right)
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'passphrase-modal-close';
+    closeBtn.setAttribute('aria-label', _t('common.close') || 'Close');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.addEventListener('click', function() {
+      cleanup();
+      if (opts.onCancel) opts.onCancel();
+    });
+    modal.appendChild(closeBtn);
+
     // RTL support
     var lang = '';
     try { lang = localStorage.getItem('portfolioLang') || 'en'; } catch(e) {}
@@ -171,6 +183,16 @@ window.BackupManager = (function () {
 
     var actions = document.createElement('div');
     actions.className = 'passphrase-actions';
+
+    var dismissBtn = document.createElement('button');
+    dismissBtn.type = 'button';
+    dismissBtn.className = 'passphrase-btn-dismiss';
+    dismissBtn.textContent = _t('backup.passphrase.cancel');
+    dismissBtn.addEventListener('click', function() {
+      cleanup();
+      if (opts.onCancel) opts.onCancel();
+    });
+    actions.appendChild(dismissBtn);
 
     var cancelBtn = document.createElement('button');
     cancelBtn.type = 'button';
