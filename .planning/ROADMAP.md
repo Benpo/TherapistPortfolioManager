@@ -43,6 +43,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
+- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
+- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
+- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
+
+Plans:
 - [x] 01-01-PLAN.md — CSS design token system (tokens.css) + Rubik self-hosted fonts (FOUND-01, FOUND-02)
 - [x] 01-02-PLAN.md — IndexedDB sequential migration infrastructure (FOUND-03)
 - [x] 01-03-PLAN.md — Backup reminder banner + navigator.storage.persist() (FOUND-04)
@@ -57,6 +62,11 @@ Plans:
   3. All directional CSS uses logical properties (inline-start/inline-end) -- switching to Hebrew RTL requires zero CSS overrides
   4. Navigation is rendered from a single JS component -- changing a nav item updates all 5 pages automatically
 **Plans**: 3 plans
+
+Plans:
+- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
+- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
+- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
 
 Plans:
 - [x] 02-01-PLAN.md — Garden palette (tokens.css) + brand area + nav component extraction + no-flash scripts (DSGN-01, DSGN-04)
@@ -76,6 +86,11 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
+- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
+- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
+- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
+
+Plans:
 - [x] 03-01-PLAN.md — DB migration v2 + client type expansion (Adult/Child/Animal/Other) + referral source dropdown (DATA-02, DATA-03)
 - [x] 03-02-PLAN.md — Session field consolidation: Important Points, form reorder, severity delta, markdown export (DATA-01, DATA-04)
 - [x] 03-03-PLAN.md — Client search, daily quotes with attribution, brand mark homepage link (FEAT-01, FEAT-02)
@@ -90,6 +105,11 @@ Plans:
   3. i18n translations live in separate per-language files (not one monolithic file), and adding a new language requires only adding a new file
   4. A documented decision exists for hosting platform (with rationale) and payment solution (with EU VAT handling confirmed)
 **Plans**: 3 plans
+
+Plans:
+- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
+- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
+- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
 
 Plans:
 - [x] 04-01-PLAN.md — i18n file split + Heart Shield/Practice/Sessions Garden renames + subtitle wiring (I18N-01, I18N-02, I18N-03)
@@ -107,6 +127,11 @@ Plans:
   4. The app works offline after first load -- service worker caches all assets, and the app is installable via "Add to Home Screen"
   5. A working access-gating mechanism (license key, hash check, or equivalent) controls access for paid users
 **Plans**: 3 plans
+
+Plans:
+- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
+- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
+- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
 
 Plans:
 - [x] 05-01-PLAN.md — Disclaimer/T&C gate with 4-language legal content, Widerrufsrecht checkbox, acceptance receipt (LEGL-01, LEGL-02, LEGL-03)
@@ -418,7 +443,12 @@ Plans:
   4. Dark mode state is properly cleared when a user's license is deactivated and they return to the landing page
   5. License page has language selector and dark mode toggle matching other app pages, plus the shared footer
   6. App header uses full width with consistent language selector (matching landing page popover style) and dark/light toggle at equal sizing — no two-row wrapping
-**Plans**: TBD (use /gsd:plan-phase to create)
+**Plans**: 3 plans
+
+Plans:
+- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
+- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
+- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
 
 **Source todos:**
 - Birth date picker improvement (2026-03-19)
@@ -459,4 +489,4 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 17. Audit Fix: Business | 3/3 | Complete    | 2026-03-24 | - |
 | 18. Technical Debt | 0/3 | 3/3 | Complete    | 2026-03-24 |
 | 19. Go-Live Preparation | 8/8 | Complete | 2026-03-24 | - |
-| 20. Pre-Launch UI Polish | 0/? | Not Started | - | - |
+| 20. Pre-Launch UI Polish | 0/3 | Not Started | - | - |
