@@ -12,7 +12,7 @@
 // Product constants (Sessions Garden @ Lemon Squeezy)
 // ---------------------------------------------------------------------------
 const STORE_ID = 324581;
-const PRODUCT_ID = 915325;
+const PRODUCT_ID = 919889;
 
 // ---------------------------------------------------------------------------
 // i18n strings for the license page (4 languages)

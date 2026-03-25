@@ -1,7 +1,7 @@
 /* === LANDING PAGE LOGIC === */
 /* Language switching, theme detection, smooth scroll */
 
-var LS_CHECKOUT_URL = 'https://sessionsgarden.lemonsqueezy.com/checkout/buy/1560f959-d29f-4652-8e5b-4e47711fe11d';
+var LS_CHECKOUT_URL = 'https://sessionsgarden.lemonsqueezy.com/checkout/buy/70849bde-8fcb-4b30-8525-435f4c7fec66';
 
 /* ---------- Feature icon PNGs ---------- */
 /* Real botanical illustration icons — 72x72 PNG images */
