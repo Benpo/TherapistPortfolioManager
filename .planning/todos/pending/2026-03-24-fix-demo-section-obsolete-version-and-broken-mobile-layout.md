@@ -1,7 +1,8 @@
 ---
 created: 2026-03-24T23:29:39.733Z
-title: Fix demo section — obsolete version and broken mobile layout
+title: "CRITICAL: Fix demo section — obsolete version and broken mobile layout"
 area: ui
+priority: critical
 files: []
 ---
 
