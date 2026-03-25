@@ -89,7 +89,6 @@ var LANDING_I18N = {
       { q: 'Is there a subscription?', a: 'No. One payment, lifetime access. No monthly fees, ever.' },
       { q: 'What if my computer breaks or gets lost?', a: 'Since all data is stored locally, it\'s important to regularly export your data using the built-in export function. This creates a backup file you can save anywhere safe (USB drive, email it to yourself, etc.). Sessions Garden does not store your data in the cloud — which means full privacy, but also means you are responsible for keeping backups.' },
       { q: 'Can I restore my data on a new device?', a: 'Yes. Import your exported backup file into Sessions Garden on your new device and your sessions and clients will be restored.' },
-      { q: 'Do you offer refunds?', a: 'Yes. If the tool doesn\'t fit your needs, contact us within 14 days of purchase and you\'ll receive a full refund.' }
     ],
     demoTitle: 'Try it yourself',
     demoSubtitle: 'Explore a live demo with sample data — no signup needed',
@@ -180,7 +179,6 @@ var LANDING_I18N = {
       { q: 'האם יש מנוי?', a: 'לא. תשלום אחד, גישה לכל החיים. ללא עמלות חודשיות, לעולם.' },
       { q: 'מה אם המחשב נשבר או אבד?', a: 'מכיוון שכל הנתונים נשמרים מקומית, חשוב לייצא את הנתונים באופן קבוע. זה יוצר קובץ גיבוי שאפשר לשמור בכל מקום בטוח (כונן USB, מייל לעצמכם וכד\'). Sessions Garden לא מאחסן את הנתונים בענן — מה שמאפשר פרטיות מלאה, אבל גם אחריות לשמירת גיבויים.' },
       { q: 'האם אפשר לשחזר נתונים על מכשיר חדש?', a: 'כן. ייבאו את קובץ הגיבוי ל-Sessions Garden על המכשיר החדש, והפגישות והלקוחות ישוחזרו.' },
-      { q: 'האם יש החזרים?', a: 'כן. אם הכלי לא מתאים לכם, פנו אלינו תוך 14 יום מהרכישה ותקבלו החזר מלא.' }
     ],
     demoTitle: 'נסו בעצמכם',
     demoSubtitle: 'הדגמה חיה עם נתונים לדוגמה — ללא הרשמה',
@@ -271,7 +269,6 @@ var LANDING_I18N = {
       { q: 'Gibt es ein Abonnement?', a: 'Nein. Eine Zahlung, lebenslanger Zugang. Keine monatlichen Gebühren, niemals.' },
       { q: 'Was passiert, wenn mein Computer kaputt geht oder verloren geht?', a: 'Da alle Daten lokal gespeichert sind, ist es wichtig, deine Daten regelmäßig mit der eingebauten Exportfunktion zu sichern. Sessions Garden speichert deine Daten nicht in der Cloud — das bedeutet vollständige Privatsphäre, aber auch eigene Verantwortung für Backups.' },
       { q: 'Kann ich meine Daten auf einem neuen Gerät wiederherstellen?', a: 'Ja. Importiere deine exportierte Backup-Datei in Sessions Garden auf deinem neuen Gerät — deine Sitzungen und Klienten werden wiederhergestellt.' },
-      { q: 'Gibt es Rückerstattungen?', a: 'Ja. Wenn das Tool nicht zu dir passt, kontaktiere uns innerhalb von 14 Tagen nach dem Kauf und du erhältst eine vollständige Rückerstattung.' }
     ],
     demoTitle: 'Probier es selbst',
     demoSubtitle: 'Erkunde eine Live-Demo mit Beispieldaten — keine Anmeldung nötig',
@@ -362,7 +359,6 @@ var LANDING_I18N = {
       { q: 'Je tam předplatné?', a: 'Ne. Jedna platba, celoživotní přístup. Žádné měsíční poplatky, nikdy.' },
       { q: 'Co když se mi počítač rozbije nebo ztratí?', a: 'Protože všechna data jsou uložena lokálně, je důležité pravidelně exportovat data pomocí vestavěné funkce exportu. Sessions Garden neuchovává vaše data v cloudu — to znamená plné soukromí, ale také odpovědnost za zálohy.' },
       { q: 'Mohu obnovit data na novém zařízení?', a: 'Ano. Importujte exportovaný záložní soubor do Sessions Garden na novém zařízení a vaše sezení a klienti budou obnoveni.' },
-      { q: 'Nabízíte vrácení peněz?', a: 'Ano. Pokud vám nástroj nevyhovuje, kontaktujte nás do 14 dnů od nákupu a obdržíte plnou náhradu.' }
     ],
     demoTitle: 'Vyzkoušejte si to',
     demoSubtitle: 'Prozkoumejte živou ukázku s ukázkovými daty — bez registrace',
