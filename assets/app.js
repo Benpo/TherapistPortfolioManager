@@ -82,18 +82,17 @@ window.App = (() => {
    * Reads initial theme from the data-theme attribute on <html>.
    */
   function initThemeToggle() {
-    // Stub — full implementation in Plan 02
-    // Creates and mounts the toggle button now so HTML structure is ready
-    const actions = document.querySelector('.header-actions');
+    var actions = document.getElementById('headerActions') || document.querySelector('.header-actions');
     if (!actions) return;
-    const btn = document.createElement('button');
-    btn.className = 'button ghost theme-toggle';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'header-control-btn theme-toggle';
     btn.setAttribute('aria-label', 'Toggle dark mode');
-    const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
-    const updateIcon = () => { btn.textContent = isDark() ? '\u2600\ufe0f' : '\uD83C\uDF19'; };
+    var isDark = function() { return document.documentElement.getAttribute('data-theme') === 'dark'; };
+    var updateIcon = function() { btn.textContent = isDark() ? '\u2600\ufe0f' : '\uD83C\uDF19'; };
     updateIcon();
-    btn.addEventListener('click', () => {
-      const next = isDark() ? 'light' : 'dark';
+    btn.addEventListener('click', function() {
+      var next = isDark() ? 'light' : 'dark';
       if (next === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
       } else {
@@ -102,7 +101,85 @@ window.App = (() => {
       localStorage.setItem('portfolioTheme', next);
       updateIcon();
     });
-    actions.prepend(btn);
+    actions.appendChild(btn);
+  }
+
+  /**
+   * Initialize the language popover selector (globe button + dropdown).
+   * Replaces the old native select-based language picker.
+   */
+  function initLanguagePopover() {
+    var actions = document.getElementById('headerActions') || document.querySelector('.header-actions');
+    if (!actions) return;
+
+    var container = document.createElement('div');
+    container.className = 'lang-selector';
+
+    var globeBtn = document.createElement('button');
+    globeBtn.type = 'button';
+    globeBtn.className = 'header-control-btn lang-globe-btn';
+    globeBtn.setAttribute('aria-label', 'Language');
+    globeBtn.setAttribute('aria-expanded', 'false');
+    globeBtn.setAttribute('aria-controls', 'lang-popover');
+    globeBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
+
+    var popover = document.createElement('div');
+    popover.id = 'lang-popover';
+    popover.className = 'lang-popover';
+    popover.setAttribute('role', 'listbox');
+    popover.setAttribute('aria-label', 'Select language');
+    popover.hidden = true;
+
+    var langs = [
+      { code: 'en', label: 'English' },
+      { code: 'he', label: '\u05e2\u05d1\u05e8\u05d9\u05ea' },
+      { code: 'de', label: 'Deutsch' },
+      { code: 'cs', label: '\u010ce\u0161tina' }
+    ];
+
+    var currentLangCode = localStorage.getItem('portfolioLang') || 'en';
+
+    langs.forEach(function(l) {
+      var opt = document.createElement('button');
+      opt.type = 'button';
+      opt.className = 'lang-option' + (l.code === currentLangCode ? ' active' : '');
+      opt.setAttribute('role', 'option');
+      opt.setAttribute('data-lang', l.code);
+      opt.setAttribute('aria-selected', l.code === currentLangCode ? 'true' : 'false');
+      opt.textContent = l.label;
+      opt.addEventListener('click', function() {
+        popover.hidden = true;
+        globeBtn.setAttribute('aria-expanded', 'false');
+        setLanguage(l.code);
+        // Update active state
+        popover.querySelectorAll('.lang-option').forEach(function(o) {
+          o.classList.toggle('active', o.getAttribute('data-lang') === l.code);
+          o.setAttribute('aria-selected', o.getAttribute('data-lang') === l.code ? 'true' : 'false');
+        });
+        // Re-render footer links for new language
+        if (typeof SharedChrome !== 'undefined' && SharedChrome.renderFooter) {
+          SharedChrome.renderFooter();
+        }
+      });
+      popover.appendChild(opt);
+    });
+
+    globeBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      popover.hidden = !popover.hidden;
+      globeBtn.setAttribute('aria-expanded', String(!popover.hidden));
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!popover.hidden && !globeBtn.contains(e.target) && !popover.contains(e.target)) {
+        popover.hidden = true;
+        globeBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    container.appendChild(globeBtn);
+    container.appendChild(popover);
+    actions.appendChild(container);
   }
 
   function initDemoMode() {
@@ -165,18 +242,18 @@ window.App = (() => {
     initDemoMode();
     renderNav();
     initThemeToggle();
-    initLicenseLink();
+    initLanguagePopover();
+    // initLicenseLink removed per D-03 — license key icon no longer in header
     const savedLang = localStorage.getItem("portfolioLang") || window.I18N_DEFAULT || "en";
-    const select = document.getElementById("languageSelect");
     setLanguage(savedLang);
-    if (select) {
-      select.value = savedLang;
-      select.addEventListener("change", () => setLanguage(select.value));
-    }
     checkBackupReminder();
     requestPersistentStorage();
     showFirstLaunchSecurityNote();
     initPersistentSecuritySection();
+    // Render shared footer
+    if (typeof SharedChrome !== 'undefined' && SharedChrome.renderFooter) {
+      SharedChrome.renderFooter();
+    }
 
     // Auto-reload when a new service worker takes control (ensures fresh assets)
     if ("serviceWorker" in navigator) {

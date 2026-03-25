@@ -30,9 +30,11 @@ a {
 .app-header {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
   justify-content: space-between;
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .brand {
