@@ -58,7 +58,7 @@ var SharedChrome = (function() {
 
   var FOOTER_STRINGS = {
     en: { impressum: 'Impressum', privacy: 'Privacy Policy', terms: 'Terms of Use', license: 'License', madeWith: 'Made with care for therapeutic practitioners' },
-    he: { impressum: '\u05d0\u05d9\u05de\u05e4\u05e8\u05e1\u05d5\u05dd', privacy: '\u05de\u05d3\u05d9\u05e0\u05d9\u05d5\u05ea \u05e4\u05e8\u05d8\u05d9\u05d5\u05ea', terms: '\u05ea\u05e0\u05d0\u05d9 \u05e9\u05d9\u05de\u05d5\u05e9', license: '\u05e8\u05d9\u05e9\u05d9\u05d5\u05df', madeWith: '\u05e0\u05d5\u05e6\u05e8 \u05d1\u05d0\u05d4\u05d1\u05d4 \u05e2\u05d1\u05d5\u05e8 \u05de\u05d8\u05e4\u05dc\u05d9\u05dd' },
+    he: { impressum: '\u05d0\u05d5\u05d3\u05d5\u05ea', privacy: '\u05de\u05d3\u05d9\u05e0\u05d9\u05d5\u05ea \u05e4\u05e8\u05d8\u05d9\u05d5\u05ea', terms: '\u05ea\u05e0\u05d0\u05d9 \u05e9\u05d9\u05de\u05d5\u05e9', license: '\u05e8\u05d9\u05e9\u05d9\u05d5\u05df', madeWith: '\u05e0\u05d5\u05e6\u05e8 \u05d1\u05d0\u05d4\u05d1\u05d4 \u05e2\u05d1\u05d5\u05e8 \u05de\u05d8\u05e4\u05dc\u05d9\u05dd' },
     de: { impressum: 'Impressum', privacy: 'Datenschutz', terms: 'Nutzungsbedingungen', license: 'Lizenz', madeWith: 'Mit Sorgfalt f\u00fcr therapeutische Fachkr\u00e4fte erstellt' },
     cs: { impressum: 'Impressum', privacy: 'Ochrana osobn\u00edch \u00fadaj\u016f', terms: 'Podm\u00ednky u\u017eit\u00ed', license: 'Licence', madeWith: 'Vytvo\u0159eno s p\u00e9\u010d\u00ed pro terapeutick\u00e9 odborn\u00edky' }
   };
