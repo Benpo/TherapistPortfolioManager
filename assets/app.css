@@ -124,6 +124,13 @@ a {
   border-color: var(--color-primary);
 }
 
+/* Legal topbar controls (back link + globe + theme toggle) */
+.legal-topbar-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm, 0.5rem);
+}
+
 /* Language selector popover */
 .lang-selector {
   position: relative;

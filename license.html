@@ -476,9 +476,10 @@
     </div>
   </main>
 
+  <script src="./assets/shared-chrome.js"></script>
   <script src="./assets/license.js"></script>
   <script>
-    // Render context-aware chrome based on license state (D-11, LIVE-05)
+    // Render context-aware chrome based on license state (D-11, D-12, D-13, LIVE-05)
     window.renderLicenseChrome = function renderLicenseChrome() {
       var chrome = document.getElementById('license-chrome');
       if (!chrome) return;
@@ -488,18 +489,97 @@
 
       var logoSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" style="color:var(--color-primary)"><path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/><path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/><path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/><path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/><path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/><path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/></svg>';
 
-      if (typeof isLicensed === 'function' && isLicensed()) {
-        // Activated user: show app navigation bar
-        chrome.innerHTML = '<div class="legal-topbar">' +
-          '<a class="legal-topbar-brand" href="./index.html">' + logoSvg + ' Sessions Garden</a>' +
-          '<a class="legal-back-link" href="./index.html">' + strings.backToApp + '</a>' +
-          '</div>';
-      } else {
-        // Non-activated user: show legal page topbar
-        chrome.innerHTML = '<div class="legal-topbar">' +
-          '<a class="legal-topbar-brand" href="./landing.html">' + logoSvg + ' Sessions Garden</a>' +
-          '<a class="legal-back-link" href="./landing.html">' + strings.backToHome + '</a>' +
-          '</div>';
+      var ctx = (typeof SharedChrome !== 'undefined') ? SharedChrome.getNavigationContext() : { isActivated: false, homeHref: './landing.html' };
+      var backHref = ctx.isActivated ? './index.html' : './landing.html';
+      var backText = ctx.isActivated ? strings.backToApp : strings.backToHome;
+
+      chrome.innerHTML =
+        '<div class="legal-topbar">' +
+          '<a class="legal-topbar-brand" href="' + backHref + '">' + logoSvg + ' Sessions Garden</a>' +
+          '<div class="legal-topbar-controls">' +
+            '<a class="legal-back-link" href="' + backHref + '">' + backText + '</a>' +
+            '<div id="licenseHeaderActions" class="header-actions"></div>' +
+          '</div>' +
+        '</div>';
+
+      // Add dark mode toggle
+      var actions = document.getElementById('licenseHeaderActions');
+      if (actions) {
+        // Theme toggle
+        var themeBtn = document.createElement('button');
+        themeBtn.type = 'button';
+        themeBtn.className = 'header-control-btn theme-toggle';
+        themeBtn.setAttribute('aria-label', 'Toggle dark mode');
+        var isDark = function() { return document.documentElement.getAttribute('data-theme') === 'dark'; };
+        var updateIcon = function() { themeBtn.textContent = isDark() ? '\u2600\ufe0f' : '\uD83C\uDF19'; };
+        updateIcon();
+        themeBtn.addEventListener('click', function() {
+          var next = isDark() ? 'light' : 'dark';
+          if (next === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+          else document.documentElement.removeAttribute('data-theme');
+          localStorage.setItem('portfolioTheme', next);
+          updateIcon();
+        });
+        actions.appendChild(themeBtn);
+
+        // Language popover
+        var langContainer = document.createElement('div');
+        langContainer.className = 'lang-selector';
+        var globeBtn = document.createElement('button');
+        globeBtn.type = 'button';
+        globeBtn.className = 'header-control-btn lang-globe-btn';
+        globeBtn.setAttribute('aria-label', 'Language');
+        globeBtn.setAttribute('aria-expanded', 'false');
+        globeBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
+
+        var popover = document.createElement('div');
+        popover.className = 'lang-popover';
+        popover.setAttribute('role', 'listbox');
+        popover.hidden = true;
+
+        var langs = [
+          { code: 'en', label: 'English' },
+          { code: 'he', label: '\u05e2\u05d1\u05e8\u05d9\u05ea' },
+          { code: 'de', label: 'Deutsch' },
+          { code: 'cs', label: '\u010ce\u0161tina' }
+        ];
+
+        langs.forEach(function(l) {
+          var opt = document.createElement('button');
+          opt.type = 'button';
+          opt.className = 'lang-option' + (l.code === lang ? ' active' : '');
+          opt.setAttribute('role', 'option');
+          opt.setAttribute('data-lang', l.code);
+          opt.textContent = l.label;
+          opt.addEventListener('click', function() {
+            popover.hidden = true;
+            globeBtn.setAttribute('aria-expanded', 'false');
+            localStorage.setItem('portfolioLang', l.code);
+            window.location.reload();
+          });
+          popover.appendChild(opt);
+        });
+
+        globeBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          popover.hidden = !popover.hidden;
+          globeBtn.setAttribute('aria-expanded', String(!popover.hidden));
+        });
+        document.addEventListener('click', function(e) {
+          if (!popover.hidden && !globeBtn.contains(e.target) && !popover.contains(e.target)) {
+            popover.hidden = true;
+            globeBtn.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        langContainer.appendChild(globeBtn);
+        langContainer.appendChild(popover);
+        actions.appendChild(langContainer);
+      }
+
+      // Render footer
+      if (typeof SharedChrome !== 'undefined' && SharedChrome.renderFooter) {
+        SharedChrome.renderFooter(document.querySelector('main') || document.body);
       }
     };
     window.renderLicenseChrome();
