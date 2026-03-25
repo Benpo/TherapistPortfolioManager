@@ -10,7 +10,8 @@ var SharedChrome = (function() {
   function getNavigationContext() {
     var isActivated = false;
     try {
-      isActivated = localStorage.getItem('portfolioLicenseActivated') === 'true'
+      var activatedVal = localStorage.getItem('portfolioLicenseActivated');
+      isActivated = (activatedVal === '1' || activatedVal === 'true')
         && !!localStorage.getItem('portfolioLicenseInstance');
     } catch(e) {}
     return {

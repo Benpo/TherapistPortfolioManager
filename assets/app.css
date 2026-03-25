@@ -61,9 +61,7 @@ a {
 }
 
 .brand-subtitle {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  white-space: nowrap;
+  display: none;
 }
 
 .app-nav {
