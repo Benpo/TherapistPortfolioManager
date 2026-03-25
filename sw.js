@@ -9,7 +9,7 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v31';
+const CACHE_NAME = 'sessions-garden-v32';
 
 /**
  * Static assets to precache on install (cache-first strategy).
@@ -188,19 +188,32 @@ self.addEventListener('fetch', function (event) {
     event.respondWith(
       fetch(event.request).then(function (response) {
         // Network succeeded — update cache with fresh response (redirect-safe)
+        // Normalize to extensionless key to match precache entries
         if (response && response.status === 200) {
           var responseToCache = response.clone();
+          var cacheKey = url.pathname || '/';
+          if (cacheKey.endsWith('.html')) {
+            cacheKey = cacheKey.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+          }
+          if (cacheKey === '') cacheKey = '/';
           caches.open(CACHE_NAME).then(function (cache) {
-            // Cache under the canonical pathname so it matches future lookups
-            cache.put(url.pathname || '/', responseToCache);
+            cache.put(cacheKey, responseToCache);
           });
         }
         return response;
       }).catch(function () {
         // Offline — serve from cache
-        // Try exact pathname first, then root as fallback
+        // Links use .html extensions (e.g. ./sessions.html) but CF Pages
+        // serves them at extensionless paths, so our cache keys are
+        // extensionless. Strip .html and ./index.html to match cache keys.
+        var pathname = url.pathname || '/';
+        if (pathname.endsWith('.html')) {
+          pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+        }
+        if (pathname === '') pathname = '/';
+
         return caches.open(CACHE_NAME).then(function (cache) {
-          return cache.match(url.pathname || '/').then(function (cached) {
+          return cache.match(pathname).then(function (cached) {
             if (cached) return cached;
             // Last resort: serve root index for unknown paths
             return cache.match('/');
