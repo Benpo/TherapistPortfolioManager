@@ -151,6 +151,12 @@
       });
     })();
   </script>
+  <script src="./assets/shared-chrome.js"></script>
+  <script>
+    if (typeof SharedChrome !== 'undefined' && SharedChrome.renderFooter) {
+      SharedChrome.renderFooter();
+    }
+  </script>
   <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}</script>
 </body>
 </html>

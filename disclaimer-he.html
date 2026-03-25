@@ -110,8 +110,21 @@
           <p class="disclaimer-section-body">הרישיון שלכם להשתמש ב-Sessions Garden הוא אישי ואינו ניתן להעברה. תוכלו להתקין ולהשתמש ביישום בעד שני מכשירים שבבעלותכם האישית או בשליטתכם. אינכם רשאים להעניק רישיון משנה, למכור מחדש, או להעביר את הרישיון שלכם לאדם אחר. רישיון זה תקף לכל חיי גרסת המוצר שנרכשה.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">זכות ביטול</h2>
-          <p class="disclaimer-section-body">כצרכן הרוכש תוכן דיגיטלי, יש לכם זכות ביטול חוקית של 14 יום ממועד הרכישה, בהתאם לדיני הגנת הצרכן החלים. עם זאת, על ידי סימון התיבה להלן, אתם מסכימים שאספקת התוכן הדיגיטלי מתחילה מיידית עם הרכישה, לפני תום תקופת הביטול, ואתם מאשרים שזכות הביטול שלכם פוקעת בכך.</p>
+          <h2 class="disclaimer-section-title">הודעה בדבר זכות ביטול</h2>
+          <p class="disclaimer-section-body">עומדת לכם הזכות לבטל חוזה זה תוך ארבעה עשר יום ללא צורך בנימוק.</p>
+          <p class="disclaimer-section-body">תקופת הביטול הינה ארבעה עשר יום מיום כריתת החוזה.</p>
+          <p class="disclaimer-section-body">למימוש זכות הביטול, עליכם להודיע לנו (Sapir Ben-Porath, Pettenkoferstr. 4E, 10247 Berlin, דוא״ל: contact@sessionsgarden.app) על החלטתכם לבטל חוזה זה באמצעות הצהרה חד-משמעית (למשל מכתב בדואר או דוא״ל). תוכלו להשתמש בטופס הביטול לדוגמה המצורף להלן, אך אין חובה לעשות כן.</p>
+          <p class="disclaimer-section-body">לשמירה על מועד הביטול, די בכך שתשלחו את ההודעה בדבר מימוש זכות הביטול לפני תום תקופת הביטול.</p>
+          <p class="disclaimer-section-body">תוצאות הביטול: במקרה של ביטול חוזה זה, נשיב לכם את כל התשלומים שקיבלנו מכם ללא דיחוי מיותר, ולא יאוחר מארבעה עשר יום מהיום שבו קיבלנו את הודעת הביטול. ההחזר יבוצע באותו אמצעי תשלום ששימש לעסקה המקורית, אלא אם הוסכם אחרת במפורש; בכל מקרה לא תחויבו בעמלות בגין החזר זה.</p>
+          <p class="disclaimer-section-body">הערה בדבר פקיעת זכות הביטול: זכות הביטול שלכם פוקעת בחוזה לאספקת תוכן דיגיטלי שאינו מסופק על גבי מדיה מוחשית, אם התחלנו בביצוע החוזה לאחר שנתתם הסכמה מפורשת לתחילת הביצוע לפני תום תקופת הביטול, ואישרתם את ידיעתכם כי בהסכמתכם אתם מאבדים את זכות הביטול עם תחילת ביצוע החוזה.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">טופס ביטול לדוגמה</h2>
+          <p class="disclaimer-section-body">(מלאו והחזירו טופס זה רק אם ברצונכם לבטל את החוזה.)</p>
+          <p class="disclaimer-section-body">אל: Sapir Ben-Porath, Pettenkoferstr. 4E, 10247 Berlin, דוא״ל: contact@sessionsgarden.app</p>
+          <p class="disclaimer-section-body">אני/אנחנו (*) מודיע/ים בזאת על ביטול החוזה שנכרת על ידי/נו (*) לרכישת התוכן הדיגיטלי הבא: רישיון Sessions Garden</p>
+          <p class="disclaimer-section-body">תאריך הזמנה (*) / קבלה (*): ___<br>שם הצרכן/ים: ___<br>כתובת הצרכן/ים: ___<br>תאריך: ___</p>
+          <p class="disclaimer-section-body">(*) מחקו את שאינו רלוונטי.</p>
         </section>
       </div>
 
@@ -124,7 +137,7 @@
         </div>
         <div class="disclaimer-checkbox-row disclaimer-widerruf-row">
           <input type="checkbox" id="check-widerruf" name="check-widerruf" />
-          <label for="check-widerruf">אני מסכים/ה לביצוע החוזה לפני תום תקופת הביטול, ומאשר/ת שזכות הביטול שלי פוקעת בעת תחילת הגישה למוצר.</label>
+          <label for="check-widerruf">אני מסכים/ה במפורש לתחילת ביצוע החוזה (אספקת התוכן הדיגיטלי) לפני תום תקופת הביטול, ומאשר/ת את ידיעתי כי בכך אני מאבד/ת את זכות הביטול שלי.</label>
         </div>
       </div>
 
@@ -256,6 +269,12 @@
     });
   }
 })();
+</script>
+<script src="./assets/shared-chrome.js"></script>
+<script>
+  if (typeof SharedChrome !== 'undefined' && SharedChrome.renderFooter) {
+    SharedChrome.renderFooter();
+  }
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}</script>
 </body>

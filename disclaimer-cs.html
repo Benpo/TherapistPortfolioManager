@@ -110,8 +110,21 @@
           <p class="disclaimer-section-body">Vaše licence k používání aplikace Sessions Garden je osobní a nepřenosná. Aplikaci můžete nainstalovat a používat na nejvýše dvou zařízeních, která vlastníte nebo ovládáte. Nejste oprávněni svou licenci sublicencovat, dále prodávat ani převádět na jinou osobu. Tato licence platí po celou dobu životnosti zakoupené verze produktu.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Právo na odstoupení od smlouvy</h2>
-          <p class="disclaimer-section-body">Jako spotřebitel nakupující digitální obsah máte zákonné právo na odstoupení od smlouvy ve lhůtě 14 dnů od data nákupu podle platných předpisů na ochranu spotřebitele. Zaškrtnutím políčka níže však souhlasíte s tím, že dodání digitálního obsahu začíná ihned po nákupu, před uplynutím lhůty pro odstoupení, a berete na vědomí, že tím vaše právo na odstoupení od smlouvy zaniká.</p>
+          <h2 class="disclaimer-section-title">Poučení o právu na odstoupení od smlouvy</h2>
+          <p class="disclaimer-section-body">Máte právo odstoupit od této smlouvy ve lhůtě čtrnácti dnů bez udání důvodu.</p>
+          <p class="disclaimer-section-body">Lhůta pro odstoupení činí čtrnáct dnů ode dne uzavření smlouvy.</p>
+          <p class="disclaimer-section-body">Pro uplatnění práva na odstoupení nás musíte informovat (Sapir Ben-Porath, Pettenkoferstr.&nbsp;4E, 10247 Berlin, e-mail: contact@sessionsgarden.app) o svém rozhodnutí odstoupit od smlouvy jednoznačným prohlášením (např. dopisem zaslaným poštou nebo e-mailem). Můžete k tomu využít níže uvedený vzorový formulář pro odstoupení od smlouvy, není to však povinné.</p>
+          <p class="disclaimer-section-body">Pro dodržení lhůty pro odstoupení postačí, odešlete-li sdělení o uplatnění práva na odstoupení před uplynutím lhůty.</p>
+          <p class="disclaimer-section-body">Důsledky odstoupení: Pokud od této smlouvy odstoupíte, vrátíme vám bez zbytečného odkladu, nejpozději do čtrnácti dnů ode dne, kdy nám bylo doručeno vaše oznámení o odstoupení, všechny platby, které jsme od vás obdrželi. Pro vrácení použijeme stejný platební prostředek, který jste použili při původní transakci, pokud jste výslovně nesouhlasili jinak; v žádném případě vám v souvislosti s vrácením nebudou účtovány žádné poplatky.</p>
+          <p class="disclaimer-section-body">Upozornění na předčasný zánik práva na odstoupení: Vaše právo na odstoupení od smlouvy zaniká u smlouvy o dodání digitálního obsahu, který není dodán na hmotném nosiči, pokud jsme začali s plněním smlouvy poté, co jste udělili výslovný souhlas se zahájením plnění před uplynutím lhůty pro odstoupení a potvrdili jste svou vědomost, že udělením souhlasu ztrácíte právo na odstoupení od smlouvy.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Vzorový formulář pro odstoupení od smlouvy</h2>
+          <p class="disclaimer-section-body">(Vyplňte a zašlete tento formulář pouze v případě, že chcete odstoupit od smlouvy.)</p>
+          <p class="disclaimer-section-body">Adresát: Sapir Ben-Porath, Pettenkoferstr.&nbsp;4E, 10247 Berlin, e-mail: contact@sessionsgarden.app</p>
+          <p class="disclaimer-section-body">Oznamuji/oznamujeme (*), že tímto odstupuji/odstupujeme (*) od smlouvy o nákupu tohoto digitálního obsahu: Licence Sessions Garden</p>
+          <p class="disclaimer-section-body">Datum objednání (*) / datum obdržení (*): ___<br>Jméno spotřebitele/spotřebitelů: ___<br>Adresa spotřebitele/spotřebitelů: ___<br>Datum: ___</p>
+          <p class="disclaimer-section-body">(*) Nehodící se škrtněte.</p>
         </section>
       </div>
 
@@ -124,7 +137,7 @@
         </div>
         <div class="disclaimer-checkbox-row disclaimer-widerruf-row">
           <input type="checkbox" id="check-widerruf" name="check-widerruf" />
-          <label for="check-widerruf">Souhlasím s plněním smlouvy před uplynutím lhůty pro odstoupení od smlouvy a beru na vědomí, že tím zaniká mé právo na odstoupení od smlouvy.</label>
+          <label for="check-widerruf">Výslovně souhlasím se zahájením plnění smlouvy (dodání digitálního obsahu) před uplynutím lhůty pro odstoupení a potvrzuji svou vědomost, že tím ztrácím právo na odstoupení od smlouvy.</label>
         </div>
       </div>
 
@@ -256,6 +269,12 @@
     });
   }
 })();
+</script>
+<script src="./assets/shared-chrome.js"></script>
+<script>
+  if (typeof SharedChrome !== 'undefined' && SharedChrome.renderFooter) {
+    SharedChrome.renderFooter();
+  }
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}</script>
 </body>

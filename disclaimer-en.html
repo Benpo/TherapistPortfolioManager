@@ -110,8 +110,21 @@
           <p class="disclaimer-section-body">Your license to use Sessions Garden is personal and non-transferable. You may install and use the application on up to two devices that you personally own or control. You may not sublicense, resell, or otherwise transfer your license to any other person. This license remains valid for the lifetime of the product version purchased.</p>
         </section>
         <section class="disclaimer-section">
-          <h2 class="disclaimer-section-title">Right of Withdrawal (Widerrufsrecht)</h2>
-          <p class="disclaimer-section-body">As a consumer purchasing digital content, you have a statutory right of withdrawal of 14 days from the date of purchase, pursuant to applicable consumer protection law. However, by checking the box below, you agree that delivery of the digital content begins immediately upon purchase, before the expiry of the withdrawal period, and you acknowledge that this causes your right of withdrawal to expire.</p>
+          <h2 class="disclaimer-section-title">Right of Withdrawal</h2>
+          <p class="disclaimer-section-body">You have the right to withdraw from this contract within fourteen days without giving any reason.</p>
+          <p class="disclaimer-section-body">The withdrawal period is fourteen days from the day of the conclusion of the contract.</p>
+          <p class="disclaimer-section-body">To exercise the right of withdrawal, you must inform us (Sapir Ben-Porath, Pettenkoferstr.&nbsp;4E, 10247 Berlin, email: contact@sessionsgarden.app) of your decision to withdraw from this contract by an unequivocal statement (e.g. a letter sent by post or email). You may use the model withdrawal form below, but it is not obligatory.</p>
+          <p class="disclaimer-section-body">To meet the withdrawal deadline, it is sufficient for you to send your communication concerning the exercise of the right of withdrawal before the withdrawal period has expired.</p>
+          <p class="disclaimer-section-body">Effects of withdrawal: If you withdraw from this contract, we shall reimburse to you all payments received from you without undue delay and in any event not later than fourteen days from the day on which we are informed about your decision to withdraw from this contract. We will carry out such reimbursement using the same means of payment as you used for the initial transaction, unless you have expressly agreed otherwise; in any event, you will not incur any fees as a result of such reimbursement.</p>
+          <p class="disclaimer-section-body">Note on premature expiry of the right of withdrawal: Your right of withdrawal expires for a contract for the supply of digital content which is not supplied on a tangible medium if we have begun the performance of the contract after you have given your express consent that we may begin performance before the expiry of the withdrawal period and you have confirmed your knowledge that by giving your consent you lose your right of withdrawal with the beginning of the performance of the contract.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Model Withdrawal Form</h2>
+          <p class="disclaimer-section-body">(Complete and return this form only if you wish to withdraw from the contract.)</p>
+          <p class="disclaimer-section-body">To: Sapir Ben-Porath, Pettenkoferstr.&nbsp;4E, 10247 Berlin, email: contact@sessionsgarden.app</p>
+          <p class="disclaimer-section-body">I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract for the purchase of the following digital content: Sessions Garden License</p>
+          <p class="disclaimer-section-body">Ordered on (*) / received on (*): ___<br>Name of consumer(s): ___<br>Address of consumer(s): ___<br>Date: ___</p>
+          <p class="disclaimer-section-body">(*) Delete as appropriate.</p>
         </section>
       </div>
 
@@ -124,7 +137,7 @@
         </div>
         <div class="disclaimer-checkbox-row disclaimer-widerruf-row">
           <input type="checkbox" id="check-widerruf" name="check-widerruf" />
-          <label for="check-widerruf">I agree to the execution of the contract before the expiry of the withdrawal period and acknowledge that my right of withdrawal expires upon commencement of the download/access.</label>
+          <label for="check-widerruf">I expressly consent to the performance of the contract (delivery of digital content) beginning before the expiry of the withdrawal period, and I confirm my knowledge that I thereby lose my right of withdrawal.</label>
         </div>
       </div>
 
@@ -256,6 +269,12 @@
     });
   }
 })();
+</script>
+<script src="./assets/shared-chrome.js"></script>
+<script>
+  if (typeof SharedChrome !== 'undefined' && SharedChrome.renderFooter) {
+    SharedChrome.renderFooter();
+  }
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}</script>
 </body>
