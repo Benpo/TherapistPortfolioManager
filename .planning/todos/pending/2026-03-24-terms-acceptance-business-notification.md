@@ -1,20 +1,41 @@
 ---
-title: Send terms acceptance confirmation to business
+title: Restructure terms acceptance into LS activation flow
 priority: medium
-source: UAT Phase 19
+source: UAT Phase 19 + Phase 20 discussion
 created: 2026-03-24
+deferred_to: Phase 21+
 ---
 
 ## Issue
 
 When a user accepts Terms & Conditions, we only store it in localStorage on their device. The business (Sapir) has no record of this acceptance — no email, no webhook, no log.
 
-## Options
+## Preferred Approach (from Phase 20 discussion, 2026-03-25)
 
-1. **Webhook to n8n** — On acceptance, POST to an n8n webhook with: timestamp, language, license key (if available). n8n stores it and optionally sends email notification.
-2. **Email via mailto** — Trigger a mailto link with pre-filled acceptance details (requires user action).
-3. **Lemon Squeezy metadata** — Attach acceptance timestamp to the license activation API call (only works at activation time, not at TOC acceptance time).
+**Merge terms acceptance into the Lemon Squeezy activation flow** rather than adding a separate webhook:
 
-## Recommended
+### Proposed new flow
+1. User visits app → goes to license page → enters key
+2. Activation page includes "I have read and accept the Terms of Use" checkbox (link to full terms)
+3. On activation success → update LS customer metadata with `terms_accepted: timestamp`
+4. LS already notifies Sapir of activations → terms acceptance is bundled in
+5. No separate data collection, no n8n/VPS involvement, simpler Datenschutz
 
-Option 1 (webhook) — most reliable, fully automated, creates auditable record. Can be implemented when n8n infrastructure is ready.
+### Benefits over webhook approach
+- No additional personal data collection beyond what LS already has
+- No n8n dependency — stays within LS ecosystem
+- No Datenschutz updates needed for VPS data processing
+- Sapir already gets LS activation notifications — terms info rides along
+
+### Open questions
+- Does the current standalone disclaimer page get removed, or become informational only (no binding checkboxes)?
+- What about free trial / demo users who never hit activation? Ben says fine for now.
+- The acceptance receipt (downloadable TXT) should include same info sent to LS
+
+### Ben's preferences on notification data
+- Send the same content as the acceptance receipt TXT (timestamp, language, license key, IP, user agent)
+- Notify on every acceptance (each new device/browser requires re-acceptance)
+- If LS approach works, no need for failure handling or n8n fallback
+
+## Why deferred
+Too big for Phase 20 (UI polish). Restructuring the terms flow touches disclaimer page, activation flow, LS API integration, and potentially Datenschutz updates. Moved to Phase 21+.

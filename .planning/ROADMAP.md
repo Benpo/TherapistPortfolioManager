@@ -408,17 +408,16 @@ Plans:
 
 ### Phase 20: Pre-Launch UI Polish & Legal Compliance
 
-**Goal:** Fix UX pain points, add missing UI chrome, and complete legal notification requirements so the app is ready to sell
-**Requirements**: POLISH-01, POLISH-02, POLISH-03, POLISH-04, POLISH-05, POLISH-06, POLISH-07
+**Goal:** Fix UX pain points, add missing UI chrome, and ensure visual consistency across all app pages
+**Requirements**: POLISH-01, POLISH-02, POLISH-03, POLISH-04, POLISH-05, POLISH-06
 **Depends on:** Phase 19
 **Success Criteria** (what must be TRUE):
   1. Birth date picker allows fast year selection without scrolling month-by-month through distant years
-  2. App footer shows contact email and legal links (Impressum, Datenschutz, Terms) on all app pages
+  2. App footer shows contact email, legal links (Impressum, Datenschutz, Terms), copyright, and version on all app pages including license page
   3. Backup dialog has a Cancel/X button allowing users to dismiss without completing backup
   4. Dark mode state is properly cleared when a user's license is deactivated and they return to the landing page
-  5. License page has consistent app chrome (header, logo, language selector, footer) matching other app pages
-  6. App header uses full width with consistent language selector, dark/light toggle, and license key button all at equal sizing — no two-row wrapping
-  7. Terms acceptance triggers a notification/webhook to the business so Sapir knows a new user accepted terms
+  5. License page has language selector and dark mode toggle matching other app pages, plus the shared footer
+  6. App header uses full width with consistent language selector (matching landing page popover style) and dark/light toggle at equal sizing — no two-row wrapping
 **Plans**: TBD (use /gsd:plan-phase to create)
 
 **Source todos:**
@@ -428,7 +427,9 @@ Plans:
 - Dark mode persistence after deactivation (2026-03-24)
 - License page UI polish (2026-03-24)
 - App header redesign (2026-03-24)
-- Terms acceptance business notification (2026-03-24)
+
+**Deferred to Phase 21+:**
+- Terms acceptance business notification — restructured into LS activation flow (too big for polish phase)
 
 ## Progress
 
