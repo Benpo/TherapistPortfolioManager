@@ -7,7 +7,7 @@ Transform the existing functional vanilla JS prototype into a sellable product f
 ## Milestones
 
 - ✅ **v1.0 MVP** - Phases 1-7 (shipped 2026-03-18)
-- 🚧 **v1.1 Final Polish & Launch** - Phases 8-12 (in progress)
+- 🚧 **v1.1 Final Polish & Launch** - Phases 8-20 (in progress)
 
 ## Phases
 
@@ -315,6 +315,8 @@ Plans:
 - [x] 19-07-PLAN.md — GitHub Action deploy workflow + _headers security headers (LIVE-03)
 - [x] 19-08-PLAN.md — E2E verification + LIVE-07 confirmation + innovator research (LIVE-04, LIVE-07, LIVE-09)
 
+**Post-deployment fixes (2026-03-24/25):** CF Pages "pretty URLs" caused two cascading issues: (1) SW cached redirected `.html` responses, browsers rejected them for navigation; (2) `_redirects` rule `/ /landing.html 302` intercepted all `./index.html` navigations because CF treats `index.html` as root document. Fixed by: SW skips all navigations + HTML removed from precache; `_redirects` replaced with JS Gate 0 in `index.html <head>`. See 19-RESEARCH.md addendum.
+
 ---
 
 ### v1.1 Final Polish & Launch (In Progress)
@@ -404,6 +406,30 @@ Plans:
 - [ ] 12-03-PLAN.md — Impressum real content + Lemon Squeezy product setup (LNCH-01, LNCH-03)
 - [ ] 12-04-PLAN.md — Manual QA pass: cross-browser, RTL, mobile (LNCH-06)
 
+### Phase 20: Pre-Launch UI Polish & Legal Compliance
+
+**Goal:** Fix UX pain points, add missing UI chrome, and complete legal notification requirements so the app is ready to sell
+**Requirements**: POLISH-01, POLISH-02, POLISH-03, POLISH-04, POLISH-05, POLISH-06, POLISH-07
+**Depends on:** Phase 19
+**Success Criteria** (what must be TRUE):
+  1. Birth date picker allows fast year selection without scrolling month-by-month through distant years
+  2. App footer shows contact email and legal links (Impressum, Datenschutz, Terms) on all app pages
+  3. Backup dialog has a Cancel/X button allowing users to dismiss without completing backup
+  4. Dark mode state is properly cleared when a user's license is deactivated and they return to the landing page
+  5. License page has consistent app chrome (header, logo, language selector, footer) matching other app pages
+  6. App header uses full width with consistent language selector, dark/light toggle, and license key button all at equal sizing — no two-row wrapping
+  7. Terms acceptance triggers a notification/webhook to the business so Sapir knows a new user accepted terms
+**Plans**: TBD (use /gsd:plan-phase to create)
+
+**Source todos:**
+- Birth date picker improvement (2026-03-19)
+- App footer with contact email and legal links (2026-03-24)
+- Backup dialog cancel button (2026-03-24)
+- Dark mode persistence after deactivation (2026-03-24)
+- License page UI polish (2026-03-24)
+- App header redesign (2026-03-24)
+- Terms acceptance business notification (2026-03-24)
+
 ## Progress
 
 **Execution Order:**
@@ -431,3 +457,5 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 16. Audit Fix: Code | 5/5 | Complete    | 2026-03-23 | - |
 | 17. Audit Fix: Business | 3/3 | Complete    | 2026-03-24 | - |
 | 18. Technical Debt | 0/3 | 3/3 | Complete    | 2026-03-24 |
+| 19. Go-Live Preparation | 8/8 | Complete | 2026-03-24 | - |
+| 20. Pre-Launch UI Polish | 0/? | Not Started | - | - |
