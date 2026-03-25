@@ -45,7 +45,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
 - [x] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
-- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
+- [x] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
 
 Plans:
 - [x] 01-01-PLAN.md — CSS design token system (tokens.css) + Rubik self-hosted fonts (FOUND-01, FOUND-02)
@@ -86,8 +86,8 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
-- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
+- [x] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
+- [x] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
 - [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
 
 Plans:
@@ -489,4 +489,4 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 17. Audit Fix: Business | 3/3 | Complete    | 2026-03-24 | - |
 | 18. Technical Debt | 0/3 | 3/3 | Complete    | 2026-03-24 |
 | 19. Go-Live Preparation | 8/8 | Complete | 2026-03-24 | - |
-| 20. Pre-Launch UI Polish | 0/3 | 2/3 | In Progress|  |
+| 20. Pre-Launch UI Polish | 0/3 | 3/3 | Complete    | 2026-03-25 |
