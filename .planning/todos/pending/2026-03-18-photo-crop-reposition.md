@@ -10,15 +10,20 @@ files:
 
 ## Problem
 
-When a user uploads a client photo, it gets displayed as-is. There's no way to reposition, crop, or center the photo. If the photo is off-center or poorly framed, the user is stuck with it.
+Photo crop exists on the add-client page but is **buggy when accessed from the session screen** (edit client via add-session page). The crop UI may not initialize properly or fail to save in that context.
+
+Additionally, the crop UX could be improved — let user reposition/center within a frame.
+
+## Known Bug (reported 2026-03-25)
+
+Photo crop breaks when editing a client from the session screen. Needs investigation — likely the crop component isn't initialized when the edit-client flow is triggered from add-session context.
 
 ## Solution
 
-Add a photo editing step after upload:
-1. Show the uploaded image in a draggable/zoomable crop area
-2. Let the user move and center the photo within a circular or square frame
-3. Save the cropped result as the client photo
+1. Fix the crop bug when accessed from session screen
+2. Improve crop UX: draggable/zoomable within circular or square frame
+3. Ensure crop works consistently from both add-client and edit-client-from-session flows
 
 ## Origin
 
-Sapir requested this — discussed in conversation, not previously tracked.
+Sapir requested this — discussed in conversation. Bug from session screen reported by Ben 2026-03-25.
