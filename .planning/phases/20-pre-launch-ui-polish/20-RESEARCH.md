@@ -55,7 +55,7 @@ The most significant architectural work is creating a shared footer and context-
 |----|-------------|------------------|
 | POLISH-01 | Birth date picker allows fast year selection without scrolling month-by-month | Custom three-dropdown (year/month/day) widget or flatpickr with year-select plugin; see Architecture Patterns |
 | POLISH-02 | App footer shows contact email, legal links, copyright, and version on all pages | Shared footer injected via JS; `App.initCommon()` for app pages, standalone utility for license/legal; see Architecture Patterns |
-| POLISH-03 | Backup dialog has Cancel/X button to dismiss without completing | Add cancel button + X close to backup passphrase modal overlay; existing pattern in `_showPassphraseModal` already has this -- verify it's the backup *reminder banner* that needs it or a different dialog |
+| POLISH-03 | Backup dialog has Cancel/X button to dismiss without completing | Add Cancel button + X close to backup passphrase modal -- currently only shows "Encrypt & Save" and "Skip Encryption" with no way to abort the backup flow entirely |
 | POLISH-04 | Dark mode cleared on license deactivation | Add `localStorage.removeItem('portfolioTheme')` to deactivation flow in license.js line ~464-471 |
 | POLISH-05 | License page has language selector and dark mode toggle matching app pages, plus shared footer | Extend license.html chrome with popover language selector + theme toggle; add shared footer |
 | POLISH-06 | App header uses full width with consistent language selector (popover) and dark/light toggle | Replace `<select>` with button+popover from landing page; equalize button sizing; remove license key icon from header |
@@ -407,10 +407,10 @@ function getMonthNames(lang) {
    - What's unclear: Where does the license link go? Settings menu doesn't exist yet.
    - Recommendation: For Phase 20, simply remove from header. The license page is still accessible via direct URL and from footer links. A dedicated settings area can be Phase 21+.
 
-2. **Backup dialog vs backup banner -- which needs Cancel?**
-   - What we know: POLISH-03 says "backup dialog has Cancel/X button." The backup *banner* (showBackupBanner in app.js) already has an X close button (line 447-453). The passphrase *modal* (_showPassphraseModal in backup.js) already has a Cancel button.
-   - What's unclear: Is there another backup dialog without cancel? Or is POLISH-03 already satisfied?
-   - Recommendation: Verify with Ben which specific dialog is missing the cancel button. The backup reminder banner already has X, and the passphrase modal already has cancel+escape. This may be a stale requirement.
+2. **Backup passphrase modal Cancel button — CONFIRMED NEEDED**
+   - What we know: The passphrase modal (backup.js `_showPassphraseModal`) only shows "Encrypt & Save" and "Skip Encryption" buttons. There is no way to cancel/abort the backup flow entirely.
+   - User confirmed via screenshot: modal shows password fields + two action buttons, no Cancel/X.
+   - Recommendation: Add a Cancel button (text) and X close button (top-right corner) that dismiss the modal and abort the backup flow. Both should resolve the backup promise with a cancellation signal.
 
 3. **shared-chrome.js size and caching**
    - What we know: A new JS file needs to be created for footer/chrome on non-app pages.
