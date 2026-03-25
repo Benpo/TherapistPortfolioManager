@@ -2,17 +2,16 @@
 <html lang="en">
 <head>
   <script>
-    // Gate 0: No license at all → landing page (replaces _redirects rule
-    // which broke on CF Pages because index.html is the root document)
-    (function(){try{if(!localStorage.getItem('portfolioLicenseActivated')){window.location.replace('./landing.html');}}catch(e){}})();
+    // Gate 0: No license at all → landing page (demo-mode bypasses all gates)
+    (function(){try{if(window.name==='demo-mode')return;if(!localStorage.getItem('portfolioLicenseActivated')){window.location.replace('./landing.html');}}catch(e){}})();
   </script>
   <script>
     // Gate 1: License but no terms accepted → disclaimer
-    (function(){try{if(!localStorage.getItem('portfolioTermsAccepted')){var n=encodeURIComponent(window.location.pathname+window.location.search);var l=localStorage.getItem('portfolioLang')||'en';var d=(l==='de')?'./disclaimer.html':'./disclaimer-'+l+'.html';window.location.replace(d+'?next='+n);}}catch(e){}})();
+    (function(){try{if(window.name==='demo-mode')return;if(!localStorage.getItem('portfolioTermsAccepted')){var n=encodeURIComponent(window.location.pathname+window.location.search);var l=localStorage.getItem('portfolioLang')||'en';var d=(l==='de')?'./disclaimer.html':'./disclaimer-'+l+'.html';window.location.replace(d+'?next='+n);}}catch(e){}})();
   </script>
   <script>
     // Gate 2: Terms accepted but license incomplete → license page
-    (function(){try{if(localStorage.getItem('portfolioTermsAccepted')&&(!localStorage.getItem('portfolioLicenseActivated')||!localStorage.getItem('portfolioLicenseInstance'))){window.location.replace('./license.html');}}catch(e){}})();
+    (function(){try{if(window.name==='demo-mode')return;if(localStorage.getItem('portfolioTermsAccepted')&&(!localStorage.getItem('portfolioLicenseActivated')||!localStorage.getItem('portfolioLicenseInstance'))){window.location.replace('./license.html');}}catch(e){}})();
   </script>
   <script>
     (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
