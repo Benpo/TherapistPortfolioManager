@@ -165,7 +165,7 @@ function getLicenseLang() {
     var params = new URLSearchParams(window.location.search);
     var urlLang = params.get('lang');
     if (urlLang && LICENSE_I18N[urlLang]) return urlLang;
-    var stored = localStorage.getItem('portfolioTermsLang') || localStorage.getItem('portfolioLang');
+    var stored = localStorage.getItem('portfolioLang') || localStorage.getItem('portfolioTermsLang');
     if (stored && LICENSE_I18N[stored]) return stored;
     var nav = (navigator.language || '').toLowerCase().slice(0, 2);
     if (LICENSE_I18N[nav]) return nav;
@@ -351,28 +351,46 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (e) { /* ignore */ }
   })();
 
-  var lang = getLicenseLang();
-  var strings = LICENSE_I18N[lang] || LICENSE_I18N.en;
-  var isRTL = lang === 'he';
-
-  // Apply RTL direction for Hebrew
-  if (isRTL) {
-    document.documentElement.setAttribute('dir', 'rtl');
-    document.documentElement.setAttribute('lang', 'he');
-  } else {
-    document.documentElement.removeAttribute('dir');
-    document.documentElement.setAttribute('lang', lang);
-  }
-
-  // Populate i18n strings
   var el = function (id) { return document.getElementById(id); };
-  el('license-title').textContent = strings.title;
-  el('license-subtitle').textContent = strings.subtitle;
-  el('license-key-label').textContent = strings.keyLabel;
-  el('license-key-input').placeholder = strings.keyPlaceholder;
-  el('license-activate-btn').textContent = strings.activateBtn;
-  el('license-purchase-text').textContent = strings.purchaseText;
-  el('license-purchase-link').textContent = strings.purchaseLink;
+
+  // Reusable language application — called on init and on language switch
+  window.applyLicenseLang = function applyLicenseLang() {
+    var lang = getLicenseLang();
+    var strings = LICENSE_I18N[lang] || LICENSE_I18N.en;
+    var isRTL = lang === 'he';
+
+    // Apply RTL direction for Hebrew
+    if (isRTL) {
+      document.documentElement.setAttribute('dir', 'rtl');
+      document.documentElement.setAttribute('lang', 'he');
+    } else {
+      document.documentElement.removeAttribute('dir');
+      document.documentElement.setAttribute('lang', lang);
+    }
+
+    // Populate i18n strings
+    el('license-title').textContent = strings.title;
+    el('license-subtitle').textContent = strings.subtitle;
+    el('license-key-label').textContent = strings.keyLabel;
+    el('license-key-input').placeholder = strings.keyPlaceholder;
+    el('license-activate-btn').textContent = strings.activateBtn;
+    el('license-purchase-text').textContent = strings.purchaseText;
+    el('license-purchase-link').textContent = strings.purchaseLink;
+
+    // Update activated view if visible
+    if (isLicensed() && document.getElementById('license-status-text')) {
+      document.getElementById('license-status-text').textContent = strings.statusLicensed;
+      document.getElementById('license-display-label').textContent = strings.displayLabel;
+      document.getElementById('license-deactivate-btn').textContent = strings.deactivateBtn;
+      document.getElementById('license-deactivate-info').textContent = strings.deactivateInfo;
+    }
+
+    return { lang: lang, strings: strings };
+  };
+
+  var initResult = window.applyLicenseLang();
+  var lang = initResult.lang;
+  var strings = initResult.strings;
 
   // Check for re-activation scenario: key stored but not activated
   var storedKey = '';

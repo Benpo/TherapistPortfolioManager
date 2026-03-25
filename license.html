@@ -555,7 +555,13 @@
             popover.hidden = true;
             globeBtn.setAttribute('aria-expanded', 'false');
             localStorage.setItem('portfolioLang', l.code);
-            window.location.reload();
+            // Re-render license content + chrome inline (no reload needed)
+            if (typeof window.applyLicenseLang === 'function') window.applyLicenseLang();
+            if (typeof window.renderLicenseChrome === 'function') window.renderLicenseChrome();
+            // Update active state in popover
+            popover.querySelectorAll('.lang-option').forEach(function(o) {
+              o.classList.toggle('active', o.getAttribute('data-lang') === l.code);
+            });
           });
           popover.appendChild(opt);
         });
