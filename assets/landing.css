@@ -611,11 +611,10 @@
 }
 
 .pricing-price-old {
-  font-size: 1.5rem;
+  font-size: 0.95rem;
   font-weight: 500;
   color: var(--color-text-muted);
-  text-decoration: line-through;
-  opacity: 0.65;
+  opacity: 0.75;
 }
 
 .pricing-price {

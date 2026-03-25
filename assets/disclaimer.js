@@ -77,7 +77,10 @@
     strings.sections.forEach(function (section) {
       html += '<section class="disclaimer-section">';
       html += '<h2 class="disclaimer-section-title">' + escapeHtml(section.title) + '</h2>';
-      html += '<p class="disclaimer-section-body">' + escapeHtml(section.body) + '</p>';
+      var paragraphs = section.body.split('\n\n');
+      paragraphs.forEach(function (p) {
+        html += '<p class="disclaimer-section-body">' + escapeHtml(p).replace(/\n/g, '<br>') + '</p>';
+      });
       html += '</section>';
     });
     els.sections.innerHTML = html;
