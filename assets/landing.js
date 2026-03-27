@@ -76,6 +76,8 @@ var LANDING_I18N = {
       'Full data export at any time'
     ],
     pricingDataNote: 'Data is stored locally on each device and does not sync between them.',
+    pricingVatNote: 'Price excl. VAT where applicable. Final price shown at checkout.',
+    pricingLegalText: 'By purchasing, you accept our <a href="disclaimer-en.html?readonly=true">Terms of Use</a> including the <a href="disclaimer-en.html?readonly=true#withdrawal">Right of Withdrawal</a>.',
     pricingCta: 'Get Sessions Garden — €119',
     pricingLicenseLink: 'Already have a license? Activate it here',
     faqTitle: 'Frequently asked questions',
@@ -166,6 +168,8 @@ var LANDING_I18N = {
       'ייצוא נתונים מלא בכל עת'
     ],
     pricingDataNote: 'הנתונים נשמרים באופן מקומי בכל מכשיר ואינם מסתנכרנים בין מכשירים.',
+    pricingVatNote: '\u05de\u05d7\u05d9\u05e8 \u05dc\u05dc\u05d0 \u05de\u05e2"\u05de \u05d4\u05d9\u05db\u05df \u05e9\u05d7\u05dc. \u05d4\u05de\u05d7\u05d9\u05e8 \u05d4\u05e1\u05d5\u05e4\u05d9 \u05d9\u05d5\u05e6\u05d2 \u05d1\u05e2\u05de\u05d5\u05d3 \u05d4\u05ea\u05e9\u05dc\u05d5\u05dd.',
+    pricingLegalText: '\u05d1\u05e8\u05db\u05d9\u05e9\u05d4, \u05d0\u05ea\u05dd \u05de\u05e1\u05db\u05d9\u05de\u05d9\u05dd \u05dc<a href="disclaimer-he.html?readonly=true">\u05ea\u05e0\u05d0\u05d9 \u05d4\u05e9\u05d9\u05de\u05d5\u05e9</a> \u05db\u05d5\u05dc\u05dc <a href="disclaimer-he.html?readonly=true#withdrawal">\u05d6\u05db\u05d5\u05ea \u05d4\u05d1\u05d9\u05d8\u05d5\u05dc</a>.',
     pricingCta: 'לרכישה — €119',
     pricingLicenseLink: 'יש לכם כבר רישיון? הפעילו אותו כאן',
     faqTitle: 'שאלות נפוצות',
@@ -256,6 +260,8 @@ var LANDING_I18N = {
       'Vollständiger Datenexport jederzeit'
     ],
     pricingDataNote: 'Daten werden lokal auf jedem Gerät gespeichert und synchronisieren nicht zwischen Geräten.',
+    pricingVatNote: 'Preis zzgl. ggf. anfallender Umsatzsteuer. Der endgültige Preis wird im Checkout angezeigt.',
+    pricingLegalText: 'Mit dem Kauf akzeptieren Sie unsere <a href="disclaimer.html?readonly=true">Nutzungsbedingungen</a> einschließlich der <a href="disclaimer.html?readonly=true#widerruf">Widerrufsbelehrung</a>.',
     pricingCta: 'Sessions Garden kaufen — €119',
     pricingLicenseLink: 'Hast du bereits eine Lizenz? Hier aktivieren',
     faqTitle: 'Häufig gestellte Fragen',
@@ -346,6 +352,8 @@ var LANDING_I18N = {
       'Plný export dat kdykoliv'
     ],
     pricingDataNote: 'Data jsou uložena lokálně na každém zařízení a nesynchronizují se mezi zařízeními.',
+    pricingVatNote: 'Cena bez DPH, pokud se uplatňuje. Konečná cena se zobrazí při platbě.',
+    pricingLegalText: 'Nákupem přijímáte naše <a href="disclaimer-cs.html?readonly=true">Podmínky použití</a> včetně <a href="disclaimer-cs.html?readonly=true#withdrawal">Práva na odstoupení</a>.',
     pricingCta: 'Koupit Sessions Garden — €119',
     pricingLicenseLink: 'Máte již licenci? Aktivujte ji zde',
     faqTitle: 'Často kladené dotazy',
@@ -401,7 +409,7 @@ function applyLang(lang) {
   setText('hero-title', t.heroTitle);
   setText('hero-tagline', t.heroTagline);
   setText('hero-subtitle', t.heroSubtitle);
-  setHref('hero-cta', LS_CHECKOUT_URL);
+  setHref('hero-cta', '#pricing');
   setText2('hero-cta', t.heroCta);
   setHref('hero-enter-link', './license.html?lang=' + lang);
   setText2('hero-enter-link', t.heroEnterApp);
@@ -460,7 +468,10 @@ function applyLang(lang) {
   });
   setHref('pricing-cta', LS_CHECKOUT_URL);
   setText2('pricing-cta', t.pricingCta);
-  setHref('features-cta', LS_CHECKOUT_URL);
+  setText('pricing-vat-note', t.pricingVatNote);
+  var legalEl = document.getElementById('pricing-legal-text');
+  if (legalEl) legalEl.innerHTML = t.pricingLegalText;
+  setHref('features-cta', '#pricing');
   setText2('features-cta', t.pricingCta);
   setHref('pricing-license-link', './license.html?lang=' + lang);
   setText2('pricing-license-link', t.pricingLicenseLink);

@@ -681,6 +681,32 @@
   align-items: center;
 }
 
+.pricing-vat-note {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-block-start: 0.25rem;
+  line-height: 1.4;
+}
+
+.pricing-legal-text {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  text-align: center;
+  max-inline-size: 400px;
+  margin: 0;
+}
+
+.pricing-legal-text a {
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pricing-legal-text a:hover {
+  color: var(--color-primary);
+}
+
 .pricing-license-link {
   font-size: 0.875rem;
   color: var(--color-primary);

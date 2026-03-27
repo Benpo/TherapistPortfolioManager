@@ -104,11 +104,9 @@
     </p>
 
     <div class="landing-cta-group">
-      <!-- href also set at runtime by LS_CHECKOUT_URL in assets/landing.js -->
       <a id="hero-cta"
-         href="https://sessionsgarden.lemonsqueezy.com/checkout/buy/1560f959-d29f-4652-8e5b-4e47711fe11d"
-         class="landing-btn-primary"
-         rel="noopener noreferrer">
+         href="#pricing"
+         class="landing-btn-primary">
         Get Sessions Garden — €119
       </a>
     </div>
@@ -166,9 +164,8 @@
 
   <div class="landing-cta-group landing-cta-secondary">
     <a id="features-cta"
-       href="https://sessionsgarden.lemonsqueezy.com/checkout/buy/1560f959-d29f-4652-8e5b-4e47711fe11d"
-       class="landing-btn-primary"
-       rel="noopener noreferrer">
+       href="#pricing"
+       class="landing-btn-primary">
       Get Sessions Garden — €119
     </a>
   </div>
@@ -285,7 +282,7 @@
 <!-- =========================================================
      PRICING
      ========================================================= -->
-<section class="landing-pricing" aria-labelledby="pricing-title">
+<section id="pricing" class="landing-pricing" aria-labelledby="pricing-title">
   <div class="landing-pricing-inner">
     <h2 id="pricing-title" class="landing-section-title">Simple pricing. One payment. Unlimited access.</h2>
     <p id="pricing-subtitle" class="landing-section-subtitle">No monthly fees. No surprises. One payment, unlimited access.</p>
@@ -303,6 +300,7 @@
         <span id="pricing-price-old" class="pricing-price-old">€159 after launch</span>
       </div>
       <div id="pricing-price-sub" class="pricing-price-sub">One-time payment · Introductory price</div>
+      <div id="pricing-vat-note" class="pricing-vat-note">Price excl. VAT where applicable. Final price shown at checkout.</div>
       <div id="pricing-no-sub" class="pricing-value-line">Less than what most practitioners charge for a single session.</div>
 
       <ul class="pricing-features-list" aria-label="What's included">
@@ -317,13 +315,15 @@
       <p id="pricing-data-note" class="pricing-data-note">Data is stored locally on each device and does not sync between them.</p>
 
       <div class="pricing-actions">
-        <!-- href also set at runtime by LS_CHECKOUT_URL in assets/landing.js -->
         <a id="pricing-cta"
            href="https://sessionsgarden.lemonsqueezy.com/checkout/buy/1560f959-d29f-4652-8e5b-4e47711fe11d"
            class="landing-btn-primary"
            rel="noopener noreferrer">
           Get Sessions Garden — €119
         </a>
+        <p id="pricing-legal-text" class="pricing-legal-text">
+          By purchasing, you accept our <a href="disclaimer-en.html?readonly=true">Terms of Use</a> including the <a href="disclaimer-en.html?readonly=true#withdrawal">Right of Withdrawal</a>.
+        </p>
         <a id="pricing-license-link" href="./license.html" class="pricing-license-link">
           Already have a license? Activate it here
         </a>
