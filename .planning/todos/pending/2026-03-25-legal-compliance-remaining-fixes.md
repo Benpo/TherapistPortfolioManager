@@ -33,6 +33,9 @@ files:
 7. Refund FAQ removed from landing.html AND landing.js (all languages) — contradicted Widerruf waiver
 8. Strikethrough on €159 removed (CSS line-through removed)
 9. Misleading "Impressum reference" removed from Datenschutzerklärung (all languages)
+10. Storage durations added to Datenschutz sections 4/5/6 (Art. 13(2)(a) DSGVO) — all 4 languages (2026-03-28)
+11. §25 TDDDG reference added to Datenschutz section 6 — all 4 languages (2026-03-28)
+12. System requirements FAQ added to landing page (Art. 246a §1 Abs. 1 Nr. 14 EGBGB) — all 4 languages (2026-03-28)
 
 ---
 
@@ -51,18 +54,6 @@ files:
 ---
 
 ## Remaining Fixes — IMPORTANT
-
-### I1: Datenschutz — storage durations (Art. 13(2)(a) DSGVO)
-**Status:** Session prompt ready: `2026-03-28_legal-items-9-11-12-13-14.md` (exact text pre-written)
-**Files:** datenschutz*.html (all 4 languages)
-
-### I2: Datenschutz — §25 TDDDG reference
-**Status:** Session prompt ready (exact text pre-written)
-**Files:** datenschutz*.html (all 4 languages)
-
-### I3: System requirements on landing (Art. 246a §1 Abs. 1 Nr. 14 EGBGB)
-**Status:** Session prompt ready (exact text pre-written, as FAQ item)
-**Files:** landing.html, assets/landing.js
 
 ### I4: Post-purchase email with Widerrufsbelehrung (durable medium §312f BGB)
 **Status:** Not started — requires n8n workflow, separate from this repo.

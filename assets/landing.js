@@ -66,7 +66,7 @@ var LANDING_I18N = {
     pricingPriceOld: '€159 after launch',
     pricingPrice: '€119',
     pricingPriceSub: 'One-time payment · Launch pricing',
-    pricingNoSub: 'Less than what many practitioners charge for a single session.',
+    pricingNoSub: 'Costs one session. Lasts a lifetime.',
     pricingItems: [
       'Lifetime license — pay once, use forever',
       '2 device activations',
@@ -76,7 +76,7 @@ var LANDING_I18N = {
       'Full data export at any time'
     ],
     pricingDataNote: 'Data is stored locally on each device and does not sync between them.',
-    pricingVatNote: 'Price excl. VAT where applicable. Final price shown at checkout.',
+    pricingVatNote: 'Final price including any applicable taxes is shown at checkout.',
     pricingLegalText: 'By purchasing, you accept our <a href="disclaimer-en.html?readonly=true">Terms of Use</a> including the <a href="disclaimer-en.html?readonly=true#withdrawal">Right of Withdrawal</a>.',
     pricingCta: 'Get Sessions Garden — €119',
     pricingLicenseLink: 'Already have a license? Activate it here',
@@ -91,6 +91,7 @@ var LANDING_I18N = {
       { q: 'Is there a subscription?', a: 'No. One payment, lifetime access. No monthly fees, ever.' },
       { q: 'What if my computer breaks or gets lost?', a: 'Since all data is stored locally, it\'s important to regularly export your data using the built-in export function. This creates a backup file you can save anywhere safe (USB drive, email it to yourself, etc.). Sessions Garden does not store your data in the cloud — which means full privacy, but also means you are responsible for keeping backups.' },
       { q: 'Can I restore my data on a new device?', a: 'Yes. Import your exported backup file into Sessions Garden on your new device and your sessions and clients will be restored.' },
+      { q: 'What are the technical requirements?', a: 'Sessions Garden is a Progressive Web App (PWA) that runs in modern browsers (Chrome, Edge, Safari, Firefox). An internet connection is only required for initial setup and license activation — after that, the app works fully offline.' },
     ],
     demoTitle: 'Try it yourself',
     demoSubtitle: 'Explore a live demo with sample data — no signup needed',
@@ -158,7 +159,7 @@ var LANDING_I18N = {
     pricingPriceOld: '€159 לאחר ההשקה',
     pricingPrice: '€119',
     pricingPriceSub: 'תשלום חד-פעמי · מחיר השקה',
-    pricingNoSub: 'פחות ממה שרוב המטפלים גובים עבור טיפול אחד.',
+    pricingNoSub: '\u05e2\u05d5\u05dc\u05d4 \u05db\u05de\u05d5 \u05d8\u05d9\u05e4\u05d5\u05dc \u05d0\u05d7\u05d3. \u05e0\u05e9\u05d0\u05e8 \u05dc\u05db\u05dc \u05d4\u05d7\u05d9\u05d9\u05dd.',
     pricingItems: [
       'רישיון לכל החיים — שלמו פעם אחת, השתמשו לנצח',
       '2 הפעלות מכשיר',
@@ -168,7 +169,7 @@ var LANDING_I18N = {
       'ייצוא נתונים מלא בכל עת'
     ],
     pricingDataNote: 'הנתונים נשמרים באופן מקומי בכל מכשיר ואינם מסתנכרנים בין מכשירים.',
-    pricingVatNote: '\u05de\u05d7\u05d9\u05e8 \u05dc\u05dc\u05d0 \u05de\u05e2"\u05de \u05d4\u05d9\u05db\u05df \u05e9\u05d7\u05dc. \u05d4\u05de\u05d7\u05d9\u05e8 \u05d4\u05e1\u05d5\u05e4\u05d9 \u05d9\u05d5\u05e6\u05d2 \u05d1\u05e2\u05de\u05d5\u05d3 \u05d4\u05ea\u05e9\u05dc\u05d5\u05dd.',
+    pricingVatNote: '\u05d4\u05de\u05d7\u05d9\u05e8 \u05d4\u05e1\u05d5\u05e4\u05d9 \u05db\u05d5\u05dc\u05dc \u05de\u05d9\u05e1\u05d9\u05dd \u05e8\u05dc\u05d5\u05d5\u05e0\u05d8\u05d9\u05d9\u05dd \u05d5\u05d9\u05d5\u05e6\u05d2 \u05d1\u05e2\u05de\u05d5\u05d3 \u05d4\u05ea\u05e9\u05dc\u05d5\u05dd.',
     pricingLegalText: '\u05d1\u05e8\u05db\u05d9\u05e9\u05d4, \u05d0\u05ea\u05dd \u05de\u05e1\u05db\u05d9\u05de\u05d9\u05dd \u05dc<a href="disclaimer-he.html?readonly=true">\u05ea\u05e0\u05d0\u05d9 \u05d4\u05e9\u05d9\u05de\u05d5\u05e9</a> \u05db\u05d5\u05dc\u05dc <a href="disclaimer-he.html?readonly=true#withdrawal">\u05d6\u05db\u05d5\u05ea \u05d4\u05d1\u05d9\u05d8\u05d5\u05dc</a>.',
     pricingCta: 'לרכישה — €119',
     pricingLicenseLink: 'יש לכם כבר רישיון? הפעילו אותו כאן',
@@ -183,6 +184,7 @@ var LANDING_I18N = {
       { q: 'האם יש מנוי?', a: 'לא. תשלום אחד, גישה לכל החיים. ללא עמלות חודשיות, לעולם.' },
       { q: 'מה אם המחשב נשבר או אבד?', a: 'מכיוון שכל הנתונים נשמרים מקומית, חשוב לייצא את הנתונים באופן קבוע. זה יוצר קובץ גיבוי שאפשר לשמור בכל מקום בטוח (כונן USB, מייל לעצמכם וכד\'). Sessions Garden לא מאחסן את הנתונים בענן — מה שמאפשר פרטיות מלאה, אבל גם אחריות לשמירת גיבויים.' },
       { q: 'האם אפשר לשחזר נתונים על מכשיר חדש?', a: 'כן. ייבאו את קובץ הגיבוי ל-Sessions Garden על המכשיר החדש, והפגישות והלקוחות ישוחזרו.' },
+      { q: 'מהן הדרישות הטכניות?', a: 'Sessions Garden היא אפליקציית Progressive Web App (PWA) שרצה בדפדפנים מודרניים (Chrome, Edge, Safari, Firefox). חיבור לאינטרנט נדרש רק להגדרה ראשונית ולהפעלת הרישיון — לאחר מכן האפליקציה עובדת במלואה ללא חיבור.' },
     ],
     demoTitle: 'נסו בעצמכם',
     demoSubtitle: 'הדגמה חיה עם נתונים לדוגמה — ללא הרשמה',
@@ -250,7 +252,7 @@ var LANDING_I18N = {
     pricingPriceOld: '€159 nach der Einführung',
     pricingPrice: '€119',
     pricingPriceSub: 'Einmalzahlung · Einführungspreis',
-    pricingNoSub: 'Weniger als das, was die meisten Praktiker für nur eine Sitzung berechnen.',
+    pricingNoSub: 'Kostet eine Sitzung. Bleibt ein Leben lang.',
     pricingItems: [
       'Lebenslange Lizenz — einmal zahlen, für immer nutzen',
       '2 Geräteaktivierungen',
@@ -260,7 +262,7 @@ var LANDING_I18N = {
       'Vollständiger Datenexport jederzeit'
     ],
     pricingDataNote: 'Daten werden lokal auf jedem Gerät gespeichert und synchronisieren nicht zwischen Geräten.',
-    pricingVatNote: 'Preis zzgl. ggf. anfallender Umsatzsteuer. Der endgültige Preis wird im Checkout angezeigt.',
+    pricingVatNote: 'Der Endpreis inkl. ggf. anfallender Steuern wird im Checkout angezeigt.',
     pricingLegalText: 'Mit dem Kauf akzeptieren Sie unsere <a href="disclaimer.html?readonly=true">Nutzungsbedingungen</a> einschließlich der <a href="disclaimer.html?readonly=true#widerruf">Widerrufsbelehrung</a>.',
     pricingCta: 'Sessions Garden kaufen — €119',
     pricingLicenseLink: 'Hast du bereits eine Lizenz? Hier aktivieren',
@@ -275,6 +277,7 @@ var LANDING_I18N = {
       { q: 'Gibt es ein Abonnement?', a: 'Nein. Eine Zahlung, lebenslanger Zugang. Keine monatlichen Gebühren, niemals.' },
       { q: 'Was passiert, wenn mein Computer kaputt geht oder verloren geht?', a: 'Da alle Daten lokal gespeichert sind, ist es wichtig, deine Daten regelmäßig mit der eingebauten Exportfunktion zu sichern. Sessions Garden speichert deine Daten nicht in der Cloud — das bedeutet vollständige Privatsphäre, aber auch eigene Verantwortung für Backups.' },
       { q: 'Kann ich meine Daten auf einem neuen Gerät wiederherstellen?', a: 'Ja. Importiere deine exportierte Backup-Datei in Sessions Garden auf deinem neuen Gerät — deine Sitzungen und Klienten werden wiederhergestellt.' },
+      { q: 'Welche technischen Voraussetzungen brauche ich?', a: 'Sessions Garden ist eine Progressive Web App (PWA), die in modernen Browsern läuft (Chrome, Edge, Safari, Firefox). Eine Internetverbindung wird nur für die erstmalige Einrichtung und Lizenzaktivierung benötigt — danach funktioniert die App vollständig offline.' },
     ],
     demoTitle: 'Probier es selbst',
     demoSubtitle: 'Erkunde eine Live-Demo mit Beispieldaten — keine Anmeldung nötig',
@@ -342,7 +345,7 @@ var LANDING_I18N = {
     pricingPriceOld: '€159 po uvedení',
     pricingPrice: '€119',
     pricingPriceSub: 'Jednorázová platba · Zaváděcí cena',
-    pricingNoSub: 'Méně než většina praktiků účtuje za jediné sezení.',
+    pricingNoSub: 'Stoj\u00ed jedno sezen\u00ed. Vydr\u017e\u00ed cel\u00fd \u017eivot.',
     pricingItems: [
       'Doživotní licence — zaplaťte jednou, používejte navždy',
       '2 aktivace zařízení',
@@ -352,7 +355,7 @@ var LANDING_I18N = {
       'Plný export dat kdykoliv'
     ],
     pricingDataNote: 'Data jsou uložena lokálně na každém zařízení a nesynchronizují se mezi zařízeními.',
-    pricingVatNote: 'Cena bez DPH, pokud se uplatňuje. Konečná cena se zobrazí při platbě.',
+    pricingVatNote: 'Kone\u010dn\u00e1 cena v\u010detn\u011b p\u0159\u00edpadn\u00fdch dan\u00ed se zobraz\u00ed p\u0159i platb\u011b.',
     pricingLegalText: 'Nákupem přijímáte naše <a href="disclaimer-cs.html?readonly=true">Podmínky použití</a> včetně <a href="disclaimer-cs.html?readonly=true#withdrawal">Práva na odstoupení</a>.',
     pricingCta: 'Koupit Sessions Garden — €119',
     pricingLicenseLink: 'Máte již licenci? Aktivujte ji zde',
@@ -367,6 +370,7 @@ var LANDING_I18N = {
       { q: 'Je tam předplatné?', a: 'Ne. Jedna platba, celoživotní přístup. Žádné měsíční poplatky, nikdy.' },
       { q: 'Co když se mi počítač rozbije nebo ztratí?', a: 'Protože všechna data jsou uložena lokálně, je důležité pravidelně exportovat data pomocí vestavěné funkce exportu. Sessions Garden neuchovává vaše data v cloudu — to znamená plné soukromí, ale také odpovědnost za zálohy.' },
       { q: 'Mohu obnovit data na novém zařízení?', a: 'Ano. Importujte exportovaný záložní soubor do Sessions Garden na novém zařízení a vaše sezení a klienti budou obnoveni.' },
+      { q: 'Jaké jsou technické požadavky?', a: 'Sessions Garden je progresivní webová aplikace (PWA), která běží v moderních prohlížečích (Chrome, Edge, Safari, Firefox). Připojení k internetu je potřeba pouze pro počáteční nastavení a aktivaci licence — poté aplikace funguje plně offline.' },
     ],
     demoTitle: 'Vyzkoušejte si to',
     demoSubtitle: 'Prozkoumejte živou ukázku s ukázkovými daty — bez registrace',
