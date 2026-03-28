@@ -38,63 +38,49 @@ files:
 
 ## Remaining Fixes — CRITICAL (do before more sales)
 
-### C1: AGB/Widerrufsbelehrung reference near CTA buttons
-**Problem:** Both fresh auditors flagged that the footer "Terms of Use" link isn't prominent enough. Consumer goes straight to LS checkout without knowing Widerrufsbelehrung exists. Without pre-purchase access, withdrawal period extends to 12 months + 14 days (§356(3) BGB).
-**Fix:** Add text near each buy button on landing page: "Mit dem Kauf akzeptieren Sie unsere [Nutzungsbedingungen] inkl. [Widerrufsbelehrung]" (with links to disclaimer page in readonly mode).
+### C1: AGB/Widerrufsbelehrung reference near CTA buttons — IN PROGRESS
+**Status:** Being handled in session prompt `2026-03-27_landing-cta-legal-consolidation.md`
+**Fix:** All CTAs scroll to pricing section; legal text + Widerruf links below the one real checkout button.
 **Files:** landing.html, assets/landing.js (all 4 languages)
 
-### C2: Widerrufsadressat — Sapir vs. Lemon Squeezy
-**Problem:** The Widerrufsbelehrung addresses Widerruf to Sapir, but LS is the MoR (actual seller). Creates ambiguity.
-**Fix:** Add paragraph to Widerrufsbelehrung: "Der Kauf wird über Lemon Squeezy als Wiederverkäufer abgewickelt. Sie können Ihren Widerruf entweder an Lemon Squeezy (help.lemonsqueezy.com) oder an uns richten; wir leiten ihn umgehend weiter."
-**Files:** i18n-disclaimer.js (all 4 languages), disclaimer*.html (all 4 static files)
-
-### C3: PAngV Kleinunternehmer price note
-**Problem:** €119 shown without tax/VAT indication. Must clarify.
-**Fix:** Add near price: "Kein Ausweis von Umsatzsteuer gem. § 19 UStG" or equivalent per language.
-**Also:** Verify with LS whether €119 is tax-inclusive or LS adds VAT on top. If LS adds VAT, the landing page price is misleading.
+### C3: PAngV price note — IN PROGRESS
+**Status:** Being handled in same session prompt as C1.
+**Fix:** Add VAT note near price. LS adds VAT dynamically based on buyer country/VAT ID, so text should say "Price excl. VAT where applicable. Final price shown at checkout."
 **Files:** landing.html, assets/landing.js
-
-### C4: €159 display needs concrete end date
-**Problem:** Showing "€159 after launch" without a specific date violates BGH I ZR 81/09 (transparency requirement). The future price reference is legal ONLY with a concrete end date for the introductory period.
-**Fix:** Change to: "Einführungspreis: €119 (gültig bis [DATE]). Ab [DATE]: €159." — Ben needs to decide the exact date (launch was ~2026-03-25, so 60 days = ~2026-05-24).
-**Research source:** BGH Urteil vom 17.03.2011, Az. I ZR 81/09 — Einführungspreis with future price is legal IF and ONLY IF the intro period has a clear end date.
-**Files:** landing.html, assets/landing.js, assets/landing.css
 
 ---
 
-## Remaining Fixes — IMPORTANT (this week)
+## Remaining Fixes — IMPORTANT
 
 ### I1: Datenschutz — storage durations (Art. 13(2)(a) DSGVO)
-Add retention periods:
-- Cloudflare: "Speicherdauer richtet sich nach Cloudflare (i.d.R. max. 72h für Security-Logs)"
-- Lemon Squeezy: "Speicherdauer richtet sich nach Lemon Squeezy"
-- Local data: "Verbleiben auf Ihrem Gerät bis zur manuellen Löschung"
+**Status:** Session prompt ready: `2026-03-28_legal-items-9-11-12-13-14.md` (exact text pre-written)
 **Files:** datenschutz*.html (all 4 languages)
 
 ### I2: Datenschutz — §25 TDDDG reference
-Add legal basis for localStorage/IndexedDB: "Die Speicherung ist gemäß § 25 Abs. 2 Nr. 2 TDDDG technisch erforderlich und erfordert keine Einwilligung."
+**Status:** Session prompt ready (exact text pre-written)
 **Files:** datenschutz*.html (all 4 languages)
 
 ### I3: System requirements on landing (Art. 246a §1 Abs. 1 Nr. 14 EGBGB)
-Add: "Sessions Garden ist eine PWA. Benötigt modernen Browser (Chrome, Safari, Edge, Firefox). Internet nur für Ersteinrichtung und Lizenzaktivierung."
+**Status:** Session prompt ready (exact text pre-written, as FAQ item)
 **Files:** landing.html, assets/landing.js
 
 ### I4: Post-purchase email with Widerrufsbelehrung (durable medium §312f BGB)
-The .txt download is optional and doesn't satisfy the "durable medium" requirement. Need an automated email from Sessions Garden (not LS) containing Widerrufsbelehrung + Muster-Widerrufsformular.
+**Status:** Not started — requires n8n workflow, separate from this repo.
 **Implementation:** n8n webhook triggered by LS purchase event → sends email with legal texts.
-**Files:** n8n workflow (not in this repo)
 
 ---
 
-## Remaining Fixes — NICE-TO-HAVE
+## Remaining Fixes — NICE-TO-HAVE (no session prompts, do when convenient)
 
 - N1: Name Berlin DPA in Datenschutz (Berliner Beauftragte für Datenschutz, Alt-Moabit 59-61)
 - N2: Add Art. 18 DSGVO (Einschränkung) to rights list
 - N3: Add Rechtswahl clause to terms ("Es gilt deutsches Recht")
-- N4: Mention Service Worker caching in Datenschutz
+- N4: Mention Service Worker caching in Datenschutz (note: partially covered by I2's TDDDG text)
 - N5: Add second contact channel in Impressum (contact form or phone)
 - N6: AGB Änderungsklausel (how terms changes are communicated)
 - N7: Widerrufsbutton requirement coming June 19, 2026 (§356a BGB) — exempt if waiver is valid
+- N8: Widerrufsadressat — add LS as alternative Widerruf recipient (downgraded from critical 2026-03-28)
+- N9: €159 end date — add concrete date to intro pricing (downgraded from critical 2026-03-28, risk is low without strikethrough)
 
 ---
 
