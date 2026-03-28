@@ -1,0 +1,177 @@
+/* === FONT FACE === */
+@font-face {
+  font-family: 'Rubik';
+  src: url('./fonts/Rubik-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Rubik';
+  src: url('./fonts/Rubik-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Rubik';
+  src: url('./fonts/Rubik-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* === PRIMITIVE TOKENS === */
+/* Raw values — only referenced by semantic tokens, never used directly in app CSS */
+:root {
+  /* Garden greens */
+  --color-green-700: #1e5c3a;
+  --color-green-600: #2d6a4f;
+  --color-green-500: #3a7d5f;
+  --color-green-400: #74b89a;
+  --color-green-200: #c8e6d4;
+  --color-green-100: #e8f5ee;
+  --color-green-50: #f2faf5;
+  --color-green-25: #f7fcf9;
+  --color-green-dark: #174a30;
+  --color-green-deeper: #0f3520;
+  /* Green borders */
+  --color-green-border: rgba(45, 106, 79, 0.2);
+  --color-green-border-soft: rgba(45, 106, 79, 0.1);
+  --color-green-border-faint: rgba(45, 106, 79, 0.08);
+  --color-green-border-subtle: rgba(45, 106, 79, 0.12);
+  --color-green-border-ghost: rgba(45, 106, 79, 0.25);
+  /* Warm creams (backgrounds) */
+  --color-cream-warm-50: #fdf8f0;
+  --color-cream-warm-100: #fefcf7;
+  --color-cream-warm-200: #fdf5e8;
+  --color-cream-warm-300: #fef8f0;
+  --color-cream-warm-400: #fefaf3;
+  --color-cream-warm-500: #fdf7ed;
+  --color-cream-warm-600: #fbf3e4;
+  --color-cream-warm-700: #f8eed9;
+  --color-cream-warm-800: #fefcf8;
+  --color-cream-warm-900: #f5e8c8;
+  /* Oranges */
+  --color-orange-500: #f97316;
+  --color-orange-400: #fb923c;
+  --color-orange-200: #fed7aa;
+  --color-orange-100: #ffedd5;
+  /* Neutrals */
+  --color-white: #ffffff;
+  --color-dark-900: #2f2d38;
+  --color-dark-800: #2e2a38;
+  --color-dark-700: #1a1825;
+  --color-dark-600: #5f5c72;
+  /* Functional colors */
+  --color-success-green: #2fb37d;
+  --color-red-500: #ea4b4b;
+  --color-heartwall: #e83d6d;
+  --color-sev-default-border: #ccc;
+  --color-sev-default-text: #666;
+  /* Shadow primitives */
+  --color-primary-shadow: rgba(45, 106, 79, 0.35);
+  --color-primary-shadow-soft: rgba(45, 106, 79, 0.28);
+  --color-danger-shadow: rgba(234, 75, 75, 0.28);
+  --color-modal-overlay: rgba(26, 24, 35, 0.4);
+  --color-modal-shadow: rgba(36, 24, 72, 0.2);
+}
+
+/* === SEMANTIC TOKENS (light mode default) === */
+:root {
+  --color-primary: var(--color-green-600);
+  --color-primary-soft: var(--color-green-200);
+  --color-primary-dark: var(--color-green-dark);
+  --color-primary-deeper: var(--color-green-deeper);
+  --color-background: var(--color-cream-warm-50);
+  --color-background-gradient-start: var(--color-cream-warm-100);
+  --color-background-gradient-end: var(--color-cream-warm-200);
+  --color-surface: var(--color-white);
+  --color-surface-alt: var(--color-cream-warm-500);
+  --color-surface-hover: var(--color-cream-warm-400);
+  --color-surface-subtle: var(--color-cream-warm-300);
+  --color-surface-muted: var(--color-cream-warm-800);
+  --color-surface-avatar: var(--color-cream-warm-600);
+  --color-surface-media: var(--color-cream-warm-700);
+  --color-surface-disabled: var(--color-cream-warm-800);
+  --color-surface-secondary-btn: var(--color-green-100);
+  --color-surface-toggle: var(--color-green-50);
+  --color-surface-modal-close: var(--color-green-100);
+  --color-text: var(--color-dark-900);
+  --color-text-muted: var(--color-dark-600);
+  --color-text-meta: var(--color-green-deeper);
+  --color-success: var(--color-success-green);
+  --color-danger: var(--color-red-500);
+  --color-danger-bg: #f8d7da;
+  --color-danger-text: #721c24;
+  --color-warning-bg: #fff3cd;
+  --color-warning-text: #856404;
+  --color-info-bg: #cce5ff;
+  --color-info-text: #004085;
+  --color-text-inverse: #ffffff;
+  --color-heartwall-badge: var(--color-heartwall);
+  --color-border: var(--color-green-border);
+  --color-border-soft: var(--color-green-border-soft);
+  --color-border-faint: var(--color-green-border-faint);
+  --color-border-subtle: var(--color-green-border-subtle);
+  --color-border-ghost: var(--color-green-border-ghost);
+  --color-toast-bg: var(--color-dark-800);
+  --color-modal-overlay-bg: var(--color-modal-overlay);
+  --color-placeholder-gradient: linear-gradient(135deg, var(--color-green-500), var(--color-green-400));
+  --shadow-soft: 0 18px 40px rgba(36, 24, 72, 0.08);
+  --shadow-nav: 0 10px 20px rgba(36, 24, 72, 0.08);
+  --shadow-card: 0 12px 26px rgba(36, 24, 72, 0.1);
+  --shadow-brand: 0 8px 24px var(--color-primary-shadow);
+  --shadow-button: 0 4px 12px var(--color-primary-shadow-soft);
+  --shadow-danger: 0 4px 12px var(--color-danger-shadow);
+  --shadow-modal: 0 20px 40px var(--color-modal-shadow);
+}
+
+/* === DARK MODE === */
+/* Soft teal-grey dark mode palette (Option C) */
+[data-theme="dark"] {
+  /* Backgrounds — dark teal-grey, gentle on the eye */
+  --color-background: #1a2020;
+  --color-background-gradient-start: #1a2020;
+  --color-background-gradient-end: #1e2626;
+  /* Surfaces — slightly lighter teal-grey panels */
+  --color-surface: #202828;
+  --color-surface-alt: #253030;
+  --color-surface-hover: #2a3535;
+  --color-surface-subtle: #253030;
+  --color-surface-muted: #202828;
+  --color-surface-avatar: #2a3535;
+  --color-surface-media: #2a3535;
+  --color-surface-disabled: #202828;
+  --color-surface-secondary-btn: #253030;
+  --color-surface-toggle: #253030;
+  --color-surface-modal-close: #253030;
+  /* Text — soft off-white, readable on dark teal */
+  --color-text: #e8eeed;
+  --color-text-muted: #7aa8a8;
+  --color-text-meta: #7aa8a8;
+  --color-text-inverse: #fff;
+  /* Primary — soft teal, visible on dark backgrounds */
+  --color-primary: #5aacac;
+  --color-primary-soft: #253030;
+  --color-primary-dark: #9ec8c8;
+  --color-primary-deeper: #7aa8a8;
+  /* Borders — subtle teal-tinted */
+  --color-border: rgba(90, 172, 172, 0.22);
+  --color-border-soft: rgba(90, 172, 172, 0.11);
+  --color-border-faint: rgba(90, 172, 172, 0.07);
+  --color-border-subtle: rgba(90, 172, 172, 0.14);
+  --color-border-ghost: rgba(90, 172, 172, 0.28);
+  /* Toast */
+  --color-toast-bg: #1a2020;
+  /* Shadows — softer on dark */
+  --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.38);
+  --shadow-nav: 0 10px 20px rgba(0, 0, 0, 0.25);
+  --shadow-card: 0 12px 26px rgba(0, 0, 0, 0.42);
+  --shadow-brand: 0 8px 24px rgba(90, 172, 172, 0.35);
+  --shadow-button: 0 4px 12px rgba(90, 172, 172, 0.25);
+  --shadow-danger: 0 4px 12px rgba(234, 75, 75, 0.35);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.55);
+  /* Placeholder gradient */
+  --color-placeholder-gradient: linear-gradient(135deg, #3a8080, #5aacac);
+}

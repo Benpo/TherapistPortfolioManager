@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <!-- Theme detection — must run before any render to avoid flash -->
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/branding/favicon-32.png">
+  <link rel="icon" type="image/x-icon" href="./assets/branding/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sessions Garden — Therapeutic Session Tracking for Energy Healers</title>
+  <meta name="description" content="Organize client sessions, emotions, imbalances, and healing notes — without the paper chaos. All data stays on your device. One-time purchase, lifetime license." />
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sessionsgarden.app/" />
+  <meta property="og:title" content="Sessions Garden — Therapeutic Session Tracking for Energy Healers" />
+  <meta property="og:description" content="Organize client sessions, emotions, imbalances, and healing notes — without the paper chaos. All data stays on your device. One-time purchase, lifetime license." />
+  <meta property="og:image" content="https://sessionsgarden.app/assets/branding/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sessions Garden — Therapeutic Session Tracking for Energy Healers" />
+  <meta name="twitter:description" content="Organize client sessions, emotions, imbalances, and healing notes — without the paper chaos. All data stays on your device." />
+  <meta name="twitter:image" content="https://sessionsgarden.app/assets/branding/og-image.jpg" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="stylesheet" href="./assets/landing.css" />
+</head>
+<body class="landing-shell">
+
+<!-- =========================================================
+     HEADER
+     ========================================================= -->
+<header class="landing-header">
+  <a class="landing-brand" href="./landing.html" aria-label="Sessions Garden home">
+    <span class="landing-brand-mark" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
+        <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+        <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+        <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+      </svg>
+    </span>
+    <span class="landing-brand-name">Sessions Garden</span>
+  </a>
+
+  <div class="landing-header-actions">
+    <div class="lang-selector">
+      <button id="lang-globe-btn" class="lang-globe-btn" type="button" aria-label="Language / שפה / Sprache / Jazyk" aria-expanded="false" aria-controls="lang-popover">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </button>
+      <div id="lang-popover" class="lang-popover" role="listbox" aria-label="Select language" hidden>
+        <button class="lang-option" role="option" data-lang="en">English</button>
+        <button class="lang-option" role="option" data-lang="he">עברית</button>
+        <button class="lang-option" role="option" data-lang="de">Deutsch</button>
+        <button class="lang-option" role="option" data-lang="cs">Čeština</button>
+      </div>
+    </div>
+    <a id="hero-enter-link" href="./license.html" class="landing-enter-link">Already have a license?</a>
+  </div>
+</header>
+
+<!-- =========================================================
+     HERO
+     ========================================================= -->
+<section class="landing-hero" aria-labelledby="hero-title">
+
+  <!-- Aurora glow overlay -->
+  <div class="hero-aurora" aria-hidden="true"></div>
+
+  <!-- Hero illustration — left (watering can, bottom-center area) -->
+  <div class="hero-botanical hero-botanical-left" aria-hidden="true">
+    <img src="./assets/illustrations/hero-left.png" alt="" class="hero-botanical-img" />
+  </div>
+
+  <!-- Hero illustration — right (flower pots, full height) -->
+  <div class="hero-botanical hero-botanical-right" aria-hidden="true">
+    <img src="./assets/illustrations/hero-right.png" alt="" class="hero-botanical-img" />
+  </div>
+
+  <!-- Hero text content -->
+  <div class="hero-content">
+    <div id="hero-badge" class="landing-hero-badge">For Energy Healing Practitioners</div>
+
+    <h1 id="hero-title">Sessions Garden</h1>
+
+    <p id="hero-tagline" class="landing-tagline">
+      Your sessions, your way. Anywhere, anytime.
+    </p>
+
+    <p id="hero-subtitle" class="landing-subtitle">
+      Session notes, without the chaos or paper. All your data stays on your device — always.
+    </p>
+
+    <div class="landing-cta-group">
+      <a id="hero-cta"
+         href="#pricing"
+         class="landing-btn-primary">
+        Get Sessions Garden — €119
+      </a>
+    </div>
+    <p id="price-note" class="landing-price-note">
+      Launch pricing &middot; One-time purchase &middot; Lifetime license
+    </p>
+  </div>
+
+</section>
+
+<!-- Botanical divider -->
+<div class="botanical-divider" aria-hidden="true">
+  <img src="./assets/illustrations/garden.png" alt="" class="botanical-divider-img" />
+</div>
+
+<!-- =========================================================
+     FEATURES
+     ========================================================= -->
+<section class="landing-section" aria-labelledby="features-title">
+  <h2 id="features-title" class="landing-section-title">Everything you need to focus on what matters — healing.<span class="botanical-accent-inline" aria-hidden="true"><svg width="36" height="28" viewBox="0 0 36 28" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4,24 C8,18 14,12 22,8 C28,5 33,4 35,3" stroke-width="1.6"/><path d="M14,16 C10,12 7,9 5,4 C8,7 12,10 14,16Z" stroke-width="1.4"/><path d="M14,16 C9,13 6,9 5,4" stroke-width="0.8"/><path d="M22,11 C20,6 19,3 20,1 C22,3 23,6 22,11Z" stroke-width="1.4"/><path d="M22,11 C20,7 20,3 20,1" stroke-width="0.8"/><path d="M28,8 C29,4 30,2 32,1 C32,3 31,6 28,8Z" stroke-width="1.3"/></svg></span></h2>
+  <p id="features-subtitle" class="landing-section-subtitle">No more paper shuffles. No more scattered files. Just clarity.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><!-- Folder body --><path d="M5,14 C5,12 6.5,10.5 8.5,10.5 L17,10.5 C17,10.5 18.5,10.5 19.5,13 L20.5,14 L35.5,14 C37.5,14 39,15.5 39,17.5 L39,32 C39,34 37.5,35.5 35.5,35.5 L8.5,35.5 C6.5,35.5 5,34 5,32 Z" stroke-width="2"/><path d="M13,10.5 L13,7" stroke-width="1.5"/><path d="M22,10.5 L22,7" stroke-width="1.5"/><!-- Sprouting leaf from folder --><path d="M17.5,3 C17.5,5.5 16,7 13,7.5" stroke-width="1.5"/><path d="M17.5,3 C19.5,3 21.5,4 22,7" stroke-width="1.5"/><path d="M17.5,3 C16,1.5 15,0.5 15.5,0 C16.5,-0.5 18,1 17.5,3Z" stroke-width="1.3"/></svg></span>
+      <h3>Everything organized, nothing lost</h3>
+      <p>All your sessions and client history in one place — structured, organized, and easy to navigate. No more flipping through pages or scattered files.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><!-- Lock body --><rect x="10" y="21" width="22" height="17" rx="3" stroke-width="2"/><!-- Lock shackle --><path d="M15,21 L15,14 C15,9 27,9 27,14 L27,21" stroke-width="2"/><!-- Keyhole --><circle cx="21" cy="29" r="2.5" stroke-width="1.8"/><path d="M21,31.5 L21,34" stroke-width="1.8"/><!-- Small leaf on lock --><path d="M29,17 C31,14 33,12.5 35,13.5 C36.5,14.5 35.5,17 33.5,18.5 C32,19.5 30,19.5 29,19" stroke-width="1.5"/><path d="M35,13.5 C36,11.5 36.5,10 37,9.5" stroke-width="1.3"/><path d="M37,9.5 C38,9 39,9.5 38.5,10.5 C38,11.5 37,11.5 37,9.5Z" stroke-width="1.2"/></svg></span>
+      <h3>Your clients' trust, protected</h3>
+      <p>No cloud. No accounts. No tracking. Your client data never leaves your device.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><!-- Laptop screen --><rect x="5" y="10" width="30" height="20" rx="2.5" stroke-width="2"/><!-- Laptop base --><path d="M13,30 L27,30 L29,35 L11,35 Z" stroke-width="1.8"/><path d="M9,35 L31,35" stroke-width="2"/><!-- Screen shine line --><path d="M10,14 L14,14" stroke-width="1.5" opacity="0.4"/><!-- Sprouting leaf from laptop --><path d="M32,13 C34,10 36,8 38,9 C39.5,10 39,12.5 37,14 C35.5,15 33.5,15 32,14.5" stroke-width="1.5"/><path d="M38,9 C39,7 39.5,5.5 40,5" stroke-width="1.3"/><path d="M40,5 C41,4.5 41.5,5 41,6 C40.5,7 39.5,6.5 40,5Z" stroke-width="1.2"/></svg></span>
+      <h3>Works anywhere — even offline</h3>
+      <p>After the initial setup, your tool runs from your device — at the clinic, at home, or on the go.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><!-- 8-petal flower — energy/healing symbol --><!-- Vertical petals --><path d="M22,6 C21,10 20.5,14 22,17.5 C23.5,14 23,10 22,6Z" stroke-width="1.8"/><path d="M22,26.5 C21,30 20.5,34 22,38 C23.5,34 23,30 22,26.5Z" stroke-width="1.8"/><!-- Horizontal petals --><path d="M6,22 C10,21 14,20.5 17.5,22 C14,23.5 10,23 6,22Z" stroke-width="1.8"/><path d="M26.5,22 C30,21 34,20.5 38,22 C34,23.5 30,23 26.5,22Z" stroke-width="1.8"/><!-- Diagonal petals --><path d="M10,10 C13,12.5 15.5,15 16,17.5 C13.5,17 11.5,14.5 10,10Z" stroke-width="1.6"/><path d="M28,28 C31,30.5 33,33 33.5,35.5 C31,35 29,32.5 28,28Z" stroke-width="1.6"/><path d="M34,10 C31,12.5 28.5,15 28,17.5 C30.5,17 32.5,14.5 34,10Z" stroke-width="1.6"/><path d="M16,28 C13,30.5 11,33 10.5,35.5 C13,35 15,32.5 16,28Z" stroke-width="1.6"/><!-- Center circle --><circle cx="22" cy="22" r="3" stroke-width="2"/></svg></span>
+      <h3>Tracks what other tools can't</h3>
+      <p>Energetic imbalances, limiting beliefs, inherited emotions, severity levels — designed to support the way energy healers actually work.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><!-- Coin/circle --><circle cx="20" cy="23" r="14" stroke-width="2"/><!-- Currency symbol (euro-like) --><path d="M20,16 L20,18.5" stroke-width="1.8"/><path d="M20,27.5 L20,30" stroke-width="1.8"/><path d="M16.5,19 C16.5,19 17.5,17 20,17 C22.5,17 24,18.5 24,20 C24,22 22,22.5 20,23 C18,23.5 16,24 16,26 C16,27.5 17.5,29 20,29 C22.5,29 24,27 24,27" stroke-width="1.8"/><!-- Small leaf accent --><path d="M31,12 C33,9.5 35,8 37,9 C38.5,10 38,12 36,13.5 C34.5,14.5 32.5,14.5 31,14" stroke-width="1.5"/><path d="M37,9 C37.5,7 38,6 38.5,5.5" stroke-width="1.3"/><path d="M38.5,5.5 C39.5,5 40,5.5 39.5,6.5 C39,7.5 38,7 38.5,5.5Z" stroke-width="1.2"/></svg></span>
+      <h3>No monthly fees. No surprises.</h3>
+      <p>One payment, unlimited access.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><!-- Notebook body --><rect x="8" y="5" width="22" height="34" rx="2.5" stroke-width="2"/><!-- Spine/binding --><path d="M8,10 L30,10" stroke-width="1.5"/><!-- Lines on page --><path d="M12,16 L26,16" stroke-width="1.3"/><path d="M12,20.5 L26,20.5" stroke-width="1.3"/><path d="M12,25 L22,25" stroke-width="1.3"/><!-- Spiral binding marks --><path d="M5,12 L8,12" stroke-width="2"/><path d="M5,18 L8,18" stroke-width="2"/><path d="M5,24 L8,24" stroke-width="2"/><path d="M5,30 L8,30" stroke-width="2"/><!-- Small leaf accent --><path d="M30,22 C32.5,19.5 35,18 37,19 C38.5,20 38,22.5 36,24 C34.5,25 32.5,25 31,24.5" stroke-width="1.5"/><path d="M37,19 C38,17 38.5,15.5 39,15" stroke-width="1.3"/><path d="M39,15 C40,14.5 40.5,15 40,16 C39.5,17 38.5,16.5 39,15Z" stroke-width="1.2"/></svg></span>
+      <h3>Used to writing on paper? Keep going.</h3>
+      <p>Keep documenting your sessions on paper if that works for you. Then, summarize and organize everything digitally in a structured, organized way — so you can always find it later.</p>
+    </div>
+  </div>
+
+  <div class="landing-cta-group landing-cta-secondary">
+    <a id="features-cta"
+       href="#pricing"
+       class="landing-btn-primary">
+      Get Sessions Garden — €119
+    </a>
+  </div>
+</section>
+
+<!-- =========================================================
+     WHO IS IT FOR?
+     ========================================================= -->
+<section class="landing-section landing-section-alt" aria-labelledby="whofor-title">
+  <h2 id="whofor-title" class="landing-section-title">Who is Sessions Garden for?</h2>
+  <p id="whofor-subtitle" class="landing-section-subtitle">Perfect for practitioners of:</p>
+  <ul class="who-for-list">
+    <li>Energy healing</li>
+    <li>Holistic therapy</li>
+    <li>Muscle testing practices</li>
+    <li>Kinesiology</li>
+    <li>Energetic balancing methods</li>
+    <li>Any modality that tracks emotions, imbalances, and client progress</li>
+  </ul>
+</section>
+
+<!-- Botanical divider — trailing vine variant -->
+<div class="botanical-divider-alt" aria-hidden="true">
+  <img src="./assets/illustrations/garden-2.png" alt="" class="botanical-divider-img" />
+</div>
+
+<!-- =========================================================
+     SOUND FAMILIAR?
+     ========================================================= -->
+<section class="landing-section" aria-labelledby="soundfamiliar-title">
+  <h2 id="soundfamiliar-title" class="landing-section-title">Sound familiar?</h2>
+  <ul class="sound-familiar-list">
+    <li>I have drawers full of session notes and it takes me forever to find what I need</li>
+    <li>I flip through old pages before every session trying to remember what we did</li>
+    <li>I keep client notes in random files on my computer and worry about privacy</li>
+    <li>The tool I used during training is gone, and nothing else fits my workflow</li>
+    <li>I want to go digital but don't know where to start</li>
+    <li>I've worked with paper for years — it works, but I wish I had a better way to summarize and find things later</li>
+  </ul>
+  <p id="soundfamiliar-note" class="sound-familiar-note">
+    Sessions Garden was built by a practitioner who faced every one of these problems. You can keep writing on paper during sessions — and organize everything digitally afterwards. At your pace, your way.
+  </p>
+</section>
+
+<!-- =========================================================
+     SCREENSHOTS
+     ========================================================= -->
+<section id="demo" class="landing-section demo-section" aria-labelledby="demo-title">
+  <h2 id="demo-title" class="landing-section-title">נסו בעצמכם</h2>
+  <p id="demo-subtitle" class="landing-section-subtitle">הדגמה חיה עם נתונים לדוגמה — ללא הרשמה</p>
+  <div class="demo-window">
+    <div class="demo-window-toolbar">
+      <span class="demo-window-dot"></span>
+      <span class="demo-window-dot"></span>
+      <span class="demo-window-dot"></span>
+      <span class="demo-window-title">Sessions Garden — Demo</span>
+    </div>
+    <div class="demo-window-body">
+      <div class="demo-resize-handle demo-resize-handle--start" aria-hidden="true"></div>
+      <iframe
+        id="demo-iframe"
+        src="./demo.html"
+        class="demo-iframe"
+        title="Sessions Garden interactive demo"
+        loading="lazy"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-forms">
+      </iframe>
+      <div class="demo-resize-handle demo-resize-handle--end" aria-hidden="true"></div>
+    </div>
+    <div class="demo-resize-handle demo-resize-handle--bottom" aria-hidden="true"></div>
+  </div>
+  <p id="demo-note" class="demo-note">ההדגמה רצה לגמרי בדפדפן שלכם. אין נתונים שנשמרים או נשלחים לשום מקום.</p>
+</section>
+
+<!-- Botanical divider — wildflower variant -->
+<div class="botanical-divider-alt" aria-hidden="true">
+  <img src="./assets/illustrations/garden.png" alt="" class="botanical-divider-img" />
+</div>
+
+<!-- =========================================================
+     WHY I BUILT THIS
+     ========================================================= -->
+<section class="landing-section landing-section-alt" aria-labelledby="whybuilt-title">
+  <h2 id="whybuilt-title" class="landing-section-title">Why I built this</h2>
+  <blockquote class="why-built-quote">
+    <!-- Botanical corner accents -->
+    <div class="botanical-positioned" aria-hidden="true" style="top: -8px; inset-inline-end: -4px;">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M44,44 C38,36 30,28 20,22 C12,17 6,14 2,12" stroke-width="1.5"/>
+        <path d="M32,30 C34,25 36,21 38,18 C37,22 35,26 32,30Z" stroke-width="1.3"/>
+        <path d="M32,30 C35,26 37,21 38,18" stroke-width="0.7"/>
+        <path d="M20,24 C19,19 18,15 19,12 C20,15 20,19 20,24Z" stroke-width="1.2"/>
+        <path d="M10,17 C8,13 7,10 8,7 C9,10 10,13 10,17Z" stroke-width="1.1"/>
+        <circle cx="7" cy="5" r="2" stroke-width="1.1"/>
+      </svg>
+    </div>
+    <div class="botanical-positioned" aria-hidden="true" style="bottom: -4px; inset-inline-start: -4px; transform: rotate(180deg);">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M36,36 C30,28 22,22 14,18 C8,14 4,12 2,10" stroke-width="1.4"/>
+        <path d="M24,24 C26,20 27,16 28,13 C27,17 25,20 24,24Z" stroke-width="1.2"/>
+        <path d="M14,19 C13,15 12,11 13,8 C14,11 14,15 14,19Z" stroke-width="1.1"/>
+        <circle cx="6" cy="5" r="1.8" stroke-width="1.1"/>
+      </svg>
+    </div>
+    <p>Hi, I'm Sapphire — an energy healing practitioner.</p>
+    <p>For years I documented sessions on paper, notebooks, and scattered files. When access to the digital tool I used during training expired, I went back to a drawer full of loose pages — and spent too long searching for past sessions every week.</p>
+    <p>I couldn't find a tool that actually fit the way energy healers work. So I built one.</p>
+    <p>Sessions Garden is the tool I wish existed when I started my practice.</p>
+  </blockquote>
+</section>
+
+<div class="section-separator" aria-hidden="true"></div>
+
+<!-- =========================================================
+     PRICING
+     ========================================================= -->
+<section id="pricing" class="landing-pricing" aria-labelledby="pricing-title">
+  <h2 id="pricing-title" class="landing-section-title">Simple pricing. One payment. Unlimited access.</h2>
+  <p id="pricing-subtitle" class="landing-section-subtitle">No monthly fees. No surprises. One payment, unlimited access.</p>
+
+  <div class="landing-pricing-inner">
+    <div class="pricing-card">
+      <div id="pricing-badge" class="pricing-badge">Launch price</div>
+
+      <div class="pricing-price-row">
+        <span id="pricing-price" class="pricing-price">€119</span>
+        <span id="pricing-price-old" class="pricing-price-old">€159 after launch</span>
+      </div>
+      <div id="pricing-price-sub" class="pricing-price-sub">One-time payment · Introductory price</div>
+      <div id="pricing-no-sub" class="pricing-value-line">Costs one session. Lasts a lifetime.</div>
+
+      <ul class="pricing-features-list" aria-label="What's included">
+        <li>Lifetime license — pay once, use forever</li>
+        <li>2 device activations</li>
+        <li>Full interface in: English, Hebrew, German, and Czech</li>
+        <li>Works offline (install as app)</li>
+        <li>All future updates included</li>
+        <li>Full data export at any time</li>
+      </ul>
+
+      <p id="pricing-data-note" class="pricing-data-note">Data is stored locally on each device and does not sync between them.</p>
+
+      <div class="pricing-actions">
+        <a id="pricing-cta"
+           href="https://sessionsgarden.lemonsqueezy.com/checkout/buy/1560f959-d29f-4652-8e5b-4e47711fe11d"
+           class="landing-btn-primary"
+           rel="noopener noreferrer">
+          Get Sessions Garden — €119
+        </a>
+        <p id="pricing-vat-note" class="pricing-vat-note">Final price including any applicable taxes is shown at checkout.</p>
+        <p id="pricing-legal-text" class="pricing-legal-text">
+          By purchasing, you accept our <a href="disclaimer-en.html?readonly=true">Terms of Use</a> including the <a href="disclaimer-en.html?readonly=true#withdrawal">Right of Withdrawal</a>.
+        </p>
+        <a id="pricing-license-link" href="./license.html" class="pricing-license-link">
+          Already have a license? Activate it here
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botanical accent — pricing trailing decoration -->
+  <div class="botanical-divider" aria-hidden="true" style="margin-block-start: 2rem;">
+    <img src="./assets/illustrations/garden-2.png" alt="" class="botanical-divider-img" />
+  </div>
+</section>
+
+<!-- =========================================================
+     FAQ
+     ========================================================= -->
+<hr class="legal-divider" />
+<section id="faq" class="landing-section" aria-labelledby="faq-title">
+  <h2 id="faq-title" class="landing-section-title">Frequently asked questions<span class="botanical-accent-inline" aria-hidden="true"><svg width="32" height="26" viewBox="0 0 32 26" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2,22 C6,16 12,10 20,6 C26,3 30,2 31,2" stroke-width="1.5"/><path d="M10,14 C7,10 5,6 6,3 C8,5 9,9 10,14Z" stroke-width="1.3"/><path d="M10,14 C7,10 6,6 6,3" stroke-width="0.75"/><path d="M20,8 C20,4 21,2 23,1 C23,3 22,5 20,8Z" stroke-width="1.2"/><circle cx="4" cy="1" r="1.8" stroke-width="1.1"/></svg></span></h2>
+  <dl class="faq-list">
+    <div class="faq-item">
+      <dt>Do I need internet to use it?</dt>
+      <dd>Only for the first setup and to activate your license. After that, Sessions Garden works fully offline.</dd>
+    </div>
+    <div class="faq-item">
+      <dt>Can I use it on multiple devices?</dt>
+      <dd>Your license includes 2 device activations. Note that data is stored locally and does not sync between devices.</dd>
+    </div>
+    <div class="faq-item">
+      <dt>Is my clients' data safe?</dt>
+      <dd>Yes. All data is stored only on your device. Nothing is sent to any server. The development team has zero access to your information.</dd>
+    </div>
+    <div class="faq-item">
+      <dt>What healing methods does it support?</dt>
+      <dd>Designed for energy healing practices, it tracks your sessions. Track released emotions, physical imbalances, limiting beliefs, and more. This tool can support many methods.</dd>
+    </div>
+    <div class="faq-item">
+      <dt>Can I still write on paper?</dt>
+      <dd>Absolutely. Many practitioners write during sessions and enter the summary into Sessions Garden afterwards. It's designed to fit your workflow, not replace it.</dd>
+    </div>
+    <div class="faq-item">
+      <dt>What if I switch devices?</dt>
+      <dd>You can activate your license on a new device. Remember to export your data from the old device first, as data is stored locally.</dd>
+    </div>
+    <div class="faq-item">
+      <dt>Is there a subscription?</dt>
+      <dd>No. One payment, lifetime access. No monthly fees, ever.</dd>
+    </div>
+    <div class="faq-item">
+      <dt>What if my computer breaks or gets lost?</dt>
+      <dd>Since all data is stored locally, it's important to regularly export your data using the built-in export function. This creates a backup file you can save anywhere safe (USB drive, email to yourself, etc.). Sessions Garden does not store your data in the cloud — which means full privacy, but also means you are responsible for keeping backups.</dd>
+    </div>
+    <div class="faq-item">
+      <dt>Can I restore my data on a new device?</dt>
+      <dd>Yes. Import your exported backup file into Sessions Garden on your new device and your sessions and clients will be restored.</dd>
+    </div>
+    <div class="faq-item">
+      <dt>What are the technical requirements?</dt>
+      <dd>Sessions Garden is a Progressive Web App (PWA) that runs in modern browsers (Chrome, Edge, Safari, Firefox). An internet connection is only required for initial setup and license activation — after that, the app works fully offline.</dd>
+    </div>
+  </dl>
+</section>
+
+<!-- =========================================================
+     CONTACT
+     ========================================================= -->
+<section id="contact" class="landing-section contact-section" aria-labelledby="contact-title">
+  <h2 id="contact-title" class="landing-section-title">Get in touch</h2>
+  <p id="contact-text" class="landing-section-subtitle">
+    Have questions or need help? We'd love to hear from you.
+  </p>
+  <a id="contact-email" href="mailto:contact@sessionsgarden.app" class="contact-email-link">contact@sessionsgarden.app</a>
+</section>
+
+<!-- =========================================================
+     FOOTER
+     ========================================================= -->
+<footer class="landing-footer">
+  <!-- Botanical footer decoration -->
+  <div class="botanical-footer-accent" aria-hidden="true">
+    <img src="./assets/illustrations/watering-can.png" alt="" class="botanical-footer-img" />
+  </div>
+  <nav class="landing-footer-links" aria-label="Footer navigation">
+    <a id="footer-terms" href="./disclaimer-en.html?readonly=true">Terms of Use</a>
+    <a id="footer-impressum-link" href="./impressum-en.html">Impressum</a>
+    <a id="footer-privacy-link" href="./datenschutz-en.html">Privacy Policy</a>
+  </nav>
+  <p id="footer-copy" class="landing-footer-copy">&copy; 2026 Sessions Garden</p>
+  <p id="footer-tagline" class="landing-footer-tagline">Made with care for therapeutic practitioners</p>
+</footer>
+
+<!-- =========================================================
+     SCRIPTS
+     ========================================================= -->
+<script src="./assets/landing.js"></script>
+<!-- SW registration intentionally omitted — marketing page, not the app.
+     The SW is registered by app pages (index.html, sessions.html, etc.). -->
+
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="cs" dir="ltr">
+<head>
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/branding/favicon-32.png">
+  <link rel="icon" type="image/x-icon" href="./assets/branding/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Podmínky použití — Sessions Garden</title>
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="stylesheet" href="./assets/globe-lang.css" />
+  <link rel="manifest" href="./manifest.json" />
+  <style>
+    .disclaimer-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--color-bg); color: var(--color-text); }
+    .disclaimer-topbar { display: flex; align-items: center; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--color-border); background: var(--color-surface); flex-wrap: wrap; gap: 0.75rem; }
+    .disclaimer-brand { flex: 1; display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: inherit; }
+    .disclaimer-brand-title { font-size: 1.1rem; font-weight: 700; color: var(--color-primary); }
+    .disclaimer-back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; }
+    .disclaimer-back-link:hover { text-decoration: underline; }
+    .disclaimer-main { flex: 1; display: flex; justify-content: center; padding: 2rem 1rem 3rem; }
+    .disclaimer-card { width: 100%; max-width: 740px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 2rem 2.25rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .disclaimer-heading { font-size: 1.5rem; font-weight: 700; color: var(--color-primary); margin: 0 0 0.5rem; }
+    .disclaimer-subheading { font-size: 0.95rem; color: var(--color-text-muted); margin: 0 0 1.75rem; }
+    .disclaimer-section { margin-bottom: 1.5rem; }
+    .disclaimer-section-title { font-size: 1rem; font-weight: 700; color: var(--color-text); margin: 0 0 0.4rem; }
+    .disclaimer-section-body { font-size: 0.9rem; line-height: 1.65; color: var(--color-text-muted); margin: 0; }
+    .disclaimer-divider { border: none; border-top: 1px solid var(--color-border); margin: 1.75rem 0; }
+    .disclaimer-checkbox-area { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+    .disclaimer-checkbox-row { display: flex; align-items: flex-start; gap: 0.75rem; }
+    .disclaimer-checkbox-row input[type="checkbox"] { margin-top: 0.2rem; flex-shrink: 0; width: 1.1rem; height: 1.1rem; accent-color: var(--color-primary); cursor: pointer; }
+    .disclaimer-checkbox-row label { font-size: 0.9rem; line-height: 1.55; color: var(--color-text); cursor: pointer; }
+    .disclaimer-widerruf-row label { font-weight: 500; }
+    .disclaimer-accept-btn { width: 100%; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; background: var(--color-primary); color: #fff; border: none; border-radius: var(--radius-md); cursor: pointer; transition: background 0.15s, opacity 0.15s; }
+    .disclaimer-accept-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .disclaimer-accept-btn:not(:disabled):hover { background: var(--color-primary-hover, var(--color-primary)); filter: brightness(1.07); }
+    .disclaimer-accepted-msg { font-size: 0.95rem; color: var(--color-primary); font-weight: 600; text-align: center; margin-bottom: 1rem; }
+    .disclaimer-post-accept { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .disclaimer-post-accept button { flex: 1; min-width: 160px; padding: 0.65rem 1rem; font-size: 0.9rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: filter 0.15s; }
+    #download-receipt-btn { background: var(--color-surface-raised, var(--color-surface)); border: 1px solid var(--color-border) !important; color: var(--color-text); }
+    #continue-btn { background: var(--color-primary); color: #fff; }
+    .disclaimer-post-accept button:hover { filter: brightness(1.06); }
+    .disclaimer-readonly-note { font-size: 0.875rem; color: var(--color-text-muted); background: var(--color-surface-raised, var(--color-surface)); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.6rem 0.9rem; margin-top: 1.5rem; }
+    .disclaimer-footer { text-align: center; padding: 1.5rem; font-size: 0.875rem; color: var(--color-text-muted); border-top: 1px solid var(--color-border); display: flex; justify-content: center; gap: 1.5rem; }
+    .disclaimer-footer a { color: var(--color-primary); text-decoration: none; }
+    .disclaimer-footer a:hover { text-decoration: underline; }
+    .courtesy-banner { background: var(--color-primary-soft, #c8e6d4); border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 16px; font-size: 14px; margin-bottom: 1.5rem; color: var(--color-text); }
+    .courtesy-banner a { color: var(--color-primary); }
+    @media (max-width: 500px) { .disclaimer-card { padding: 1.25rem 1rem; } .disclaimer-post-accept { flex-direction: column; } }
+  </style>
+</head>
+<body>
+<div class="disclaimer-page">
+
+  <div class="disclaimer-topbar">
+    <a class="disclaimer-brand" href="./landing.html" role="banner">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" style="color:var(--color-primary)">
+        <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+        <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+        <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+      </svg>
+      <span class="disclaimer-brand-title">Sessions Garden</span>
+    </a>
+    <div id="globe-container"></div>
+    <a class="disclaimer-back-link" href="./landing.html">Zpět na hlavní stránku</a>
+  </div>
+
+  <main class="disclaimer-main">
+    <div class="disclaimer-card">
+
+      <aside class="courtesy-banner">
+        Tento text je nezávazný překlad. V případě nesrovnalostí je rozhodující <a href="./disclaimer.html">německá verze</a>.
+      </aside>
+
+      <h1 class="disclaimer-heading">Podmínky použití</h1>
+      <p class="disclaimer-subheading">Před použitím aplikace Sessions Garden si přečtěte a odsouhlaste následující podmínky.</p>
+
+      <div class="disclaimer-readonly-note" id="readonly-note" style="display:none">Podmínky použití prohlížíte v režimu jen pro čtení.</div>
+
+      <div id="disclaimer-sections">
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Není zdravotnický prostředek</h2>
+          <p class="disclaimer-section-body">Sessions Garden je organizační a administrativní nástroj určený pro odborníky v oblasti energetické rovnováhy a holistického zdraví. Není zdravotnickým prostředkem, neposkytuje lékařské poradenství a nenahrazuje profesionální lékařskou diagnózu ani léčbu. Veškeré zadané informace slouží výhradně pro organizační potřeby odborníka. Uživatelé nesmějí tuto aplikaci používat pro klinická rozhodnutí.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Ochrana osobních údajů — pouze místní úložiště</h2>
+          <p class="disclaimer-section-body">Všechna data, která zadáte do aplikace Sessions Garden, jsou uložena výhradně na vašem vlastním zařízení pomocí místního úložiště prohlížeče (IndexedDB). Vývojář nemá vůbec přístup k vašim datům. Žádná data nejsou přenášena na žádný server, cloudovou službu ani třetím stranám. Máte plnou kontrolu nad svými daty kdykoli.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Odpovědnost za zálohy</h2>
+          <p class="disclaimer-section-body">Výhradně vy jste zodpovědni za zálohování svých dat. K tomuto účelu poskytuje Sessions Garden funkci exportu. Vývojář nepřebírá žádnou odpovědnost za ztrátu dat způsobenou selháním zařízení, aktualizacemi prohlížeče, vymazáním úložiště prohlížeče nebo jakoukoli jinou událostí. Důrazně doporučujeme pravidelně exportovat svá data.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Záruka a odpovědnost</h2>
+          <p class="disclaimer-section-body">Na aplikaci Sessions Garden se vztahují zákonná záruční práva pro digitální produkty podle platného práva. V případě vady aplikace máte nárok na zákonné záruční nároky.</p>
+          <p class="disclaimer-section-body">Vývojářka odpovídá bez omezení za škody vzniklé újmou na životě, těle nebo zdraví, jakož i za škody způsobené úmyslně nebo hrubou nedbalostí. Za škody způsobené lehkou nedbalostí odpovídá vývojářka pouze v případě porušení podstatné smluvní povinnosti; v takovém případě je odpovědnost omezena na předvídatelnou, pro smlouvu typickou škodu. Odpovědnost podle závazných právních předpisů o odpovědnosti za výrobek zůstává nedotčena.</p>
+          <p class="disclaimer-section-body">Všechna data klientů jsou uložena výhradně na vašem zařízení a vývojářka k nim nemá přístup — odpovědnost za zálohování dat nesete vy (viz oddíl „Odpovědnost za zálohy").</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Duševní vlastnictví</h2>
+          <p class="disclaimer-section-body">Sessions Garden a veškerý jeho obsah, kód a design jsou chráněny autorským právem. Rozmnožování, šíření nebo úpravy nad rámec zamýšleného použití nejsou bez předchozího písemného souhlasu vývojářky povoleny. Zákonná práva uživatele podle platného autorského práva (zejména dekompilace za účelem interoperability a vytváření záložních kopií) zůstávají nedotčena. Nesmíte sdílet svůj licenční klíč s ostatními ani zpřístupňovat aplikaci třetím stranám.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Licence pro jednoho uživatele</h2>
+          <p class="disclaimer-section-body">Vaše licence k používání aplikace Sessions Garden je osobní a nepřenosná. Aplikaci můžete nainstalovat a používat na nejvýše dvou zařízeních, která vlastníte nebo ovládáte. Nejste oprávněni svou licenci sublicencovat, dále prodávat ani převádět na jinou osobu. Licence vás opravňuje k časově neomezenému používání aplikace včetně všech budoucích aktualizací.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Poučení o právu na odstoupení od smlouvy</h2>
+          <p class="disclaimer-section-body">Máte právo odstoupit od této smlouvy ve lhůtě čtrnácti dnů bez udání důvodu.</p>
+          <p class="disclaimer-section-body">Lhůta pro odstoupení činí čtrnáct dnů ode dne uzavření smlouvy.</p>
+          <p class="disclaimer-section-body">Pro uplatnění práva na odstoupení nás musíte informovat (Sapir Ben-Porath, Pettenkoferstr.&nbsp;4E, 10247 Berlin, e-mail: contact@sessionsgarden.app) o svém rozhodnutí odstoupit od smlouvy jednoznačným prohlášením (např. dopisem zaslaným poštou nebo e-mailem). Můžete k tomu využít níže uvedený vzorový formulář pro odstoupení od smlouvy, není to však povinné.</p>
+          <p class="disclaimer-section-body">Pro dodržení lhůty pro odstoupení postačí, odešlete-li sdělení o uplatnění práva na odstoupení před uplynutím lhůty.</p>
+          <p class="disclaimer-section-body">Důsledky odstoupení: Pokud od této smlouvy odstoupíte, vrátíme vám bez zbytečného odkladu, nejpozději do čtrnácti dnů ode dne, kdy nám bylo doručeno vaše oznámení o odstoupení, všechny platby, které jsme od vás obdrželi. Pro vrácení použijeme stejný platební prostředek, který jste použili při původní transakci, pokud jste výslovně nesouhlasili jinak; v žádném případě vám v souvislosti s vrácením nebudou účtovány žádné poplatky.</p>
+          <p class="disclaimer-section-body">Upozornění na předčasný zánik práva na odstoupení: Vaše právo na odstoupení od smlouvy zaniká u smlouvy o dodání digitálního obsahu, který není dodán na hmotném nosiči, pokud jsme začali s plněním smlouvy poté, co jste udělili výslovný souhlas se zahájením plnění před uplynutím lhůty pro odstoupení a potvrdili jste svou vědomost, že udělením souhlasu ztrácíte právo na odstoupení od smlouvy.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Vzorový formulář pro odstoupení od smlouvy</h2>
+          <p class="disclaimer-section-body">(Vyplňte a zašlete tento formulář pouze v případě, že chcete odstoupit od smlouvy.)</p>
+          <p class="disclaimer-section-body">Adresát: Sapir Ben-Porath, Pettenkoferstr.&nbsp;4E, 10247 Berlin, e-mail: contact@sessionsgarden.app</p>
+          <p class="disclaimer-section-body">Oznamuji/oznamujeme (*), že tímto odstupuji/odstupujeme (*) od smlouvy o nákupu tohoto digitálního obsahu: Licence Sessions Garden</p>
+          <p class="disclaimer-section-body">Datum objednání (*) / datum obdržení (*): ___<br>Jméno spotřebitele/spotřebitelů: ___<br>Adresa spotřebitele/spotřebitelů: ___<br>Datum: ___</p>
+          <p class="disclaimer-section-body">(*) Nehodící se škrtněte.</p>
+        </section>
+      </div>
+
+      <hr class="disclaimer-divider" />
+
+      <div class="disclaimer-checkbox-area" id="checkbox-area">
+        <div class="disclaimer-checkbox-row">
+          <input type="checkbox" id="check-general" name="check-general" />
+          <label for="check-general">Přečetl/a jsem podmínky použití a souhlasím s nimi.</label>
+        </div>
+        <div class="disclaimer-checkbox-row disclaimer-widerruf-row">
+          <input type="checkbox" id="check-widerruf" name="check-widerruf" />
+          <label for="check-widerruf">Výslovně souhlasím se zahájením plnění smlouvy (dodání digitálního obsahu) před uplynutím lhůty pro odstoupení a potvrzuji svou vědomost, že tím ztrácím právo na odstoupení od smlouvy.</label>
+        </div>
+      </div>
+
+      <div id="accept-btn-area">
+        <button type="button" class="disclaimer-accept-btn" id="accept-btn" disabled>Přijmout a pokračovat</button>
+      </div>
+
+      <p class="disclaimer-accepted-msg" id="accepted-msg" style="display:none">Děkujeme. Váš souhlas byl zaznamenán.</p>
+      <div class="disclaimer-post-accept" id="post-accept-area" style="display:none">
+        <button type="button" id="download-receipt-btn">Stáhnout potvrzení o přijetí</button>
+        <button type="button" id="continue-btn">Přejít do aplikace</button>
+      </div>
+
+    </div>
+  </main>
+
+
+</div>
+
+<script src="./assets/globe-lang.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  function getParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+  }
+
+  var isReadonly = (getParam('readonly') === 'true');
+
+  // Globe switcher — preserve ?readonly and ?next params on language change
+  initGlobeLang({
+    containerId: 'globe-container',
+    currentLang: 'cs',
+    onLangChange: function(newLang) {
+      try { localStorage.setItem('portfolioLang', newLang); } catch(e) {}
+      var params = window.location.search || '';
+      // Sibling navigation: disclaimer.html (de), disclaimer-en.html, disclaimer-he.html, disclaimer-cs.html
+      var base = newLang === 'de' ? './disclaimer.html' : './disclaimer-' + newLang + '.html';
+      window.location.href = base + params;
+    }
+  });
+
+  // Readonly mode
+  if (isReadonly) {
+    var note = document.getElementById('readonly-note');
+    if (note) note.style.display = '';
+    var cbArea = document.getElementById('checkbox-area');
+    if (cbArea) cbArea.style.display = 'none';
+    var acceptArea = document.getElementById('accept-btn-area');
+    if (acceptArea) acceptArea.style.display = 'none';
+    return;
+  }
+
+  // Acceptance flow
+  var checkGeneral = document.getElementById('check-general');
+  var checkWiderruf = document.getElementById('check-widerruf');
+  var acceptBtn = document.getElementById('accept-btn');
+  var acceptedMsg = document.getElementById('accepted-msg');
+  var postAcceptArea = document.getElementById('post-accept-area');
+
+  function updateBtn() {
+    if (acceptBtn) acceptBtn.disabled = !(checkGeneral && checkGeneral.checked && checkWiderruf && checkWiderruf.checked);
+  }
+
+  if (checkGeneral) checkGeneral.addEventListener('change', updateBtn);
+  if (checkWiderruf) checkWiderruf.addEventListener('change', updateBtn);
+
+  if (acceptBtn) {
+    acceptBtn.addEventListener('click', function() {
+      var timestamp = new Date().toISOString();
+      try {
+        localStorage.setItem('portfolioTermsAccepted', timestamp);
+        localStorage.setItem('portfolioTermsLang', 'cs');
+      } catch(e) {}
+      var cbArea = document.getElementById('checkbox-area');
+      if (cbArea) cbArea.style.display = 'none';
+      var btnArea = document.getElementById('accept-btn-area');
+      if (btnArea) btnArea.style.display = 'none';
+      if (acceptedMsg) acceptedMsg.style.display = '';
+      if (postAcceptArea) postAcceptArea.style.display = '';
+    });
+  }
+
+  var downloadBtn = document.getElementById('download-receipt-btn');
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', function() {
+      var timestamp;
+      try { timestamp = localStorage.getItem('portfolioTermsAccepted') || new Date().toISOString(); } catch(e) { timestamp = new Date().toISOString(); }
+      var licenseKey = '';
+      try { licenseKey = atob(localStorage.getItem('portfolioLicenseKey') || ''); } catch(e) {}
+      var lines = [
+        'Sessions Garden — Potvrzení přijetí podmínek použití',
+        '==========================================',
+        'Přijato: ' + timestamp,
+        'Jazyk: Čeština'
+      ];
+      if (licenseKey) lines.push('Licenční klíč: ' + licenseKey);
+      lines.push('', 'Uživatel přijal Podmínky použití a Zásady ochrany osobních údajů aplikace Sessions Garden.',
+        'Tento dokument slouží jako osobní záznam o přijetí.',
+        'Toto potvrzení je nepřenosné a osobní pro kupujícího.');
+      var blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'sessions-garden-acceptance-' + timestamp.slice(0, 10) + '.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  var continueBtn = document.getElementById('continue-btn');
+  if (continueBtn) {
+    continueBtn.addEventListener('click', function() {
+      try { localStorage.setItem('portfolioLang', 'cs'); } catch(e) {}
+      var next = getParam('next');
+      if (next) {
+        window.location.href = decodeURIComponent(next);
+      } else {
+        window.location.href = './index.html';
+      }
+    });
+  }
+})();
+</script>
+<script src="./assets/shared-chrome.js"></script>
+<script>
+  if (typeof SharedChrome !== 'undefined' && SharedChrome.renderFooter) {
+    SharedChrome.renderFooter();
+    SharedChrome.updateBackLinks();
+  }
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}</script>
+</body>
+</html>
