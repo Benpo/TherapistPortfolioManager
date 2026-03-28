@@ -36,20 +36,11 @@ files:
 10. Storage durations added to Datenschutz sections 4/5/6 (Art. 13(2)(a) DSGVO) — all 4 languages (2026-03-28)
 11. §25 TDDDG reference added to Datenschutz section 6 — all 4 languages (2026-03-28)
 12. System requirements FAQ added to landing page (Art. 246a §1 Abs. 1 Nr. 14 EGBGB) — all 4 languages (2026-03-28)
-
----
-
-## Remaining Fixes — CRITICAL (do before more sales)
-
-### C1: AGB/Widerrufsbelehrung reference near CTA buttons — IN PROGRESS
-**Status:** Being handled in session prompt `2026-03-27_landing-cta-legal-consolidation.md`
-**Fix:** All CTAs scroll to pricing section; legal text + Widerruf links below the one real checkout button.
-**Files:** landing.html, assets/landing.js (all 4 languages)
-
-### C3: PAngV price note — IN PROGRESS
-**Status:** Being handled in same session prompt as C1.
-**Fix:** Add VAT note near price. LS adds VAT dynamically based on buyer country/VAT ID, so text should say "Price excl. VAT where applicable. Final price shown at checkout."
-**Files:** landing.html, assets/landing.js
+13. CTA buttons consolidated — all scroll to #pricing, legal text with Terms/Widerruf links below checkout button (2026-03-28)
+14. PAngV VAT note added near price — "Final price including any applicable taxes is shown at checkout" (2026-03-28)
+10. Storage durations added to Datenschutz sections 4/5/6 (Art. 13(2)(a) DSGVO) — all 4 languages (2026-03-28)
+11. §25 TDDDG reference added to Datenschutz section 6 — all 4 languages (2026-03-28)
+12. System requirements FAQ added to landing page (Art. 246a §1 Abs. 1 Nr. 14 EGBGB) — all 4 languages (2026-03-28)
 
 ---
 
