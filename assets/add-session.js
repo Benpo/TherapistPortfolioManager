@@ -225,11 +225,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (editClientModal) editClientModal.classList.remove("is-hidden");
+    App.lockBodyScroll();
     App.applyTranslations(editClientModal);
   }
 
   function closeEditClientModal() {
     if (editClientModal) editClientModal.classList.add("is-hidden");
+    App.unlockBodyScroll();
     editClientPhotoData = "";
     editingClientId = null;
     // Reset photo input
@@ -255,10 +257,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     editClientCancelBtn.addEventListener("click", closeEditClientModal);
   }
 
-  if (editClientModal) {
-    const overlay = editClientModal.querySelector(".modal-overlay");
-    if (overlay) overlay.addEventListener("click", closeEditClientModal);
-  }
+  // Edit client modal is a form modal — overlay-close DISABLED (data loss protection)
+  // Close only via Cancel/X button
 
   if (editClientPhotoInput) {
     editClientPhotoInput.addEventListener("change", async () => {

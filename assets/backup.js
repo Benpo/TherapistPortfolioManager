@@ -210,6 +210,7 @@ window.BackupManager = (function () {
     modal.appendChild(actions);
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
+    if (typeof App !== 'undefined' && App.lockBodyScroll) App.lockBodyScroll();
 
     setTimeout(function() { input1.focus(); }, 50);
 
@@ -242,7 +243,7 @@ window.BackupManager = (function () {
     input1.addEventListener('input', validate);
     if (input2) input2.addEventListener('input', validate);
 
-    function cleanup() { overlay.remove(); }
+    function cleanup() { overlay.remove(); if (typeof App !== 'undefined' && App.unlockBodyScroll) App.unlockBodyScroll(); }
 
     confirmBtn.addEventListener('click', function() {
       if (isEncrypt && input2 && input1.value !== input2.value) {

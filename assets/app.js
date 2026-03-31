@@ -318,6 +318,7 @@ window.App = (() => {
     return new Promise((resolve) => {
       const close = (result) => {
         modal.classList.add("is-hidden");
+        unlockBodyScroll();
         confirmBtn && confirmBtn.removeEventListener("click", onConfirm);
         cancelBtn && cancelBtn.removeEventListener("click", onCancel);
         overlay && overlay.removeEventListener("click", onCancel);
@@ -337,6 +338,7 @@ window.App = (() => {
       document.addEventListener("keydown", onKey);
 
       modal.classList.remove("is-hidden");
+      lockBodyScroll();
       setTimeout(() => {
         if (confirmBtn) confirmBtn.focus();
       }, 0);
@@ -753,6 +755,30 @@ window.App = (() => {
     };
   }
 
+  // ---------------------------------------------------------------------------
+  // Modal scroll lock — prevents body scroll behind open modals (iOS Safari)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Lock body scroll when a modal opens. Saves scroll position and applies
+   * the .is-modal-open class which uses position:fixed to prevent background scroll.
+   */
+  function lockBodyScroll() {
+    var scrollY = window.scrollY;
+    document.body.style.top = "-" + scrollY + "px";
+    document.body.classList.add("is-modal-open");
+    document.body.dataset.scrollY = scrollY;
+  }
+
+  /**
+   * Unlock body scroll when a modal closes. Restores the saved scroll position.
+   */
+  function unlockBodyScroll() {
+    document.body.classList.remove("is-modal-open");
+    document.body.style.top = "";
+    window.scrollTo(0, parseInt(document.body.dataset.scrollY || "0"));
+  }
+
   return {
     // i18n
     t,
@@ -769,6 +795,10 @@ window.App = (() => {
     // UI utilities
     showToast,
     confirmDialog,
+
+    // Modal scroll lock
+    lockBodyScroll,
+    unlockBodyScroll,
 
     // Data formatting and export
     formatDate,

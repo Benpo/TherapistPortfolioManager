@@ -537,11 +537,13 @@ function openClientModal(client, sessions) {
 
   App.applyTranslations(modal);
   modal.classList.remove("is-hidden");
+  App.lockBodyScroll();
 }
 
 function closeClientModal() {
   const modal = document.getElementById("clientModal");
   if (modal) modal.classList.add("is-hidden");
+  App.unlockBodyScroll();
 }
 
 function getClientDisplayName(client) {
