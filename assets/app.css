@@ -1009,6 +1009,39 @@ html[dir="rtl"] .issue-grid {
 
   .app-nav {
     width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    gap: 0.35rem;
+  }
+  .app-nav::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row,
+  .inline-form-row {
+    flex-direction: column;
+  }
+
+  .form-row > *,
+  .inline-form-row > * {
+    width: 100%;
+  }
+
+  /* Legal pages basic responsive */
+  .legal-content,
+  .license-content {
+    padding-inline: 1rem;
+  }
+
+  .license-form .input {
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .session-edit {
@@ -1618,6 +1651,78 @@ body.read-mode .heart-shield-section input {
   }
   .app-botanical-footer .app-botanical-img {
     width: 70px;
+  }
+
+  .severity-scale {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.3rem;
+  }
+
+  .severity-button {
+    width: 100%;
+    min-height: 38px;
+    height: 38px;
+  }
+
+  .crop-canvas-container {
+    width: 220px;
+    height: 220px;
+  }
+
+  .crop-zoom-slider {
+    width: 100px;
+  }
+
+  .legal-content {
+    font-size: 0.9rem;
+  }
+}
+
+/* === Accordion Sections (mobile add-session form) === */
+.accordion-section .accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 44px;
+  user-select: none;
+}
+
+.accordion-section .accordion-header::after {
+  content: "\25B6"; /* right triangle */
+  font-size: 0.7rem;
+  transition: transform 0.3s ease;
+  color: var(--color-text-muted);
+}
+
+.accordion-section.is-active .accordion-header::after {
+  transform: rotate(90deg);
+}
+
+.accordion-section .accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.accordion-section.is-active .accordion-body {
+  max-height: 2000px;
+}
+
+@media (min-width: 769px) {
+  /* On desktop, accordion is always open */
+  .accordion-section .accordion-body {
+    max-height: none !important;
+    overflow: visible;
+  }
+  .accordion-section .accordion-header {
+    cursor: default;
+  }
+  .accordion-section .accordion-header::after {
+    display: none;
   }
 }
 
