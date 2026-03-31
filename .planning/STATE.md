@@ -20,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 20 — pre-launch-ui-polish
+**Current focus:** Phase 21 — comprehensive-mobile-responsiveness-audit-and-fix-all-app-screens-for-iphone-mobile-viewport
 
 ## Current Position
 
-Phase: 20
-Plan: Not started
+Phase: 21
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -86,6 +86,7 @@ Plan: Not started
 | Phase 19 P06 | 5min | 2 tasks | 8 files |
 | Phase 20 P02 | 4min | 2 tasks | 9 files |
 | Phase 20 P01 | 5min | 2 tasks | 12 files |
+| Phase 21 P02 | 5min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -168,6 +169,7 @@ Recent decisions affecting current work:
 - [Phase 19 Deploy]: X-Frame-Options changed from DENY to SAMEORIGIN — demo iframe on landing page requires same-origin framing
 - [Phase 19 Deploy]: CF Pages auto-strips .html extensions (pretty URLs) — all internal links work without extension
 - [Phase 19 Deploy]: LIVE-07 confirmed zero-implementation: demo_portfolio vs sessions_garden (separate IndexedDB)
+- [Phase 21-02]: Accordion wrappers use data-accordion attribute; desktop override at min-width:769px with !important max-height; native date input hides dropdowns via display:none
 - [Phase 20]: Globe popover replaces native select for language switching on app pages — matches landing page pattern
 - [Phase 20]: SharedChrome uses inline FOOTER_STRINGS for portability across pages without i18n.js
 - [Phase 20]: initBirthDatePicker placed in shared app.js (not duplicated) since both pages load it
@@ -221,6 +223,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last activity: 2026-03-25
-Stopped at: Completed 20-01-PLAN.md
+Stopped at: Completed 21-02-PLAN.md
 Resume file: None
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
