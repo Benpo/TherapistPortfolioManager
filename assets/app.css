@@ -1,3 +1,20 @@
+/* === Z-index Token Scale === */
+:root {
+  --z-dropdown: 100;
+  --z-nav: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+  --z-banner: 500;
+}
+
+/* Body scroll lock — prevents scroll-behind on mobile modals */
+body.is-modal-open {
+  overflow: hidden;
+  position: fixed;
+  inset-inline: 0;
+  width: 100%;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -145,7 +162,7 @@ a {
   border-radius: 0.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   padding: 0.25rem;
-  z-index: 100;
+  z-index: var(--z-dropdown);
   min-width: 120px;
 }
 .lang-option {
@@ -688,6 +705,7 @@ a {
 .edit-client-card {
   width: min(640px, 92vw);
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
 }
 
@@ -954,7 +972,7 @@ a {
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 50;
+  z-index: var(--z-toast);
   font-weight: 600;
 }
 
@@ -971,7 +989,7 @@ html[dir="rtl"] .issue-grid {
   grid-template-columns: minmax(220px, 1fr) minmax(200px, 1.2fr);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .app-header {
     flex-direction: column;
     align-items: flex-start;
@@ -984,9 +1002,7 @@ html[dir="rtl"] .issue-grid {
   .issue-grid {
     grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 640px) {
   .app-shell {
     padding: 1.5rem 1rem 3rem;
   }
@@ -995,9 +1011,31 @@ html[dir="rtl"] .issue-grid {
     width: 100%;
   }
 
-  .session-edit{
-    opacity:1;
-    transform:translateY(0);
+  .session-edit {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .client-spotlight {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  html[dir="rtl"] .client-spotlight {
+    align-items: flex-end;
+  }
+
+  /* Global 44px tap targets (Apple HIG) */
+  button,
+  [role="button"],
+  a:not(.app-footer-links a):not(.app-footer-contact a),
+  select,
+  .nav-link,
+  .header-control-btn,
+  .row-actions button,
+  .modal-close {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 
@@ -1021,16 +1059,6 @@ html[dir="rtl"] .session-header{
   flex-direction:row-reverse;
 }
 
-@media (max-width: 700px) {
-  .client-spotlight{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-
-  html[dir="rtl"] .client-spotlight{
-    align-items:flex-end;
-  }
-}
 
 .checkbox-field{
   display:flex;
@@ -1130,7 +1158,7 @@ html[dir="rtl"] .session-header{
   display:flex;
   align-items:center;
   justify-content:center;
-  z-index:60;
+  z-index: var(--z-modal);
 }
 
 .modal-overlay{
@@ -1148,11 +1176,29 @@ html[dir="rtl"] .session-header{
   box-shadow:var(--shadow-modal);
   z-index:1;
   text-align:start;
+  max-height: 90vh;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-card-body {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.modal-card-actions {
+  flex-shrink: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border-soft);
 }
 
 .confirm-card{
   width:min(520px, 92vw);
   padding:2rem;
+  max-height: 90vh;
+  max-height: 90dvh;
 }
 
 .confirm-title{
@@ -1454,6 +1500,8 @@ body.read-mode .heart-shield-section input {
 .crop-card {
   width: min(480px, 92vw);
   text-align: center;
+  max-height: 90vh;
+  max-height: 90dvh;
 }
 
 .crop-title {
@@ -1564,7 +1612,7 @@ body.read-mode .heart-shield-section input {
 }
 
 /* Responsive — shrink elements on small screens */
-@media (max-width: 600px) {
+@media (max-width: 480px) {
   .app-botanical-divider-img {
     max-inline-size: min(300px, 80vw);
   }
@@ -1581,7 +1629,7 @@ body.read-mode .heart-shield-section input {
   right: 0;
   padding: var(--space-md, 12px) var(--space-lg, 16px);
   text-align: center;
-  z-index: 10000;
+  z-index: var(--z-banner);
   font-family: var(--font-family, Rubik, system-ui, sans-serif);
   font-size: var(--text-base, 14px);
   display: flex;
@@ -1696,7 +1744,7 @@ body.read-mode .heart-shield-section input {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: var(--z-modal);
   padding: var(--space-md, 16px);
 }
 
@@ -1708,6 +1756,8 @@ body.read-mode .heart-shield-section input {
   padding: 2rem 1.5rem;
   width: 100%;
   max-width: 400px;
+  max-height: 90vh;
+  max-height: 90dvh;
   display: flex;
   flex-direction: column;
   gap: 1rem;
