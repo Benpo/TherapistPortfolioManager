@@ -342,6 +342,17 @@ Plans:
 
 **Post-deployment fixes (2026-03-24/25):** CF Pages "pretty URLs" caused two cascading issues: (1) SW cached redirected `.html` responses, browsers rejected them for navigation; (2) `_redirects` rule `/ /landing.html 302` intercepted all `./index.html` navigations because CF treats `index.html` as root document. Fixed by: SW skips all navigations + HTML removed from precache; `_redirects` replaced with JS Gate 0 in `index.html <head>`. See 19-RESEARCH.md addendum.
 
+### Phase 21: Comprehensive mobile responsiveness — audit and fix all app screens for iPhone/mobile viewport
+
+**Goal:** Every app screen is usable on iPhone mobile viewport (375px) — consolidated breakpoints, 44px touch targets, scrollable modals, collapsible accordion sections, body scroll lock, and photo crop bug fix
+**Requirements**: MOB-01, MOB-02, MOB-03, MOB-04, MOB-05, MOB-06, MOB-07, MOB-08, MOB-09, MOB-10, MOB-11, MOB-12, MOB-13, MOB-14
+**Depends on:** Phase 20
+**Plans:** 3 plans
+
+Plans:
+- [ ] 21-01-PLAN.md — CSS infrastructure: z-index tokens, breakpoint consolidation (768/480), touch targets, modal overflow (MOB-01 through MOB-05)
+- [ ] 21-02-PLAN.md — Form/nav responsive: stacking, severity wrap, nav scroll, accordion, date picker, crop resize (MOB-06 through MOB-11)
+- [ ] 21-03-PLAN.md — Crop bug fix (shared module), overlay-close, body scroll lock, iPhone checkpoint (MOB-12 through MOB-14)
 ---
 
 ### v1.1 Final Polish & Launch (In Progress)
