@@ -264,10 +264,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     editClientPhotoInput.addEventListener("change", async () => {
       const file = editClientPhotoInput.files && editClientPhotoInput.files[0];
       if (!file) return;
-      editClientPhotoData = await App.readFileAsDataURL(file);
-      if (editClientPhotoPreview) {
-        editClientPhotoPreview.src = editClientPhotoData;
-        editClientPhotoPreview.classList.remove("is-hidden");
+      try {
+        const rawDataURL = await App.readFileAsDataURL(file);
+        CropModule.openCropModal(rawDataURL, function (croppedDataUrl) {
+          editClientPhotoData = croppedDataUrl;
+          if (editClientPhotoPreview) {
+            editClientPhotoPreview.src = croppedDataUrl;
+            editClientPhotoPreview.classList.remove("is-hidden");
+          }
+        }, function () {
+          // Cancel — reset file input
+          if (editClientPhotoInput) editClientPhotoInput.value = "";
+        }, false);
+      } catch (err) {
+        console.error("Photo read failed:", err);
+        App.showToast("", "toast.errorGeneric");
       }
     });
   }
