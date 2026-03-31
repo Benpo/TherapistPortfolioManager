@@ -179,119 +179,135 @@
 
           <div class="section-divider"></div>
 
-          <div class="heart-shield-section" id="heartShieldSection">
-            <div class="heart-shield-toggle">
-              <label class="toggle-switch">
-                <input type="checkbox" id="heartShieldToggle" />
-                <span class="toggle-slider"></span>
-              </label>
-              <span class="label" data-i18n="session.form.heartShield">Heart Shield Session</span>
+          <div class="accordion-section" data-accordion="heart-shield">
+            <div class="accordion-header" data-i18n="session.form.heartShield">Heart Shield Session</div>
+            <div class="accordion-body">
+              <div class="heart-shield-section" id="heartShieldSection">
+                <div class="heart-shield-toggle">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="heartShieldToggle" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span class="label" data-i18n="session.form.heartShield">Heart Shield Session</span>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label class="label" data-i18n="session.form.issuesHeading">נושאי המפגש *</label>
+                <div class="helper-text" data-i18n="session.form.issueLimit">You may list up to 3 issues per session</div>
+              </div>
+              <div id="issueList"></div>
+              <button class="button secondary" type="button" id="addIssueBtn" data-i18n="session.form.addIssue">Add Another Issue</button>
+
+              <details class="expandable-field is-hidden" id="heartShieldEmotionsField">
+                <summary>
+                  <span class="label" data-i18n="session.form.heartShieldEmotions">Emotions in the Heart Shield</span>
+                  <span class="expand-arrow" aria-hidden="true">›</span>
+                </summary>
+                <div class="expandable-body">
+                  <textarea class="textarea session-textarea" id="heartShieldEmotions" data-i18n-placeholder="session.form.heartShieldEmotions.placeholder"></textarea>
+                </div>
+              </details>
             </div>
           </div>
 
-          <div class="form-field">
-            <label class="label" data-i18n="session.form.issuesHeading">נושאי המפגש *</label>
-            <div class="helper-text" data-i18n="session.form.issueLimit">You may list up to 3 issues per session</div>
-          </div>
-          <div id="issueList"></div>
-          <button class="button secondary" type="button" id="addIssueBtn" data-i18n="session.form.addIssue">Add Another Issue</button>
+          <div class="accordion-section is-active" data-accordion="emotions">
+            <div class="accordion-header" data-i18n="session.accordion.emotions">Emotions &amp; Techniques</div>
+            <div class="accordion-body">
+              <details class="expandable-field">
+                <summary>
+                  <span class="label" data-i18n="session.form.trapped">Trapped Emotions Released</span>
+                  <span class="expand-arrow" aria-hidden="true">›</span>
+                </summary>
+                <div class="expandable-body">
+                  <textarea class="textarea session-textarea" id="trappedEmotions" data-i18n-placeholder="session.form.trapped.placeholder"></textarea>
+                </div>
+              </details>
 
-          <div class="section-divider"></div>
+              <details class="expandable-field">
+                <summary>
+                  <span class="label" data-i18n="session.form.insights">Physical Imbalance</span>
+                  <span class="expand-arrow" aria-hidden="true">›</span>
+                </summary>
+                <div class="expandable-body">
+                  <textarea class="textarea session-textarea" id="sessionInsights" data-i18n-placeholder="session.form.insights.placeholder"></textarea>
+                </div>
+              </details>
 
-          <details class="expandable-field is-hidden" id="heartShieldEmotionsField">
-            <summary>
-              <span class="label" data-i18n="session.form.heartShieldEmotions">Emotions in the Heart Shield</span>
-              <span class="expand-arrow" aria-hidden="true">›</span>
-            </summary>
-            <div class="expandable-body">
-              <textarea class="textarea session-textarea" id="heartShieldEmotions" data-i18n-placeholder="session.form.heartShieldEmotions.placeholder"></textarea>
+              <details class="expandable-field">
+                <summary>
+                  <span class="label" data-i18n="session.form.limitingBeliefs">Limiting Beliefs</span>
+                  <span class="expand-arrow" aria-hidden="true">›</span>
+                </summary>
+                <div class="expandable-body">
+                  <textarea class="textarea session-textarea" id="limitingBeliefs" data-i18n-placeholder="session.form.limitingBeliefs.placeholder"></textarea>
+                </div>
+              </details>
+
+              <details class="expandable-field">
+                <summary>
+                  <span class="label" data-i18n="session.form.additionalTech">Additional Treatment Techniques</span>
+                  <span class="expand-arrow" aria-hidden="true">›</span>
+                </summary>
+                <div class="expandable-body">
+                  <textarea class="textarea session-textarea" id="additionalTech" data-i18n-placeholder="session.form.additionalTech.placeholder"></textarea>
+                </div>
+              </details>
             </div>
-          </details>
-
-          <details class="expandable-field">
-            <summary>
-              <span class="label" data-i18n="session.form.trapped">Trapped Emotions Released</span>
-              <span class="expand-arrow" aria-hidden="true">›</span>
-            </summary>
-            <div class="expandable-body">
-              <textarea class="textarea session-textarea" id="trappedEmotions" data-i18n-placeholder="session.form.trapped.placeholder"></textarea>
-            </div>
-          </details>
-
-          <details class="expandable-field">
-            <summary>
-              <span class="label" data-i18n="session.form.insights">Physical Imbalance</span>
-              <span class="expand-arrow" aria-hidden="true">›</span>
-            </summary>
-            <div class="expandable-body">
-              <textarea class="textarea session-textarea" id="sessionInsights" data-i18n-placeholder="session.form.insights.placeholder"></textarea>
-            </div>
-          </details>
-
-          <details class="expandable-field">
-            <summary>
-              <span class="label" data-i18n="session.form.limitingBeliefs">Limiting Beliefs</span>
-              <span class="expand-arrow" aria-hidden="true">›</span>
-            </summary>
-            <div class="expandable-body">
-              <textarea class="textarea session-textarea" id="limitingBeliefs" data-i18n-placeholder="session.form.limitingBeliefs.placeholder"></textarea>
-            </div>
-          </details>
-
-          <details class="expandable-field">
-            <summary>
-              <span class="label" data-i18n="session.form.additionalTech">Additional Treatment Techniques</span>
-              <span class="expand-arrow" aria-hidden="true">›</span>
-            </summary>
-            <div class="expandable-body">
-              <textarea class="textarea session-textarea" id="additionalTech" data-i18n-placeholder="session.form.additionalTech.placeholder"></textarea>
-            </div>
-          </details>
-
-          <div class="section-divider"></div>
-
-          <div class="form-field">
-            <label class="label muted-label" data-i18n="session.form.afterSeverityTitle">Issue severity at the end of this session *</label>
-          </div>
-          <div id="issueSummaryList"></div>
-
-          <div class="section-divider"></div>
-
-          <div class="form-field">
-            <div class="field-header">
-              <label class="label" data-i18n="session.form.comments">Session Notes and Observations</label>
-              <button class="icon-button field-copy" type="button" data-copy-target="sessionComments">
-                <span aria-hidden="true">&#128203;</span>
-              </button>
-            </div>
-            <textarea class="textarea session-textarea" id="sessionComments" data-i18n-placeholder="session.form.comments.placeholder"></textarea>
           </div>
 
-          <div class="form-field" style="margin-top:1.5rem;">
-            <div class="field-header">
-              <label class="label" data-i18n="session.form.nextSession">Information for Next Session</label>
-              <button class="icon-button field-copy" type="button" data-copy-target="customerSummary">
-                <span aria-hidden="true">&#128203;</span>
-              </button>
+          <div class="accordion-section" data-accordion="severity">
+            <div class="accordion-header" data-i18n="session.form.afterSeverityTitle">Issue severity</div>
+            <div class="accordion-body">
+              <div class="form-field">
+                <label class="label muted-label" data-i18n="session.form.afterSeverityTitle">Issue severity at the end of this session *</label>
+              </div>
+              <div id="issueSummaryList"></div>
             </div>
-            <textarea class="textarea session-textarea" id="customerSummary" data-i18n-placeholder="session.form.nextSession.placeholder"></textarea>
           </div>
 
-          <div class="heart-shield-conditional is-hidden" id="heartShieldConditional" style="margin-top:1.5rem;">
-            <div class="form-field">
-              <label class="label" data-i18n="session.form.shieldRemoved">Was the Heart Shield removed? *</label>
-              <div class="shield-removed-options">
-                <label class="radio-option">
-                  <input type="radio" name="shieldRemoved" value="yes" />
-                  <span data-i18n="session.form.shieldRemoved.yes">Yes</span>
-                </label>
-                <label class="radio-option">
-                  <input type="radio" name="shieldRemoved" value="no" />
-                  <span data-i18n="session.form.shieldRemoved.no">No</span>
-                </label>
+          <div class="accordion-section" data-accordion="notes">
+            <div class="accordion-header" data-i18n="session.form.comments.title">Session Notes</div>
+            <div class="accordion-body">
+              <div class="form-field">
+                <div class="field-header">
+                  <label class="label" data-i18n="session.form.comments">Session Notes and Observations</label>
+                  <button class="icon-button field-copy" type="button" data-copy-target="sessionComments">
+                    <span aria-hidden="true">&#128203;</span>
+                  </button>
+                </div>
+                <textarea class="textarea session-textarea" id="sessionComments" data-i18n-placeholder="session.form.comments.placeholder"></textarea>
+              </div>
+
+              <div class="form-field" style="margin-top:1.5rem;">
+                <div class="field-header">
+                  <label class="label" data-i18n="session.form.nextSession">Information for Next Session</label>
+                  <button class="icon-button field-copy" type="button" data-copy-target="customerSummary">
+                    <span aria-hidden="true">&#128203;</span>
+                  </button>
+                </div>
+                <textarea class="textarea session-textarea" id="customerSummary" data-i18n-placeholder="session.form.nextSession.placeholder"></textarea>
+              </div>
+
+              <div class="heart-shield-conditional is-hidden" id="heartShieldConditional" style="margin-top:1.5rem;">
+                <div class="form-field">
+                  <label class="label" data-i18n="session.form.shieldRemoved">Was the Heart Shield removed? *</label>
+                  <div class="shield-removed-options">
+                    <label class="radio-option">
+                      <input type="radio" name="shieldRemoved" value="yes" />
+                      <span data-i18n="session.form.shieldRemoved.yes">Yes</span>
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" name="shieldRemoved" value="no" />
+                      <span data-i18n="session.form.shieldRemoved.no">No</span>
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+
+          <div class="section-divider"></div>
 
           <div class="inline-actions" style="margin-top:1.5rem;">
             <button class="button icon-swap session-save-button" type="submit">

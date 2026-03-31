@@ -96,6 +96,8 @@ window.I18N.en = {
   "session.form.other": "Other",
   "session.form.date": "Session Date *",
   "session.form.heartShield": "Heart Shield Session",
+  "session.accordion.emotions": "Emotions & Techniques",
+  "session.form.comments.title": "Session Notes",
   "session.form.shieldRemoved": "Shield Removed?",
   "session.form.shieldRemoved.yes": "Yes",
   "session.form.shieldRemoved.no": "No",

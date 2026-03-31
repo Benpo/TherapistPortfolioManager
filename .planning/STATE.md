@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 21-01-PLAN.md
-last_updated: "2026-03-31T09:59:46.113Z"
+stopped_at: Completed 20-01-PLAN.md
+last_updated: "2026-03-25T02:04:13.934Z"
 last_activity: 2026-03-25
 progress:
   total_phases: 13
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 21
-Plan: 01 of 3 complete
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -86,7 +86,7 @@ Plan: 01 of 3 complete
 | Phase 19 P06 | 5min | 2 tasks | 8 files |
 | Phase 20 P02 | 4min | 2 tasks | 9 files |
 | Phase 20 P01 | 5min | 2 tasks | 12 files |
-| Phase 21 P01 | 3min | 2 tasks | 1 files |
+| Phase 21 P02 | 5min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -169,11 +169,11 @@ Recent decisions affecting current work:
 - [Phase 19 Deploy]: X-Frame-Options changed from DENY to SAMEORIGIN — demo iframe on landing page requires same-origin framing
 - [Phase 19 Deploy]: CF Pages auto-strips .html extensions (pretty URLs) — all internal links work without extension
 - [Phase 19 Deploy]: LIVE-07 confirmed zero-implementation: demo_portfolio vs sessions_garden (separate IndexedDB)
+- [Phase 21-02]: Accordion wrappers use data-accordion attribute; desktop override at min-width:769px with !important max-height; native date input hides dropdowns via display:none
 - [Phase 20]: Globe popover replaces native select for language switching on app pages — matches landing page pattern
 - [Phase 20]: SharedChrome uses inline FOOTER_STRINGS for portability across pages without i18n.js
 - [Phase 20]: initBirthDatePicker placed in shared app.js (not duplicated) since both pages load it
 - [Phase 20]: Hidden inputs preserve YYYY-MM-DD format for zero-change form submission logic
-- [Phase 21]: Z-index token scale: dropdown 100, nav 200, modal 300, toast 400, banner 500; two breakpoints only: 768px and 480px; dvh fallback for modal max-height
 
 ### Pending Todos
 
@@ -223,6 +223,6 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last activity: 2026-03-25
-Stopped at: Completed 21-01-PLAN.md
+Stopped at: Completed 21-02-PLAN.md
 Resume file: None
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md

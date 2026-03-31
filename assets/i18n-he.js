@@ -96,6 +96,8 @@ window.I18N.he = {
   "session.form.other": "אחר",
   "session.form.date": "תאריך מפגש *",
   "session.form.heartShield": "מפגש מגננת לב",
+  "session.accordion.emotions": "רגשות וטכניקות",
+  "session.form.comments.title": "הערות מפגש",
   "session.form.shieldRemoved": "האם מגננת הלב הוסרה?",
   "session.form.shieldRemoved.yes": "כן",
   "session.form.shieldRemoved.no": "לא",
