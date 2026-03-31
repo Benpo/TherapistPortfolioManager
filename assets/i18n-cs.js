@@ -96,6 +96,8 @@ window.I18N.cs = {
   "session.form.other": "Jiné",
   "session.form.date": "Datum sezení *",
   "session.form.heartShield": "Sezeni s Ochranou srdce",
+  "session.accordion.emotions": "Emoce a techniky",
+  "session.form.comments.title": "Poznámky ze sezení",
   "session.form.shieldRemoved": "Ochrana odstraněna?",
   "session.form.shieldRemoved.yes": "Ano",
   "session.form.shieldRemoved.no": "Ne",

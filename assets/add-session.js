@@ -894,6 +894,38 @@ document.addEventListener("DOMContentLoaded", async () => {
       setReadMode(true);
     }
   }
+
+  // Accordion toggle — mobile only
+  const isMobileAccordion = window.matchMedia("(max-width: 768px)");
+
+  function initAccordions() {
+    const sections = document.querySelectorAll(".accordion-section");
+    if (!isMobileAccordion.matches) {
+      // Desktop: ensure all sections are visible
+      sections.forEach(s => s.classList.add("is-active"));
+      return;
+    }
+    // Mobile: first section active by default
+    sections.forEach((section, i) => {
+      if (i === 0) section.classList.add("is-active");
+      else section.classList.remove("is-active");
+    });
+  }
+
+  document.querySelectorAll(".accordion-header").forEach(header => {
+    header.addEventListener("click", () => {
+      if (!isMobileAccordion.matches) return;
+      const section = header.closest(".accordion-section");
+      const wasActive = section.classList.contains("is-active");
+      // Close all others
+      document.querySelectorAll(".accordion-section").forEach(s => s.classList.remove("is-active"));
+      // Toggle clicked
+      if (!wasActive) section.classList.add("is-active");
+    });
+  });
+
+  isMobileAccordion.addEventListener("change", initAccordions);
+  initAccordions();
 });
 
 async function loadClients(selectId) {

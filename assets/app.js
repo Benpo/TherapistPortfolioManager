@@ -715,18 +715,40 @@ window.App = (() => {
     container.appendChild(monthSel);
     container.appendChild(daySel);
 
+    // Mobile: show native date input instead of dropdown picker
+    var mobileDate = window.matchMedia("(max-width: 768px)");
+    if (mobileDate.matches) {
+      var nativeDateInput = document.createElement("input");
+      nativeDateInput.type = "date";
+      nativeDateInput.className = "input";
+      nativeDateInput.id = "birthDateNative";
+      if (hidden.value) {
+        nativeDateInput.value = hidden.value;
+      }
+      nativeDateInput.addEventListener("change", function() {
+        hidden.value = nativeDateInput.value;
+      });
+      // Hide dropdowns, show native
+      yearSel.style.display = "none";
+      monthSel.style.display = "none";
+      daySel.style.display = "none";
+      container.appendChild(nativeDateInput);
+    }
+
     return {
       setValue: function(isoDate) {
-        if (!isoDate) { yearSel.value = ''; monthSel.value = ''; daySel.value = ''; hidden.value = ''; return; }
+        if (!isoDate) { yearSel.value = ''; monthSel.value = ''; daySel.value = ''; hidden.value = ''; if (container.querySelector('#birthDateNative')) container.querySelector('#birthDateNative').value = ''; return; }
         var parts = isoDate.split('-');
         yearSel.value = parts[0];
         monthSel.value = String(parseInt(parts[1], 10) - 1);
         updateDays();
         daySel.value = String(parseInt(parts[2], 10));
         syncHidden();
+        if (container.querySelector('#birthDateNative')) container.querySelector('#birthDateNative').value = isoDate;
       },
       clear: function() {
         yearSel.value = ''; monthSel.value = ''; daySel.value = ''; hidden.value = '';
+        if (container.querySelector('#birthDateNative')) container.querySelector('#birthDateNative').value = '';
       }
     };
   }

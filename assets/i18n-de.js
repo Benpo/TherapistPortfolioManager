@@ -96,6 +96,8 @@ window.I18N.de = {
   "session.form.other": "Sonstiges",
   "session.form.date": "Sitzungsdatum *",
   "session.form.heartShield": "Herzschutz-Sitzung",
+  "session.accordion.emotions": "Emotionen & Techniken",
+  "session.form.comments.title": "Sitzungsnotizen",
   "session.form.shieldRemoved": "Schutz entfernt?",
   "session.form.shieldRemoved.yes": "Ja",
   "session.form.shieldRemoved.no": "Nein",
