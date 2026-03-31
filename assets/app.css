@@ -705,6 +705,7 @@ a {
 .edit-client-card {
   width: min(640px, 92vw);
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
 }
 
@@ -1175,11 +1176,29 @@ html[dir="rtl"] .session-header{
   box-shadow:var(--shadow-modal);
   z-index:1;
   text-align:start;
+  max-height: 90vh;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-card-body {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.modal-card-actions {
+  flex-shrink: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border-soft);
 }
 
 .confirm-card{
   width:min(520px, 92vw);
   padding:2rem;
+  max-height: 90vh;
+  max-height: 90dvh;
 }
 
 .confirm-title{
@@ -1481,6 +1500,8 @@ body.read-mode .heart-shield-section input {
 .crop-card {
   width: min(480px, 92vw);
   text-align: center;
+  max-height: 90vh;
+  max-height: 90dvh;
 }
 
 .crop-title {
@@ -1735,6 +1756,8 @@ body.read-mode .heart-shield-section input {
   padding: 2rem 1.5rem;
   width: 100%;
   max-width: 400px;
+  max-height: 90vh;
+  max-height: 90dvh;
   display: flex;
   flex-direction: column;
   gap: 1rem;
