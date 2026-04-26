@@ -1,10 +1,11 @@
 ---
 phase: 22
 slug: session-workflow-loop-pre-session-context-card-editable-sess
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-04-27
+reviewed_at: 2026-04-27
 ---
 
 # Phase 22 — UI Design Contract
