@@ -207,6 +207,7 @@ Recent decisions affecting current work:
 - Phase 13 added: Review and fix greeting quotes
 - Phase 14 added: i18n bugs, legal footer cleanup, and contact email update
 - Phase 15 added: Architecture and UI audit (dual-mode: Opus subagents for arch review + /gsd:ui-review for frontend)
+- Phase 22 added: Session Workflow Loop — pre-session context card, editable section titles, session-to-document email export (bundles 3 todos from 2026-04-26)
 
 ### Blockers/Concerns
 

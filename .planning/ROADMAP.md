@@ -353,6 +353,30 @@ Plans:
 - [ ] 21-01-PLAN.md — CSS infrastructure: z-index tokens, breakpoint consolidation (768/480), touch targets, modal overflow (MOB-01 through MOB-05)
 - [ ] 21-02-PLAN.md — Form/nav responsive: stacking, severity wrap, nav scroll, accordion, date picker, crop resize (MOB-06 through MOB-11)
 - [ ] 21-03-PLAN.md — Crop bug fix (shared module), overlay-close, body scroll lock, iPhone checkpoint (MOB-12 through MOB-14)
+### Phase 22: Session Workflow Loop
+
+**Goal:** Therapists can (a) tailor the session form to their own modality by renaming and disabling section titles via a Settings page, and (b) turn a finished session into an editable, client-facing document downloadable as PDF or Markdown and shareable via the device's native share sheet.
+
+**Scope summary** (after spec-phase, 2026-04-26):
+1. **Feature A — Editable session section titles**: Settings page with rename + enable/disable + reset per row for all 9 session sections. Custom labels are global across UI languages. Disabled sections hide from new sessions but remain visible (with indicator) in edit mode for existing sessions that have data. Storage keys unchanged.
+2. **Feature B — Session-to-document export**: Section-selection dialog with client-safe defaults → editable preview → PDF download (critical) + Markdown download + Web Share API (where supported) + Translate shortcut (Google Translate). Existing "Copy Session (MD)" preserved.
+3. **Feature C — Cross-cutting integrations**: Backup/restore extended to round-trip therapist settings (backward-compatible); `buildSessionMarkdown()` reads custom labels; Service Worker cache bumped; new Settings page wired into shared chrome and license/disclaimer gates.
+
+**Dropped from this phase**: Pre-session context card / open issues / severity trend (innovator extrapolation, not direct user feedback). Todo `2026-04-26-pre-session-context-card.md` remains in `pending/` for a future phase.
+
+**Source todos** (in `.planning/todos/pending/`):
+- `2026-04-26-editable-session-section-titles.md` — drives Feature A
+- `2026-04-26-session-to-document-email-export.md` — drives Feature B (note: mailto: replaced with PDF download + Web Share API per spec discussion)
+
+**Constraints:** Local-first (no backend), i18n en/de/he/cs, RTL-safe, must preserve existing session data, mobile-first, no heavyweight new dependencies, Service Worker discipline (CACHE_NAME bump + PRECACHE_URLS).
+
+**Requirements**: 20 requirements locked in `22-SPEC.md` (Feature A: 1-6, Feature B: 7-17, Feature C: 18-20)
+**Depends on:** Phase 21
+**Plans:** 0 plans (run `/gsd-discuss-phase 22` next, expected to spawn `/gsd-ui-phase` due to non-trivial UI surface)
+
+Plans:
+- [ ] TBD (run `/gsd-plan-phase 22` after discuss-phase)
+
 ---
 
 ### v1.1 Final Polish & Launch (In Progress)
