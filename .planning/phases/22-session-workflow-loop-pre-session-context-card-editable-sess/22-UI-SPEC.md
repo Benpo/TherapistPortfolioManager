@@ -24,7 +24,7 @@ created: 2026-04-27
 | Preset | not applicable |
 | Component library | none — custom IIFE modules per page (`add-session.js`, `settings.js`, etc.) |
 | Icon library | inline SVG (existing pattern: see globe icon in `app.js:124`, leaf in `add-session.html:30`); supplement with a few HTML entity glyphs (`&#9881;` gear, `&#11088;` star) where they already work cross-platform |
-| Font | Rubik (self-hosted WOFF2 — Regular 400, SemiBold 600, Bold 700) declared in `assets/tokens.css:1-22` |
+| Font | Rubik (self-hosted WOFF2 — Regular 400, SemiBold 600) declared in `assets/tokens.css:1-22` |
 
 **Initialization gate result:** N/A — vanilla JS project, no React/Next/Vite. shadcn does not apply. UI contract enforced by audit and reviewer agents instead.
 
@@ -32,24 +32,23 @@ created: 2026-04-27
 
 ## Spacing Scale
 
-The codebase **does not declare named spacing tokens**. Phase 22 adopts the de-facto rem scale already in use across `assets/app.css` and pins it formally so new code stays consistent.
+The codebase **does not declare named spacing tokens**. Phase 22 adopts the canonical 8-point scale and pins it formally so new code stays consistent.
 
-| Token (de-facto) | Value | rem | Usage in this phase |
+| Token | Value | rem | Usage in this phase |
 |-------|-------|-----|---------------------|
-| 2xs | 4px | 0.25rem | Icon-to-text gaps inside inline-flex |
-| xs | 8px | 0.5rem | Compact gaps (toggle-group items, badge padding-x) |
-| sm | 12px | 0.75rem | Inline form gaps, button row gaps |
-| md | 16px | 1rem | Default field/row gap, card padding mobile |
-| lg | 24px | 1.5rem | Section padding, card padding desktop, modal-card padding |
-| xl | 32px | 2rem | Page-level spacing, dialog hero gap |
-| 2xl | 48px | 3rem | Page top padding |
-| 3xl | 64px | 4rem | App-shell bottom padding |
+| 2xs | 4px | 0.25rem | Icon-to-text gaps inside inline-flex; indicator badge padding-block |
+| xs | 8px | 0.5rem | Compact gaps (toggle-group items, badge padding-x, tight inline rows) |
+| sm | 16px | 1rem | Default field/row gap, card padding mobile, comfortable form gaps |
+| md | 24px | 1.5rem | Section padding, card padding desktop, modal-card padding |
+| lg | 32px | 2rem | Page-level spacing, dialog hero gap |
+| xl | 48px | 3rem | Page top padding |
+| 2xl | 64px | 4rem | App-shell bottom padding |
 
 **Rules for Phase 22:**
 
-- All new CSS must pick from this scale. No `padding: 13px`, no `margin: 0.65rem`.
+- All new CSS must pick from this scale. **Allowed values: 4, 8, 16, 24, 32, 48, 64.** No `padding: 12px`, no `margin: 0.65rem`, no `13px`.
 - Use **logical properties** (`padding-inline`, `padding-block`, `inset-inline-start`) — RTL-safe per Phase 18 standard.
-- Modal card padding: `lg` (24px) on mobile, `xl` (32px) on desktop ≥769px (matches existing `.modal-card` at `1.8rem`).
+- Modal card padding: `md` (24px) on mobile, `lg` (32px) on desktop ≥769px (matches existing `.modal-card` at `1.8rem`, snapped to scale).
 
 **Exceptions:**
 
@@ -60,21 +59,23 @@ The codebase **does not declare named spacing tokens**. Phase 22 adopts the de-f
 
 ## Typography
 
-The codebase uses Rubik in three weights and a rem-based size ramp. Phase 22 adopts the **declared four roles** below — drawn from existing values in `assets/app.css` so new screens visually match.
+The codebase uses Rubik. Phase 22 adopts the **declared four roles** below — exactly **4 sizes (13, 14, 16, 22)** and exactly **2 weights (400 regular, 600 semibold)**.
 
 | Role | Size | Weight | Line Height | Where used in Phase 22 |
 |------|------|--------|-------------|-------------------------|
 | Body | 16px (1rem) | 400 (regular) | 1.5 | Settings descriptions, label text inside rows, export modal body, markdown editor textarea |
-| Label | 14px (0.875rem) | 600 (semibold) | 1.4 | Field labels (`.label`), checkbox labels, "Disabled in Settings" indicator text |
-| Section heading | 22px (1.4rem) | 800 | 1.25 | Settings page H2 ("Section Settings"), modal title (`.modal-title`), step heading inside export dialog |
-| Microcopy / helper | 13px (0.85rem) | 600 | 1.4 | Helper text under inputs (e.g. "Saved. Reload other tabs to see changes."), tooltip text, step indicator label |
+| Label | 14px (0.875rem) | 600 (semibold) | 1.4 | Field labels (`.label`), checkbox labels, "Disabled in Settings" indicator text, output card title |
+| Section heading | 22px (1.4rem) | 600 (semibold) | 1.25 | Settings page H2 ("Settings"), modal title (`.modal-title`), step heading inside export dialog |
+| Microcopy / helper | 13px (0.85rem) | 600 (semibold) | 1.4 | Helper text under inputs, tooltip text, step indicator label, output card subtitle |
 
 **Fixed rules for Phase 22:**
 
 - **Hebrew matches Latin sizing** — Rubik Hebrew metrics line up at the same px values; do not bump up for `dir=rtl`.
 - **PDF document typography** is governed separately by jsPDF (per CONTEXT.md D-07): body 11pt, headings 14pt, header meta 10pt. Those values are **fixed in code**, do not change them.
 - **Live Markdown preview pane** uses Body 16px / 1.5 leading — NOT the PDF 11pt. The preview is a screen surface, not a print preview.
-- **No new font weights** — Rubik 400/600/800 is the catalogue (800 is permitted because the existing Bold WOFF2 file is `font-weight: 700` and `.section-title` already declares `font-weight: 800` synthetically; keep that pattern).
+- **Two weights only** — Rubik Regular 400 + SemiBold 600. The Bold 700 WOFF2 is loaded by `tokens.css` for legacy use; Phase 22 NEW screens do not use it.
+- **Legacy carve-out:** the existing `.section-title` rule in `app.css:206` uses `font-weight: 800` — Phase 22 new screens use 600 instead. Existing weights elsewhere remain unchanged (legacy).
+- **Bold inline (`**...**`) in the Markdown preview** renders as weight 600 (not 700) so it stays in scale.
 
 ---
 
@@ -112,7 +113,7 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 | Background | `var(--color-surface-disabled)` (= `#fefcf8` light / `#202828` dark) |
 | Text color | `var(--color-text-muted)` |
 | Border | `1px solid var(--color-border-soft)` |
-| Padding | `2px 8px` |
+| Padding | `4px 8px` (`2xs` block × `xs` inline — both on-scale) |
 | Border-radius | `999px` (pill) |
 | Font | Microcopy (13px / 600) |
 | Copy | `"Disabled in Settings"` (i18n key `settings.indicator.disabled`) |
@@ -130,6 +131,8 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 ## Layout — Settings Page (Feature A)
 
 **Decision:** single-column scrollable list of section rows. Locked here (CONTEXT.md D-16 deferred this to UI-spec).
+
+**Focal point:** Sticky bottom action bar "Save changes" button.
 
 **Rationale:**
 
@@ -157,7 +160,7 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 | Section row 9                                  |
 +------------------------------------------------+
 | Sticky bottom action bar                       |
-| [Cancel]                  [Save changes]       |
+| [Discard changes]         [Save changes]       |
 +------------------------------------------------+
 | App footer (shared chrome)                     |
 +------------------------------------------------+
@@ -187,7 +190,7 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 
 | Element | Spec |
 |---------|------|
-| Container | `padding: lg (24px)`; `border: 1px solid var(--color-border-soft)`; `border-radius: 18px`; `background: var(--color-surface)`; `margin-bottom: md (16px)` |
+| Container | `padding: md (24px)`; `border: 1px solid var(--color-border-soft)`; `border-radius: 16px`; `background: var(--color-surface)`; `margin-bottom: sm (16px)` |
 | Default-name label | Body weight 600 — uses i18n default key (e.g. `session.form.trapped`); shows the **English** default name in muted parentheses if current UI language ≠ English (so the therapist always knows what they're renaming) |
 | Description | Microcopy, `color: var(--color-text-muted)` — short hint per section (e.g. "Where you log released emotions"). i18n keys `settings.row.{key}.description`. |
 | Rename input | `.input` class; `placeholder` = current default i18n value for active UI language; `maxlength="60"` (locks Claude's discretion item from CONTEXT.md); shows current custom label as `value` if set |
@@ -202,8 +205,8 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 | Position | Sticky below page header, above the row list — `position: sticky; top: 0` (within scroll container) |
 | Background | `var(--color-info-bg)` = `#cce5ff` light, `#202828` dark |
 | Text color | `var(--color-info-text)` = `#004085` light, `var(--color-text)` dark |
-| Padding | `md (16px) lg (24px)` |
-| Border-radius | `12px` |
+| Padding | `sm md` (16px block × 24px inline — both on-scale) |
+| Border-radius | `16px` |
 | Icon | Info glyph SVG (same circle-i used elsewhere in app warnings) — leading inline-start |
 | Copy (en) | "Saved labels appear immediately on this page. Open session forms will pick up the new labels on next page navigation. Refresh other tabs to see changes immediately." |
 | Copy (i18n keys) | `settings.syncMessage.heading` + `settings.syncMessage.body` (in en/de/he/cs) |
@@ -213,9 +216,9 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 
 | Element | Spec |
 |---------|------|
-| Container | `position: sticky; bottom: 0`; `background: var(--color-surface)`; `padding: md`; `border-top: 1px solid var(--color-border-soft)`; `box-shadow: 0 -4px 12px var(--color-modal-shadow)` |
-| Layout | `display: flex; gap: sm; justify-content: flex-end` (`flex-start` flipped automatically in RTL via logical props are not needed because flex `justify-content` direction reverses — verified with existing `.modal-actions` pattern at `app.css:1504`) |
-| Cancel | `.button.ghost` — discards unsaved changes (with confirm if dirty, see Copywriting) |
+| Container | `position: sticky; bottom: 0`; `background: var(--color-surface)`; `padding: sm` (16px); `border-top: 1px solid var(--color-border-soft)`; `box-shadow: 0 -4px 16px var(--color-modal-shadow)` |
+| Layout | `display: flex; gap: sm (16px); justify-content: flex-end` (flex `justify-content` direction reverses in RTL — verified with existing `.modal-actions` pattern at `app.css:1504`) |
+| Discard changes | `.button.ghost` — discards unsaved changes (with confirm if dirty, see Copywriting). Label: "Discard changes" (specific verb+noun, NOT generic "Cancel"). |
 | Save changes | `.button` (primary) — disabled until at least one row is dirty; on click, persists, fires BroadcastChannel, swaps page state to "Saved" toast |
 
 ---
@@ -244,16 +247,18 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 | Property | Value |
 |---------|-------|
 | Position | Top of modal-card-body, below modal title |
-| Layout | Horizontal flex row with 3 dots + connector lines, max-width `360px`, centered |
+| Layout | Horizontal flex row with 3 dots + connector lines, max-width `360px`, centered; `gap: xs (8px)` between dot and connector |
 | Dot size | 24×24px circle |
-| Active dot | `background: var(--color-primary)`; `color: white`; semibold number inside |
-| Completed dot | `background: var(--color-primary-soft)`; `color: var(--color-primary-dark)`; semibold number inside |
-| Pending dot | `background: var(--color-surface-subtle)`; `color: var(--color-text-muted)`; semibold number inside |
+| Active dot | `background: var(--color-primary)`; `color: white`; semibold (600) number inside |
+| Completed dot | `background: var(--color-primary-soft)`; `color: var(--color-primary-dark)`; semibold (600) number inside |
+| Pending dot | `background: var(--color-surface-subtle)`; `color: var(--color-text-muted)`; semibold (600) number inside |
 | Connector | `1px` line; `var(--color-primary)` between completed steps; `var(--color-border-soft)` to pending |
 | Step label | Microcopy (13px / 600 / muted), placed below each dot, centered |
 | Mobile (<480px) | Hide step labels, keep dots only — saves vertical space |
 
 ### Step 1 — Section Selection
+
+**Focal point:** Checkbox list with pre-checked client-safe defaults.
 
 ```
 +------------------------------------------------+
@@ -279,7 +284,7 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 | ─[Disabled in Settings]─────────  (greyed)     |
 | ▢  (disabled section name)                     |
 +------------------------------------------------+
-| [ Cancel ]              [ Next: Edit document →]
+| [ Back to session ]     [ Next: Edit document →]
 +------------------------------------------------+
 ```
 
@@ -287,14 +292,16 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 
 | Property | Value |
 |----------|-------|
-| Layout | `display: flex; align-items: center; gap: sm` |
-| Container | `padding: sm md`; `border-radius: 12px`; on hover `background: var(--color-surface-hover)` |
+| Layout | `display: flex; align-items: center; gap: xs (8px)` |
+| Container | `padding: xs sm` (8px block × 16px inline); `border-radius: 16px`; on hover `background: var(--color-surface-hover)` |
 | Checkbox | Native `<input type="checkbox">` styled to 20×20px, accent uses `accent-color: var(--color-primary)` |
 | Label | Body 16px / 400 |
 | Disabled (greyed) row | `opacity: 0.55`; `cursor: not-allowed`; appended pill badge "Disabled in Settings" |
 | Tap target | Whole row clickable, `min-height: 44px` |
 
 ### Step 2 — Editable Preview
+
+**Focal point:** Editable textarea with live preview.
 
 **Desktop (≥769px) — side-by-side:**
 
@@ -311,8 +318,8 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 | │ # Anna M.           │ │ Anna M.              │       |
 | │ **Date:** 2026-...  │ │ Date: 2026-04-27     │       |
 | │                     │ │                      │       |
-| │ ## Trapped Emotions │ │ ── (h2-styled)       │       |
-| │ ...                 │ │ Trapped Emotions     │       |
+| │ ## Trapped Emotions │ │ Trapped Emotions     │       |
+| │ ...                 │ │ ── (16/600 + border) │       |
 | │                     │ │                      │       |
 | │ Markdown textarea   │ │ Live HTML preview    │       |
 | └─────────────────────┘ └──────────────────────┘       |
@@ -352,25 +359,27 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 |----------|-------|
 | Element | `<textarea class="textarea export-editor">` |
 | Font | Body 16px (intentionally NOT a monospaced font — Sapir is editing Hebrew prose, not code) |
-| Min-height | `300px` desktop, `240px` mobile |
-| Padding | `md (16px)` |
+| Min-height | `296px` desktop, `240px` mobile (snapped from 300/240 to multiples of 8) |
+| Padding | `sm (16px)` |
 | Border | `1px solid var(--color-border)` |
-| Border-radius | `14px` (matches existing `.input`/`.textarea`) |
+| Border-radius | `16px` (snapped from 14 to on-scale) |
 | RTL | `dir="auto"` so Hebrew renders right-to-left within the textarea while UI chrome stays in current language direction |
 | Spell-check | `spellcheck="true"` — Hebrew/German benefit |
 
 **Preview pane:**
 
+Headings map into the **4-role type scale** declared above — no off-scale sizes.
+
 | Property | Value |
 |----------|-------|
-| Container | `padding: md`; `border: 1px solid var(--color-border-soft)`; `border-radius: 14px`; `background: var(--color-surface)`; `min-height` matches editor; `overflow-y: auto` |
-| Headings (h1) | Section heading 22px / 800; `margin-bottom: sm` |
-| Headings (h2) | 18px / 700; `margin-block: md sm`; `border-block-end: 1px solid var(--color-border-soft)`; `padding-block-end: xs` |
-| Headings (h3) | 16px / 700; `margin-block: md xs` |
-| Body paragraphs | Body 16px / 1.5 |
-| Bold | Inherit weight 700 |
-| Italic | Standard italic |
-| Lists | `padding-inline-start: lg`; bullet color `var(--color-text-muted)` |
+| Container | `padding: sm (16px)`; `border: 1px solid var(--color-border-soft)`; `border-radius: 16px`; `background: var(--color-surface)`; `min-height` matches editor; `overflow-y: auto` |
+| Headings (h1) | **Section heading 22px / 600 / 1.25**; `margin-block-end: xs (8px)` |
+| Headings (h2) | **Body 16px / 600** with `border-block-end: 1px solid var(--color-border)`; `margin-block: sm (16px) xs (8px)`; `padding-block-end: 2xs (4px)` |
+| Headings (h3) | **Label 14px / 600**; `margin-block: sm (16px) 2xs (4px)` |
+| Body paragraphs | Body 16px / 400 / 1.5 |
+| Bold (`**...**`) | Inherit weight 600 |
+| Italic (`*...*`) | Standard italic |
+| Lists | `padding-inline-start: md (24px)`; bullet color `var(--color-text-muted)` |
 | Line breaks | preserve via `<br>` |
 
 **Mobile tab control:**
@@ -378,11 +387,13 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 | Property | Value |
 |----------|-------|
 | Layout | Segmented `display: inline-flex` — looks like the existing `.toggle-group` |
-| Item | `padding: sm md`; `border-radius: 12px`; default `background: var(--color-surface-toggle)` |
-| Active | `background: var(--color-primary-soft)`; `color: var(--color-primary-dark)`; `font-weight: 700` |
+| Item | `padding: xs sm` (8px block × 16px inline); `border-radius: 16px`; default `background: var(--color-surface-toggle)` |
+| Active | `background: var(--color-primary-soft)`; `color: var(--color-primary-dark)`; `font-weight: 600` |
 | Tap target | `min-height: 44px` |
 
 ### Step 3 — Output Actions
+
+**Focal point:** Primary "Download PDF" action.
 
 ```
 +------------------------------------------------+
@@ -417,7 +428,7 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 
 | Property | Value |
 |----------|-------|
-| Container | `display: flex; align-items: center; gap: md`; `padding: md`; `border: 1px solid var(--color-border)`; `border-radius: 16px`; `background: var(--color-surface)`; `margin-bottom: sm`; `cursor: pointer`; `min-height: 64px` |
+| Container | `display: flex; align-items: center; gap: sm (16px)`; `padding: sm (16px)`; `border: 1px solid var(--color-border)`; `border-radius: 16px`; `background: var(--color-surface)`; `margin-bottom: xs (8px)`; `cursor: pointer`; `min-height: 64px` |
 | Hover | `background: var(--color-surface-hover)`; `transform: translateY(-1px)`; `box-shadow: var(--shadow-button)` |
 | Icon | 32×32px leading; `color: var(--color-primary-dark)` |
 | Title | Label 14px / 600 |
@@ -489,7 +500,7 @@ Lives inside `.session-header-actions` at `add-session.html:51` next to the exis
 | Element | en | he | de | cs |
 |---------|----|----|----|----|
 | Settings page save | "Save changes" | "שמור שינויים" | "Änderungen speichern" | "Uložit změny" |
-| Settings page cancel | "Cancel" | "ביטול" | "Abbrechen" | "Zrušit" |
+| Settings page discard | "Discard changes" | "בטל שינויים" | "Änderungen verwerfen" | "Zahodit změny" |
 | Settings row reset | "Reset to default" | "אפס לברירת מחדל" | "Auf Standard zurücksetzen" | "Obnovit výchozí" |
 | Export modal step 1 next | "Next: Edit document" | "הבא: ערוך מסמך" | "Weiter: Dokument bearbeiten" | "Další: Upravit dokument" |
 | Export modal step 2 next | "Next: Get document" | "הבא: קבל מסמך" | "Weiter: Dokument abrufen" | "Další: Získat dokument" |
@@ -522,7 +533,7 @@ i18n keys:
 | State | Copy (en) | i18n key |
 |-------|-----------|----------|
 | Settings — no overrides yet (informational, not blocking) | (No empty state — page always shows the 9 default rows) | — |
-| Settings — unsaved changes confirm on Cancel | "Discard unsaved changes?" + "Yes, discard" / "Keep editing" | `settings.discard.title` / `settings.discard.confirm` / `settings.discard.cancel` |
+| Settings — unsaved changes confirm on Discard changes | "Discard unsaved changes?" + "Yes, discard" / "Keep editing" | `settings.discard.title` / `settings.discard.confirm` / `settings.discard.cancel` |
 | Settings — save success toast | "Settings saved" | `settings.saved.toast` |
 | Settings — rename input too long | "Section name is too long. Maximum 60 characters." | `settings.rename.tooLong` |
 | Settings — rename input is whitespace only | "Enter a name or leave blank to use the default." | `settings.rename.empty` |
@@ -538,10 +549,10 @@ i18n keys:
 
 | Action | Copy | i18n key |
 |--------|------|----------|
-| Cancel Settings page with dirty form | Title: "Discard unsaved changes?" / Body: "Your renames and toggles won't be saved." / Confirm: "Yes, discard" / Cancel: "Keep editing" | `settings.discard.*` |
+| Discard changes on Settings page with dirty form | Title: "Discard unsaved changes?" / Body: "Your renames and toggles won't be saved." / Confirm: "Yes, discard" / Cancel: "Keep editing" | `settings.discard.*` |
 | Close export modal mid-edit (step 2 with edits) | Title: "Discard your edits?" / Body: "Your changes to the document will be lost." / Confirm: "Yes, discard" / Cancel: "Keep editing" | `export.discard.*` |
 
-**Note:** Phase 21 already established the discard-confirm contract for modal overlay-close (D-03 in `21-CONTEXT.md`). The export modal **MUST** reuse the same `confirm-card` pattern — do not introduce a new dialog style.
+**Note:** Phase 21 already established the discard-confirm contract for modal overlay-close (D-03 in `21-CONTEXT.md`). The export modal **MUST** reuse the same `confirm-card` pattern — do not introduce a new dialog style. The "Keep editing" / "Yes, discard" pair inside the confirm dialog is already-locked phrasing and is preserved as-is.
 
 ---
 
@@ -652,11 +663,11 @@ This UI-SPEC inherits and does not override:
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS — every CTA, empty/error/dirty state, destructive confirm, and indicator copy declared in 4 languages
-- [ ] Dimension 2 Visuals: PASS — Settings 9-row layout (single-column rationale documented), 3-step modal architecture, step indicator, output cards
+- [ ] Dimension 1 Copywriting: PASS — every CTA is verb+noun (no banned generics); empty/error/dirty state, destructive confirm, and indicator copy declared in 4 languages
+- [ ] Dimension 2 Visuals: PASS — Settings 9-row layout (single-column rationale documented), 3-step modal architecture, step indicator, output cards; focal point declared per major surface
 - [ ] Dimension 3 Color: PASS — 60/30/10 inherited from existing tokens; accent (primary green) reserved-for list explicit; no new hex literals introduced
-- [ ] Dimension 4 Typography: PASS — 4 declared roles (Body 16/400/1.5, Label 14/600/1.4, Section 22/800/1.25, Microcopy 13/600/1.4); Rubik weights 400/600/800 only
-- [ ] Dimension 5 Spacing: PASS — 8-multiple scale (4/8/12/16/24/32/48/64) declared; logical-property rule mandated; 44px tap-target floor stated
+- [ ] Dimension 4 Typography: PASS — exactly 4 sizes (13, 14, 16, 22) and exactly 2 weights (400, 600); legacy 800/700 carve-out documented
+- [ ] Dimension 5 Spacing: PASS — exactly 7 on-scale values (4, 8, 16, 24, 32, 48, 64); no 12px or 2px; logical-property rule mandated; 44px tap-target floor stated
 - [ ] Dimension 6 Registry Safety: PASS — no third-party design registries used; not applicable
 
 **Approval:** pending checker run
@@ -665,5 +676,6 @@ This UI-SPEC inherits and does not override:
 
 *Phase 22 — UI Design Contract*
 *Created: 2026-04-27*
+*Revised: 2026-04-27 (checker fixes — dimensions 1, 4, 5 + visuals focal-point recommendation)*
 *Locks visual + interaction surface for: Settings page (9-row form), Export modal (3-step flow), header gear-icon entry, session-page Export button.*
 *Next: `/gsd-ui-checker 22` then `/gsd-plan-phase 22`.*
