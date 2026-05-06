@@ -4,6 +4,19 @@
 **Files analyzed:** 16 (6 new, 10 modified)
 **Analogs found:** 14 / 16 (2 vendored libraries — no in-repo analog beyond `jszip.min.js` precedent)
 
+> **⚠ AMENDMENT 2026-04-28 — read before using this document:**
+> This pattern map was produced before SPEC v2. Any reference below to
+> `export.translate.cta`, `export.translate.tooltip`, the Translate
+> button HTML, or translate.google.com is **STALE** — REQ-16 was
+> removed 2026-04-28. Treat those references as illustrative of the
+> pattern surface only; do not implement the Translate shortcut.
+> Similarly, references to "Copy Session (MD)" and "Download Markdown"
+> labels are stale — the user-facing strings became
+> "Copy session text" and "Download as text file" respectively.
+> The DOM ids (`copySessionBtn`, `exportDownloadMd`) are unchanged.
+> Authoritative sources for executor: 22-SPEC.md (v2), 22-CONTEXT.md
+> (v2), 22-UI-SPEC.md (v2), and the PLAN.md amendment blocks.
+
 ---
 
 ## File Classification
