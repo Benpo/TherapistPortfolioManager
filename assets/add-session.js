@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const deleteButton = document.getElementById("deleteSessionBtn");
   const editButton = document.getElementById("editSessionBtn");
   const copySessionBtn = document.getElementById("copySessionBtn");
+  const exportSessionBtn = document.getElementById("exportSessionBtn");
   const copyButtons = document.querySelectorAll(".field-copy");
   const readModeTextareas = document.querySelectorAll(".session-textarea");
   const sessionIdParam = new URLSearchParams(window.location.search).get("sessionId");
@@ -122,6 +123,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (submitButton) submitButton.classList.toggle("is-hidden", isReadMode);
     if (editButton) editButton.classList.toggle("is-hidden", !isReadMode);
     if (copySessionBtn) copySessionBtn.classList.toggle("is-hidden", !isReadMode);
+    if (exportSessionBtn) exportSessionBtn.classList.toggle("is-hidden", !isReadMode);
     if (sessionForm) {
       sessionForm.querySelectorAll("input, select, textarea").forEach((el) => {
         if (el.tagName === "TEXTAREA") {
@@ -636,7 +638,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shieldRemovedCopyInput = document.querySelector("input[name='shieldRemoved']:checked");
     const shieldRemovedCopyValue = shieldRemovedCopyInput ? shieldRemovedCopyInput.value : null;
     const heartShieldCopyLine = heartShieldChecked
-      ? `**${App.t("session.copy.heartShield")}** ${shieldRemovedCopyValue === "yes" ? App.t("session.form.shieldRemoved.yes") : App.t("session.form.shieldRemoved.no")}`
+      ? `**${App.getSectionLabel("heartShield", "session.form.heartShield")}** ${shieldRemovedCopyValue === "yes" ? App.t("session.form.shieldRemoved.yes") : App.t("session.form.shieldRemoved.no")}`
       : null;
 
     const lines = [
@@ -647,7 +649,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       `**${App.t("session.copy.type")}** ${sessionType}`,
       ...(heartShieldCopyLine ? [heartShieldCopyLine] : []),
       "",
-      `## ${App.t("session.copy.issues")}`,
+      `## ${App.getSectionLabel("issues", "session.form.issuesHeading")}`,
       issuesText
     ];
 
@@ -655,30 +657,597 @@ document.addEventListener("DOMContentLoaded", async () => {
     const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
     const heartShieldEmotionsValue = (heartShieldEmotionsEl ? heartShieldEmotionsEl.value : "").trim();
     if (heartShieldChecked && heartShieldEmotionsValue.length > 0) {
-      lines.push("", `## ${App.t("session.form.heartShieldEmotions")}`, heartShieldEmotionsValue);
+      lines.push("", `## ${App.getSectionLabel("heartShieldEmotions", "session.form.heartShieldEmotions")}`, heartShieldEmotionsValue);
     }
 
     // Order: Trapped Emotions, Limiting Beliefs, Additional Techniques, Important Points, Insights, Comments, Next Session
     if (trappedValue.length > 0) {
-      lines.push("", `## ${stripRequired(App.t("session.form.trapped"))}`, trappedValue);
+      lines.push("", `## ${stripRequired(App.getSectionLabel("trapped", "session.form.trapped"))}`, trappedValue);
     }
     if (limitingBeliefsValue.length > 0) {
-      lines.push("", `## ${App.t("session.form.limitingBeliefs")}`, limitingBeliefsValue);
+      lines.push("", `## ${App.getSectionLabel("limitingBeliefs", "session.form.limitingBeliefs")}`, limitingBeliefsValue);
     }
     if (additionalTechValue.length > 0) {
-      lines.push("", `## ${App.t("session.form.additionalTech")}`, additionalTechValue);
+      lines.push("", `## ${App.getSectionLabel("additionalTech", "session.form.additionalTech")}`, additionalTechValue);
     }
     if (insightsValue.length > 0) {
-      lines.push("", `## ${App.t("session.form.insights")}`, insightsValue);
+      lines.push("", `## ${App.getSectionLabel("insights", "session.form.insights")}`, insightsValue);
     }
     if (commentsValue.length > 0) {
-      lines.push("", `## ${App.t("session.form.comments")}`, commentsValue);
+      lines.push("", `## ${App.getSectionLabel("comments", "session.form.comments")}`, commentsValue);
     }
     if (summaryValue.length > 0) {
-      lines.push("", `## ${App.t("session.form.nextSession")}`, summaryValue);
+      lines.push("", `## ${App.getSectionLabel("nextSession", "session.form.nextSession")}`, summaryValue);
     }
 
     return lines.join("\n");
+  }
+
+  // ============================================================
+  // Section visibility (REQ-3, REQ-5 amended 2026-04-28)
+  // ============================================================
+  // - Enabled: visible, badge hidden, fully editable
+  // - Disabled + new session: hidden
+  // - Disabled + past session + has data: visible, badge visible, FULLY EDITABLE
+  //   (no `disabled` / `readonly` attributes — therapist may edit/clear)
+  // - Disabled + past session + no data: hidden
+  function sectionHasData(sectionKey) {
+    switch (sectionKey) {
+      case "trapped": {
+        const el = document.getElementById("trappedEmotions");
+        return !!(el && el.value && el.value.trim().length > 0);
+      }
+      case "insights": {
+        const el = document.getElementById("sessionInsights");
+        return !!(el && el.value && el.value.trim().length > 0);
+      }
+      case "limitingBeliefs": {
+        const el = document.getElementById("limitingBeliefs");
+        return !!(el && el.value && el.value.trim().length > 0);
+      }
+      case "additionalTech": {
+        const el = document.getElementById("additionalTech");
+        return !!(el && el.value && el.value.trim().length > 0);
+      }
+      case "comments": {
+        const el = document.getElementById("sessionComments");
+        return !!(el && el.value && el.value.trim().length > 0);
+      }
+      case "nextSession": {
+        const el = document.getElementById("customerSummary");
+        return !!(el && el.value && el.value.trim().length > 0);
+      }
+      case "heartShieldEmotions": {
+        const el = document.getElementById("heartShieldEmotions");
+        return !!(el && el.value && el.value.trim().length > 0);
+      }
+      case "heartShield": {
+        return !!(heartShieldToggle && heartShieldToggle.checked);
+      }
+      case "issues": {
+        return Array.isArray(issues) && issues.length > 0;
+      }
+      default:
+        return false;
+    }
+  }
+
+  function applySectionVisibility(isPastSession) {
+    const wrappers = document.querySelectorAll("[data-section-key]");
+    wrappers.forEach((wrapper) => {
+      const sectionKey = wrapper.dataset.sectionKey;
+      if (!sectionKey) return;
+      const enabled = App.isSectionEnabled(sectionKey);
+      const badge = wrapper.querySelector(".disabled-indicator-badge");
+      if (enabled) {
+        wrapper.classList.remove("is-hidden");
+        if (badge) badge.classList.add("is-hidden");
+        return;
+      }
+      // Disabled — depends on past-session + data
+      if (!isPastSession) {
+        wrapper.classList.add("is-hidden");
+        if (badge) badge.classList.add("is-hidden");
+        return;
+      }
+      const hasData = sectionHasData(sectionKey);
+      if (hasData) {
+        // REQ-5 amendment 2026-04-28: visible, badge shown, inputs remain
+        // fully editable — do NOT add disabled / readonly attributes here.
+        wrapper.classList.remove("is-hidden");
+        if (badge) badge.classList.remove("is-hidden");
+      } else {
+        wrapper.classList.add("is-hidden");
+        if (badge) badge.classList.add("is-hidden");
+      }
+    });
+  }
+
+  // Cross-tab + same-tab settings change → re-apply visibility.
+  document.addEventListener("app:settings-changed", () => {
+    applySectionVisibility(!!editingSession);
+  });
+
+  // ============================================================
+  // Export modal (REQ-7 to REQ-15, REQ-17, REQ-19)
+  // 3-step flow: Step 1 selection → Step 2 edit/preview → Step 3 outputs
+  // No Translate CTA (REQ-16 removed 2026-04-28)
+  // ============================================================
+  const EXPORT_DEFAULT_CHECKED = {
+    trapped: true,
+    insights: true,
+    limitingBeliefs: true,
+    additionalTech: true,
+    heartShieldEmotions: true, // only if data present (re-checked at render)
+    nextSession: true,
+    issues: false,
+    comments: false,
+    heartShield: false
+  };
+
+  const EXPORT_SECTION_ORDER = [
+    "trapped",
+    "insights",
+    "limitingBeliefs",
+    "additionalTech",
+    "heartShield",
+    "heartShieldEmotions",
+    "issues",
+    "comments",
+    "nextSession"
+  ];
+
+  function exportDefaultI18nKey(sectionKey) {
+    switch (sectionKey) {
+      case "trapped": return "session.form.trapped";
+      case "insights": return "session.form.insights";
+      case "limitingBeliefs": return "session.form.limitingBeliefs";
+      case "additionalTech": return "session.form.additionalTech";
+      case "heartShield": return "session.form.heartShield";
+      case "heartShieldEmotions": return "session.form.heartShieldEmotions";
+      case "issues": return "session.form.issuesHeading";
+      case "comments": return "session.form.comments";
+      case "nextSession": return "session.form.nextSession";
+      default: return sectionKey;
+    }
+  }
+
+  function getCurrentSessionDataForExport() {
+    const clientName = getClientNameForCopy();
+    const sessionDateISO = (sessionDate && sessionDate.value) ? sessionDate.value : "";
+    const sessionDateFormatted = sessionDateISO ? App.formatDate(sessionDateISO) : "-";
+    const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
+    const sessionTypeLabel = App.formatSessionType(sessionTypeInput ? sessionTypeInput.value : "");
+    return { clientName, sessionDateISO, sessionDateFormatted, sessionTypeLabel };
+  }
+
+  function buildFilteredSessionMarkdown(selectedKeys) {
+    // Build a markdown document filtered to only the section keys checked
+    // in Step 1. The header (title, client, date, type) is always emitted —
+    // the Plan 22-05 PDF module also relies on header metadata.
+    const selected = new Set(selectedKeys);
+    const data = getCurrentSessionDataForExport();
+
+    const heartShieldChecked = heartShieldToggle ? heartShieldToggle.checked : false;
+    const shieldRemovedInput = document.querySelector("input[name='shieldRemoved']:checked");
+    const shieldRemovedValue = shieldRemovedInput ? shieldRemovedInput.value : null;
+    const heartShieldLine = (heartShieldChecked && selected.has("heartShield"))
+      ? `**${App.getSectionLabel("heartShield", "session.form.heartShield")}** ${shieldRemovedValue === "yes" ? App.t("session.form.shieldRemoved.yes") : App.t("session.form.shieldRemoved.no")}`
+      : null;
+
+    const lines = [
+      `# ${App.t("session.copy.title")}`,
+      "",
+      `**${App.t("session.copy.client")}** ${data.clientName}`,
+      `**${App.t("session.copy.date")}** ${data.sessionDateFormatted}`,
+      `**${App.t("session.copy.type")}** ${data.sessionTypeLabel}`
+    ];
+    if (heartShieldLine) lines.push(heartShieldLine);
+
+    if (selected.has("issues")) {
+      const issuesPayload = getIssuesPayload();
+      const issuesText = issuesPayload.length
+        ? issuesPayload.map((issue) => {
+            const hasBefore = issue.before !== null && issue.before !== undefined;
+            const hasAfter = issue.after !== null && issue.after !== undefined;
+            const before = hasBefore ? issue.before : "-";
+            const after = hasAfter ? issue.after : "-";
+            if (hasBefore && hasAfter) {
+              const delta = issue.after - issue.before;
+              const sign = delta > 0 ? "+" : "";
+              return `- ${issue.name} (Before: ${before}, After: ${after}, Delta: ${sign}${delta})`;
+            }
+            return `- ${issue.name} (Before: ${before}, After: ${after})`;
+          }).join("\n")
+        : `- ${App.t("session.copy.empty")}`;
+      lines.push("", `## ${App.getSectionLabel("issues", "session.form.issuesHeading")}`, issuesText);
+    }
+
+    const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
+    const heartShieldEmotionsValue = (heartShieldEmotionsEl ? heartShieldEmotionsEl.value : "").trim();
+    if (selected.has("heartShieldEmotions") && heartShieldChecked && heartShieldEmotionsValue.length > 0) {
+      lines.push("", `## ${App.getSectionLabel("heartShieldEmotions", "session.form.heartShieldEmotions")}`, heartShieldEmotionsValue);
+    }
+
+    const trappedValue = (document.getElementById("trappedEmotions") || {}).value || "";
+    if (selected.has("trapped") && trappedValue.trim().length > 0) {
+      lines.push("", `## ${stripRequired(App.getSectionLabel("trapped", "session.form.trapped"))}`, trappedValue.trim());
+    }
+    const limitingBeliefsValue = (document.getElementById("limitingBeliefs") || {}).value || "";
+    if (selected.has("limitingBeliefs") && limitingBeliefsValue.trim().length > 0) {
+      lines.push("", `## ${App.getSectionLabel("limitingBeliefs", "session.form.limitingBeliefs")}`, limitingBeliefsValue.trim());
+    }
+    const additionalTechValue = (document.getElementById("additionalTech") || {}).value || "";
+    if (selected.has("additionalTech") && additionalTechValue.trim().length > 0) {
+      lines.push("", `## ${App.getSectionLabel("additionalTech", "session.form.additionalTech")}`, additionalTechValue.trim());
+    }
+    const insightsValue = (insightsInput ? insightsInput.value : "").trim();
+    if (selected.has("insights") && insightsValue.length > 0) {
+      lines.push("", `## ${App.getSectionLabel("insights", "session.form.insights")}`, insightsValue);
+    }
+    const commentsValue = (document.getElementById("sessionComments") || {}).value || "";
+    if (selected.has("comments") && commentsValue.trim().length > 0) {
+      lines.push("", `## ${App.getSectionLabel("comments", "session.form.comments")}`, commentsValue.trim());
+    }
+    const summaryValue = (customerSummaryInput ? customerSummaryInput.value : "").trim();
+    if (selected.has("nextSession") && summaryValue.length > 0) {
+      lines.push("", `## ${App.getSectionLabel("nextSession", "session.form.nextSession")}`, summaryValue);
+    }
+
+    return lines.join("\n");
+  }
+
+  let _exportState = null;
+
+  function exportRenderStep1Rows(sessionData) {
+    const container = document.getElementById("exportStep1Rows");
+    if (!container) return;
+    container.innerHTML = "";
+    EXPORT_SECTION_ORDER.forEach((key) => {
+      const enabled = App.isSectionEnabled(key);
+      const label = App.getSectionLabel(key, exportDefaultI18nKey(key));
+      const hasData = sectionHasData(key);
+      let defaultChecked = !!EXPORT_DEFAULT_CHECKED[key];
+      if (key === "heartShieldEmotions") defaultChecked = defaultChecked && hasData;
+
+      const row = document.createElement("label");
+      row.className = "export-section-row";
+      if (!enabled) row.classList.add("is-disabled");
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.dataset.sectionKey = key;
+      cb.checked = enabled ? defaultChecked : false;
+      cb.disabled = !enabled;
+
+      const labelSpan = document.createElement("span");
+      labelSpan.className = "export-section-label";
+      labelSpan.textContent = label; // textContent — never innerHTML (T-22-06-02 mitigation)
+
+      row.appendChild(cb);
+      row.appendChild(labelSpan);
+
+      if (!enabled) {
+        const badge = document.createElement("span");
+        badge.className = "disabled-indicator-badge";
+        badge.textContent = App.t("settings.indicator.disabled");
+        row.appendChild(badge);
+        row.title = App.t("settings.indicator.disabled");
+      }
+      container.appendChild(row);
+    });
+  }
+
+  function exportSetActiveStep(n) {
+    const modal = document.getElementById("exportModal");
+    if (!modal) return;
+    _exportState.currentStep = n;
+
+    modal.querySelectorAll(".export-step").forEach((stepEl) => {
+      const stepNum = Number(stepEl.dataset.step);
+      stepEl.classList.toggle("is-active", stepNum === n);
+    });
+    modal.querySelectorAll(".export-step-dot").forEach((dot) => {
+      const stepNum = Number(dot.dataset.step);
+      dot.classList.toggle("is-active", stepNum === n);
+      dot.classList.toggle("is-completed", stepNum < n);
+    });
+    modal.querySelectorAll(".export-step-connector").forEach((conn, idx) => {
+      // connector idx 0 sits between step 1 and 2; idx 1 between step 2 and 3
+      conn.classList.toggle("is-completed", idx < n - 1);
+    });
+    const indicator = modal.querySelector(".export-step-indicator");
+    if (indicator) indicator.setAttribute("aria-valuenow", String(n));
+
+    const backBtn = document.getElementById("exportBackBtn");
+    const nextBtn = document.getElementById("exportNextBtn");
+    if (backBtn) backBtn.classList.toggle("is-hidden", n === 1);
+    if (nextBtn) {
+      if (n === 1) {
+        nextBtn.setAttribute("data-i18n", "export.next1");
+        nextBtn.textContent = App.t("export.next1");
+      } else if (n === 2) {
+        nextBtn.setAttribute("data-i18n", "export.next2");
+        nextBtn.textContent = App.t("export.next2");
+      } else {
+        nextBtn.setAttribute("data-i18n", "export.done");
+        nextBtn.textContent = App.t("export.done");
+      }
+    }
+  }
+
+  function exportUpdatePreview() {
+    const editor = document.getElementById("exportEditor");
+    const preview = document.getElementById("exportPreview");
+    if (!editor || !preview) return;
+    if (window.MdRender && typeof window.MdRender.render === "function") {
+      // MdRender.render escapes HTML before structural rules — safe to assign.
+      preview.innerHTML = window.MdRender.render(editor.value);
+    } else {
+      preview.textContent = editor.value;
+    }
+  }
+
+  function exportApplyMobileTabs() {
+    const modal = document.getElementById("exportModal");
+    if (!modal) return;
+    const tabs = modal.querySelector(".export-mobile-tabs");
+    const editor = document.getElementById("exportEditor");
+    const preview = document.getElementById("exportPreview");
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    if (!tabs) return;
+    tabs.classList.toggle("is-hidden", !isMobile);
+    if (!isMobile) {
+      // Desktop: both visible side-by-side
+      if (editor) editor.classList.remove("is-hidden");
+      if (preview) preview.classList.remove("is-hidden");
+      return;
+    }
+    // Mobile: respect active tab (default to edit)
+    const activeTab = tabs.querySelector(".tab-btn.is-active");
+    const which = activeTab ? activeTab.dataset.tab : "edit";
+    if (editor) editor.classList.toggle("is-hidden", which !== "edit");
+    if (preview) preview.classList.toggle("is-hidden", which !== "preview");
+  }
+
+  function exportWireMobileTabs() {
+    const modal = document.getElementById("exportModal");
+    if (!modal) return;
+    const tabs = modal.querySelectorAll(".export-mobile-tabs .tab-btn");
+    tabs.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        modal.querySelectorAll(".export-mobile-tabs .tab-btn").forEach((b) => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        exportApplyMobileTabs();
+      });
+    });
+  }
+
+  async function exportCloseDialog(skipDirtyCheck) {
+    const modal = document.getElementById("exportModal");
+    if (!modal) return;
+    if (!skipDirtyCheck && _exportState && _exportState.hasEditedPreview) {
+      const ok = await App.confirmDialog({
+        titleKey: "export.discard.title",
+        messageKey: "export.discard.body",
+        confirmKey: "export.discard.yes",
+        cancelKey: "export.discard.no"
+      });
+      if (!ok) return;
+    }
+    modal.classList.add("is-hidden");
+    App.unlockBodyScroll();
+    if (_exportState && _exportState.cleanup) {
+      _exportState.cleanup();
+    }
+    _exportState = null;
+  }
+
+  async function exportHandleDownloadPdf() {
+    const btn = document.getElementById("exportDownloadPdf");
+    const subtitle = document.getElementById("exportPdfSubtitle");
+    if (!btn || !window.PDFExport) {
+      App.showToast("", "export.pdf.failed");
+      return;
+    }
+    try {
+      btn.disabled = true;
+      if (subtitle) subtitle.textContent = App.t("export.preparing");
+      const editor = document.getElementById("exportEditor");
+      const data = _exportState ? _exportState.sessionData : getCurrentSessionDataForExport();
+      const blob = await window.PDFExport.buildSessionPDF({
+        clientName: data.clientName,
+        sessionDate: data.sessionDateFormatted,
+        sessionType: data.sessionTypeLabel,
+        markdown: editor ? editor.value : ""
+      }, {
+        uiLang: localStorage.getItem("portfolioLang") || "en",
+        onProgress: function (phase) {
+          if (subtitle) {
+            subtitle.textContent = phase === "done" ? "" : App.t("export.preparing");
+          }
+        }
+      });
+      const slug = window.PDFExport.slugify(data.clientName);
+      const fname = slug + "_" + (data.sessionDateISO || "session") + ".pdf";
+      window.PDFExport.triggerDownload(blob, fname);
+      if (subtitle) subtitle.textContent = "";
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      App.showToast("", "export.pdf.failed");
+      if (subtitle) subtitle.textContent = "";
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function exportHandleDownloadMd() {
+    const btn = document.getElementById("exportDownloadMd");
+    const editor = document.getElementById("exportEditor");
+    if (!btn || !editor) return;
+    const data = _exportState ? _exportState.sessionData : getCurrentSessionDataForExport();
+    const blob = new Blob([editor.value], { type: "text/markdown;charset=utf-8" });
+    const slug = (window.PDFExport && typeof window.PDFExport.slugify === "function")
+      ? window.PDFExport.slugify(data.clientName)
+      : (data.clientName || "Session").replace(/[<>:"\/\\|?*\x00-\x1F]/g, "");
+    const fname = slug + "_" + (data.sessionDateISO || "session") + ".md";
+    if (window.PDFExport && typeof window.PDFExport.triggerDownload === "function") {
+      window.PDFExport.triggerDownload(blob, fname);
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  }
+
+  async function exportHandleShare() {
+    const btn = document.getElementById("exportShare");
+    const editor = document.getElementById("exportEditor");
+    if (!btn || !editor) return;
+    if (typeof navigator.canShare !== "function" || typeof navigator.share !== "function") return;
+    try {
+      btn.disabled = true;
+      const data = _exportState ? _exportState.sessionData : getCurrentSessionDataForExport();
+      const blob = await window.PDFExport.buildSessionPDF({
+        clientName: data.clientName,
+        sessionDate: data.sessionDateFormatted,
+        sessionType: data.sessionTypeLabel,
+        markdown: editor.value
+      }, { uiLang: localStorage.getItem("portfolioLang") || "en" });
+      const slug = window.PDFExport.slugify(data.clientName);
+      const fname = slug + "_" + (data.sessionDateISO || "session") + ".pdf";
+      const file = new File([blob], fname, { type: "application/pdf" });
+      if (!navigator.canShare({ files: [file] })) {
+        btn.classList.add("is-hidden");
+        return;
+      }
+      await navigator.share({
+        files: [file],
+        title: data.clientName + " — " + data.sessionDateFormatted,
+        text: App.t("export.share.text")
+      });
+    } catch (err) {
+      if (err && err.name === "AbortError") return; // user cancelled
+      console.error("Share failed:", err);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function exportProbeShareSupport() {
+    const btn = document.getElementById("exportShare");
+    if (!btn) return;
+    if (typeof navigator.canShare !== "function") return;
+    try {
+      const probe = new File(
+        [new Blob(["x"], { type: "application/pdf" })],
+        "x.pdf",
+        { type: "application/pdf" }
+      );
+      if (navigator.canShare({ files: [probe] })) {
+        btn.classList.remove("is-hidden");
+      }
+    } catch (e) {
+      // probe failed — leave button hidden
+    }
+  }
+
+  async function openExportDialog() {
+    const modal = document.getElementById("exportModal");
+    if (!modal) return;
+    const sessionData = getCurrentSessionDataForExport();
+    _exportState = {
+      currentStep: 1,
+      sessionData,
+      hasEditedPreview: false,
+      cleanup: null
+    };
+
+    exportRenderStep1Rows(sessionData);
+    exportSetActiveStep(1);
+
+    const editor = document.getElementById("exportEditor");
+    const preview = document.getElementById("exportPreview");
+    if (editor) editor.value = "";
+    if (preview) preview.innerHTML = "";
+
+    modal.classList.remove("is-hidden");
+    App.lockBodyScroll();
+    App.applyTranslations(modal);
+    exportApplyMobileTabs();
+
+    // Wire events for the lifetime of this dialog. Track listeners so we can detach.
+    const closeBtn = document.getElementById("exportClose");
+    const overlay = modal.querySelector(".modal-overlay");
+    const backBtn = document.getElementById("exportBackBtn");
+    const nextBtn = document.getElementById("exportNextBtn");
+    const downloadPdfBtn = document.getElementById("exportDownloadPdf");
+    const downloadMdBtn = document.getElementById("exportDownloadMd");
+    const shareBtn = document.getElementById("exportShare");
+
+    const onClose = () => exportCloseDialog(false);
+    const onOverlay = () => exportCloseDialog(false);
+    const onKey = (e) => { if (e.key === "Escape") exportCloseDialog(false); };
+    const onBack = () => {
+      if (_exportState.currentStep > 1) exportSetActiveStep(_exportState.currentStep - 1);
+    };
+    const onNext = () => {
+      if (_exportState.currentStep === 1) {
+        // Collect selected sections, build initial markdown, populate editor.
+        const checks = modal.querySelectorAll('#exportStep1Rows input[type="checkbox"]');
+        const selected = [];
+        checks.forEach((cb) => { if (cb.checked && !cb.disabled) selected.push(cb.dataset.sectionKey); });
+        const md = buildFilteredSessionMarkdown(selected);
+        if (editor) editor.value = md;
+        _exportState.hasEditedPreview = false;
+        exportSetActiveStep(2);
+        exportApplyMobileTabs();
+        exportUpdatePreview();
+      } else if (_exportState.currentStep === 2) {
+        exportSetActiveStep(3);
+      } else {
+        exportCloseDialog(true);
+      }
+    };
+    const onEditorInput = () => {
+      _exportState.hasEditedPreview = true;
+      exportUpdatePreview();
+    };
+    const onResize = () => exportApplyMobileTabs();
+    const onPdf = () => exportHandleDownloadPdf();
+    const onMd = () => exportHandleDownloadMd();
+    const onShare = () => exportHandleShare();
+
+    if (closeBtn) closeBtn.addEventListener("click", onClose);
+    if (overlay) overlay.addEventListener("click", onOverlay);
+    document.addEventListener("keydown", onKey);
+    if (backBtn) backBtn.addEventListener("click", onBack);
+    if (nextBtn) nextBtn.addEventListener("click", onNext);
+    if (editor) editor.addEventListener("input", onEditorInput);
+    window.addEventListener("resize", onResize);
+    if (downloadPdfBtn) downloadPdfBtn.addEventListener("click", onPdf);
+    if (downloadMdBtn) downloadMdBtn.addEventListener("click", onMd);
+    if (shareBtn) shareBtn.addEventListener("click", onShare);
+
+    exportProbeShareSupport();
+
+    _exportState.cleanup = function () {
+      if (closeBtn) closeBtn.removeEventListener("click", onClose);
+      if (overlay) overlay.removeEventListener("click", onOverlay);
+      document.removeEventListener("keydown", onKey);
+      if (backBtn) backBtn.removeEventListener("click", onBack);
+      if (nextBtn) nextBtn.removeEventListener("click", onNext);
+      if (editor) editor.removeEventListener("input", onEditorInput);
+      window.removeEventListener("resize", onResize);
+      if (downloadPdfBtn) downloadPdfBtn.removeEventListener("click", onPdf);
+      if (downloadMdBtn) downloadMdBtn.removeEventListener("click", onMd);
+      if (shareBtn) shareBtn.removeEventListener("click", onShare);
+    };
   }
 
   if (addIssueBtn) {
@@ -710,6 +1279,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       const markdown = buildSessionMarkdown();
       const success = await copyTextToClipboard(markdown);
       if (success) App.showToast("", "toast.copied");
+    });
+  }
+
+  if (exportSessionBtn) {
+    exportSessionBtn.addEventListener("click", () => {
+      openExportDialog();
     });
   }
 
@@ -903,7 +1478,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       App.setSubmitLabel("session.form.update", submitButton, submitLabel);
       if (deleteButton) deleteButton.classList.remove("is-hidden");
       setReadMode(true);
+      applySectionVisibility(true);
     }
+  } else {
+    // New session — hide disabled sections from the form per REQ-3.
+    applySectionVisibility(false);
   }
 
   // Accordion toggle — mobile only
