@@ -6,6 +6,14 @@ shadcn_initialized: false
 preset: none
 created: 2026-04-27
 reviewed_at: 2026-04-27
+amended_at: 2026-04-28
+amendments:
+  - "2026-04-28 — REQ-16 Translate dropped from modal mockups, copywriting table, icon inventory, and translate placement section"
+  - "2026-04-28 — Step 3 plain-text card relabelled 'Download as text file' (was 'Download Markdown'); session-header clipboard relabelled 'Copy session text' (was 'Copy Session (MD)')"
+  - "2026-04-28 — Settings page row spec extended for 3 disable-only rows (Heart Shield toggle, Issues + severity, Information for Next Session) — non-editable rename input + tooltip"
+  - "2026-04-28 — Sticky info banner extended with 2 warning bullets (global-across-languages, no-data-deletion); first-time-disable confirm dialog spec added"
+  - "2026-04-28 — 'Disabled in Settings' badge in past-session form now sits next to a *fully editable* input (was a read-only render with indicator)"
+  - "2026-04-28 — Step 3 PDF filename example switched from AnnaM_2026-04-27.pdf → Jörg_2026-04-27.pdf to illustrate D-04 as-is preservation rule"
 ---
 
 # Phase 22 — UI Design Contract
@@ -107,7 +115,7 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 - Hover states on disabled-greyed-out checkboxes in the export dialog
 - The Markdown preview pane heading typography
 
-**Indicator styling — "Disabled in Settings" badge** (used in edit-existing-session form AND in greyed export-dialog rows):
+**Indicator styling — "Disabled in Settings" badge** (used in past-session form for disabled-but-populated sections AND in greyed export-dialog rows; revised 2026-04-28: in the past-session form the badge sits next to the section heading and the form input remains *fully editable*, not read-only):
 
 | Property | Value |
 |----------|-------|
@@ -194,12 +202,12 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 | Container | `padding: md (24px)`; `border: 1px solid var(--color-border-soft)`; `border-radius: 16px`; `background: var(--color-surface)`; `margin-bottom: sm (16px)` |
 | Default-name label | Body weight 600 — uses i18n default key (e.g. `session.form.trapped`); shows the **English** default name in muted parentheses if current UI language ≠ English (so the therapist always knows what they're renaming) |
 | Description | Microcopy, `color: var(--color-text-muted)` — short hint per section (e.g. "Where you log released emotions"). i18n keys `settings.row.{key}.description`. |
-| Rename input | `.input` class; `placeholder` = current default i18n value for active UI language; `maxlength="60"` (locks Claude's discretion item from CONTEXT.md); shows current custom label as `value` if set |
+| Rename input | `.input` class; `placeholder` = current default i18n value for active UI language; `maxlength="60"` (locks Claude's discretion item from CONTEXT.md); shows current custom label as `value` if set. **Disable-only rows (Heart Shield toggle, Issues + severity, Information for Next Session — per SPEC REQ-2 amendment 2026-04-28):** input renders with `disabled` attribute, `cursor: not-allowed`, `opacity: 0.55`, `aria-disabled="true"`, plus a tooltip + `aria-describedby` pointing to a small info icon next to the input. Tooltip i18n key `settings.rename.locked.tooltip`, copy: en "This section's purpose is fixed — it can be turned off but not renamed." / he "מטרת הסעיף קבועה — ניתן לכבות אך לא לשנות שם." / de "Der Zweck dieses Abschnitts ist festgelegt — Sie können ihn deaktivieren, aber nicht umbenennen." / cs "Účel této sekce je pevný — můžete ji vypnout, ale ne přejmenovat." |
 | Enable/disable toggle | Reuse `.toggle-switch` + `.toggle-slider` (already exists `app.css:1604-1646`); checked = enabled |
 | Reset button | `.button.ghost` with refresh-arrow SVG icon; tooltip + `aria-label` = "Reset to default name"; **disabled state** when no override exists (greyed, `pointer-events: none`); **enabled state** = `.button.ghost` with primary-soft hover |
 | Indicator (when section is currently disabled) | The "Disabled in Settings" pill badge appears inline next to the default name |
 
-**Sticky info banner (D-12 messaging):**
+**Sticky info banner (D-12 messaging — extended 2026-04-28 to cover REQ-21 warnings):**
 
 | Property | Value |
 |----------|-------|
@@ -209,9 +217,25 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 | Padding | `sm md` (16px block × 24px inline — both on-scale) |
 | Border-radius | `16px` |
 | Icon | Info glyph SVG (same circle-i used elsewhere in app warnings) — leading inline-start |
-| Copy (en) | "Saved labels appear immediately on this page. Open session forms will pick up the new labels on next page navigation. Refresh other tabs to see changes immediately." |
-| Copy (i18n keys) | `settings.syncMessage.heading` + `settings.syncMessage.body` (in en/de/he/cs) |
-| Visibility | Always visible while on Settings page (the sync caveat is non-obvious) |
+| Heading (en) | "About Settings" — i18n `settings.banner.heading` |
+| Bullets (en) | (1) "Custom names apply to all UI languages — one label set, not per-language." → i18n `settings.banner.bullet.global` ; (2) "Disabling a section never deletes existing data — past sessions still display sections that already have content." → i18n `settings.banner.bullet.noDelete` |
+| Layout | Heading + `<ul>` of two `<li>` bullets; bullet markers in `var(--color-text-muted)` |
+| Visibility | Always visible while on Settings page (these caveats are non-obvious and previously caused user confusion) |
+| Post-save sync row | Below the banner, the original D-12 sync message renders as a separate info row after a successful Save: "Saved. Open session forms will pick up the new labels on next page navigation. Refresh other tabs to see changes immediately." (i18n `settings.syncMessage.heading` + `.body`) |
+
+**First-time-disable confirmation dialog (NEW 2026-04-28 per REQ-21):**
+
+| Property | Value |
+|----------|-------|
+| Trigger | First time the therapist toggles any row's enable/disable switch from enabled → disabled within a fresh Settings page visit. Subsequent toggles in the same visit do NOT re-trigger. Once-per-visit gate via `sessionStorage.setItem('settings.disable.confirmed', '1')`; gate clears on full page reload. |
+| Pattern | Reuses the existing Phase 21 confirm-card scaffold (`app.css:1333-1373`, `confirmDialog` in `app.js:300-346`). DO NOT introduce a new dialog style. |
+| Title (en) | "Disable this section?" — i18n `settings.confirm.disable.title` |
+| Body (en) | "This won't delete existing data. Past sessions can still display this section if it has content. New sessions will not show it. Continue?" — i18n `settings.confirm.disable.body` |
+| Confirm button | "Yes, disable" — primary `.button` — i18n `settings.confirm.disable.confirm` |
+| Cancel button | "Keep enabled" — `.button.ghost` — i18n `settings.confirm.disable.cancel` |
+| On confirm | Toggle commits, switch flips, dirty state set, `sessionStorage` flag set so subsequent disables don't re-prompt |
+| On cancel | Toggle does NOT commit (switch springs back to enabled); dialog closes |
+| RTL | Dialog `dir="auto"`; logical-property layout already used by Phase 21 confirm-card pattern |
 
 **Sticky bottom action bar:**
 
@@ -324,12 +348,12 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 | │                     │ │                      │       |
 | │ Markdown textarea   │ │ Live HTML preview    │       |
 | └─────────────────────┘ └──────────────────────┘       |
-|                                                        |
-| [Translate via Google ↗]                               |
 +--------------------------------------------------------+
 | [← Back]              [Next: Get document →]           |
 +--------------------------------------------------------+
 ```
+
+*(Translate-via-Google CTA removed 2026-04-28 — REQ-16 dropped. The editable preview gives the therapist the text; cross-language translation is handled outside the app if needed.)*
 
 **Mobile (≤768px) — tabs:**
 
@@ -347,8 +371,6 @@ The 60/30/10 split is already established in `assets/tokens.css`. Phase 22 inher
 | │ ...                                      │   |
 | │ Markdown textarea (full width)           │   |
 | └──────────────────────────────────────────┘   |
-|                                                |
-| [Translate via Google ↗]                       |
 +------------------------------------------------+
 | [← Back]              [Next →]                 |
 +------------------------------------------------+
@@ -407,12 +429,12 @@ Headings map into the **4-role type scale** declared above — no off-scale size
 |                                                |
 | ┌──────────────────────────────────────────┐   |
 | │ 📄 Download PDF                          │   |
-| │ AnnaM_2026-04-27.pdf · A4 · ~80 KB       │   |
+| │ Jörg_2026-04-27.pdf · A4 · ~80 KB        │   |
 | └──────────────────────────────────────────┘   |
 |                                                |
 | ┌──────────────────────────────────────────┐   |
-| │ M↓ Download Markdown                     │   |
-| │ AnnaM_2026-04-27.md · plain text         │   |
+| │ 📝 Download as text file                 │   |
+| │ Jörg_2026-04-27.md · plain text          │   |
 | └──────────────────────────────────────────┘   |
 |                                                |
 | ┌──────────────────────────────────────────┐   |
@@ -424,6 +446,8 @@ Headings map into the **4-role type scale** declared above — no off-scale size
 | [← Back]                            [ Done ]   |
 +------------------------------------------------+
 ```
+
+*(Filename example uses `Jörg_…` to illustrate D-04 amendment 2026-04-28: client name preserved as-is including diacritics; only OS-reserved chars stripped. Plain-text card label updated from "Download Markdown" → "Download as text file" to remove jargon. The 4th "Translate via Google" card from the original spec has been removed — REQ-16 dropped.)*
 
 **Output card spec:**
 
@@ -437,15 +461,7 @@ Headings map into the **4-role type scale** declared above — no off-scale size
 | Whole card focusable & clickable | `<button type="button" class="output-card">` (semantic) |
 | Loading state (PDF) | While jsPDF loads on first click, replace icon with spinner; subtitle = "Preparing PDF..." (i18n) |
 
-**Translate shortcut placement** (referenced from Step 2 — lives below the editor/preview, above the action bar):
-
-| Property | Value |
-|----------|-------|
-| Element | `.button.ghost.icon-inline` |
-| Icon | External-link arrow SVG (↗) |
-| Label | "Translate via Google" (i18n key `export.translate.cta`) |
-| Tooltip / aria | "Opens translate.google.com in a new tab with the current text" (i18n key `export.translate.tooltip`) |
-| Behavior | `target="_blank" rel="noopener noreferrer"` — opens new tab with `q=` query param prefilled |
+**~~Translate shortcut placement~~** — REMOVED 2026-04-28. SPEC REQ-16 dropped. No `.export.translate.*` i18n keys are created. The export modal makes zero outbound network calls.
 
 ---
 
@@ -467,12 +483,13 @@ Mounts in `header-actions` (existing `id="headerActions"` mount point in `app.js
 
 ## Export Button — Session Edit Page (Feature B entry)
 
-Lives inside `.session-header-actions` at `add-session.html:51` next to the existing Copy MD button.
+Lives inside `.session-header-actions` at `add-session.html:51` next to the existing clipboard-copy button (the existing button keeps its DOM id `copySessionBtn` and i18n key `session.copyAll`; only the rendered string is updated to "Copy session text" — see D-22 / SPEC REQ-7 amendment 2026-04-28).
 
 ```html
 <div class="session-header-actions">
   <button class="button ghost icon-inline" id="copySessionBtn">
-    <span data-i18n="session.copyAll">Copy Session (MD)</span>
+    <!-- Renamed 2026-04-28 — was "Copy Session (MD)" — drops the (MD) jargon for non-technical users -->
+    <span data-i18n="session.copyAll">Copy session text</span>
     <span class="button-icon">📋</span>
   </button>
   <button class="button icon-inline" id="exportSessionBtn">  <!-- NEW -->
@@ -485,11 +502,11 @@ Lives inside `.session-header-actions` at `add-session.html:51` next to the exis
 
 | Property | Value |
 |----------|-------|
-| Visibility | Visible only in **read mode** (loaded session). Hidden during creation of a new unsaved session — same gate as Copy MD. |
-| Style | `.button.icon-inline` (NOT `.button.ghost` — Export is the higher-priority action of the two; Copy MD becomes the secondary ghost button) |
+| Visibility | Visible only in **read mode** (loaded session). Hidden during creation of a new unsaved session — same gate as the existing clipboard button. |
+| Style | `.button.icon-inline` (NOT `.button.ghost` — Export is the higher-priority action of the two; clipboard button becomes the secondary ghost button) |
 | Color | Primary (uses `--color-primary` background) |
 | Icon | Outbox/share glyph 📤 (HTML entity is cross-platform safe; falls back to plain unicode) |
-| Order on desktop | Copy MD (ghost) → Export (primary) → Edit (icon-button) |
+| Order on desktop | Copy session text (ghost) → Export (primary) → Edit (icon-button) |
 | Order on mobile | Same order; the row wraps if needed (`flex-wrap: wrap` already on `.session-header-actions`) |
 
 ---
@@ -508,11 +525,20 @@ Lives inside `.session-header-actions` at `add-session.html:51` next to the exis
 | Export modal step 3 done | "Done" | "סיים" | "Fertig" | "Hotovo" |
 | Export modal back | "Back" | "חזור" | "Zurück" | "Zpět" |
 | Output card — PDF | "Download PDF" | "הורד PDF" | "PDF herunterladen" | "Stáhnout PDF" |
-| Output card — MD | "Download Markdown" | "הורד Markdown" | "Markdown herunterladen" | "Stáhnout Markdown" |
+| Output card — text file (renamed 2026-04-28, was "Download Markdown") | "Download as text file" | "הורד כקובץ טקסט" | "Als Textdatei herunterladen" | "Stáhnout jako textový soubor" |
 | Output card — Share | "Share via device" | "שתף דרך המכשיר" | "Über Gerät teilen" | "Sdílet přes zařízení" |
-| Translate CTA | "Translate via Google" | "תרגם דרך Google" | "Mit Google übersetzen" | "Přeložit přes Google" |
+| ~~Translate CTA~~ | — | — | — | — *(REQ-16 removed 2026-04-28)* |
 | Header gear tooltip | "Settings" | "הגדרות" | "Einstellungen" | "Nastavení" |
 | Session header export | "Export" | "ייצוא" | "Exportieren" | "Exportovat" |
+| Session header clipboard (renamed 2026-04-28, was "Copy Session (MD)" — i18n key `session.copyAll`) | "Copy session text" | "העתק טקסט סשן" | "Sitzungstext kopieren" | "Kopírovat text sezení" |
+| Settings — locked-rename tooltip (NEW 2026-04-28, i18n `settings.rename.locked.tooltip`) | "This section's purpose is fixed — it can be turned off but not renamed." | "מטרת הסעיף קבועה — ניתן לכבות אך לא לשנות שם." | "Der Zweck dieses Abschnitts ist festgelegt — Sie können ihn deaktivieren, aber nicht umbenennen." | "Účel této sekce je pevný — můžete ji vypnout, ale ne přejmenovat." |
+| Settings — first-disable confirm title (NEW 2026-04-28, i18n `settings.confirm.disable.title`) | "Disable this section?" | "להשבית את הסעיף הזה?" | "Diesen Abschnitt deaktivieren?" | "Vypnout tuto sekci?" |
+| Settings — first-disable confirm body (NEW 2026-04-28, i18n `settings.confirm.disable.body`) | "This won't delete existing data. Past sessions can still display this section if it has content. New sessions will not show it. Continue?" | "פעולה זו לא תמחק נתונים קיימים. סשנים קודמים עדיין יציגו את הסעיף אם יש בו תוכן. סשנים חדשים לא יציגו אותו. להמשיך?" | "Bestehende Daten werden nicht gelöscht. Frühere Sitzungen zeigen diesen Abschnitt weiterhin, wenn Inhalt vorhanden ist. Neue Sitzungen nicht. Fortfahren?" | "Stávající data se nesmažou. Předchozí sezení tuto sekci stále zobrazí, pokud obsahují obsah. Nová sezení ne. Pokračovat?" |
+| Settings — first-disable confirm OK | "Yes, disable" | "כן, השבת" | "Ja, deaktivieren" | "Ano, vypnout" |
+| Settings — first-disable confirm cancel | "Keep enabled" | "השאר מופעל" | "Aktiviert lassen" | "Ponechat zapnuté" |
+| Settings — banner heading (NEW 2026-04-28, i18n `settings.banner.heading`) | "About Settings" | "על ההגדרות" | "Über Einstellungen" | "O nastavení" |
+| Settings — banner bullet 1 (i18n `settings.banner.bullet.global`) | "Custom names apply to all UI languages — one label set, not per-language." | "שמות מותאמים אישית חלים על כל שפות הממשק — סט תוויות אחד, לא לפי שפה." | "Eigene Namen gelten für alle Oberflächensprachen — ein Labelsatz, nicht pro Sprache." | "Vlastní názvy platí pro všechny jazyky rozhraní — jedna sada štítků, ne podle jazyka." |
+| Settings — banner bullet 2 (i18n `settings.banner.bullet.noDelete`) | "Disabling a section never deletes existing data — past sessions still display sections that already have content." | "השבתת סעיף אינה מוחקת נתונים קיימים — סשנים קודמים עדיין יציגו סעיפים שכבר יש בהם תוכן." | "Das Deaktivieren eines Abschnitts löscht keine bestehenden Daten — frühere Sitzungen zeigen Abschnitte mit vorhandenem Inhalt weiterhin an." | "Vypnutím sekce se nesmažou existující data — předchozí sezení nadále zobrazí sekce s obsahem." |
 
 ### Settings page top-of-page copy
 
@@ -585,12 +611,12 @@ Phase 22 uses inline SVG (project precedent — see globe `app.js:124`, leaf `ad
 |------|-----|------------|
 | Gear | Header gear button | 24×24 viewBox; standard 8-cog gear path (`fill: none; stroke: currentColor; stroke-width: 1.8`) |
 | Refresh-arrow | Settings row reset | 24×24 viewBox; circular-arrow path |
-| External-link | Translate CTA | 24×24 viewBox; box-with-arrow path |
 | Document (page) | Export PDF output card | 24×24 viewBox; document-with-corner-fold |
-| Markdown | Export MD output card | Use simple "M↓" glyph styled as text (no good universal SVG; matches GitHub convention) |
+| Text-file (pencil-on-paper) | Plain-text-file output card (replaces "M↓" Markdown glyph 2026-04-28) | 24×24 viewBox; lined-page-with-pencil-corner SVG |
 | Share | Export Share output card and session-header export button | 24×24 viewBox; three-circle-with-connectors share path |
-| Info circle | Sticky info banner on Settings | 24×24 viewBox; circle with `i` |
+| Info circle | Sticky info banner on Settings; locked-rename info button on disable-only rows | 24×24 viewBox; circle with `i` |
 | Check / cross / chevron | Existing patterns — reuse `.toggle-switch` from `app.css:1604` |
+| ~~External-link~~ | — | *(was Translate CTA — REQ-16 removed 2026-04-28)* |
 
 **Source:** All SVGs hand-coded (matches existing precedent — no fetched/imported icon set). Researcher-recommended baseline shapes from Heroicons / Lucide visual language without copying the licensed SVG bytes.
 

@@ -1,7 +1,8 @@
 # Phase 22: Session Workflow Loop — Context
 
 **Gathered:** 2026-04-27
-**Status:** Ready for planning (after `/gsd-ui-phase` runs)
+**Amended:** 2026-04-28 (post-Sapir-review tightening — D-04 filename rule, D-12 banner copy, D-17 drop Translate, D-19/D-20 friendlier button copy, plus new D-21..D-23)
+**Status:** Ready for execution (8 PLAN.md files updated to reflect amendments)
 
 <domain>
 ## Phase Boundary
@@ -62,7 +63,7 @@ Downstream agents (researcher, planner, executor) MUST read `22-SPEC.md` before 
 - **D-01:** PDF library — vendor `jsPDF` (~50KB minified, MIT) into `assets/`. Follows the existing `jszip.min.js` precedent. Programmatic, deterministic output. No browser-dialog dependency.
 - **D-02:** Fonts — embed `Noto Sans` (Latin / extended diacritics for de/cs) + `Noto Sans Hebrew` as base64 strings, subset to needed glyph ranges (~150–200 KB total). Hebrew rendered via jsPDF's `R2L` direction flag. Single font family across all 4 UI languages, fully self-contained (no Google Fonts CDN at export time).
 - **D-03:** Loading — lazy-load jsPDF + fonts on the **first** Export click (dynamic `<script>` append). **PWA constraint:** `sw.js` `PRECACHE_URLS` MUST include all jsPDF + font assets so installed PWA users have them available offline after install. Lazy-load and SW-precache are compatible: bytes are cached at install time; the script tag only executes when Export is clicked.
-- **D-04:** Filename pattern — `ClientName_YYYY-MM-DD.pdf` (e.g. `AnnaM_2026-04-27.pdf`). Sanitize: ASCII-only, strip diacritics, transliterate Hebrew chars to Latin (use a small `slugify` helper), no spaces.
+- **D-04:** Filename pattern — `ClientName_YYYY-MM-DD.pdf` (e.g. `Jörg_2026-04-27.pdf`, `שירה_2026-04-27.pdf`, `AnnaM_2026-04-27.pdf`). **Updated 2026-04-28 per user feedback.** Sanitize rule: keep the client name as-is including all Unicode (Hebrew, German diacritics, Czech diacritics — all modern OSes support Unicode filenames since the early 2000s). Strip ONLY the union of OS-reserved filename characters: `<` `>` `:` `"` `/` `\` `|` `?` `*` and ASCII control chars 0–31. Trim trailing dots and trailing whitespace (Windows-only quirks). If the resulting name is empty (e.g. client name was only reserved chars), fall back to the literal string `Session`. Spaces inside the name are allowed (modern OSes handle them; share targets quote them). No transliteration, no diacritic stripping, no slugify.
 - **D-05:** Page size — A4 portrait (595×842pt) globally. EU/IL/CZ default; no per-language switching.
 - **D-06:** Pagination — auto page-break with a running header on pages 2+ (abbreviated: client name + session date). Page numbers in footer (`Page X of Y`).
 - **D-07:** Typography — body 11pt, section headings 14pt (bold), header meta 10pt. Print-document standard.
@@ -73,7 +74,13 @@ Downstream agents (researcher, planner, executor) MUST read `22-SPEC.md` before 
 - **D-09:** Label-resolution function — new `App.getSectionLabel(sectionKey)` in `assets/app.js`. Reads from in-memory cache; falls back to `App.t(defaultI18nKey)` if no override. Single source used by `add-session.js` (form rendering), `buildSessionMarkdown` (Copy MD), and the new export module.
 - **D-10:** Cache initialization — eager load in `App.initCommon()`. On every page load, after DOMContentLoaded, populate `App._sectionLabelCache` from `PortfolioDB.getAllTherapistSettings()`. By the time page-specific JS runs, `App.getSectionLabel` is synchronous.
 - **D-11:** Cross-tab sync — BroadcastChannel `sessions-garden-settings`. Settings page posts on save; other tabs listen and swap `App._sectionLabelCache` on next render (deferred swap avoids label flicker if user is mid-edit on a form).
-- **D-12:** User-facing sync messaging — Settings page shows a visible, i18n'd info message (en/de/he/cs) explaining what to expect after Save. Suggested copy: "Saved. Open session forms will pick up the new labels on next page navigation. Refresh other tabs to see changes immediately." This is a real UI element, not a toast — the user explicitly requested it.
+- **D-12:** User-facing warnings + sync messaging on the Settings page (extended 2026-04-28 per user feedback — see REQ-21 in SPEC). Three surfaces:
+  (a) **Sticky info banner** at the top of the row list, always visible. Two short bullets, all 4 languages:
+      - "Custom names apply to all UI languages — one label set, not per-language."
+      - "Disabling a section never deletes existing data — past sessions still display sections that already have content."
+      i18n keys: `settings.banner.heading` (e.g. "About Settings"), `settings.banner.bullet.global`, `settings.banner.bullet.noDelete`. Banner uses the existing `--color-info-bg` token.
+  (b) **First-time-disable confirmation dialog** — appears once per Settings page visit on the first toggle-to-disabled. Reuses Phase 21 confirm-card pattern. Body: "This won't delete existing data. Past sessions can still display this section if it has content. New sessions will not show it. Continue?" Confirm: "Yes, disable" / Cancel: "Keep enabled". Once-per-visit gate via `sessionStorage.setItem('settings.disable.confirmed', '1')`. i18n keys: `settings.confirm.disable.title`, `.body`, `.confirm`, `.cancel`.
+  (c) **Post-save info message** (the original D-12 content, retained): visible info row near the save button after a successful save. Copy: "Saved. Open session forms will pick up the new labels on next page navigation. Refresh other tabs to see changes immediately." i18n key: `settings.syncMessage.heading` + `.body`.
 
 ### Settings page chrome (Feature A)
 
@@ -84,24 +91,34 @@ Downstream agents (researcher, planner, executor) MUST read `22-SPEC.md` before 
 
 ### Export dialog (Feature B)
 
-- **D-17:** Flow architecture — single modal with three progressive steps: (1) section checkboxes → (2) editable preview → (3) output actions (Download PDF / Download .md / Share / Translate). "Back" button to revisit selection. Single modal scope = single body-scroll-lock, single overlay-close discard-confirm contract (per Phase 21 D-03).
-- **D-18:** Editable preview — Markdown textarea + live rendered preview side-by-side on desktop; tabs (`Edit` / `Preview`) on mobile (≤480 px). Tiny custom regex Markdown parser (~1 KB, supports `# / ## / ### / **bold** / *italic* / line breaks / lists` — the subset we actually emit). RTL-safe via logical CSS properties. Edits in the textarea flow into PDF + .md download + Web Share.
-- **D-19:** Export button placement — inline button group `[Copy MD] [Export]` on the session edit page. Visible in the same context as the existing Copy MD button. Consistent icon-button styling.
-- **D-20:** Copy MD preserved — both buttons exist per SPEC REQ-7 + REQ-19. Copy MD = one-click clipboard of full markdown for personal/journal use. Export = curated client-facing document. Both call `App.getSectionLabel()` so labels never diverge.
+- **D-17:** Flow architecture — single modal with three progressive steps: (1) section checkboxes → (2) editable preview → (3) output actions (Download PDF / Download as text file / Share). "Back" button to revisit selection. Single modal scope = single body-scroll-lock, single overlay-close discard-confirm contract (per Phase 21 D-03). **No Translate action** — REQ-16 was removed 2026-04-28.
+- **D-18:** Editable preview — Markdown textarea + live rendered preview side-by-side on desktop; tabs (`Edit` / `Preview`) on mobile (≤480 px). Tiny custom regex Markdown parser (~1 KB, supports `# / ## / ### / **bold** / *italic* / line breaks / lists` — the subset we actually emit). RTL-safe via logical CSS properties. Edits in the textarea flow into PDF + text-file download + Web Share.
+- **D-19:** Export button placement — inline button group `[Copy session text] [Export]` on the session edit page. Visible in the same context as the existing clipboard button. Consistent icon-button styling.
+- **D-20:** Clipboard button preserved AND renamed (extended 2026-04-28). The existing button (DOM id `copySessionBtn`) remains and continues to clipboard-copy the same Markdown string; ONLY the user-visible label changes from "Copy Session (MD)" → "Copy session text" (i18n key `session.copyAll` keeps the same key, the *string* in en/de/he/cs is updated). Both that button and the new Export call `App.getSectionLabel()` so labels never diverge. Copy session text = one-click clipboard for personal/journal use; Export = curated client-facing document.
+
+### Decisions added 2026-04-28 (post-Sapir-review)
+
+- **D-21:** Disabled-but-populated past-session sections render as fully editable inputs (NOT read-only). Per SPEC REQ-5 amendment: render rule for past sessions becomes "if section enabled OR (section disabled AND has stored data), render the section using the same input controls as when enabled, with a small `Disabled in Settings` badge appended to the heading; otherwise hide". Once the therapist clears the field's stored value(s) and saves, the section disappears from that session on next open. There is no separate read-only view-mode anywhere in the app — both new and past sessions use `add-session.html` and the same render path.
+- **D-22:** Friendly button copy. Two strings change in the user-visible UI:
+  - Existing clipboard button (DOM id `copySessionBtn`, i18n key `session.copyAll`): en `Copy session text` / he `העתק טקסט סשן` / de `Sitzungstext kopieren` / cs `Kopírovat text sezení`.
+  - New plain-text download button (i18n key `export.download.text`): en `Download as text file` / he `הורד כקובץ טקסט` / de `Als Textdatei herunterladen` / cs `Stáhnout jako textový soubor`. The file extension on disk remains `.md` (Markdown is plain text — opens correctly in any editor); only the button label changes.
+  - The `export.download.md` and `export.translate.*` keys originally proposed are NOT created.
+- **D-23:** Demo-mode Settings parity. The gear icon in `shared-chrome.js` is rendered the same way in Demo mode and in the real app. The Settings page itself reads/writes the active IndexedDB (which is `demo_portfolio` when `window.name === 'demo-mode'`). No demo-specific guards, no per-mode branches in the rendering or persistence code. Rationale: keeps the demo identical to real usage, minimises code paths, and the demo's separate IDB already isolates side effects.
 
 ### Folded Todos
 
-- **`2026-04-26-editable-session-section-titles.md`** — fully covered by Feature A (D-08 through D-16).
-- **`2026-04-26-session-to-document-email-export.md`** — covered by Feature B (D-01 through D-07, D-17 through D-20). The "email" delivery angle is satisfied by Web Share API (mobile native share sheet picks email apps automatically) + downloadable file. No `mailto:` integration per SPEC out-of-scope.
+- **`2026-04-26-editable-session-section-titles.md`** — fully covered by Feature A (D-08 through D-16, D-21).
+- **`2026-04-26-session-to-document-email-export.md`** — covered by Feature B (D-01 through D-07, D-17 through D-20, D-22). The "email" delivery angle is satisfied by Web Share API (mobile native share sheet picks email apps automatically) + downloadable file. No `mailto:` integration per SPEC out-of-scope.
 
 ### Claude's Discretion
 
 - Step indicator visual styling in the export modal (numbered dots, breadcrumb, etc.) — UI-spec.
 - Action button sizing on mobile cards — UI-spec.
 - Markdown parser exact heading-level rendering (h1 vs h2 vs h3 size hierarchy in HTML preview).
-- Slugify rules for non-Latin client names in PDF filename (ICU-style transliteration is overkill; a small in-house map is fine).
+- ~~Slugify rules for non-Latin client names in PDF filename (ICU-style transliteration is overkill; a small in-house map is fine).~~ **Removed 2026-04-28** — D-04 now specifies as-is preservation, no slugify needed.
 - Settings page max label length validation (suggest 40-60 chars) — capture in UI-spec.
 - Whether to add a "Reset all to defaults" bulk action on the Settings page (deferred — per-row reset is in spec; bulk is not).
+- Visual treatment of the `Disabled in Settings` badge inside the past-session form (D-21) — UI-spec already covers this for the export dialog row; reuse the same pill style on the past-session form heading.
 
 </decisions>
 
@@ -122,12 +139,12 @@ Downstream agents (researcher, planner, executor) MUST read `22-SPEC.md` before 
 ### Files this phase will modify
 - `assets/app.js` — add `App.getSectionLabel()`, eager-load cache in `App.initCommon()`, BroadcastChannel listener
 - `assets/db.js` — bump `DB_VERSION` 3 → 4, add `therapistSettings` store with no-op upgrade migration
-- `assets/add-session.js:596-681` — `buildSessionMarkdown()` reads `App.getSectionLabel()` instead of hardcoded `App.t()`. Section render becomes conditional on enabled-state. Edit-mode shows disabled-but-populated sections with the indicator.
-- `add-session.html` — section markup wraps support hide/show + indicator badge per section; new Export button next to Copy MD
+- `assets/add-session.js:596-681` — `buildSessionMarkdown()` reads `App.getSectionLabel()` instead of hardcoded `App.t()`. Section render becomes conditional on enabled-state. Past sessions render disabled-but-populated sections as fully editable inputs with the indicator badge (per D-21 amendment 2026-04-28); once data is cleared and saved, the section disappears next open.
+- `add-session.html` — section markup wraps support hide/show + `Disabled in Settings` indicator badge per section heading; new Export button next to the (renamed) "Copy session text" button
 - `assets/backup.js` — ZIP includes the new `therapistSettings` store; restore round-trip; backward-compat with pre-Phase-22 backups
-- `assets/shared-chrome.js` — register new Settings page; add gear-icon entry next to globe in header-actions
+- `assets/shared-chrome.js` — register new Settings page; add gear-icon entry next to globe in header-actions (visible in Demo mode too — no demo guard, per D-23)
 - `sw.js` — bump `CACHE_NAME` from `sessions-garden-v49`; add `settings.html`, `assets/settings.js`, jsPDF lib + fonts to `PRECACHE_URLS`
-- `assets/i18n-en.js` / `-de.js` / `-he.js` / `-cs.js` — new keys for: Settings page rows, disabled-indicator tooltip, gear-button label, BroadcastChannel sync message, export dialog labels, Translate/Share/Download buttons, step indicator
+- `assets/i18n-en.js` / `-de.js` / `-he.js` / `-cs.js` — keys for: Settings page rows + sticky banner (`settings.banner.*`) + first-time-disable confirm (`settings.confirm.disable.*`) + greyed-rename tooltip (`settings.rename.locked.tooltip`); `Disabled in Settings` indicator pill; gear-button label; BroadcastChannel post-save sync message; export dialog labels including `Download as text file` (key `export.download.text`), `Download PDF`, `Share via device`; step indicator. The existing `session.copyAll` key gets a friendlier translation in all 4 languages: `Copy session text`. **No** `export.download.md`, `export.translate.*` keys (REQ-16 removed).
 - `assets/app.css` (or new `assets/settings.css`) — Settings page layout (deferred to UI-spec for visual decisions); export dialog step layout; greyed-out style for export dialog rows; "Disabled in Settings" indicator style
 
 ### New files this phase will create
@@ -192,11 +209,11 @@ Downstream agents (researcher, planner, executor) MUST read `22-SPEC.md` before 
 ## Specific Ideas
 
 - **Sapir's verbatim feedback (2026-04-26):** Section titles must be editable so therapists from non–Emotion-Code modalities can use the app. Sessions need a clear path to a client-facing document with auto-populated date.
-- **No third-party processors** — local-only is the privacy story baked into the €119 sale. PDF generation must be 100% client-side. Translate is the single sanctioned external handoff (and only because it requires no data input by the app — the user pastes the already-shown text into Google Translate UI).
+- **Sapir's review feedback (2026-04-28):** Surfaced 6 tightenings: (a) 3 sections lose rename (HS toggle / Issues+severity / Info-for-Next-Session — the last is consumed downstream by the future pre-session context card phase); (b) past sessions render disabled-but-populated sections as fully editable, badge only — auto-hide once data cleared; (c) friendlier copy on the clipboard + plain-text-download buttons; (d) Translate removed entirely; (e) PDF filename keeps client name as-is, only OS-reserved chars stripped; (f) Settings page gets explicit warnings (banner + first-disable confirm).
+- **No third-party processors** — local-only is the privacy story baked into the €119 sale. PDF generation must be 100% client-side. With REQ-16 removed, the app makes ZERO outbound network calls during the export flow.
 - **Sapir is the test user** — Hebrew RTL must look right in the PDF and the export dialog. She'll catch any RTL bidi bugs immediately.
 - **Mobile-first reality** — therapists use phones during/between sessions. The 3-step export modal must be tappable at 375px; preview tabs (not split panes) on mobile.
-- **Existing Copy MD use case is real** — paste session into a personal Notes app. Don't break it.
-- **Cross-language client communication is rare but important** — therapist with Hebrew UI exporting an English document for an English-speaking client. Translate shortcut handles this without an in-app translation engine.
+- **Existing clipboard-copy use case is real** — paste session into a personal Notes app. Don't break it. The button is renamed to "Copy session text" but the underlying behavior is unchanged.
 
 </specifics>
 
@@ -214,19 +231,22 @@ Downstream agents (researcher, planner, executor) MUST read `22-SPEC.md` before 
 
 ### Explicitly rejected (UX or architecture grounds)
 - **mailto: / Gmail compose URL** — body-length-limited, no attachments, dated UX. Web Share + download cover the same use case better.
-- **HTML file export** — PDF + Markdown sufficient for v1.
-- **In-app translation engine** — external Google Translate handoff is enough.
+- **HTML file export** — PDF + plain-text/Markdown sufficient for v1.
+- **In-app translation engine** — out of scope for v1.
+- **Translate-via-Google shortcut (originally REQ-16)** — REMOVED 2026-04-28 per user feedback. The export modal makes zero outbound calls.
+- **Renaming the Heart Shield toggle / Issues + severity / Information for Next Session** — these have fixed semantic structure and downstream consumers (the last feeds the future pre-session context card phase). Disable + reset are supported; rename is not.
 - **Therapist profile / business name in document header** — no profile system exists; introducing one is a separate phase.
 - **Backend storage of exports, send tracking, read receipts** — local-first.
 - **Reordering sections in the export dialog** — same order as session form.
 - **contenteditable WYSIWYG preview** — RTL bidi quirks + paste-from-Word + accidental structure-deletion + no zero-dep library that handles RTL well; rolling our own is multi-week scope. Markdown textarea + side-by-side preview is the pragmatic choice.
 - **"Reset all to defaults" bulk action on Settings page** — per-row reset is in scope; bulk is not (deferred).
+- **Demo-mode special-casing for the Settings page (gear-icon hide, Settings redirect, etc.)** — explicitly rejected 2026-04-28. Demo behavior parity is simpler to ship and demo's separate IDB already isolates side effects.
 
 ### Verified-no-change surfaces
 - Heart Shield filter on sessions page (`assets/sessions.js`) — historical sessions still searchable
 - Heart Shield indicators on clients table (`assets/overview.js`) — historical data preserved
 - Reporting averaging (`assets/reporting.js`) — disabled `issues[]` contributes zero, behavior unchanged in v1
-- Demo mode (separate IndexedDB) — verify-only
+- Demo mode (separate IndexedDB) — gear icon and Settings page are visible/reachable here too (D-23); demo-specific code paths are intentionally NOT introduced
 
 ### Reviewed Todos (not folded)
 - None. The two relevant todos (`editable-session-section-titles`, `session-to-document-email-export`) are folded into this phase. The third (`pre-session-context-card`) is already deferred at the SPEC level.
