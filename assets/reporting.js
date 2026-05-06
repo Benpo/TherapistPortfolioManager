@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  App.initCommon();
+  await App.initCommon();
 
   async function renderReporting() {
     const clients = await PortfolioDB.getAllClients();

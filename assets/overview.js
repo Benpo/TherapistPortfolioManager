@@ -51,7 +51,7 @@ function renderGreeting() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (window.demoSeedReady) await window.demoSeedReady;
-  App.initCommon();
+  await App.initCommon();
   renderGreeting();
   await loadOverview();
 

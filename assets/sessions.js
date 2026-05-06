@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  App.initCommon();
+  await App.initCommon();
 
   const clientFilter = document.getElementById("sessionClientFilter");
   const dateFrom = document.getElementById("sessionDateFrom");

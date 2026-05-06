@@ -6,7 +6,7 @@ let formDirty = false;
 let formSaving = false;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  App.initCommon();
+  await App.initCommon();
 
   const clientSelect = document.getElementById("clientSelect");
   const sessionDate = document.getElementById("sessionDate");

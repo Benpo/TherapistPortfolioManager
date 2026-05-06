@@ -392,9 +392,9 @@ window.SettingsPage = (function () {
   // Init
   // ---------------------------------------------------------------------------
 
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", async function () {
     if (window.App && typeof App.initCommon === "function") {
-      App.initCommon();
+      await App.initCommon();
     }
 
     var refs = getRefs();
