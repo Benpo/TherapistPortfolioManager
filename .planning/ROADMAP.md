@@ -372,10 +372,17 @@ Plans:
 
 **Requirements**: 20 requirements locked in `22-SPEC.md` (Feature A: 1-6, Feature B: 7-17, Feature C: 18-20)
 **Depends on:** Phase 21
-**Plans:** 0 plans (run `/gsd-discuss-phase 22` next, expected to spawn `/gsd-ui-phase` due to non-trivial UI surface)
+**Plans:** 8 plans
 
 Plans:
-- [ ] TBD (run `/gsd-plan-phase 22` after discuss-phase)
+- [ ] 22-01-PLAN.md — Vendored libraries: jsPDF + Noto Sans / Noto Sans Hebrew base64 fonts (REQ-13 foundation)
+- [ ] 22-02-PLAN.md — DB v4 migration + therapistSettings store + App.getSectionLabel/isSectionEnabled cache + BroadcastChannel + Settings i18n keys (REQ-2, REQ-3, REQ-4, REQ-6, REQ-11, REQ-17, REQ-19)
+- [ ] 22-03-PLAN.md — md-render.js (escape-first Markdown→HTML utility for export preview) (REQ-12)
+- [ ] 22-04-PLAN.md — Settings page (settings.html + settings.js + CSS) — 9-row form, sticky banner, action bar (REQ-1, REQ-2, REQ-3, REQ-4, REQ-6, REQ-17)
+- [ ] 22-05-PLAN.md — pdf-export.js — lazy-loaded jsPDF wrapper with A4, RTL Hebrew, pagination (REQ-10, REQ-13)
+- [ ] 22-06-PLAN.md — Export modal + buildSessionMarkdown rewire + section visibility (REQ-5, REQ-7, REQ-8, REQ-9, REQ-10, REQ-11, REQ-12, REQ-14, REQ-15, REQ-16, REQ-17, REQ-19)
+- [ ] 22-07-PLAN.md — Backup/restore round-trips therapistSettings; backward-compat with pre-Phase-22 backups (REQ-18)
+- [ ] 22-08-PLAN.md — SW CACHE_NAME bump + PRECACHE_URLS for jspdf/fonts/settings.js + header gear-icon entry point (REQ-1, REQ-17, REQ-20)
 
 ---
 
