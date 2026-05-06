@@ -763,9 +763,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Cross-tab + same-tab settings change → re-apply visibility.
+  // Phase 22 GAP fix: write the therapist's customLabel into the visible
+  // form labels. applyTranslations() resets these to the i18n default, so
+  // this MUST run after every applyTranslations pass that affects this page.
+  // Uses .textContent (never innerHTML) — customLabel is user-controlled
+  // (T-22-02-01).
+  function applySectionLabels() {
+    const wrappers = document.querySelectorAll("[data-section-key]");
+    wrappers.forEach((wrapper) => {
+      const sectionKey = wrapper.dataset.sectionKey;
+      if (!sectionKey) return;
+      const labelEl = wrapper.querySelector(".label[data-i18n]");
+      if (!labelEl) return;
+      const defaultI18nKey = labelEl.getAttribute("data-i18n");
+      labelEl.textContent = App.getSectionLabel(sectionKey, defaultI18nKey);
+    });
+    // Keep the heart-shield accordion-header in sync — it shares the same
+    // i18n key as the inner section label, so a rename must show on both.
+    const heartShieldHeader = document.querySelector(
+      '[data-accordion="heart-shield"] > .accordion-header[data-i18n]'
+    );
+    if (heartShieldHeader) {
+      heartShieldHeader.textContent = App.getSectionLabel(
+        "heartShield",
+        "session.form.heartShield"
+      );
+    }
+  }
+
+  // Cross-tab + same-tab settings change → re-apply visibility AND labels.
   document.addEventListener("app:settings-changed", () => {
     applySectionVisibility(!!editingSession);
+    applySectionLabels();
   });
 
   // ============================================================
@@ -1460,6 +1489,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.addEventListener("app:language", () => {
     App.applyTranslations();
+    applySectionLabels();
     applyCopyLabels();
     if (editingSession) {
       updateSessionTitle(editingSession);
@@ -1479,10 +1509,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (deleteButton) deleteButton.classList.remove("is-hidden");
       setReadMode(true);
       applySectionVisibility(true);
+      applySectionLabels();
     }
   } else {
     // New session — hide disabled sections from the form per REQ-3.
     applySectionVisibility(false);
+    applySectionLabels();
   }
 
   // Accordion toggle — mobile only
