@@ -31,6 +31,44 @@ window.App = (() => {
     });
   }
 
+  // ---------------------------------------------------------------------------
+  // Phase 22 — Therapist settings cache (section labels + enabled flags)
+  // ---------------------------------------------------------------------------
+
+  // Phase 22: section-label cache. Populated in initCommon BEFORE setLanguage runs.
+  let _sectionLabelCache = new Map();
+
+  /**
+   * Resolve the display label for a session section. Returns the user's
+   * customLabel from the therapistSettings cache when present and non-empty,
+   * otherwise falls back to the default i18n key.
+   *
+   * Callers MUST render the result via .textContent or .value (never innerHTML)
+   * because customLabel is stored verbatim (T-22-02-01 mitigation).
+   *
+   * @param {string} sectionKey - Canonical section key (e.g. 'trapped')
+   * @param {string} defaultI18nKey - i18n fallback key (e.g. 'session.form.trapped')
+   * @returns {string} Resolved label
+   */
+  function getSectionLabel(sectionKey, defaultI18nKey) {
+    const entry = _sectionLabelCache.get(sectionKey);
+    if (entry && typeof entry.customLabel === "string" && entry.customLabel.trim().length > 0) {
+      return entry.customLabel;
+    }
+    return t(defaultI18nKey);
+  }
+
+  /**
+   * Whether a session section is enabled. Defaults to true unless the
+   * therapist has explicitly disabled it in Settings.
+   * @param {string} sectionKey
+   * @returns {boolean}
+   */
+  function isSectionEnabled(sectionKey) {
+    const entry = _sectionLabelCache.get(sectionKey);
+    return entry ? entry.enabled !== false : true;
+  }
+
   /**
    * Set the active language, persist to localStorage, update dir attribute, and dispatch event.
    * @param {string} lang - Language code ('en', 'he', 'de', 'cs')
@@ -237,13 +275,53 @@ window.App = (() => {
   /**
    * Initialize page: render nav, apply translations, set up theme toggle, license link, backup
    * reminder, and persistent storage request. Call this in DOMContentLoaded on every app page.
+   *
+   * Phase 22: now async because therapist settings are eager-loaded from IndexedDB
+   * BEFORE setLanguage runs, so getSectionLabel returns user-customized labels on
+   * first render. Existing callers that don't await will still work — the rest of
+   * initCommon's synchronous chrome wiring continues, only the cache load is async.
    */
-  function initCommon() {
+  async function initCommon() {
     initDemoMode();
     renderNav();
     initThemeToggle();
     initLanguagePopover();
     // initLicenseLink removed per D-03 — license key icon no longer in header
+
+    // Phase 22: eager-load therapist settings BEFORE setLanguage, so the first
+    // applyTranslations() pass can resolve custom labels via getSectionLabel.
+    try {
+      if (typeof PortfolioDB !== "undefined" && typeof PortfolioDB.getAllTherapistSettings === "function") {
+        const rows = await PortfolioDB.getAllTherapistSettings();
+        _sectionLabelCache = new Map(rows.map(r => [r.sectionKey, r]));
+      }
+    } catch (err) {
+      console.warn("Therapist settings unavailable on initCommon:", err);
+      _sectionLabelCache = new Map();
+    }
+
+    // Phase 22: cross-tab sync via BroadcastChannel.
+    // When another tab updates therapistSettings, refresh the cache and
+    // dispatch app:settings-changed so the current page can re-render labels.
+    if (typeof BroadcastChannel !== "undefined") {
+      try {
+        const ch = new BroadcastChannel("sessions-garden-settings");
+        ch.addEventListener("message", async (e) => {
+          if (e && e.data && e.data.type === "therapist-settings-changed") {
+            try {
+              const rows = await PortfolioDB.getAllTherapistSettings();
+              _sectionLabelCache = new Map(rows.map(r => [r.sectionKey, r]));
+              document.dispatchEvent(new CustomEvent("app:settings-changed"));
+            } catch (err) {
+              console.warn("BroadcastChannel refresh failed:", err);
+            }
+          }
+        });
+      } catch (err) {
+        console.warn("BroadcastChannel unavailable:", err);
+      }
+    }
+
     const savedLang = localStorage.getItem("portfolioLang") || window.I18N_DEFAULT || "en";
     setLanguage(savedLang);
     checkBackupReminder();
@@ -814,5 +892,9 @@ window.App = (() => {
     // Security guidance
     showFirstLaunchSecurityNote,
     initPersistentSecuritySection,
+
+    // Phase 22 — therapist settings cache getters
+    getSectionLabel,
+    isSectionEnabled,
   };
 })();

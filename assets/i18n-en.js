@@ -126,7 +126,7 @@ window.I18N.en = {
   "session.form.nextSession": "Information for Next Session",
   "session.form.nextSession.placeholder": "Information and goals for the next session",
   "session.copyField": "Copy to clipboard",
-  "session.copyAll": "Copy Session (MD)",
+  "session.copyAll": "Copy session text",
   "session.copy.title": "Session Summary",
   "session.copy.client": "Client:",
   "session.copy.date": "Date:",
@@ -249,7 +249,43 @@ window.I18N.en = {
   "backup.passphrase.goBack": "Go back",
   "backup.passphrase.encryptAndSave": "Encrypt and save",
   "backup.passphrase.decrypt": "Decrypt",
-  "backup.passphrase.cancel": "Cancel"
+  "backup.passphrase.cancel": "Cancel",
+
+  // Phase 22 — Settings page
+  "header.settings.label": "Settings",
+  "settings.page.title": "Settings",
+  "settings.page.helper": "Customize section names and choose which sections appear in your sessions. Changes are saved on this device.",
+  "settings.syncMessage.heading": "About saved settings",
+  "settings.syncMessage.body": "Saved labels appear immediately here. Open session forms will pick up the new labels on next page navigation. Refresh other tabs to see changes immediately.",
+  "settings.row.trapped.description": "Released emotions logged during the session",
+  "settings.row.insights.description": "Physical or somatic notes from the session",
+  "settings.row.limitingBeliefs.description": "Beliefs surfaced or worked on this session",
+  "settings.row.additionalTech.description": "Other tools or techniques used in this session",
+  "settings.row.heartShield.description": "Heart Shield session toggle and controls",
+  "settings.row.heartShieldEmotions.description": "Emotions found inside the Heart Shield",
+  "settings.row.issues.description": "The issues addressed and their before/after severity",
+  "settings.row.comments.description": "Free-form notes and observations",
+  "settings.row.nextSession.description": "What to focus on or carry into the next session",
+  "settings.indicator.disabled": "Disabled in Settings",
+  "settings.discard.title": "Discard unsaved changes?",
+  "settings.discard.body": "Your renames and toggles won't be saved.",
+  "settings.discard.confirm": "Yes, discard",
+  "settings.discard.cancel": "Keep editing",
+  "settings.saved.toast": "Settings saved",
+  "settings.rename.tooLong": "Section name is too long. Maximum 60 characters.",
+  "settings.rename.empty": "Enter a name or leave blank to use the default.",
+  "settings.reset.tooltip": "Reset to default name",
+  "settings.action.save": "Save changes",
+  "settings.action.discard": "Discard changes",
+  // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
+  "settings.banner.heading": "About Settings",
+  "settings.banner.bullet.global": "Custom names apply to all UI languages — one label set, not per-language.",
+  "settings.banner.bullet.noDelete": "Disabling a section never deletes existing data — past sessions still display sections that already have content.",
+  "settings.confirm.disable.title": "Disable this section?",
+  "settings.confirm.disable.body": "This won't delete existing data. Past sessions can still display this section if it has content. New sessions will not show it. Continue?",
+  "settings.confirm.disable.confirm": "Yes, disable",
+  "settings.confirm.disable.cancel": "Keep enabled",
+  "settings.rename.locked.tooltip": "This section's purpose is fixed — it can be turned off but not renamed."
 };
 
 window.QUOTES.en = [
