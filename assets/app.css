@@ -2647,3 +2647,24 @@ body.read-mode .heart-shield-section input {
     display: inline-flex;
   }
 }
+
+/* Phase 22 — Header gear icon */
+.settings-gear-btn {
+  /* Inherits .header-control-btn base size (36x36). 44x44 tap target enforced by global rule. */
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.settings-gear-btn:hover {
+  background: var(--color-surface-hover);
+}
+.settings-gear-btn.is-active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+.settings-gear-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

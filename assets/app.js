@@ -273,6 +273,70 @@ window.App = (() => {
   }
 
   /**
+   * Phase 22 — Mount the gear-icon link to ./settings.html in #headerActions.
+   *
+   * Renders an <a class="header-control-btn settings-gear-btn"> with an inline
+   * SVG gear icon, i18n'd via t('header.settings.label'). Idempotent: bails
+   * if a .settings-gear-btn is already mounted (so repeated initCommon calls
+   * during hot-reload do not double-mount).
+   *
+   * Insertion order per UI-SPEC: globe (lang) | theme | settings | license.
+   * Inserts before any .license-link / .license-key-btn in #headerActions if
+   * present; otherwise appends. (Note: license-key icon was removed from
+   * initCommon in D-03; gear simply lands at end of headerActions today.)
+   *
+   * The innerHTML use here is a compile-time literal SVG — no user input is
+   * interpolated. aria-label and title are set via setAttribute from i18n.
+   */
+  function initSettingsLink() {
+    var actions = document.getElementById('headerActions') || document.querySelector('.header-actions');
+    if (!actions) return;
+    // Avoid double-mount on hot-reload or repeated initCommon calls.
+    if (actions.querySelector('.settings-gear-btn')) return;
+
+    var link = document.createElement('a');
+    link.href = './settings.html';
+    link.className = 'header-control-btn settings-gear-btn';
+    var label = (typeof t === 'function' ? t('header.settings.label') : '') || 'Settings';
+    link.setAttribute('aria-label', label);
+    link.setAttribute('title', label);
+
+    // Inline gear SVG — 24x24 viewBox, 20x20 rendered (per UI-SPEC).
+    link.innerHTML = ''
+      + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + '<circle cx="12" cy="12" r="3"></circle>'
+      + '<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>'
+      + '</svg>';
+
+    // Active state if currently on settings.html.
+    if (document.body && document.body.dataset && document.body.dataset.nav === 'settings') {
+      link.classList.add('is-active');
+    }
+
+    // Insertion order per UI-SPEC: after globe (lang) and theme-toggle, before license-key.
+    // Find license-key element if any; insert before it. Else append.
+    var licenseLink = actions.querySelector('.license-link, .license-key-btn');
+    if (licenseLink && licenseLink.parentNode === actions) {
+      actions.insertBefore(link, licenseLink);
+    } else {
+      actions.appendChild(link);
+    }
+
+    // Re-translate gear label on language switch — registered exactly once.
+    if (!initSettingsLink._listenerInstalled) {
+      document.addEventListener('app:language', function () {
+        var existingLink = document.querySelector('.settings-gear-btn');
+        if (existingLink) {
+          var newLabel = (typeof t === 'function' ? t('header.settings.label') : '') || 'Settings';
+          existingLink.setAttribute('aria-label', newLabel);
+          existingLink.setAttribute('title', newLabel);
+        }
+      });
+      initSettingsLink._listenerInstalled = true;
+    }
+  }
+
+  /**
    * Initialize page: render nav, apply translations, set up theme toggle, license link, backup
    * reminder, and persistent storage request. Call this in DOMContentLoaded on every app page.
    *
@@ -286,6 +350,7 @@ window.App = (() => {
     renderNav();
     initThemeToggle();
     initLanguagePopover();
+    initSettingsLink(); // Phase 22 — gear-icon entry point to ./settings.html
     // initLicenseLink removed per D-03 — license key icon no longer in header
 
     // Phase 22: eager-load therapist settings BEFORE setLanguage, so the first
