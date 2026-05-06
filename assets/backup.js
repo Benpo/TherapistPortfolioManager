@@ -327,6 +327,12 @@ window.BackupManager = (function () {
     if (!manifest || typeof manifest !== "object") {
       throw new Error("Invalid backup manifest");
     }
+    // Phase 22: ensure therapistSettings exists and is an array. Per-row schema
+    // is validated lazily inside the restore loop (importBackup) so a single
+    // malformed row cannot abort the whole restore.
+    if (!Array.isArray(manifest.therapistSettings)) {
+      manifest.therapistSettings = [];
+    }
     if (!manifest.version) {
       // Old JSON-only format
       return {
@@ -335,10 +341,12 @@ window.BackupManager = (function () {
         appVersion: manifest.appVersion || null,
         clients: manifest.clients || [],
         sessions: manifest.sessions || [],
+        therapistSettings: [],
         settings: manifest.settings || null,
       };
     }
-    // version 1 or future — trust the manifest
+    // version 1, 2, or future — trust the manifest (therapistSettings already
+    // defaulted above if missing).
     return manifest;
   }
 
@@ -358,6 +366,19 @@ window.BackupManager = (function () {
     var db = window.PortfolioDB;
     var allClients = await db.getAllClients();
     var allSessions = await db.getAllSessions();
+
+    // Phase 22: include therapist customisations (custom section labels +
+    // disabled flags). Wrapped in try/catch so a missing function (transitional
+    // builds) does not abort the backup.
+    var allTherapistSettings = [];
+    try {
+      if (typeof db.getAllTherapistSettings === "function") {
+        allTherapistSettings = await db.getAllTherapistSettings();
+      }
+    } catch (e) {
+      console.warn("Backup: therapistSettings read failed; exporting empty:", e);
+      allTherapistSettings = [];
+    }
 
     var zip = new JSZip();
     var photosFolder = zip.folder("photos");
@@ -389,11 +410,12 @@ window.BackupManager = (function () {
     });
 
     var manifest = {
-      version: 1,
+      version: 2,
       exportedAt: new Date().toISOString(),
       appVersion: "1.0",
       clients: clientsClean,
       sessions: allSessions,
+      therapistSettings: allTherapistSettings,
       settings: {
         language: localStorage.getItem("portfolioLang"),
         theme: localStorage.getItem("portfolioTheme"),
@@ -601,6 +623,45 @@ window.BackupManager = (function () {
     }
     for (var j = 0; j < manifest.sessions.length; j++) {
       await db.addSession(manifest.sessions[j]);
+    }
+
+    // Phase 22: restore therapist settings (custom labels + disabled flags).
+    // Whitelist sectionKey to prevent storing arbitrary keys from a crafted
+    // backup (T-22-07-01). Type-coerce customLabel/enabled (T-22-07-03). A row
+    // that fails to write is logged and skipped — the restore continues
+    // (T-22-07-07: clients/sessions already restored, partial therapistSettings
+    // restoration is preferable to a thrown error).
+    var ALLOWED_KEYS = [
+      "trapped",
+      "insights",
+      "limitingBeliefs",
+      "additionalTech",
+      "heartShield",
+      "heartShieldEmotions",
+      "issues",
+      "comments",
+      "nextSession",
+    ];
+    for (var k = 0; k < manifest.therapistSettings.length; k++) {
+      var rec = manifest.therapistSettings[k];
+      if (!rec || typeof rec !== "object" || typeof rec.sectionKey !== "string") {
+        console.warn("Backup restore: skipping malformed therapistSettings row", rec);
+        continue;
+      }
+      if (ALLOWED_KEYS.indexOf(rec.sectionKey) === -1) {
+        console.warn("Backup restore: ignoring unknown sectionKey", rec.sectionKey);
+        continue;
+      }
+      var cleanRec = {
+        sectionKey: rec.sectionKey,
+        customLabel: (typeof rec.customLabel === "string") ? rec.customLabel : null,
+        enabled: (typeof rec.enabled === "boolean") ? rec.enabled : true,
+      };
+      try {
+        await db.setTherapistSetting(cleanRec);
+      } catch (e) {
+        console.warn("Backup restore: setTherapistSetting failed for", cleanRec.sectionKey, e);
+      }
     }
 
     // Restore settings
