@@ -285,7 +285,30 @@ window.I18N.en = {
   "settings.confirm.disable.body": "This won't delete existing data. Past sessions can still display this section if it has content. New sessions will not show it. Continue?",
   "settings.confirm.disable.confirm": "Yes, disable",
   "settings.confirm.disable.cancel": "Keep enabled",
-  "settings.rename.locked.tooltip": "This section's purpose is fixed — it can be turned off but not renamed."
+  "settings.rename.locked.tooltip": "This section's purpose is fixed — it can be turned off but not renamed.",
+  // --- Phase 22 — Export modal ---
+  "session.export": "Export",
+  "export.title": "Export Session",
+  "export.step1.helper": "Choose which sections to include.",
+  "export.step3.helper": "Choose how to deliver the document.",
+  "export.next1": "Next: Edit document",
+  "export.next2": "Next: Get document",
+  "export.done": "Done",
+  "export.back": "Back",
+  "export.tab.edit": "Edit",
+  "export.tab.preview": "Preview",
+  "export.download.pdf": "Download PDF",
+  "export.download.text": "Download as text file",
+  "export.share": "Share via device",
+  "export.share.subtitle": "Open share sheet (PDF attached)",
+  "export.share.text": "Session document",
+  "export.preparing": "Preparing PDF...",
+  "export.discard.title": "Discard your edits?",
+  "export.discard.body": "Your changes to the document will be lost.",
+  "export.discard.yes": "Yes, discard",
+  "export.discard.no": "Keep editing",
+  "export.pdf.failed": "Could not generate PDF. Try again, or download as a text file instead.",
+  "export.empty.body": "This session has no content yet. Save the session first."
 };
 
 window.QUOTES.en = [

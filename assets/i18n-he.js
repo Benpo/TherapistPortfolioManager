@@ -285,7 +285,30 @@ window.I18N.he = {
   "settings.confirm.disable.body": "פעולה זו לא תמחק נתונים קיימים. סשנים קודמים עדיין יציגו את הסעיף אם יש בו תוכן. סשנים חדשים לא יציגו אותו. להמשיך?",
   "settings.confirm.disable.confirm": "כן, השבת",
   "settings.confirm.disable.cancel": "השאר מופעל",
-  "settings.rename.locked.tooltip": "מטרת הסעיף קבועה — ניתן לכבות אך לא לשנות שם."
+  "settings.rename.locked.tooltip": "מטרת הסעיף קבועה — ניתן לכבות אך לא לשנות שם.",
+  // --- Phase 22 — Export modal ---
+  "session.export": "ייצוא",
+  "export.title": "ייצוא מפגש",
+  "export.step1.helper": "בחר אילו מקטעים לכלול.",
+  "export.step3.helper": "בחר כיצד למסור את המסמך.",
+  "export.next1": "הבא: ערוך מסמך",
+  "export.next2": "הבא: קבל מסמך",
+  "export.done": "סיים",
+  "export.back": "חזור",
+  "export.tab.edit": "ערוך",
+  "export.tab.preview": "תצוגה מקדימה",
+  "export.download.pdf": "הורד PDF",
+  "export.download.text": "הורד כקובץ טקסט",
+  "export.share": "שתף דרך המכשיר",
+  "export.share.subtitle": "פתח תפריט שיתוף (PDF מצורף)",
+  "export.share.text": "מסמך מפגש",
+  "export.preparing": "מכין PDF...",
+  "export.discard.title": "לבטל את השינויים?",
+  "export.discard.body": "השינויים במסמך יאבדו.",
+  "export.discard.yes": "כן, בטל",
+  "export.discard.no": "המשך עריכה",
+  "export.pdf.failed": "לא ניתן ליצור PDF. נסה שוב או הורד כקובץ טקסט.",
+  "export.empty.body": "אין עדיין תוכן במפגש זה. שמור תחילה."
 };
 
 window.QUOTES.he = [
