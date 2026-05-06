@@ -24,6 +24,7 @@ body {
   background: radial-gradient(circle at top, var(--color-background-gradient-start) 0%, var(--color-background) 55%, var(--color-background-gradient-end) 100%);
   color: var(--color-text);
   font-family: Rubik, system-ui, sans-serif;
+  overflow-x: hidden;
 }
 
 html[dir="rtl"] {
@@ -670,6 +671,83 @@ a {
   gap:0.35rem;
 }
 
+.client-spotlight-notes{
+  margin-top:0.4rem;
+  padding:0.55rem 0.75rem;
+  border-radius:10px;
+  background:var(--color-surface-media);
+  max-width:480px;
+}
+
+.client-spotlight-notes-label{
+  font-size:0.72rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  color:var(--color-text-muted);
+  margin-bottom:0.2rem;
+}
+
+.client-spotlight-notes-text{
+  font-size:0.92rem;
+  line-height:1.4;
+  color:var(--color-text);
+  white-space:pre-wrap;
+  word-wrap:break-word;
+  overflow-wrap:anywhere;
+}
+
+.missing-birth-banner{
+  display:flex;
+  align-items:center;
+  gap:0.65rem;
+  padding:0.75rem 1rem;
+  margin:0.5rem 0 1rem;
+  border-radius:12px;
+  background:#fff7e6;
+  border:1px solid #f5c97a;
+  color:#7a4a00;
+  font-size:0.92rem;
+  line-height:1.35;
+}
+
+html[data-theme="dark"] .missing-birth-banner{
+  background:#3a2a05;
+  border-color:#7a5418;
+  color:#ffd9a3;
+}
+
+.missing-birth-banner-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:#f5c97a;
+  color:#5a3700;
+  font-weight:800;
+  flex-shrink:0;
+}
+
+html[data-theme="dark"] .missing-birth-banner-icon{
+  background:#7a5418;
+  color:#ffd9a3;
+}
+
+.add-birth-year-link{
+  color:var(--color-accent, #b07020);
+  text-decoration:none;
+  border-bottom:1px dashed currentColor;
+  cursor:pointer;
+}
+
+.add-birth-year-link:hover,
+.add-birth-year-link:focus{
+  text-decoration:none;
+  opacity:0.85;
+}
+
 .heartwall-section{
   margin: 0.5rem 0 0.5rem;
 }
@@ -827,6 +905,7 @@ a {
 
 .toggle-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
 }
 
@@ -835,7 +914,8 @@ a {
 }
 
 .toggle-card {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: fit-content;
   padding: 0.9rem;
   border-radius: 16px;
   border: 2px solid transparent;
@@ -1005,10 +1085,12 @@ html[dir="rtl"] .issue-grid {
 
   .app-shell {
     padding: 1.5rem 1rem 3rem;
+    overflow-x: hidden;
   }
 
   .app-nav {
     width: 100%;
+    max-width: 100vw;
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -1058,17 +1140,80 @@ html[dir="rtl"] .issue-grid {
     align-items: flex-end;
   }
 
-  /* Global 44px tap targets (Apple HIG) */
-  button,
-  [role="button"],
-  a:not(.app-footer-links a):not(.app-footer-contact a),
-  select,
-  .nav-link,
+  /* Global 44px tap targets (Apple HIG) — scoped to avoid demo-dot, toggle-card, etc. */
+  .app-nav button,
+  .app-nav a,
+  .modal-close,
   .header-control-btn,
   .row-actions button,
-  .modal-close {
+  select,
+  .button,
+  .nav-link {
     min-height: 44px;
     min-width: 44px;
+  }
+}
+
+/* --- Responsive table: stacked cards on mobile --- */
+@media (max-width: 640px) {
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .table tbody tr.client-row {
+    display: block;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--color-border-soft);
+    border-radius: 8px;
+    padding: 0.75rem;
+  }
+
+  .table tbody tr.client-row td {
+    display: block;
+    text-align: start;
+    padding: 0.25rem 0;
+    border-bottom: none;
+  }
+
+  .table tbody tr.client-row td[data-label]::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--color-text-muted);
+    display: block;
+    font-size: 0.75rem;
+    margin-bottom: 0.1rem;
+  }
+
+  /* Name cell is the card header — no label needed */
+  .table tbody tr.client-row td:first-child::before {
+    display: none;
+  }
+
+  .table tbody tr.client-row td:first-child {
+    font-size: 1rem;
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border-soft);
+    margin-bottom: 0.35rem;
+  }
+
+  /* Actions row inline */
+  .table tbody tr.client-row td:last-child::before {
+    display: none;
+  }
+
+  .table tbody tr.client-row td:last-child {
+    padding-top: 0.5rem;
+  }
+
+  /* Hide detail rows that span columns */
+  .table tbody tr.detail-row td {
+    display: block;
+    padding: 0 0 1rem;
   }
 }
 

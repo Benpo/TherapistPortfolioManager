@@ -1047,6 +1047,17 @@ function updateClientSpotlight() {
       ageEl.classList.add("is-hidden");
     }
   }
+  const notesEl = document.getElementById("clientSpotlightNotes");
+  const notesTextEl = document.getElementById("clientSpotlightNotesText");
+  if (notesEl && notesTextEl) {
+    const notes = (selectedClient.notes || "").trim();
+    if (notes) {
+      notesTextEl.textContent = notes;
+      notesEl.classList.remove("is-hidden");
+    } else {
+      notesEl.classList.add("is-hidden");
+    }
+  }
   const initial = (displayName || selectedClient.firstName || "?").charAt(0).toUpperCase();
   if (selectedClient.photoData) {
     if (photo) {

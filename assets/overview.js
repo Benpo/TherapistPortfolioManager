@@ -263,6 +263,8 @@ async function loadOverview() {
   _allClients = clients;
   _sessionsByClient = sessionsByClient;
 
+  updateMissingBirthBanner(clients);
+
   // Clear search input on reload
   const searchInput = document.getElementById("clientSearch");
   if (searchInput) searchInput.value = "";
@@ -290,6 +292,20 @@ async function loadOverview() {
   }
 
   renderClientRows(clients, sessionsByClient);
+}
+
+function updateMissingBirthBanner(clients) {
+  const banner = document.getElementById("missingBirthBanner");
+  const textEl = document.getElementById("missingBirthBannerText");
+  if (!banner || !textEl) return;
+  const missing = clients.filter(c => !c.birthDate && !c.age).length;
+  if (missing === 0) {
+    banner.classList.add("is-hidden");
+    return;
+  }
+  const template = App.t("overview.missingBirth.notice");
+  textEl.textContent = template.replace("{n}", String(missing));
+  banner.classList.remove("is-hidden");
 }
 
 function renderClientRows(clients, sessionsByClient) {
@@ -340,12 +356,16 @@ function renderClientRows(clients, sessionsByClient) {
     nameButton.addEventListener("click", () => openClientModal({ ...client, name: displayName }, clientSessions));
     nameCell.appendChild(nameButton);
 
+    nameCell.setAttribute("data-label", App.t("overview.table.name"));
     const typeCell = document.createElement("td");
     typeCell.textContent = client.type ? App.t(`common.type.${client.type}`) : "-";
+    typeCell.setAttribute("data-label", App.t("overview.table.type"));
     const sessionsCell = document.createElement("td");
     sessionsCell.textContent = clientSessions.length;
+    sessionsCell.setAttribute("data-label", App.t("overview.table.sessions"));
     const lastSessionCell = document.createElement("td");
     lastSessionCell.textContent = lastSession;
+    lastSessionCell.setAttribute("data-label", App.t("overview.table.lastSession"));
     const actionCell = document.createElement("td");
     const actionsWrap = document.createElement("div");
     actionsWrap.className = "row-actions";
@@ -503,13 +523,31 @@ function openClientModal(client, sessions) {
 
   if (name) name.textContent = client.name;
   if (meta) {
-    const bits = [];
+    meta.innerHTML = "";
+    const parts = [];
     const displayAge = client.birthDate
       ? Math.floor((Date.now() - new Date(client.birthDate)) / (365.25 * 24 * 60 * 60 * 1000))
       : client.age;
-    if (displayAge) bits.push(`${displayAge}`);
-    if (client.type) bits.push(App.t(`common.type.${client.type}`) || client.type);
-    meta.textContent = bits.join(" • ");
+    if (displayAge) {
+      const ageEl = document.createElement("span");
+      ageEl.textContent = `${displayAge}`;
+      parts.push(ageEl);
+    } else {
+      const link = document.createElement("a");
+      link.href = `./add-client.html?clientId=${client.id}`;
+      link.className = "add-birth-year-link";
+      link.textContent = App.t("overview.addBirthYear");
+      parts.push(link);
+    }
+    if (client.type) {
+      const typeEl = document.createElement("span");
+      typeEl.textContent = App.t(`common.type.${client.type}`) || client.type;
+      parts.push(typeEl);
+    }
+    parts.forEach((el, i) => {
+      if (i > 0) meta.appendChild(document.createTextNode(" • "));
+      meta.appendChild(el);
+    });
   }
 
   const modalSessions = document.getElementById("modalSessions");
