@@ -372,7 +372,7 @@ Plans:
 
 **Requirements**: 20 requirements locked in `22-SPEC.md` (Feature A: 1-6, Feature B: 7-17, Feature C: 18-20)
 **Depends on:** Phase 21
-**Plans:** 8 plans
+**Plans:** 9 plans (8 shipped + 1 gap closure)
 
 Plans:
 - [x] 22-01-PLAN.md — Vendored libraries: jsPDF + Noto Sans / Noto Sans Hebrew base64 fonts (REQ-13 foundation)
@@ -383,6 +383,7 @@ Plans:
 - [x] 22-06-PLAN.md — Export modal + buildSessionMarkdown rewire + section visibility (REQ-5, REQ-7, REQ-8, REQ-9, REQ-10, REQ-11, REQ-12, REQ-14, REQ-15, REQ-16, REQ-17, REQ-19)
 - [x] 22-07-PLAN.md — Backup/restore round-trips therapistSettings; backward-compat with pre-Phase-22 backups (REQ-18)
 - [x] 22-08-PLAN.md — SW CACHE_NAME bump + PRECACHE_URLS for jspdf/fonts/settings.js + header gear-icon entry point (REQ-1, REQ-17, REQ-20)
+- [x] 22-09-PLAN.md — Close verification gaps: pdf-export.js script tag in add-session.html + await App.initCommon() at 5 sites + tone:neutral on first-disable confirm dialog (REQ-13, REQ-15, REQ-3, REQ-5, REQ-21)
 
 ---
 

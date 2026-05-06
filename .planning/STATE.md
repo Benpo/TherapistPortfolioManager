@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Phase 22 UI-SPEC approved
-last_updated: "2026-05-06T11:39:45.860Z"
+stopped_at: Completed 22-09-close-verification-gaps-PLAN.md — all 4 gaps closed (REQ-13/15/3/5/21)
+last_updated: "2026-05-06T18:56:26.330Z"
 last_activity: 2026-05-06
 progress:
   total_phases: 15
-  completed_phases: 13
-  total_plans: 55
-  completed_plans: 46
-  percent: 84
+  completed_phases: 14
+  total_plans: 56
+  completed_plans: 55
+  percent: 98
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 22 (session-workflow-loop-pre-session-context-card-editable-sess) — EXECUTING
-Plan: 1 of 8
+Plan: 2 of 9
 
 ## Performance Metrics
 
@@ -88,6 +88,7 @@ Plan: 1 of 8
 | Phase 20 P02 | 4min | 2 tasks | 9 files |
 | Phase 20 P01 | 5min | 2 tasks | 12 files |
 | Phase 21 P02 | 5min | 2 tasks | 8 files |
+| Phase 22 P22-09 | 3min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -175,6 +176,9 @@ Recent decisions affecting current work:
 - [Phase 20]: SharedChrome uses inline FOOTER_STRINGS for portability across pages without i18n.js
 - [Phase 20]: initBirthDatePicker placed in shared app.js (not duplicated) since both pages load it
 - [Phase 20]: Hidden inputs preserve YYYY-MM-DD format for zero-change form submission logic
+- [Phase 22-09]: pdf-export.js wired as static <script> tag (synchronous load) — closes REQ-13/REQ-15 with one-line fix
+- [Phase 22-09]: confirmDialog tone option (default 'danger', neutral swaps to button-primary) — preserves all existing destructive callers, settings disable-confirm uses neutral
+- [Phase 22-09]: 5 App.initCommon() callers awaited; settings.js DOMContentLoaded handler converted from function to async function
 
 ### Pending Todos
 
@@ -225,6 +229,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last activity: 2026-05-06
-Stopped at: Phase 22 UI-SPEC approved
-Resume file: --resume-file
+Stopped at: Completed 22-09-close-verification-gaps-PLAN.md — all 4 gaps closed (REQ-13/15/3/5/21)
+Resume file: None
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
+
+**Planned Phase:** 22 (session-workflow-loop-pre-session-context-card-editable-sess) — 9 plans — 2026-05-06T18:41:19.496Z
