@@ -1,7 +1,7 @@
 window.PortfolioDB = (() => {
   const DB_NAME = window.name === "demo-mode" ? "demo_portfolio" : "sessions_garden";
   const OLD_DB_NAME = "emotion_code_portfolio";
-  const DB_VERSION = 3;
+  const DB_VERSION = 4;
 
   let _migrationDone = false;
 
@@ -244,6 +244,13 @@ window.PortfolioDB = (() => {
         }
       };
     },
+    4: function therapistSettingsStore(db /*, transaction */) {
+      // Phase 22: additive migration — creates the therapistSettings object store.
+      // No data mutation on existing clients/sessions stores.
+      if (!db.objectStoreNames.contains("therapistSettings")) {
+        db.createObjectStore("therapistSettings", { keyPath: "sectionKey" });
+      }
+    },
   };
 
   async function openDB() {
@@ -446,6 +453,46 @@ window.PortfolioDB = (() => {
   async function clearAll() {
     await clearStore("sessions");
     await clearStore("clients");
+    await clearStore("therapistSettings");
+  }
+
+  /**
+   * setTherapistSetting — stores a record. customLabel is stored verbatim.
+   * Consumers MUST render via .textContent or .value (never innerHTML) to prevent XSS.
+   */
+  async function setTherapistSetting(record) {
+    if (!record || typeof record.sectionKey !== "string") {
+      throw new Error("setTherapistSetting: record.sectionKey required");
+    }
+    var customLabel = (record.customLabel === undefined ? null : record.customLabel);
+    if (typeof customLabel === "string") {
+      var trimmed = customLabel.trim();
+      customLabel = trimmed.length > 0 ? trimmed : null;
+    }
+    return withStore("therapistSettings", "readwrite", function (store) {
+      return store.put({
+        sectionKey: record.sectionKey,
+        customLabel: customLabel,
+        enabled: (record.enabled === undefined ? true : !!record.enabled),
+      });
+    });
+  }
+
+  async function getAllTherapistSettings() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("therapistSettings", "readonly");
+      const store = tx.objectStore("therapistSettings");
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function clearTherapistSettings() {
+    return withStore("therapistSettings", "readwrite", function (store) {
+      return store.clear();
+    });
   }
 
   async function getSessionsByClient(clientId) {
@@ -495,6 +542,9 @@ window.PortfolioDB = (() => {
     getAllSessions,
     getSessionsByClient,
     deleteClientAndSessions,
-    clearAll
+    clearAll,
+    getAllTherapistSettings,
+    setTherapistSetting,
+    clearTherapistSettings,
   };
 })();
