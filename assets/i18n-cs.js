@@ -126,7 +126,7 @@ window.I18N.cs = {
   "session.form.nextSession": "Informace pro příští sezení",
   "session.form.nextSession.placeholder": "Informace a cíle pro příští sezení",
   "session.copyField": "Kopírovat do schránky",
-  "session.copyAll": "Kopírovat sezení (MD)",
+  "session.copyAll": "Kopírovat text sezení",
   "session.copy.title": "Shrnutí sezení",
   "session.copy.client": "Klient:",
   "session.copy.date": "Datum:",
@@ -249,7 +249,43 @@ window.I18N.cs = {
   "backup.passphrase.goBack": "Zp\u011Bt",
   "backup.passphrase.encryptAndSave": "Za\u0161ifrovat a ulo\u017Eit",
   "backup.passphrase.decrypt": "De\u0161ifrovat",
-  "backup.passphrase.cancel": "Zru\u0161it"
+  "backup.passphrase.cancel": "Zru\u0161it",
+
+  // Phase 22 \u2014 Settings page
+  "header.settings.label": "Nastaven\u00ED",
+  "settings.page.title": "Nastaven\u00ED",
+  "settings.page.helper": "P\u0159izp\u016Fsobte n\u00E1zvy sekc\u00ED a vyberte, kter\u00E9 sekce se zobraz\u00ED ve va\u0161ich sezen\u00EDch. Zm\u011Bny se ukl\u00E1daj\u00ED na tomto za\u0159\u00EDzen\u00ED.",
+  "settings.syncMessage.heading": "O ulo\u017Een\u00FDch nastaven\u00EDch",
+  "settings.syncMessage.body": "Ulo\u017Een\u00E9 \u0161t\u00EDtky se zde objev\u00ED okam\u017Eit\u011B. Otev\u0159en\u00E9 formul\u00E1\u0159e sezen\u00ED p\u0159evezmou nov\u00E9 \u0161t\u00EDtky p\u0159i p\u0159\u00ED\u0161t\u00ED navigaci. Obnovte jin\u00E9 karty pro okam\u017Eit\u00E9 zobrazen\u00ED zm\u011Bn.",
+  "settings.row.trapped.description": "Uvoln\u011Bn\u00E9 emoce zaznamenan\u00E9 b\u011Bhem sezen\u00ED",
+  "settings.row.insights.description": "Fyzick\u00E9 nebo somatick\u00E9 pozn\u00E1mky ze sezen\u00ED",
+  "settings.row.limitingBeliefs.description": "P\u0159esv\u011Bd\u010Den\u00ED, kter\u00E1 se objevila nebo byla zpracov\u00E1na",
+  "settings.row.additionalTech.description": "Dal\u0161\u00ED n\u00E1stroje nebo techniky pou\u017Eit\u00E9 v tomto sezen\u00ED",
+  "settings.row.heartShield.description": "P\u0159ep\u00EDna\u010D a ovl\u00E1d\u00E1n\u00ED sezen\u00ED Heart Shield",
+  "settings.row.heartShieldEmotions.description": "Emoce nalezen\u00E9 uvnit\u0159 Heart Shieldu",
+  "settings.row.issues.description": "\u0158e\u0161en\u00E9 probl\u00E9my a jejich z\u00E1va\u017Enost p\u0159ed/po",
+  "settings.row.comments.description": "Voln\u00E9 pozn\u00E1mky a pozorov\u00E1n\u00ED",
+  "settings.row.nextSession.description": "Na co se zam\u011B\u0159it v dal\u0161\u00EDm sezen\u00ED",
+  "settings.indicator.disabled": "Zak\u00E1z\u00E1no v Nastaven\u00ED",
+  "settings.discard.title": "Zahodit neulo\u017Een\u00E9 zm\u011Bny?",
+  "settings.discard.body": "Va\u0161e p\u0159ejmenov\u00E1n\u00ED a p\u0159epnut\u00ED nebudou ulo\u017Eeny.",
+  "settings.discard.confirm": "Ano, zahodit",
+  "settings.discard.cancel": "Pokra\u010Dovat v \u00FAprav\u00E1ch",
+  "settings.saved.toast": "Nastaven\u00ED ulo\u017Eeno",
+  "settings.rename.tooLong": "N\u00E1zev sekce je p\u0159\u00EDli\u0161 dlouh\u00FD. Maximum 60 znak\u016F.",
+  "settings.rename.empty": "Zadejte n\u00E1zev nebo nechte pr\u00E1zdn\u00E9 pro v\u00FDchoz\u00ED.",
+  "settings.reset.tooltip": "Obnovit v\u00FDchoz\u00ED n\u00E1zev",
+  "settings.action.save": "Ulo\u017Eit zm\u011Bny",
+  "settings.action.discard": "Zahodit zm\u011Bny",
+  // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
+  "settings.banner.heading": "O nastaven\u00ED",
+  "settings.banner.bullet.global": "Vlastn\u00ED n\u00E1zvy plat\u00ED pro v\u0161echny jazyky rozhran\u00ED \u2014 jedna sada \u0161t\u00EDtk\u016F, ne podle jazyka.",
+  "settings.banner.bullet.noDelete": "Vypnut\u00EDm sekce se nesma\u017Eou existuj\u00EDc\u00ED data \u2014 p\u0159edchoz\u00ED sezen\u00ED nad\u00E1le zobraz\u00ED sekce s obsahem.",
+  "settings.confirm.disable.title": "Vypnout tuto sekci?",
+  "settings.confirm.disable.body": "St\u00E1vaj\u00EDc\u00ED data se nesma\u017Eou. P\u0159edchoz\u00ED sezen\u00ED tuto sekci st\u00E1le zobraz\u00ED, pokud obsahuj\u00ED obsah. Nov\u00E1 sezen\u00ED ne. Pokra\u010Dovat?",
+  "settings.confirm.disable.confirm": "Ano, vypnout",
+  "settings.confirm.disable.cancel": "Ponechat zapnut\u00E9",
+  "settings.rename.locked.tooltip": "\u00DA\u010Del t\u00E9to sekce je pevn\u00FD \u2014 m\u016F\u017Eete ji vypnout, ale ne p\u0159ejmenovat."
 };
 
 window.QUOTES.cs = [

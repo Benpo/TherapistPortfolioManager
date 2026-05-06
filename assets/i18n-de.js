@@ -126,7 +126,7 @@ window.I18N.de = {
   "session.form.nextSession": "Informationen für die nächste Sitzung",
   "session.form.nextSession.placeholder": "Informationen und Ziele für die nächste Sitzung",
   "session.copyField": "In Zwischenablage kopieren",
-  "session.copyAll": "Sitzung kopieren (MD)",
+  "session.copyAll": "Sitzungstext kopieren",
   "session.copy.title": "Sitzungszusammenfassung",
   "session.copy.client": "Klient:",
   "session.copy.date": "Datum:",
@@ -249,7 +249,43 @@ window.I18N.de = {
   "backup.passphrase.goBack": "Zur\u00FCck",
   "backup.passphrase.encryptAndSave": "Verschl\u00FCsseln und speichern",
   "backup.passphrase.decrypt": "Entschl\u00FCsseln",
-  "backup.passphrase.cancel": "Abbrechen"
+  "backup.passphrase.cancel": "Abbrechen",
+
+  // Phase 22 \u2014 Settings page
+  "header.settings.label": "Einstellungen",
+  "settings.page.title": "Einstellungen",
+  "settings.page.helper": "Passen Sie Abschnittsnamen an und w\u00E4hlen Sie, welche Abschnitte in Ihren Sitzungen erscheinen. \u00C4nderungen werden auf diesem Ger\u00E4t gespeichert.",
+  "settings.syncMessage.heading": "\u00DCber gespeicherte Einstellungen",
+  "settings.syncMessage.body": "Gespeicherte Bezeichnungen erscheinen hier sofort. Ge\u00F6ffnete Sitzungsformulare \u00FCbernehmen die neuen Bezeichnungen beim n\u00E4chsten Seitenwechsel. Andere Tabs neu laden, um \u00C4nderungen sofort zu sehen.",
+  "settings.row.trapped.description": "Freigegebene Emotionen w\u00E4hrend der Sitzung",
+  "settings.row.insights.description": "K\u00F6rperliche oder somatische Notizen aus der Sitzung",
+  "settings.row.limitingBeliefs.description": "Glaubenss\u00E4tze, die in dieser Sitzung aufgetaucht oder bearbeitet wurden",
+  "settings.row.additionalTech.description": "Weitere Werkzeuge oder Techniken in dieser Sitzung",
+  "settings.row.heartShield.description": "Heart-Shield-Sitzung umschalten und Steuerung",
+  "settings.row.heartShieldEmotions.description": "Emotionen innerhalb des Heart Shields",
+  "settings.row.issues.description": "Behandelte Themen und ihre Vorher/Nachher-Schweregrade",
+  "settings.row.comments.description": "Freie Notizen und Beobachtungen",
+  "settings.row.nextSession.description": "Worauf in der n\u00E4chsten Sitzung der Fokus liegen soll",
+  "settings.indicator.disabled": "In Einstellungen deaktiviert",
+  "settings.discard.title": "Ungespeicherte \u00C4nderungen verwerfen?",
+  "settings.discard.body": "Ihre Umbenennungen und Umschaltungen werden nicht gespeichert.",
+  "settings.discard.confirm": "Ja, verwerfen",
+  "settings.discard.cancel": "Weiter bearbeiten",
+  "settings.saved.toast": "Einstellungen gespeichert",
+  "settings.rename.tooLong": "Abschnittsname ist zu lang. Maximal 60 Zeichen.",
+  "settings.rename.empty": "Namen eingeben oder leer lassen f\u00FCr Standard.",
+  "settings.reset.tooltip": "Auf Standardnamen zur\u00FCcksetzen",
+  "settings.action.save": "\u00C4nderungen speichern",
+  "settings.action.discard": "\u00C4nderungen verwerfen",
+  // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
+  "settings.banner.heading": "\u00DCber Einstellungen",
+  "settings.banner.bullet.global": "Eigene Namen gelten f\u00FCr alle Oberfl\u00E4chensprachen \u2014 ein Labelsatz, nicht pro Sprache.",
+  "settings.banner.bullet.noDelete": "Das Deaktivieren eines Abschnitts l\u00F6scht keine bestehenden Daten \u2014 fr\u00FChere Sitzungen zeigen Abschnitte mit vorhandenem Inhalt weiterhin an.",
+  "settings.confirm.disable.title": "Diesen Abschnitt deaktivieren?",
+  "settings.confirm.disable.body": "Bestehende Daten werden nicht gel\u00F6scht. Fr\u00FChere Sitzungen zeigen diesen Abschnitt weiterhin, wenn Inhalt vorhanden ist. Neue Sitzungen nicht. Fortfahren?",
+  "settings.confirm.disable.confirm": "Ja, deaktivieren",
+  "settings.confirm.disable.cancel": "Aktiviert lassen",
+  "settings.rename.locked.tooltip": "Der Zweck dieses Abschnitts ist festgelegt \u2014 Sie k\u00F6nnen ihn deaktivieren, aber nicht umbenennen."
 };
 
 window.QUOTES.de = [

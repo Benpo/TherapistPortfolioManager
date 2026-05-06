@@ -126,7 +126,7 @@ window.I18N.he = {
   "session.form.nextSession": "מידע לגבי המפגש הבא",
   "session.form.nextSession.placeholder": "מידע ויעדים למפגש הבא",
   "session.copyField": "העתקה ללוח",
-  "session.copyAll": "העתקת מפגש (MD)",
+  "session.copyAll": "העתק טקסט סשן",
   "session.copy.title": "סיכום מפגש",
   "session.copy.client": "לקוח:",
   "session.copy.date": "תאריך:",
@@ -249,7 +249,43 @@ window.I18N.he = {
   "backup.passphrase.goBack": "חזרה",
   "backup.passphrase.encryptAndSave": "הצפן ושמור",
   "backup.passphrase.decrypt": "פענוח",
-  "backup.passphrase.cancel": "ביטול"
+  "backup.passphrase.cancel": "ביטול",
+
+  // Phase 22 — Settings page
+  "header.settings.label": "הגדרות",
+  "settings.page.title": "הגדרות",
+  "settings.page.helper": "התאם שמות מקטעים ובחר אילו מקטעים יופיעו במפגשים. השינויים נשמרים במכשיר זה.",
+  "settings.syncMessage.heading": "על הגדרות שמורות",
+  "settings.syncMessage.body": "תוויות שמורות מופיעות כאן מיד. טפסי מפגש פתוחים יקלטו את התוויות החדשות בניווט הבא. רענן כרטיסיות אחרות כדי לראות שינויים מיד.",
+  "settings.row.trapped.description": "רגשות משוחררים שנרשמו במהלך המפגש",
+  "settings.row.insights.description": "הערות גופניות או סומטיות מהמפגש",
+  "settings.row.limitingBeliefs.description": "אמונות שעלו או טופלו במפגש",
+  "settings.row.additionalTech.description": "כלים או טכניקות נוספים במפגש זה",
+  "settings.row.heartShield.description": "מתג ובקרות מפגש Heart Shield",
+  "settings.row.heartShieldEmotions.description": "רגשות שנמצאו בתוך Heart Shield",
+  "settings.row.issues.description": "הנושאים שטופלו וחומרתם לפני ואחרי",
+  "settings.row.comments.description": "הערות חופשיות ותצפיות",
+  "settings.row.nextSession.description": "על מה למקד או להמשיך במפגש הבא",
+  "settings.indicator.disabled": "מושבת בהגדרות",
+  "settings.discard.title": "לבטל שינויים שלא נשמרו?",
+  "settings.discard.body": "שינויי השמות וההפעלה/השבתה לא יישמרו.",
+  "settings.discard.confirm": "כן, בטל",
+  "settings.discard.cancel": "המשך עריכה",
+  "settings.saved.toast": "ההגדרות נשמרו",
+  "settings.rename.tooLong": "שם המקטע ארוך מדי. מקסימום 60 תווים.",
+  "settings.rename.empty": "הזן שם או השאר ריק לברירת המחדל.",
+  "settings.reset.tooltip": "אפס לשם ברירת המחדל",
+  "settings.action.save": "שמור שינויים",
+  "settings.action.discard": "בטל שינויים",
+  // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
+  "settings.banner.heading": "על ההגדרות",
+  "settings.banner.bullet.global": "שמות מותאמים אישית חלים על כל שפות הממשק — סט תוויות אחד, לא לפי שפה.",
+  "settings.banner.bullet.noDelete": "השבתת סעיף אינה מוחקת נתונים קיימים — סשנים קודמים עדיין יציגו סעיפים שכבר יש בהם תוכן.",
+  "settings.confirm.disable.title": "להשבית את הסעיף הזה?",
+  "settings.confirm.disable.body": "פעולה זו לא תמחק נתונים קיימים. סשנים קודמים עדיין יציגו את הסעיף אם יש בו תוכן. סשנים חדשים לא יציגו אותו. להמשיך?",
+  "settings.confirm.disable.confirm": "כן, השבת",
+  "settings.confirm.disable.cancel": "השאר מופעל",
+  "settings.rename.locked.tooltip": "מטרת הסעיף קבועה — ניתן לכבות אך לא לשנות שם."
 };
 
 window.QUOTES.he = [
