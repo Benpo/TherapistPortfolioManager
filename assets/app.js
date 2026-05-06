@@ -686,13 +686,11 @@ window.App = (() => {
       var y = yearSel.value;
       var m = monthSel.value;
       var d = daySel.value;
-      if (y && m !== '' && d) {
-        var mm = String(parseInt(m, 10) + 1).padStart(2, '0');
-        var dd = String(parseInt(d, 10)).padStart(2, '0');
-        hidden.value = y + '-' + mm + '-' + dd;
-      } else {
-        hidden.value = '';
-      }
+      if (!y) { hidden.value = ''; return; }
+      if (m === '') d = '';
+      var mm = (m !== '') ? String(parseInt(m, 10) + 1).padStart(2, '0') : '01';
+      var dd = d ? String(parseInt(d, 10)).padStart(2, '0') : '01';
+      hidden.value = y + '-' + mm + '-' + dd;
     }
 
     yearSel.addEventListener('change', function() { updateDays(); syncHidden(); });
