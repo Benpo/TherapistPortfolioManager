@@ -17,10 +17,53 @@ requirements:
   - REQ-3
   - REQ-4
   - REQ-6
+  - REQ-21    # Settings warnings (banner + first-disable confirm) — added 2026-04-28
   - REQ-11
   - REQ-17
   - REQ-19
 user_setup: []
+
+# ============================================================
+# Amendment 2026-04-28 — post-Sapir-review tightening
+# ============================================================
+# When this plan was first generated, the SPEC was at v1. After Sapir's
+# review, six tightenings were folded into the SPEC + CONTEXT + UI-SPEC.
+# This plan inherits the following deltas (executor MUST apply them on
+# top of the original task content):
+#
+# 1. Task 3 (i18n keys) — APPEND these 8 new keys to each of the 4
+#    language blocks, in addition to the keys already listed in the
+#    "English values"/"German values"/etc. sections below:
+#       "settings.banner.heading"
+#       "settings.banner.bullet.global"
+#       "settings.banner.bullet.noDelete"
+#       "settings.confirm.disable.title"
+#       "settings.confirm.disable.body"
+#       "settings.confirm.disable.confirm"
+#       "settings.confirm.disable.cancel"
+#       "settings.rename.locked.tooltip"
+#    For exact translated strings, see 22-UI-SPEC.md Copywriting
+#    Contract table (rows added 2026-04-28). The Hebrew document
+#    22-REVIEW-FOR-SAPIR-HE.md mirrors them.
+#
+# 2. Task 3 (i18n keys) — UPDATE the existing `session.copyAll` key
+#    value in all 4 language files. The key identifier stays the same
+#    so no DOM data-i18n attribute changes; only the rendered string
+#    changes.
+#       en: "Copy Session (MD)"  -> "Copy session text"
+#       de: (whatever it was)    -> "Sitzungstext kopieren"
+#       he: (whatever it was)    -> "העתק טקסט סשן"
+#       cs: (whatever it was)    -> "Kopírovat text sezení"
+#    Read the existing value first; if it matches "Copy Session (MD)"
+#    or its translated equivalent, replace it. If it already matches
+#    the new copy (e.g. plan was re-run), leave it unchanged.
+#
+# 3. NO `export.translate.*` keys are added in this phase (REQ-16
+#    removed). If you see them anywhere in this file, ignore them.
+#
+# 4. The acceptance grep below (Task 3 <automated>) will be updated by
+#    the same delta — it must include the 8 new keys per language.
+# ============================================================
 
 must_haves:
   truths:
@@ -30,7 +73,8 @@ must_haves:
     - "App.isSectionEnabled(sectionKey) returns true by default and false only when the user has explicitly disabled the section"
     - "App.initCommon() eagerly loads therapist settings into an in-memory Map BEFORE setLanguage() runs"
     - "BroadcastChannel 'sessions-garden-settings' is opened in initCommon and dispatches 'app:settings-changed' DOM event when a peer tab posts an update"
-    - "All Settings page i18n keys exist in en/de/he/cs (header.settings.label, settings.page.title, settings.page.helper, settings.row.{key}.description x9, settings.indicator.disabled, settings.syncMessage.heading, settings.syncMessage.body, settings.discard.*, settings.saved.toast, settings.rename.tooLong, settings.rename.empty)"
+    - "All Settings page i18n keys exist in en/de/he/cs (header.settings.label, settings.page.title, settings.page.helper, settings.row.{key}.description x9, settings.indicator.disabled, settings.syncMessage.heading, settings.syncMessage.body, settings.discard.*, settings.saved.toast, settings.rename.tooLong, settings.rename.empty, settings.banner.heading, settings.banner.bullet.global, settings.banner.bullet.noDelete, settings.confirm.disable.title, settings.confirm.disable.body, settings.confirm.disable.confirm, settings.confirm.disable.cancel, settings.rename.locked.tooltip)"
+    - "session.copyAll value updated in all 4 languages — was 'Copy Session (MD)', now 'Copy session text' (en) / 'העתק טקסט סשן' (he) / 'Sitzungstext kopieren' (de) / 'Kopírovat text sezení' (cs); the i18n key string identifier itself is unchanged so no DOM data-i18n attributes need to update"
   artifacts:
     - path: "assets/db.js"
       provides: "DB_VERSION = 4, MIGRATIONS[4] creates therapistSettings store, public API getAllTherapistSettings/setTherapistSetting/clearTherapistSettings, clearAll() includes therapistSettings"
@@ -332,6 +376,15 @@ Their default i18n keys:
       "settings.reset.tooltip": "Reset to default name",
       "settings.action.save": "Save changes",
       "settings.action.discard": "Discard changes",
+      // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
+      "settings.banner.heading": "About Settings",
+      "settings.banner.bullet.global": "Custom names apply to all UI languages — one label set, not per-language.",
+      "settings.banner.bullet.noDelete": "Disabling a section never deletes existing data — past sessions still display sections that already have content.",
+      "settings.confirm.disable.title": "Disable this section?",
+      "settings.confirm.disable.body": "This won't delete existing data. Past sessions can still display this section if it has content. New sessions will not show it. Continue?",
+      "settings.confirm.disable.confirm": "Yes, disable",
+      "settings.confirm.disable.cancel": "Keep enabled",
+      "settings.rename.locked.tooltip": "This section's purpose is fixed — it can be turned off but not renamed.",
 
     German values (assets/i18n-de.js) — from UI-SPEC Copywriting Contract:
       "header.settings.label": "Einstellungen",
@@ -359,6 +412,15 @@ Their default i18n keys:
       "settings.reset.tooltip": "Auf Standardnamen zurücksetzen",
       "settings.action.save": "Änderungen speichern",
       "settings.action.discard": "Änderungen verwerfen",
+      // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
+      "settings.banner.heading": "Über Einstellungen",
+      "settings.banner.bullet.global": "Eigene Namen gelten für alle Oberflächensprachen — ein Labelsatz, nicht pro Sprache.",
+      "settings.banner.bullet.noDelete": "Das Deaktivieren eines Abschnitts löscht keine bestehenden Daten — frühere Sitzungen zeigen Abschnitte mit vorhandenem Inhalt weiterhin an.",
+      "settings.confirm.disable.title": "Diesen Abschnitt deaktivieren?",
+      "settings.confirm.disable.body": "Bestehende Daten werden nicht gelöscht. Frühere Sitzungen zeigen diesen Abschnitt weiterhin, wenn Inhalt vorhanden ist. Neue Sitzungen nicht. Fortfahren?",
+      "settings.confirm.disable.confirm": "Ja, deaktivieren",
+      "settings.confirm.disable.cancel": "Aktiviert lassen",
+      "settings.rename.locked.tooltip": "Der Zweck dieses Abschnitts ist festgelegt — Sie können ihn deaktivieren, aber nicht umbenennen.",
 
     Hebrew values (assets/i18n-he.js) — gender-neutral where natural:
       "header.settings.label": "הגדרות",
@@ -386,6 +448,15 @@ Their default i18n keys:
       "settings.reset.tooltip": "אפס לשם ברירת המחדל",
       "settings.action.save": "שמור שינויים",
       "settings.action.discard": "בטל שינויים",
+      // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
+      "settings.banner.heading": "על ההגדרות",
+      "settings.banner.bullet.global": "שמות מותאמים אישית חלים על כל שפות הממשק — סט תוויות אחד, לא לפי שפה.",
+      "settings.banner.bullet.noDelete": "השבתת סעיף אינה מוחקת נתונים קיימים — סשנים קודמים עדיין יציגו סעיפים שכבר יש בהם תוכן.",
+      "settings.confirm.disable.title": "להשבית את הסעיף הזה?",
+      "settings.confirm.disable.body": "פעולה זו לא תמחק נתונים קיימים. סשנים קודמים עדיין יציגו את הסעיף אם יש בו תוכן. סשנים חדשים לא יציגו אותו. להמשיך?",
+      "settings.confirm.disable.confirm": "כן, השבת",
+      "settings.confirm.disable.cancel": "השאר מופעל",
+      "settings.rename.locked.tooltip": "מטרת הסעיף קבועה — ניתן לכבות אך לא לשנות שם.",
 
     Czech values (assets/i18n-cs.js):
       "header.settings.label": "Nastavení",
@@ -413,21 +484,39 @@ Their default i18n keys:
       "settings.reset.tooltip": "Obnovit výchozí název",
       "settings.action.save": "Uložit změny",
       "settings.action.discard": "Zahodit změny",
+      // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
+      "settings.banner.heading": "O nastavení",
+      "settings.banner.bullet.global": "Vlastní názvy platí pro všechny jazyky rozhraní — jedna sada štítků, ne podle jazyka.",
+      "settings.banner.bullet.noDelete": "Vypnutím sekce se nesmažou existující data — předchozí sezení nadále zobrazí sekce s obsahem.",
+      "settings.confirm.disable.title": "Vypnout tuto sekci?",
+      "settings.confirm.disable.body": "Stávající data se nesmažou. Předchozí sezení tuto sekci stále zobrazí, pokud obsahují obsah. Nová sezení ne. Pokračovat?",
+      "settings.confirm.disable.confirm": "Ano, vypnout",
+      "settings.confirm.disable.cancel": "Ponechat zapnuté",
+      "settings.rename.locked.tooltip": "Účel této sekce je pevný — můžete ji vypnout, ale ne přejmenovat.",
 
     All 4 files MUST have the SAME set of keys (Phase 14 standard).
+
+    **2026-04-28 amendment — also UPDATE the existing `session.copyAll` value in each file** (key identifier unchanged; rendered string changes). Read the current value first; if it matches the original "Copy Session (MD)" / equivalent, replace with:
+      en: "Copy session text"
+      de: "Sitzungstext kopieren"
+      he: "העתק טקסט סשן"
+      cs: "Kopírovat text sezení"
+    If it already matches the new copy, leave unchanged (idempotent).
   </action>
   <verify>
-    <automated>for L in en de he cs; do grep -c "settings.row" assets/i18n-$L.js | awk -v lang=$L '$1 < 9 { print "FAIL_"lang; exit 1 } END { print "ok_"lang }'; done && for L in en de he cs; do grep -q "header.settings.label" assets/i18n-$L.js && grep -q "settings.indicator.disabled" assets/i18n-$L.js && grep -q "settings.syncMessage.heading" assets/i18n-$L.js || { echo "MISSING_$L"; exit 1; }; done && for L in en de he cs; do node -c assets/i18n-$L.js || exit 1; done && echo "all_ok"</automated>
+    <automated>for L in en de he cs; do grep -c "settings.row" assets/i18n-$L.js | awk -v lang=$L '$1 < 9 { print "FAIL_"lang; exit 1 } END { print "ok_"lang }'; done && for L in en de he cs; do for K in "header.settings.label" "settings.indicator.disabled" "settings.syncMessage.heading" "settings.banner.heading" "settings.banner.bullet.global" "settings.banner.bullet.noDelete" "settings.confirm.disable.title" "settings.confirm.disable.body" "settings.confirm.disable.confirm" "settings.confirm.disable.cancel" "settings.rename.locked.tooltip"; do grep -q "\"$K\"" assets/i18n-$L.js || { echo "MISSING_${L}_${K}"; exit 1; }; done; done && for L in en de he cs; do node -c assets/i18n-$L.js || exit 1; done && grep -q '"session.copyAll"\s*:\s*"Copy session text"' assets/i18n-en.js && echo "all_ok"</automated>
   </verify>
   <acceptance_criteria>
     - Each of the 4 files contains 9 settings.row.{key}.description keys: `grep -c "settings.row" assets/i18n-{lang}.js` >= 9
     - Each file contains: header.settings.label, settings.page.title, settings.page.helper, settings.syncMessage.heading, settings.syncMessage.body, settings.indicator.disabled, settings.discard.title, settings.discard.body, settings.discard.confirm, settings.discard.cancel, settings.saved.toast, settings.rename.tooLong, settings.rename.empty, settings.reset.tooltip, settings.action.save, settings.action.discard
+    - **Added 2026-04-28:** Each file ALSO contains: settings.banner.heading, settings.banner.bullet.global, settings.banner.bullet.noDelete, settings.confirm.disable.title, settings.confirm.disable.body, settings.confirm.disable.confirm, settings.confirm.disable.cancel, settings.rename.locked.tooltip
+    - **Added 2026-04-28:** session.copyAll value is updated. en file: `grep -q '"session.copyAll"\s*:\s*"Copy session text"' assets/i18n-en.js` ; de: contains "Sitzungstext kopieren" ; he: contains "העתק טקסט סשן" ; cs: contains "Kopírovat text sezení". The string "Copy Session (MD)" must NOT appear anywhere in the i18n files after this task.
     - All 4 files parse: `node -c assets/i18n-{en,de,he,cs}.js`
     - Hebrew file (i18n-he.js) settings.action.save value contains "שמור"
     - German file (i18n-de.js) settings.action.save value contains "speichern"
     - Czech file (i18n-cs.js) settings.action.save value contains "Uložit"
   </acceptance_criteria>
-  <done>All 4 i18n files have the complete Settings page key set with locale-correct values. Key parity holds across en/de/he/cs.</done>
+  <done>All 4 i18n files have the complete Settings page key set with locale-correct values, including the 2026-04-28 amendment additions (8 new keys + session.copyAll value update). Key parity holds across en/de/he/cs.</done>
 </task>
 
 </tasks>

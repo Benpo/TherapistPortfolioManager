@@ -12,17 +12,72 @@ files_modified:
 autonomous: true
 requirements:
   - REQ-1    # Settings page exists
-  - REQ-2    # Section labels renameable, persisted, global
+  - REQ-2    # Section labels renameable for 6 free-text sections; 3 sections (HS toggle, Issues, Info-Next) disable-only (amended 2026-04-28)
   - REQ-3    # Per-row reset to default
   - REQ-4    # Sections can be disabled
   - REQ-6    # Existing data preserved through enable/disable cycles (verified via DB layer; UI only writes flag)
   - REQ-17   # All new strings translated en/de/he/cs (consumes Plan 02 i18n)
+  - REQ-21   # Settings page warnings: sticky info banner + first-time-disable confirmation dialog (added 2026-04-28)
 user_setup: []
+
+# ============================================================
+# Amendment 2026-04-28 — post-Sapir-review tightening
+# ============================================================
+# Three additions on top of the original task content (executor MUST apply
+# all of them; original tasks remain valid otherwise):
+#
+# 1. Three rows have a NON-EDITABLE rename input (per SPEC REQ-2 amendment):
+#    - "heartShield"   (Heart Shield toggle — yes/no removal flag)
+#    - "issuesHeading" (Issues + severity — structured array)
+#    - "nextSession"   (Information for Next Session — downstream consumer)
+#    For these rows, the rename input is rendered with the `disabled`
+#    attribute, opacity 0.55, cursor not-allowed, aria-disabled="true",
+#    and a small info icon next to it whose tooltip + aria-describedby
+#    use i18n key `settings.rename.locked.tooltip`. The enable/disable
+#    toggle and the Reset button BOTH remain functional on these rows.
+#    Implementation hint: keep one renderRow() function with a
+#    `LOCKED_RENAME = new Set(["heartShield", "issuesHeading", "nextSession"])`
+#    constant at the top of settings.js; `if (LOCKED_RENAME.has(key))` decides
+#    whether to add the `disabled` attribute and the info icon.
+#
+# 2. Sticky info banner (top of page, above the row list) now contains
+#    TWO bullets in addition to the original D-12 sync message. Render:
+#       <div class="settings-info-banner" role="note">
+#         <h3 data-i18n="settings.banner.heading">About Settings</h3>
+#         <ul>
+#           <li data-i18n="settings.banner.bullet.global">…</li>
+#           <li data-i18n="settings.banner.bullet.noDelete">…</li>
+#         </ul>
+#       </div>
+#    The original `settings.syncMessage.heading` + `.body` post-save
+#    info row is rendered SEPARATELY, BELOW the banner, only after a
+#    successful save (use existing toast infrastructure or a small
+#    inline info row beneath the action bar — pick whichever is
+#    simpler with the existing CSS).
+#
+# 3. First-time-disable confirmation dialog (per REQ-21):
+#    - Trigger: first time the user toggles ANY row's enable→disable
+#      switch within a fresh page visit
+#    - Gate via `sessionStorage.getItem('settings.disable.confirmed') === '1'`
+#      (cleared on full page reload, so reopening Settings re-arms it)
+#    - Reuses the existing `App.confirmDialog` API (same dialog used by
+#      Discard changes — Phase 21 confirm-card pattern). Pass the four
+#      i18n keys: `settings.confirm.disable.title`,
+#      `settings.confirm.disable.body`, `settings.confirm.disable.confirm`,
+#      `settings.confirm.disable.cancel`.
+#    - On confirm: toggle commits, dirty state set, sessionStorage
+#      flag set so subsequent disables in the same visit skip the dialog.
+#    - On cancel: toggle does NOT commit (revert the switch UI back
+#      to enabled), no dirty state change.
+# ============================================================
 
 must_haves:
   truths:
     - "Navigating to settings.html on an activated, terms-accepted device renders a Settings page with 9 section rows"
     - "Each row shows the default i18n label, a description (microcopy), a rename input (placeholder=current default, maxlength=60), an enable/disable toggle, and a Reset-to-default button"
+    - "Three rows (heartShield, issuesHeading, nextSession) render the rename input with the disabled attribute + 0.55 opacity + aria-disabled='true' + an info icon next to the input whose tooltip uses i18n key settings.rename.locked.tooltip; the toggle and Reset on those rows remain fully functional (added 2026-04-28)"
+    - "The sticky info banner at the top of the Settings page shows TWO bullets (settings.banner.bullet.global and settings.banner.bullet.noDelete) under heading settings.banner.heading (added 2026-04-28); the original D-12 sync message renders only after a successful save"
+    - "First-time enable→disable toggle within a fresh page visit triggers App.confirmDialog with the settings.confirm.disable.* keys; the once-per-visit gate is sessionStorage 'settings.disable.confirmed' = '1'; cancelling the dialog reverts the switch and does not dirty the form (added 2026-04-28)"
     - "Saving the form persists changes via PortfolioDB.setTherapistSetting per row and posts a BroadcastChannel message {type: 'therapist-settings-changed'}"
     - "After save, a toast shows 'Settings saved' (i18n key settings.saved.toast)"
     - "Sticky info banner at top of page shows the D-12 sync explanation copy in current UI language"

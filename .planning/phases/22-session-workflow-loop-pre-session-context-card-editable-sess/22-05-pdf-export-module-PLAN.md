@@ -13,6 +13,59 @@ requirements:
   - REQ-13   # PDF download (CRITICAL)
 user_setup: []
 
+# ============================================================
+# Amendment 2026-04-28 — post-Sapir-review tightening
+# ============================================================
+# D-04 filename rule was REWRITTEN. The original spec said: ASCII-only,
+# strip diacritics, transliterate Hebrew to Latin, no spaces. The new
+# rule says: keep client name as-is (Hebrew, German diacritics, Czech
+# diacritics all preserved), only strip OS-reserved chars, fall back
+# to "Session" if empty.
+#
+# Concrete impact on this plan:
+# 1. The function name `slugify` is RETAINED (avoids breaking Plan 22-06
+#    callers that reference `window.PDFExport.slugify`). Its BODY is
+#    rewritten to the new rule.
+# 2. The threat-model entries T-22-05-02 and T-22-05-06 are reworded
+#    (not removed) — the sanitiser is still a defensive boundary.
+# 3. Task 1 <action> step 5 (slugify implementation) is replaced with
+#    the new rule (see "New slugify implementation" below).
+# 4. Task 1 <verify> grep is updated — drop the `[A-Za-z0-9]` regex
+#    expectation, keep verification that the function exists.
+# 5. Acceptance criterion line 268 ("Filename: Slugified_YYYY-MM-DD.pdf,
+#    ASCII-only.") becomes "Filename: {clientName}_YYYY-MM-DD.pdf,
+#    OS-safe characters only" — see updated criterion below.
+#
+# New slugify implementation (replaces Task 1 step 5):
+# ```
+#   function slugify(name) {
+#     // D-04 (amended 2026-04-28): preserve client name as-is including
+#     // Unicode (Hebrew, German diacritics, Czech diacritics), only strip
+#     // the union of Windows + macOS + Linux reserved filename chars
+#     // and ASCII control codes.
+#     if (typeof name !== "string") return "Session";
+#     // Strip < > : " / \ | ? * and ASCII 0-31
+#     var stripped = name.replace(/[<>:"\/\\|?*\x00-\x1F]/g, "");
+#     // Trim trailing dots and whitespace (Windows quirk)
+#     stripped = stripped.replace(/[.\s]+$/, "");
+#     // Trim leading whitespace
+#     stripped = stripped.replace(/^\s+/, "");
+#     // Fall back to "Session" if nothing left
+#     return stripped.length > 0 ? stripped : "Session";
+#   }
+# ```
+#
+# Test cases the executor must verify (manually, no harness needed):
+#   slugify("Anna M.")        === "Anna M."
+#   slugify("Jörg")           === "Jörg"
+#   slugify("שירה")           === "שירה"
+#   slugify("Jane/Jörg")      === "JaneJörg"
+#   slugify("???")            === "Session"
+#   slugify("foo.")           === "foo"        // trailing dot stripped
+#   slugify("  foo  ")        === "foo"        // trim
+#   slugify("")               === "Session"
+# ============================================================
+
 must_haves:
   truths:
     - "window.PDFExport.buildSessionPDF(sessionData, opts) returns a Promise<Blob> of MIME type application/pdf"
@@ -22,7 +75,7 @@ must_haves:
     - "Hebrew section headings/body are rendered with NotoSansHebrew + jsPDF setR2L(true); Latin sections render with NotoSans + setR2L(false)"
     - "PDFs include a header with client name, session date (UI-language formatted), session-type label"
     - "PDFs include auto page-break with running header (client name + session date) on pages 2+ and Page X of Y footer"
-    - "window.PDFExport.slugify(name) returns ASCII-only filename-safe string per D-04"
+    - "window.PDFExport.slugify(name) preserves Unicode (Hebrew, German/Czech diacritics) and only strips OS-reserved characters per D-04 amendment 2026-04-28; returns 'Session' if input becomes empty after stripping"
     - "window.PDFExport.triggerDownload(blob, filename) downloads the blob to the user's device"
   artifacts:
     - path: "assets/pdf-export.js"
@@ -80,12 +133,12 @@ window.PDFExport = {
     onProgress?: (phase: "loading-lib" | "loading-fonts" | "rendering" | "done") => void,
   }): Promise<Blob>,
 
-  slugify(s: string): string,             // ASCII-only, no diacritics, no spaces (D-04)
+  slugify(s: string): string,             // D-04 amended 2026-04-28: preserves Unicode (Hebrew, diacritics) — strips ONLY OS-reserved chars; "Session" fallback if empty
   triggerDownload(blob: Blob, filename: string): void,   // mirrors backup.js triggerDownload
 }
 
 D-04 filename pattern (built by the consumer): {slugify(clientName)}_{YYYY-MM-DD}.pdf
-  e.g., AnnaM_2026-04-27.pdf
+  Examples: Jörg_2026-04-27.pdf, שירה_2026-04-27.pdf, Anna M._2026-04-27.pdf
 
 D-05 page: A4 portrait (595x842pt)
 D-06 pagination: auto page-break, running header on pages 2+, "Page X of Y" footer
@@ -137,15 +190,28 @@ D-07 typography: body 11pt, section headings 14pt bold, header meta 10pt
            return _loadingPromise;
          }
 
-    5. slugify(name) — D-04 implementation:
+    5. slugify(name) — D-04 implementation, AMENDED 2026-04-28:
          function slugify(name) {
-           if (!name) return "client";
-           // Decompose accents, drop combining marks, drop non-ASCII non-word chars.
-           var n = String(name).normalize("NFD").replace(/[̀-ͯ]/g, "");
-           // Latin-only sweep — drops Hebrew, Cyrillic, etc.
-           n = n.replace(/[^A-Za-z0-9]+/g, "");
-           return n.length > 0 ? n : "client";
+           // D-04 (amended 2026-04-28): preserve client name as-is including Unicode
+           // (Hebrew, German diacritics, Czech diacritics — all modern OSes support
+           // Unicode filenames). Strip ONLY the union of OS-reserved filename
+           // characters: < > : " / \ | ? * and ASCII control chars 0–31.
+           // Trim trailing dots/whitespace (Windows quirk). Trim leading whitespace.
+           // Fall back to "Session" if the result is empty.
+           if (typeof name !== "string") return "Session";
+           var stripped = name.replace(/[<>:"\/\\|?*\x00-\x1F]/g, "");
+           stripped = stripped.replace(/[.\s]+$/, "");
+           stripped = stripped.replace(/^\s+/, "");
+           return stripped.length > 0 ? stripped : "Session";
          }
+       // Test cases (verify manually):
+       //   slugify("Anna M.")   === "Anna M."
+       //   slugify("Jörg")      === "Jörg"
+       //   slugify("שירה")      === "שירה"
+       //   slugify("Jane/Jörg") === "JaneJörg"
+       //   slugify("???")       === "Session"
+       //   slugify("foo.")      === "foo"
+       //   slugify("")          === "Session"
 
     6. triggerDownload(blob, filename) — copy verbatim from assets/backup.js:429-441.
 
@@ -210,7 +276,7 @@ D-07 typography: body 11pt, section headings 14pt bold, header meta 10pt
     IMPORTANT: Use Context7 MCP at execution time to confirm jsPDF method names. The methods used: addFileToVFS, addFont, setFont(name, style, weight), setFontSize(pt), setR2L(bool), text(string|array, x, y, options), splitTextToSize(text, maxWidth), addPage(), getNumberOfPages(), setPage(n), output("blob"). If 3.x renames any of these, adjust accordingly.
   </action>
   <verify>
-    <automated>test -f assets/pdf-export.js && grep -q "window.PDFExport = (function" assets/pdf-export.js && grep -q "function ensureDeps\|function loadScriptOnce" assets/pdf-export.js && grep -q "addFileToVFS" assets/pdf-export.js && grep -q "function slugify" assets/pdf-export.js && grep -q "function triggerDownload" assets/pdf-export.js && grep -q "URL.createObjectURL" assets/pdf-export.js && grep -q "/\[\\\\u0590-\\\\u05FF" assets/pdf-export.js && node -c assets/pdf-export.js</automated>
+    <automated>test -f assets/pdf-export.js && grep -q "window.PDFExport = (function" assets/pdf-export.js && grep -q "function ensureDeps\|function loadScriptOnce" assets/pdf-export.js && grep -q "addFileToVFS" assets/pdf-export.js && grep -q "function slugify" assets/pdf-export.js && grep -q '"Session"' assets/pdf-export.js && ! grep -q '\.normalize("NFD")' assets/pdf-export.js && ! grep -q '\[\^A-Za-z0-9\]' assets/pdf-export.js && grep -q "function triggerDownload" assets/pdf-export.js && grep -q "URL.createObjectURL" assets/pdf-export.js && grep -q "/\[\\\\u0590-\\\\u05FF" assets/pdf-export.js && node -c assets/pdf-export.js</automated>
   </verify>
   <acceptance_criteria>
     - File exists at assets/pdf-export.js
@@ -218,7 +284,7 @@ D-07 typography: body 11pt, section headings 14pt bold, header meta 10pt
     - Contains `function loadScriptOnce` OR equivalent dynamic script-load
     - Contains `function ensureDeps` (or _depsLoaded guard equivalent)
     - Contains `addFileToVFS` (jsPDF font registration)
-    - Contains `function slugify` with `.normalize("NFD")` and `[^A-Za-z0-9]` regex
+    - Contains `function slugify` with `[<>:"\/\\|?*\x00-\x1F]` strip regex AND a `"Session"` string literal fallback (D-04 amendment 2026-04-28). The original `.normalize("NFD")` and `[^A-Za-z0-9]` patterns must NOT appear.
     - Contains `function triggerDownload` with `URL.createObjectURL` (matches backup.js pattern)
     - Contains Hebrew range regex `[֐-׿` for RTL detection
     - Return surface exposes exactly: buildSessionPDF, slugify, triggerDownload (no other public functions)
@@ -244,11 +310,11 @@ D-07 typography: body 11pt, section headings 14pt bold, header meta 10pt
 | Threat ID | Category | Component | Disposition | Mitigation Plan |
 |-----------|----------|-----------|-------------|-----------------|
 | T-22-05-01 | Tampering | Dynamic script injection of jspdf.min.js / fonts | mitigate | All three URLs are hardcoded same-origin paths (./assets/...). CSP `script-src 'self'` blocks any cross-origin redirection. SW precache (Plan 22-08) ensures the same bytes load offline. |
-| T-22-05-02 | Information disclosure | Sensitive client data embedded in PDF, then leaked via OS share targets / Recents | mitigate | slugify strips diacritics + non-ASCII, but the FILENAME still contains client name (per D-04 — this is intentional for the user's workflow). The PDF BODY contains data the user explicitly chose to include in the section-selection dialog (Plan 22-06). PDF stays on-device until the user explicitly Shares. Document this as accepted residual: filenames in OS recents are user-visible by design. |
+| T-22-05-02 | Information disclosure | Sensitive client data embedded in PDF, then leaked via OS share targets / Recents | mitigate | The FILENAME contains the client name as-is (per D-04 amended 2026-04-28 — the user explicitly chose this workflow; transliterating to ASCII would have broken Hebrew/diacritic names). Slugify still strips OS-reserved characters so the filename can't break the OS path layer. The PDF BODY contains data the user explicitly chose to include in the section-selection dialog (Plan 22-06). PDF stays on-device until the user explicitly Shares. Document this as accepted residual: filenames in OS recents are user-visible by design. |
 | T-22-05-03 | Tampering | jsPDF library tampered post-vendor | mitigate | Vendoring (Plan 22-01) requires byte-for-byte from upstream. SW cache (Plan 22-08) pins the bytes after install. |
 | T-22-05-04 | DoS | Pathologically long markdown → infinite splitTextToSize loop | mitigate | Editor textarea bounded by browser limits. splitTextToSize is bounded by content length. addPage triggered on every overflow. Worst case: very long PDF — user can interrupt by closing the modal. |
 | T-22-05-05 | Information disclosure | PDF metadata leaks app version / OS / user agent | accept | jsPDF default metadata is minimal (Producer + CreationDate). Acceptable for the threat model. |
-| T-22-05-06 | Spoofing | Forged filename via crafted client name (`../../etc/passwd`) | mitigate | slugify strips `/`, `.`, and all non-Latin-alphanumeric. Resulting filename is safe. |
+| T-22-05-06 | Spoofing | Forged filename via crafted client name (`../../etc/passwd` or `con.txt` Windows reserved name) | mitigate | slugify (D-04 amendment 2026-04-28) strips `/`, `\`, `:`, `*`, `?`, `"`, `<`, `>`, `|`, and all ASCII control chars. Trailing dots and whitespace stripped. Empty strings fall back to `Session`. The resulting filename cannot escape its directory, contains no path separators, and survives Windows/macOS/Linux save dialogs. (Note: Windows reserved device names like `CON`, `PRN`, `AUX` would not currently be blocked — accepted residual: client names matching these are exotic and the OS save dialog would prompt the user.) |
 | T-22-05-07 | XSS | jsPDF embeds JS into PDF (PDFs can contain JavaScript) | accept | jsPDF's standard text() API does not embed JavaScript actions. We do not call any addJS-style API. PDF readers may still warn on JS, but our pipeline emits none. |
 
 **Residual risk:** Low. The most material concern (sensitive data in filename → OS share) is by-design — the user explicitly initiated the export.
@@ -256,7 +322,8 @@ D-07 typography: body 11pt, section headings 14pt bold, header meta 10pt
 
 <verification>
 - node -c assets/pdf-export.js
-- Manual smoke (post Plan 22-06 wiring): trigger Export → click Download PDF → verify file downloads with name `AnnaM_2026-04-27.pdf`, opens in standard PDF reader, contains client name + session date in header, contains selected section content; second click on Export does NOT re-fetch jspdf (verify in DevTools Network).
+- Manual smoke (post Plan 22-06 wiring): trigger Export → click Download PDF → verify file downloads with name like `Anna M._2026-04-27.pdf` (client name preserved as-is per D-04 amendment), opens in standard PDF reader, contains client name + session date in header, contains selected section content; second click on Export does NOT re-fetch jspdf (verify in DevTools Network).
+- Hebrew filename smoke: create a session for a client named `שירה` → Export → Download PDF → verify file downloads with name `שירה_YYYY-MM-DD.pdf` and opens correctly on macOS/Windows.
 - Hebrew smoke: rename a section to Hebrew text, generate PDF, verify Hebrew renders right-to-left in NotoSansHebrew font.
 </verification>
 
@@ -265,7 +332,7 @@ D-07 typography: body 11pt, section headings 14pt bold, header meta 10pt
 - Subsequent Export clicks: PDF generates within 500 ms, no new script tags appear.
 - Generated PDF: A4 portrait, 11pt body, 14pt headings, page numbers in footer.
 - Hebrew sections: render right-aligned with NotoSansHebrew glyphs (no missing-glyph rectangles).
-- Filename: `Slugified_YYYY-MM-DD.pdf`, ASCII-only.
+- Filename: `{ClientName as-is}_YYYY-MM-DD.pdf` — client name preserved including Unicode (Jörg, שירה, etc.); only OS-reserved chars stripped; "Session" fallback if empty (D-04 amended 2026-04-28).
 </success_criteria>
 
 <output>

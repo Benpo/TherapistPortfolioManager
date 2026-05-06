@@ -17,32 +17,113 @@ files_modified:
   - assets/i18n-cs.js
 autonomous: true
 requirements:
-  - REQ-5    # Disabled sections in edit-mode show stored data + indicator
-  - REQ-7    # Export action button on session edit page
+  - REQ-5    # Past sessions render disabled-but-populated sections as fully editable (amended 2026-04-28; was: read-only with indicator)
+  - REQ-7    # Export action button on session edit page; clipboard button renamed "Copy session text" (amended 2026-04-28)
   - REQ-8    # Section-selection dialog with client-safe defaults
   - REQ-9    # Disabled sections appear greyed in export dialog
   - REQ-10   # Document header auto-populates (consumed by PDFExport)
   - REQ-11   # Custom labels appear in exported document
   - REQ-12   # Editable preview before final export
-  - REQ-14   # Markdown file download
+  - REQ-14   # Plain-text file download — button label "Download as text file" (amended 2026-04-28)
   - REQ-15   # Web Share API integration where supported
-  - REQ-16   # Translate shortcut to Google Translate
+  # REQ-16 REMOVED 2026-04-28 — Translate shortcut dropped (modal makes zero outbound calls)
   - REQ-17   # All export strings translated en/de/he/cs
   - REQ-19   # buildSessionMarkdown reads custom labels
 user_setup: []
 
+# ============================================================
+# Amendment 2026-04-28 — post-Sapir-review tightening
+# ============================================================
+# This is the heaviest plan affected by the amendments. Five edits
+# the executor MUST fold into the original task content:
+#
+# 1. REQ-16 (Translate) is REMOVED. Drop everywhere:
+#    - The Translate button HTML (`<a id="exportTranslateBtn" …>`) in
+#      Step 2 markup → DELETE the element.
+#    - The wireTranslateButton() function in assets/add-session.js →
+#      DO NOT IMPLEMENT.
+#    - The call site `wireTranslateButton();` near `openExportDialog`
+#      → DO NOT EMIT.
+#    - The 4 i18n key blocks: do NOT add `export.translate.cta` or
+#      `export.translate.tooltip` to any of i18n-{en,de,he,cs}.js.
+#    - The grep `grep -q "translate.google.com"` in the verify
+#      automated check → REMOVE that conjunct from the chain.
+#    - The acceptance criterion line "File contains `translate.google.com`
+#      URL" → REMOVE it.
+#    - Threat T-22-06-03 (Tampering / open-redirect) becomes N/A
+#      because there is no Translate href; mark it as REMOVED but keep
+#      the row so threat IDs remain stable.
+#    - The manual smoke "Translate opens new tab" line → REMOVE it.
+#
+# 2. Plain-text download card relabeling (REQ-14 amendment):
+#    - The original i18n key plan added `export.download.md` with
+#      string "Download Markdown" / "Markdown herunterladen" / etc.
+#      That key is RENAMED to `export.download.text` and the strings
+#      become "Download as text file" / "Als Textdatei herunterladen"
+#      / "הורד כקובץ טקסט" / "Stáhnout jako textový soubor".
+#    - The card's `data-i18n` attribute changes from
+#      `export.download.md` to `export.download.text`.
+#    - The file extension on disk REMAINS `.md` (Markdown content
+#      opens correctly as plain text in any editor).
+#    - In the JS handler, the variable name and the Blob mime type
+#      do not need to change; only the user-visible label changes.
+#
+# 3. Clipboard button rename (REQ-7 amendment):
+#    - The existing button keeps its DOM id `copySessionBtn` and i18n
+#      key `session.copyAll`. The rendered string changes from
+#      "Copy Session (MD)" → "Copy session text". This change lives
+#      in Plan 22-02 (i18n files), NOT here. In THIS plan, do NOT
+#      modify the button markup beyond what's already specified;
+#      the data-i18n attribute already points to `session.copyAll`.
+#
+# 4. REQ-5 amendment — disabled-but-populated past-session sections
+#    are FULLY EDITABLE, not read-only:
+#    - The original task suggested "render with indicator (read-only)
+#      so therapist can read but not edit". That is wrong now.
+#    - The new behavior in `applySectionVisibility()`:
+#       a) section enabled?            → show, editable (always was)
+#       b) section disabled, no data?  → hide
+#       c) section disabled, has data? → show, editable (NEW —
+#                                        do NOT add `disabled` /
+#                                        `readonly` attributes;
+#                                        do append the
+#                                        `Disabled in Settings`
+#                                        badge to the section heading)
+#    - The "has data" check should run AFTER the form has loaded the
+#      stored values from the session record. For text fields:
+#      `el.value && el.value.trim().length > 0`. For the issues
+#      array: `Array.isArray(issues) && issues.length > 0`. For the
+#      Heart Shield toggle: `record.heartShield === true`.
+#    - On save, when a section that was disabled-with-data becomes
+#      empty (therapist cleared it), do not strip it from the record
+#      — IndexedDB write writes whatever the form contains. On NEXT
+#      open, applySectionVisibility's "has data" check returns false
+#      and the section auto-hides. This is the desired behavior.
+#
+# 5. Demo mode (D-23) — no change in this plan. The Export button,
+#    modal, PDF, MD, Share all work in Demo mode against the demo
+#    IndexedDB. No demo-specific guards.
+#
+# Acceptance grep update (Task 4 / Task on i18n):
+#   - Add `export.download.text` to the grep list in the per-language
+#     check; remove `export.download.md`, `export.translate.cta`,
+#     `export.translate.tooltip`.
+#   - Add a negative-grep: the literal string "translate.google.com"
+#     must NOT appear anywhere in assets/add-session.js or i18n-*.js.
+# ============================================================
+
 must_haves:
   truths:
     - "Each session form section in add-session.html is wrapped in <div class=\"session-section\" data-section-key=\"...\"> for hide/show + indicator"
-    - "When App.isSectionEnabled(key) is false: in NEW-session mode, the section is hidden; in EDIT mode with stored data, the section renders with a 'Disabled in Settings' indicator badge"
+    - "When App.isSectionEnabled(key) is false: in NEW-session mode, the section is hidden; when opening any past session (REQ-5 amended 2026-04-28), if the section has stored data it renders as a fully editable input (NOT read-only) with a 'Disabled in Settings' badge appended to the heading; once data is cleared and saved the section is hidden on next open"
     - "buildSessionMarkdown emits section headings via App.getSectionLabel(key, defaultI18nKey) — never hardcoded App.t for section labels"
-    - "An Export button appears next to Copy Session (MD) on the session edit page in read mode"
+    - "An Export button appears next to the existing clipboard button on the session edit page in read mode; the clipboard button's i18n key (session.copyAll) is unchanged but its rendered value is the new 'Copy session text' string set by Plan 22-02"
     - "Clicking Export opens a 3-step modal (Step 1 section selection → Step 2 editable preview → Step 3 output actions)"
     - "Step 1: checkboxes for enabled sections with client-safe defaults (Trapped, Physical, Limiting Beliefs, Additional Tech, HS Emotions if data, Next Session pre-checked; Issues, Comments, HS Removed pre-unchecked); disabled sections appear greyed with 'Disabled in Settings' tooltip"
-    - "Step 2: side-by-side textarea + live preview on desktop (≥769px), tabbed Edit/Preview on mobile (≤768px); Translate via Google button visible"
-    - "Step 3: Output cards for Download PDF, Download Markdown, and (if navigator.canShare with files) Share via device"
+    - "Step 2: side-by-side textarea + live preview on desktop (≥769px), tabbed Edit/Preview on mobile (≤768px); NO Translate button (REQ-16 removed 2026-04-28)"
+    - "Step 3: Output cards for Download PDF, Download as text file (file extension stays .md, label drops MD/Markdown jargon), and (if navigator.canShare with files) Share via device"
     - "Modal inherits Phase 21 contract: max-height: 90dvh, scroll body, pinned actions, body-scroll-lock, overlay-close discard-confirm"
-    - "Translate button opens translate.google.com in new tab via target=_blank rel=noopener noreferrer"
+    - "The literal string 'translate.google.com' does NOT appear anywhere in add-session.js or in any i18n-*.js file (REQ-16 removed 2026-04-28)"
     - "Markdown download uses Blob([editedMarkdown], {type: 'text/markdown;charset=utf-8'})"
     - "Web Share API call: navigator.share({files: [pdfFile], title, text}) — gated by canShare({files}); silently absent on unsupported browsers"
     - "Export modal preview pane uses MdRender.render(textarea.value); sets via .innerHTML (safe — MdRender escapes)"
@@ -52,7 +133,7 @@ must_haves:
       provides: "9 session-section wrappers with data-section-key, Export button, Export modal markup, md-render.js script tag"
       contains: "data-section-key"
     - path: "assets/add-session.js"
-      provides: "buildSessionMarkdown reads App.getSectionLabel, conditional section render with stored-data fallback, openExportDialog handler, Step 1/2/3 wiring, MD download, PDF download, Share, Translate"
+      provides: "buildSessionMarkdown reads App.getSectionLabel, conditional section render with editable disabled-but-populated fallback (REQ-5 amended), openExportDialog handler, Step 1/2/3 wiring, plain-text-file download, PDF download, Share. NO Translate (REQ-16 removed 2026-04-28)"
       contains: "App.getSectionLabel"
     - path: "assets/app.css"
       provides: ".export-card, .export-step-indicator, .export-output-card, .export-section-row.is-disabled CSS additions"
@@ -190,10 +271,7 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
                    <button type="button" class="tab-btn is-active" data-tab="edit" data-i18n="export.tab.edit">Edit</button>
                    <button type="button" class="tab-btn" data-tab="preview" data-i18n="export.tab.preview">Preview</button>
                  </div>
-                 <a id="exportTranslateBtn" class="button ghost icon-inline" target="_blank" rel="noopener noreferrer" href="#">
-                   <span data-i18n="export.translate.cta">Translate via Google</span>
-                   <span aria-hidden="true">↗</span>
-                 </a>
+                 <!-- Translate-via-Google CTA REMOVED 2026-04-28 (REQ-16 dropped). Do NOT add this anchor element. -->
                </div>
 
                <!-- Step 3 -->
@@ -207,9 +285,10 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
                    </span>
                  </button>
                  <button type="button" class="export-output-card" id="exportDownloadMd">
-                   <span class="output-card-icon" aria-hidden="true">M↓</span>
+                   <!-- Renamed 2026-04-28: card label drops "Markdown" jargon. DOM id stays "exportDownloadMd" so the JS handler need not change. File extension on disk stays .md. -->
+                   <span class="output-card-icon" aria-hidden="true">📝</span>
                    <span class="output-card-text">
-                     <span class="output-card-title" data-i18n="export.download.md">Download Markdown</span>
+                     <span class="output-card-title" data-i18n="export.download.text">Download as text file</span>
                      <span class="output-card-subtitle" id="exportMdSubtitle"></span>
                    </span>
                  </button>
@@ -242,7 +321,7 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
     - All 9 sections have a `<span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">` element inside their wrapper
     - `#exportSessionBtn` exists with `data-i18n="session.export"` AND `is-hidden` class
     - `#exportModal` exists with `role="dialog"` and `aria-modal="true"` and class `modal is-hidden`
-    - Modal contains `#exportEditor` (textarea), `#exportPreview` (div), `#exportDownloadPdf`, `#exportDownloadMd`, `#exportShare` (initially is-hidden), `#exportTranslateBtn` (target=_blank, rel=noopener noreferrer)
+    - Modal contains `#exportEditor` (textarea), `#exportPreview` (div), `#exportDownloadPdf`, `#exportDownloadMd`, `#exportShare` (initially is-hidden). NO `#exportTranslateBtn` (REQ-16 removed 2026-04-28). Verify with: `! grep -q 'exportTranslateBtn' add-session.html`.
     - Modal contains `.export-step-indicator` with `role="progressbar"` and 3 `.export-step-dot` elements
     - Modal contains 3 `.export-step` containers with data-step="1", "2", "3"; only step 1 has `is-active`
     - `<script src="./assets/md-render.js">` appears before `<script src="./assets/add-session.js">` in the footer scripts block
@@ -280,22 +359,22 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
 
        Apply this transformation to every section heading emit site within buildSessionMarkdown. Do NOT change any data-key lookups (they remain trappedEmotions, etc.) — only the human-readable heading.
 
-    B. Add a helper function `applySectionVisibility(isEditMode)` near the top-level closure of the page controller. It walks every `[data-section-key]` element and:
+    B. Add a helper function `applySectionVisibility(isPastSession)` near the top-level closure of the page controller. It walks every `[data-section-key]` element and:
        - Reads sectionKey from data-attribute.
        - Calls App.isSectionEnabled(sectionKey).
        - Reads whether the section has stored data (look up the corresponding form field's current value or the loaded session data; for the issues array, check >0 items; for heartShield, check the toggle/conditional).
-       - Hide rules:
-           enabled === true: section visible, badge hidden.
-           enabled === false AND isEditMode === false: section hidden (.is-hidden class).
-           enabled === false AND isEditMode === true AND hasData === true: section visible, badge visible.
-           enabled === false AND isEditMode === true AND hasData === false: section hidden.
+       - Hide rules (REQ-5 amended 2026-04-28 — disabled-but-populated past sessions render as FULLY EDITABLE, not read-only):
+           enabled === true: section visible, badge hidden, all inputs editable as normal.
+           enabled === false AND isPastSession === false: section hidden (.is-hidden class). NEW sessions hide disabled sections.
+           enabled === false AND isPastSession === true AND hasData === true: section visible, badge visible. **All inputs remain fully editable** — DO NOT add `disabled` or `readonly` attributes. The therapist can edit or clear the value. On next save, when the value is empty, the section will hide automatically on the next open.
+           enabled === false AND isPastSession === true AND hasData === false: section hidden.
 
-       Call applySectionVisibility(currentMode) after:
+       Call applySectionVisibility(isPastSession) after:
          - Initial load (after PortfolioDB.getSession resolves and form is populated).
-         - Mode toggles (entering edit mode from read mode).
+         - Mode toggles (any UI mode change that re-applies visibility).
          - document.dispatchEvent app:settings-changed (cross-tab settings save).
 
-       Add: document.addEventListener("app:settings-changed", () => applySectionVisibility(currentlyInEditMode));
+       Add: document.addEventListener("app:settings-changed", () => applySectionVisibility(currentlyOnPastSession));
 
     C. Toggle visibility of the Export button next to Copy MD. Wherever the existing copySessionBtn is toggled (look for `copySessionBtn.classList.toggle("is-hidden", !isReadMode)` around line 124), add the matching line for exportSessionBtn:
          var exportSessionBtn = document.getElementById("exportSessionBtn");
@@ -343,7 +422,7 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
            wireDownloadPdf(sessionData);
            wireDownloadMd(sessionData);
            wireShare(sessionData);
-           wireTranslateButton();
+           // wireTranslateButton() REMOVED 2026-04-28 — REQ-16 dropped.
          }
 
          function renderStep1Rows(sessionData) {
@@ -484,18 +563,9 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
            } catch (e) {}
          }
 
-         function wireTranslateButton() {
-           var btn = document.getElementById("exportTranslateBtn");
-           // Update href on every editor input event:
-           var ed = document.getElementById("exportEditor");
-           function refreshHref() {
-             var sl = (localStorage.getItem("portfolioLang") || "en");
-             var url = "https://translate.google.com/?sl=" + encodeURIComponent(sl) + "&text=" + encodeURIComponent(ed.value);
-             btn.href = url;
-           }
-           ed.addEventListener("input", refreshHref);
-           refreshHref();
-         }
+         // wireTranslateButton() function REMOVED 2026-04-28 — REQ-16 dropped.
+         // The exportTranslateBtn DOM element no longer exists in the modal markup,
+         // and assets/add-session.js MUST NOT reference translate.google.com anywhere.
 
          function wireCloseAndOverlay() {
            // Esc + overlay click + #exportClose click → if step 2 has edits, await App.confirmDialog with export.discard.* keys; else close.
@@ -523,21 +593,22 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
     Do NOT alter the Copy Session (MD) handler other than ensuring buildSessionMarkdown's edits in (A) flow through. Copy MD continues to call buildSessionMarkdown verbatim and copy to clipboard.
   </action>
   <verify>
-    <automated>grep -cE 'App\.getSectionLabel\("(trapped|insights|limitingBeliefs|additionalTech|heartShield|heartShieldEmotions|issues|comments|nextSession)"' assets/add-session.js | awk '$1 < 8 { print "FAIL_label_calls"; exit 1 } { print "ok" }' && grep -q "function applySectionVisibility\|applySectionVisibility(" assets/add-session.js && grep -q "exportSessionBtn" assets/add-session.js && grep -q "openExportDialog" assets/add-session.js && grep -q "PDFExport.buildSessionPDF" assets/add-session.js && grep -q "MdRender.render" assets/add-session.js && grep -q "navigator.canShare" assets/add-session.js && grep -q "navigator.share" assets/add-session.js && grep -q "translate.google.com" assets/add-session.js && grep -q "app:settings-changed" assets/add-session.js && node -c assets/add-session.js</automated>
+    <automated>grep -cE 'App\.getSectionLabel\("(trapped|insights|limitingBeliefs|additionalTech|heartShield|heartShieldEmotions|issues|comments|nextSession)"' assets/add-session.js | awk '$1 < 8 { print "FAIL_label_calls"; exit 1 } { print "ok" }' && grep -q "function applySectionVisibility\|applySectionVisibility(" assets/add-session.js && grep -q "exportSessionBtn" assets/add-session.js && grep -q "openExportDialog" assets/add-session.js && grep -q "PDFExport.buildSessionPDF" assets/add-session.js && grep -q "MdRender.render" assets/add-session.js && grep -q "navigator.canShare" assets/add-session.js && grep -q "navigator.share" assets/add-session.js && ! grep -q "translate.google.com" assets/add-session.js && ! grep -q "exportTranslateBtn" assets/add-session.js && ! grep -q "wireTranslateButton" assets/add-session.js && grep -q "app:settings-changed" assets/add-session.js && node -c assets/add-session.js</automated>
   </verify>
   <acceptance_criteria>
     - At least 8 of 9 section labels call `App.getSectionLabel("KEY", "session.form.KEY")` in buildSessionMarkdown (note: heartShield is a toggle, not always rendered — 8 is the floor; 9 if all are emitted)
-    - File contains `applySectionVisibility` function or equivalent visibility toggle logic
+    - File contains `applySectionVisibility` function or equivalent visibility toggle logic; for past sessions, the function MUST render disabled-but-populated sections as fully editable inputs (no `disabled` / `readonly` attributes added; only the heading badge appended) per REQ-5 amendment 2026-04-28
     - File contains `exportSessionBtn` ref and click handler invoking `openExportDialog`
     - File contains `PDFExport.buildSessionPDF` call
     - File contains `MdRender.render` call (preview update)
     - File contains `navigator.canShare` and `navigator.share` calls
-    - File contains `translate.google.com` URL
+    - File does NOT contain `translate.google.com` (REQ-16 removed): `! grep -q "translate.google.com" assets/add-session.js`
+    - File does NOT contain `exportTranslateBtn` or `wireTranslateButton`: `! grep -q "exportTranslateBtn\|wireTranslateButton" assets/add-session.js`
     - File listens for `app:settings-changed` event
-    - File contains `URL.createObjectURL` (Markdown blob download — via PDFExport.triggerDownload OR inline)
+    - File contains `URL.createObjectURL` (text-file blob download — via PDFExport.triggerDownload OR inline)
     - File parses: `node -c assets/add-session.js`
   </acceptance_criteria>
-  <done>buildSessionMarkdown reads custom labels. Sections render conditionally with edit-mode-with-data fallback. Export modal 3-step flow is wired: Step 1 selection, Step 2 edit + preview + Translate, Step 3 PDF + MD + Share. Cross-tab settings updates re-apply visibility.</done>
+  <done>buildSessionMarkdown reads custom labels. Sections render conditionally; past sessions with disabled-but-populated sections show fully editable inputs + badge (REQ-5 amended). Export modal 3-step flow wired: Step 1 selection, Step 2 edit + preview (NO Translate), Step 3 PDF + Download-as-text-file + Share. Cross-tab settings updates re-apply visibility.</done>
 </task>
 
 <task type="auto">
@@ -754,10 +825,9 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
       "export.back": "Back"
       "export.tab.edit": "Edit"
       "export.tab.preview": "Preview"
-      "export.translate.cta": "Translate via Google"
-      "export.translate.tooltip": "Opens translate.google.com in a new tab with the current text"
+      // export.translate.cta + export.translate.tooltip REMOVED 2026-04-28 (REQ-16 dropped)
       "export.download.pdf": "Download PDF"
-      "export.download.md": "Download Markdown"
+      "export.download.text": "Download as text file"   // renamed 2026-04-28; was "export.download.md": "Download Markdown"
       "export.share": "Share via device"
       "export.share.subtitle": "Open share sheet (PDF attached)"
       "export.share.text": "Session document"
@@ -766,7 +836,7 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
       "export.discard.body": "Your changes to the document will be lost."
       "export.discard.yes": "Yes, discard"
       "export.discard.no": "Keep editing"
-      "export.pdf.failed": "Could not generate PDF. Try again, or download Markdown instead."
+      "export.pdf.failed": "Could not generate PDF. Try again, or download as a text file instead."   // updated 2026-04-28 — drops "Markdown" jargon
       "export.empty.body": "This session has no content yet. Save the session first."
 
     German values (from UI-SPEC):
@@ -780,10 +850,9 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
       "export.back": "Zurück"
       "export.tab.edit": "Bearbeiten"
       "export.tab.preview": "Vorschau"
-      "export.translate.cta": "Mit Google übersetzen"
-      "export.translate.tooltip": "Öffnet translate.google.com in neuem Tab mit dem aktuellen Text"
+      // export.translate.cta + export.translate.tooltip REMOVED 2026-04-28 (REQ-16 dropped)
       "export.download.pdf": "PDF herunterladen"
-      "export.download.md": "Markdown herunterladen"
+      "export.download.text": "Als Textdatei herunterladen"   // renamed 2026-04-28
       "export.share": "Über Gerät teilen"
       "export.share.subtitle": "Freigabemenü öffnen (PDF angehängt)"
       "export.share.text": "Sitzungsdokument"
@@ -792,7 +861,7 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
       "export.discard.body": "Ihre Änderungen am Dokument gehen verloren."
       "export.discard.yes": "Ja, verwerfen"
       "export.discard.no": "Weiter bearbeiten"
-      "export.pdf.failed": "PDF konnte nicht erstellt werden. Versuchen Sie es erneut oder laden Sie Markdown herunter."
+      "export.pdf.failed": "PDF konnte nicht erstellt werden. Versuchen Sie es erneut oder laden Sie als Textdatei herunter."   // updated 2026-04-28
       "export.empty.body": "Diese Sitzung enthält noch keinen Inhalt. Speichern Sie sie zuerst."
 
     Hebrew values:
@@ -806,10 +875,9 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
       "export.back": "חזור"
       "export.tab.edit": "ערוך"
       "export.tab.preview": "תצוגה מקדימה"
-      "export.translate.cta": "תרגם דרך Google"
-      "export.translate.tooltip": "פותח את translate.google.com בכרטיסייה חדשה עם הטקסט הנוכחי"
+      // export.translate.cta + export.translate.tooltip REMOVED 2026-04-28 (REQ-16 dropped)
       "export.download.pdf": "הורד PDF"
-      "export.download.md": "הורד Markdown"
+      "export.download.text": "הורד כקובץ טקסט"   // renamed 2026-04-28
       "export.share": "שתף דרך המכשיר"
       "export.share.subtitle": "פתח תפריט שיתוף (PDF מצורף)"
       "export.share.text": "מסמך מפגש"
@@ -818,7 +886,7 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
       "export.discard.body": "השינויים במסמך יאבדו."
       "export.discard.yes": "כן, בטל"
       "export.discard.no": "המשך עריכה"
-      "export.pdf.failed": "לא ניתן ליצור PDF. נסה שוב או הורד Markdown."
+      "export.pdf.failed": "לא ניתן ליצור PDF. נסה שוב או הורד כקובץ טקסט."   // updated 2026-04-28
       "export.empty.body": "אין עדיין תוכן במפגש זה. שמור תחילה."
 
     Czech values:
@@ -832,10 +900,9 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
       "export.back": "Zpět"
       "export.tab.edit": "Upravit"
       "export.tab.preview": "Náhled"
-      "export.translate.cta": "Přeložit přes Google"
-      "export.translate.tooltip": "Otevře translate.google.com v nové kartě s aktuálním textem"
+      // export.translate.cta + export.translate.tooltip REMOVED 2026-04-28 (REQ-16 dropped)
       "export.download.pdf": "Stáhnout PDF"
-      "export.download.md": "Stáhnout Markdown"
+      "export.download.text": "Stáhnout jako textový soubor"   // renamed 2026-04-28
       "export.share": "Sdílet přes zařízení"
       "export.share.subtitle": "Otevřít panel sdílení (PDF přiloženo)"
       "export.share.text": "Dokument sezení"
@@ -844,11 +911,11 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
       "export.discard.body": "Vaše změny v dokumentu budou ztraceny."
       "export.discard.yes": "Ano, zahodit"
       "export.discard.no": "Pokračovat v úpravách"
-      "export.pdf.failed": "Nelze vygenerovat PDF. Zkuste znovu nebo stáhněte Markdown."
+      "export.pdf.failed": "Nelze vygenerovat PDF. Zkuste znovu nebo stáhněte jako textový soubor."   // updated 2026-04-28
       "export.empty.body": "Toto sezení zatím nemá obsah. Nejprve sezení uložte."
   </action>
   <verify>
-    <automated>for L in en de he cs; do for K in "session.export" "export.title" "export.step1.helper" "export.next1" "export.next2" "export.done" "export.tab.edit" "export.tab.preview" "export.translate.cta" "export.download.pdf" "export.download.md" "export.share" "export.discard.title" "export.pdf.failed"; do grep -q "\"$K\"" assets/i18n-$L.js || { echo "MISSING_${L}_${K}"; exit 1; }; done; done && for L in en de he cs; do node -c assets/i18n-$L.js; done && echo "ok"</automated>
+    <automated>for L in en de he cs; do for K in "session.export" "export.title" "export.step1.helper" "export.next1" "export.next2" "export.done" "export.tab.edit" "export.tab.preview" "export.download.pdf" "export.download.text" "export.share" "export.discard.title" "export.pdf.failed"; do grep -q "\"$K\"" assets/i18n-$L.js || { echo "MISSING_${L}_${K}"; exit 1; }; done; done && for L in en de he cs; do if grep -q "export.translate.cta\|export.translate.tooltip\|export.download.md" assets/i18n-$L.js; then echo "FORBIDDEN_TRANSLATE_KEY_${L}"; exit 1; fi; done && for L in en de he cs; do if grep -q "translate.google.com" assets/i18n-$L.js; then echo "FORBIDDEN_TRANSLATE_URL_${L}"; exit 1; fi; done && for L in en de he cs; do node -c assets/i18n-$L.js; done && echo "ok"</automated>
   </verify>
   <acceptance_criteria>
     - All 4 files contain the required Export modal keys (15+ keys per file)
@@ -870,7 +937,7 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
 | therapist-edited markdown → MdRender → preview innerHTML | The most sensitive surface; protected by Plan 03's escape-first pipeline |
 | custom labels → DOM render in section headings + Step 1 rows | Rendered via .textContent (Step 1 labelSpan) — never innerHTML |
 | edited markdown → PDFExport / Markdown blob / Web Share | binary outputs do not execute scripts; filename slugified |
-| Translate href → external tab | href constructed via encodeURIComponent(ed.value); rel=noopener noreferrer |
+| ~~Translate href → external tab~~ | REMOVED 2026-04-28 — REQ-16 dropped. Modal makes zero outbound network calls. |
 
 ## STRIDE Threat Register
 
@@ -878,7 +945,7 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
 |-----------|----------|-----------|-------------|-----------------|
 | T-22-06-01 | XSS / Tampering | Live preview pane innerHTML assignment | mitigate | Preview uses `pv.innerHTML = MdRender.render(ed.value)`. MdRender (Plan 03) escapes HTML BEFORE structural rules. Acceptance: Plan 03 smoke test asserts `<script>` payloads are escaped. |
 | T-22-06-02 | XSS / Tampering | Step 1 row labels (custom section labels) | mitigate | Rendered via `labelSpan.textContent = label` — browser auto-escapes. Acceptance: grep for `.innerHTML\s*=` in the export Step 1 render path returns 0 matches (only the preview pane uses innerHTML, and that's the MdRender path). |
-| T-22-06-03 | Tampering / open-redirect | Translate href constructed from user text | mitigate | href is `https://translate.google.com/?sl=...&text=` + `encodeURIComponent(ed.value)`. The base URL is a fixed string literal — user input cannot redirect to a different host. `rel="noopener noreferrer"` prevents the new tab from accessing window.opener. |
+| T-22-06-03 | ~~Tampering / open-redirect~~ | ~~Translate href~~ | **REMOVED 2026-04-28** | REQ-16 (Translate) was dropped. There is no Translate href and no outbound URL construction in the modal. Threat ID retained for traceability; no surface remains. |
 | T-22-06-04 | Information disclosure | Editing preview leaks unselected sections | mitigate | The markdown initially shown in Step 2 is built from the Step 1 selection (buildEditableMarkdownFromSelection filters by checked checkboxes). Unchecked sections are not in the editor's value at all. |
 | T-22-06-05 | Information disclosure | navigator.share leaks file to chosen target | accept | The user is initiating the share. The OS share sheet shows targets the user chooses. This is the design intent. |
 | T-22-06-06 | Spoofing | Web Share canShare false-positive on probe | mitigate | Probe with a 1-byte dummy PDF File before revealing the Share button. If probe fails, button stays hidden. |
@@ -894,18 +961,20 @@ Section enable defaults for Step 1 checkboxes (REQ-8):
 - node -c assets/add-session.js
 - node -c each i18n file
 - HTML lint settings.html and add-session.html
-- Manual smoke after Plan 22-08 wiring: load a saved session in read mode → click Export → Step 1 shows 9 rows with disabled-greyed where applicable → Next → Step 2 textarea + live preview update on type → Translate opens new tab → Next → Step 3 PDF + MD download work → Share visible only on supported devices → Esc with edits prompts confirm.
+- Manual smoke after Plan 22-08 wiring: load a saved session in read mode → click Export → Step 1 shows 9 rows with disabled-greyed where applicable → Next → Step 2 textarea + live preview update on type (NO Translate button anywhere — REQ-16 removed 2026-04-28) → Next → Step 3 "Download PDF" + "Download as text file" both work → Share visible only on supported devices → Esc with edits prompts confirm.
+- Editable disabled-section smoke (REQ-5 amended 2026-04-28): in Settings, disable a section that has stored data in some past session → open that past session → the section renders with the "Disabled in Settings" badge AND the input is fully editable (cursor enters, value can be changed) → clear the value and save → reopen the session and confirm the section is now hidden.
 - Cross-tab smoke: change a section name in Settings tab → app:settings-changed fires → add-session form re-applies visibility (badge appears for newly disabled section).
 </verification>
 
 <success_criteria>
 - All 9 sections in add-session.html have data-section-key wrappers
 - buildSessionMarkdown emits headings via App.getSectionLabel
+- Past sessions render disabled-but-populated sections as fully editable inputs with the "Disabled in Settings" badge (REQ-5 amended 2026-04-28); empty disabled sections stay hidden
 - Export button visible in read mode; opens 3-step modal
 - Step 1: client-safe defaults, disabled sections greyed
-- Step 2: live preview updates from textarea; Translate href encodes current text
-- Step 3: PDF download produces a valid file; Markdown download produces a .md file; Share button only visible if canShare({files}) returns true
-- Custom labels propagate from Settings → form → Copy MD → Export Step 1 → Export preview → PDF
+- Step 2: live preview updates from textarea (NO Translate button — REQ-16 removed 2026-04-28)
+- Step 3: PDF download produces a valid file with the client name preserved as-is in the filename per D-04 amendment; "Download as text file" button (label drops MD/Markdown jargon) produces a .md file; Share button only visible if canShare({files}) returns true
+- Custom labels propagate from Settings → form → "Copy session text" clipboard → Export Step 1 → Export preview → PDF
 - Modal close with edits prompts via App.confirmDialog with export.discard.* keys
 </success_criteria>
 

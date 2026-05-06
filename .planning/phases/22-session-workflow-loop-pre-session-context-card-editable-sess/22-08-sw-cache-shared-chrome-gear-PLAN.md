@@ -20,6 +20,25 @@ requirements:
   - REQ-20   # Service Worker precaches the new Settings page and assets
 user_setup: []
 
+# ============================================================
+# Amendment 2026-04-28 — post-Sapir-review tightening
+# ============================================================
+# This plan needs ONE additional truth (no code changes vs the original):
+#
+# Demo-mode parity locked (D-23 / SPEC Boundaries amendment 2026-04-28):
+# the gear icon in #headerActions is rendered identically in Demo mode
+# and in the real app. The Settings page itself reads/writes whichever
+# IndexedDB the active context uses (`demo_portfolio` in demo). DO NOT
+# add a `window.name === 'demo-mode'` guard around the gear icon.
+# DO NOT redirect Settings → demo-home when in demo. The demo's separate
+# IDB already isolates side effects.
+#
+# In other words: the original task content for this plan is already
+# correct (no demo-specific branches were planned anyway); this comment
+# is a guard against "should I add a demo guard?" intuition during
+# execution.
+# ============================================================
+
 must_haves:
   truths:
     - "sw.js CACHE_NAME is bumped past the current v49 (target: sessions-garden-v50; if other phases land first, bump to next available)"
