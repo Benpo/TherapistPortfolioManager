@@ -50,8 +50,12 @@
           <h2 class="section-title" data-i18n="session.title">Add New Session</h2>
           <div class="session-header-actions">
             <button class="button ghost icon-inline is-hidden" type="button" id="copySessionBtn">
-              <span class="button-label" data-i18n="session.copyAll">Copy Session (MD)</span>
+              <span class="button-label" data-i18n="session.copyAll">Copy session text</span>
               <span class="button-icon" aria-hidden="true">&#128203;</span>
+            </button>
+            <button class="button icon-inline is-hidden" type="button" id="exportSessionBtn">
+              <span class="button-label" data-i18n="session.export">Export</span>
+              <span class="button-icon" aria-hidden="true">&#128228;</span>
             </button>
             <button class="icon-button is-hidden" type="button" id="editSessionBtn">
               <span aria-hidden="true">&#9998;</span>
@@ -186,77 +190,98 @@
           <div class="accordion-section" data-accordion="heart-shield">
             <div class="accordion-header" data-i18n="session.form.heartShield">Heart Shield Session</div>
             <div class="accordion-body">
-              <div class="heart-shield-section" id="heartShieldSection">
-                <div class="heart-shield-toggle">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="heartShieldToggle" />
-                    <span class="toggle-slider"></span>
-                  </label>
-                  <span class="label" data-i18n="session.form.heartShield">Heart Shield Session</span>
+              <div class="session-section" data-section-key="heartShield">
+                <div class="heart-shield-section" id="heartShieldSection">
+                  <div class="heart-shield-toggle">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="heartShieldToggle" />
+                      <span class="toggle-slider"></span>
+                    </label>
+                    <span class="label" data-i18n="session.form.heartShield">Heart Shield Session</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                  </div>
                 </div>
               </div>
 
-              <div class="form-field">
-                <label class="label" data-i18n="session.form.issuesHeading">נושאי המפגש *</label>
-                <div class="helper-text" data-i18n="session.form.issueLimit">You may list up to 3 issues per session</div>
-              </div>
-              <div id="issueList"></div>
-              <button class="button secondary" type="button" id="addIssueBtn" data-i18n="session.form.addIssue">Add Another Issue</button>
-
-              <details class="expandable-field is-hidden" id="heartShieldEmotionsField">
-                <summary>
-                  <span class="label" data-i18n="session.form.heartShieldEmotions">Emotions in the Heart Shield</span>
-                  <span class="expand-arrow" aria-hidden="true">›</span>
-                </summary>
-                <div class="expandable-body">
-                  <textarea class="textarea session-textarea" id="heartShieldEmotions" data-i18n-placeholder="session.form.heartShieldEmotions.placeholder"></textarea>
+              <div class="session-section" data-section-key="issues">
+                <div class="form-field">
+                  <label class="label" data-i18n="session.form.issuesHeading">נושאי המפגש *</label>
+                  <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                  <div class="helper-text" data-i18n="session.form.issueLimit">You may list up to 3 issues per session</div>
                 </div>
-              </details>
+                <div id="issueList"></div>
+                <button class="button secondary" type="button" id="addIssueBtn" data-i18n="session.form.addIssue">Add Another Issue</button>
+              </div>
+
+              <div class="session-section" data-section-key="heartShieldEmotions">
+                <details class="expandable-field is-hidden" id="heartShieldEmotionsField">
+                  <summary>
+                    <span class="label" data-i18n="session.form.heartShieldEmotions">Emotions in the Heart Shield</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <span class="expand-arrow" aria-hidden="true">›</span>
+                  </summary>
+                  <div class="expandable-body">
+                    <textarea class="textarea session-textarea" id="heartShieldEmotions" data-i18n-placeholder="session.form.heartShieldEmotions.placeholder"></textarea>
+                  </div>
+                </details>
+              </div>
             </div>
           </div>
 
           <div class="accordion-section is-active" data-accordion="emotions">
             <div class="accordion-header" data-i18n="session.accordion.emotions">Emotions &amp; Techniques</div>
             <div class="accordion-body">
-              <details class="expandable-field">
-                <summary>
-                  <span class="label" data-i18n="session.form.trapped">Trapped Emotions Released</span>
-                  <span class="expand-arrow" aria-hidden="true">›</span>
-                </summary>
-                <div class="expandable-body">
-                  <textarea class="textarea session-textarea" id="trappedEmotions" data-i18n-placeholder="session.form.trapped.placeholder"></textarea>
-                </div>
-              </details>
+              <div class="session-section" data-section-key="trapped">
+                <details class="expandable-field">
+                  <summary>
+                    <span class="label" data-i18n="session.form.trapped">Trapped Emotions Released</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <span class="expand-arrow" aria-hidden="true">›</span>
+                  </summary>
+                  <div class="expandable-body">
+                    <textarea class="textarea session-textarea" id="trappedEmotions" data-i18n-placeholder="session.form.trapped.placeholder"></textarea>
+                  </div>
+                </details>
+              </div>
 
-              <details class="expandable-field">
-                <summary>
-                  <span class="label" data-i18n="session.form.insights">Physical Imbalance</span>
-                  <span class="expand-arrow" aria-hidden="true">›</span>
-                </summary>
-                <div class="expandable-body">
-                  <textarea class="textarea session-textarea" id="sessionInsights" data-i18n-placeholder="session.form.insights.placeholder"></textarea>
-                </div>
-              </details>
+              <div class="session-section" data-section-key="insights">
+                <details class="expandable-field">
+                  <summary>
+                    <span class="label" data-i18n="session.form.insights">Physical Imbalance</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <span class="expand-arrow" aria-hidden="true">›</span>
+                  </summary>
+                  <div class="expandable-body">
+                    <textarea class="textarea session-textarea" id="sessionInsights" data-i18n-placeholder="session.form.insights.placeholder"></textarea>
+                  </div>
+                </details>
+              </div>
 
-              <details class="expandable-field">
-                <summary>
-                  <span class="label" data-i18n="session.form.limitingBeliefs">Limiting Beliefs</span>
-                  <span class="expand-arrow" aria-hidden="true">›</span>
-                </summary>
-                <div class="expandable-body">
-                  <textarea class="textarea session-textarea" id="limitingBeliefs" data-i18n-placeholder="session.form.limitingBeliefs.placeholder"></textarea>
-                </div>
-              </details>
+              <div class="session-section" data-section-key="limitingBeliefs">
+                <details class="expandable-field">
+                  <summary>
+                    <span class="label" data-i18n="session.form.limitingBeliefs">Limiting Beliefs</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <span class="expand-arrow" aria-hidden="true">›</span>
+                  </summary>
+                  <div class="expandable-body">
+                    <textarea class="textarea session-textarea" id="limitingBeliefs" data-i18n-placeholder="session.form.limitingBeliefs.placeholder"></textarea>
+                  </div>
+                </details>
+              </div>
 
-              <details class="expandable-field">
-                <summary>
-                  <span class="label" data-i18n="session.form.additionalTech">Additional Treatment Techniques</span>
-                  <span class="expand-arrow" aria-hidden="true">›</span>
-                </summary>
-                <div class="expandable-body">
-                  <textarea class="textarea session-textarea" id="additionalTech" data-i18n-placeholder="session.form.additionalTech.placeholder"></textarea>
-                </div>
-              </details>
+              <div class="session-section" data-section-key="additionalTech">
+                <details class="expandable-field">
+                  <summary>
+                    <span class="label" data-i18n="session.form.additionalTech">Additional Treatment Techniques</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <span class="expand-arrow" aria-hidden="true">›</span>
+                  </summary>
+                  <div class="expandable-body">
+                    <textarea class="textarea session-textarea" id="additionalTech" data-i18n-placeholder="session.form.additionalTech.placeholder"></textarea>
+                  </div>
+                </details>
+              </div>
             </div>
           </div>
 
@@ -273,24 +298,30 @@
           <div class="accordion-section" data-accordion="notes">
             <div class="accordion-header" data-i18n="session.form.comments.title">Session Notes</div>
             <div class="accordion-body">
-              <div class="form-field">
-                <div class="field-header">
-                  <label class="label" data-i18n="session.form.comments">Session Notes and Observations</label>
-                  <button class="icon-button field-copy" type="button" data-copy-target="sessionComments">
-                    <span aria-hidden="true">&#128203;</span>
-                  </button>
+              <div class="session-section" data-section-key="comments">
+                <div class="form-field">
+                  <div class="field-header">
+                    <label class="label" data-i18n="session.form.comments">Session Notes and Observations</label>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <button class="icon-button field-copy" type="button" data-copy-target="sessionComments">
+                      <span aria-hidden="true">&#128203;</span>
+                    </button>
+                  </div>
+                  <textarea class="textarea session-textarea" id="sessionComments" data-i18n-placeholder="session.form.comments.placeholder"></textarea>
                 </div>
-                <textarea class="textarea session-textarea" id="sessionComments" data-i18n-placeholder="session.form.comments.placeholder"></textarea>
               </div>
 
-              <div class="form-field" style="margin-top:1.5rem;">
-                <div class="field-header">
-                  <label class="label" data-i18n="session.form.nextSession">Information for Next Session</label>
-                  <button class="icon-button field-copy" type="button" data-copy-target="customerSummary">
-                    <span aria-hidden="true">&#128203;</span>
-                  </button>
+              <div class="session-section" data-section-key="nextSession">
+                <div class="form-field" style="margin-top:1.5rem;">
+                  <div class="field-header">
+                    <label class="label" data-i18n="session.form.nextSession">Information for Next Session</label>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <button class="icon-button field-copy" type="button" data-copy-target="customerSummary">
+                      <span aria-hidden="true">&#128203;</span>
+                    </button>
+                  </div>
+                  <textarea class="textarea session-textarea" id="customerSummary" data-i18n-placeholder="session.form.nextSession.placeholder"></textarea>
                 </div>
-                <textarea class="textarea session-textarea" id="customerSummary" data-i18n-placeholder="session.form.nextSession.placeholder"></textarea>
               </div>
 
               <div class="heart-shield-conditional is-hidden" id="heartShieldConditional" style="margin-top:1.5rem;">
@@ -357,6 +388,75 @@
       <div class="modal-actions confirm-actions">
         <button class="button ghost" type="button" id="confirmCancelBtn" data-i18n="confirm.cancel">Cancel</button>
         <button class="button danger" type="button" id="confirmOkBtn" data-i18n="confirm.delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="exportModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+    <div class="modal-overlay"></div>
+    <div class="modal-card export-card">
+      <button class="modal-close" type="button" id="exportClose" aria-label="Close"></button>
+      <h3 id="exportTitle" class="modal-title" data-i18n="export.title">Export Session</h3>
+
+      <div class="export-step-indicator" role="progressbar" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1">
+        <span class="export-step-dot is-active" data-step="1">1</span>
+        <span class="export-step-connector"></span>
+        <span class="export-step-dot" data-step="2">2</span>
+        <span class="export-step-connector"></span>
+        <span class="export-step-dot" data-step="3">3</span>
+      </div>
+
+      <div class="modal-card-body">
+        <!-- Step 1 -->
+        <div class="export-step is-active" data-step="1">
+          <p data-i18n="export.step1.helper">Choose which sections to include.</p>
+          <div id="exportStep1Rows"></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="export-step" data-step="2">
+          <div class="export-mobile-tabs is-hidden" role="tablist">
+            <button type="button" class="tab-btn is-active" data-tab="edit" data-i18n="export.tab.edit">Edit</button>
+            <button type="button" class="tab-btn" data-tab="preview" data-i18n="export.tab.preview">Preview</button>
+          </div>
+          <div class="export-edit-area">
+            <textarea id="exportEditor" class="textarea export-editor" dir="auto" spellcheck="true"></textarea>
+            <div id="exportPreview" class="export-preview"></div>
+          </div>
+          <!-- Translate-via-Google CTA REMOVED 2026-04-28 (REQ-16 dropped). Do NOT add this anchor element. -->
+        </div>
+
+        <!-- Step 3 -->
+        <div class="export-step" data-step="3">
+          <p data-i18n="export.step3.helper">Choose how to deliver the document.</p>
+          <button type="button" class="export-output-card" id="exportDownloadPdf">
+            <span class="output-card-icon" aria-hidden="true">&#128196;</span>
+            <span class="output-card-text">
+              <span class="output-card-title" data-i18n="export.download.pdf">Download PDF</span>
+              <span class="output-card-subtitle" id="exportPdfSubtitle"></span>
+            </span>
+          </button>
+          <button type="button" class="export-output-card" id="exportDownloadMd">
+            <!-- Renamed 2026-04-28: card label drops "Markdown" jargon. DOM id stays "exportDownloadMd" so the JS handler need not change. File extension on disk stays .md. -->
+            <span class="output-card-icon" aria-hidden="true">&#128221;</span>
+            <span class="output-card-text">
+              <span class="output-card-title" data-i18n="export.download.text">Download as text file</span>
+              <span class="output-card-subtitle" id="exportMdSubtitle"></span>
+            </span>
+          </button>
+          <button type="button" class="export-output-card is-hidden" id="exportShare">
+            <span class="output-card-icon" aria-hidden="true">&#8599;</span>
+            <span class="output-card-text">
+              <span class="output-card-title" data-i18n="export.share">Share via device</span>
+              <span class="output-card-subtitle" data-i18n="export.share.subtitle">Open share sheet (PDF attached)</span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-card-actions export-actions">
+        <button type="button" class="button ghost is-hidden" id="exportBackBtn" data-i18n="export.back">Back</button>
+        <button type="button" class="button" id="exportNextBtn" data-i18n="export.next1">Next: Edit document</button>
       </div>
     </div>
   </div>
@@ -444,6 +544,7 @@
   <script src="./assets/shared-chrome.js"></script>
   <script src="./assets/app.js"></script>
   <script src="./assets/crop.js"></script>
+  <script src="./assets/md-render.js"></script>
   <script src="./assets/add-session.js"></script>
   <script>
     if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
