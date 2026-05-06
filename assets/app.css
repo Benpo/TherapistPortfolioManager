@@ -2459,3 +2459,191 @@ body.read-mode .heart-shield-section input {
   .settings-rename-wrap { inline-size: 280px; }
   .settings-rename-input { inline-size: 100%; }
 }
+
+/* Phase 22 — Export modal */
+.export-card {
+  inline-size: min(720px, 92vw);
+}
+.export-step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-inline-size: 360px;
+  margin-inline: auto;
+  margin-block: 0 24px;
+}
+.export-step-dot {
+  inline-size: 24px;
+  block-size: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+}
+.export-step-dot.is-active {
+  background: var(--color-primary);
+  color: var(--color-surface);
+}
+.export-step-dot.is-completed {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+.export-step-connector {
+  flex: 1;
+  block-size: 1px;
+  background: var(--color-border-soft);
+}
+.export-step-connector.is-completed {
+  background: var(--color-primary);
+}
+
+.export-step { display: none; }
+.export-step.is-active { display: block; }
+
+.export-section-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-block: 8px;
+  padding-inline: 16px;
+  border-radius: 16px;
+  min-block-size: 44px;
+  cursor: pointer;
+}
+.export-section-row:hover {
+  background: var(--color-surface-hover);
+}
+.export-section-row.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.export-section-row.is-disabled input {
+  pointer-events: none;
+}
+.export-section-label {
+  flex: 1;
+}
+
+.export-edit-area {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+.export-editor {
+  min-block-size: 240px;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+}
+.export-preview {
+  min-block-size: 240px;
+  padding: 16px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  background: var(--color-surface);
+  overflow-y: auto;
+}
+.export-preview h1 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-block-end: 8px;
+}
+.export-preview h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  border-block-end: 1px solid var(--color-border);
+  margin-block: 16px 8px;
+  padding-block-end: 4px;
+}
+.export-preview h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-block: 16px 4px;
+}
+.export-preview p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.export-preview ul {
+  padding-inline-start: 24px;
+}
+
+.export-mobile-tabs {
+  display: none;
+  gap: 8px;
+  margin-block-end: 16px;
+}
+.export-mobile-tabs .tab-btn {
+  padding-block: 8px;
+  padding-inline: 16px;
+  border-radius: 16px;
+  min-block-size: 44px;
+  background: var(--color-surface-toggle);
+  border: 1px solid var(--color-border-soft);
+}
+.export-mobile-tabs .tab-btn.is-active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
+.export-output-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  margin-block-end: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  min-block-size: 64px;
+  inline-size: 100%;
+  text-align: start;
+  cursor: pointer;
+}
+.export-output-card:hover {
+  background: var(--color-surface-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button);
+}
+.output-card-icon {
+  font-size: 24px;
+  color: var(--color-primary-dark);
+}
+.output-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.output-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.output-card-subtitle {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 769px) {
+  .export-edit-area {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .export-edit-area {
+    grid-template-columns: 1fr;
+  }
+  .export-mobile-tabs {
+    display: inline-flex;
+  }
+}

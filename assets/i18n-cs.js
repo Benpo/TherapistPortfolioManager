@@ -285,7 +285,30 @@ window.I18N.cs = {
   "settings.confirm.disable.body": "St\u00E1vaj\u00EDc\u00ED data se nesma\u017Eou. P\u0159edchoz\u00ED sezen\u00ED tuto sekci st\u00E1le zobraz\u00ED, pokud obsahuj\u00ED obsah. Nov\u00E1 sezen\u00ED ne. Pokra\u010Dovat?",
   "settings.confirm.disable.confirm": "Ano, vypnout",
   "settings.confirm.disable.cancel": "Ponechat zapnut\u00E9",
-  "settings.rename.locked.tooltip": "\u00DA\u010Del t\u00E9to sekce je pevn\u00FD \u2014 m\u016F\u017Eete ji vypnout, ale ne p\u0159ejmenovat."
+  "settings.rename.locked.tooltip": "\u00DA\u010Del t\u00E9to sekce je pevn\u00FD \u2014 m\u016F\u017Eete ji vypnout, ale ne p\u0159ejmenovat.",
+  // --- Phase 22 \u2014 Export modal ---
+  "session.export": "Exportovat",
+  "export.title": "Exportovat sezen\u00ED",
+  "export.step1.helper": "Vyberte, kter\u00E9 sekce maj\u00ED b\u00FDt zahrnuty.",
+  "export.step3.helper": "Vyberte zp\u016Fsob doru\u010Den\u00ED dokumentu.",
+  "export.next1": "Dal\u0161\u00ED: Upravit dokument",
+  "export.next2": "Dal\u0161\u00ED: Z\u00EDskat dokument",
+  "export.done": "Hotovo",
+  "export.back": "Zp\u011Bt",
+  "export.tab.edit": "Upravit",
+  "export.tab.preview": "N\u00E1hled",
+  "export.download.pdf": "St\u00E1hnout PDF",
+  "export.download.text": "St\u00E1hnout jako textov\u00FD soubor",
+  "export.share": "Sd\u00EDlet p\u0159es za\u0159\u00EDzen\u00ED",
+  "export.share.subtitle": "Otev\u0159\u00EDt panel sd\u00EDlen\u00ED (PDF p\u0159ilo\u017Eeno)",
+  "export.share.text": "Dokument sezen\u00ED",
+  "export.preparing": "P\u0159ipravuji PDF...",
+  "export.discard.title": "Zahodit zm\u011Bny?",
+  "export.discard.body": "Va\u0161e zm\u011Bny v dokumentu budou ztraceny.",
+  "export.discard.yes": "Ano, zahodit",
+  "export.discard.no": "Pokra\u010Dovat v \u00FAprav\u00E1ch",
+  "export.pdf.failed": "Nelze vygenerovat PDF. Zkuste znovu nebo st\u00E1hn\u011Bte jako textov\u00FD soubor.",
+  "export.empty.body": "Toto sezen\u00ED zat\u00EDm nem\u00E1 obsah. Nejprve sezen\u00ED ulo\u017Ete."
 };
 
 window.QUOTES.cs = [

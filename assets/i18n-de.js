@@ -285,7 +285,30 @@ window.I18N.de = {
   "settings.confirm.disable.body": "Bestehende Daten werden nicht gel\u00F6scht. Fr\u00FChere Sitzungen zeigen diesen Abschnitt weiterhin, wenn Inhalt vorhanden ist. Neue Sitzungen nicht. Fortfahren?",
   "settings.confirm.disable.confirm": "Ja, deaktivieren",
   "settings.confirm.disable.cancel": "Aktiviert lassen",
-  "settings.rename.locked.tooltip": "Der Zweck dieses Abschnitts ist festgelegt \u2014 Sie k\u00F6nnen ihn deaktivieren, aber nicht umbenennen."
+  "settings.rename.locked.tooltip": "Der Zweck dieses Abschnitts ist festgelegt \u2014 Sie k\u00F6nnen ihn deaktivieren, aber nicht umbenennen.",
+  // --- Phase 22 \u2014 Export modal ---
+  "session.export": "Exportieren",
+  "export.title": "Sitzung exportieren",
+  "export.step1.helper": "W\u00E4hlen Sie, welche Abschnitte enthalten sein sollen.",
+  "export.step3.helper": "W\u00E4hlen Sie, wie das Dokument geliefert werden soll.",
+  "export.next1": "Weiter: Dokument bearbeiten",
+  "export.next2": "Weiter: Dokument abrufen",
+  "export.done": "Fertig",
+  "export.back": "Zur\u00FCck",
+  "export.tab.edit": "Bearbeiten",
+  "export.tab.preview": "Vorschau",
+  "export.download.pdf": "PDF herunterladen",
+  "export.download.text": "Als Textdatei herunterladen",
+  "export.share": "\u00DCber Ger\u00E4t teilen",
+  "export.share.subtitle": "Freigabemen\u00FC \u00F6ffnen (PDF angeh\u00E4ngt)",
+  "export.share.text": "Sitzungsdokument",
+  "export.preparing": "PDF wird vorbereitet...",
+  "export.discard.title": "\u00C4nderungen verwerfen?",
+  "export.discard.body": "Ihre \u00C4nderungen am Dokument gehen verloren.",
+  "export.discard.yes": "Ja, verwerfen",
+  "export.discard.no": "Weiter bearbeiten",
+  "export.pdf.failed": "PDF konnte nicht erstellt werden. Versuchen Sie es erneut oder laden Sie als Textdatei herunter.",
+  "export.empty.body": "Diese Sitzung enth\u00E4lt noch keinen Inhalt. Speichern Sie sie zuerst."
 };
 
 window.QUOTES.de = [
