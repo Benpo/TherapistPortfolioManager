@@ -440,7 +440,7 @@ window.App = (() => {
    * @param {string} [options.cancelKey='confirm.cancel'] - i18n key for cancel button
    * @returns {Promise<boolean>} Resolves true if confirmed, false if cancelled
    */
-  function confirmDialog({ titleKey, messageKey, confirmKey = "confirm.delete", cancelKey = "confirm.cancel" }) {
+  function confirmDialog({ titleKey, messageKey, confirmKey = "confirm.delete", cancelKey = "confirm.cancel", tone = "danger" }) {
     const modal = document.getElementById("confirmModal");
     if (!modal) {
       return Promise.resolve(false);
@@ -458,10 +458,37 @@ window.App = (() => {
     if (cancelBtn && cancelKey) cancelBtn.setAttribute("data-i18n", cancelKey);
     applyTranslations(modal);
 
+    // Tone: 'danger' (default — destructive red) or 'neutral' (button-primary).
+    // We swap classes on open and restore on close so other consumers' default styling is unaffected.
+    let _restoreConfirmBtnClass = null;
+    if (confirmBtn) {
+      if (tone === "neutral" && confirmBtn.classList.contains("danger")) {
+        confirmBtn.classList.remove("danger");
+        confirmBtn.classList.add("button-primary");
+        _restoreConfirmBtnClass = "danger";
+      } else if (tone === "danger" && confirmBtn.classList.contains("button-primary") && !confirmBtn.classList.contains("danger")) {
+        // Self-heal in case a prior neutral call leaked (defensive — close() restores, but if a caller crashes mid-dialog this resets state).
+        confirmBtn.classList.remove("button-primary");
+        confirmBtn.classList.add("danger");
+        _restoreConfirmBtnClass = "button-primary";
+      }
+    }
+
     return new Promise((resolve) => {
       const close = (result) => {
         modal.classList.add("is-hidden");
         unlockBodyScroll();
+        // Restore the button class if we swapped it for tone.
+        if (confirmBtn && _restoreConfirmBtnClass) {
+          if (_restoreConfirmBtnClass === "danger") {
+            confirmBtn.classList.remove("button-primary");
+            confirmBtn.classList.add("danger");
+          } else {
+            confirmBtn.classList.remove("danger");
+            confirmBtn.classList.add("button-primary");
+          }
+          _restoreConfirmBtnClass = null;
+        }
         confirmBtn && confirmBtn.removeEventListener("click", onConfirm);
         cancelBtn && cancelBtn.removeEventListener("click", onCancel);
         overlay && overlay.removeEventListener("click", onCancel);

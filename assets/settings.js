@@ -238,7 +238,8 @@ window.SettingsPage = (function () {
             titleKey: "settings.confirm.disable.title",
             messageKey: "settings.confirm.disable.body",
             confirmKey: "settings.confirm.disable.confirm",
-            cancelKey: "settings.confirm.disable.cancel"
+            cancelKey: "settings.confirm.disable.cancel",
+            tone: "neutral"
           });
         } catch (e) { ok = false; }
         if (!ok) {
