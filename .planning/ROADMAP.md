@@ -375,9 +375,9 @@ Plans:
 **Plans:** 8 plans
 
 Plans:
-- [ ] 22-01-PLAN.md — Vendored libraries: jsPDF + Noto Sans / Noto Sans Hebrew base64 fonts (REQ-13 foundation)
-- [ ] 22-02-PLAN.md — DB v4 migration + therapistSettings store + App.getSectionLabel/isSectionEnabled cache + BroadcastChannel + Settings i18n keys (REQ-2, REQ-3, REQ-4, REQ-6, REQ-11, REQ-17, REQ-19)
-- [ ] 22-03-PLAN.md — md-render.js (escape-first Markdown→HTML utility for export preview) (REQ-12)
+- [x] 22-01-PLAN.md — Vendored libraries: jsPDF + Noto Sans / Noto Sans Hebrew base64 fonts (REQ-13 foundation)
+- [x] 22-02-PLAN.md — DB v4 migration + therapistSettings store + App.getSectionLabel/isSectionEnabled cache + BroadcastChannel + Settings i18n keys (REQ-2, REQ-3, REQ-4, REQ-6, REQ-11, REQ-17, REQ-19)
+- [x] 22-03-PLAN.md — md-render.js (escape-first Markdown→HTML utility for export preview) (REQ-12)
 - [ ] 22-04-PLAN.md — Settings page (settings.html + settings.js + CSS) — 9-row form, sticky banner, action bar (REQ-1, REQ-2, REQ-3, REQ-4, REQ-6, REQ-17)
 - [ ] 22-05-PLAN.md — pdf-export.js — lazy-loaded jsPDF wrapper with A4, RTL Hebrew, pagination (REQ-10, REQ-13)
 - [ ] 22-06-PLAN.md — Export modal + buildSessionMarkdown rewire + section visibility (REQ-5, REQ-7, REQ-8, REQ-9, REQ-10, REQ-11, REQ-12, REQ-14, REQ-15, REQ-16, REQ-17, REQ-19)
