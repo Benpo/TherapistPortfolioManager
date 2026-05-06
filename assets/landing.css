@@ -564,7 +564,7 @@
 
 /* ---- Pricing section ---- */
 .landing-pricing {
-  padding: 5rem 2rem;
+  padding: 2rem 2rem 3rem;
   background: color-mix(in srgb, var(--color-surface-alt) 85%, var(--color-primary) 15%);
 }
 
@@ -634,9 +634,12 @@
 .pricing-no-subscription,
 .pricing-value-line {
   font-size: 0.9375rem;
-  color: var(--color-text-muted);
+  color: var(--color-primary-dark, var(--color-primary));
   font-style: italic;
   margin-block-end: 2rem;
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
 }
 
 .pricing-features-list {
@@ -682,9 +685,9 @@
 }
 
 .pricing-vat-note {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   color: var(--color-text-muted);
-  margin-block-start: 0.25rem;
+  margin: 0;
   line-height: 1.4;
 }
 
@@ -701,6 +704,7 @@
   color: var(--color-text-muted);
   text-decoration: underline;
   text-underline-offset: 2px;
+  padding-block: 0.25rem;
 }
 
 .pricing-legal-text a:hover {
@@ -1254,6 +1258,15 @@
 @media (max-width: 640px) {
   .landing-header {
     padding: 0.875rem 1rem;
+    flex-wrap: wrap;
+  }
+  .landing-brand-name {
+    font-size: 0.9375rem;
+  }
+  .landing-enter-link {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    min-inline-size: unset;
   }
   .landing-hero {
     padding: 3.5rem 1.25rem 3rem;
