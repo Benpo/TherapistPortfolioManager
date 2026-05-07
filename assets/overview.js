@@ -66,16 +66,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (exportBtn) {
     exportBtn.addEventListener("click", async () => {
       try {
-        // Passphrase-first flow: modal shows with "Skip encryption" option
+        // Passphrase-first flow: modal returns true (encrypted), false (skip), or 'cancel' (abort).
         var encrypted = await BackupManager.exportEncryptedBackup();
+        if (encrypted === 'cancel') {
+          // User aborted — DO NOT download anything, DO NOT toast success.
+          return;
+        }
         if (encrypted === false) {
-          // User chose "Skip encryption" — do regular export
+          // User chose "Skip encryption" — do regular unencrypted export
           const { blob, filename } = await BackupManager.exportBackup();
           BackupManager.triggerDownload(blob, filename);
           if (BackupManager.isAutoBackupActive()) {
             await BackupManager.autoSaveToFolder(blob, filename);
           }
         }
+        // encrypted === true means file was already downloaded inside exportEncryptedBackup
         App.showToast("", "toast.exportSuccess");
       } catch (err) {
         console.error("Backup export failed:", err);
