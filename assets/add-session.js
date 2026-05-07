@@ -8,6 +8,12 @@ let formSaving = false;
 document.addEventListener("DOMContentLoaded", async () => {
   await App.initCommon();
 
+  // Phase 22 Plan 12 (Gap B, D3): expose dirty state for App.installNavGuard consumers.
+  // Function form (not a snapshot) so the guard always reads the live state.
+  window.PortfolioFormDirty = function () {
+    return formDirty && !formSaving;
+  };
+
   const clientSelect = document.getElementById("clientSelect");
   const sessionDate = document.getElementById("sessionDate");
   const sessionForm = document.getElementById("sessionForm");
@@ -61,6 +67,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     sessionForm.addEventListener("change", () => { formDirty = true; });
   }
   window.addEventListener("beforeunload", (e) => {
+    // Phase 22 Plan 12 (Gap B, D3): honour the one-shot bypass flag set by
+    // App.installNavGuard so the user does not see a custom dialog AND the
+    // browser-native one for the same intentional in-app navigation.
+    if (window.PortfolioFormDirtyBypass) return;
     if (formDirty && !formSaving) {
       e.preventDefault();
     }

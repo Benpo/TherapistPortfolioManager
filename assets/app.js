@@ -322,6 +322,24 @@ window.App = (() => {
       actions.appendChild(link);
     }
 
+    // Phase 22 Plan 12 (Gap B, D3): single call site for App.installNavGuard.
+    // Future call sites (brand-link, add-client, etc.) are out of scope for this plan
+    // and will be audited later by Ben using App.installNavGuard as the building block.
+    App.installNavGuard({
+      trigger: link,
+      isDirty: function () {
+        return typeof window.PortfolioFormDirty === 'function' && window.PortfolioFormDirty() === true;
+      },
+      message: {
+        titleKey:   'session.leavePage.title',
+        bodyKey:    'session.leavePage.body',
+        confirmKey: 'session.leavePage.confirm',
+        cancelKey:  'session.leavePage.cancel',
+        tone:       'danger'
+      },
+      destination: link.href
+    });
+
     // Re-translate gear label on language switch — registered exactly once.
     if (!initSettingsLink._listenerInstalled) {
       document.addEventListener('app:language', function () {
@@ -990,3 +1008,82 @@ window.App = (() => {
     isSectionEnabled,
   };
 })();
+
+// ---------------------------------------------------------------------------
+// Phase 22 Plan 12 (Gap B, D3) — App.installNavGuard
+//
+// Defined via post-IIFE namespace augmentation. Placed AFTER the IIFE that
+// builds App so it does not need to live inside the return object. By the
+// time this helper is invoked at runtime, App.confirmDialog (which it calls)
+// is already attached to the namespace.
+// ---------------------------------------------------------------------------
+
+/**
+ * App.installNavGuard — register a click-time confirm guard on a navigation trigger.
+ *
+ * Intercepts clicks on the trigger; if the caller-provided `isDirty()` returns truthy,
+ * shows an App.confirmDialog with the supplied i18n keys. On confirm, sets
+ * window.PortfolioFormDirtyBypass=true (so beforeunload listeners that honour the flag
+ * skip their prompt), runs the optional onConfirm hook, and navigates to `destination`.
+ * On cancel, suppresses the navigation. When isDirty() is falsy, the guard is a no-op
+ * and default navigation proceeds.
+ *
+ * Returns an unregister function that detaches the listener — useful when the trigger
+ * element may be replaced or destroyed.
+ *
+ * NOTE: `onConfirm` is invoked synchronously; the helper does not await its return
+ * value. Future callers needing an async onConfirm pattern (e.g. "save before
+ * leaving") must gate the navigation themselves — i.e. perform the async work in
+ * their own click handler before triggering navigation, OR fork the helper. The
+ * synchronous-onConfirm contract is intentional and locked at v1.
+ *
+ * Public API (locked — future call sites depend on this shape):
+ *   App.installNavGuard({
+ *     trigger:     HTMLElement | string (CSS selector resolved at call time),
+ *     isDirty:     () => boolean,                      // caller-provided dirty-state predicate
+ *     message: {                                       // i18n keys for the confirm dialog
+ *       titleKey, bodyKey, confirmKey, cancelKey,
+ *       tone?: 'danger' | 'neutral'                    // defaults to 'danger'
+ *     },
+ *     destination: string | () => string,              // URL to navigate to on confirm; falls back to trigger.href if a string is unspecified
+ *     onConfirm?:  () => void,                         // optional pre-nav SYNCHRONOUS side-effect (e.g. setFormSaving); see NOTE above re: async
+ *   }) => (() => void)                                  // unregister fn
+ */
+App.installNavGuard = function (opts) {
+  var trigger = (typeof opts.trigger === 'string') ? document.querySelector(opts.trigger) : opts.trigger;
+  if (!trigger) return function () {};
+  var msg = opts.message || {};
+  var tone = msg.tone || 'danger';
+  var resolveDestination = function () {
+    if (typeof opts.destination === 'function') return opts.destination();
+    if (typeof opts.destination === 'string') return opts.destination;
+    return trigger.href || '';
+  };
+  var onClick = async function (e) {
+    var dirty = false;
+    try { dirty = !!(opts.isDirty && opts.isDirty()); } catch (_e) { dirty = false; }
+    if (!dirty) return; // clean state — let default navigation proceed
+    e.preventDefault();
+    var ok = false;
+    try {
+      ok = await App.confirmDialog({
+        titleKey:   msg.titleKey,
+        messageKey: msg.bodyKey,
+        confirmKey: msg.confirmKey,
+        cancelKey:  msg.cancelKey,
+        tone:       tone
+      });
+    } catch (_e) { ok = false; }
+    if (!ok) return; // user chose to stay
+    window.PortfolioFormDirtyBypass = true;
+    if (typeof opts.onConfirm === 'function') {
+      try { opts.onConfirm(); } catch (_e) { /* swallow — guard is best-effort */ }
+    }
+    var url = resolveDestination();
+    if (url) window.location.href = url;
+  };
+  trigger.addEventListener('click', onClick);
+  return function unregister() {
+    trigger.removeEventListener('click', onClick);
+  };
+};

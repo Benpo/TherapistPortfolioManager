@@ -319,7 +319,13 @@ window.I18N.en = {
   "export.discard.yes": "Yes, discard",
   "export.discard.no": "Keep editing",
   "export.pdf.failed": "Could not generate PDF. Try again, or download as a text file instead.",
-  "export.empty.body": "This session has no content yet. Save the session first."
+  "export.empty.body": "This session has no content yet. Save the session first.",
+
+  // Phase 22 Plan 12 (Gap B) — Leave-page guard for in-progress session form
+  "session.leavePage.title": "Leave this session?",
+  "session.leavePage.body": "You have unsaved changes. Leaving now will discard them.",
+  "session.leavePage.confirm": "Leave without saving",
+  "session.leavePage.cancel": "Stay on this session"
 };
 
 window.QUOTES.en = [

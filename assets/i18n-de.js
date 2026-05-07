@@ -332,7 +332,13 @@ window.I18N.de = {
   "export.discard.yes": "Ja, verwerfen",
   "export.discard.no": "Weiter bearbeiten",
   "export.pdf.failed": "PDF konnte nicht erstellt werden. Versuchen Sie es erneut oder laden Sie als Textdatei herunter.",
-  "export.empty.body": "Diese Sitzung enth\u00E4lt noch keinen Inhalt. Speichern Sie sie zuerst."
+  "export.empty.body": "Diese Sitzung enth\u00E4lt noch keinen Inhalt. Speichern Sie sie zuerst.",
+
+  // Phase 22 Plan 12 (Gap B) \u2014 Leave-page guard for in-progress session form
+  "session.leavePage.title": "Sitzung verlassen?",
+  "session.leavePage.body": "Sie haben ungespeicherte \u00C4nderungen. Beim Verlassen gehen sie verloren.",
+  "session.leavePage.confirm": "Verlassen ohne zu speichern",
+  "session.leavePage.cancel": "Auf der Sitzung bleiben"
 };
 
 window.QUOTES.de = [

@@ -332,7 +332,13 @@ window.I18N.cs = {
   "export.discard.yes": "Ano, zahodit",
   "export.discard.no": "Pokra\u010Dovat v \u00FAprav\u00E1ch",
   "export.pdf.failed": "Nelze vygenerovat PDF. Zkuste znovu nebo st\u00E1hn\u011Bte jako textov\u00FD soubor.",
-  "export.empty.body": "Toto sezen\u00ED zat\u00EDm nem\u00E1 obsah. Nejprve sezen\u00ED ulo\u017Ete."
+  "export.empty.body": "Toto sezen\u00ED zat\u00EDm nem\u00E1 obsah. Nejprve sezen\u00ED ulo\u017Ete.",
+
+  // Phase 22 Plan 12 (Gap B) \u2014 Leave-page guard for in-progress session form
+  "session.leavePage.title": "Opustit toto sezen\u00ED?",
+  "session.leavePage.body": "M\u00E1te neulo\u017Een\u00E9 zm\u011Bny. Pokud nyn\u00ED odejdete, budou ztraceny.",
+  "session.leavePage.confirm": "Odej\u00EDt bez ulo\u017Een\u00ED",
+  "session.leavePage.cancel": "Z\u016Fstat u sezen\u00ED"
 };
 
 window.QUOTES.cs = [

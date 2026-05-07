@@ -319,7 +319,13 @@ window.I18N.he = {
   "export.discard.yes": "כן, בטל",
   "export.discard.no": "המשך עריכה",
   "export.pdf.failed": "לא ניתן ליצור PDF. נסה שוב או הורד כקובץ טקסט.",
-  "export.empty.body": "אין עדיין תוכן במפגש זה. שמור תחילה."
+  "export.empty.body": "אין עדיין תוכן במפגש זה. שמור תחילה.",
+
+  // Phase 22 Plan 12 (Gap B) — Leave-page guard for in-progress session form
+  "session.leavePage.title": "לעזוב את המפגש?",
+  "session.leavePage.body": "יש שינויים שלא נשמרו. עזיבה עכשיו תמחק אותם.",
+  "session.leavePage.confirm": "לעזוב בלי לשמור",
+  "session.leavePage.cancel": "להישאר במפגש"
 };
 
 window.QUOTES.he = [
