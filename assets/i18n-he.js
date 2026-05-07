@@ -291,6 +291,9 @@ window.I18N.he = {
   // --- Phase 22 — Export modal ---
   "session.export": "ייצוא",
   "export.title": "ייצוא מפגש",
+  "export.stepper.label.1": "בחירה",
+  "export.stepper.label.2": "עריכה",
+  "export.stepper.label.3": "ייצוא",
   "export.step1.helper": "בחר אילו מקטעים לכלול.",
   "export.step3.helper": "בחר כיצד למסור את המסמך.",
   "export.next1": "הבא: ערוך מסמך",

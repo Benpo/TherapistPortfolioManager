@@ -2599,6 +2599,32 @@ html[dir="rtl"] .settings-locked-info::after {
   background: var(--color-primary);
 }
 
+/* Phase 22-11 — labelled stepper pill (wraps the dot + an inline label) */
+.export-step-pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.export-step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.2;
+}
+.export-step-pill.is-active .export-step-label { color: var(--color-primary); }
+.export-step-pill.is-completed .export-step-label { color: var(--color-text); }
+@media (min-width: 769px) {
+  .export-step-pill { flex-direction: row; gap: 8px; }
+}
+
+/* Phase 22-11 — defensive z-index so the X close button always paints
+   above the Step 3 .export-output-card buttons (root cause of the
+   "Step 3 X does nothing" UAT bug: same stacking level + later DOM order). */
+.export-card .modal-close { z-index: 2; }
+.export-card .export-output-card { position: relative; z-index: 1; }
+
 .export-step { display: none; }
 .export-step.is-active { display: block; }
 

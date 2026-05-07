@@ -981,6 +981,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       dot.classList.toggle("is-active", stepNum === n);
       dot.classList.toggle("is-completed", stepNum < n);
     });
+    // Mirror is-active / is-completed onto the new .export-step-pill wrapper
+    // (added in Plan 22-11) so the label below/beside the dot picks up the
+    // active-step colour treatment.
+    modal.querySelectorAll(".export-step-pill").forEach((pill) => {
+      const stepNum = Number(pill.dataset.step);
+      pill.classList.toggle("is-active", stepNum === n);
+      pill.classList.toggle("is-completed", stepNum < n);
+    });
     modal.querySelectorAll(".export-step-connector").forEach((conn, idx) => {
       // connector idx 0 sits between step 1 and 2; idx 1 between step 2 and 3
       conn.classList.toggle("is-completed", idx < n - 1);
@@ -1252,8 +1260,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const onMd = () => exportHandleDownloadMd();
     const onShare = () => exportHandleShare();
 
-    if (closeBtn) closeBtn.addEventListener("click", onClose);
-    if (overlay) overlay.addEventListener("click", onOverlay);
+    // Event-delegated close on the modal root: survives any z-index issue,
+    // any cleanup-ordering bug, and works identically on every step.
+    // Root cause for the Step 3 X-button bug (UAT 22-HUMAN, Test 2): the
+    // .modal-close had no z-index inside .modal-card (z-index:1), and on
+    // Step 3 the .export-output-card buttons (later in DOM order) painted
+    // at the same stacking level — so direct clicks on the X were absorbed
+    // by the body region rather than reaching the X listener.
+    const onModalClick = (e) => {
+      if (!e || !e.target) return;
+      const t = e.target;
+      if (t.closest && t.closest(".modal-close")) { onClose(); return; }
+      if (t.classList && t.classList.contains("modal-overlay")) { onOverlay(); return; }
+    };
+    modal.addEventListener("click", onModalClick);
     document.addEventListener("keydown", onKey);
     if (backBtn) backBtn.addEventListener("click", onBack);
     if (nextBtn) nextBtn.addEventListener("click", onNext);
@@ -1266,8 +1286,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     exportProbeShareSupport();
 
     _exportState.cleanup = function () {
-      if (closeBtn) closeBtn.removeEventListener("click", onClose);
-      if (overlay) overlay.removeEventListener("click", onOverlay);
+      modal.removeEventListener("click", onModalClick);
       document.removeEventListener("keydown", onKey);
       if (backBtn) backBtn.removeEventListener("click", onBack);
       if (nextBtn) nextBtn.removeEventListener("click", onNext);

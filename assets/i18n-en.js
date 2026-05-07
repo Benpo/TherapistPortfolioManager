@@ -291,6 +291,9 @@ window.I18N.en = {
   // --- Phase 22 — Export modal ---
   "session.export": "Export",
   "export.title": "Export Session",
+  "export.stepper.label.1": "Choose",
+  "export.stepper.label.2": "Edit",
+  "export.stepper.label.3": "Export",
   "export.step1.helper": "Choose which sections to include.",
   "export.step3.helper": "Choose how to deliver the document.",
   "export.next1": "Next: Edit document",

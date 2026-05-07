@@ -293,8 +293,14 @@ window.I18N.de = {
   // --- Phase 22 \u2014 Export modal ---
   "session.export": "Exportieren",
   "export.title": "Sitzung exportieren",
-  "export.step1.helper": "W\u00E4hlen Sie, welche Abschnitte enthalten sein sollen.",
-  "export.step3.helper": "W\u00E4hlen Sie, wie das Dokument geliefert werden soll.",
+  // TODO i18n: translate to German
+  "export.stepper.label.1": "Choose",
+  // TODO i18n: translate to German
+  "export.stepper.label.2": "Edit",
+  // TODO i18n: translate to German
+  "export.stepper.label.3": "Export",
+  "export.step1.helper": "W\u00e4hlen Sie, welche Abschnitte enthalten sein sollen.",
+  "export.step3.helper": "W\u00e4hlen Sie, wie das Dokument geliefert werden soll.",
   "export.next1": "Weiter: Dokument bearbeiten",
   "export.next2": "Weiter: Dokument abrufen",
   "export.done": "Fertig",

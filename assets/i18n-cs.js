@@ -293,6 +293,12 @@ window.I18N.cs = {
   // --- Phase 22 \u2014 Export modal ---
   "session.export": "Exportovat",
   "export.title": "Exportovat sezen\u00ED",
+  // TODO i18n: translate to Czech
+  "export.stepper.label.1": "Choose",
+  // TODO i18n: translate to Czech
+  "export.stepper.label.2": "Edit",
+  // TODO i18n: translate to Czech
+  "export.stepper.label.3": "Export",
   "export.step1.helper": "Vyberte, kter\u00E9 sekce maj\u00ED b\u00FDt zahrnuty.",
   "export.step3.helper": "Vyberte zp\u016Fsob doru\u010Den\u00ED dokumentu.",
   "export.next1": "Dal\u0161\u00ED: Upravit dokument",
