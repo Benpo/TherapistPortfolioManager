@@ -144,6 +144,12 @@ window.SettingsPage = (function () {
     input.value = customLabel;
     input.setAttribute("data-section-key", def.key);
 
+    // Gap 1: lock rename input when row is disabled (in addition to LOCKED_RENAME structural lock).
+    if (!enabled && !locked) {
+      input.disabled = true;
+      input.setAttribute("aria-disabled", "true");
+    }
+
     if (locked) {
       input.disabled = true;
       input.setAttribute("aria-disabled", "true");
@@ -216,47 +222,33 @@ window.SettingsPage = (function () {
       resetBtn.setAttribute("aria-disabled", "true");
     });
 
-    // Toggle handler — first enable->disable in this page visit prompts confirm.
-    toggleInput.addEventListener("change", async function () {
+    // Toggle handler — also locks/unlocks the rename input on this row (Gap 1).
+    // The disable-warning is no longer fired here; it now fires on Save iff there
+    // are net enabled→disabled transitions vs. the last-loaded DB state (Gap 2 / D1).
+    toggleInput.addEventListener("change", function () {
       if (toggleInput.checked) {
         // Re-enable: remove badge if present
         var existingBadge = labelLine.querySelector(".disabled-indicator-badge");
         if (existingBadge) existingBadge.remove();
-        formDirty = true;
-        updateSaveButtonState();
-        return;
-      }
-      // user just disabled the row
-      var alreadyConfirmed = false;
-      try {
-        alreadyConfirmed = sessionStorage.getItem("settings.disable.confirmed") === "1";
-      } catch (e) { /* sessionStorage may be unavailable */ }
-      if (!alreadyConfirmed) {
-        var ok = false;
-        try {
-          ok = await App.confirmDialog({
-            titleKey: "settings.confirm.disable.title",
-            messageKey: "settings.confirm.disable.body",
-            confirmKey: "settings.confirm.disable.confirm",
-            cancelKey: "settings.confirm.disable.cancel",
-            tone: "neutral"
-          });
-        } catch (e) { ok = false; }
-        if (!ok) {
-          // Revert
-          toggleInput.checked = true;
-          return;
+        // Re-enable rename input (unless the row is structurally locked).
+        if (!LOCKED_RENAME.has(def.key)) {
+          input.disabled = false;
+          input.setAttribute("aria-disabled", "false");
         }
-        try {
-          sessionStorage.setItem("settings.disable.confirmed", "1");
-        } catch (e) { /* ignore */ }
-      }
-      // Add the badge inline if not present
-      if (!labelLine.querySelector(".disabled-indicator-badge")) {
-        var newBadge = document.createElement("span");
-        newBadge.className = "disabled-indicator-badge";
-        newBadge.textContent = window.App && App.t ? App.t("settings.indicator.disabled") : "Disabled in Settings";
-        labelLine.appendChild(newBadge);
+      } else {
+        // user just disabled the row
+        // Add the badge inline if not present
+        if (!labelLine.querySelector(".disabled-indicator-badge")) {
+          var newBadge = document.createElement("span");
+          newBadge.className = "disabled-indicator-badge";
+          newBadge.textContent = window.App && App.t ? App.t("settings.indicator.disabled") : "Disabled in Settings";
+          labelLine.appendChild(newBadge);
+        }
+        // Lock the rename input (LOCKED_RENAME rows are already locked — leave alone).
+        if (!LOCKED_RENAME.has(def.key)) {
+          input.disabled = true;
+          input.setAttribute("aria-disabled", "true");
+        }
       }
       formDirty = true;
       updateSaveButtonState();
@@ -318,6 +310,31 @@ window.SettingsPage = (function () {
   // Save / Discard
   // ---------------------------------------------------------------------------
 
+  /**
+   * Compare current staged toggle states against last-persisted DB state.
+   * Returns the list of section keys whose staged state shows a NET enabled → disabled
+   * transition since the last successful load (i.e. prevEnabled === true && nextEnabled === false).
+   * Re-enables (false → true) and unchanged rows are excluded. A row that was flipped
+   * off then back on within the same staging cycle yields prev === next and is excluded.
+   *
+   * @returns {string[]} — section keys newly disabled at Save time.
+   */
+  function computeDisableTransitions() {
+    var refs = getRefs();
+    var transitions = [];
+    if (!refs.rowsContainer) return transitions;
+    for (var k = 0; k < SECTION_DEFS.length; k++) {
+      var d = SECTION_DEFS[k];
+      var t = refs.rowsContainer.querySelector('.settings-enable-toggle[data-section-key="' + d.key + '"]');
+      if (!t) continue;
+      var stored = currentMap.get(d.key);
+      var prevEnabled = stored ? (stored.enabled !== false) : true;
+      var nextEnabled = !!t.checked;
+      if (prevEnabled === true && nextEnabled === false) transitions.push(d.key);
+    }
+    return transitions;
+  }
+
   async function onSave() {
     var refs = getRefs();
     if (!refs.rowsContainer) return;
@@ -327,6 +344,27 @@ window.SettingsPage = (function () {
     for (var i = 0; i < inputs.length; i++) {
       if (inputs[i].value && inputs[i].value.length > 60) {
         if (window.App && App.showToast) App.showToast("", "settings.rename.tooLong");
+        return;
+      }
+    }
+
+    // Gap 2 (D1): warn on Save iff at least one toggle transitioned enabled → disabled
+    // since the last persisted DB state. Re-enables alone do NOT trigger; same-cycle
+    // off-then-on yields no transition and does NOT trigger.
+    var disabledNow = computeDisableTransitions();
+    if (disabledNow.length > 0) {
+      var okConfirm = false;
+      try {
+        okConfirm = await App.confirmDialog({
+          titleKey: "settings.confirm.disable.title",
+          messageKey: "settings.confirm.disable.body",
+          confirmKey: "settings.confirm.disable.confirm",
+          cancelKey: "settings.confirm.disable.cancel",
+          tone: "neutral"
+        });
+      } catch (e) { okConfirm = false; }
+      if (!okConfirm) {
+        // formSaving never became true on this path → just return
         return;
       }
     }
