@@ -108,6 +108,9 @@
   --color-warning-text: #856404;
   --color-info-bg: #cce5ff;
   --color-info-text: #004085;
+  --color-success-bg: #e6f4ea;
+  --color-success-text: #1e6b3a;
+  --color-success-border: #4caf50;
   --color-text-inverse: #ffffff;
   --color-heartwall-badge: var(--color-heartwall);
   --color-border: var(--color-green-border);
@@ -174,4 +177,8 @@
   --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.55);
   /* Placeholder gradient */
   --color-placeholder-gradient: linear-gradient(135deg, #3a8080, #5aacac);
+  /* Success palette — used by the post-save pill on the Settings page */
+  --color-success-bg: #1f3a2a;
+  --color-success-text: #b6e5c4;
+  --color-success-border: #4caf50;
 }

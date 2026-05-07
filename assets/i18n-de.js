@@ -286,6 +286,10 @@ window.I18N.de = {
   "settings.confirm.disable.confirm": "Ja, deaktivieren",
   "settings.confirm.disable.cancel": "Aktiviert lassen",
   "settings.rename.locked.tooltip": "Der Zweck dieses Abschnitts ist festgelegt \u2014 Sie k\u00F6nnen ihn deaktivieren, aber nicht umbenennen.",
+  // TODO i18n: translate to German
+  "settings.saved.notice": "Settings saved",
+  // TODO i18n: translate to German
+  "settings.saved.dismiss": "Dismiss",
   // --- Phase 22 \u2014 Export modal ---
   "session.export": "Exportieren",
   "export.title": "Sitzung exportieren",

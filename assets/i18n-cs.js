@@ -286,6 +286,10 @@ window.I18N.cs = {
   "settings.confirm.disable.confirm": "Ano, vypnout",
   "settings.confirm.disable.cancel": "Ponechat zapnut\u00E9",
   "settings.rename.locked.tooltip": "\u00DA\u010Del t\u00E9to sekce je pevn\u00FD \u2014 m\u016F\u017Eete ji vypnout, ale ne p\u0159ejmenovat.",
+  // TODO i18n: translate to Czech
+  "settings.saved.notice": "Settings saved",
+  // TODO i18n: translate to Czech
+  "settings.saved.dismiss": "Dismiss",
   // --- Phase 22 \u2014 Export modal ---
   "session.export": "Exportovat",
   "export.title": "Exportovat sezen\u00ED",

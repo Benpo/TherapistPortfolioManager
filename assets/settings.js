@@ -270,8 +270,88 @@ window.SettingsPage = (function () {
       rowsContainer: document.getElementById("settingsRowsContainer"),
       saveBtn: document.getElementById("settingsSaveBtn"),
       discardBtn: document.getElementById("settingsDiscardBtn"),
-      syncMessage: document.getElementById("settingsSyncMessage")
+      savedNotice: document.getElementById("settingsSavedNotice")
     };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Post-save success pill — D2 locked state machine.
+  // Replaces the OLD "About saved settings" blue notice.
+  // ---------------------------------------------------------------------------
+  var noticeTimeoutId = null;
+  var noticeListenersOn = false;
+
+  function getNoticeEls() {
+    return {
+      noticeEl: document.getElementById("settingsSavedNotice"),
+      formEl: document.getElementById("settingsForm"),
+      saveBtnEl: document.getElementById("settingsSaveBtn")
+    };
+  }
+
+  function showSavedNotice() {
+    var els = getNoticeEls();
+    if (!els.noticeEl) return;
+    cancelLeave();
+    detachDismissTriggers();
+    els.noticeEl.hidden = false;
+    // Force a reflow so the transition runs from the initial (hidden) state.
+    void els.noticeEl.offsetHeight;
+    els.noticeEl.dataset.active = "";
+    attachDismissTriggers();
+    noticeTimeoutId = setTimeout(function () { dismissSavedNotice(); }, 6000);
+  }
+
+  function dismissSavedNotice() {
+    var els = getNoticeEls();
+    if (!els.noticeEl) return;
+    if (!("active" in els.noticeEl.dataset)) return;
+    els.noticeEl.dataset.active = "leaving";
+    setTimeout(function () {
+      var n = document.getElementById("settingsSavedNotice");
+      if (!n) return;
+      n.hidden = true;
+      delete n.dataset.active;
+    }, 200);
+    cancelLeave();
+    detachDismissTriggers();
+  }
+
+  function cancelLeave() {
+    if (noticeTimeoutId) {
+      clearTimeout(noticeTimeoutId);
+      noticeTimeoutId = null;
+    }
+  }
+
+  function onAnyInput()   { dismissSavedNotice(); }
+  function onNextSave()   { dismissSavedNotice(); }
+  function onCloseClick() { dismissSavedNotice(); }
+
+  function attachDismissTriggers() {
+    if (noticeListenersOn) return;
+    var els = getNoticeEls();
+    if (!els.formEl || !els.saveBtnEl || !els.noticeEl) return;
+    els.formEl.addEventListener("input",  onAnyInput, { once: true, capture: true });
+    els.formEl.addEventListener("change", onAnyInput, { once: true, capture: true });
+    els.saveBtnEl.addEventListener("click", onNextSave, { once: true });
+    var closeBtn = els.noticeEl.querySelector(".settings-saved-notice-close");
+    if (closeBtn) closeBtn.addEventListener("click", onCloseClick, { once: true });
+    noticeListenersOn = true;
+  }
+
+  function detachDismissTriggers() {
+    var els = getNoticeEls();
+    if (els.formEl) {
+      els.formEl.removeEventListener("input",  onAnyInput, { capture: true });
+      els.formEl.removeEventListener("change", onAnyInput, { capture: true });
+    }
+    if (els.saveBtnEl) els.saveBtnEl.removeEventListener("click", onNextSave);
+    if (els.noticeEl) {
+      var closeBtn = els.noticeEl.querySelector(".settings-saved-notice-close");
+      if (closeBtn) closeBtn.removeEventListener("click", onCloseClick);
+    }
+    noticeListenersOn = false;
   }
 
   function updateSaveButtonState() {
@@ -400,8 +480,8 @@ window.SettingsPage = (function () {
 
       if (window.App && App.showToast) App.showToast("", "settings.saved.toast");
 
-      // Reveal the post-save sync message (D-12 messaging)
-      if (refs.syncMessage) refs.syncMessage.classList.remove("is-hidden");
+      // D2: post-save success pill (replaces the OLD blue "About saved settings" notice).
+      showSavedNotice();
 
       // Re-render so badges + reset-disabled state reflect persisted state.
       await loadAndRender();

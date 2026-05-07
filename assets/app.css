@@ -2341,21 +2341,6 @@ body.read-mode .heart-shield-section input {
 .settings-info-banner li {
   margin-block-end: 4px;
 }
-.settings-sync-message {
-  padding: 16px 24px;
-  margin-block-end: 24px;
-  background: var(--color-info-bg);
-  color: var(--color-info-text);
-  border-radius: 16px;
-}
-.settings-sync-message strong {
-  display: block;
-  font-weight: 600;
-  margin-block-end: 4px;
-}
-.settings-sync-message p {
-  margin: 0;
-}
 .settings-row {
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
@@ -2458,6 +2443,83 @@ body.read-mode .heart-shield-section input {
   .settings-row-meta { flex: 1; }
   .settings-rename-wrap { inline-size: 280px; }
   .settings-rename-input { inline-size: 100%; }
+}
+
+/* Phase 22 — Settings page: post-save success pill (D2 locked design spec).
+   Inserted next to the Save button as a content-sized pill, auto-dismisses on
+   next interaction. (Replaced the OLD blue notice that previously lived here.) */
+.settings-saved-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding-block: 0.5rem;
+  padding-inline-start: 0.875rem;
+  padding-inline-end: 0.5rem;
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success-border);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 220ms ease-out, transform 220ms cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: none;
+}
+.settings-saved-notice[data-active] { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.settings-saved-notice[data-active="leaving"] { opacity: 0; transition: opacity 180ms ease-in; }
+.settings-saved-notice[hidden] { display: none; }
+
+.settings-saved-notice-mark {
+  width: 0.875rem; height: 0.875rem;
+  border-radius: 50%;
+  background: currentColor;
+  position: relative;
+  flex-shrink: 0;
+}
+.settings-saved-notice-mark::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 28%;
+  inset-block-start: 18%;
+  width: 22%;
+  height: 50%;
+  border-block-end: 1.5px solid var(--color-success-bg);
+  border-inline-end: 1.5px solid var(--color-success-bg);
+  transform: rotate(45deg);
+}
+
+.settings-saved-notice-close {
+  display: inline-grid;
+  place-items: center;
+  width: 1.25rem; height: 1.25rem;
+  padding: 0;
+  margin-inline-start: 0.125rem;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  opacity: 0.55;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+.settings-saved-notice-close:hover,
+.settings-saved-notice-close:focus-visible {
+  opacity: 1;
+  background-color: color-mix(in oklab, currentColor 10%, transparent);
+  outline: none;
+}
+.settings-saved-notice-close > svg { width: 0.6875rem; height: 0.6875rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-saved-notice,
+  .settings-saved-notice[data-active="leaving"] {
+    transition-duration: 0ms;
+    transform: none;
+  }
 }
 
 /* Phase 22 — Export modal */

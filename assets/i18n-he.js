@@ -286,6 +286,8 @@ window.I18N.he = {
   "settings.confirm.disable.confirm": "כן, השבת",
   "settings.confirm.disable.cancel": "השאר מופעל",
   "settings.rename.locked.tooltip": "מטרת הסעיף קבועה — ניתן לכבות אך לא לשנות שם.",
+  "settings.saved.notice": "ההגדרות נשמרו",
+  "settings.saved.dismiss": "סגור",
   // --- Phase 22 — Export modal ---
   "session.export": "ייצוא",
   "export.title": "ייצוא מפגש",

@@ -286,6 +286,8 @@ window.I18N.en = {
   "settings.confirm.disable.confirm": "Yes, disable",
   "settings.confirm.disable.cancel": "Keep enabled",
   "settings.rename.locked.tooltip": "This section's purpose is fixed — it can be turned off but not renamed.",
+  "settings.saved.notice": "Settings saved",
+  "settings.saved.dismiss": "Dismiss",
   // --- Phase 22 — Export modal ---
   "session.export": "Export",
   "export.title": "Export Session",
