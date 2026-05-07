@@ -165,6 +165,10 @@ window.SettingsPage = (function () {
       infoIcon.setAttribute("role", "img");
       infoIcon.setAttribute("aria-label", tooltip);
       infoIcon.title = tooltip;
+      // Gap 4: CSS-driven tooltip via ::after { content: attr(data-tooltip) }.
+      // Native title alone is unreliable on Safari/macOS — keep title for AT/keyboard
+      // fallback and add data-tooltip for the visible CSS bubble.
+      infoIcon.setAttribute("data-tooltip", tooltip);
       infoIcon.tabIndex = 0;
       // Inline SVG info-circle (constant markup, no user data) — built via DOM APIs
       // so this file contains zero direct HTML-string assignments (T-22-04-01 contract).

@@ -2405,6 +2405,41 @@ body.read-mode .heart-shield-section input {
   block-size: 24px;
   color: var(--color-text-muted);
   cursor: help;
+  position: relative;
+}
+.settings-locked-info::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  inset-block-end: calc(100% + 8px);
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  background: var(--color-surface-elevated, var(--color-surface));
+  color: var(--color-text);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: normal;
+  max-inline-size: 240px;
+  min-inline-size: 160px;
+  box-shadow: 0 4px 16px var(--color-modal-shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-in-out;
+  z-index: 10;
+}
+.settings-locked-info:hover::after,
+.settings-locked-info:focus::after,
+.settings-locked-info:focus-within::after {
+  opacity: 1;
+}
+/* RTL: keep horizontal centering identical (translateX percentages flip axis under RTL,
+   so override to translateX(50%) to defend against transform inheritance). */
+html[dir="rtl"] .settings-locked-info::after {
+  inset-inline-start: 50%;
+  transform: translateX(50%);
 }
 .settings-row-controls {
   display: flex;
