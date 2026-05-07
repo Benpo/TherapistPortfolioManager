@@ -76,9 +76,14 @@ gaps_total: 15
 gaps_in_scope: 12
 gaps_out_of_scope: 2
 gaps_meta: 1
-gaps_closed_fixed: 2
-gaps_open: 13
-blocker_count_open: 4
+gaps_closed_fixed: 11
+gaps_open: 4
+blocker_count_open: 2
+open_gaps:
+  - "PDF export bidirectional text loss (BLOCKER, in-scope, deferred for separate jsPDF/bidi investigation)"
+  - "(out-of-scope) Add-session entry path missing client picture & general notes (BLOCKER)"
+  - "(out-of-scope) Edit-session has no Cancel/Revert toggle (major)"
+  - "(meta) VERIFICATION.md test list missed E2E rename test — process improvement"
 status: partial
 last_updated: 2026-05-07
 
@@ -95,7 +100,8 @@ last_updated: 2026-05-07
   missing: []
 
 - truth: "Disabled section's rename input becomes non-editable (locked) when section is toggled off"
-  status: failed
+  status: closed-fixed
+  closed_by: "commit 0e4dd42 — toggle-change handler now sets [readonly] on the rename input + applies locked styling tokens; confirmed in plan 22-10 task 1"
   reason: "User reported: fields remain renameable even after disabling them. Toggle-off should also disable the rename input for that row."
   severity: major
   test: 1
@@ -103,7 +109,8 @@ last_updated: 2026-05-07
   missing: []
 
 - truth: "First-time-disable confirm dialog fires every time the user presses Save with toggle changes (not just the very first time per session/install)"
-  status: failed
+  status: closed-fixed
+  closed_by: "commit 0e4dd42 — D1 transition-aware semantic locked: confirm fires iff at least one toggle netted enabled→disabled vs last-saved DB state (re-enables and same-cycle round-trips do NOT trigger). 'has-disabled-once' localStorage flag removed entirely. Spec realigned with Ben on 2026-05-06."
   reason: "User reported: warning is given for the toggle only once. User expectation is that the confirm should re-appear on every Save where toggle state changed. NOTE: this contradicts the original 'first-time only' spec — needs spec realignment with Ben before fixing."
   severity: major
   test: 1
@@ -111,7 +118,8 @@ last_updated: 2026-05-07
   missing: []
 
 - truth: "'About saved settings' confirmation is visually distinct from the static info banner AND auto-clears on next Save or any subsequent change"
-  status: failed
+  status: closed-fixed
+  closed_by: "commit 233f53b — old blue 'About saved settings' notice removed entirely (DOM + CSS + JS show-path). Replaced with content-sized green pill driven by D2 locked design spec (220ms slide-up entrance, intentional-action-first dismiss state machine, 6s timeout fallback, polite ARIA, logical CSS properties for RTL, light+dark theme tokens added to tokens.css)."
   reason: "User reported: blue 'About saved settings' notice shares the same color as the static info banner so it doesn't read as a save confirmation. Also it persists — does not disappear on second Save or when other fields change. Should be visually distinct (different color/style) and dismiss on next interaction."
   severity: major
   test: 1
@@ -119,7 +127,8 @@ last_updated: 2026-05-07
   missing: []
 
 - truth: "Hover tooltip appears for non-renameable section labels on Safari/macOS"
-  status: failed
+  status: closed-fixed
+  closed_by: "commit 0b342ec — replaced the title-attribute approach with a real CSS ::after pseudo-element tooltip driven by data-tooltip. Logical CSS properties for RTL safety. Works in Safari (where the title attribute is unreliable)."
   reason: "User reported: on Safari macOS, cursor turns into question mark but no tooltip appears. Suggests tooltip implementation relies on 'title' attribute alone (which Safari renders inconsistently) or a hover handler not wired for Safari. Need a real tooltip component."
   severity: major
   test: 1
@@ -127,7 +136,8 @@ last_updated: 2026-05-07
   missing: []
 
 - truth: "Export modal Step 1 makes it visually obvious that 1/2/3 are sequential steps in a single export workflow"
-  status: failed
+  status: closed-fixed
+  closed_by: "commit 5ab01f1 — labelled stepper added: each step is now a pill with the step number AND its name (Step 1: select / Step 2: edit / Step 3: download). Active step highlighted; completed steps marked with check; logical CSS properties for RTL."
   reason: "User reported: first screen shows 1/2/3 but it is not clear that these are 3 steps of the export process. Needs clearer step indicator (progress bar, labeled stepper, breadcrumb, etc.) — UX call required."
   severity: major
   test: 2
@@ -135,7 +145,8 @@ last_updated: 2026-05-07
   missing: []
 
 - truth: "Export modal screens give the therapist contextual guidance — what each screen does and how to use Step 2 (markdown editor) without prior markdown knowledge"
-  status: failed
+  status: closed-fixed
+  closed_by: "commits 37aa84c (per-step contextual helpers — 'Step N of 3 — <plain-language description>') + b61fc9e (Step 2 expandable markdown formatting cheatsheet — `**bold**`, `*italic*`, headings, lists, all with i18n descriptions and live examples)."
   reason: "User reported: Step 2 is a markdown editor with no styling tips or instructions. Therapists are not expected to know markdown syntax. Needs inline help/cheatsheet/tooltip and similar contextual feedback on all 3 screens about what is happening."
   severity: major
   test: 2
@@ -143,7 +154,8 @@ last_updated: 2026-05-07
   missing: []
 
 - truth: "Export modal Step 3 close (X) button dismisses the modal"
-  status: failed
+  status: closed-fixed
+  closed_by: "commit 5ab01f1 — root cause was a stacking-context bug: .modal-close had no z-index so the later-DOM .export-output-card buttons (inside .modal-card's z-index:1 stacking context) absorbed clicks that visually hit the X. Fixed defensively with both event delegation on the modal root AND .export-card .modal-close { z-index: 2 }. Other modals don't share this multi-button-stack layout, so no broader impact."
   reason: "User reported: on the third screen, export works for both text and PDF but the X button does nothing. Likely missing click handler or event-listener regression on Step 3."
   severity: major
   test: 2
@@ -181,7 +193,8 @@ last_updated: 2026-05-07
     - "English segment 'TO GO' (middle of line)"
 
 - truth: "Cancel button on the export-encryption prompt aborts the export — no backup file is downloaded"
-  status: failed
+  status: closed-fixed
+  closed_by: "commits 1215487 + 7645647 — three-state sentinel resolve: exportEncryptedBackup now resolves with true (encrypted) | false (skip-encryption) | 'cancel' (abort). Cancel-button + X-button + Escape all route to opts.onCancel which resolves 'cancel'. overview.js early-returns on encrypted === 'cancel' BEFORE any download, blob-write, or toast — making the entire download pipeline unreachable when the user aborts. DATA-PRIVACY BLOCKER closed."
   reason: "User reported: when exporting data, the encryption prompt offers 'Skip encryption', '<encrypt>' and 'Cancel'. Pressing Cancel STILL downloads a backup file. Cancel must abort the export entirely so therapist client data is not silently written to disk unencrypted when the therapist explicitly tried to back out. DATA-PRIVACY BUG: a therapist who reconsiders mid-flow ends up with an unintended plaintext backup ZIP in their Downloads folder."
   severity: blocker
   test: 4
@@ -215,7 +228,16 @@ last_updated: 2026-05-07
     9. Close + reopen browser → assertions still hold (persistence check).
 
 - truth: "Settings gear icon is guarded against navigation away from an in-progress session — at minimum when the session form is in edit mode with unsaved changes, the user is asked to confirm before navigating"
-  status: failed
+  status: closed-fixed
+  closed_by: "commit 8ba567f — generic App.installNavGuard helper added (post-IIFE namespace augmentation in app.js:1052) with locked public API: { trigger, isDirty, message:{titleKey,bodyKey,confirmKey,cancelKey,tone?}, destination, onConfirm? } => unregister fn. Single call site for now: gear icon (add-session.js:328 inside initSettingsLink) with the form-dirty predicate. Future callers (brand-link, language popover, theme toggle, add-client) can wire their own guards in 1-2 lines without touching the helper."
+  api_for_future_callers: |
+    App.installNavGuard({
+      trigger:     HTMLElement | string (selector),
+      isDirty:     () => boolean,
+      message:     { titleKey, bodyKey, confirmKey, cancelKey, tone? },
+      destination: string | () => string,
+      onConfirm?:  () => void   // synchronous, not awaited
+    }) => unregister: () => void
   reason: "User reported (re-test 2026-05-07, after core fix verified): clicking the Settings gear icon while inside a session — even in edit mode — instantly navigates to Settings with no confirm dialog. If the therapist has unsaved changes in the session form, those changes are silently lost. Needs a navigation guard (beforeunload listener OR explicit click handler that checks form-dirty state) that surfaces a confirm dialog before navigating away from a dirty edit-session form. View-mode (read mode) navigation is fine without a guard."
   severity: major
   test: general
