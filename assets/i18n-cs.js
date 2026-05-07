@@ -305,6 +305,16 @@ window.I18N.cs = {
   "export.step2.helper": "Step 2 of 3 \u2014 Edit your document on the left; the live preview on the right shows how it will look. Formatting tips appear below if you need them.",
   // TODO i18n: translate to Czech \u2014 expanded copy from "Vyberte zp\u016Fsob doru\u010Den\u00ED dokumentu."
   "export.step3.helper": "Step 3 of 3 \u2014 Choose how to deliver the document. PDF is best for printing or email; the text file works for any text editor; Share opens your device's share sheet (if supported).",
+  // TODO i18n: translate to Czech
+  "export.format.help.title": "Formatting tips (click to expand)",
+  // TODO i18n: translate to Czech
+  "export.format.help.bold": "surround text with two stars to make it bold",
+  // TODO i18n: translate to Czech
+  "export.format.help.italic": "surround text with one star to make it italic",
+  // TODO i18n: translate to Czech
+  "export.format.help.heading": "start a line with # for a heading; ## for a smaller heading",
+  // TODO i18n: translate to Czech
+  "export.format.help.list": "start a line with a dash and a space to create a bullet list",
   "export.next1": "Dal\u0161\u00ED: Upravit dokument",
   "export.next2": "Dal\u0161\u00ED: Z\u00EDskat dokument",
   "export.done": "Hotovo",

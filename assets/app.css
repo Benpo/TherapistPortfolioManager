@@ -2639,6 +2639,66 @@ html[dir="rtl"] .settings-locked-info::after {
   border-block-end: 1px solid var(--color-border-soft);
 }
 
+/* Phase 22-11 — Step 2 markdown formatting cheatsheet (UAT Test 2 gap:
+   "therapist with no markdown background should be able to apply
+   bold/italic/headings without leaving the modal"). */
+.export-format-help {
+  margin-block-start: 16px;
+  padding: 12px 16px;
+  background: var(--color-surface-subtle);
+  border-radius: 12px;
+  font-size: 0.8125rem;
+}
+.export-format-help summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text);
+  padding-block: 4px;
+  list-style: none;
+}
+.export-format-help summary::-webkit-details-marker { display: none; }
+.export-format-help summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-inline-end: 8px;
+  transition: transform 120ms ease-in-out;
+}
+.export-format-help[open] summary::before {
+  transform: rotate(90deg);
+}
+html[dir="rtl"] .export-format-help summary::before {
+  content: "◂";
+}
+html[dir="rtl"] .export-format-help[open] summary::before {
+  transform: rotate(-90deg);
+}
+.export-format-help-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.export-format-help-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+.export-format-help-list code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.8125rem;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
 .export-section-row {
   display: flex;
   align-items: center;
