@@ -72,17 +72,22 @@ issues: 3
 pending: 1
 skipped: 2
 blocked: 0
-gaps_total: 14
-gaps_in_scope: 11
+gaps_total: 15
+gaps_in_scope: 12
 gaps_out_of_scope: 2
 gaps_meta: 1
-blocker_count: 5
+gaps_closed_fixed: 2
+gaps_open: 13
+blocker_count_open: 4
 status: partial
+last_updated: 2026-05-07
 
 ## Gaps
 
 - truth: "Hebrew settings labels render entirely in Hebrew (no English bleed-through)"
-  status: failed
+  status: closed-fixed
+  closed_by: "commit 1f35f7c — replaced literal 'Heart Shield' English fragments in i18n-he.js settings.row.heartShield* descriptions with the existing Hebrew translation 'מגננת הלב'"
+  user_confirmed: "2026-05-07 re-test — bonus step 9 passed"
   reason: "User reported: Hebrew labels contain English fragments — e.g. 'רגשות שנמצאו בתוך Heart Shield' shows 'Heart Shield' in English mid-sentence. i18n keys not fully translated or default-string fallback bleeding through."
   severity: major
   test: 1
@@ -185,8 +190,11 @@ status: partial
     - "Cancel handler that returns early without invoking the download path"
 
 - truth: "Section renames done on the Settings page propagate to the section labels shown on the new-session form AND on the edit-session form (in Hebrew and any other locale)"
-  status: failed
-  reason: "User reported (PHASE-22 CORE FEATURE FAILURE — explicitly called out as 'biggest NO GO from the entire phase'): on Hebrew, renamed several Settings fields, then opened a new session AND edited an existing session. Both screens still show the OLD text. Multiple refreshes did not fix it. This is the single thing Phase 22 was meant to deliver. Either (a) the new-session/edit-session render path isn't reading therapistSettings, (b) it's reading from a stale cache (in-memory, IDB, or SW), or (c) the Hebrew locale lookup falls back to default-i18n keys instead of the user-renamed labels. Likely (c) given Test 1 also showed Hebrew/English bleed-through in label rendering."
+  status: closed-fixed
+  closed_by: "commit 1f35f7c — added applySectionLabels() in add-session.js that walks every [data-section-key] wrapper and overwrites .label[data-i18n] textContent with App.getSectionLabel(). Wired to app:settings-changed, app:language, and both init paths (edit + new session). Also keeps the heart-shield accordion-header in sync."
+  user_confirmed: "2026-05-07 re-test — full E2E pass: rename in HE → see in new-session, see in edit-session, persists refresh, persists locale switch (single-string override wins everywhere as designed), reset returns to locale defaults"
+  diagnosis: "Root cause was hypothesis (a): render path didn't read therapistSettings. Cache + event wiring were fine. App.getSectionLabel() was only called in export/markdown path, never for visible form labels. NOT a locale fallback bug — schema has no locale dimension (single customLabel per sectionKey, by design)."
+  reason: "User reported (PHASE-22 CORE FEATURE FAILURE — explicitly called out as 'biggest NO GO from the entire phase'): on Hebrew, renamed several Settings fields, then opened a new session AND edited an existing session. Both screens still show the OLD text. Multiple refreshes did not fix it."
   severity: blocker
   test: general
   scope: phase-22-core
@@ -205,6 +213,17 @@ status: partial
     7. Switch to English → assert English label is unchanged (default i18n).
     8. Switch back to Hebrew → assert label === 'UAT-RENAME-HE-001'.
     9. Close + reopen browser → assertions still hold (persistence check).
+
+- truth: "Settings gear icon is guarded against navigation away from an in-progress session — at minimum when the session form is in edit mode with unsaved changes, the user is asked to confirm before navigating"
+  status: failed
+  reason: "User reported (re-test 2026-05-07, after core fix verified): clicking the Settings gear icon while inside a session — even in edit mode — instantly navigates to Settings with no confirm dialog. If the therapist has unsaved changes in the session form, those changes are silently lost. Needs a navigation guard (beforeunload listener OR explicit click handler that checks form-dirty state) that surfaces a confirm dialog before navigating away from a dirty edit-session form. View-mode (read mode) navigation is fine without a guard."
+  severity: major
+  test: general
+  scope: phase-22-related
+  artifacts: []
+  missing:
+    - "form-dirty tracking on add-session / edit-session"
+    - "Confirm guard wired to the Settings gear icon (and likely other top-nav items) when form is dirty"
 
 - truth: "Phase 22 test plan / VERIFICATION.md includes an explicit end-to-end test: 'rename in Settings → see effect in new + edit session screens → survive refresh + locale switch'"
   status: failed
