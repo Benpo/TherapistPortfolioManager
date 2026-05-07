@@ -418,12 +418,13 @@
       <div class="modal-card-body">
         <!-- Step 1 -->
         <div class="export-step is-active" data-step="1">
-          <p data-i18n="export.step1.helper">Choose which sections to include.</p>
+          <p class="export-step-helper" data-i18n="export.step1.helper">Choose which sections to include.</p>
           <div id="exportStep1Rows"></div>
         </div>
 
         <!-- Step 2 -->
         <div class="export-step" data-step="2">
+          <p class="export-step-helper" data-i18n="export.step2.helper">Step 2 of 3 — Edit your document on the left; the live preview on the right shows how it will look. Formatting tips appear below if you need them.</p>
           <div class="export-mobile-tabs is-hidden" role="tablist">
             <button type="button" class="tab-btn is-active" data-tab="edit" data-i18n="export.tab.edit">Edit</button>
             <button type="button" class="tab-btn" data-tab="preview" data-i18n="export.tab.preview">Preview</button>
@@ -437,7 +438,7 @@
 
         <!-- Step 3 -->
         <div class="export-step" data-step="3">
-          <p data-i18n="export.step3.helper">Choose how to deliver the document.</p>
+          <p class="export-step-helper" data-i18n="export.step3.helper">Choose how to deliver the document.</p>
           <button type="button" class="export-output-card" id="exportDownloadPdf">
             <span class="output-card-icon" aria-hidden="true">&#128196;</span>
             <span class="output-card-text">

@@ -299,8 +299,12 @@ window.I18N.cs = {
   "export.stepper.label.2": "Edit",
   // TODO i18n: translate to Czech
   "export.stepper.label.3": "Export",
-  "export.step1.helper": "Vyberte, kter\u00E9 sekce maj\u00ED b\u00FDt zahrnuty.",
-  "export.step3.helper": "Vyberte zp\u016Fsob doru\u010Den\u00ED dokumentu.",
+  // TODO i18n: translate to Czech \u2014 expanded copy from "Vyberte, kter\u00E9 sekce maj\u00ED b\u00FDt zahrnuty."
+  "export.step1.helper": "Step 1 of 3 \u2014 Choose which session sections to include in the export. Your selection here decides what shows up in the editable preview on the next step.",
+  // TODO i18n: translate to Czech
+  "export.step2.helper": "Step 2 of 3 \u2014 Edit your document on the left; the live preview on the right shows how it will look. Formatting tips appear below if you need them.",
+  // TODO i18n: translate to Czech \u2014 expanded copy from "Vyberte zp\u016Fsob doru\u010Den\u00ED dokumentu."
+  "export.step3.helper": "Step 3 of 3 \u2014 Choose how to deliver the document. PDF is best for printing or email; the text file works for any text editor; Share opens your device's share sheet (if supported).",
   "export.next1": "Dal\u0161\u00ED: Upravit dokument",
   "export.next2": "Dal\u0161\u00ED: Z\u00EDskat dokument",
   "export.done": "Hotovo",

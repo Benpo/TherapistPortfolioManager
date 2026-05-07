@@ -299,8 +299,12 @@ window.I18N.de = {
   "export.stepper.label.2": "Edit",
   // TODO i18n: translate to German
   "export.stepper.label.3": "Export",
-  "export.step1.helper": "W\u00e4hlen Sie, welche Abschnitte enthalten sein sollen.",
-  "export.step3.helper": "W\u00e4hlen Sie, wie das Dokument geliefert werden soll.",
+  // TODO i18n: translate to German \u2014 expanded copy from "W\u00e4hlen Sie, welche Abschnitte enthalten sein sollen."
+  "export.step1.helper": "Step 1 of 3 \u2014 Choose which session sections to include in the export. Your selection here decides what shows up in the editable preview on the next step.",
+  // TODO i18n: translate to German
+  "export.step2.helper": "Step 2 of 3 \u2014 Edit your document on the left; the live preview on the right shows how it will look. Formatting tips appear below if you need them.",
+  // TODO i18n: translate to German \u2014 expanded copy from "W\u00e4hlen Sie, wie das Dokument geliefert werden soll."
+  "export.step3.helper": "Step 3 of 3 \u2014 Choose how to deliver the document. PDF is best for printing or email; the text file works for any text editor; Share opens your device's share sheet (if supported).",
   "export.next1": "Weiter: Dokument bearbeiten",
   "export.next2": "Weiter: Dokument abrufen",
   "export.done": "Fertig",
