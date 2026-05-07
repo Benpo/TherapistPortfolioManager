@@ -109,13 +109,16 @@ window.BackupManager = (function () {
       'backup.passphrase.skipEncryption': 'Skip encryption',
       'backup.passphrase.goBack': 'Go back',
       'backup.passphrase.encryptAndSave': 'Encrypt and save',
-      'backup.passphrase.decrypt': 'Decrypt'
+      'backup.passphrase.decrypt': 'Decrypt',
+      'backup.passphrase.cancel': 'Cancel'
     };
     return fallbacks[key] || key;
   }
 
   function _showPassphraseModal(opts) {
-    // opts: { mode: 'encrypt'|'decrypt', onConfirm: fn(passphrase), onCancel: fn() }
+    // opts: { mode: 'encrypt'|'decrypt', onConfirm: fn(passphrase), onCancel: fn(), onSkip?: fn() }
+    // For encrypt mode: onCancel = abort; onSkip = continue without encryption.
+    // For decrypt mode: only onCancel is meaningful (no skip — file is already encrypted).
     var overlay = document.createElement('div');
     overlay.className = 'passphrase-modal-overlay';
 
@@ -262,12 +265,21 @@ window.BackupManager = (function () {
 
     cancelBtn.addEventListener('click', function() {
       cleanup();
-      if (opts.onCancel) opts.onCancel();
+      // For encrypt mode this button is "Skip encryption" — different semantic from Cancel.
+      // For decrypt mode this button is "Go back" — alias for cancel.
+      if (isEncrypt && opts.onSkip) {
+        opts.onSkip();
+      } else if (opts.onCancel) {
+        opts.onCancel();
+      }
     });
 
     modal.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !confirmBtn.disabled) confirmBtn.click();
-      if (e.key === 'Escape') cancelBtn.click();
+      if (e.key === 'Escape') {
+        cleanup();
+        if (opts.onCancel) opts.onCancel();
+      }
     });
   }
 
@@ -470,9 +482,10 @@ window.BackupManager = (function () {
    * Show passphrase modal, build ZIP via exportBackup(), encrypt it, download
    * as .sgbackup file.
    *
-   * Returns a Promise that resolves to:
-   *   true  — user confirmed and file downloaded
-   *   false — user clicked "Skip encryption"
+   * Returns a Promise that resolves to one of:
+   *   true     — user confirmed; .sgbackup file downloaded
+   *   false    — user pressed "Skip encryption"; caller should do unencrypted export
+   *   'cancel' — user pressed Cancel / X / Escape; caller MUST abort entire flow
    */
   async function exportEncryptedBackup() {
     return new Promise(function(resolve, reject) {
@@ -498,7 +511,8 @@ window.BackupManager = (function () {
             reject(err);
           }
         },
-        onCancel: function() { resolve(false); }
+        onSkip: function() { resolve(false); },          // user pressed Skip Encryption
+        onCancel: function() { resolve('cancel'); }      // user pressed Cancel / X / Escape — abort
       });
     });
   }

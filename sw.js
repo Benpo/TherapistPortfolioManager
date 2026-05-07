@@ -9,7 +9,7 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v63';
+const CACHE_NAME = 'sessions-garden-v64';
 
 /**
  * Static assets to precache on install (cache-first strategy).
