@@ -41,7 +41,16 @@ To round-trip before flipping rows in `22-HUMAN-UAT.md` from `failed-round-3` to
 
 > Resolved during handoff: The earlier "skip encryption shows no warning" report was browser caching on Ben's side — the warning pane is in fact firing correctly from the main Export flow. No backup-flow fix needed now. The only remaining backup work is **22-16 — the deferred architectural rework** (3-buttons redesign + missing email attachment), which stays scheduled AFTER Phase 23.
 
-### Issue A — Renamed Settings labels not updating session-form placeholders (NEW, found during last UAT)
+### Issue A — Renamed Settings labels not updating session-form placeholders (RESOLVED — shipped as 22-14.3)
+
+**Fix shipped this session:**
+- Plan ID **22-14.3** — extends `applySectionLabels()` in `assets/add-session.js` to also override `placeholder` attributes when a therapist customises a section label, and restores the i18n default placeholder when the rename is cleared.
+- Commits: `4f75f95` (fix), `87389c2` (SUMMARY), merge `4b9a3cf`. SW cache bumped to **v81**.
+- Net +19 lines, single function extended in-place.
+- Implementation note from the executor's SUMMARY: the restore branch was added beyond strict spec scope because `app:settings-changed` doesn't re-run `applyTranslations()` on the session page — without the restore, a rename → un-rename sequence would leave the placeholder stuck on the old custom value.
+- **UAT confirmation pending from Ben.**
+
+### Issue A (original entry preserved for context — IGNORE, see resolution above)
 
 **Symptom from Ben:** "For a field I have already renamed, the background text disappears as soon as I am typing something. So the value of this text field still shows the original field name."
 
@@ -113,8 +122,19 @@ Mac LAN IP: **192.168.178.147** — full test URL for Sapir: `http://192.168.178
 
 1. ✅ Phase 23 research — done, `23-RESEARCH.md` committed.
 2. ✅ Dev server — running at `http://192.168.178.147:8000/` for Sapir.
-3. **Resolve Issue A** — placeholder-rename fix. Dispatch a small sub-agent as `22-14.3` to extend `applySectionLabels()` so placeholders also reflect therapist-renamed labels.
-4. **Plan Phase 23** with `gsd-planner` (using `23-CONTEXT.md` locked decisions + `23-RESEARCH.md` library pick) → execute with `gsd-executor` in a worktree.
-5. **Backup architectural rework (`22-16`)** — comes AFTER Phase 23. Includes 3-buttons redesign and missing-email-attachment fix.
+3. ✅ Issue A — `22-14.3` placeholder-rename fix shipped to main (`4b9a3cf`).
+4. ✅ **Phase 23 planning** — 5 plans across 3 waves committed.
+5. **Execute Phase 23, wave by wave** (this is the next session's work):
+    - **Wave 1:** `23-01-vendor-bidi-js-PLAN.md` — vendor `bidi-js@1.0.3` (~12 KB) + SW precache. gsd-executor with worktree isolation.
+    - **Wave 2 (must serialize — both touch `pdf-export.js`):** `23-02-bidi-preshape-and-setR2L-removal-PLAN.md` first, then `23-03-margins-and-title-centering-PLAN.md`.
+    - **Wave 3 (parallelisable):** `23-04-test-vectors-and-latin-regression-PLAN.md` (new test file + fixtures) ∥ `23-05-footer-centering-refactor-PLAN.md` (small `pdf-export.js` refactor).
+6. **Manual UAT after Phase 23:** Sapir on 23-02 (Hebrew correctness); Ben on 23-01 (cache bump), 23-02 (Latin no-regression), 23-03 (home-printer edge clip + centered title).
+7. **Backup architectural rework (`22-16`)** — comes AFTER Phase 23. Includes 3-buttons redesign and missing-email-attachment fix.
+
+**Critical execution gates baked into the plans (don't bypass):**
+- `grep -c 'setR2L' assets/pdf-export.js == 0` after 23-02 — every setR2L call MUST be removed (jsPDF naively reverses chars; would double-reverse the bidi-shaped output)
+- `grep -cE '\[\.\.\.text\]|Array\.from\(text' == 0` — bidi-js indexes by UTF-16 code units; use `text.split('')`, not codepoint spread
+- bidi factory invoked inside `ensureDeps()` callback, NOT at module-eval time
+- 23-04 mandates a 5-minute spike on jsPDF `/CreationDate` mitigation before harness implementation (otherwise byte-identical hash check is impossible)
 
 Hand off complete. Read this doc + `.planning/phases/23-pdf-export-rewrite-hebrew-rtl-and-layout/23-CONTEXT.md` to resume cold.
