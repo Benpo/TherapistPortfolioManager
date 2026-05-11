@@ -786,7 +786,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       const labelEl = wrapper.querySelector(".label[data-i18n]");
       if (!labelEl) return;
       const defaultI18nKey = labelEl.getAttribute("data-i18n");
-      labelEl.textContent = App.getSectionLabel(sectionKey, defaultI18nKey);
+      const resolvedLabel = App.getSectionLabel(sectionKey, defaultI18nKey);
+      labelEl.textContent = resolvedLabel;
+
+      // Phase 22-14.3 — keep descendant input/textarea placeholders in sync
+      // with the renamed label. When the therapist has a custom label,
+      // override the placeholder; when there is no custom label, restore
+      // the placeholder from its data-i18n-placeholder key. Use .placeholder
+      // (attribute, not innerHTML) — customLabel is user-controlled and
+      // assigning to .placeholder is safe (T-22-02-01 mitigation).
+      const isCustom = resolvedLabel !== App.t(defaultI18nKey);
+      const fields = wrapper.querySelectorAll("input, textarea");
+      fields.forEach((field) => {
+        const phKey = field.getAttribute("data-i18n-placeholder");
+        if (isCustom) {
+          field.placeholder = resolvedLabel;
+        } else if (phKey) {
+          field.placeholder = App.t(phKey);
+        }
+      });
     });
     // Keep the heart-shield accordion-header in sync — it shares the same
     // i18n key as the inner section label, so a rename must show on both.
