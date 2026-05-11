@@ -177,6 +177,40 @@ window.BackupManager = (function () {
       irreversible.className = 'passphrase-irreversible';
       irreversible.textContent = _t('backup.passphrase.irreversible');
       entryPaneWrapper.appendChild(irreversible);
+
+      // Phase 22-15 (Gap N12 / D3) — static complexity-rules hint block.
+      // Encrypt mode only (decrypt has no rules — user is entering an existing password).
+      // The three list items mirror isWeakPassphrase() one-to-one:
+      //   - p.length < 6                   → rules.minLength
+      //   - /^(.)\1+$/.test(p)             → rules.notRepeated
+      //   - /^\d+$/.test(p)                → rules.notOnlyDigits
+      // Static (does NOT update reactively as the user types). The reactive feedback
+      // is already provided by errorEl via validate().
+      var rulesBlock = document.createElement('div');
+      rulesBlock.className = 'passphrase-rules';
+
+      var rulesHeading = document.createElement('div');
+      rulesHeading.className = 'passphrase-rules-heading';
+      rulesHeading.textContent = _t('backup.passphrase.rules.heading');
+      rulesBlock.appendChild(rulesHeading);
+
+      var rulesList = document.createElement('ul');
+      rulesList.className = 'passphrase-rules-list';
+
+      var rulesKeys = [
+        'backup.passphrase.rules.minLength',
+        'backup.passphrase.rules.notRepeated',
+        'backup.passphrase.rules.notOnlyDigits'
+      ];
+      rulesKeys.forEach(function(key) {
+        var li = document.createElement('li');
+        li.textContent = _t(key);
+        rulesList.appendChild(li);
+      });
+      rulesBlock.appendChild(rulesList);
+
+      // Append the .passphrase-rules block to the entry pane (between irreversible-warning and input1).
+      entryPaneWrapper.appendChild(rulesBlock);
     }
 
     var input1 = document.createElement('input');
@@ -314,6 +348,18 @@ window.BackupManager = (function () {
         var weakness = isWeakPassphrase(v1);
         if (weakness) {
           errorEl.textContent = weakness;
+          errorEl.hidden = false;
+          confirmBtn.disabled = true;
+          return;
+        }
+        // Phase 22-15 (Gap N12 / D2) — mismatch hint after weakness passes.
+        // Weakness errors take precedence (handled above). If v1 is strong AND
+        // both inputs have content AND they differ, show the lighter mismatch hint
+        // and keep confirmBtn disabled. The defensive louder mismatch error inside
+        // the confirmBtn click handler stays untouched.
+        var v2 = input2 ? input2.value : '';
+        if (input2 && v2 && v1 !== v2) {
+          errorEl.textContent = _t('backup.passphrase.mismatchHint');
           errorEl.hidden = false;
           confirmBtn.disabled = true;
           return;
