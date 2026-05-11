@@ -251,6 +251,17 @@ window.I18N.de = {
   "backup.passphrase.decrypt": "Entschl\u00FCsseln",
   "backup.passphrase.cancel": "Abbrechen",
 
+  // Phase 22-15 (Gap N11 + N12) \u2014 skip-confirm pane + mismatch hint + rules block
+  "backup.passphrase.skipConfirm.heading": "Ohne Verschl\u00FCsselung exportieren?",
+  "backup.passphrase.skipConfirm.body": "Die Backup-Datei enth\u00E4lt alle Klientendaten ungesch\u00FCtzt. Jeder mit Zugriff auf die Datei kann sie lesen.",
+  "backup.passphrase.skipConfirm.goBack": "Zur\u00FCck",
+  "backup.passphrase.skipConfirm.proceed": "Ja, ungesch\u00FCtzt exportieren",
+  "backup.passphrase.mismatchHint": "Passw\u00F6rter stimmen noch nicht \u00FCberein.",
+  "backup.passphrase.rules.heading": "Passwort muss:",
+  "backup.passphrase.rules.minLength": "Mindestens 6 Zeichen lang sein",
+  "backup.passphrase.rules.notRepeated": "Nicht aus demselben wiederholten Zeichen bestehen",
+  "backup.passphrase.rules.notOnlyDigits": "Nicht nur aus Zahlen bestehen",
+
   // Phase 22 \u2014 Settings page
   "header.settings.label": "Einstellungen",
   "settings.page.title": "Einstellungen",

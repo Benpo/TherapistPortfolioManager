@@ -110,7 +110,17 @@ window.BackupManager = (function () {
       'backup.passphrase.goBack': 'Go back',
       'backup.passphrase.encryptAndSave': 'Encrypt and save',
       'backup.passphrase.decrypt': 'Decrypt',
-      'backup.passphrase.cancel': 'Cancel'
+      'backup.passphrase.cancel': 'Cancel',
+      // Phase 22-15 (Gap N11 + N12) — fallbacks for the 9 new keys:
+      'backup.passphrase.skipConfirm.heading': 'Export without encryption?',
+      'backup.passphrase.skipConfirm.body': 'The backup file will contain all your client data unprotected. Anyone with access to the file can read it.',
+      'backup.passphrase.skipConfirm.goBack': 'Go back',
+      'backup.passphrase.skipConfirm.proceed': 'Yes, export unprotected',
+      'backup.passphrase.mismatchHint': "Passwords don't match yet.",
+      'backup.passphrase.rules.heading': 'Password must:',
+      'backup.passphrase.rules.minLength': 'Be at least 6 characters',
+      'backup.passphrase.rules.notRepeated': 'Not be the same character repeated',
+      'backup.passphrase.rules.notOnlyDigits': 'Not be only numbers'
     };
     return fallbacks[key] || key;
   }
@@ -137,6 +147,13 @@ window.BackupManager = (function () {
     });
     modal.appendChild(closeBtn);
 
+    // Phase 22-15 (Gap N11 / D1) — wrap entry-pane children in a single container so the
+    // in-modal Skip-Encryption confirmation pane (D1) can detach + re-attach the entry pane
+    // as a unit without destroying typed input values. The X close button stays as a direct
+    // child of `modal` so it persists across pane swaps.
+    var entryPaneWrapper = document.createElement('div');
+    entryPaneWrapper.className = 'passphrase-entry-pane';
+
     // RTL support
     var lang = '';
     try { lang = localStorage.getItem('portfolioLang') || 'en'; } catch(e) {}
@@ -148,18 +165,52 @@ window.BackupManager = (function () {
     var isEncrypt = opts.mode === 'encrypt';
     var heading = document.createElement('h3');
     heading.textContent = _t(isEncrypt ? 'backup.passphrase.headingEncrypt' : 'backup.passphrase.headingDecrypt');
-    modal.appendChild(heading);
+    entryPaneWrapper.appendChild(heading);
 
     var warning = document.createElement('div');
     warning.className = 'passphrase-warning';
     warning.textContent = _t(isEncrypt ? 'backup.passphrase.warningEncrypt' : 'backup.passphrase.warningDecrypt');
-    modal.appendChild(warning);
+    entryPaneWrapper.appendChild(warning);
 
     if (isEncrypt) {
       var irreversible = document.createElement('div');
       irreversible.className = 'passphrase-irreversible';
       irreversible.textContent = _t('backup.passphrase.irreversible');
-      modal.appendChild(irreversible);
+      entryPaneWrapper.appendChild(irreversible);
+
+      // Phase 22-15 (Gap N12 / D3) — static complexity-rules hint block.
+      // Encrypt mode only (decrypt has no rules — user is entering an existing password).
+      // The three list items mirror isWeakPassphrase() one-to-one:
+      //   - p.length < 6                   → rules.minLength
+      //   - /^(.)\1+$/.test(p)             → rules.notRepeated
+      //   - /^\d+$/.test(p)                → rules.notOnlyDigits
+      // Static (does NOT update reactively as the user types). The reactive feedback
+      // is already provided by errorEl via validate().
+      var rulesBlock = document.createElement('div');
+      rulesBlock.className = 'passphrase-rules';
+
+      var rulesHeading = document.createElement('div');
+      rulesHeading.className = 'passphrase-rules-heading';
+      rulesHeading.textContent = _t('backup.passphrase.rules.heading');
+      rulesBlock.appendChild(rulesHeading);
+
+      var rulesList = document.createElement('ul');
+      rulesList.className = 'passphrase-rules-list';
+
+      var rulesKeys = [
+        'backup.passphrase.rules.minLength',
+        'backup.passphrase.rules.notRepeated',
+        'backup.passphrase.rules.notOnlyDigits'
+      ];
+      rulesKeys.forEach(function(key) {
+        var li = document.createElement('li');
+        li.textContent = _t(key);
+        rulesList.appendChild(li);
+      });
+      rulesBlock.appendChild(rulesList);
+
+      // Append the .passphrase-rules block to the entry pane (between irreversible-warning and input1).
+      entryPaneWrapper.appendChild(rulesBlock);
     }
 
     var input1 = document.createElement('input');
@@ -167,7 +218,7 @@ window.BackupManager = (function () {
     input1.className = 'passphrase-input';
     input1.placeholder = _t('backup.passphrase.placeholder');
     input1.autocomplete = 'off';
-    modal.appendChild(input1);
+    entryPaneWrapper.appendChild(input1);
 
     var input2 = null;
     if (isEncrypt) {
@@ -176,13 +227,13 @@ window.BackupManager = (function () {
       input2.className = 'passphrase-input';
       input2.placeholder = _t('backup.passphrase.confirmPlaceholder');
       input2.autocomplete = 'off';
-      modal.appendChild(input2);
+      entryPaneWrapper.appendChild(input2);
     }
 
     var errorEl = document.createElement('div');
     errorEl.className = 'passphrase-error';
     errorEl.hidden = true;
-    modal.appendChild(errorEl);
+    entryPaneWrapper.appendChild(errorEl);
 
     var actions = document.createElement('div');
     actions.className = 'passphrase-actions';
@@ -210,12 +261,76 @@ window.BackupManager = (function () {
     confirmBtn.disabled = true;
     actions.appendChild(confirmBtn);
 
-    modal.appendChild(actions);
+    entryPaneWrapper.appendChild(actions);
+    modal.appendChild(entryPaneWrapper);
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
     if (typeof App !== 'undefined' && App.lockBodyScroll) App.lockBodyScroll();
 
     setTimeout(function() { input1.focus(); }, 50);
+
+    // Phase 22-15 (Gap N11 / D1) — activePane state + lazy-built skip-confirm pane.
+    // Used by the rewired cancelBtn handler and the Escape-key branch below.
+    // 'entry' is the default; 'confirm' is the destructive skip-confirm pane.
+    var activePane = 'entry';
+    var skipConfirmPaneWrapper = null;
+
+    function buildSkipConfirmPane() {
+      var pane = document.createElement('div');
+      pane.className = 'passphrase-skip-confirm';
+
+      var paneHeading = document.createElement('h3');
+      paneHeading.textContent = _t('backup.passphrase.skipConfirm.heading');
+      pane.appendChild(paneHeading);
+
+      var paneBody = document.createElement('div');
+      paneBody.className = 'passphrase-warning';
+      paneBody.textContent = _t('backup.passphrase.skipConfirm.body');
+      pane.appendChild(paneBody);
+
+      var paneActions = document.createElement('div');
+      paneActions.className = 'passphrase-actions';
+
+      var goBackBtn = document.createElement('button');
+      goBackBtn.type = 'button';
+      goBackBtn.className = 'passphrase-btn-dismiss';
+      goBackBtn.textContent = _t('backup.passphrase.skipConfirm.goBack');
+      goBackBtn.addEventListener('click', swapToEntryPane);
+      paneActions.appendChild(goBackBtn);
+
+      var proceedBtn = document.createElement('button');
+      proceedBtn.type = 'button';
+      proceedBtn.className = 'passphrase-btn-destructive';
+      proceedBtn.textContent = _t('backup.passphrase.skipConfirm.proceed');
+      proceedBtn.addEventListener('click', function() {
+        cleanup();
+        if (opts.onSkip) opts.onSkip();
+      });
+      paneActions.appendChild(proceedBtn);
+
+      pane.appendChild(paneActions);
+      return pane;
+    }
+
+    function swapToSkipConfirmPane() {
+      if (!skipConfirmPaneWrapper) skipConfirmPaneWrapper = buildSkipConfirmPane();
+      if (entryPaneWrapper.parentNode) entryPaneWrapper.parentNode.removeChild(entryPaneWrapper);
+      modal.appendChild(skipConfirmPaneWrapper);
+      activePane = 'confirm';
+      setTimeout(function() {
+        var btn = skipConfirmPaneWrapper.querySelector('.passphrase-btn-destructive');
+        if (btn) btn.focus();
+      }, 50);
+    }
+
+    function swapToEntryPane() {
+      if (skipConfirmPaneWrapper && skipConfirmPaneWrapper.parentNode) {
+        skipConfirmPaneWrapper.parentNode.removeChild(skipConfirmPaneWrapper);
+      }
+      if (!entryPaneWrapper.parentNode) modal.appendChild(entryPaneWrapper);
+      activePane = 'entry';
+      setTimeout(function() { input1.focus(); }, 50);
+    }
 
     function isWeakPassphrase(p) {
       if (p.length < 6) return _t('backup.passphrase.tooShort');
@@ -233,6 +348,18 @@ window.BackupManager = (function () {
         var weakness = isWeakPassphrase(v1);
         if (weakness) {
           errorEl.textContent = weakness;
+          errorEl.hidden = false;
+          confirmBtn.disabled = true;
+          return;
+        }
+        // Phase 22-15 (Gap N12 / D2) — mismatch hint after weakness passes.
+        // Weakness errors take precedence (handled above). If v1 is strong AND
+        // both inputs have content AND they differ, show the lighter mismatch hint
+        // and keep confirmBtn disabled. The defensive louder mismatch error inside
+        // the confirmBtn click handler stays untouched.
+        var v2 = input2 ? input2.value : '';
+        if (input2 && v2 && v1 !== v2) {
+          errorEl.textContent = _t('backup.passphrase.mismatchHint');
           errorEl.hidden = false;
           confirmBtn.disabled = true;
           return;
@@ -264,19 +391,26 @@ window.BackupManager = (function () {
     });
 
     cancelBtn.addEventListener('click', function() {
-      cleanup();
-      // For encrypt mode this button is "Skip encryption" — different semantic from Cancel.
-      // For decrypt mode this button is "Go back" — alias for cancel.
-      if (isEncrypt && opts.onSkip) {
-        opts.onSkip();
-      } else if (opts.onCancel) {
-        opts.onCancel();
+      if (isEncrypt) {
+        // Phase 22-15 (Gap N11 / D1) — Skip Encryption now opens an in-modal confirm pane.
+        // Reaching opts.onSkip() now requires a two-step gesture (this button → destructive primary on the confirm pane).
+        swapToSkipConfirmPane();
+        return;
       }
+      // Decrypt mode keeps the direct-cancel alias behaviour — there is nothing to "skip" when importing an already-encrypted file.
+      cleanup();
+      if (opts.onCancel) opts.onCancel();
     });
 
     modal.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !confirmBtn.disabled) confirmBtn.click();
+      if (e.key === 'Enter' && !confirmBtn.disabled && activePane === 'entry') confirmBtn.click();
       if (e.key === 'Escape') {
+        if (activePane === 'confirm') {
+          // Phase 22-15 (Gap N11 / D1) — Escape on the destructive confirm pane returns to the entry pane (no resolve).
+          // X close button still aborts (calls opts.onCancel) — Escape and X have different semantics on the confirm pane.
+          swapToEntryPane();
+          return;
+        }
         cleanup();
         if (opts.onCancel) opts.onCancel();
       }
