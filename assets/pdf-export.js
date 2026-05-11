@@ -258,9 +258,12 @@ window.PDFExport = (function () {
   /**
    * Return true if the input contains any character in the Hebrew Unicode
    * block U+0590-U+05FF or the Hebrew presentation forms U+FB1D-U+FB4F.
-   * Used to decide which font to set + whether to call setR2L(true) for the
-   * line being rendered. Mixed-language documents (Hebrew heading + English
-   * body) are handled per-line.
+   * Used to decide which font to set (NotoSansHebrew vs NotoSans) + which
+   * x-anchor to use (right margin vs left margin) for the line being rendered.
+   * Mixed-language documents (Hebrew heading + English body) are handled per-line.
+   * Phase 23: bidi reordering is now handled by shapeForJsPdf() — this
+   * function no longer drives any direction-reversal call (jsPDF's
+   * direction flag is no longer used; see G1 in 23-RESEARCH.md).
    */
   function isRtl(text) {
     return /[\u0590-\u05FF\uFB1D-\uFB4F]/.test(text || "");
@@ -426,12 +429,15 @@ window.PDFExport = (function () {
       // -----------------------------------------------------------------------
 
       function applyFontFor(line) {
+        // Phase 23 (G1): jsPDF's right-to-left flag is no longer set here.
+        // That flag does a naive .split('').reverse().join('') on the string
+        // it draws -- combining it with the bidi pre-shape would double-reverse.
+        // Direction is now handled entirely by shapeForJsPdf(); this function
+        // is font-switch-only.
         if (isRtl(line)) {
           doc.setFont("NotoSansHebrew", "normal");
-          doc.setR2L(true);
         } else {
           doc.setFont("NotoSans", "normal");
-          doc.setR2L(false);
         }
       }
 
@@ -439,7 +445,8 @@ window.PDFExport = (function () {
         applyFontFor(line);
         doc.setFontSize(size);
         var x = isRtl(line) ? (PAGE_W - MARGIN_X) : MARGIN_X;
-        doc.text(line, x, y);
+        var visual = shapeForJsPdf(line); // Phase 23 (D1, D2): logical -> visual
+        doc.text(visual, x, y);
       }
 
       // -----------------------------------------------------------------------
@@ -454,7 +461,8 @@ window.PDFExport = (function () {
         applyFontFor(clientName);
         doc.setFontSize(TITLE_SIZE);
         var titleX = isRtl(clientName) ? (PAGE_W - MARGIN_X) : MARGIN_X;
-        doc.text(clientName || " ", titleX, titleY);
+        var titleVisual = shapeForJsPdf(clientName || " "); // Phase 23 (D1, D2)
+        doc.text(titleVisual, titleX, titleY);
 
         // Meta line: "{sessionDate} - {sessionType}"
         var metaText = [sessionDateDisplay, sessionType].filter(function (s) {
@@ -477,7 +485,8 @@ window.PDFExport = (function () {
         applyFontFor(text);
         doc.setFontSize(META_SIZE);
         var x = isRtl(text) ? (PAGE_W - MARGIN_X) : MARGIN_X;
-        doc.text(text, x, RUNNING_HEADER_Y);
+        var visual = shapeForJsPdf(text); // Phase 23 (D1, D2)
+        doc.text(visual, x, RUNNING_HEADER_Y);
       }
 
       // -----------------------------------------------------------------------
@@ -529,15 +538,20 @@ window.PDFExport = (function () {
                 // RTL list: bullet on the right edge, indent inward
                 var rtlX = PAGE_W - MARGIN_X;
                 if (wi === 0) {
-                  doc.text("- " + wrapped[wi], rtlX, y);
+                  // Phase 23 (D1, D2, Open Question #1): prefix-then-shape so the "-" participates in paragraph-direction inference and lands visually on the right edge.
+                  var visualA = shapeForJsPdf("- " + wrapped[wi]);
+                  doc.text(visualA, rtlX, y);
                 } else {
-                  doc.text(wrapped[wi], rtlX - 14, y);
+                  var visualB = shapeForJsPdf(wrapped[wi]);
+                  doc.text(visualB, rtlX - 14, y);
                 }
               } else {
                 if (wi === 0) {
-                  doc.text("- " + wrapped[wi], MARGIN_X, y);
+                  var visualC = shapeForJsPdf("- " + wrapped[wi]);
+                  doc.text(visualC, MARGIN_X, y);
                 } else {
-                  doc.text(wrapped[wi], MARGIN_X + 14, y);
+                  var visualD = shapeForJsPdf(wrapped[wi]);
+                  doc.text(visualD, MARGIN_X + 14, y);
                 }
               }
               y += LINE_HEIGHT_BODY;
@@ -566,9 +580,8 @@ window.PDFExport = (function () {
       var totalPages = doc.getNumberOfPages();
       for (var pn = 1; pn <= totalPages; pn++) {
         doc.setPage(pn);
-        // Footer is always Latin (page number), so fix font + LTR for it
+        // Phase 23: footer is always Latin (page number), Noto Sans + LTR. jsPDF's RTL flag reset is no longer needed here -- no other code path enables that flag after Phase 23, so the reset is redundant (G1).
         doc.setFont("NotoSans", "normal");
-        doc.setR2L(false);
         doc.setFontSize(META_SIZE);
         var label = "Page " + pn + " of " + totalPages;
         // Center: jsPDF text "align" option requires a maxWidth; we use a
