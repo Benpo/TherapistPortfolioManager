@@ -322,6 +322,8 @@ window.I18N.cs = {
   "export.back": "Zp\u011Bt",
   "export.tab.edit": "Upravit",
   "export.tab.preview": "N\u00E1hled",
+  "export.step2.label.edit": "Upravit",
+  "export.step2.label.preview": "N\u00E1hled",
   "export.download.pdf": "St\u00E1hnout PDF",
   "export.download.text": "St\u00E1hnout jako textov\u00FD soubor",
   "export.share": "Sd\u00EDlet p\u0159es za\u0159\u00EDzen\u00ED",

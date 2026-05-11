@@ -2763,6 +2763,17 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   background: var(--color-surface);
   overflow-y: auto;
 }
+/* Phase 22-14 (Gap N1 / D1) — visible pane title above each Step 2 pane
+ * (editor on inline-start, preview on inline-end at desktop). Label-role
+ * typography per 22-UI-SPEC: 14px / 600 / 1.4. Logical margin-block-end of
+ * 8px (xs spacing token) for the gap to the pane below. */
+.export-pane-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  margin-block-end: 8px;
+}
 .export-preview h1 {
   font-size: 1.4rem;
   font-weight: 600;
@@ -2849,6 +2860,8 @@ html[dir="rtl"] .export-format-help[open] summary::before {
 @media (min-width: 769px) {
   .export-edit-area {
     grid-template-columns: 1fr 1fr;
+    /* Phase 22-14 (Gap N1 / D1) — row 1 = pane labels, row 2 = textarea + preview */
+    grid-template-rows: auto 1fr;
   }
 }
 

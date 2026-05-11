@@ -309,6 +309,8 @@ window.I18N.en = {
   "export.back": "Back",
   "export.tab.edit": "Edit",
   "export.tab.preview": "Preview",
+  "export.step2.label.edit": "Edit",
+  "export.step2.label.preview": "Preview",
   "export.download.pdf": "Download PDF",
   "export.download.text": "Download as text file",
   "export.share": "Share via device",

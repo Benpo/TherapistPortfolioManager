@@ -309,6 +309,8 @@ window.I18N.he = {
   "export.back": "חזור",
   "export.tab.edit": "ערוך",
   "export.tab.preview": "תצוגה מקדימה",
+  "export.step2.label.edit": "עריכה",
+  "export.step2.label.preview": "תצוגה מקדימה",
   "export.download.pdf": "הורד PDF",
   "export.download.text": "הורד כקובץ טקסט",
   "export.share": "שתף דרך המכשיר",
