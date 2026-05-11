@@ -604,11 +604,8 @@ window.PDFExport = (function () {
         doc.setFont("NotoSans", "normal");
         doc.setFontSize(META_SIZE);
         var label = "Page " + pn + " of " + totalPages;
-        // Center: jsPDF text "align" option requires a maxWidth; we use a
-        // simple manual centering instead, since we know the line is short.
-        var approxWidth = doc.getStringUnitWidth(label) * META_SIZE;
-        var fx = (PAGE_W - approxWidth) / 2;
-        doc.text(label, fx, FOOTER_BASELINE_Y);
+        // Phase 23 (23-05) -- centered via jsPDF's canonical horizontal-align API for consistency with the title-block centering introduced by 23-03. Equivalent to the previous manual (PAGE_W - textWidth) / 2 form. The pageWidth local was introduced by 23-03 and is in scope here.
+        doc.text(label, pageWidth / 2, FOOTER_BASELINE_Y, { align: 'center' });
       }
 
       progress('done');
