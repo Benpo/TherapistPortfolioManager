@@ -372,7 +372,7 @@ Plans:
 
 **Requirements**: 20 requirements locked in `22-SPEC.md` (Feature A: 1-6, Feature B: 7-17, Feature C: 18-20)
 **Depends on:** Phase 21
-**Plans:** 9 plans (8 shipped + 1 gap closure)
+**Plans:** 13 plans (12 shipped through round 2 + 1 planned for round 3)
 
 Plans:
 - [x] 22-01-PLAN.md — Vendored libraries: jsPDF + Noto Sans / Noto Sans Hebrew base64 fonts (REQ-13 foundation)
@@ -384,6 +384,10 @@ Plans:
 - [x] 22-07-PLAN.md — Backup/restore round-trips therapistSettings; backward-compat with pre-Phase-22 backups (REQ-18)
 - [x] 22-08-PLAN.md — SW CACHE_NAME bump + PRECACHE_URLS for jspdf/fonts/settings.js + header gear-icon entry point (REQ-1, REQ-17, REQ-20)
 - [x] 22-09-PLAN.md — Close verification gaps: pdf-export.js script tag in add-session.html + await App.initCommon() at 5 sites + tone:neutral on first-disable confirm dialog (REQ-13, REQ-15, REQ-3, REQ-5, REQ-21)
+- [x] 22-10-PLAN.md — Settings page UX fixes round 2: rename-input lock, transition-aware disable confirm, success-pill, Safari CSS tooltip (UAT round-1 gaps)
+- [x] 22-11-PLAN.md — Export modal UX fixes round 2: labelled stepper, per-step contextual guidance + markdown cheatsheet, Step 3 X-button stacking-context fix (UAT round-1 gaps)
+- [x] 22-12-PLAN.md — Data-safety guards round 2: export Cancel-cancels (3-state sentinel), App.installNavGuard helper + gear-icon wiring (UAT round-1 gaps)
+- [ ] 22-13-PLAN.md — Settings success-pill regression + revert-button affordance (UAT round-3 gaps N4, N5)
 
 ---
 
