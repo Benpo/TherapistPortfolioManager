@@ -852,22 +852,26 @@ window.App = (() => {
       monthSel.innerHTML += '<option value="' + m + '">' + mName + '</option>';
     }
 
-    // Day select: populated dynamically based on year/month
+    // Day select: pre-populated 1-31 so it works before year+month are chosen
+    // (DOM order is Day -> Month -> Year per D3, so Day must be usable first).
+    // updateDays() trims to the correct max once year+month are both set.
     var daySel = document.createElement('select');
     daySel.className = 'input birth-date-day';
     daySel.innerHTML = '<option value="">\u2014</option>';
+    for (var initD = 1; initD <= 31; initD++) {
+      daySel.innerHTML += '<option value="' + initD + '">' + initD + '</option>';
+    }
 
     function updateDays() {
       var y = parseInt(yearSel.value, 10);
       var m = parseInt(monthSel.value, 10);
       var oldDay = daySel.value;
+      var maxDay = (isNaN(y) || isNaN(m)) ? 31 : new Date(y, m + 1, 0).getDate();
       daySel.innerHTML = '<option value="">\u2014</option>';
-      if (isNaN(y) || isNaN(m)) return;
-      var maxDay = new Date(y, m + 1, 0).getDate();
       for (var d = 1; d <= maxDay; d++) {
         daySel.innerHTML += '<option value="' + d + '">' + d + '</option>';
       }
-      if (parseInt(oldDay, 10) <= maxDay) daySel.value = oldDay;
+      if (oldDay && parseInt(oldDay, 10) <= maxDay) daySel.value = oldDay;
     }
 
     function syncHidden() {
