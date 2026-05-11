@@ -456,9 +456,16 @@ window.PDFExport = (function () {
       function drawTextLine(line, y, size) {
         applyFontFor(line);
         doc.setFontSize(size);
-        var x = isRtl(line) ? (PAGE_W - MARGIN_X) : MARGIN_X;
         var visual = shapeForJsPdf(line); // Phase 23 (D1, D2): logical -> visual
-        doc.text(visual, x, y);
+        if (isRtl(line)) {
+          // Phase 23 (23-06): right-anchor the visual string at the right margin.
+          // jsPDF flows glyphs left-to-right from x; align: 'right' tells jsPDF the
+          // x-coordinate is where the END of the string lands, so the line occupies
+          // the page going leftward visually -- correct for shaped RTL text.
+          doc.text(visual, PAGE_W - MARGIN_X, y, { align: 'right' });
+        } else {
+          doc.text(visual, MARGIN_X, y);
+        }
       }
 
       // -----------------------------------------------------------------------
@@ -504,9 +511,15 @@ window.PDFExport = (function () {
         var text = bits.join("  -  ");
         applyFontFor(text);
         doc.setFontSize(META_SIZE);
-        var x = isRtl(text) ? (PAGE_W - MARGIN_X) : MARGIN_X;
         var visual = shapeForJsPdf(text); // Phase 23 (D1, D2)
-        doc.text(visual, x, RUNNING_HEADER_Y);
+        if (isRtl(text)) {
+          // Phase 23 (23-06): right-anchor the visual string at the right margin
+          // (same fix as drawTextLine -- without align:'right' the running header
+          // would flow off the right edge for Hebrew sessions).
+          doc.text(visual, PAGE_W - MARGIN_X, RUNNING_HEADER_Y, { align: 'right' });
+        } else {
+          doc.text(visual, MARGIN_X, RUNNING_HEADER_Y);
+        }
       }
 
       // -----------------------------------------------------------------------
@@ -555,15 +568,18 @@ window.PDFExport = (function () {
               applyFontFor(wrapped[wi]);
               doc.setFontSize(BODY_SIZE);
               if (isRtl(wrapped[wi])) {
-                // RTL list: bullet on the right edge, indent inward
+                // RTL list: bullet on the right edge, indent inward.
+                // Phase 23 (23-06): align:'right' so jsPDF treats rtlX as the
+                // end-of-string anchor and the visual line occupies the page
+                // going leftward (continuation lines indent inward via rtlX-14).
                 var rtlX = PAGE_W - MARGIN_X;
                 if (wi === 0) {
                   // Phase 23 (D1, D2, Open Question #1): prefix-then-shape so the "-" participates in paragraph-direction inference and lands visually on the right edge.
                   var visualA = shapeForJsPdf("- " + wrapped[wi]);
-                  doc.text(visualA, rtlX, y);
+                  doc.text(visualA, rtlX, y, { align: 'right' });
                 } else {
                   var visualB = shapeForJsPdf(wrapped[wi]);
-                  doc.text(visualB, rtlX - 14, y);
+                  doc.text(visualB, rtlX - 14, y, { align: 'right' });
                 }
               } else {
                 if (wi === 0) {
