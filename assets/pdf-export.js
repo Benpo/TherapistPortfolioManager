@@ -41,6 +41,7 @@ window.PDFExport = (function () {
 
   var _depsLoaded = false;
   var _loadingPromise = null;
+  var _bidi = null;   // Phase 23 (D1): cached bidi-js factory output. Initialized in ensureDeps after loadScriptOnce('./assets/bidi.min.js') resolves (G9 -- must NOT be initialized at module-eval time, window.bidi_js does not exist yet).
 
   // ---------------------------------------------------------------------------
   // loadScriptOnce -- mirrors the dynamic-script pattern at assets/app.js:344-347
@@ -93,6 +94,11 @@ window.PDFExport = (function () {
       }
       progress('loading-lib');
       return loadScriptOnce('./assets/jspdf.min.js').then(function () {
+        // Phase 23 (D1) -- bidi-js is part of the "library" phase, before fonts. Per RESEARCH 'Performance / Lazy-Load Notes': order doesn't matter functionally (bidi has no deps on fonts), but grouping libs together keeps the progress phases semantically clean.
+        return loadScriptOnce('./assets/bidi.min.js');
+      }).then(function () {
+        // Phase 23 (D1, G9) -- invoke the bidi-js factory ONCE the script is loaded and cache the result module-level. window.bidi_js is the UMD attachment from assets/bidi.min.js. Calling it earlier (e.g. at module-eval time, before loadScriptOnce resolves) throws TypeError.
+        _bidi = window.bidi_js();
         progress('loading-fonts');
         return loadScriptOnce('./assets/fonts/noto-sans-base64.js');
       }).then(function () {
@@ -180,6 +186,69 @@ window.PDFExport = (function () {
       doc.addFileToVFS("NotoSansHebrew.ttf", window.NotoSansHebrew);
       doc.addFont("NotoSansHebrew.ttf", "NotoSansHebrew", "normal");
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // firstStrongDir + shapeForJsPdf -- Phase 23 (D1, D2): UAX #9 bidi pre-shape
+  // ---------------------------------------------------------------------------
+  //
+  // Two helpers added in Phase 23 to convert logical-order strings (the order
+  // therapists type them in) into visual-order strings (the order jsPDF needs
+  // to write glyphs to the PDF positionally). Without this, Hebrew lines come
+  // out reversed and Hebrew+Latin/digit lines have their LTR runs in the wrong
+  // position. Built on the vendored bidi-js@1.0.3 library (./assets/bidi.min.js,
+  // landed by Plan 23-01). See 23-RESEARCH.md section "Worked example" for
+  // the empirical verification against the 12 phase test vectors.
+  //
+  // CRITICAL G2: shapeForJsPdf operates on text.split('') -- UTF-16 code units --
+  // NOT on [...text] / Array.from(text) which split by codepoint. bidi-js's
+  // getEmbeddingLevels / getReorderSegments return UTF-16-indexed segments;
+  // the array we mutate MUST share the same indexing or surrogate-pair characters
+  // (emoji, supplementary-plane Hebrew) break. Test vector #11 catches this.
+
+  /**
+   * Phase 23 (D2): paragraph base direction from first strong directional char.
+   * Implements UAX #9 HL2 (matches HTML/CSS dir="auto" behaviour). Returns
+   * 'ltr' on empty input or no strong char (default per HL2).
+   */
+  function firstStrongDir(text) {
+    if (!text) return 'ltr';
+    for (var i = 0; i < text.length; i++) {
+      var t = _bidi.getBidiCharTypeName(text[i]);
+      if (t === 'L') return 'ltr';
+      if (t === 'R' || t === 'AL') return 'rtl';
+    }
+    return 'ltr';
+  }
+
+  /**
+   * Phase 23 (D1): logical-order string -> visual-order string for doc.text().
+   *
+   * Operates on UTF-16 code units (text.split(''), NOT [...text] / Array.from(text)
+   * -- see G2 / test vector #11). Calls bidi-js for:
+   *   1. embedding levels per code unit (UAX #9 paragraph + character types)
+   *   2. reorder segments to reverse (UAX-L2 -- runs at odd levels flip in place)
+   *   3. mirror map for paired brackets in RTL runs (UAX-BD16)
+   *
+   * Returns the visual-order string. Empty input -> empty output.
+   */
+  function shapeForJsPdf(text) {
+    if (!text) return '';
+    var dir = firstStrongDir(text);
+    var levels = _bidi.getEmbeddingLevels(text, dir);
+    var flips = _bidi.getReorderSegments(text, levels);
+    var mirrorMap = _bidi.getMirroredCharactersMap(text, levels);
+    var chars = text.split(''); // UTF-16 code units; matches bidi-js indices (G2)
+    mirrorMap.forEach(function (mirroredChar, idx) {
+      chars[idx] = mirroredChar;
+    });
+    for (var fi = 0; fi < flips.length; fi++) {
+      var start = flips[fi][0];
+      var end = flips[fi][1];
+      var slice = chars.slice(start, end + 1).reverse();
+      for (var i = start; i <= end; i++) chars[i] = slice[i - start];
+    }
+    return chars.join('');
   }
 
   // ---------------------------------------------------------------------------
