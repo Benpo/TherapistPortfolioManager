@@ -399,15 +399,27 @@ window.PDFExport = (function () {
       var doc = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
       registerFonts(doc);
 
+      // Phase 23 (D4): pageWidth derived from jsPDF page-size API -- used by the
+      // centered title-block draws below. The hard-coded PAGE_W constant (595)
+      // stays for all OTHER consumers (USABLE_W, RTL right-margin anchor at
+      // PAGE_W - MARGIN_X, footer centering math). For the locked A4 portrait
+      // orientation, both values are 595pt -- equivalent, just self-documenting
+      // at the centering call sites. See RESEARCH "jsPDF page-size API conveniences".
+      var pageWidth = doc.internal.pageSize.getWidth();
+
       // -----------------------------------------------------------------------
       // Layout constants (in pt -- A4 portrait)  -- per D-05, D-06, D-07
       // -----------------------------------------------------------------------
+      // Phase 23 (D3): A4-safe-zone margins -- 71pt = 25.06mm at 72dpi. Matches the
+      // DE/EU office-software A4 default (LibreOffice / Word) and is within 1pt of
+      // the US Letter 1-inch convention. Symmetric on all four sides. RESEARCH
+      // section "A4 standard confirmed for DE primary locale" verifies the value.
       var PAGE_W = 595;
       var PAGE_H = 842;
-      var MARGIN_X = 56;
-      var MARGIN_TOP = 64;
-      var MARGIN_BOTTOM = 64;
-      var USABLE_W = PAGE_W - 2 * MARGIN_X; // 483 pt
+      var MARGIN_X = 71;
+      var MARGIN_TOP = 71;
+      var MARGIN_BOTTOM = 71;
+      var USABLE_W = PAGE_W - 2 * MARGIN_X; // 453 pt (was 483pt pre-Phase-23)
       var BODY_SIZE = 11;
       var HEADING_SIZE = 14;
       var META_SIZE = 10;
@@ -454,23 +466,31 @@ window.PDFExport = (function () {
       // -----------------------------------------------------------------------
 
       function drawPage1Header() {
-        // Title: client name (16pt bold-weight; we only registered "normal", so
-        // jsPDF will simulate bold via stroke. That is acceptable for v1; the
-        // user can revisit if it looks too heavy).
+        // Title: client name (16pt). Phase 23 (D4) -- horizontally centered on page 1.
+        // The bidi pre-shape (shapeForJsPdf, from Plan 23-02) stays -- it produces
+        // the visual-order string the centering math measures and renders.
         var titleY = MARGIN_TOP;
         applyFontFor(clientName);
         doc.setFontSize(TITLE_SIZE);
-        var titleX = isRtl(clientName) ? (PAGE_W - MARGIN_X) : MARGIN_X;
         var titleVisual = shapeForJsPdf(clientName || " "); // Phase 23 (D1, D2)
-        doc.text(titleVisual, titleX, titleY);
+        doc.text(titleVisual, pageWidth / 2, titleY, { align: 'center' }); // Phase 23 (D4)
 
-        // Meta line: "{sessionDate} - {sessionType}"
+        // Meta line: "{sessionDate} - {sessionType}". Phase 23 (D4) -- centered as
+        // part of the title block. NOTE: drawTextLine is NOT used here because
+        // drawTextLine forces the isRtl-flipped left/right anchor per D4's "body
+        // content stays left/right-anchored" rule. The title block (this draw + the
+        // title above) is the only centered region. Body paragraphs, lists, section
+        // headings, and the running header on pages 2+ all keep using drawTextLine
+        // and stay anchored per isRtl().
         var metaText = [sessionDateDisplay, sessionType].filter(function (s) {
           return s && String(s).length > 0;
         }).join("  -  ");
         var metaY = titleY + LINE_HEIGHT_TITLE;
         if (metaText.length > 0) {
-          drawTextLine(metaText, metaY, META_SIZE);
+          applyFontFor(metaText);
+          doc.setFontSize(META_SIZE);
+          var metaVisual = shapeForJsPdf(metaText); // Phase 23 (D1, D2)
+          doc.text(metaVisual, pageWidth / 2, metaY, { align: 'center' }); // Phase 23 (D4)
         }
         // Return the y cursor where body should begin
         return metaY + LINE_HEIGHT_META + 8;
