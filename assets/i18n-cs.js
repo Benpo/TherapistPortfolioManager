@@ -251,6 +251,17 @@ window.I18N.cs = {
   "backup.passphrase.decrypt": "De\u0161ifrovat",
   "backup.passphrase.cancel": "Zru\u0161it",
 
+  // Phase 22-15 (Gap N11 + N12) \u2014 skip-confirm pane + mismatch hint + rules block
+  "backup.passphrase.skipConfirm.heading": "Exportovat bez \u0161ifrov\u00E1n\u00ED?",
+  "backup.passphrase.skipConfirm.body": "Soubor z\u00E1lohy bude obsahovat v\u0161echna data klient\u016F bez ochrany. Kdokoli s p\u0159\u00EDstupem k souboru je m\u016F\u017Ee \u010D\u00EDst.",
+  "backup.passphrase.skipConfirm.goBack": "Zp\u011Bt",
+  "backup.passphrase.skipConfirm.proceed": "Ano, exportovat bez ochrany",
+  "backup.passphrase.mismatchHint": "Hesla se zat\u00EDm neshoduj\u00ED.",
+  "backup.passphrase.rules.heading": "Heslo mus\u00ED:",
+  "backup.passphrase.rules.minLength": "M\u00EDt alespo\u0148 6 znak\u016F",
+  "backup.passphrase.rules.notRepeated": "Nesm\u00ED b\u00FDt stejn\u00FD znak opakovan\u011B",
+  "backup.passphrase.rules.notOnlyDigits": "Nesm\u00ED b\u00FDt jen \u010D\u00EDsla",
+
   // Phase 22 \u2014 Settings page
   "header.settings.label": "Nastaven\u00ED",
   "settings.page.title": "Nastaven\u00ED",

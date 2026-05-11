@@ -251,6 +251,17 @@ window.I18N.he = {
   "backup.passphrase.decrypt": "פענוח",
   "backup.passphrase.cancel": "ביטול",
 
+  // Phase 22-15 (Gap N11 + N12) — skip-confirm pane + mismatch hint + rules block
+  "backup.passphrase.skipConfirm.heading": "ייצוא ללא הצפנה?",
+  "backup.passphrase.skipConfirm.body": "קובץ הגיבוי יכיל את כל נתוני הלקוחות ללא הגנה. כל מי שיש לו גישה לקובץ יוכל לקרוא אותו.",
+  "backup.passphrase.skipConfirm.goBack": "חזרה",
+  "backup.passphrase.skipConfirm.proceed": "כן, ייצוא ללא הגנה",
+  "backup.passphrase.mismatchHint": "הסיסמאות עדיין אינן תואמות.",
+  "backup.passphrase.rules.heading": "הסיסמה חייבת:",
+  "backup.passphrase.rules.minLength": "להכיל לפחות 6 תווים",
+  "backup.passphrase.rules.notRepeated": "לא להיות חזרה על אותו תו",
+  "backup.passphrase.rules.notOnlyDigits": "לא להיות רק ספרות",
+
   // Phase 22 — Settings page
   "header.settings.label": "הגדרות",
   "settings.page.title": "הגדרות",

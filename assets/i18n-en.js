@@ -251,6 +251,17 @@ window.I18N.en = {
   "backup.passphrase.decrypt": "Decrypt",
   "backup.passphrase.cancel": "Cancel",
 
+  // Phase 22-15 (Gap N11 + N12) — skip-confirm pane + mismatch hint + rules block
+  "backup.passphrase.skipConfirm.heading": "Export without encryption?",
+  "backup.passphrase.skipConfirm.body": "The backup file will contain all your client data unprotected. Anyone with access to the file can read it.",
+  "backup.passphrase.skipConfirm.goBack": "Go back",
+  "backup.passphrase.skipConfirm.proceed": "Yes, export unprotected",
+  "backup.passphrase.mismatchHint": "Passwords don't match yet.",
+  "backup.passphrase.rules.heading": "Password must:",
+  "backup.passphrase.rules.minLength": "Be at least 6 characters",
+  "backup.passphrase.rules.notRepeated": "Not be the same character repeated",
+  "backup.passphrase.rules.notOnlyDigits": "Not be only numbers",
+
   // Phase 22 — Settings page
   "header.settings.label": "Settings",
   "settings.page.title": "Settings",
