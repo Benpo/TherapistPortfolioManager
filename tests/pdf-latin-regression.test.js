@@ -196,7 +196,11 @@ function sha256Hex(buf) {
 // Main
 // ---------------------------------------------------------------------------
 async function main() {
-  var fixtures = ['fixture-en', 'fixture-de', 'fixture-cs'];
+  // Phase 23-06: Hebrew fixture added to close the verification gap that let
+  // the 23-02 RTL anchor bug ship. The 3 Latin fixtures all hit the LTR branch
+  // of drawTextLine because isRtl() is false for Latin text, so they could not
+  // catch the RTL-only off-page rendering regression.
+  var fixtures = ['fixture-en', 'fixture-de', 'fixture-cs', 'fixture-he'];
   var passed = 0, failed = 0;
 
   for (var i = 0; i < fixtures.length; i++) {

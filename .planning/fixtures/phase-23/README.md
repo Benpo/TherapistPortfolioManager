@@ -1,4 +1,4 @@
-# Phase 23 Latin-regression fixtures
+# Phase 23 PDF regression fixtures (Latin + Hebrew)
 
 This directory (`.planning/fixtures/phase-23/`) holds the test fixtures and baseline hashes
 for the Phase 23 Latin-only PDF regression smoke test. The harness is
@@ -27,9 +27,11 @@ Strategy' Open Question #3 (locked at planning time — see plan 23-04 frontmatt
 | `fixture-en.json`        | English fixture: client "Anna M.", ~2-page session note, ASCII Latin only. |
 | `fixture-de.json`        | German fixture: client "Jörg Müller", umlauts (ä/ö/ü/ß) sprinkled across body. |
 | `fixture-cs.json`        | Czech fixture: client "Pavel Novák", Czech diacritics (š/č/ř/ě/ý/ů). |
+| `fixture-he.json`        | Hebrew fixture: client "דנה כהן", ~2-page RTL session note covering pure-Hebrew heading, paragraph, list, Hebrew+Latin mix, ISO date, and parens (UAX-BD16 mirrors). Added by 23-06 to cover the RTL rendering path that the 3 Latin fixtures structurally cannot hit (`isRtl()` is false on Latin → LTR branch). |
 | `fixture-en.pdf.sha256`  | 64-char lowercase-hex SHA-256 of the PDF the harness builds for fixture-en. |
 | `fixture-de.pdf.sha256`  | Same, for fixture-de. |
 | `fixture-cs.pdf.sha256`  | Same, for fixture-cs. |
+| `fixture-he.pdf.sha256`  | Same, for fixture-he (RTL Hebrew baseline). |
 | `README.md`              | This file. |
 
 ## How the hashes were generated
@@ -102,3 +104,4 @@ Other plans in Phase 23:
 - **Plan 23-03** — A4 71pt margins + centered title block on page 1.
 - **Plan 23-04** — this regression suite + `tests/pdf-bidi.test.js` algorithmic corpus.
 - **Plan 23-05** (optional) — footer-centering refactor.
+- **Plan 23-06** — RTL anchor fix (`align: 'right'` on the 4 RTL `doc.text` sites in `assets/pdf-export.js`) + this Hebrew fixture, closing the verification gap that let the 23-02 setR2L removal ship a broken RTL anchor.
