@@ -9,7 +9,8 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v81';
+// Phase 23-01 — bumped v81 -> v82 to evict the previous offline cache and force the new /assets/bidi.min.js precache entry on next activation. Per 23-CONTEXT D5, this is the only migration the PDF rewrite needs (PDF artifacts themselves are stateless).
+const CACHE_NAME = 'sessions-garden-v82';
 
 /**
  * Static assets to precache on install (cache-first strategy).
@@ -58,6 +59,7 @@ const PRECACHE_URLS = [
   '/assets/pdf-export.js',
   '/assets/md-render.js',
   '/assets/jspdf.min.js',
+  '/assets/bidi.min.js',
   '/assets/fonts/noto-sans-base64.js',
   '/assets/fonts/noto-sans-hebrew-base64.js'
 ];
