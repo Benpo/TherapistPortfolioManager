@@ -322,6 +322,8 @@ window.I18N.de = {
   "export.back": "Zur\u00FCck",
   "export.tab.edit": "Bearbeiten",
   "export.tab.preview": "Vorschau",
+  "export.step2.label.edit": "Bearbeiten",
+  "export.step2.label.preview": "Vorschau",
   "export.download.pdf": "PDF herunterladen",
   "export.download.text": "Als Textdatei herunterladen",
   "export.share": "\u00DCber Ger\u00E4t teilen",

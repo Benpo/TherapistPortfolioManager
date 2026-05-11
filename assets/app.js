@@ -899,9 +899,14 @@ window.App = (() => {
       if (e.detail && e.detail.lang) updateMonthNames(e.detail.lang);
     });
 
-    container.appendChild(yearSel);
-    container.appendChild(monthSel);
+    // Phase 22-14 (Gap N3 / D3) — DOM order Day -> Month -> Year. DD.MM.YYYY is the
+    // European convention (DE primary, CS secondary, HE reads RTL so Day appears on
+    // visual right = start of reading, EN-EU therapists primary audience).
+    // Class-based read/write logic in syncHidden() is unaffected — selectors are
+    // .birth-date-year/.birth-date-month/.birth-date-day, not DOM order.
     container.appendChild(daySel);
+    container.appendChild(monthSel);
+    container.appendChild(yearSel);
 
     // Mobile: show native date input instead of dropdown picker
     var mobileDate = window.matchMedia("(max-width: 768px)");
