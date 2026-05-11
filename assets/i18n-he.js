@@ -275,6 +275,7 @@ window.I18N.he = {
   "settings.rename.tooLong": "שם המקטע ארוך מדי. מקסימום 60 תווים.",
   "settings.rename.empty": "הזן שם או השאר ריק לברירת המחדל.",
   "settings.reset.tooltip": "אפס לשם ברירת המחדל",
+  "settings.row.revert.label": "אפס",
   "settings.action.save": "שמור שינויים",
   "settings.action.discard": "בטל שינויים",
   // --- Added 2026-04-28 (REQ-21 + locked-rename) ---

@@ -207,6 +207,13 @@ window.SettingsPage = (function () {
     resetBtn.title = resetTip;
     // SECURITY: Inline SVG built via DOM APIs (no innerHTML, no user data).
     resetBtn.appendChild(buildResetIconSvg());
+    // Gap N4 (22-13): visible text label next to the icon so first-time users
+    // can tell what the button does without hovering. aria-label + title keep
+    // the longer "Reset to default name" for desktop hover + screen readers.
+    var resetLabel = document.createElement("span");
+    resetLabel.className = "reset-row-btn-label";
+    resetLabel.textContent = window.App && App.t ? App.t("settings.row.revert.label") : "Revert";
+    resetBtn.appendChild(resetLabel);
     if (!hasOverride) {
       resetBtn.disabled = true;
       resetBtn.setAttribute("aria-disabled", "true");
@@ -282,7 +289,15 @@ window.SettingsPage = (function () {
   // Post-save success pill — D2 locked state machine.
   // Replaces the OLD "About saved settings" blue notice.
   // ---------------------------------------------------------------------------
+  // Auto-dismiss timeout for the success pill. Bumped 6000ms -> 8000ms in 22-13
+  // (Gap N5 D2) so the pill is noticed without feeling sticky.
+  var NOTICE_AUTO_DISMISS_MS = 8000;
   var noticeTimeoutId = null;
+  // Captures the 200ms post-"leaving" cleanup setTimeout queued inside
+  // dismissSavedNotice(). cancelLeave() must clear BOTH this AND noticeTimeoutId,
+  // otherwise an orphaned cleanup from the previous dismiss can hide a freshly
+  // re-shown pill (Gap N5 regression root cause).
+  var noticeLeaveTimeoutId = null;
   var noticeListenersOn = false;
 
   function getNoticeEls() {
@@ -303,7 +318,7 @@ window.SettingsPage = (function () {
     void els.noticeEl.offsetHeight;
     els.noticeEl.dataset.active = "";
     attachDismissTriggers();
-    noticeTimeoutId = setTimeout(function () { dismissSavedNotice(); }, 6000);
+    noticeTimeoutId = setTimeout(function () { dismissSavedNotice(); }, NOTICE_AUTO_DISMISS_MS);
   }
 
   function dismissSavedNotice() {
@@ -311,13 +326,23 @@ window.SettingsPage = (function () {
     if (!els.noticeEl) return;
     if (!("active" in els.noticeEl.dataset)) return;
     els.noticeEl.dataset.active = "leaving";
-    setTimeout(function () {
+    // Clear the auto-dismiss timeout (no longer needed — we are already leaving).
+    // clearTimeout is a safe no-op on null/stale ids, so the explicit null assign
+    // is the meaningful state-reset.
+    clearTimeout(noticeTimeoutId);
+    noticeTimeoutId = null;
+    // Clear any prior leave-cleanup from a back-to-back dismiss before queuing a
+    // new one (handles the edge case where dismiss fires twice within ~200ms).
+    clearTimeout(noticeLeaveTimeoutId);
+    // Capture the 200ms cleanup so cancelLeave can kill it before a re-show
+    // (Gap N5 fix — orphaned cleanup was wiping freshly-shown pills).
+    noticeLeaveTimeoutId = setTimeout(function () {
+      noticeLeaveTimeoutId = null;
       var n = document.getElementById("settingsSavedNotice");
       if (!n) return;
       n.hidden = true;
       delete n.dataset.active;
     }, 200);
-    cancelLeave();
     detachDismissTriggers();
   }
 
@@ -326,6 +351,7 @@ window.SettingsPage = (function () {
       clearTimeout(noticeTimeoutId);
       noticeTimeoutId = null;
     }
+    clearTimeout(noticeLeaveTimeoutId);
   }
 
   function onAnyInput()   { dismissSavedNotice(); }

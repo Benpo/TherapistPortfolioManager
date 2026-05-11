@@ -275,6 +275,7 @@ window.I18N.cs = {
   "settings.rename.tooLong": "N\u00E1zev sekce je p\u0159\u00EDli\u0161 dlouh\u00FD. Maximum 60 znak\u016F.",
   "settings.rename.empty": "Zadejte n\u00E1zev nebo nechte pr\u00E1zdn\u00E9 pro v\u00FDchoz\u00ED.",
   "settings.reset.tooltip": "Obnovit v\u00FDchoz\u00ED n\u00E1zev",
+  "settings.row.revert.label": "Obnovit",
   "settings.action.save": "Ulo\u017Eit zm\u011Bny",
   "settings.action.discard": "Zahodit zm\u011Bny",
   // --- Added 2026-04-28 (REQ-21 + locked-rename) ---

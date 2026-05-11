@@ -2457,6 +2457,17 @@ html[dir="rtl"] .settings-locked-info::after {
   opacity: 0.5;
   pointer-events: none;
 }
+/* Phase 22-13 (Gap N4) — visible label next to the reset icon. Logical
+   padding flips correctly in RTL (HE). Values strictly follow 22-UI-SPEC
+   tokens: 8px = `xs` spacing token; weight 600 + line-height 1.4 = Label
+   role typography. */
+.reset-row-btn-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  padding-inline-start: 8px;
+  color: inherit;
+}
 .settings-action-bar {
   position: sticky;
   inset-block-end: 0;

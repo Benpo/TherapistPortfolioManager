@@ -275,6 +275,7 @@ window.I18N.en = {
   "settings.rename.tooLong": "Section name is too long. Maximum 60 characters.",
   "settings.rename.empty": "Enter a name or leave blank to use the default.",
   "settings.reset.tooltip": "Reset to default name",
+  "settings.row.revert.label": "Revert",
   "settings.action.save": "Save changes",
   "settings.action.discard": "Discard changes",
   // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
