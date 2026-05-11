@@ -275,6 +275,7 @@ window.I18N.de = {
   "settings.rename.tooLong": "Abschnittsname ist zu lang. Maximal 60 Zeichen.",
   "settings.rename.empty": "Namen eingeben oder leer lassen f\u00FCr Standard.",
   "settings.reset.tooltip": "Auf Standardnamen zur\u00FCcksetzen",
+  "settings.row.revert.label": "Zur\u00FCcksetzen",
   "settings.action.save": "\u00C4nderungen speichern",
   "settings.action.discard": "\u00C4nderungen verwerfen",
   // --- Added 2026-04-28 (REQ-21 + locked-rename) ---

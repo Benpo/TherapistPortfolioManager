@@ -207,6 +207,13 @@ window.SettingsPage = (function () {
     resetBtn.title = resetTip;
     // SECURITY: Inline SVG built via DOM APIs (no innerHTML, no user data).
     resetBtn.appendChild(buildResetIconSvg());
+    // Gap N4 (22-13): visible text label next to the icon so first-time users
+    // can tell what the button does without hovering. aria-label + title keep
+    // the longer "Reset to default name" for desktop hover + screen readers.
+    var resetLabel = document.createElement("span");
+    resetLabel.className = "reset-row-btn-label";
+    resetLabel.textContent = window.App && App.t ? App.t("settings.row.revert.label") : "Revert";
+    resetBtn.appendChild(resetLabel);
     if (!hasOverride) {
       resetBtn.disabled = true;
       resetBtn.setAttribute("aria-disabled", "true");
