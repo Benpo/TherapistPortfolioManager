@@ -72,20 +72,33 @@ issues: 3
 pending: 1
 skipped: 2
 blocked: 0
-gaps_total: 15
-gaps_in_scope: 12
-gaps_out_of_scope: 2
-gaps_meta: 1
+gaps_total: 26
 gaps_closed_fixed: 11
-gaps_open: 4
-blocker_count_open: 2
+gaps_open: 15
+blocker_count_open: 3
+status: partial
+last_updated: 2026-05-07-round3
+round_3_findings_added: [N1, N2, N3, N4, N5, N6, N7, N9, N10, N11, N12]
+note: "N8 (long-text emotions copy-paste feature) NOT logged here as a gap — it is a new feature request, captured separately in .planning/todos/pending/2026-05-07_emotions-quick-paste.md"
+
 open_gaps:
-  - "PDF export bidirectional text loss (BLOCKER, in-scope, deferred for separate jsPDF/bidi investigation)"
+  ## Pre-existing
+  - "PDF export bidirectional text loss (BLOCKER, in-scope) — bundles with N10"
   - "(out-of-scope) Add-session entry path missing client picture & general notes (BLOCKER)"
   - "(out-of-scope) Edit-session has no Cancel/Revert toggle (major)"
   - "(meta) VERIFICATION.md test list missed E2E rename test — process improvement"
-status: partial
-last_updated: 2026-05-07
+  ## Round 3 (2026-05-07 re-test)
+  - "N1 — Step 2 export modal: textbox panes have no titles (major)"
+  - "N2 — Pencil/edit icon too small to read across the app (major)"
+  - "N3 — DOB picker: year-first feels reversed (minor)"
+  - "N4 — Revert button on Settings rows is not self-explanatory (minor)"
+  - "N5 — Settings 'saved' pill does not reappear on subsequent saves in same session — REGRESSION in 22-10 success-pill state machine (major)"
+  - "N6 — Hebrew placeholder 'בחירה...' renders with dots on wrong end (bidi) (minor)"
+  - "N7 — Backup 'Send to myself' email contains no attachment, only plain text body — plus architectural concern about backup having 3 dominant buttons on main screen (major)"
+  - "N9 — Hebrew copy in export modal uses female form ('בחרי') instead of app's general register (minor)"
+  - "N10 — PDF export trimmed at edges and not centered, in addition to bidi issue (BLOCKER, bundles with PDF bidi)"
+  - "N11 — Backup unencrypted 'Skip encryption' path needs explicit confirmation dialog (major)"
+  - "N12 — Backup password validation feedback missing — silent button-grey-out with no error message or complexity rules (major)"
 
 ## Gaps
 
@@ -257,4 +270,175 @@ last_updated: 2026-05-07
     - "22-VERIFICATION.md (current 6-test list)"
   missing:
     - "Explicit E2E test for label propagation in 22-VERIFICATION.md and any future phase template"
+
+# =============================================================================
+# Round 3 findings (re-test of round-2 fixes on 2026-05-07)
+# Captured by user during second-pass UAT of plans 22-10 / 22-11 / 22-12.
+# Everything not listed here from round-2 plans was confirmed working.
+# =============================================================================
+
+- truth: "Each textbox / pane on Step 2 of the export modal has a clear label or title so a first-time user knows what each box is for"
+  id: N1
+  status: failed
+  reason: "User reported: on Step 2 of the export modal, the textbox panes (markdown editor + live preview) have no name or title. A first-time user can't tell what each box is for or how they relate. Add labels/titles for both panes — at minimum 'Edit (Markdown)' and 'Live Preview' — and consider a one-line tagline under each."
+  severity: major
+  test: general
+  scope: phase-22-followup
+  source: 2026-05-07 round-3 re-test
+  related_phase: 22-11
+  artifacts: []
+  missing:
+    - "Pane titles in Step 2 of export modal (en + he + de + cs)"
+
+- truth: "The pencil/edit icon used across the app is large enough to be visually recognizable — at minimum the pencil shape is distinguishable, not just a diagonal line"
+  id: N2
+  status: failed
+  reason: "User reported: the edit-session pencil icon (and edit icons in general across the app) is way too small — appears as a diagonal line, not a recognizable pencil. Either bump the icon size, swap to a larger SVG/glyph, or switch to a labelled button. Affects accessibility (44px min tap target) and discoverability."
+  severity: major
+  test: general
+  scope: app-wide
+  source: 2026-05-07 round-3 re-test
+  related_phase: 22-related-or-new
+  artifacts: []
+  missing:
+    - "Audit of all pencil/edit icon usages across overview / sessions / client cards"
+    - "Larger SVG or labelled affordance"
+
+- truth: "DOB picker on the new-client page presents day/month before year (matches user mental model)"
+  id: N3
+  status: failed
+  reason: "User reported: the date-of-birth picker on new-client page starts with year, then dd/mm. Counter-intuitive — most people think DD/MM/YYYY (locale-dependent) or YYYY-MM-DD as a single block. Reorder so the picker reads naturally: dd → mm → yyyy. (Note: this may be a `<input type='date'>` browser default; might need a custom widget or restructured layout to control order.)"
+  severity: minor
+  test: general
+  scope: app-wide
+  source: 2026-05-07 round-3 re-test
+  related_phase: ux-polish
+  artifacts: []
+  missing:
+    - "Date picker order — investigate native vs custom widget"
+
+- truth: "The Revert button on each Settings page row is self-explanatory at first glance — the user can tell what it does without trial-and-error"
+  id: N4
+  status: failed
+  reason: "User reported: the revert (reset) icon next to each renamed row in Settings is not self-explanatory. User can't tell what it will do without clicking. Options: (a) tooltip with description ('Reset to default'), (b) replace icon with text label, (c) add helper microcopy, (d) confirm dialog on first use that explains. Pick one and apply."
+  severity: minor
+  test: general
+  scope: phase-22-followup
+  source: 2026-05-07 round-3 re-test
+  related_phase: 22-10
+  artifacts: []
+  missing:
+    - "Tooltip OR text label OR confirm-with-explanation on revert affordance"
+
+- truth: "The 'Settings saved' success pill appears AFTER EVERY successful Save in the same Settings page session — not just the first one — and remains visible long enough to be noticed"
+  id: N5
+  status: failed
+  reason: |
+    User reported (regression in 22-10's success-pill fix): after first successful Save, the green pill appears as designed. After making more changes and pressing Save AGAIN in the same Settings page session, the pill does NOT re-appear. User thinks this might be a state-machine bug.
+
+    SUSPECTED ROOT CAUSE (orchestrator analysis): the dismiss-leave setTimeout (200ms hide-after-leave) is not stored in `timeoutId` and therefore not cancelled by `cancelLeave()`. When the user clicks Save the second time:
+      1. The previously-attached `onNextSave` listener fires → dismissSavedNotice() → starts the 200ms hide timeout
+      2. The actual save handler runs → showSavedNotice() → cancelLeave() (does NOT cancel the leaving timeout) → sets dataset.active = ""
+      3. 200ms later the orphaned hide timeout fires → noticeEl.hidden = true → pill becomes invisible
+    Fix: store the leaving setTimeout in a variable (e.g. `leavingTimeoutId`) and cancel it in cancelLeave() (or in showSavedNotice itself).
+
+    Plus user separately requested longer visibility — currently 6s timeout fallback. Consider 8-10s, OR keep 6s but ensure the pill is visually anchored (the suspected bug above may make the pill flash and disappear at 200ms, which is what user is interpreting as 'not visible enough for just 220ms').
+  severity: major
+  test: general
+  scope: phase-22-followup
+  source: 2026-05-07 round-3 re-test
+  related_phase: 22-10
+  artifacts: []
+  missing:
+    - "Store leaving setTimeout id and cancel it in cancelLeave / showSavedNotice"
+    - "Re-test: pill must reappear on every Save click in same session"
+    - "Optional: increase visible-duration timeout from 6s to 8-10s"
+
+- truth: "Hebrew RTL placeholder strings render with their punctuation (ellipsis, etc.) on the correct logical end of the word — no bidi mis-rendering"
+  id: N6
+  status: failed
+  reason: "User reported: in the new-client page Hebrew locale, the placeholder 'בחירה...' renders with the three dots on the RIGHT of the word (visually before, since Hebrew reads right-to-left) instead of on the LEFT (visually after the word). Bidi/Unicode rendering issue — likely the source string has the dots in the wrong logical position, or needs a U+200F RIGHT-TO-LEFT MARK to anchor direction. Audit all Hebrew placeholders for this class of bug."
+  severity: minor
+  test: general
+  scope: i18n
+  source: 2026-05-07 round-3 re-test
+  related_phase: i18n-polish
+  artifacts: []
+  missing:
+    - "Audit Hebrew placeholders for bidi-end-of-string punctuation rendering"
+    - "Use logical placement (Hebrew text first then ellipsis) and/or RLM marks where needed"
+
+- truth: "Backup 'Send to myself' (email) attaches the actual backup file to the email — not just plain text body claiming an attachment"
+  id: N7
+  status: failed
+  reason: "User reported: when using the 'Send backup to myself' option, the resulting email contains plain text in the body but NO attachment, even though the email claims one is included. The actual backup file never reaches the user. Real bug — likely the mailto: scheme can't actually attach files (browser security model) and the implementation falls back to inlining. If mailto can't attach, the feature needs a different mechanism (download + 'now attach this manually' instructions, OR direct upload to user's cloud, OR remove the option). Plus user raised an architectural concern: backup currently has 3 separate buttons on the main screen — feels too dominant. Consider extracting backup to a dedicated page or popup, while still keeping it discoverable."
+  severity: major
+  test: general
+  scope: backup-architecture
+  source: 2026-05-07 round-3 re-test
+  related_phase: new-phase-backup-refresh
+  architectural_concern: "Backup has 3 buttons on main screen — too dominant. Consider dedicated backup page or modal while keeping it emphasized/discoverable."
+  artifacts: []
+  missing:
+    - "Investigate mailto attachment limitations"
+    - "Either fix the attachment mechanism or replace the email option with something workable"
+    - "Architectural decision: dedicated backup page vs current 3-button overview placement"
+
+- truth: "Hebrew copy used in the export modal (Step 1 description, design tips, etc.) is gender-neutral or matches the rest of the app's gender register — not female-only ('בחרי')"
+  id: N9
+  status: failed
+  reason: "User reported: the Hebrew description on at least Step 1 of the export modal uses the female imperative form ('בחרי' = 'choose [female]'). The rest of the app uses neutral or male forms. The new strings introduced in plan 22-11 (export-modal-ux-fixes) need to be audited and rewritten to match the app's general Hebrew register. Same audit applies to the design-tips / formatting-cheatsheet copy on Step 2."
+  severity: minor
+  test: general
+  scope: i18n
+  source: 2026-05-07 round-3 re-test
+  related_phase: 22-11
+  artifacts: []
+  missing:
+    - "Audit all Hebrew strings in i18n-he.js added by plan 22-11 (commits 5ab01f1, 37aa84c, b61fc9e) for gendered language"
+    - "Rewrite female-only forms to match app's general register (neutral or male)"
+
+- truth: "PDF export renders with proper margins and centering — text is not trimmed at edges, content is centered, no off-document overflow"
+  id: N10
+  status: failed
+  reason: "User reported: the PDF export is trimmed at the document edges and is not centered — text appears at the page edges, some text is visually off. This is independent of (and additional to) the previously-known bidi text-loss blocker. Both PDF problems should be addressed together in a holistic PDF-export-quality phase: bidi shaping fix, margin/centering fix, page-width handling, possibly font-metric audit."
+  severity: blocker
+  test: 2
+  scope: pdf-export
+  source: 2026-05-07 round-3 re-test
+  related_phase: pdf-export-holistic-fix
+  bundles_with: "PDF bidi text loss (existing blocker, unfixed)"
+  artifacts: []
+  missing:
+    - "Page margin / centering audit in pdf-export.js"
+    - "Bundle with bidi-text-loss blocker into a focused 'PDF export quality' phase"
+
+- truth: "Backup export without encryption (Skip Encryption path) requires explicit user confirmation — not allowed silently"
+  id: N11
+  status: failed
+  reason: "User reported (privacy/safety hardening): now that the Cancel-still-downloads blocker is fixed (cancel = no file), the Skip-encryption path still allows a one-click unencrypted backup of all therapist client data. User wants a confirmation dialog before allowing this — 'Are you sure you want to export without a password? This file will contain all your client data unprotected.' Should require explicit acknowledgement, not just a single click. Pairs naturally with N12 (password validation feedback) — both are backup-encryption UX fixes."
+  severity: major
+  test: 4
+  scope: phase-22-followup
+  source: 2026-05-07 round-3 re-test
+  related_phase: 22-12
+  artifacts: []
+  missing:
+    - "Confirm dialog before Skip-encryption finalizes"
+    - "Dialog body must name the privacy implication clearly"
+
+- truth: "Backup encryption password fields give the user actionable feedback when validation fails — visible mismatch error, complexity rules shown up-front, no silent dead-end"
+  id: N12
+  status: failed
+  reason: "User reported (UX dead-end): in the encryption password dialog, when entering different passwords in the two fields, there is no error message — the proceed button just greys out with no explanation. Also, even when entering matching simple passwords (e.g. '111111111' twice), the button still doesn't enable, suggesting there are complexity rules but they are not communicated to the user. Result: user is stuck with no way to figure out what's needed. Fix: (a) show a visible mismatch error when passwords differ, (b) display password complexity rules up-front (or as inline hints), (c) optional: live strength indicator. Pairs with N11 — both are backup-encryption UX."
+  severity: major
+  test: 4
+  scope: phase-22-followup
+  source: 2026-05-07 round-3 re-test
+  related_phase: 22-12
+  artifacts: []
+  missing:
+    - "Visible password-mismatch error message"
+    - "Up-front display of password complexity rules"
+    - "Optional: live strength indicator"
 
