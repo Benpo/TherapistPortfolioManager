@@ -387,7 +387,30 @@ Plans:
 - [x] 22-10-PLAN.md — Settings page UX fixes round 2: rename-input lock, transition-aware disable confirm, success-pill, Safari CSS tooltip (UAT round-1 gaps)
 - [x] 22-11-PLAN.md — Export modal UX fixes round 2: labelled stepper, per-step contextual guidance + markdown cheatsheet, Step 3 X-button stacking-context fix (UAT round-1 gaps)
 - [x] 22-12-PLAN.md — Data-safety guards round 2: export Cancel-cancels (3-state sentinel), App.installNavGuard helper + gear-icon wiring (UAT round-1 gaps)
-- [ ] 22-13-PLAN.md — Settings success-pill regression + revert-button affordance (UAT round-3 gaps N4, N5)
+- [x] 22-13-PLAN.md — Settings success-pill regression + revert-button affordance (UAT round-3 gaps N4, N5)
+- [x] 22-14-PLAN.md — Quick text & visual fixes batch (UAT round-3 gaps N1, N2, N3, N6, N9)
+- [x] 22-15-PLAN.md — Backup encryption UX pair (UAT round-3 gaps N11, N12)
+- [ ] 22-16-PLAN.md — Backup "send to myself" email + 3-buttons architecture (UAT round-3 gap N7) [deferred — after Phase 23]
+
+---
+
+### Phase 23: PDF export rewrite — Hebrew RTL + page layout
+
+**Goal:** Fix the two production-blocker PDF bugs from UAT round-3 (gap N10 + the Hebrew RTL bidi loss) so therapists can hand a client-facing PDF to clients in any of the 4 supported languages without manual cleanup.
+
+**In scope (2 blockers):**
+1. **Hebrew RTL text loss in PDF** — current `pdf-export.js` writes Hebrew strings in logical order (`doc.text("…", x, y)` with no bidi reordering). jsPDF is a visual-order PDF format and does not reorder bidi automatically, so Hebrew characters appear in reverse reading order and bidirectional runs (e.g., a Hebrew sentence with an embedded English word or number) render scrambled. Fix requires pre-shaping the text through a bidi algorithm before passing to `doc.text()`.
+2. **PDF edge trim + not centered (gap N10)** — content sits too close to the physical paper edge (printers trim) and the page block is not visually centered on the sheet. Margins currently 56pt (~20mm). Likely needs bump to ~71pt (~25mm) standard, plus centering of the title block and footer page-counter.
+
+**Out of scope:**
+- The mailto / "send to myself" backup email rework (that's plan 22-16, deferred).
+- Mobile/PWA/demo testing (parked).
+- Markdown→PDF feature parity beyond what 22-05 already shipped.
+
+**Constraints:** No new heavyweight dependencies; if a bidi library is needed, prefer something <20KB minified (e.g., `bidi-js`, `unicode-bidirectional`). Vendored locally per the same lazy-load pattern as 22-01.
+
+**Depends on:** Phase 22 (PDF module + vendored jsPDF + Hebrew font already in place via 22-01 + 22-05).
+**Plans:** TBD after research.
 
 ---
 
