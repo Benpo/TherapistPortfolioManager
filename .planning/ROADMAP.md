@@ -372,7 +372,7 @@ Plans:
 
 **Requirements**: 20 requirements locked in `22-SPEC.md` (Feature A: 1-6, Feature B: 7-17, Feature C: 18-20)
 **Depends on:** Phase 21
-**Plans:** 13 plans (12 shipped through round 2 + 1 planned for round 3)
+**Plans:** 13/13 plans complete
 
 Plans:
 - [x] 22-01-PLAN.md — Vendored libraries: jsPDF + Noto Sans / Noto Sans Hebrew base64 fonts (REQ-13 foundation)
