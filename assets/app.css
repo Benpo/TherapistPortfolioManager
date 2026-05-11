@@ -228,8 +228,8 @@ a {
 }
 
 .icon-button{
-  width:36px;
-  height:36px;
+  width:44px;
+  height:44px;
   border-radius:12px;
   border:1px solid var(--color-border);
   background:var(--color-surface);
@@ -237,6 +237,8 @@ a {
   place-items:center;
   cursor:pointer;
   color:inherit;
+  font-size:1.375rem;
+  line-height:1;
   transition:transform 0.2s ease, background 0.2s ease;
 }
 
@@ -2590,20 +2592,26 @@ html[dir="rtl"] .settings-locked-info::after {
   margin-block: 0 24px;
 }
 .export-step-dot {
-  inline-size: 24px;
-  block-size: 24px;
+  inline-size: 28px;
+  block-size: 28px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   background: var(--color-surface-subtle);
   color: var(--color-text-muted);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .export-step-dot.is-active {
+  inline-size: 36px;
+  block-size: 36px;
   background: var(--color-primary);
   color: var(--color-surface);
+  font-size: 1.05rem;
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+  transform: scale(1.05);
 }
 .export-step-dot.is-completed {
   background: var(--color-primary-soft);
@@ -2626,13 +2634,17 @@ html[dir="rtl"] .settings-locked-info::after {
   gap: 4px;
 }
 .export-step-label {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-text-muted);
   text-align: center;
   line-height: 1.2;
 }
-.export-step-pill.is-active .export-step-label { color: var(--color-primary); }
+.export-step-pill.is-active .export-step-label {
+  color: var(--color-primary-dark, var(--color-primary));
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
 .export-step-pill.is-completed .export-step-label { color: var(--color-text); }
 @media (min-width: 769px) {
   .export-step-pill { flex-direction: row; gap: 8px; }
@@ -2768,11 +2780,11 @@ html[dir="rtl"] .export-format-help[open] summary::before {
  * typography per 22-UI-SPEC: 14px / 600 / 1.4. Logical margin-block-end of
  * 8px (xs spacing token) for the gap to the pane below. */
 .export-pane-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--color-text-muted);
-  margin-block-end: 8px;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-text);
+  margin-block-end: 10px;
 }
 .export-preview h1 {
   font-size: 1.4rem;
