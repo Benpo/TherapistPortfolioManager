@@ -2154,6 +2154,36 @@ body.read-mode .heart-shield-section input {
   cursor: not-allowed;
 }
 
+/* ── Phase 22-15 (Gap N11 / D1 + Gap N12 / D3) — Skip-Encryption confirm pane + complexity-rules hint block ── */
+
+/* Skip-confirm pane wrapper. Same column-flex shape as the entry pane; the parent .passphrase-modal already supplies padding. */
+.passphrase-skip-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Destructive primary on the skip-confirm pane. Mirrors .passphrase-btn-confirm but with --color-danger
+   background (matching the existing --color-danger token at .passphrase-error L2092 and .button.danger L454).
+   The two-step gesture (Skip → confirm pane → this button) is what the destructive colour visually anchors. */
+.passphrase-btn-destructive {
+  background: var(--color-danger, #ea4b4b);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* Hover state matches .passphrase-btn-confirm:hover for consistency. */
+.passphrase-btn-destructive:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
 /* ── License Link (header) ───────────────────────────────────────── */
 
 .header-license-link {
