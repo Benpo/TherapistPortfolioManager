@@ -245,12 +245,14 @@ window.PDFExport = (function () {
    * -- see G2 / test vector #11). Calls bidi-js for:
    *   1. embedding levels per code unit (UAX #9 paragraph + character types)
    *   2. reorder segments to reverse (UAX-L2 -- runs at odd levels flip in place)
+   *   3. mirror map for paired brackets in RTL runs (UAX-BD16)
    *
-   * Phase 23 (23-11): bracket mirroring (UAX-BD16) is intentionally DISABLED.
-   * Although strict UAX would mirror "(" -> ")" inside RTL runs, this matches
-   * Google Docs / Word default behaviour for therapist-style Hebrew documents:
-   * brackets stay as the user typed them. Verified against Ben's Google Docs
-   * reference render in 23-11.
+   * Phase 23 (23-12): bracket mirroring (UAX-BD16) is RESTORED. After Sapir's
+   * UAT iteration, native Hebrew readers preferred standard UAX-BD16 mirroring
+   * (matches Word and dir="rtl" browsers) over the 23-11 "type-as-displayed"
+   * variant. Reverting 23-11's removal: Sapir's UAT preference matches standard
+   * UAX-BD16 for native Hebrew readers. See 23-RESEARCH G3 (mirroring is a
+   * visual feature of the script, not a bug).
    *
    * Returns the visual-order string. Empty input -> empty output.
    */
@@ -259,7 +261,17 @@ window.PDFExport = (function () {
     var dir = firstStrongDir(text);
     var levels = _bidi.getEmbeddingLevels(text, dir);
     var flips = _bidi.getReorderSegments(text, levels);
+    // G16 (Plan 23-12): getMirroredCharactersMap indexes its second arg as
+    // a raw Uint8Array (1 & e[v]), so it MUST receive levels.levels, NOT the
+    // wrapper object. Passing the wrapper silently returns an empty Map -- this
+    // is the bug that made the pre-23-11 mirror restoration a no-op. Verified
+    // against bidi-js source: getReorderSegments uses e.paragraphs/e.levels
+    // (wrapper-aware), getMirroredCharactersMap uses e[v] (raw-array).
+    var mirrorMap = _bidi.getMirroredCharactersMap(text, levels.levels);
     var chars = text.split(''); // UTF-16 code units; matches bidi-js indices (G2)
+    mirrorMap.forEach(function (mirroredChar, idx) {
+      chars[idx] = mirroredChar;
+    });
     for (var fi = 0; fi < flips.length; fi++) {
       var start = flips[fi][0];
       var end = flips[fi][1];
