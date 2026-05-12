@@ -668,7 +668,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (heartShieldChecked) {
       lines.push(
         "",
-        `## ${App.getSectionLabel("heartShield", "session.form.heartShield")}`,
+        `## ${stripRequired(App.getSectionLabel("heartShield", "session.form.heartShield"))}`,
         shieldRemovedCopyValue === "yes"
           ? App.t("session.form.shieldRemoved.yes")
           : App.t("session.form.shieldRemoved.no")
@@ -677,7 +677,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     lines.push(
       "",
-      `## ${App.getSectionLabel("issues", "session.form.issuesHeading")}`,
+      `## ${stripRequired(App.getSectionLabel("issues", "session.form.issuesHeading"))}`,
       issuesText
     );
 
@@ -685,27 +685,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
     const heartShieldEmotionsValue = (heartShieldEmotionsEl ? heartShieldEmotionsEl.value : "").trim();
     if (heartShieldChecked && heartShieldEmotionsValue.length > 0) {
-      lines.push("", `## ${App.getSectionLabel("heartShieldEmotions", "session.form.heartShieldEmotions")}`, heartShieldEmotionsValue);
+      lines.push("", `## ${stripRequired(App.getSectionLabel("heartShieldEmotions", "session.form.heartShieldEmotions"))}`, heartShieldEmotionsValue);
     }
 
+    // Phase 23 (23-10): every ## heading is wrapped with stripRequired() so any
+    // section label that ends with the form-required marker "*" (currently
+    // session.form.issuesHeading; potentially others if therapists customize
+    // titles via Settings or new required sections are added) renders without
+    // the literal asterisk leaking into the section title. stripRequired() is
+    // a no-op on labels that don't end with "*", so it's safe to apply
+    // defensively to every heading call site.
     // Order: Trapped Emotions, Limiting Beliefs, Additional Techniques, Important Points, Insights, Comments, Next Session
     if (trappedValue.length > 0) {
       lines.push("", `## ${stripRequired(App.getSectionLabel("trapped", "session.form.trapped"))}`, trappedValue);
     }
     if (limitingBeliefsValue.length > 0) {
-      lines.push("", `## ${App.getSectionLabel("limitingBeliefs", "session.form.limitingBeliefs")}`, limitingBeliefsValue);
+      lines.push("", `## ${stripRequired(App.getSectionLabel("limitingBeliefs", "session.form.limitingBeliefs"))}`, limitingBeliefsValue);
     }
     if (additionalTechValue.length > 0) {
-      lines.push("", `## ${App.getSectionLabel("additionalTech", "session.form.additionalTech")}`, additionalTechValue);
+      lines.push("", `## ${stripRequired(App.getSectionLabel("additionalTech", "session.form.additionalTech"))}`, additionalTechValue);
     }
     if (insightsValue.length > 0) {
-      lines.push("", `## ${App.getSectionLabel("insights", "session.form.insights")}`, insightsValue);
+      lines.push("", `## ${stripRequired(App.getSectionLabel("insights", "session.form.insights"))}`, insightsValue);
     }
     if (commentsValue.length > 0) {
-      lines.push("", `## ${App.getSectionLabel("comments", "session.form.comments")}`, commentsValue);
+      lines.push("", `## ${stripRequired(App.getSectionLabel("comments", "session.form.comments"))}`, commentsValue);
     }
     if (summaryValue.length > 0) {
-      lines.push("", `## ${App.getSectionLabel("nextSession", "session.form.nextSession")}`, summaryValue);
+      lines.push("", `## ${stripRequired(App.getSectionLabel("nextSession", "session.form.nextSession"))}`, summaryValue);
     }
 
     return lines.join("\n");
@@ -920,13 +927,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (heartShieldChecked && selected.has("heartShield")) {
       lines.push(
         "",
-        `## ${App.getSectionLabel("heartShield", "session.form.heartShield")}`,
+        `## ${stripRequired(App.getSectionLabel("heartShield", "session.form.heartShield"))}`,
         shieldRemovedValue === "yes"
           ? App.t("session.form.shieldRemoved.yes")
           : App.t("session.form.shieldRemoved.no")
       );
     }
 
+    // Phase 23 (23-10): every ## heading is wrapped with stripRequired() so any
+    // section label that ends with the form-required marker "*" (currently
+    // session.form.issuesHeading; potentially others if therapists customize
+    // titles via Settings or new required sections are added) renders without
+    // the literal asterisk leaking into the section title. stripRequired() is
+    // a no-op on labels that don't end with "*", so it's safe to apply
+    // defensively to every heading call site.
     if (selected.has("issues")) {
       // Phase 23 (23-09): i18n'd scale labels (see buildSessionMarkdown for details).
       const beforeLabel = App.t("session.copy.scale.before");
@@ -947,13 +961,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             return `- ${issue.name} (${beforeLabel}: ${before}, ${afterLabel}: ${after})`;
           }).join("\n")
         : `- ${App.t("session.copy.empty")}`;
-      lines.push("", `## ${App.getSectionLabel("issues", "session.form.issuesHeading")}`, issuesText);
+      lines.push("", `## ${stripRequired(App.getSectionLabel("issues", "session.form.issuesHeading"))}`, issuesText);
     }
 
     const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
     const heartShieldEmotionsValue = (heartShieldEmotionsEl ? heartShieldEmotionsEl.value : "").trim();
     if (selected.has("heartShieldEmotions") && heartShieldChecked && heartShieldEmotionsValue.length > 0) {
-      lines.push("", `## ${App.getSectionLabel("heartShieldEmotions", "session.form.heartShieldEmotions")}`, heartShieldEmotionsValue);
+      lines.push("", `## ${stripRequired(App.getSectionLabel("heartShieldEmotions", "session.form.heartShieldEmotions"))}`, heartShieldEmotionsValue);
     }
 
     const trappedValue = (document.getElementById("trappedEmotions") || {}).value || "";
@@ -962,23 +976,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     const limitingBeliefsValue = (document.getElementById("limitingBeliefs") || {}).value || "";
     if (selected.has("limitingBeliefs") && limitingBeliefsValue.trim().length > 0) {
-      lines.push("", `## ${App.getSectionLabel("limitingBeliefs", "session.form.limitingBeliefs")}`, limitingBeliefsValue.trim());
+      lines.push("", `## ${stripRequired(App.getSectionLabel("limitingBeliefs", "session.form.limitingBeliefs"))}`, limitingBeliefsValue.trim());
     }
     const additionalTechValue = (document.getElementById("additionalTech") || {}).value || "";
     if (selected.has("additionalTech") && additionalTechValue.trim().length > 0) {
-      lines.push("", `## ${App.getSectionLabel("additionalTech", "session.form.additionalTech")}`, additionalTechValue.trim());
+      lines.push("", `## ${stripRequired(App.getSectionLabel("additionalTech", "session.form.additionalTech"))}`, additionalTechValue.trim());
     }
     const insightsValue = (insightsInput ? insightsInput.value : "").trim();
     if (selected.has("insights") && insightsValue.length > 0) {
-      lines.push("", `## ${App.getSectionLabel("insights", "session.form.insights")}`, insightsValue);
+      lines.push("", `## ${stripRequired(App.getSectionLabel("insights", "session.form.insights"))}`, insightsValue);
     }
     const commentsValue = (document.getElementById("sessionComments") || {}).value || "";
     if (selected.has("comments") && commentsValue.trim().length > 0) {
-      lines.push("", `## ${App.getSectionLabel("comments", "session.form.comments")}`, commentsValue.trim());
+      lines.push("", `## ${stripRequired(App.getSectionLabel("comments", "session.form.comments"))}`, commentsValue.trim());
     }
     const summaryValue = (customerSummaryInput ? customerSummaryInput.value : "").trim();
     if (selected.has("nextSession") && summaryValue.length > 0) {
-      lines.push("", `## ${App.getSectionLabel("nextSession", "session.form.nextSession")}`, summaryValue);
+      lines.push("", `## ${stripRequired(App.getSectionLabel("nextSession", "session.form.nextSession"))}`, summaryValue);
     }
 
     return lines.join("\n");
