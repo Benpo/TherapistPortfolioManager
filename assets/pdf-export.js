@@ -291,6 +291,16 @@ window.PDFExport = (function () {
    *   - para     ({ type: 'para', text: string })
    *   - blank    ({ type: 'blank' })  // collapsed run of empty lines -> paragraph break
    */
+  function stripInlineMarkdown(text) {
+    // Phase 23 (23-08): strip inline ** and * markers so they don't display
+    // literally. Bold/italic styling is NOT rendered (would need Heebo Bold +
+    // per-segment font switching — deferred). This is the minimum-viable fix
+    // to remove the ugly literal asterisks from the output.
+    return text
+      .replace(/\*\*([^*\n]+?)\*\*/g, '$1')   // bold: **X** -> X
+      .replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1$2');  // italic: *X* -> X (avoid matching ** runs)
+  }
+
   function parseMarkdown(markdown) {
     var lines = String(markdown || "").replace(/\r\n/g, "\n").split("\n");
     var blocks = [];
@@ -316,7 +326,9 @@ window.PDFExport = (function () {
       if (/^\s*[-*]\s+/.test(line) || /^\s*\d+\.\s+/.test(line)) {
         var items = [];
         while (i < lines.length && (/^\s*[-*]\s+/.test(lines[i]) || /^\s*\d+\.\s+/.test(lines[i]))) {
-          items.push(lines[i].replace(/^\s*(?:[-*]|\d+\.)\s+/, ""));
+          // Phase 23 (23-08): strip inline ** and * markers from list items
+          // so the asterisks don't display literally.
+          items.push(stripInlineMarkdown(lines[i].replace(/^\s*(?:[-*]|\d+\.)\s+/, "")));
           i++;
         }
         blocks.push({ type: 'list', items: items });
@@ -335,7 +347,9 @@ window.PDFExport = (function () {
         paraLines.push(lines[i]);
         i++;
       }
-      blocks.push({ type: 'para', text: paraLines.join(" ") });
+      // Phase 23 (23-08): strip inline ** and * markers from paragraph text
+      // so the asterisks don't display literally.
+      blocks.push({ type: 'para', text: stripInlineMarkdown(paraLines.join(" ")) });
     }
     return blocks;
   }
