@@ -606,10 +606,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function buildSessionMarkdown() {
-    const clientName = getClientNameForCopy();
-    const dateValue = sessionDate && sessionDate.value ? App.formatDate(sessionDate.value) : "-";
-    const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
-    const sessionType = App.formatSessionType(sessionTypeInput ? sessionTypeInput.value : "");
+    // Phase 23 (23-09): Client/Date/Type metadata lines removed -- they are
+    // redundant with the title block in the PDF (drawPage1Header centers
+    // clientName + sessionDate + sessionType at the top of page 1, reading
+    // them directly from sessionData function args, NOT from this markdown).
+    // The 3 corresponding i18n keys (session.copy.client/date/type) are
+    // intentionally KEPT in the i18n files in case other consumers use them.
 
     // Issues section: always included, change shown when both before and after exist.
     // Phase 23 (23-09): scale labels are i18n'd ("Before/After/Change", "Vorher/Nachher/Änderung", etc.).
@@ -658,11 +660,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const lines = [
       `# ${App.t("session.copy.title")}`,
-      "",
-      `**${App.t("session.copy.client")}** ${clientName}`,
-      `**${App.t("session.copy.date")}** ${dateValue}`,
-      `**${App.t("session.copy.type")}** ${sessionType}`,
-      ...(heartShieldCopyLine ? [heartShieldCopyLine] : []),
+      ...(heartShieldCopyLine ? ["", heartShieldCopyLine] : []),
       "",
       `## ${App.getSectionLabel("issues", "session.form.issuesHeading")}`,
       issuesText
