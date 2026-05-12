@@ -457,11 +457,21 @@ window.PDFExport = (function () {
       var MARGIN_BOTTOM = 71;
       var USABLE_W = PAGE_W - 2 * MARGIN_X; // 453 pt (was 483pt pre-Phase-23)
       var BODY_SIZE = 11;
-      var HEADING_SIZE = 14;
+      // Plan 23-09: HEADING_SIZE bumped 14 -> 16 for clearer visual hierarchy
+      // against 11pt body. Effective per-level sizes (computed in the heading
+      // render branch below):
+      //   H1 (#)   = HEADING_SIZE + 2 = 18pt   (matches new TITLE_SIZE)
+      //   H2 (##)  = HEADING_SIZE     = 16pt   (the typical section header)
+      //   H3 (###) = HEADING_SIZE - 2 = 14pt
+      // LINE_HEIGHT_HEADING bumped 22 -> 26 to accommodate the larger H1
+      // (a 16pt line for an 18pt glyph would clip ascenders / descenders).
+      var HEADING_SIZE = 16;
       var META_SIZE = 10;
-      var TITLE_SIZE = 16;
+      // Plan 23-09: TITLE_SIZE bumped 16 -> 18 so the page-1 client name
+      // remains visibly larger than H1 section headers.
+      var TITLE_SIZE = 18;
       var LINE_HEIGHT_BODY = 16;
-      var LINE_HEIGHT_HEADING = 22;
+      var LINE_HEIGHT_HEADING = 26;
       var LINE_HEIGHT_META = 14;
       var LINE_HEIGHT_TITLE = 22;
       var FOOTER_BASELINE_Y = PAGE_H - 32;
