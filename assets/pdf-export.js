@@ -446,6 +446,17 @@ window.PDFExport = (function () {
       // Helpers -- font/direction switching + safe text rendering
       // -----------------------------------------------------------------------
 
+      // Phase 23 (23-08) — every doc.text() call passes isInputVisual:false.
+      // jsPDF's internal __bidiEngine__ runs when input contains RTL chars and
+      // re-processes the string, double-reversing digit runs (UAX-L2 applied
+      // twice). Setting isInputVisual:false tells jsPDF "do not re-shape this
+      // text" and our shapeForJsPdf output goes through unchanged. Empirically
+      // verified: VISUAL + isInputVisual:false produces "2026 ץרמב 24" on page
+      // for the logical input "24 במרץ 2026" — i.e. the correct visual order.
+      // The option is added to LTR-only call sites too (footer, plain Latin
+      // body lines) for consistency and to prevent future regressions if those
+      // strings ever contain RTL chars; it is a no-op for pure-LTR text.
+
       function applyFontFor(line) {
         // Phase 23 (G1): jsPDF's right-to-left flag is no longer set here.
         // That flag does a naive .split('').reverse().join('') on the string
@@ -471,9 +482,9 @@ window.PDFExport = (function () {
           // jsPDF flows glyphs left-to-right from x; align: 'right' tells jsPDF the
           // x-coordinate is where the END of the string lands, so the line occupies
           // the page going leftward visually -- correct for shaped RTL text.
-          doc.text(visual, PAGE_W - MARGIN_X, y, { align: 'right' });
+          doc.text(visual, PAGE_W - MARGIN_X, y, { align: 'right', isInputVisual: false });
         } else {
-          doc.text(visual, MARGIN_X, y);
+          doc.text(visual, MARGIN_X, y, { isInputVisual: false });
         }
       }
 
@@ -489,7 +500,7 @@ window.PDFExport = (function () {
         applyFontFor(clientName);
         doc.setFontSize(TITLE_SIZE);
         var titleVisual = shapeForJsPdf(clientName || " "); // Phase 23 (D1, D2)
-        doc.text(titleVisual, pageWidth / 2, titleY, { align: 'center' }); // Phase 23 (D4)
+        doc.text(titleVisual, pageWidth / 2, titleY, { align: 'center', isInputVisual: false }); // Phase 23 (D4); 23-08 isInputVisual:false
 
         // Meta line: "{sessionDate} - {sessionType}". Phase 23 (D4) -- centered as
         // part of the title block. NOTE: drawTextLine is NOT used here because
@@ -506,7 +517,7 @@ window.PDFExport = (function () {
           applyFontFor(metaText);
           doc.setFontSize(META_SIZE);
           var metaVisual = shapeForJsPdf(metaText); // Phase 23 (D1, D2)
-          doc.text(metaVisual, pageWidth / 2, metaY, { align: 'center' }); // Phase 23 (D4)
+          doc.text(metaVisual, pageWidth / 2, metaY, { align: 'center', isInputVisual: false }); // Phase 23 (D4); 23-08 isInputVisual:false
         }
         // Return the y cursor where body should begin
         return metaY + LINE_HEIGHT_META + 8;
@@ -525,9 +536,9 @@ window.PDFExport = (function () {
           // Phase 23 (23-06): right-anchor the visual string at the right margin
           // (same fix as drawTextLine -- without align:'right' the running header
           // would flow off the right edge for Hebrew sessions).
-          doc.text(visual, PAGE_W - MARGIN_X, RUNNING_HEADER_Y, { align: 'right' });
+          doc.text(visual, PAGE_W - MARGIN_X, RUNNING_HEADER_Y, { align: 'right', isInputVisual: false });
         } else {
-          doc.text(visual, MARGIN_X, RUNNING_HEADER_Y);
+          doc.text(visual, MARGIN_X, RUNNING_HEADER_Y, { isInputVisual: false });
         }
       }
 
@@ -585,18 +596,18 @@ window.PDFExport = (function () {
                 if (wi === 0) {
                   // Phase 23 (D1, D2, Open Question #1): prefix-then-shape so the "-" participates in paragraph-direction inference and lands visually on the right edge.
                   var visualA = shapeForJsPdf("- " + wrapped[wi]);
-                  doc.text(visualA, rtlX, y, { align: 'right' });
+                  doc.text(visualA, rtlX, y, { align: 'right', isInputVisual: false });
                 } else {
                   var visualB = shapeForJsPdf(wrapped[wi]);
-                  doc.text(visualB, rtlX - 14, y, { align: 'right' });
+                  doc.text(visualB, rtlX - 14, y, { align: 'right', isInputVisual: false });
                 }
               } else {
                 if (wi === 0) {
                   var visualC = shapeForJsPdf("- " + wrapped[wi]);
-                  doc.text(visualC, MARGIN_X, y);
+                  doc.text(visualC, MARGIN_X, y, { isInputVisual: false });
                 } else {
                   var visualD = shapeForJsPdf(wrapped[wi]);
-                  doc.text(visualD, MARGIN_X + 14, y);
+                  doc.text(visualD, MARGIN_X + 14, y, { isInputVisual: false });
                 }
               }
               y += LINE_HEIGHT_BODY;
@@ -631,7 +642,7 @@ window.PDFExport = (function () {
         doc.setFontSize(META_SIZE);
         var label = "Page " + pn + " of " + totalPages;
         // Phase 23 (23-05) -- centered via jsPDF's canonical horizontal-align API for consistency with the title-block centering introduced by 23-03. Equivalent to the previous manual (PAGE_W - textWidth) / 2 form. The pageWidth local was introduced by 23-03 and is in scope here.
-        doc.text(label, pageWidth / 2, FOOTER_BASELINE_Y, { align: 'center' });
+        doc.text(label, pageWidth / 2, FOOTER_BASELINE_Y, { align: 'center', isInputVisual: false });
       }
 
       progress('done');
