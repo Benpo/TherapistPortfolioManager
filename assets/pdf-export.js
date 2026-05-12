@@ -269,27 +269,17 @@ window.PDFExport = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // isRtl -- Hebrew character detection (per-line heuristic, good enough for v1)
+  // (removed) isRtl -- Phase 23 (23-10) deadcode cleanup
   // ---------------------------------------------------------------------------
-
-  /**
-   * Return true if the input contains any character in the Hebrew Unicode
-   * block U+0590-U+05FF or the Hebrew presentation forms U+FB1D-U+FB4F.
-   * Used to decide which x-anchor to use (right margin vs left margin) for
-   * the line being rendered. Mixed-language documents (Hebrew heading +
-   * English body) are handled per-line.
-   * Phase 23: bidi reordering is now handled by shapeForJsPdf() — this
-   * function no longer drives any direction-reversal call (jsPDF's
-   * direction flag is no longer used; see G1 in 23-RESEARCH.md).
-   * Plan 23-07: this function previously also drove the per-line font switch
-   * between two single-script Noto fonts. The unified Heebo font now covers
-   * both scripts, so the per-line font decision collapsed and the helper that
-   * used to consult isRtl() (applyFontFor, removed in Plan 23-09) is gone.
-   * The RTL anchor decision in drawTextLine and friends remains the only caller.
-   */
-  function isRtl(text) {
-    return /[\u0590-\u05FF\uFB1D-\uFB4F]/.test(text || "");
-  }
+  //
+  // Previously a per-line "does this line contain Hebrew?" predicate that drove
+  // the x-anchor decision in drawTextLine / drawRunningHeader / list rendering.
+  // Plan 23-10 moved the anchor decision to document-level docDir (derived from
+  // opts.uiLang inside buildSessionPDF) so anchors stay uniform across mixed-
+  // script content. With no remaining callers in this module the function was
+  // removed. Per-line direction inference still happens inside shapeForJsPdf via
+  // firstStrongDir() (UAX #9 HL2) -- that's where the inline bidi reordering
+  // anchor is decided, separate from the x-anchor.
 
   // ---------------------------------------------------------------------------
   // parseMarkdown -- minimal block parser (heading / list / paragraph)
@@ -435,6 +425,17 @@ window.PDFExport = (function () {
       var doc = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
       registerFonts(doc);
 
+      // Phase 23 (23-10): document-level paragraph direction. Hebrew (and any
+      // future RTL locales like Arabic) -> 'rtl'. All others -> 'ltr'. This
+      // determines x-anchor uniformly across the body -- Hebrew docs anchor right
+      // even on Latin lines, Latin docs anchor left even on Hebrew lines. Per-line
+      // bidi shaping (shapeForJsPdf) still handles inline direction switches
+      // correctly within each line. Replaces the per-line isRtl() anchor decision
+      // that produced confusing "anchor follows line content" mixed-doc behaviour
+      // (Hebrew session with stray Latin line: that line jumped to the left margin
+      // while everything else hugged the right).
+      var docDir = (opts.uiLang === 'he') ? 'rtl' : 'ltr';
+
       // Phase 23 (D4): pageWidth derived from jsPDF page-size API -- used by the
       // centered title-block draws below. The hard-coded PAGE_W constant (595)
       // stays for all OTHER consumers (USABLE_W, RTL right-margin anchor at
@@ -511,7 +512,13 @@ window.PDFExport = (function () {
         doc.setFont("Heebo", weight);
         doc.setFontSize(size);
         var visual = shapeForJsPdf(line); // Phase 23 (D1, D2): logical -> visual
-        if (isRtl(line)) {
+        // Phase 23 (23-10): anchor by document direction (uiLang), NOT by per-line
+        // content. A Hebrew document anchors every line at the right margin even
+        // when an individual line is Latin-only; a Latin document anchors every
+        // line at the left margin even when an individual line contains Hebrew.
+        // Per-line bidi shaping above (shapeForJsPdf) still produces the correct
+        // visual order WITHIN each line via UAX #9.
+        if (docDir === 'rtl') {
           // Phase 23 (23-06): right-anchor the visual string at the right margin.
           // jsPDF flows glyphs left-to-right from x; align: 'right' tells jsPDF the
           // x-coordinate is where the END of the string lands, so the line occupies
@@ -540,11 +547,12 @@ window.PDFExport = (function () {
 
         // Meta line: "{sessionDate} - {sessionType}". Phase 23 (D4) -- centered as
         // part of the title block. NOTE: drawTextLine is NOT used here because
-        // drawTextLine forces the isRtl-flipped left/right anchor per D4's "body
-        // content stays left/right-anchored" rule. The title block (this draw + the
-        // title above) is the only centered region. Body paragraphs, lists, section
-        // headings, and the running header on pages 2+ all keep using drawTextLine
-        // and stay anchored per isRtl().
+        // drawTextLine anchors at the docDir-driven left/right margin per D4's
+        // "body content stays left/right-anchored" rule (Phase 23 23-10 -- the
+        // anchor follows uiLang now, not per-line content). The title block (this
+        // draw + the title above) is the only centered region. Body paragraphs,
+        // lists, section headings, and the running header on pages 2+ all keep
+        // using drawTextLine and stay anchored per docDir.
         var metaText = [sessionDateDisplay, sessionType].filter(function (s) {
           return s && String(s).length > 0;
         }).join("  -  ");
@@ -572,7 +580,10 @@ window.PDFExport = (function () {
         doc.setFont("Heebo", "normal");
         doc.setFontSize(META_SIZE);
         var visual = shapeForJsPdf(text); // Phase 23 (D1, D2)
-        if (isRtl(text)) {
+        // Phase 23 (23-10): running-header anchor follows docDir, same rule as
+        // drawTextLine. Hebrew session -> right anchor (even if the running header
+        // happens to start with a Latin client name); Latin session -> left anchor.
+        if (docDir === 'rtl') {
           // Phase 23 (23-06): right-anchor the visual string at the right margin
           // (same fix as drawTextLine -- without align:'right' the running header
           // would flow off the right edge for Hebrew sessions).
@@ -632,7 +643,13 @@ window.PDFExport = (function () {
               ensureRoom(LINE_HEIGHT_BODY);
               doc.setFont("Heebo", "normal");
               doc.setFontSize(BODY_SIZE);
-              if (isRtl(wrapped[wi])) {
+              // Phase 23 (23-10): list-item anchor follows docDir, same rule as
+              // drawTextLine. Hebrew document -> RTL list layout (bullet on right,
+              // indent leftward) for ALL items, even Latin-only ones; Latin document
+              // -> LTR list layout (bullet on left, indent rightward) for ALL items,
+              // even Hebrew-only ones. This produces consistent in-document list
+              // formatting; the per-line shapeForJsPdf still handles inline bidi.
+              if (docDir === 'rtl') {
                 // RTL list: bullet on the right edge, indent inward.
                 // Phase 23 (23-06): align:'right' so jsPDF treats rtlX as the
                 // end-of-string anchor and the visual line occupies the page
