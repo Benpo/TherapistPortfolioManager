@@ -141,6 +141,7 @@ function buildJsdomEnv() {
   win.eval(readAsset('assets/jspdf.min.js'));
   win.eval(readAsset('assets/bidi.min.js'));
   win.eval(readAsset('assets/fonts/heebo-base64.js'));
+  win.eval(readAsset('assets/fonts/heebo-bold-base64.js'));  // Plan 23-09
 
   var OriginalJsPDF = win.jspdf.jsPDF;
   function WrappedJsPDF(args) {
@@ -157,6 +158,7 @@ function buildJsdomEnv() {
     './assets/jspdf.min.js',
     './assets/bidi.min.js',
     './assets/fonts/heebo-base64.js',
+    './assets/fonts/heebo-bold-base64.js',  // Plan 23-09
   ];
   preload.forEach(function (src) {
     var s = win.document.createElement('script');
