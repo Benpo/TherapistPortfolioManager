@@ -611,7 +611,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
     const sessionType = App.formatSessionType(sessionTypeInput ? sessionTypeInput.value : "");
 
-    // Issues section: always included, delta shown when both before and after exist
+    // Issues section: always included, change shown when both before and after exist.
+    // Phase 23 (23-09): scale labels are i18n'd ("Before/After/Change", "Vorher/Nachher/Änderung", etc.).
+    // "Change" replaces the prior "Delta" wording (too scientific) per Ben's request.
+    const beforeLabel = App.t("session.copy.scale.before");
+    const afterLabel = App.t("session.copy.scale.after");
+    const changeLabel = App.t("session.copy.scale.change");
     const issuesPayload = getIssuesPayload();
     const issuesText = issuesPayload.length
       ? issuesPayload
@@ -623,9 +628,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (hasBefore && hasAfter) {
               const delta = issue.after - issue.before;
               const sign = delta > 0 ? "+" : "";
-              return `- ${issue.name} (Before: ${before}, After: ${after}, Delta: ${sign}${delta})`;
+              return `- ${issue.name} (${beforeLabel}: ${before}, ${afterLabel}: ${after}, ${changeLabel}: ${sign}${delta})`;
             }
-            return `- ${issue.name} (Before: ${before}, After: ${after})`;
+            return `- ${issue.name} (${beforeLabel}: ${before}, ${afterLabel}: ${after})`;
           })
           .join("\n")
       : `- ${App.t("session.copy.empty")}`;
@@ -902,6 +907,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (heartShieldLine) lines.push(heartShieldLine);
 
     if (selected.has("issues")) {
+      // Phase 23 (23-09): i18n'd scale labels (see buildSessionMarkdown for details).
+      const beforeLabel = App.t("session.copy.scale.before");
+      const afterLabel = App.t("session.copy.scale.after");
+      const changeLabel = App.t("session.copy.scale.change");
       const issuesPayload = getIssuesPayload();
       const issuesText = issuesPayload.length
         ? issuesPayload.map((issue) => {
@@ -912,9 +921,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (hasBefore && hasAfter) {
               const delta = issue.after - issue.before;
               const sign = delta > 0 ? "+" : "";
-              return `- ${issue.name} (Before: ${before}, After: ${after}, Delta: ${sign}${delta})`;
+              return `- ${issue.name} (${beforeLabel}: ${before}, ${afterLabel}: ${after}, ${changeLabel}: ${sign}${delta})`;
             }
-            return `- ${issue.name} (Before: ${before}, After: ${after})`;
+            return `- ${issue.name} (${beforeLabel}: ${before}, ${afterLabel}: ${after})`;
           }).join("\n")
         : `- ${App.t("session.copy.empty")}`;
       lines.push("", `## ${App.getSectionLabel("issues", "session.form.issuesHeading")}`, issuesText);
