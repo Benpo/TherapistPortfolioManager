@@ -630,9 +630,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (hasBefore && hasAfter) {
               const delta = issue.after - issue.before;
               const sign = delta > 0 ? "+" : "";
-              return `- ${issue.name} (${beforeLabel}: ${before}, ${afterLabel}: ${after}, ${changeLabel}: ${sign}${delta})`;
+              return `- ${issue.name} — ${beforeLabel}: ${before}, ${afterLabel}: ${after}, ${changeLabel}: ${sign}${delta}`;
             }
-            return `- ${issue.name} (${beforeLabel}: ${before}, ${afterLabel}: ${after})`;
+            return `- ${issue.name} — ${beforeLabel}: ${before}, ${afterLabel}: ${after}`;
           })
           .join("\n")
       : `- ${App.t("session.copy.empty")}`;
@@ -956,9 +956,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (hasBefore && hasAfter) {
               const delta = issue.after - issue.before;
               const sign = delta > 0 ? "+" : "";
-              return `- ${issue.name} (${beforeLabel}: ${before}, ${afterLabel}: ${after}, ${changeLabel}: ${sign}${delta})`;
+              return `- ${issue.name} — ${beforeLabel}: ${before}, ${afterLabel}: ${after}, ${changeLabel}: ${sign}${delta}`;
             }
-            return `- ${issue.name} (${beforeLabel}: ${before}, ${afterLabel}: ${after})`;
+            return `- ${issue.name} — ${beforeLabel}: ${before}, ${afterLabel}: ${after}`;
           }).join("\n")
         : `- ${App.t("session.copy.empty")}`;
       lines.push("", `## ${stripRequired(App.getSectionLabel("issues", "session.form.issuesHeading"))}`, issuesText);
