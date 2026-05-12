@@ -8,16 +8,19 @@
  *
  * Lazy-load contract:
  *   The first call to buildSessionPDF() loads three scripts dynamically:
- *     1. ./assets/jspdf.min.js                        -> window.jspdf.jsPDF
- *     2. ./assets/fonts/noto-sans-base64.js           -> window.NotoSans (base64 TTF)
- *     3. ./assets/fonts/noto-sans-hebrew-base64.js    -> window.NotoSansHebrew (base64 TTF)
+ *     1. ./assets/jspdf.min.js                -> window.jspdf.jsPDF
+ *     2. ./assets/bidi.min.js                 -> window.bidi_js (UMD factory; Phase 23)
+ *     3. ./assets/fonts/heebo-base64.js       -> window.Heebo (base64 TTF, unified Hebrew+Latin)
  *   Subsequent calls reuse the loaded scripts (no double-load) via a cached Promise
  *   plus a _depsLoaded flag.
  *
  * Window globals consumed (after lazy-load):
- *   - window.jspdf.jsPDF       (UMD constructor from jspdf.min.js)
- *   - window.NotoSans          (Latin + Latin Extended subset, base64)
- *   - window.NotoSansHebrew    (Hebrew block + presentation forms, base64)
+ *   - window.jspdf.jsPDF   (UMD constructor from jspdf.min.js)
+ *   - window.bidi_js       (UMD factory from bidi.min.js, Phase 23)
+ *   - window.Heebo         (Heebo Regular base64 TTF -- single font covers Hebrew + Latin
+ *                           after Phase 23 Plan 23-07 hot-fix; replaced two prior
+ *                           single-script Noto fonts which silently dropped glyphs on
+ *                           mixed-script lines)
  *
  * Page layout (per CONTEXT D-05/06/07, UI-SPEC PDF Document Typography):
  *   A4 portrait 595 x 842 pt; body 11pt; section heading 14pt bold; meta 10pt;
@@ -100,9 +103,8 @@ window.PDFExport = (function () {
         // Phase 23 (D1, G9) -- invoke the bidi-js factory ONCE the script is loaded and cache the result module-level. window.bidi_js is the UMD attachment from assets/bidi.min.js. Calling it earlier (e.g. at module-eval time, before loadScriptOnce resolves) throws TypeError.
         _bidi = window.bidi_js();
         progress('loading-fonts');
-        return loadScriptOnce('./assets/fonts/noto-sans-base64.js');
-      }).then(function () {
-        return loadScriptOnce('./assets/fonts/noto-sans-hebrew-base64.js');
+        // Plan 23-07: single unified Heebo font (replaces noto-sans + noto-sans-hebrew).
+        return loadScriptOnce('./assets/fonts/heebo-base64.js');
       }).then(function () {
         _depsLoaded = true;
       });
@@ -168,23 +170,23 @@ window.PDFExport = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // registerFonts -- attach Noto Sans + Noto Sans Hebrew TTFs to a jsPDF doc
+  // registerFonts -- attach Heebo (unified Hebrew + Latin) TTF to a jsPDF doc
   // ---------------------------------------------------------------------------
 
   /**
-   * Register both Noto Sans (Latin + Extended) and Noto Sans Hebrew with the
-   * jsPDF document via addFileToVFS + addFont. Per the jsPDF basic.html
-   * example pattern. Safe to call when one of the globals is missing
-   * (e.g., in a malformed test harness) -- only registers what is present.
+   * Register Heebo Regular with the jsPDF document via addFileToVFS + addFont.
+   * Per the jsPDF basic.html example pattern. Safe to call when window.Heebo
+   * is missing (e.g., in a malformed test harness) -- registers only when
+   * present.
+   *
+   * Plan 23-07: unified Heebo replaced the prior pair of single-script Noto
+   * fonts. Those fonts silently dropped glyphs on lines that mixed Hebrew
+   * with Latin chars. Heebo covers both scripts in one TTF.
    */
   function registerFonts(doc) {
-    if (typeof window.NotoSans === "string" && window.NotoSans.length > 0) {
-      doc.addFileToVFS("NotoSans.ttf", window.NotoSans);
-      doc.addFont("NotoSans.ttf", "NotoSans", "normal");
-    }
-    if (typeof window.NotoSansHebrew === "string" && window.NotoSansHebrew.length > 0) {
-      doc.addFileToVFS("NotoSansHebrew.ttf", window.NotoSansHebrew);
-      doc.addFont("NotoSansHebrew.ttf", "NotoSansHebrew", "normal");
+    if (typeof window.Heebo === "string" && window.Heebo.length > 0) {
+      doc.addFileToVFS("Heebo.ttf", window.Heebo);
+      doc.addFont("Heebo.ttf", "Heebo", "normal");
     }
   }
 
@@ -258,12 +260,16 @@ window.PDFExport = (function () {
   /**
    * Return true if the input contains any character in the Hebrew Unicode
    * block U+0590-U+05FF or the Hebrew presentation forms U+FB1D-U+FB4F.
-   * Used to decide which font to set (NotoSansHebrew vs NotoSans) + which
-   * x-anchor to use (right margin vs left margin) for the line being rendered.
-   * Mixed-language documents (Hebrew heading + English body) are handled per-line.
+   * Used to decide which x-anchor to use (right margin vs left margin) for
+   * the line being rendered. Mixed-language documents (Hebrew heading +
+   * English body) are handled per-line.
    * Phase 23: bidi reordering is now handled by shapeForJsPdf() — this
    * function no longer drives any direction-reversal call (jsPDF's
    * direction flag is no longer used; see G1 in 23-RESEARCH.md).
+   * Plan 23-07: this function previously also drove the per-line font switch
+   * between two single-script Noto fonts. The unified Heebo font now covers
+   * both scripts, so isRtl() is no longer consulted by applyFontFor(); the
+   * RTL anchor decision in drawTextLine and friends remains the only caller.
    */
   function isRtl(text) {
     return /[\u0590-\u05FF\uFB1D-\uFB4F]/.test(text || "");
@@ -444,13 +450,16 @@ window.PDFExport = (function () {
         // Phase 23 (G1): jsPDF's right-to-left flag is no longer set here.
         // That flag does a naive .split('').reverse().join('') on the string
         // it draws -- combining it with the bidi pre-shape would double-reverse.
-        // Direction is now handled entirely by shapeForJsPdf(); this function
-        // is font-switch-only.
-        if (isRtl(line)) {
-          doc.setFont("NotoSansHebrew", "normal");
-        } else {
-          doc.setFont("NotoSans", "normal");
-        }
+        // Direction is now handled entirely by shapeForJsPdf().
+        // Phase 23 (Plan 23-07): the per-line Latin-vs-Hebrew font switch
+        // collapsed to a single setFont('Heebo'). The two prior single-script
+        // Noto fonts dropped glyphs on mixed-script lines. Heebo is a unified
+        // Hebrew+Latin font, so every line gets the same font regardless of
+        // direction. The `line` parameter is intentionally unused now -- kept
+        // for API stability with the (numerous) callers and for symmetry with
+        // shapeForJsPdf(line) which DOES still use it.
+        void line; // explicit no-op: argument kept for caller-API stability
+        doc.setFont("Heebo", "normal");
       }
 
       function drawTextLine(line, y, size) {
@@ -616,8 +625,9 @@ window.PDFExport = (function () {
       var totalPages = doc.getNumberOfPages();
       for (var pn = 1; pn <= totalPages; pn++) {
         doc.setPage(pn);
-        // Phase 23: footer is always Latin (page number), Noto Sans + LTR. jsPDF's RTL flag reset is no longer needed here -- no other code path enables that flag after Phase 23, so the reset is redundant (G1).
-        doc.setFont("NotoSans", "normal");
+        // Phase 23: footer is always Latin (page number) + LTR. jsPDF's RTL flag reset is no longer needed here -- no other code path enables that flag after Phase 23, so the reset is redundant (G1).
+        // Plan 23-07: unified Heebo replaces the prior single-script Latin setFont call.
+        doc.setFont("Heebo", "normal");
         doc.setFontSize(META_SIZE);
         var label = "Page " + pn + " of " + totalPages;
         // Phase 23 (23-05) -- centered via jsPDF's canonical horizontal-align API for consistency with the title-block centering introduced by 23-03. Equivalent to the previous manual (PAGE_W - textWidth) / 2 form. The pageWidth local was introduced by 23-03 and is in scope here.
