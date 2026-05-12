@@ -59,8 +59,7 @@ const PRECACHE_URLS = [
   '/assets/md-render.js',
   '/assets/jspdf.min.js',
   '/assets/bidi.min.js',
-  '/assets/fonts/noto-sans-base64.js',
-  '/assets/fonts/noto-sans-hebrew-base64.js'
+  '/assets/fonts/heebo-base64.js'
 ];
 
 /**
