@@ -245,7 +245,12 @@ window.PDFExport = (function () {
    * -- see G2 / test vector #11). Calls bidi-js for:
    *   1. embedding levels per code unit (UAX #9 paragraph + character types)
    *   2. reorder segments to reverse (UAX-L2 -- runs at odd levels flip in place)
-   *   3. mirror map for paired brackets in RTL runs (UAX-BD16)
+   *
+   * Phase 23 (23-11): bracket mirroring (UAX-BD16) is intentionally DISABLED.
+   * Although strict UAX would mirror "(" -> ")" inside RTL runs, this matches
+   * Google Docs / Word default behaviour for therapist-style Hebrew documents:
+   * brackets stay as the user typed them. Verified against Ben's Google Docs
+   * reference render in 23-11.
    *
    * Returns the visual-order string. Empty input -> empty output.
    */
@@ -254,11 +259,7 @@ window.PDFExport = (function () {
     var dir = firstStrongDir(text);
     var levels = _bidi.getEmbeddingLevels(text, dir);
     var flips = _bidi.getReorderSegments(text, levels);
-    var mirrorMap = _bidi.getMirroredCharactersMap(text, levels);
     var chars = text.split(''); // UTF-16 code units; matches bidi-js indices (G2)
-    mirrorMap.forEach(function (mirroredChar, idx) {
-      chars[idx] = mirroredChar;
-    });
     for (var fi = 0; fi < flips.length; fi++) {
       var start = flips[fi][0];
       var end = flips[fi][1];

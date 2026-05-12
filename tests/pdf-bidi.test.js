@@ -88,15 +88,13 @@ function firstStrongDir(text) {
 }
 
 function shapeForJsPdf(text) {
+  // Phase 23 (23-11): bracket mirroring intentionally disabled — matches
+  // Google Docs / Word behaviour. Keeps "(" as "(" and ")" as ")" in RTL runs.
   if (!text) return '';
   var dir = firstStrongDir(text);
   var levels = _bidi.getEmbeddingLevels(text, dir);
   var flips = _bidi.getReorderSegments(text, levels);
-  var mirrorMap = _bidi.getMirroredCharactersMap(text, levels);
   var chars = text.split(''); // UTF-16 code units; matches bidi-js indices (G2)
-  mirrorMap.forEach(function (mirroredChar, idx) {
-    chars[idx] = mirroredChar;
-  });
   for (var fi = 0; fi < flips.length; fi++) {
     var start = flips[fi][0];
     var end = flips[fi][1];
@@ -114,7 +112,7 @@ var VECTORS = [
   { id:  1, label: 'Pure Hebrew',                              input: 'שלום עולם',                              expected: 'םלוע םולש' },
   { id:  2, label: 'Hebrew + LTR Latin run',                   input: 'אני אוהב PDF',                            expected: 'PDF בהוא ינא' },
   { id:  3, label: 'Hebrew + ISO date',                        input: 'המפגש ביום 2026-05-11 היה טוב',          expected: 'בוט היה 2026-05-11 םויב שגפמה' },
-  { id:  4, label: 'Hebrew + mirrored brackets (G3)',          input: 'הפגישה (חשובה) הסתיימה',                 expected: 'המייתסה )הבושח( השיגפה' },
+  { id:  4, label: 'Hebrew + brackets unmirrored (23-11)',     input: 'הפגישה (חשובה) הסתיימה',                 expected: 'המייתסה )הבושח( השיגפה' },
   { id:  5, label: 'Hebrew + URL',                             input: 'בקר ב https://example.com היום',         expected: 'םויה https://example.com ב רקב' },
   { id:  6, label: 'Hebrew with leading "- " bullet',          input: '- ראשון: מצב רוח טוב',                   expected: 'בוט חור בצמ :ןושאר -' },
   { id:  7, label: 'Heading with "#"',                         input: '# סיכום המפגש',                          expected: 'שגפמה םוכיס #' },
@@ -122,7 +120,7 @@ var VECTORS = [
   { id:  9, label: 'Pure English smoke',                       input: 'Session summary',                        expected: 'Session summary' },
   { id: 10, label: 'Hebrew + digits + colon',                  input: 'גיל: 42 שנים',                           expected: 'םינש 42 :ליג' },
   { id: 11, label: 'Hebrew + emoji surrogate pair (G2)',       input: 'מצב רוח: 🌱 פורח',                       expected: 'חרופ 🌱 :חור בצמ' },
-  { id: 12, label: 'Hebrew + square brackets',                 input: 'רישום [important] כאן',                  expected: 'ןאכ ]important[ םושיר' },
+  { id: 12, label: 'Hebrew + square brackets (unmirrored)',    input: 'רישום [important] כאן',                  expected: 'ןאכ ]important[ םושיר' },
 ];
 
 // ---------------------------------------------------------------------------
