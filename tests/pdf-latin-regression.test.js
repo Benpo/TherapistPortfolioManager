@@ -111,13 +111,13 @@ function buildJsdomEnv() {
   });
   var win = dom.window;
 
-  // Load all 4 vendored scripts directly into the window context (bypassing
+  // Load all vendored scripts directly into the window context (bypassing
   // loadScriptOnce's actual <script> append, which JSDOM does not execute
   // for file:// URLs without the heavier runScripts: 'dangerously' mode).
+  // Plan 23-07: single heebo-base64.js replaced the 2 prior noto-sans scripts.
   win.eval(readAsset('assets/jspdf.min.js'));
   win.eval(readAsset('assets/bidi.min.js'));
-  win.eval(readAsset('assets/fonts/noto-sans-base64.js'));
-  win.eval(readAsset('assets/fonts/noto-sans-hebrew-base64.js'));
+  win.eval(readAsset('assets/fonts/heebo-base64.js'));
 
   // Monkey-patch the jsPDF constructor BEFORE pdf-export.js loads, so that
   // pdf-export.js's `var jsPDF = window.jspdf && window.jspdf.jsPDF;` line
@@ -143,8 +143,7 @@ function buildJsdomEnv() {
   var preload = [
     './assets/jspdf.min.js',
     './assets/bidi.min.js',
-    './assets/fonts/noto-sans-base64.js',
-    './assets/fonts/noto-sans-hebrew-base64.js',
+    './assets/fonts/heebo-base64.js',
   ];
   preload.forEach(function (src) {
     var s = win.document.createElement('script');
