@@ -654,17 +654,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     const heartShieldChecked = heartShieldToggle ? heartShieldToggle.checked : false;
     const shieldRemovedCopyInput = document.querySelector("input[name='shieldRemoved']:checked");
     const shieldRemovedCopyValue = shieldRemovedCopyInput ? shieldRemovedCopyInput.value : null;
-    const heartShieldCopyLine = heartShieldChecked
-      ? `**${App.getSectionLabel("heartShield", "session.form.heartShield")}** ${shieldRemovedCopyValue === "yes" ? App.t("session.form.shieldRemoved.yes") : App.t("session.form.shieldRemoved.no")}`
-      : null;
 
     const lines = [
-      `# ${App.t("session.copy.title")}`,
-      ...(heartShieldCopyLine ? ["", heartShieldCopyLine] : []),
+      `# ${App.t("session.copy.title")}`
+    ];
+
+    // Phase 23 (23-10): heart shield is now its own ## section in the body --
+    // previously a bare label-and-value line ("**Heart Shield Session** No")
+    // that, after the 23-08 ** stripping, displayed as the raw text
+    // "מפגש מגננת לב לא" between the title and the issues section, looking
+    // like stray junk. Promoting it to a ## heading + body line aligns it with
+    // every other section's structure.
+    if (heartShieldChecked) {
+      lines.push(
+        "",
+        `## ${App.getSectionLabel("heartShield", "session.form.heartShield")}`,
+        shieldRemovedCopyValue === "yes"
+          ? App.t("session.form.shieldRemoved.yes")
+          : App.t("session.form.shieldRemoved.no")
+      );
+    }
+
+    lines.push(
       "",
       `## ${App.getSectionLabel("issues", "session.form.issuesHeading")}`,
       issuesText
-    ];
+    );
 
     // Heart Shield Emotions (only when Heart Shield is on)
     const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
@@ -891,14 +906,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     const heartShieldChecked = heartShieldToggle ? heartShieldToggle.checked : false;
     const shieldRemovedInput = document.querySelector("input[name='shieldRemoved']:checked");
     const shieldRemovedValue = shieldRemovedInput ? shieldRemovedInput.value : null;
-    const heartShieldLine = (heartShieldChecked && selected.has("heartShield"))
-      ? `**${App.getSectionLabel("heartShield", "session.form.heartShield")}** ${shieldRemovedValue === "yes" ? App.t("session.form.shieldRemoved.yes") : App.t("session.form.shieldRemoved.no")}`
-      : null;
 
     const lines = [
       `# ${App.t("session.copy.title")}`
     ];
-    if (heartShieldLine) lines.push("", heartShieldLine);
+
+    // Phase 23 (23-10): heart shield is now its own ## section in the body --
+    // previously a bare label-and-value line ("**Heart Shield Session** No")
+    // that, after the 23-08 ** stripping, displayed as raw "מפגש מגננת לב לא"
+    // text between the title and the issues section, looking like stray junk.
+    // Promoting it to a ## heading + body line aligns it with every other
+    // section's structure. (Same change as buildSessionMarkdown.)
+    if (heartShieldChecked && selected.has("heartShield")) {
+      lines.push(
+        "",
+        `## ${App.getSectionLabel("heartShield", "session.form.heartShield")}`,
+        shieldRemovedValue === "yes"
+          ? App.t("session.form.shieldRemoved.yes")
+          : App.t("session.form.shieldRemoved.no")
+      );
+    }
 
     if (selected.has("issues")) {
       // Phase 23 (23-09): i18n'd scale labels (see buildSessionMarkdown for details).
