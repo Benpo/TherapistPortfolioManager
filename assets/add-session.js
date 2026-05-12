@@ -882,11 +882,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function buildFilteredSessionMarkdown(selectedKeys) {
-    // Build a markdown document filtered to only the section keys checked
-    // in Step 1. The header (title, client, date, type) is always emitted —
-    // the Plan 22-05 PDF module also relies on header metadata.
+    // Build a markdown document filtered to only the section keys checked in Step 1.
+    // Phase 23 (23-09 follow-up): client/date/type lines removed — they're redundant with
+    // the PDF title block, which reads sessionData.clientName/sessionDate/sessionType
+    // directly from the function args, not from the markdown body.
     const selected = new Set(selectedKeys);
-    const data = getCurrentSessionDataForExport();
 
     const heartShieldChecked = heartShieldToggle ? heartShieldToggle.checked : false;
     const shieldRemovedInput = document.querySelector("input[name='shieldRemoved']:checked");
@@ -896,13 +896,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       : null;
 
     const lines = [
-      `# ${App.t("session.copy.title")}`,
-      "",
-      `**${App.t("session.copy.client")}** ${data.clientName}`,
-      `**${App.t("session.copy.date")}** ${data.sessionDateFormatted}`,
-      `**${App.t("session.copy.type")}** ${data.sessionTypeLabel}`
+      `# ${App.t("session.copy.title")}`
     ];
-    if (heartShieldLine) lines.push(heartShieldLine);
+    if (heartShieldLine) lines.push("", heartShieldLine);
 
     if (selected.has("issues")) {
       // Phase 23 (23-09): i18n'd scale labels (see buildSessionMarkdown for details).
