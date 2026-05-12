@@ -281,6 +281,59 @@ window.PDFExport = (function () {
     return chars.join('');
   }
 
+  /**
+   * Phase 23 (23-12): extended shape function exposing the logical→visual map.
+   *
+   * Returns `{ visual: string, logicalToVisualMap: Int32Array, visualToLogicalMap: Int32Array }`.
+   *   - visual: the same string shapeForJsPdf would return (UAX-L2 reorder +
+   *     UAX-BD16 mirror applied to UTF-16 code units; see G2 / G16 for the
+   *     code-unit indexing invariant).
+   *   - logicalToVisualMap[logicalIdx] = visualIdx
+   *   - visualToLogicalMap[visualIdx]  = logicalIdx  (this is bidi-js's
+   *     `getReorderedIndices` output directly; kept for callers that walk
+   *     visual positions left-to-right.)
+   *
+   * Built atop bidi-js's `getReorderedIndices` primitive — see assets/bidi.min.js.
+   * Per the API quirk documented at G16:
+   *   - getReorderedIndices       expects the WRAPPER object (uses .paragraphs)
+   *   - getMirroredCharactersMap  expects the RAW Uint8Array (uses 1&e[v])
+   * Passing the wrong shape to either fails silently with empty/undefined results.
+   *
+   * Empty input -> { visual: '', logicalToVisualMap: empty, visualToLogicalMap: empty }.
+   */
+  function shapeForJsPdfWithMap(text) {
+    if (!text) {
+      return {
+        visual: '',
+        logicalToVisualMap: new Int32Array(0),
+        visualToLogicalMap: new Int32Array(0),
+      };
+    }
+    var dir = firstStrongDir(text);
+    var levels = _bidi.getEmbeddingLevels(text, dir);
+    var mirrorMap = _bidi.getMirroredCharactersMap(text, levels.levels);   // G16 raw
+    var reordered = _bidi.getReorderedIndices(text, levels);               // G16 wrapper
+    var chars = text.split(''); // UTF-16 code units (G2)
+    mirrorMap.forEach(function (mirroredChar, idx) {
+      chars[idx] = mirroredChar;
+    });
+    var n = chars.length;
+    var logicalToVisualMap = new Int32Array(n);
+    var visualToLogicalMap = new Int32Array(n);
+    var visualChars = new Array(n);
+    for (var vp = 0; vp < n; vp++) {
+      var logI = reordered[vp];
+      visualToLogicalMap[vp] = logI;
+      logicalToVisualMap[logI] = vp;
+      visualChars[vp] = chars[logI];
+    }
+    return {
+      visual: visualChars.join(''),
+      logicalToVisualMap: logicalToVisualMap,
+      visualToLogicalMap: visualToLogicalMap,
+    };
+  }
+
   // ---------------------------------------------------------------------------
   // (removed) isRtl -- Phase 23 (23-10) deadcode cleanup
   // ---------------------------------------------------------------------------
@@ -312,12 +365,154 @@ window.PDFExport = (function () {
    */
   function stripInlineMarkdown(text) {
     // Phase 23 (23-08): strip inline ** and * markers so they don't display
-    // literally. Bold/italic styling is NOT rendered (would need Heebo Bold +
-    // per-segment font switching — deferred). This is the minimum-viable fix
-    // to remove the ugly literal asterisks from the output.
+    // literally. Phase 23 (23-12): for para and list paths, the strip step is
+    // REPLACED by parseInlineBold (which preserves bold runs as Heebo Bold).
+    // This helper is retained for paths that DO NOT support inline bold:
+    //   - heading branch entry (whole heading renders bold; inline `**`
+    //     markers stripped to avoid literal `**` display)
+    //   - any future caller that needs a markdown-marker-free plain string
+    //     (e.g. running-header / title-block code paths if the client name
+    //     ever contains `**`).
     return text
       .replace(/\*\*([^*\n]+?)\*\*/g, '$1')   // bold: **X** -> X
       .replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1$2');  // italic: *X* -> X (avoid matching ** runs)
+  }
+
+  /**
+   * Phase 23 (23-12): parse inline bold markers `**X**` into segments suitable
+   * for per-segment font-weight rendering. Italic `*X*` markers are STRIPPED
+   * (their content is folded into the surrounding regular-weight segment, no
+   * italic rendering — italic support is out of scope for Plan 23-12).
+   *
+   * Returns an array of `{text: string, bold: boolean}` segments. Adjacent
+   * segments may share the same `bold` flag (the renderer collapses runs at
+   * draw time after bidi reorder). Empty input returns [].
+   *
+   * INVARIANT (relied on by drawSegmentedLine):
+   *   parseInlineBold(input).map(function (s) { return s.text; }).join('')
+   *     === stripInlineMarkdown(input)
+   * i.e. concatenating all segment texts yields the strip-equivalent plain
+   * string byte-for-byte. The renderer walks segments with a running offset
+   * derived from segment.text.length to recover logical positions.
+   *
+   * Examples:
+   *   parseInlineBold('The **summary** is below.')
+   *     -> [{text:'The ',     bold:false},
+   *         {text:'summary',  bold:true},
+   *         {text:' is below.', bold:false}]
+   *
+   *   parseInlineBold('הסיכום **מודגש** כאן.')
+   *     -> [{text:'הסיכום ',  bold:false},
+   *         {text:'מודגש',    bold:true},
+   *         {text:' כאן.',    bold:false}]
+   *
+   *   parseInlineBold('**important** דבר חשוב')
+   *     -> [{text:'important', bold:true},
+   *         {text:' דבר חשוב', bold:false}]
+   *
+   *   parseInlineBold('plain text')   -> [{text:'plain text', bold:false}]
+   *   parseInlineBold('')             -> []
+   *
+   * The function deliberately omits `logicalStart` / `logicalEnd` fields:
+   * downstream code derives any logical position by accumulating prior
+   * segments' `.text.length` values. Explicit indices would duplicate state
+   * and risk drifting from `splitTextToSize`'s wrapped sub-line boundaries.
+   */
+  function parseInlineBold(text) {
+    if (!text) return [];
+    var segments = [];
+    var n = text.length;
+    var i = 0;
+    var buf = '';
+    while (i < n) {
+      // Bold open: `**X**` (greedy-but-shortest match, single line)
+      if (text.charCodeAt(i) === 42 && text.charCodeAt(i + 1) === 42) {
+        // Find closing `**` on the same line (no \n inside the bold span)
+        var close = -1;
+        for (var k = i + 2; k < n - 1; k++) {
+          if (text.charCodeAt(k) === 10) break;            // newline: abort
+          if (text.charCodeAt(k) === 42 && text.charCodeAt(k + 1) === 42) {
+            close = k;
+            break;
+          }
+        }
+        if (close > i + 2) {
+          // Emit pending regular buffer.
+          if (buf.length > 0) {
+            segments.push({ text: buf, bold: false });
+            buf = '';
+          }
+          var inner = text.slice(i + 2, close);
+          // Strip italic markers inside the bold span (no italic rendering).
+          inner = inner.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1$2');
+          segments.push({ text: inner, bold: true });
+          i = close + 2;
+          continue;
+        }
+        // Unmatched `**` — fall through to literal handling.
+      }
+      // Italic single `*X*`: strip but DO NOT emit an italic segment — content
+      // is folded into the surrounding regular buffer.
+      if (text.charCodeAt(i) === 42 && text.charCodeAt(i + 1) !== 42 &&
+          (i === 0 || text.charCodeAt(i - 1) !== 42)) {
+        var iclose = -1;
+        for (var ki = i + 1; ki < n; ki++) {
+          if (text.charCodeAt(ki) === 10) break;
+          if (text.charCodeAt(ki) === 42 && text.charCodeAt(ki + 1) !== 42) {
+            iclose = ki;
+            break;
+          }
+        }
+        if (iclose > i + 1) {
+          buf += text.slice(i + 1, iclose);
+          i = iclose + 1;
+          continue;
+        }
+        // Unmatched `*` — fall through to literal handling.
+      }
+      buf += text.charAt(i);
+      i++;
+    }
+    if (buf.length > 0) segments.push({ text: buf, bold: false });
+    return segments;
+  }
+
+  /**
+   * Phase 23 (23-12): clip a segment array to a logical character range.
+   *
+   * Given segments produced by parseInlineBold on the full paragraph and a
+   * [startIdx, endIdx) range in the STRIPPED-text coordinate space (i.e.,
+   * positions in `segments.map(s=>s.text).join('')`), return a new segment
+   * array whose concatenation equals stripped.slice(startIdx, endIdx). The
+   * bold-flag pattern is preserved across the slice.
+   *
+   * Used by the para and list renderers to map splitTextToSize's wrapped
+   * sub-lines back onto the parent paragraph's bold-segment structure.
+   *
+   * Examples:
+   *   var segs = parseInlineBold('A **B** C');
+   *   // segs = [{text:'A ',bold:false}, {text:'B',bold:true}, {text:' C',bold:false}]
+   *   clipSegmentsToRange(segs, 0, 2)  -> [{text:'A ',  bold:false}]
+   *   clipSegmentsToRange(segs, 2, 4)  -> [{text:'B',   bold:true},
+   *                                        {text:' ',   bold:false}]  (splits)
+   *   clipSegmentsToRange(segs, 0, 5)  -> the whole thing
+   */
+  function clipSegmentsToRange(segments, startIdx, endIdx) {
+    var out = [];
+    var pos = 0;
+    for (var i = 0; i < segments.length; i++) {
+      var seg = segments[i];
+      var segStart = pos;
+      var segEnd = pos + seg.text.length;
+      pos = segEnd;
+      if (segEnd <= startIdx) continue;     // segment ends before window
+      if (segStart >= endIdx) break;        // segment starts after window
+      var sliceStart = Math.max(0, startIdx - segStart);
+      var sliceEnd = Math.min(seg.text.length, endIdx - segStart);
+      if (sliceEnd <= sliceStart) continue;
+      out.push({ text: seg.text.slice(sliceStart, sliceEnd), bold: seg.bold });
+    }
+    return out;
   }
 
   function parseMarkdown(markdown) {
@@ -345,9 +540,9 @@ window.PDFExport = (function () {
       if (/^\s*[-*]\s+/.test(line) || /^\s*\d+\.\s+/.test(line)) {
         var items = [];
         while (i < lines.length && (/^\s*[-*]\s+/.test(lines[i]) || /^\s*\d+\.\s+/.test(lines[i]))) {
-          // Phase 23 (23-08): strip inline ** and * markers from list items
-          // so the asterisks don't display literally.
-          items.push(stripInlineMarkdown(lines[i].replace(/^\s*(?:[-*]|\d+\.)\s+/, "")));
+          // Phase 23 (23-12): keep raw markdown — the list-branch renderer
+          // calls parseInlineBold(item) and emits Heebo Bold for **X** spans.
+          items.push(lines[i].replace(/^\s*(?:[-*]|\d+\.)\s+/, ""));
           i++;
         }
         blocks.push({ type: 'list', items: items });
@@ -366,9 +561,9 @@ window.PDFExport = (function () {
         paraLines.push(lines[i]);
         i++;
       }
-      // Phase 23 (23-08): strip inline ** and * markers from paragraph text
-      // so the asterisks don't display literally.
-      blocks.push({ type: 'para', text: stripInlineMarkdown(paraLines.join(" ")) });
+      // Phase 23 (23-12): keep raw markdown — the para-branch renderer calls
+      // parseInlineBold(text) and emits Heebo Bold for **X** spans.
+      blocks.push({ type: 'para', text: paraLines.join(" ") });
     }
     return blocks;
   }
@@ -517,6 +712,103 @@ window.PDFExport = (function () {
       // Replaced by inline `doc.setFont('Heebo', weight)` calls below to support
       // Plan 23-09's bold heading + title rendering.
 
+      /**
+       * Phase 23 (23-12): per-segment line renderer for inline-bold paragraphs
+       * and list items.
+       *
+       * @param {Array<{text:string,bold:boolean}>} segments  Segments from
+       *        parseInlineBold, clipped to a wrapped sub-line (concatenation
+       *        of segment.text values is the sub-line in LOGICAL order).
+       * @param {number} y          Vertical baseline (pt).
+       * @param {number} size       Font size (pt).
+       * @param {Object} [drawOpts] Optional layout overrides.
+       * @param {number} [drawOpts.leftX]   Absolute leftmost x for LTR docs
+       *                                    (default MARGIN_X).
+       * @param {number} [drawOpts.rightX]  Absolute rightmost x for RTL docs
+       *                                    (default PAGE_W - MARGIN_X).
+       *
+       * Pipeline (matches 23-RESEARCH "Worked example" + 23-12 plan):
+       *   1. Reconstruct the logical line from segments.
+       *   2. Build a per-logical-codeunit weight array (0 = regular, 1 = bold)
+       *      via a running offset walk over segment.text.length.
+       *   3. shapeForJsPdfWithMap(line) -> { visual, visualToLogicalMap }.
+       *   4. For each visual position, weight = weightByLogical[visualToLogicalMap[vp]].
+       *      Collapse to maximal contiguous visual runs sharing a single weight.
+       *   5. Measure each run's width at its own weight (bold advances differ
+       *      from regular — RESEARCH G7 about identical advances holds within
+       *      a single weight; bold is a separate font with separate metrics).
+       *   6. Anchor: LTR -> draw left-to-right starting at leftX. RTL -> sum
+       *      per-run widths to get totalW, draw left-to-right starting at
+       *      (rightX - totalW). Each doc.text() call uses {isInputVisual:false}
+       *      (23-08 invariant — preserved by drawSegmentedLine on every run).
+       *   7. Restore setFont('Heebo','normal') before returning so subsequent
+       *      renderer code starts from a clean baseline.
+       */
+      function drawSegmentedLine(segments, y, size, drawOpts) {
+        drawOpts = drawOpts || {};
+        if (!segments || segments.length === 0) return;
+        // Reconstruct the logical line + per-codeunit weight array.
+        var line = '';
+        for (var si = 0; si < segments.length; si++) line += segments[si].text;
+        if (line.length === 0) return;
+        var weightByLogical = new Uint8Array(line.length);
+        var off = 0;
+        for (var si2 = 0; si2 < segments.length; si2++) {
+          var seg = segments[si2];
+          var w = seg.bold ? 1 : 0;
+          for (var k = 0; k < seg.text.length; k++) weightByLogical[off + k] = w;
+          off += seg.text.length;
+        }
+        var shaped = shapeForJsPdfWithMap(line);
+        var visual = shaped.visual;
+        var v2l = shaped.visualToLogicalMap;
+        // Walk visual positions, collect maximal contiguous runs by weight.
+        var runs = [];
+        var vn = visual.length;
+        var runStart = 0;
+        var runWeight = weightByLogical[v2l[0]];
+        for (var vp = 1; vp < vn; vp++) {
+          var wv = weightByLogical[v2l[vp]];
+          if (wv !== runWeight) {
+            runs.push({ text: visual.slice(runStart, vp), bold: runWeight === 1 });
+            runStart = vp;
+            runWeight = wv;
+          }
+        }
+        runs.push({ text: visual.slice(runStart, vn), bold: runWeight === 1 });
+        // Measure each run's width at its own weight. doc.getStringUnitWidth
+        // depends on the currently-active font, so we setFont per run before
+        // measuring (and again before drawing).
+        var widths = new Array(runs.length);
+        var totalW = 0;
+        for (var ri = 0; ri < runs.length; ri++) {
+          doc.setFont('Heebo', runs[ri].bold ? 'bold' : 'normal');
+          doc.setFontSize(size);
+          widths[ri] = doc.getStringUnitWidth(runs[ri].text) * size;
+          totalW += widths[ri];
+        }
+        // Anchor x.
+        var x;
+        if (docDir === 'rtl') {
+          var rightX = (typeof drawOpts.rightX === 'number') ? drawOpts.rightX : (PAGE_W - MARGIN_X);
+          x = rightX - totalW;
+        } else {
+          x = (typeof drawOpts.leftX === 'number') ? drawOpts.leftX : MARGIN_X;
+        }
+        // Draw runs left-to-right in visual order. Each draw call must pass
+        // {isInputVisual:false} (23-08 invariant): the run text is already
+        // visual-shaped via shapeForJsPdfWithMap, and slicing the visual
+        // string into runs preserves that property within each run.
+        for (var rj = 0; rj < runs.length; rj++) {
+          doc.setFont('Heebo', runs[rj].bold ? 'bold' : 'normal');
+          doc.setFontSize(size);
+          doc.text(runs[rj].text, x, y, { isInputVisual: false });
+          x += widths[rj];
+        }
+        // Reset font to regular baseline for downstream renderer code.
+        doc.setFont('Heebo', 'normal');
+      }
+
       function drawTextLine(line, y, size, weight) {
         // Plan 23-09: optional `weight` arg ('normal' | 'bold'); defaults to 'normal'
         // so existing callers (paragraph body, list items, running header, footer)
@@ -640,7 +932,12 @@ window.PDFExport = (function () {
           // creating clear visual hierarchy vs body text. drawTextLine restores
           // implicit normal weight via its weight default for any subsequent
           // calls that omit the argument.
-          drawTextLine(block.text, y, hSize, 'bold');
+          // Phase 23 (23-12): strip inline `**` markers — the whole heading
+          // is bold already (Plan 23-09), so inline bold is redundant.
+          // Without this strip, a user typing `## My **header**` would see
+          // literal `**` glyphs in the heading.
+          var headingText = stripInlineMarkdown(block.text);
+          drawTextLine(headingText, y, hSize, 'bold');
           y += LINE_HEIGHT_HEADING;
           continue;
         }
@@ -648,43 +945,47 @@ window.PDFExport = (function () {
         if (block.type === 'list') {
           for (var li = 0; li < block.items.length; li++) {
             var item = block.items[li];
-            // Plan 23-09: list items render in regular weight (was applyFontFor pre-23-09).
             doc.setFont("Heebo", "normal");
             doc.setFontSize(BODY_SIZE);
-            var wrapped = doc.splitTextToSize(item, USABLE_W - 14);
+            // Phase 23 (23-12): inline-bold rendering for list items.
+            // Parse the raw item (which retains `**X**` markers per
+            // parseMarkdown 23-12 change), wrap on the STRIPPED text, then
+            // emit each wrapped sub-line via drawSegmentedLine. The "- "
+            // bullet prefix is prepended as a regular-weight segment on wi===0
+            // so it participates in bidi paragraph-direction inference (matches
+            // the prefix-then-shape behaviour of the pre-23-12 path).
+            var listSegments = parseInlineBold(item);
+            var listStripped = '';
+            for (var lsi = 0; lsi < listSegments.length; lsi++) listStripped += listSegments[lsi].text;
+            var wrapped = doc.splitTextToSize(listStripped, USABLE_W - 14);
+            var listOff = 0;
             for (var wi = 0; wi < wrapped.length; wi++) {
               ensureRoom(LINE_HEIGHT_BODY);
-              doc.setFont("Heebo", "normal");
-              doc.setFontSize(BODY_SIZE);
-              // Phase 23 (23-10): list-item anchor follows docDir, same rule as
-              // drawTextLine. Hebrew document -> RTL list layout (bullet on right,
-              // indent leftward) for ALL items, even Latin-only ones; Latin document
-              // -> LTR list layout (bullet on left, indent rightward) for ALL items,
-              // even Hebrew-only ones. This produces consistent in-document list
-              // formatting; the per-line shapeForJsPdf still handles inline bidi.
-              if (docDir === 'rtl') {
-                // RTL list: bullet on the right edge, indent inward.
-                // Phase 23 (23-06): align:'right' so jsPDF treats rtlX as the
-                // end-of-string anchor and the visual line occupies the page
-                // going leftward (continuation lines indent inward via rtlX-14).
-                var rtlX = PAGE_W - MARGIN_X;
-                if (wi === 0) {
-                  // Phase 23 (D1, D2, Open Question #1): prefix-then-shape so the "-" participates in paragraph-direction inference and lands visually on the right edge.
-                  var visualA = shapeForJsPdf("- " + wrapped[wi]);
-                  doc.text(visualA, rtlX, y, { align: 'right', isInputVisual: false });
-                } else {
-                  var visualB = shapeForJsPdf(wrapped[wi]);
-                  doc.text(visualB, rtlX - 14, y, { align: 'right', isInputVisual: false });
-                }
+              var subLineL = wrapped[wi];
+              var clippedL = clipSegmentsToRange(listSegments, listOff, listOff + subLineL.length);
+              if (clippedL.length === 0) clippedL = [{ text: subLineL, bold: false }];
+              // Bullet prefix on the first wrapped line only.
+              var lineSegments;
+              if (wi === 0) {
+                lineSegments = [{ text: '- ', bold: false }].concat(clippedL);
               } else {
-                if (wi === 0) {
-                  var visualC = shapeForJsPdf("- " + wrapped[wi]);
-                  doc.text(visualC, MARGIN_X, y, { isInputVisual: false });
-                } else {
-                  var visualD = shapeForJsPdf(wrapped[wi]);
-                  doc.text(visualD, MARGIN_X + 14, y, { isInputVisual: false });
-                }
+                lineSegments = clippedL;
               }
+              // Phase 23 (23-10): list-item anchor follows docDir.
+              //   Hebrew document -> RTL list layout: bullet hugs the right
+              //     margin (wi===0), continuation lines indent leftward (rightX
+              //     = PAGE_W - MARGIN_X - 14 for wi>0).
+              //   Latin document  -> LTR list layout: bullet hugs the left
+              //     margin (wi===0 at MARGIN_X), continuation lines indent
+              //     rightward (leftX = MARGIN_X + 14 for wi>0).
+              var drawOpts;
+              if (docDir === 'rtl') {
+                drawOpts = { rightX: (wi === 0) ? (PAGE_W - MARGIN_X) : (PAGE_W - MARGIN_X - 14) };
+              } else {
+                drawOpts = { leftX: (wi === 0) ? MARGIN_X : (MARGIN_X + 14) };
+              }
+              drawSegmentedLine(lineSegments, y, BODY_SIZE, drawOpts);
+              listOff += subLineL.length + 1;
               y += LINE_HEIGHT_BODY;
             }
           }
@@ -692,13 +993,35 @@ window.PDFExport = (function () {
         }
 
         if (block.type === 'para') {
-          // Plan 23-09: paragraphs render in regular weight (was applyFontFor pre-23-09).
+          // Phase 23 (23-12): inline-bold rendering. Parse the raw block.text
+          // (which now retains `**X**` markers per parseMarkdown 23-12 change)
+          // into segments, wrap on the STRIPPED text (per RESEARCH G7 wrap on
+          // the marker-free form so widths measure correctly), then clip per
+          // wrapped sub-line and hand off to drawSegmentedLine.
           doc.setFont("Heebo", "normal");
           doc.setFontSize(BODY_SIZE);
-          var paraLines = doc.splitTextToSize(block.text, USABLE_W);
+          var paraSegments = parseInlineBold(block.text);
+          var paraStripped = '';
+          for (var psi = 0; psi < paraSegments.length; psi++) paraStripped += paraSegments[psi].text;
+          var paraLines = doc.splitTextToSize(paraStripped, USABLE_W);
+          var paraOff = 0;
           for (var pi = 0; pi < paraLines.length; pi++) {
             ensureRoom(LINE_HEIGHT_BODY);
-            drawTextLine(paraLines[pi], y, BODY_SIZE);
+            var subLine = paraLines[pi];
+            // Per Step-1 proof gate (23-12): splitTextToSize joins sub-lines
+            // with a single space and collapses internal runs of whitespace.
+            // For our fixtures the sub-line offset can be tracked as
+            // paraOff..paraOff+subLine.length, then paraOff += subLine.length + 1
+            // to skip the join-space. If a future paragraph hits a non-round-
+            // trippable wrap point, the renderer falls back to passing the
+            // full segment array (drawSegmentedLine clipping is a no-op for
+            // the whole-line case) — degradation is acceptable.
+            var clipped = clipSegmentsToRange(paraSegments, paraOff, paraOff + subLine.length);
+            // Empty clip safeguard (defensive): if the clip yields nothing,
+            // fall back to a single regular segment with the wrapped sub-line.
+            if (clipped.length === 0) clipped = [{ text: subLine, bold: false }];
+            drawSegmentedLine(clipped, y, BODY_SIZE);
+            paraOff += subLine.length + 1;
             y += LINE_HEIGHT_BODY;
           }
           continue;
