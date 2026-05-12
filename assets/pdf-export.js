@@ -7,10 +7,11 @@
  * Exposes: window.PDFExport
  *
  * Lazy-load contract:
- *   The first call to buildSessionPDF() loads three scripts dynamically:
+ *   The first call to buildSessionPDF() loads four scripts dynamically:
  *     1. ./assets/jspdf.min.js                -> window.jspdf.jsPDF
  *     2. ./assets/bidi.min.js                 -> window.bidi_js (UMD factory; Phase 23)
  *     3. ./assets/fonts/heebo-base64.js       -> window.Heebo (base64 TTF, unified Hebrew+Latin)
+ *     4. ./assets/fonts/heebo-bold-base64.js  -> window.HeeboBold (Phase 23-09: bold weight 700)
  *   Subsequent calls reuse the loaded scripts (no double-load) via a cached Promise
  *   plus a _depsLoaded flag.
  *
@@ -21,6 +22,8 @@
  *                           after Phase 23 Plan 23-07 hot-fix; replaced two prior
  *                           single-script Noto fonts which silently dropped glyphs on
  *                           mixed-script lines)
+ *   - window.HeeboBold     (Heebo Bold 700 base64 TTF -- Phase 23-09; used for section
+ *                           headings + page-1 client-name title)
  *
  * Page layout (per CONTEXT D-05/06/07, UI-SPEC PDF Document Typography):
  *   A4 portrait 595 x 842 pt; body 11pt; section heading 14pt bold; meta 10pt;
@@ -106,6 +109,10 @@ window.PDFExport = (function () {
         // Plan 23-07: single unified Heebo font (replaces noto-sans + noto-sans-hebrew).
         return loadScriptOnce('./assets/fonts/heebo-base64.js');
       }).then(function () {
+        // Plan 23-09: Heebo Bold (weight 700) loaded after Regular -- used for
+        // section headings + page-1 title rendering via setFont('Heebo', 'bold').
+        return loadScriptOnce('./assets/fonts/heebo-bold-base64.js');
+      }).then(function () {
         _depsLoaded = true;
       });
     })();
@@ -188,6 +195,14 @@ window.PDFExport = (function () {
       doc.addFileToVFS("Heebo.ttf", window.Heebo);
       doc.addFont("Heebo.ttf", "Heebo", "normal");
     }
+    // Plan 23-09: Heebo Bold registered as the SAME family ('Heebo') with style='bold'.
+    // Then setFont('Heebo', 'bold') / setFont('Heebo', 'normal') swaps between the two
+    // weights without touching the family name. Safe-no-op when window.HeeboBold is
+    // missing (mirrors Regular branch above).
+    if (typeof window.HeeboBold === "string" && window.HeeboBold.length > 0) {
+      doc.addFileToVFS("HeeboBold.ttf", window.HeeboBold);
+      doc.addFont("HeeboBold.ttf", "Heebo", "bold");
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -268,8 +283,9 @@ window.PDFExport = (function () {
    * direction flag is no longer used; see G1 in 23-RESEARCH.md).
    * Plan 23-07: this function previously also drove the per-line font switch
    * between two single-script Noto fonts. The unified Heebo font now covers
-   * both scripts, so isRtl() is no longer consulted by applyFontFor(); the
-   * RTL anchor decision in drawTextLine and friends remains the only caller.
+   * both scripts, so the per-line font decision collapsed and the helper that
+   * used to consult isRtl() (applyFontFor, removed in Plan 23-09) is gone.
+   * The RTL anchor decision in drawTextLine and friends remains the only caller.
    */
   function isRtl(text) {
     return /[\u0590-\u05FF\uFB1D-\uFB4F]/.test(text || "");
@@ -471,24 +487,18 @@ window.PDFExport = (function () {
       // body lines) for consistency and to prevent future regressions if those
       // strings ever contain RTL chars; it is a no-op for pure-LTR text.
 
-      function applyFontFor(line) {
-        // Phase 23 (G1): jsPDF's right-to-left flag is no longer set here.
-        // That flag does a naive .split('').reverse().join('') on the string
-        // it draws -- combining it with the bidi pre-shape would double-reverse.
-        // Direction is now handled entirely by shapeForJsPdf().
-        // Phase 23 (Plan 23-07): the per-line Latin-vs-Hebrew font switch
-        // collapsed to a single setFont('Heebo'). The two prior single-script
-        // Noto fonts dropped glyphs on mixed-script lines. Heebo is a unified
-        // Hebrew+Latin font, so every line gets the same font regardless of
-        // direction. The `line` parameter is intentionally unused now -- kept
-        // for API stability with the (numerous) callers and for symmetry with
-        // shapeForJsPdf(line) which DOES still use it.
-        void line; // explicit no-op: argument kept for caller-API stability
-        doc.setFont("Heebo", "normal");
-      }
+      // Phase 23 (Plan 23-09): applyFontFor() removed -- after Plan 23-07 collapsed
+      // the per-line Latin-vs-Hebrew font switch to a single 'Heebo' family, the
+      // function reduced to a one-liner that just called setFont('Heebo', 'normal').
+      // Replaced by inline `doc.setFont('Heebo', weight)` calls below to support
+      // Plan 23-09's bold heading + title rendering.
 
-      function drawTextLine(line, y, size) {
-        applyFontFor(line);
+      function drawTextLine(line, y, size, weight) {
+        // Plan 23-09: optional `weight` arg ('normal' | 'bold'); defaults to 'normal'
+        // so existing callers (paragraph body, list items, running header, footer)
+        // continue to render in regular weight without modification.
+        weight = weight || 'normal';
+        doc.setFont("Heebo", weight);
         doc.setFontSize(size);
         var visual = shapeForJsPdf(line); // Phase 23 (D1, D2): logical -> visual
         if (isRtl(line)) {
@@ -511,7 +521,9 @@ window.PDFExport = (function () {
         // The bidi pre-shape (shapeForJsPdf, from Plan 23-02) stays -- it produces
         // the visual-order string the centering math measures and renders.
         var titleY = MARGIN_TOP;
-        applyFontFor(clientName);
+        // Plan 23-09: client name title renders in bold (Heebo Bold variant)
+        // -- fits the "title" semantic and gives the page-1 header more visual weight.
+        doc.setFont("Heebo", "bold");
         doc.setFontSize(TITLE_SIZE);
         var titleVisual = shapeForJsPdf(clientName || " "); // Phase 23 (D1, D2)
         doc.text(titleVisual, pageWidth / 2, titleY, { align: 'center', isInputVisual: false }); // Phase 23 (D4); 23-08 isInputVisual:false
@@ -528,7 +540,9 @@ window.PDFExport = (function () {
         }).join("  -  ");
         var metaY = titleY + LINE_HEIGHT_TITLE;
         if (metaText.length > 0) {
-          applyFontFor(metaText);
+          // Plan 23-09: meta line stays in regular weight (secondary info; the
+          // bold title above carries the visual hierarchy).
+          doc.setFont("Heebo", "normal");
           doc.setFontSize(META_SIZE);
           var metaVisual = shapeForJsPdf(metaText); // Phase 23 (D1, D2)
           doc.text(metaVisual, pageWidth / 2, metaY, { align: 'center', isInputVisual: false }); // Phase 23 (D4); 23-08 isInputVisual:false
@@ -543,7 +557,9 @@ window.PDFExport = (function () {
         });
         if (bits.length === 0) return;
         var text = bits.join("  -  ");
-        applyFontFor(text);
+        // Plan 23-09: running header on pages 2+ stays in regular weight (matches
+        // page-1 meta line; only the page-1 title and section headings are bold).
+        doc.setFont("Heebo", "normal");
         doc.setFontSize(META_SIZE);
         var visual = shapeForJsPdf(text); // Phase 23 (D1, D2)
         if (isRtl(text)) {
@@ -586,7 +602,11 @@ window.PDFExport = (function () {
           ensureRoom(LINE_HEIGHT_HEADING);
           // Headings: do NOT splitTextToSize (we expect short headings); if
           // they do overflow, jsPDF will draw past the margin -- acceptable.
-          drawTextLine(block.text, y, hSize);
+          // Plan 23-09: pass weight='bold' so headings render in Heebo Bold,
+          // creating clear visual hierarchy vs body text. drawTextLine restores
+          // implicit normal weight via its weight default for any subsequent
+          // calls that omit the argument.
+          drawTextLine(block.text, y, hSize, 'bold');
           y += LINE_HEIGHT_HEADING;
           continue;
         }
@@ -594,12 +614,13 @@ window.PDFExport = (function () {
         if (block.type === 'list') {
           for (var li = 0; li < block.items.length; li++) {
             var item = block.items[li];
-            applyFontFor(item);
+            // Plan 23-09: list items render in regular weight (was applyFontFor pre-23-09).
+            doc.setFont("Heebo", "normal");
             doc.setFontSize(BODY_SIZE);
             var wrapped = doc.splitTextToSize(item, USABLE_W - 14);
             for (var wi = 0; wi < wrapped.length; wi++) {
               ensureRoom(LINE_HEIGHT_BODY);
-              applyFontFor(wrapped[wi]);
+              doc.setFont("Heebo", "normal");
               doc.setFontSize(BODY_SIZE);
               if (isRtl(wrapped[wi])) {
                 // RTL list: bullet on the right edge, indent inward.
@@ -631,7 +652,8 @@ window.PDFExport = (function () {
         }
 
         if (block.type === 'para') {
-          applyFontFor(block.text);
+          // Plan 23-09: paragraphs render in regular weight (was applyFontFor pre-23-09).
+          doc.setFont("Heebo", "normal");
           doc.setFontSize(BODY_SIZE);
           var paraLines = doc.splitTextToSize(block.text, USABLE_W);
           for (var pi = 0; pi < paraLines.length; pi++) {
