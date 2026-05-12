@@ -59,7 +59,8 @@ const PRECACHE_URLS = [
   '/assets/md-render.js',
   '/assets/jspdf.min.js',
   '/assets/bidi.min.js',
-  '/assets/fonts/heebo-base64.js'
+  '/assets/fonts/heebo-base64.js',
+  '/assets/fonts/heebo-bold-base64.js'
 ];
 
 /**
