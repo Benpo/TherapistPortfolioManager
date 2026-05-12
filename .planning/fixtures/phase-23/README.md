@@ -28,10 +28,12 @@ Strategy' Open Question #3 (locked at planning time — see plan 23-04 frontmatt
 | `fixture-de.json`        | German fixture: client "Jörg Müller", umlauts (ä/ö/ü/ß) sprinkled across body. |
 | `fixture-cs.json`        | Czech fixture: client "Pavel Novák", Czech diacritics (š/č/ř/ě/ý/ů). |
 | `fixture-he.json`        | Hebrew fixture: client "דנה כהן", ~2-page RTL session note covering pure-Hebrew heading, paragraph, list, Hebrew+Latin mix, ISO date, and parens (UAX-BD16 mirrors). Added by 23-06 to cover the RTL rendering path that the 3 Latin fixtures structurally cannot hit (`isRtl()` is false on Latin → LTR branch). |
+| `fixture-he-mixed.json`  | Mixed Hebrew + Latin fixture (uiLang='he', docDir='rtl'): Hebrew paragraph → embedded English paragraph → Hebrew paragraph. Added by 23-12 to cover the 23-10 docDir-uniform-anchor behaviour: every line — including the embedded English paragraph — must anchor at the right margin. A regression to per-line `isRtl()` anchoring would jump the English paragraph to the left margin and drift this fixture's hash. Intentionally contains NO `**` markers and NO bracket characters so it is independent of the inline-bold (23-12 Task 4) and bracket-mirroring (23-12 Task 1) work. |
 | `fixture-en.pdf.sha256`  | 64-char lowercase-hex SHA-256 of the PDF the harness builds for fixture-en. |
 | `fixture-de.pdf.sha256`  | Same, for fixture-de. |
 | `fixture-cs.pdf.sha256`  | Same, for fixture-cs. |
 | `fixture-he.pdf.sha256`  | Same, for fixture-he (RTL Hebrew baseline). |
+| `fixture-he-mixed.pdf.sha256` | Same, for fixture-he-mixed (docDir-uniform-anchor regression). |
 | `README.md`              | This file. |
 
 ## How the hashes were generated

@@ -202,7 +202,13 @@ async function main() {
   // the 23-02 RTL anchor bug ship. The 3 Latin fixtures all hit the LTR branch
   // of drawTextLine because isRtl() is false for Latin text, so they could not
   // catch the RTL-only off-page rendering regression.
-  var fixtures = ['fixture-en', 'fixture-de', 'fixture-cs', 'fixture-he'];
+  // Phase 23-12: fixture-he-mixed added to cover the 23-10 docDir-uniform-anchor
+  // behaviour -- a Hebrew document (uiLang='he', docDir='rtl') with an embedded
+  // English paragraph must anchor every line at the right margin uniformly. If a
+  // future change reverts to per-line isRtl() anchoring, the embedded English
+  // paragraph would jump to the left margin and this fixture's hash would drift.
+  // 5 fixtures total: 3 Latin (en/de/cs) + 1 Hebrew + 1 mixed-Hebrew.
+  var fixtures = ['fixture-en', 'fixture-de', 'fixture-cs', 'fixture-he', 'fixture-he-mixed'];
   var passed = 0, failed = 0;
 
   for (var i = 0; i < fixtures.length; i++) {
