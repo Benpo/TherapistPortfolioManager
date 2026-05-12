@@ -60,7 +60,9 @@ Strategy' Open Question #3 (locked at planning time — see plan 23-04 frontmatt
 - **Library versions at capture time:**
   - jsPDF 2.5.2 (`assets/jspdf.min.js`, vendored 2026-05-06).
   - bidi-js 1.0.3 (`assets/bidi.min.js`, vendored by Plan 23-01 on 2026-05-12).
-  - NotoSans + NotoSansHebrew base64 fonts (`assets/fonts/`, vendored 2026-05-06).
+  - Heebo Regular v3.100 unified Hebrew+Latin font (`assets/fonts/heebo-base64.js`,
+    vendored 2026-05-12 by Plan 23-07; replaced the prior single-script NotoSans +
+    NotoSansHebrew fonts that silently dropped glyphs on mixed-script lines).
 - **JSDOM resolution:** the harness loads jsdom from `/tmp/node_modules/jsdom`. To set up,
   run `mkdir -p /tmp && cd /tmp && npm install jsdom` once (jsdom is NOT installed inside
   this project's tree to avoid polluting it with a `package.json` for what is currently a
@@ -105,3 +107,4 @@ Other plans in Phase 23:
 - **Plan 23-04** — this regression suite + `tests/pdf-bidi.test.js` algorithmic corpus.
 - **Plan 23-05** (optional) — footer-centering refactor.
 - **Plan 23-06** — RTL anchor fix (`align: 'right'` on the 4 RTL `doc.text` sites in `assets/pdf-export.js`) + this Hebrew fixture, closing the verification gap that let the 23-02 setR2L removal ship a broken RTL anchor.
+- **Plan 23-07** — hot-fix: vendored Heebo Regular as a unified Hebrew+Latin font, replacing the two prior single-script Noto fonts (which silently dropped glyphs on mixed Hebrew+Latin lines). Added `tests/pdf-glyph-coverage.test.js` as a glyph-emission floor regression that would have caught the bug; regenerated all 4 fixture .sha256 baselines for the new font.
