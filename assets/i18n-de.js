@@ -139,6 +139,7 @@ window.I18N.de = {
   "session.copy.scale.before": "Vorher",
   "session.copy.scale.after": "Nachher",
   "session.copy.scale.change": "Änderung",
+  "pdf.footer.pageXofY": "Seite {x} von {y}",
   "session.edit": "Sitzung bearbeiten",
   "session.form.afterSeverityTitle": "Schweregrad am Ende der Sitzung",
   "session.form.afterSeverity": "Schweregrad am Ende der Sitzung",

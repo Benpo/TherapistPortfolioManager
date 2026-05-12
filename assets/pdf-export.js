@@ -654,9 +654,17 @@ window.PDFExport = (function () {
         // Plan 23-07: unified Heebo replaces the prior single-script Latin setFont call.
         doc.setFont("Heebo", "normal");
         doc.setFontSize(META_SIZE);
-        var label = "Page " + pn + " of " + totalPages;
+        // Phase 23 (23-09): i18n "Page X of Y" footer per uiLang. Inline switch
+        // matches the formatDate() pattern at L366. Hebrew uses RTL natural
+        // word order ("עמוד {pn} מתוך {total}"); the bidi pre-shape on the
+        // string below produces the correct visual order.
+        var label = (opts.uiLang === 'he') ? ('עמוד ' + pn + ' מתוך ' + totalPages)
+                  : (opts.uiLang === 'de') ? ('Seite ' + pn + ' von ' + totalPages)
+                  : (opts.uiLang === 'cs') ? ('Stránka ' + pn + ' z ' + totalPages)
+                  : ('Page ' + pn + ' of ' + totalPages);
+        var labelVisual = shapeForJsPdf(label);
         // Phase 23 (23-05) -- centered via jsPDF's canonical horizontal-align API for consistency with the title-block centering introduced by 23-03. Equivalent to the previous manual (PAGE_W - textWidth) / 2 form. The pageWidth local was introduced by 23-03 and is in scope here.
-        doc.text(label, pageWidth / 2, FOOTER_BASELINE_Y, { align: 'center', isInputVisual: false });
+        doc.text(labelVisual, pageWidth / 2, FOOTER_BASELINE_Y, { align: 'center', isInputVisual: false });
       }
 
       progress('done');

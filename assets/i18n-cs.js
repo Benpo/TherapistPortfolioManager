@@ -139,6 +139,7 @@ window.I18N.cs = {
   "session.copy.scale.before": "Před",
   "session.copy.scale.after": "Po",
   "session.copy.scale.change": "Změna",
+  "pdf.footer.pageXofY": "Stránka {x} z {y}",
   "session.edit": "Upravit sezení",
   "session.form.afterSeverityTitle": "Závažnost problému na konci sezení",
   "session.form.afterSeverity": "Závažnost na konci sezení",

@@ -139,6 +139,7 @@ window.I18N.he = {
   "session.copy.scale.before": "לפני",
   "session.copy.scale.after": "אחרי",
   "session.copy.scale.change": "שינוי",
+  "pdf.footer.pageXofY": "עמוד {x} מתוך {y}",
   "session.edit": "עריכת מפגש",
   "session.form.afterSeverityTitle": "דרגת חומרה בסיום המפגש",
   "session.form.afterSeverity": "דרגת חומרה בסיום המפגש",

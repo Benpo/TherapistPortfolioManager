@@ -139,6 +139,7 @@ window.I18N.en = {
   "session.copy.scale.before": "Before",
   "session.copy.scale.after": "After",
   "session.copy.scale.change": "Change",
+  "pdf.footer.pageXofY": "Page {x} of {y}",
   "session.edit": "Edit Session",
   "session.form.afterSeverityTitle": "Issue severity at the end of this session",
   "session.form.afterSeverity": "Severity Level at End of Session",
