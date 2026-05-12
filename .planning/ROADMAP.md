@@ -414,6 +414,57 @@ Plans:
 
 ---
 
+### Phase 24: Pre-Launch Final Cleanup — divergent-paths fixes + backup rework + emotions quick-paste
+
+**Goal:** Close all remaining items blocking end-user UAT for v1.1 — the 2 out-of-Phase-22 production blockers (dropdown spotlight + edit-session revert), the deferred backup architectural rework, the new emotions/text quick-paste feature, and the 2 small Phase 23 polish leftovers. After this phase ships, Ben asks end-users to fully test E2E.
+
+**In scope (5 items, escalating complexity):**
+
+1. **(BLOCKER) Add-session dropdown does not populate client spotlight** — `2026-05-13-add-session-dropdown-spotlight-bug.md`. Two divergent code paths render the same conceptual screen differently: client card → New Session shows photo + general notes; "Add Session" → pick from dropdown does NOT. Single-source-of-truth fix: one `populateSpotlight(clientId)` called from both entry paths.
+
+2. **(major) Edit-session has no Cancel/Revert toggle** — `2026-05-13-edit-session-cancel-revert-toggle.md`. Edit mode currently only offers Save / Delete / Home. Add a Cancel/Revert affordance that reverts in-place to the last-saved state and returns to display mode without navigating.
+
+3. **(major+architecture) Backup architectural rework — N7** — `2026-05-13-backup-architectural-rework-N7.md`. Two bundled issues: (a) "Send backup to myself" email contains no attachment (mailto: limitation — needs alternative or removal), (b) 3 backup buttons dominate the overview screen (needs consolidation into a single backup affordance, likely modal). Was previously labeled "22-16" and deferred.
+
+4. **(new feature, requires spec-phase) Emotions / specific-text quick-paste** — `.planning/todos/pending/2026-05-07_emotions-quick-paste.md`. Therapist wants to paste pre-canned blocks of text (emotion lists, technique descriptions, snippets) into session fields with one click. Where / how / source / management not yet defined — Ben explicitly wants `/gsd-spec-phase` brainstorming + research upfront.
+
+5. **(polish, small) Phase 23 leftover items:**
+   - **Markdown preview `##` heading bug** in `assets/md-render.js:38` — block-level heading regex requires no internal newlines, so `## heading\nbody` becomes `<p>## heading<br>body</p>` instead of `<h2>heading</h2><p>body</p>`. Affects only the export-preview pane (PDF parseMarkdown works correctly). Pre-existing from Phase 22-03.
+   - **Single-newline → break in markdown paragraph rendering** — `parseMarkdown` currently joins consecutive non-blank lines with space (`paraLines.join(" ")`). Some users may want each typed line to render as a separate line. Decide during discuss-phase whether this is desired or stays as-is.
+
+**Out of scope (defer to later phases):**
+- Pre-session context card (the BIGGER feature — last session date, open issues, severity trend). The dropdown spotlight bug fix is a prerequisite. Tracked separately at `2026-04-26-pre-session-context-card.md`.
+- Editable session section titles (Sapir's modality flexibility — `2026-04-26-editable-session-section-titles.md`).
+- Session-to-document email export (`2026-04-26-session-to-document-email-export.md`).
+- Photo crop bug from session screen (`2026-03-18-photo-crop-reposition.md`).
+- All other longer-standing TODOs (scheduled backup reminders, PWA install manual, v12 IDB encryption, etc.).
+
+**Constraints:**
+- Items 1 + 2: small, well-scoped UX bug fixes (~30-80 LOC each). Ship as atomic commits early in the phase.
+- Item 3: architectural — needs discuss-phase to lock the 2 design decisions (no-attachment alternative + UI consolidation pattern).
+- Item 4: new capability — REQUIRES `/gsd-spec-phase` first (Ben's explicit request) to lock WHAT before HOW. Then discuss-phase + research.
+- Item 5: small polish, can be folded into a single plan.
+- Pre-commit hook auto-bumps `sw.js` CACHE_NAME on every asset commit — don't pre-bump.
+- Origin/main is now caught up to local main as of 2026-05-12 push — workflow back to normal (worktrees usable again if desired).
+
+**Depends on:** Phase 22 (session workflow + backup encryption pair) + Phase 23 (PDF rewrite + bidi infrastructure shipped).
+**Plans:** TBD after `/gsd-spec-phase 24` (item 4) and `/gsd-discuss-phase 24`.
+
+**Recommended workflow:**
+1. `/gsd-spec-phase 24` — scope item 4 (emotions quick-paste) only. Lock WHAT: which fields, which UI pattern, snippet source, management surface.
+2. `/gsd-discuss-phase 24` — gray-area design decisions for item 3 (backup architecture) + UX choices for items 1, 2.
+3. `/gsd-plan-phase 24` — task breakdown across 5 items, likely 4-6 plans.
+4. `/gsd-execute-phase 24` — atomic commits.
+5. Ben + Sapir UAT → end-user E2E UAT.
+
+**Source TODOs (all in `.planning/todos/pending/`):**
+- `2026-05-13-add-session-dropdown-spotlight-bug.md` (item 1)
+- `2026-05-13-edit-session-cancel-revert-toggle.md` (item 2)
+- `2026-05-13-backup-architectural-rework-N7.md` (item 3)
+- `2026-05-07_emotions-quick-paste.md` (item 4)
+
+---
+
 ### v1.1 Final Polish & Launch (In Progress)
 
 **Milestone Goal:** Polish the app for free trial users, fix UX pain points, update visual identity, and complete all launch prerequisites so the product can be sold.
