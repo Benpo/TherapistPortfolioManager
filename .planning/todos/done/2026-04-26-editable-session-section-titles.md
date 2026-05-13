@@ -69,3 +69,19 @@ These should be answered during `/gsd-spec-phase` before writing PLAN.md:
 ## Related innovator suggestion (2026-04-26 session)
 
 The innovator agent flagged this same need under "Customizable intake fields" — and noted it's the largest item but the highest-leverage for product positioning. Worth combining scopes: editable session sections AND custom intake fields might share the same custom-fields infrastructure.
+
+---
+
+## Closure 2026-05-13
+
+**Status: DONE (partially) — Sapir's original Hebrew ask is satisfied.**
+
+**What's actually done** (via Phase 22 Settings page):
+- ✅ **Rename** — therapist can rename any section label per-locale via Settings; rename propagates to new + existing sessions (Phase 22-14.3).
+- ✅ **Remove** — toggle-off in Settings hides a section from the session form entirely. Functionally "remove from workflow" for the therapist.
+
+**What's NOT done** — split into two NEW TODOs:
+- `2026-05-13-drag-sort-settings-categories.md` — drag-and-drop reordering of section categories in Settings page.
+- `2026-05-13-modality-templates.md` — predefined modality starter sets (Emotion Code / CBT / somatic / art therapy etc.) — lower priority.
+
+This TODO closed; moving to `done/`.

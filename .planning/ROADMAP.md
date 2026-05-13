@@ -432,9 +432,13 @@ Plans:
    - **Markdown preview `##` heading bug** in `assets/md-render.js:38` — block-level heading regex requires no internal newlines, so `## heading\nbody` becomes `<p>## heading<br>body</p>` instead of `<h2>heading</h2><p>body</p>`. Affects only the export-preview pane (PDF parseMarkdown works correctly). Pre-existing from Phase 22-03.
    - **Single-newline → break in markdown paragraph rendering** — `parseMarkdown` currently joins consecutive non-blank lines with space (`paraLines.join(" ")`). Some users may want each typed line to render as a separate line. Decide during discuss-phase whether this is desired or stays as-is.
 
+6. **(major bug, small fix) Overview clock-icon severity reversal** — `2026-05-13-overview-clock-icon-severity-reversal.md`. The session-history expansion shows severity ratings BEFORE/AFTER in the wrong order: a 10→2 (improvement) renders as 2→10 (looks like deterioration). Affects all locales. Discovered by Ben 2026-05-13 while verifying read-mode flow. Likely a 5-10 LOC fix in `assets/overview.js`.
+
+7. **(polish, small) `pre-session-context-card` integration** — `.planning/todos/pending/2026-04-26-pre-session-context-card.md`. The BIGGER pre-session context vision (last session date, open issues, severity trend on a sparkline). Ben flagged 2026-05-13 as critical to scope into Phase 24. Item 1 (dropdown spotlight bug) is a prerequisite; this is the additive feature on top once the spotlight populates correctly from both entry paths. Ben will run `/gsd-discuss-phase 24` to lock the scope of this in the next session.
+
 **Out of scope (defer to later phases):**
-- Pre-session context card (the BIGGER feature — last session date, open issues, severity trend). The dropdown spotlight bug fix is a prerequisite. Tracked separately at `2026-04-26-pre-session-context-card.md`.
-- Editable session section titles (Sapir's modality flexibility — `2026-04-26-editable-session-section-titles.md`).
+- Drag-and-drop sorting of section categories in Settings (`2026-05-13-drag-sort-settings-categories.md`).
+- Modality templates / starter sets (`2026-05-13-modality-templates.md`) — explicitly LOWER priority per Ben 2026-05-13.
 - Session-to-document email export (`2026-04-26-session-to-document-email-export.md`).
 - Photo crop bug from session screen (`2026-03-18-photo-crop-reposition.md`).
 - All other longer-standing TODOs (scheduled backup reminders, PWA install manual, v12 IDB encryption, etc.).
@@ -459,9 +463,11 @@ Plans:
 
 **Source TODOs (all in `.planning/todos/pending/`):**
 - `2026-05-13-add-session-dropdown-spotlight-bug.md` (item 1)
-- `2026-05-13-edit-session-cancel-revert-toggle.md` (item 2)
+- `2026-05-13-edit-session-cancel-revert-toggle.md` (item 2 — companion: overview clock-icon "Edit" button wording)
 - `2026-05-13-backup-architectural-rework-N7.md` (item 3)
 - `2026-05-07_emotions-quick-paste.md` (item 4)
+- `2026-05-13-overview-clock-icon-severity-reversal.md` (item 6)
+- `2026-04-26-pre-session-context-card.md` (item 7 — Ben scopes during discuss-phase)
 
 ---
 

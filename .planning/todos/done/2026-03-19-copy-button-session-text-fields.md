@@ -39,3 +39,20 @@ This needs a UI redesign phase (likely Phase 21 or 22):
 ## Origin
 
 Sapir requested copy buttons during Phase 10. Scope expanded 2026-03-25 after reviewing the full session viewing journey.
+
+---
+
+## Closure 2026-05-13
+
+**Status: DONE — original problem statements no longer apply.**
+
+Ben verified 2026-05-13: the premise of this TODO is wrong as of the current codebase.
+- ✅ **Default IS read mode** (not edit mode as the TODO claimed).
+- ✅ **Pencil button exists** to enter edit mode from read mode.
+- ✅ Per-field copy buttons exist and are visible in read mode (which is now the default).
+
+**However, two NEW bugs surfaced while verifying:**
+- `2026-05-13-overview-clock-icon-severity-reversal.md` — severity ratings displayed in reverse order (`2 → 10` instead of `10 → 2`) on the overview clock-icon expansion.
+- Overview clock-icon "Edit" button wording could suggest read mode is the default — folded into `2026-05-13-edit-session-cancel-revert-toggle.md`.
+
+This TODO closed; moving to `done/`.
