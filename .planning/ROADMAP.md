@@ -414,27 +414,25 @@ Plans:
 
 ---
 
-### Phase 24: Pre-Launch Final Cleanup — divergent-paths fixes + backup rework + emotions quick-paste
+### Phase 24: Pre-Launch Final Cleanup — divergent-paths fixes + emotions quick-paste + polish
 
-**Goal:** Close all remaining items blocking end-user UAT for v1.1 — the 2 out-of-Phase-22 production blockers (dropdown spotlight + edit-session revert), the deferred backup architectural rework, the new emotions/text quick-paste feature, and the 2 small Phase 23 polish leftovers. After this phase ships, Ben asks end-users to fully test E2E.
+**Goal:** Close all remaining items blocking end-user UAT for v1.1 — the out-of-Phase-22 production blockers (dropdown spotlight + edit-session revert), the new emotions/text quick-paste feature, the pre-session context card vision, the severity-reversal bug, and the 2 small Phase 23 polish leftovers. After this phase ships, Ben asks end-users to fully test E2E. Backup architectural rework split into Phase 25 (own scope, own discuss-phase).
 
-**In scope (5 items, escalating complexity):**
+**In scope (6 items, escalating complexity):**
 
 1. **(BLOCKER) Add-session dropdown does not populate client spotlight** — `2026-05-13-add-session-dropdown-spotlight-bug.md`. Two divergent code paths render the same conceptual screen differently: client card → New Session shows photo + general notes; "Add Session" → pick from dropdown does NOT. Single-source-of-truth fix: one `populateSpotlight(clientId)` called from both entry paths.
 
-2. **(major) Edit-session has no Cancel/Revert toggle** — `2026-05-13-edit-session-cancel-revert-toggle.md`. Edit mode currently only offers Save / Delete / Home. Add a Cancel/Revert affordance that reverts in-place to the last-saved state and returns to display mode without navigating.
+2. **(major) Edit-session has no Cancel/Revert toggle + overview clock-icon "Edit" button wording** — `2026-05-13-edit-session-cancel-revert-toggle.md`. Edit mode currently only offers Save / Delete / Home. Add a Cancel/Revert affordance that reverts in-place to the last-saved state and returns to display mode without navigating. Companion fix: rename the overview clock-icon expansion's "Edit" button to better signal that read mode is the default.
 
-3. **(major+architecture) Backup architectural rework — N7** — `2026-05-13-backup-architectural-rework-N7.md`. Two bundled issues: (a) "Send backup to myself" email contains no attachment (mailto: limitation — needs alternative or removal), (b) 3 backup buttons dominate the overview screen (needs consolidation into a single backup affordance, likely modal). Was previously labeled "22-16" and deferred.
+3. **(new feature, requires spec-phase) Emotions / specific-text quick-paste** — `.planning/todos/pending/2026-05-07_emotions-quick-paste.md`. Therapist wants to paste pre-canned blocks of text (emotion lists, technique descriptions, snippets) into session fields with one click. Where / how / source / management not yet defined — Ben explicitly wants `/gsd-spec-phase` brainstorming + research upfront.
 
-4. **(new feature, requires spec-phase) Emotions / specific-text quick-paste** — `.planning/todos/pending/2026-05-07_emotions-quick-paste.md`. Therapist wants to paste pre-canned blocks of text (emotion lists, technique descriptions, snippets) into session fields with one click. Where / how / source / management not yet defined — Ben explicitly wants `/gsd-spec-phase` brainstorming + research upfront.
-
-5. **(polish, small) Phase 23 leftover items:**
+4. **(polish, small) Phase 23 leftover items:**
    - **Markdown preview `##` heading bug** in `assets/md-render.js:38` — block-level heading regex requires no internal newlines, so `## heading\nbody` becomes `<p>## heading<br>body</p>` instead of `<h2>heading</h2><p>body</p>`. Affects only the export-preview pane (PDF parseMarkdown works correctly). Pre-existing from Phase 22-03.
    - **Single-newline → break in markdown paragraph rendering** — `parseMarkdown` currently joins consecutive non-blank lines with space (`paraLines.join(" ")`). Some users may want each typed line to render as a separate line. Decide during discuss-phase whether this is desired or stays as-is.
 
-6. **(major bug, small fix) Overview clock-icon severity reversal** — `2026-05-13-overview-clock-icon-severity-reversal.md`. The session-history expansion shows severity ratings BEFORE/AFTER in the wrong order: a 10→2 (improvement) renders as 2→10 (looks like deterioration). Affects all locales. Discovered by Ben 2026-05-13 while verifying read-mode flow. Likely a 5-10 LOC fix in `assets/overview.js`.
+5. **(major bug, small fix) Overview clock-icon severity reversal** — `2026-05-13-overview-clock-icon-severity-reversal.md`. The session-history expansion shows severity ratings BEFORE/AFTER in the wrong order: a 10→2 (improvement) renders as 2→10 (looks like deterioration). Affects all locales. Discovered by Ben 2026-05-13 while verifying read-mode flow. Likely a 5-10 LOC fix in `assets/overview.js`.
 
-7. **(polish, small) `pre-session-context-card` integration** — `.planning/todos/pending/2026-04-26-pre-session-context-card.md`. The BIGGER pre-session context vision (last session date, open issues, severity trend on a sparkline). Ben flagged 2026-05-13 as critical to scope into Phase 24. Item 1 (dropdown spotlight bug) is a prerequisite; this is the additive feature on top once the spotlight populates correctly from both entry paths. Ben will run `/gsd-discuss-phase 24` to lock the scope of this in the next session.
+6. **(feature) `pre-session-context-card` integration** — `.planning/todos/pending/2026-04-26-pre-session-context-card.md`. The BIGGER pre-session context vision (last session date, open issues, severity trend on a sparkline). Ben flagged 2026-05-13 as critical to scope into Phase 24. Item 1 (dropdown spotlight bug) is a prerequisite; this is the additive feature on top once the spotlight populates correctly from both entry paths. Ben will run `/gsd-discuss-phase 24` to lock the scope of this in the next session.
 
 **Out of scope (defer to later phases):**
 - Drag-and-drop sorting of section categories in Settings (`2026-05-13-drag-sort-settings-categories.md`).
@@ -463,11 +461,46 @@ Plans:
 
 **Source TODOs (all in `.planning/todos/pending/`):**
 - `2026-05-13-add-session-dropdown-spotlight-bug.md` (item 1)
-- `2026-05-13-edit-session-cancel-revert-toggle.md` (item 2 — companion: overview clock-icon "Edit" button wording)
-- `2026-05-13-backup-architectural-rework-N7.md` (item 3)
-- `2026-05-07_emotions-quick-paste.md` (item 4)
-- `2026-05-13-overview-clock-icon-severity-reversal.md` (item 6)
-- `2026-04-26-pre-session-context-card.md` (item 7 — Ben scopes during discuss-phase)
+- `2026-05-13-edit-session-cancel-revert-toggle.md` (item 2 — bundled companion: overview clock-icon "Edit" button wording)
+- `2026-05-07_emotions-quick-paste.md` (item 3 — needs `/gsd-spec-phase` first)
+- `2026-05-13-overview-clock-icon-severity-reversal.md` (item 5)
+- `2026-04-26-pre-session-context-card.md` (item 6 — Ben scopes during discuss-phase)
+
+---
+
+### Phase 25: Backup architectural rework
+
+**Goal:** Fix the "Send backup to myself" feature (it currently emails plain text with no attachment because `mailto:` cannot attach files), AND consolidate the 3 backup buttons that currently dominate the overview screen. Split from Phase 24 (was item 3 there) into its own phase so the backup architecture can be discussed and designed independently from the launch-blocker bug fixes.
+
+**In scope (one bundled architectural item — N7 from Phase 22 round-3 UAT):**
+
+1. **"Send to myself" no-attachment bug** — `mailto:` cannot attach files (browser security model). The therapist currently receives an email claiming an attachment but the file never reaches them. Fix options to evaluate in discuss-phase:
+   - (a) Remove the option, replace with "Download backup, then attach manually" two-step flow with clear instructions.
+   - (b) Generate backup file + open mailto:, with explicit "Please attach the downloaded file" instruction in the body.
+   - (c) Move to Web Share API for "share to email/Drive/etc." (mobile-friendly).
+   - (d) Backend-mediated send via n8n/SMTP (adds GDPR scope — new data processor, needs Datenschutz update).
+   - Recommendation to evaluate: a or c (avoid backend dependency).
+
+2. **3-button overview-screen dominance** — backup currently has 3 separate buttons on the main overview screen — the most prominent UI cluster. UX concern: backup is an admin task, not the primary workflow, yet it visually dominates over the actual content. Fix options:
+   - (a) Move all backup actions to a dedicated "Backup" page reachable via a single nav item / icon button.
+   - (b) Consolidate into a single "Backup" button that opens a modal with the 3 actions inside.
+   - (c) Keep current layout, just visually de-emphasize.
+   - Recommendation to evaluate: b (modal) — keeps discoverability AND reclaims overview real estate.
+
+**Out of scope (defer to later phases):**
+- Scheduled backup reminders (`2026-03-12-add-scheduled-backup-reminder-and-auto-backup-setting.md`) — could potentially fold into this phase if scoped during discuss-phase, but currently parked.
+- v12 full-IDB encryption (`2026-03-24-v12-full-indexeddb-encryption.md`) — separate huge phase.
+
+**Constraints:**
+- 4-locale strings for any new UI must be added to all of i18n-en/de/he/cs.js.
+- If Web Share API or any new browser API is used, check Safari + Firefox + Chrome support — Sapir uses Safari macOS.
+- Architectural change should NOT regress encryption UX shipped in 22-15 (N11/N12).
+- Pre-commit hook still auto-bumps `sw.js` CACHE_NAME on asset commits.
+
+**Depends on:** Phase 24 (the launch-blocker bug fixes need to land first so Phase 25 can ship cleanly on top).
+**Plans:** TBD after `/gsd-discuss-phase 25`.
+
+**Source TODO:** `2026-05-13-backup-architectural-rework-N7.md` (target_phase updated from 24 → 25).
 
 ---
 

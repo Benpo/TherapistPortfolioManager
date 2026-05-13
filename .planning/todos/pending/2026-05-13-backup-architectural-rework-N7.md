@@ -4,7 +4,7 @@ title: Backup architectural rework — fix "Send to myself" no-attachment + 3-bu
 area: bug+architecture
 priority: major
 recommended_entry: /gsd-discuss-phase
-target_phase: 24
+target_phase: 25
 files:
   - overview.html
   - assets/overview.js
