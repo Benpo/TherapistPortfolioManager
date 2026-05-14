@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: unknown
-stopped_at: Completed 22-10-settings-page-ux-fixes-PLAN.md
-last_updated: "2026-05-14T16:40:28.584Z"
+stopped_at: Phase 25 context gathered (backup architectural rework, expanded scope)
+last_updated: "2026-05-14T23:07:18.514Z"
 last_activity: 2026-05-14
 progress:
   total_phases: 6
@@ -232,8 +232,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last activity: 2026-05-14
-Stopped at: Completed 22-10-settings-page-ux-fixes-PLAN.md
-Resume file: None
+Stopped at: Phase 25 context gathered (backup architectural rework, expanded scope)
+Resume file: .planning/phases/25-backup-architectural-rework/25-CONTEXT.md
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
 
 **Planned Phase:** 22 (session-workflow-loop-pre-session-context-card-editable-sess) — 9 plans — 2026-05-06T18:41:19.496Z
