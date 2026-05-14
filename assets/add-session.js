@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const submitLabel = submitButton ? submitButton.querySelector(".button-label") : null;
   const deleteButton = document.getElementById("deleteSessionBtn");
   const editButton = document.getElementById("editSessionBtn");
+  const cancelButton = document.getElementById("cancelSessionBtn");
   const copySessionBtn = document.getElementById("copySessionBtn");
   const exportSessionBtn = document.getElementById("exportSessionBtn");
   const copyButtons = document.querySelectorAll(".field-copy");
@@ -41,6 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const prefillClientId = !sessionId && prefillClientParam ? Number.parseInt(prefillClientParam, 10) : null;
   let editingSession = null;
   let isReadMode = false;
+  let lastSavedSnapshot = null; // D-06: snapshot for revertSessionForm (Cancel/Revert)
   const NEW_CLIENT_VALUE = "__new__";
 
   // Birth date pickers (three-dropdown replacement for native date inputs)
@@ -63,8 +65,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Unsaved changes protection
   if (sessionForm) {
-    sessionForm.addEventListener("input", () => { formDirty = true; });
-    sessionForm.addEventListener("change", () => { formDirty = true; });
+    sessionForm.addEventListener("input", () => {
+      formDirty = true;
+      updateCancelButtonLabel(); // D-04: swap to "Discard changes" on first edit
+    });
+    sessionForm.addEventListener("change", () => {
+      formDirty = true;
+      updateCancelButtonLabel();
+    });
   }
   window.addEventListener("beforeunload", (e) => {
     // Phase 22 Plan 12 (Gap B, D3): honour the one-shot bypass flag set by
@@ -134,6 +142,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (editButton) editButton.classList.toggle("is-hidden", !isReadMode);
     if (copySessionBtn) copySessionBtn.classList.toggle("is-hidden", !isReadMode);
     if (exportSessionBtn) exportSessionBtn.classList.toggle("is-hidden", !isReadMode);
+    // D-02/D-06: Cancel button is visible in edit mode for existing sessions only.
+    if (cancelButton) cancelButton.classList.toggle("is-hidden", isReadMode || !editingSession);
     if (sessionForm) {
       sessionForm.querySelectorAll("input, select, textarea").forEach((el) => {
         if (el.tagName === "TEXTAREA") {
@@ -557,6 +567,59 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function validateIssues(payload) {
     return payload.length > 0;
+  }
+
+  // D-06 (Phase 24): capture form state for revertSessionForm. Mirrors the IDB session
+  //   shape so revert can call populateSession(snapshot, ...) to restore.
+  function snapshotFormState() {
+    const sessionDateEl = document.getElementById("sessionDate");
+    const trappedEmotionsEl = document.getElementById("trappedEmotions");
+    const commentsEl = document.getElementById("sessionComments");
+    const insightsEl = document.getElementById("sessionInsights");
+    const customerSummaryEl = document.getElementById("customerSummary");
+    const limitingBeliefsEl = document.getElementById("limitingBeliefs");
+    const additionalTechEl = document.getElementById("additionalTech");
+    const heartShieldToggleEl = document.getElementById("heartShieldToggle");
+    const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
+    const sessionTypeRadio = document.querySelector("input[name='sessionType']:checked");
+    const shieldRemovedRadio = document.querySelector("input[name='shieldRemoved']:checked");
+    return {
+      clientId: clientSelect ? Number.parseInt(clientSelect.value, 10) || null : null,
+      date: sessionDateEl ? sessionDateEl.value : "",
+      sessionType: sessionTypeRadio ? sessionTypeRadio.value : "",
+      trappedEmotions: trappedEmotionsEl ? trappedEmotionsEl.value : "",
+      comments: commentsEl ? commentsEl.value : "",
+      insights: insightsEl ? insightsEl.value : "",
+      customerSummary: customerSummaryEl ? customerSummaryEl.value : "",
+      limitingBeliefs: limitingBeliefsEl ? limitingBeliefsEl.value : "",
+      additionalTech: additionalTechEl ? additionalTechEl.value : "",
+      isHeartShield: heartShieldToggleEl ? !!heartShieldToggleEl.checked : false,
+      heartShieldEmotions: heartShieldEmotionsEl ? heartShieldEmotionsEl.value : "",
+      shieldRemoved: shieldRemovedRadio ? shieldRemovedRadio.value === "yes" : null,
+      issues: getIssuesPayload().map((issue) => ({ name: issue.name, before: issue.before, after: issue.after })),
+    };
+  }
+
+  // D-06 (Phase 24): revert form to last-saved snapshot. Delegates to populateSession for
+  //   the heavy lifting (handles all textareas, issues teardown/rebuild, spotlight refresh).
+  function revertSessionForm() {
+    if (!lastSavedSnapshot) return;
+    populateSession(lastSavedSnapshot, issues, createIssueBlock);
+    formDirty = false;
+    updateCancelButtonLabel();
+  }
+
+  // D-04 (Phase 24): asymmetric Cancel button label. "Cancel" when clean, "Discard changes" when dirty.
+  function updateCancelButtonLabel() {
+    if (!cancelButton) return;
+    const labelSpan = cancelButton.querySelector(".button-label");
+    if (!labelSpan) return;
+    const isDirty = !!(window.PortfolioFormDirty && window.PortfolioFormDirty());
+    const key = isDirty ? "session.discard" : "confirm.cancel";
+    if (labelSpan.getAttribute("data-i18n") !== key) {
+      labelSpan.setAttribute("data-i18n", key);
+    }
+    labelSpan.textContent = App.t(key);
   }
 
   function getClientNameForCopy() {
@@ -1411,6 +1474,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (editButton) {
     editButton.addEventListener("click", () => {
       setReadMode(false);
+      updateCancelButtonLabel();
+    });
+  }
+
+  // D-02/D-03/D-04/D-06 (Phase 24): Cancel/Revert button — confirm on dirty, silent on clean.
+  if (cancelButton) {
+    cancelButton.addEventListener("click", async () => {
+      const isDirty = !!(window.PortfolioFormDirty && window.PortfolioFormDirty());
+      if (isDirty) {
+        const ok = await App.confirmDialog({
+          titleKey: "confirm.discard.title",
+          messageKey: "confirm.discard.body",
+          confirmKey: "confirm.discard.yes",
+          cancelKey: "confirm.discard.no",
+          tone: "danger",
+        });
+        if (!ok) return;
+        revertSessionForm();
+      }
+      setReadMode(true);
+      updateCancelButtonLabel();
     });
   }
 
@@ -1588,6 +1672,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (isReadMode) resizeReadModeTextareas();
     populateSpotlight(editingSession ? editingSession.clientId : (clientSelect ? clientSelect.value : null));
+    updateCancelButtonLabel(); // D-04: re-translate Cancel/Discard label
   });
 
   if (sessionId && Number.isInteger(sessionId)) {
@@ -1601,6 +1686,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       setReadMode(true);
       applySectionVisibility(true);
       applySectionLabels();
+      // D-06 (Phase 24): snapshot the freshly-loaded session for revertSessionForm.
+      //   Wait one tick so populateSession's dynamic issue rows are in the DOM before reading.
+      Promise.resolve().then(() => {
+        lastSavedSnapshot = snapshotFormState();
+        formDirty = false; // populateSession's value writes trigger 'input' events
+        updateCancelButtonLabel();
+      });
     }
   } else {
     // New session — hide disabled sections from the form per REQ-3.

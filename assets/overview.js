@@ -447,7 +447,8 @@ function renderClientRows(clients, sessionsByClient) {
         const editButton = document.createElement("button");
         editButton.className = "row-toggle edit-button";
         editButton.type = "button";
-        editButton.textContent = App.t("overview.table.edit");
+        // D-07 (Phase 24): label is "View" (not "Edit") — entry opens read mode by default.
+        editButton.innerHTML = '<span class="button-label" data-i18n="overview.table.view">' + App.t("overview.table.view") + '</span><span class="button-icon" aria-hidden="true">&#9998;</span>';
         editButton.addEventListener("click", () => {
           window.location.href = `./add-session.html?sessionId=${session.id}`;
         });
