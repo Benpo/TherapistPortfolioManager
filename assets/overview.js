@@ -327,7 +327,20 @@ function renderClientRows(clients, sessionsByClient) {
 
   clients.forEach((client) => {
     const clientSessions = sessionsByClient.get(client.id) || [];
-    clientSessions.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    // Phase 24 Plan 06 follow-up (UAT 2026-05-14): when two sessions share the
+    // same date, the pure-string compare returns 0 and stable sort keeps IDB
+    // insertion order — putting the oldest same-date session first. The clock-
+    // icon expansion then renders them in the WRONG order (oldest-of-today on
+    // top instead of bottom). Mirror the spotlight helper's comparator: date
+    // desc, then createdAt desc, then id desc as final fallback.
+    clientSessions.sort((a, b) => {
+      const cmp = String(b.date || "").localeCompare(String(a.date || ""));
+      if (cmp !== 0) return cmp;
+      const ca = new Date(a.createdAt || 0).getTime();
+      const cb = new Date(b.createdAt || 0).getTime();
+      if (cb !== ca) return cb - ca;
+      return (b.id || 0) - (a.id || 0);
+    });
 
     const row = document.createElement("tr");
     row.className = "client-row";

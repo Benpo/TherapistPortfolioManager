@@ -63,7 +63,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       return true;
     });
 
-    filtered.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    // Phase 24 Plan 06 follow-up (UAT 2026-05-14): same-date tiebreaker — without
+    // createdAt + id secondary keys, two sessions on the same date preserve their
+    // IDB insertion order (oldest first), which makes the sessions list display
+    // same-date entries upside-down. Mirror the spotlight helper's comparator.
+    filtered.sort((a, b) => {
+      const cmp = String(b.date || "").localeCompare(String(a.date || ""));
+      if (cmp !== 0) return cmp;
+      const ca = new Date(a.createdAt || 0).getTime();
+      const cb = new Date(b.createdAt || 0).getTime();
+      if (cb !== ca) return cb - ca;
+      return (b.id || 0) - (a.id || 0);
+    });
 
     tableBody.innerHTML = "";
 
