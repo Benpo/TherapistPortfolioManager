@@ -162,6 +162,24 @@ test('E. Spot-check records 0, 29, 59 have all 4 locales filled', () => {
   });
 });
 
+// --- G. Emotion-name prefix: every non-empty expansion starts with "<Name> — " ---
+test('G. Every non-empty expansion has the emotion-name prefix + em-dash separator', () => {
+  const SEP = ' — ';
+  SEED.forEach((s) => {
+    ['he', 'en', 'cs', 'de'].forEach((loc) => {
+      const text = s.expansions[loc];
+      if (!text || text.length === 0) return; // empty allowed for non-spot-check indices
+      assert.ok(text.includes(SEP),
+        `record ${s.id} expansion ${loc} must contain " — " separator (got: ${text.slice(0, 50)}…)`);
+      // The separator must appear within the first ~50 chars (i.e., this is a prefix,
+      // not just a dash embedded mid-sentence).
+      const sepIdx = text.indexOf(SEP);
+      assert.ok(sepIdx > 0 && sepIdx < 50,
+        `record ${s.id} expansion ${loc}: separator must be in prefix position (got idx ${sepIdx})`);
+    });
+  });
+});
+
 // --- F. Tag distribution: exactly 5 per cell × 12 cells ---
 test('F. Tag distribution is exactly 5 records per cell across 12 cells', () => {
   const counts = {};
