@@ -29,8 +29,18 @@ window.Snippets = (function () {
   const DEFAULT_PREFIX = ";";
   const MAX_TRIGGER_LEN = 32;
   const POPOVER_LIMIT = 8;
+  const PREFIX_STORAGE_KEY = "portfolioSnippetPrefix";
 
-  let _prefix = DEFAULT_PREFIX;
+  function readStoredPrefix() {
+    try {
+      if (typeof localStorage === "undefined") return DEFAULT_PREFIX;
+      const v = localStorage.getItem(PREFIX_STORAGE_KEY);
+      if (typeof v === "string" && v.length >= 1 && v.length <= 2) return v;
+    } catch (e) { /* localStorage disabled — fall through */ }
+    return DEFAULT_PREFIX;
+  }
+
+  let _prefix = readStoredPrefix();
   let _bound = new WeakMap();    // textarea → { listeners }
   let _popoverEl = null;
   let _popoverState = null;      // { textarea, candidates, selectedIndex, start, end }
@@ -473,6 +483,24 @@ window.Snippets = (function () {
       throw new Error("setPrefix: prefix length must be 1 or 2 chars (got " + newPrefix.length + ")");
     }
     _prefix = newPrefix;
+    // Persist so the new prefix survives reload. Plan 04 spec required
+    // setPrefix to "validate + persist + broadcast" but only validation
+    // was originally shipped — caught during Plan 05 UAT.
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix);
+      }
+    } catch (e) { /* localStorage quota or disabled — runtime still works */ }
+  }
+
+  // Cross-tab sync: when another tab writes a new prefix, pick it up here.
+  if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+    window.addEventListener("storage", function (e) {
+      if (!e || e.key !== PREFIX_STORAGE_KEY) return;
+      if (typeof e.newValue !== "string") return;
+      if (e.newValue.length < 1 || e.newValue.length > 2) return;
+      _prefix = e.newValue;
+    });
   }
 
   // Auto-init on DOMContentLoaded (idempotent — init() guards via _bound WeakMap).

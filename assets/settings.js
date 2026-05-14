@@ -987,9 +987,11 @@ window.SettingsPage = (function () {
     row.className = "snippets-list-row";
     row.setAttribute("data-snippet-id", snippet.id);
 
+    // List shows the bare trigger only — repeating the prefix on every row
+    // is redundant (it's already configured at the top of the page).
     var trig = document.createElement("span");
     trig.className = "snippets-list-trigger";
-    trig.textContent = prefix + (snippet.trigger || "");
+    trig.textContent = snippet.trigger || "";
     row.appendChild(trig);
 
     var preview = document.createElement("span");
