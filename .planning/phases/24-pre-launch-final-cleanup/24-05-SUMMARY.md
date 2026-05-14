@@ -1,8 +1,40 @@
 # Plan 24-05 — Snippet Settings UI (Summary)
 
-**Status:** ⏳ **SHIPPED — AWAITING UAT.** All implementation tasks complete. 31 automated test scenarios pass + 38 Plan-04 + 7 Plan-06 regression scenarios all green. Browser UAT (22 numbered steps in `24-05-UAT.md`) pending Ben's walk-through. Update this header to "✅ SHIPPED + UAT CONFIRMED" after each scenario passes.
+**Status:** ✅ **SHIPPED + UAT CONFIRMED** (2026-05-14, session 3). 84 automated test scenarios across 12 test files all green. Browser UAT walked end-to-end with Ben; 13 distinct findings surfaced and fixed in-session (see "UAT findings + fixes" below). Phase 24 is now launch-shape for v1.1.
 
 **Date shipped:** 2026-05-14 (session 3)
+**Date confirmed:** 2026-05-14
+
+## UAT findings + fixes (session 3, post-Task-2)
+
+| # | Finding | Commit |
+|---|---------|--------|
+| 1 | Duplicate theme toggle button on settings.html (double initCommon) | `ef20684` |
+| 2 | `common.save` rendered as raw text in editor (missing i18n key × 4 locales) | `adac0b8` |
+| 3 | L3 IP-strip: Emotion Code chart references (`ec.*` IDs + tags + comments) removed from the seed pack; IDs renamed to `seed.<slug>`; seeds re-sorted alphabetically | `d23a24b` |
+| 4 | Settings page hierarchy: two co-equal tabs ("Custom field names" + "Text Snippets") replace the implicit-vs-explicit asymmetry | `c671da5` |
+| 5 | Tag-trigger MVP: `;<tagname>` falls back to tag prefix-match in the popover when no trigger matches | `dd78aff` |
+| 6 | Defensive reset of tag-input state on every editor open (un-Enter'd text was visually persisting) | `b125116` |
+| 7 | Hebrew/German/Czech tag-trigger: regex changed from `[A-Za-z0-9-]` to Unicode-aware `[\p{L}\p{N}-]` with `u` flag | `80dc91d` |
+| 8 | German + Czech tag-trigger regression scenarios locked (ä, ö, ü, ß, í, ů, č, ř) | `45b05e0` |
+| 9 | Prefix persistence: `Snippets.setPrefix` now writes to localStorage; module init reads it back; cross-tab `storage`-event sync. Plus dropped redundant prefix prefix from every list row | `ba9b9b4` |
+| 10 | Inline "Prefix saved" indicator beside the input (replaces the misleading bottom toast that said "Snippet saved") | `a651a43` |
+| 11 | Prefix block layout: helper above input; error indicator into the input's flex row; "Snippet library" subsection header + helper; editor modal helper text; SVG edit/delete icons replace emoji ✎ 🗑; `app:language` listener clears stale prefix indicators | `736165e` |
+| 12 | Hebrew rename: `קטע m.` → `השלמה f.` (gender flips through ~24 keys); `תחילית הפעלה` → `סימן הפעלה` (5 keys). Section helper rewritten with a value-led + "how it works" copy across all 4 locales | `a01bf7c` |
+
+**SW cache progression this session:** v124 → v137 (13 auto-bumps by pre-commit hook).
+
+## Commit chain (session 3)
+
+| Commit | What |
+|--------|------|
+| `b8cbbad` | docs(24-05) — refresh plan against shipped Plan 04 API surface + test-coverage table + anti-pattern blocks |
+| `153770b` | feat(24-05) Task 1 — Settings UI markup + wiring + 5 helpers + 31 unit-test scenarios + 22-step UAT |
+| `da8a286` | feat(24-05) Task 2 — i18n keys × 4 locales + CSS block + Hebrew noun-form lock |
+| `2fcf28c` | docs(24-05) — initial draft SUMMARY (awaiting UAT) |
+| `ef20684`–`a01bf7c` | 13 in-session UAT fixes (see table above) |
+
+Pre-commit hook auto-bumped `sw.js` CACHE_NAME on every asset commit: v124 → v137.
 
 ## Commit chain
 
