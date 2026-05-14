@@ -11,16 +11,17 @@
  * Run: node tests/24-04-seed-pack.test.js
  * Exits 0 on full pass, 1 on any failure.
  *
- * Per the 24-04 PLAN Test Coverage Plan, six scenarios:
+ * Per the 24-04 PLAN Test Coverage Plan, six scenarios (updated for L3 IP-strip):
  *   A. Frozen array, length === 60.
- *   B. Every record matches the schema (id/trigger regex, expansions shape,
- *      tags shape, origin, timestamps).
+ *   B. Every record matches the schema (id "seed.<slug>", trigger regex,
+ *      expansions shape, empty tags by default, origin, timestamps).
  *   C. All 60 triggers unique case-insensitively.
  *   D. Every record has non-empty `en` OR non-empty `he` (fallback-chain
  *      guarantee — see REQ-3).
  *   E. Spot-check indices 0, 29, 59 — all 4 locales filled (no empty strings).
- *   F. Tag distribution: exactly 5 records per `ec.<col><row>` tag,
- *      12 cells, 60 total.
+ *   F. Seeds are alphabetically sorted by trigger AND all have empty tags
+ *      (L3 IP-strip: no chart-cell tag references).
+ *   G. Emotion-name prefix in every non-empty expansion.
  */
 
 'use strict';
@@ -72,20 +73,24 @@ test('A. SNIPPETS_SEED is a frozen array of length 60', () => {
 });
 
 // --- B. Schema validation on every record ---
-test('B. Every record matches the snippet schema', () => {
-  const idRe = /^ec\.[ab][1-6]\.[a-z0-9-]+$/;
+test('B. Every record matches the snippet schema (L3 IP-strip applied)', () => {
+  // L3: ids are "seed.<slug>", tags are empty arrays (no chart-cell refs).
+  const idRe = /^seed\.[a-z0-9-]+$/;
   const triggerRe = /^[a-z0-9-]{2,32}$/;
-  const tagRe = /^ec\.[ab][1-6]$/;
   const TS = '2026-05-14T00:00:00.000Z';
 
   SEED.forEach((s, i) => {
     assert.strictEqual(typeof s, 'object', `record ${i}: must be an object`);
     assert.ok(s !== null, `record ${i}: must not be null`);
 
-    // id
+    // id (L3: seed.<slug>)
     assert.strictEqual(typeof s.id, 'string', `record ${i}: id must be string`);
     assert.ok(idRe.test(s.id),
-      `record ${i}: id "${s.id}" must match /^ec\\.[ab][1-6]\\.[a-z0-9-]+$/`);
+      `record ${i}: id "${s.id}" must match /^seed\\.[a-z0-9-]+$/ (L3 IP-strip)`);
+
+    // id-trigger consistency: id should be "seed.<trigger>"
+    assert.strictEqual(s.id, `seed.${s.trigger}`,
+      `record ${i} (${s.id}): id must equal "seed." + trigger ("${s.trigger}")`);
 
     // trigger
     assert.strictEqual(typeof s.trigger, 'string',
@@ -103,15 +108,11 @@ test('B. Every record matches the snippet schema', () => {
         `record ${i} (${s.id}): expansions.${loc} must be a string`);
     });
 
-    // tags
+    // tags — L3: empty array by default. Users add tags via Settings editor.
     assert.ok(Array.isArray(s.tags),
       `record ${i} (${s.id}): tags must be an array`);
-    s.tags.forEach((t, j) => {
-      assert.strictEqual(typeof t, 'string',
-        `record ${i} (${s.id}): tag ${j} must be a string`);
-      assert.ok(tagRe.test(t),
-        `record ${i} (${s.id}): tag "${t}" must match /^ec\\.[ab][1-6]$/`);
-    });
+    assert.strictEqual(s.tags.length, 0,
+      `record ${i} (${s.id}): tags must be empty by default (L3 IP-strip), got ${JSON.stringify(s.tags)}`);
 
     // origin
     assert.strictEqual(s.origin, 'seed',
@@ -180,25 +181,20 @@ test('G. Every non-empty expansion has the emotion-name prefix + em-dash separat
   });
 });
 
-// --- F. Tag distribution: exactly 5 per cell × 12 cells ---
-test('F. Tag distribution is exactly 5 records per cell across 12 cells', () => {
-  const counts = {};
+// --- F. Alphabetical order + empty tags (L3 IP-strip) ---
+test('F. Seeds are alphabetically sorted by trigger AND all have empty tags', () => {
+  // Alphabetical order (L3: sort removes any implicit chart-cell structure).
+  const triggers = SEED.map((s) => s.trigger);
+  const sorted = triggers.slice().sort();
+  assert.deepStrictEqual(triggers, sorted,
+    `Seeds must be alphabetically sorted by trigger. ` +
+    `First out-of-order: index ${triggers.findIndex((t, i) => t !== sorted[i])}`);
+
+  // Empty tags (L3: no chart-cell tag references shipped in v1.1).
   SEED.forEach((s) => {
-    s.tags.forEach((t) => {
-      counts[t] = (counts[t] || 0) + 1;
-    });
+    assert.strictEqual(s.tags.length, 0,
+      `record ${s.id}: tags must be empty by default (L3 IP-strip)`);
   });
-  const expectedCells = [
-    'ec.a1', 'ec.a2', 'ec.a3', 'ec.a4', 'ec.a5', 'ec.a6',
-    'ec.b1', 'ec.b2', 'ec.b3', 'ec.b4', 'ec.b5', 'ec.b6',
-  ];
-  expectedCells.forEach((cell) => {
-    assert.strictEqual(counts[cell], 5,
-      `cell ${cell} must contain exactly 5 records (got ${counts[cell] || 0})`);
-  });
-  const total = Object.values(counts).reduce((acc, n) => acc + n, 0);
-  assert.strictEqual(total, 60,
-    `tag totals must sum to 60 (got ${total})`);
 });
 
 // --- Report ---

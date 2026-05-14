@@ -85,8 +85,9 @@ function assertFalse(v, label) {
 
 const SEED_TS = '2026-05-14T00:00:00.000Z';
 function seedEntry(overrides) {
+  // L3: ids are "seed.<slug>"; tags are empty arrays by default.
   return Object.assign({
-    id: 'ec.a1.betrayal',
+    id: 'seed.betrayal',
     trigger: 'betrayal',
     expansions: {
       he: 'בגידה — תחושה כואבת.',
@@ -94,7 +95,7 @@ function seedEntry(overrides) {
       cs: 'Zrada — bolestivá rána.',
       de: 'Verrat — ein schmerzhafter Schlag.',
     },
-    tags: ['ec.a1'],
+    tags: [],
     origin: 'seed',
     createdAt: SEED_TS,
     updatedAt: SEED_TS,
@@ -110,7 +111,7 @@ test('A. origin="user" → false (not a seed)', () => {
 });
 
 test('B. origin="seed", id has no match in seedPack → false (orphan)', () => {
-  const s = seedEntry({ id: 'ec.zz.nonexistent' });
+  const s = seedEntry({ id: 'seed.nonexistent-emotion' });
   assertFalse(isModifiedSeed(s, seedPack), 'B');
 });
 
@@ -132,8 +133,10 @@ test('E. seed, timestamps match but one locale expansion differs by 1 char → t
   assertTrue(isModifiedSeed(s, seedPack), 'E');
 });
 
-test('F. seed, content matches but tags differ → true', () => {
-  const s = seedEntry({ tags: ['ec.a1', 'user-added-tag'] });
+test('F. seed, content matches but user added a tag → true', () => {
+  // L3: seeds ship with empty tags; user can add their own via Settings editor.
+  // If the user adds any tag to a seed snippet, isModifiedSeed must return true.
+  const s = seedEntry({ tags: ['user-added-tag'] });
   assertTrue(isModifiedSeed(s, seedPack), 'F');
 });
 

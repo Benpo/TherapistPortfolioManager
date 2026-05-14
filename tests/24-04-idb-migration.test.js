@@ -18,9 +18,9 @@
  * 6 scenarios per the Plan 04 Test Coverage Plan:
  *   A. Fresh open at v0 → snippets store has 60 records, origin='seed'.
  *   B. Second openDB() — no duplicates (count stays 60).
- *   C. deleteSnippet('ec.a1.betrayal') → deletedSeedIds entry persists;
+ *   C. deleteSnippet('seed.betrayal') → deletedSeedIds entry persists;
  *      reopen → still 59 records.
- *   D. resetSeedSnippet('ec.a1.betrayal') → restored AND deletedSeedIds cleared.
+ *   D. resetSeedSnippet('seed.betrayal') → restored AND deletedSeedIds cleared.
  *   E. Pre-existing v4 data (clients/sessions/therapistSettings) intact across
  *      v4 → v5 upgrade; snippets store populated.
  *   F. clearAll() clears snippets store AND resets seeding flag so a fresh
@@ -365,16 +365,16 @@ async function test(name, fn) {
 
   // ─── C. deleteSnippet on seed → reopen still shows 59 ───────────────
   await test('C. Delete a seed snippet → deletedSeedIds blocks re-add on reopen', async () => {
-    await PortfolioDB.deleteSnippet('ec.a1.betrayal');
+    await PortfolioDB.deleteSnippet('seed.betrayal');
     let all = await PortfolioDB.getAllSnippets();
     assert.strictEqual(all.length, 59,
       `expected 59 after deleting one seed, got ${all.length}`);
-    assert.strictEqual(all.find((s) => s.id === 'ec.a1.betrayal'), undefined,
+    assert.strictEqual(all.find((s) => s.id === 'seed.betrayal'), undefined,
       'deleted snippet must not be present');
 
     // Now reopen via another op. The seed-populate hook should detect the deletion
     // via deletedSeedIds and NOT re-add the seed.
-    await PortfolioDB.getSnippet('ec.a1.abandonment');
+    await PortfolioDB.getSnippet('seed.abandonment');
     all = await PortfolioDB.getAllSnippets();
     assert.strictEqual(all.length, 59,
       `count must remain 59 on reopen, got ${all.length} — deletedSeedIds not honoring delete`);
@@ -387,20 +387,20 @@ async function test(name, fn) {
 
   // ─── D. resetSeedSnippet → restored + deletedSeedIds cleared ────────
   await test('D. resetSeedSnippet restores the seed AND clears the deletedSeedIds entry', async () => {
-    await PortfolioDB.resetSeedSnippet('ec.a1.betrayal');
+    await PortfolioDB.resetSeedSnippet('seed.betrayal');
     const all = await PortfolioDB.getAllSnippets();
     assert.strictEqual(all.length, 60,
       `expected 60 after reset, got ${all.length}`);
-    const restored = all.find((s) => s.id === 'ec.a1.betrayal');
-    assert.ok(restored, 'ec.a1.betrayal must be restored');
+    const restored = all.find((s) => s.id === 'seed.betrayal');
+    assert.ok(restored, 'seed.betrayal must be restored');
     assert.strictEqual(restored.origin, 'seed', 'restored snippet keeps origin "seed"');
     assert.strictEqual(restored.trigger, 'betrayal', 'restored trigger matches seed pack');
 
     const settings = await PortfolioDB.getAllTherapistSettings();
     const entry = settings.find((s) => s.sectionKey === 'snippetsDeletedSeeds');
     const list = entry && entry.deletedIds ? entry.deletedIds : [];
-    assert.ok(!list.includes('ec.a1.betrayal'),
-      'deletedSeedIds must no longer include ec.a1.betrayal after reset');
+    assert.ok(!list.includes('seed.betrayal'),
+      'deletedSeedIds must no longer include seed.betrayal after reset');
   });
 
   // ─── E. Pre-existing data intact across migration ───────────────────
