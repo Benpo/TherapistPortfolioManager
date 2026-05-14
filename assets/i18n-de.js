@@ -374,6 +374,9 @@ window.I18N.de = {
   // Phase 24 Plan 05 \u2014 Snippet Settings UI (~50 keys)
   "snippets.section.title": "Textbausteine",
   "snippets.section.helper": "Wiederverwendbare Textbausteine f\u00FCr Sitzungsnotizen.",
+  "snippets.library.title": "Bausteinbibliothek",
+  "snippets.library.helper": "Bausteine durchsuchen, Tags verwalten oder neue hinzuf\u00FCgen. Geben Sie Ihr Ausl\u00F6ser-Pr\u00E4fix gefolgt vom Tag-Namen in einer Sitzungsnotiz ein, um nach Tag zu filtern.",
+  "snippets.editor.helper": "Legen Sie einen Ausl\u00F6ser und den Text fest, der eingef\u00FCgt wird, wenn Sie das Pr\u00E4fix + den Ausl\u00F6ser in einer Sitzungsnotiz tippen. Mit Tags lassen sich verwandte Bausteine gruppieren.",
   "snippets.prefix.label": "Ausl\u00F6ser-Pr\u00E4fix",
   "snippets.prefix.helper": "1 oder 2 Zeichen. Keine Buchstaben, Ziffern, Leerzeichen, Anf\u00FChrungszeichen oder spitzen Klammern.",
   "snippets.prefix.error.length": "Pr\u00E4fix muss 1 oder 2 Zeichen lang sein.",

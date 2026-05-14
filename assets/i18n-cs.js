@@ -374,6 +374,9 @@ window.I18N.cs = {
   // Phase 24 Plan 05 \u2014 Snippet Settings UI (~50 keys)
   "snippets.section.title": "Textov\u00E9 \u00FAryvky",
   "snippets.section.helper": "Opakovan\u011B pou\u017Eiteln\u00E9 texty pro pozn\u00E1mky ze sezen\u00ED.",
+  "snippets.library.title": "Knihovna \u00FAryvk\u016F",
+  "snippets.library.helper": "Hledejte \u00FAryvky, spravujte \u0161t\u00EDtky nebo p\u0159id\u00E1vejte nov\u00E9. Napi\u0161te svou spou\u0161t\u011Bc\u00ED p\u0159edponu n\u00E1sledovanou n\u00E1zvem \u0161t\u00EDtku v pozn\u00E1mce sezen\u00ED pro filtrov\u00E1n\u00ED podle \u0161t\u00EDtku.",
+  "snippets.editor.helper": "Nastavte spou\u0161t\u011B\u010D a text, kter\u00FD se vlo\u017E\u00ED, kdy\u017E nap\u00ED\u0161ete p\u0159edponu + spou\u0161t\u011B\u010D v pozn\u00E1mce sezen\u00ED. \u0160t\u00EDtky slou\u017E\u00ED k seskupen\u00ED souvisej\u00EDc\u00EDch \u00FAryvk\u016F.",
   "snippets.prefix.label": "Spou\u0161t\u011Bc\u00ED p\u0159edpona",
   "snippets.prefix.helper": "1 nebo 2 znaky. Nesm\u00ED b\u00FDt p\u00EDsmeno, \u010D\u00EDslice, mezera, uvozovka ani lomen\u00E1 z\u00E1vorka.",
   "snippets.prefix.error.length": "P\u0159edpona mus\u00ED m\u00EDt 1 nebo 2 znaky.",

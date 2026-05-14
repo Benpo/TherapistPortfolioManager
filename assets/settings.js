@@ -905,6 +905,16 @@ window.SettingsPage = (function () {
         showError("snippets.prefix.error.invalidChar");
       }
     });
+
+    // Hide stale indicators when the app language changes — their textContent
+    // was set via t(messageKey) at validation/save time, so a language switch
+    // would otherwise leave them in the previous locale (UAT bug: Hebrew error
+    // remained visible after switching to English).
+    document.addEventListener("app:language", function () {
+      clearError();
+      if (savedEl) savedEl.classList.add("is-hidden");
+      if (savedTimer) { clearTimeout(savedTimer); savedTimer = null; }
+    });
   }
 
   // ──────────────────────────────────────────────────────────────────────
@@ -1030,7 +1040,7 @@ window.SettingsPage = (function () {
     editBtn.type = "button";
     editBtn.className = "icon-button";
     editBtn.setAttribute("aria-label", t("snippets.list.edit.aria"));
-    editBtn.textContent = "✎";
+    editBtn.appendChild(buildIconSvg(EDIT_ICON_PATHS));
     editBtn.addEventListener("click", function () { openEditor(snippet); });
     row.appendChild(editBtn);
 
@@ -1038,11 +1048,49 @@ window.SettingsPage = (function () {
     delBtn.type = "button";
     delBtn.className = "icon-button danger";
     delBtn.setAttribute("aria-label", t("snippets.list.delete.aria"));
-    delBtn.textContent = "🗑";
+    delBtn.appendChild(buildIconSvg(TRASH_ICON_PATHS));
     delBtn.addEventListener("click", function () { handleDelete(snippet); });
     row.appendChild(delBtn);
 
     return row;
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // SVG icons — stroke-based, cleanCurrentColor-themed, RTL-safe
+  // ──────────────────────────────────────────────────────────────────────
+
+  // Feather-style pencil/edit icon: paper + pencil
+  var EDIT_ICON_PATHS = [
+    "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7",
+    "M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z",
+  ];
+  // Feather-style trash icon: lid + body + two vertical lines
+  var TRASH_ICON_PATHS = [
+    "M3 6h18",
+    "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6",
+    "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2",
+    "M10 11v6",
+    "M14 11v6",
+  ];
+
+  function buildIconSvg(paths) {
+    var NS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("width", "18");
+    svg.setAttribute("height", "18");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "1.8");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    svg.setAttribute("aria-hidden", "true");
+    paths.forEach(function (d) {
+      var p = document.createElementNS(NS, "path");
+      p.setAttribute("d", d);
+      svg.appendChild(p);
+    });
+    return svg;
   }
 
   // ──────────────────────────────────────────────────────────────────────

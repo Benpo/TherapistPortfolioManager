@@ -110,13 +110,16 @@
 
             <div class="form-field">
               <label class="label" for="snippetPrefixInput" data-i18n="snippets.prefix.label">Trigger prefix</label>
+              <p class="helper-text" data-i18n="snippets.prefix.helper">1 or 2 characters. Cannot be a letter, digit, whitespace, quote, or angle bracket.</p>
               <div class="snippets-prefix-row">
                 <input id="snippetPrefixInput" class="input snippets-prefix-input" type="text" minlength="1" maxlength="2" autocomplete="off" />
                 <p id="snippetPrefixSaved" class="success-text is-hidden" role="status" aria-live="polite" data-i18n="snippets.prefix.saved">Prefix saved</p>
+                <p id="snippetPrefixError" class="error-text is-hidden" role="status" aria-live="polite"></p>
               </div>
-              <p class="helper-text" data-i18n="snippets.prefix.helper">1 or 2 characters. Cannot be a letter, digit, whitespace, quote, or angle bracket.</p>
-              <p id="snippetPrefixError" class="error-text is-hidden"></p>
             </div>
+
+            <h3 class="snippets-subsection-title" data-i18n="snippets.library.title">Snippet library</h3>
+            <p class="helper-text" data-i18n="snippets.library.helper">Search snippets, manage tags, or add new ones. Type your trigger prefix followed by a tag name in any session note to filter by tag.</p>
 
             <div class="snippets-list-toolbar">
               <input id="snippetSearchInput" class="input snippets-search-input" type="search" data-i18n-placeholder="snippets.search.placeholder" />
@@ -160,6 +163,7 @@
     <div class="modal-card snippets-editor-card">
       <button class="modal-close" id="snippetEditorClose" type="button" aria-label="Close">×</button>
       <h3 id="snippetEditorTitle" class="modal-title" data-i18n="snippets.editor.title.add">Add snippet</h3>
+      <p class="helper-text snippets-editor-helper" data-i18n="snippets.editor.helper">Set a trigger word and the text that will be inserted when you type the prefix + trigger in a session note. Add tags to group related snippets.</p>
 
       <div class="form-field">
         <label class="label" for="snippetEditorTrigger" data-i18n="snippets.editor.trigger.label">Trigger</label>

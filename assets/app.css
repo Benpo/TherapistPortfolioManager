@@ -3176,6 +3176,18 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   gap: var(--space-2, 10px);
   flex-wrap: wrap;
 }
+.snippets-subsection-title {
+  margin-block-start: var(--space-5, 24px);
+  margin-block-end: var(--space-1, 6px);
+  font-size: var(--font-size-md, 1rem);
+  font-weight: 600;
+  color: var(--color-text, #2d2616);
+}
+.snippets-editor-helper {
+  margin-block-start: 0;
+  margin-block-end: var(--space-3, 12px);
+  color: var(--color-text-muted, #7a6d50);
+}
 .success-text {
   margin: 0;
   color: var(--color-success, #5a8a3a);

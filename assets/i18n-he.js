@@ -361,6 +361,9 @@ window.I18N.he = {
   // Phase 24 Plan 05 — Snippet Settings UI (~50 keys; Hebrew noun/infinitive forms per D-05)
   "snippets.section.title": "קטעי טקסט",
   "snippets.section.helper": "טקסטים שימושיים להוספה לתיעוד המפגש.",
+  "snippets.library.title": "ספריית הקטעים",
+  "snippets.library.helper": "חיפוש קטעים, ניהול תגיות, או הוספת חדשים. הקלדת תחילית ההפעלה ולאחריה שם תגית בתיעוד המפגש לסינון לפי תגית.",
+  "snippets.editor.helper": "הגדרת מילת הפעלה והטקסט שייכנס בעת הקלדת התחילית + מילת ההפעלה בתיעוד מפגש. הוספת תגיות לקיבוץ קטעים קשורים.",
   "snippets.prefix.label": "תחילית הפעלה",
   "snippets.prefix.helper": "תו אחד או שניים. לא ניתן להשתמש באותיות, ספרות, רווחים, מירכאות או סימני קטן/גדול.",
   "snippets.prefix.error.length": "התחילית חייבת להיות 1 או 2 תווים.",
