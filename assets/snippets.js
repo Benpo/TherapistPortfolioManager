@@ -104,12 +104,37 @@ window.Snippets = (function () {
     for (const [trigger, snippet] of snippetsByTrigger) {
       if (trigger.startsWith(triggerText)) candidates.push(snippet);
     }
+
+    // Phase 24 Plan 05 — Tag-trigger MVP. When no trigger prefix-matches the
+    // query, fall back to tag prefix-match: return all snippets whose tags
+    // include a tag starting with the query. Lets the user type ;<tagname>
+    // to surface a curated subset of snippets in the popover.
+    let matchedTag = null;
+    if (candidates.length === 0) {
+      const seen = new Set();
+      for (const snippet of snippetsByTrigger.values()) {
+        if (!snippet || !Array.isArray(snippet.tags)) continue;
+        for (let i = 0; i < snippet.tags.length; i++) {
+          const tag = String(snippet.tags[i] || "").toLowerCase();
+          if (tag.startsWith(triggerText)) {
+            if (!seen.has(snippet.id)) {
+              seen.add(snippet.id);
+              candidates.push(snippet);
+            }
+            if (matchedTag === null) matchedTag = tag;
+            break;
+          }
+        }
+      }
+    }
+
     candidates.sort(function (a, b) { return a.trigger.localeCompare(b.trigger); });
     return {
       type: "partial",
       start: matchStart,
       end: matchEnd,
       query: triggerText,
+      matchedTag: matchedTag,
       candidates: candidates.slice(0, POPOVER_LIMIT),
     };
   }
