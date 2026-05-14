@@ -525,6 +525,49 @@ Plans:
 
 ---
 
+### Phase 26: In-App Onboarding & Overview / Help System
+
+**Goal:** Design (research + UX + mockup) a built-in overview/onboarding/help system so prospective customers and new trial users can understand the app's features without external documentation. The app has accumulated significant functionality (sessions, emotions, Heart Shield, severity, search, PDF export, encryption, backups, etc.) and currently ships with zero in-app guidance. As we prepare to market and sell to therapists, a "what this app does and how to use it" surface becomes a launch prerequisite.
+
+**This phase is research-and-design heavy** — implementation may slip to a follow-up phase. The output of this phase is primarily: a design contract (UI-SPEC.md), research on similar-app patterns, and possibly an HTML mockup. Whether to also build it here is a discuss-phase decision.
+
+**In scope (to be refined in `/gsd-discuss-phase 26`):**
+
+1. **Research how comparable apps do onboarding/help** — practice-management apps, note-taking apps, PWAs for solo practitioners. Patterns to evaluate:
+   - (a) Single tutorial/welcome screen on first launch with full feature tour.
+   - (b) Per-screen contextual help (small "?" icon per screen, opens panel for that screen).
+   - (c) Empty-state coaching (instructions surface only when a feature has no data yet).
+   - (d) Persistent "Help" or "Overview" page reachable from nav — the user can return any time.
+   - (e) Interactive guided product tour overlay (Shepherd.js / Driver.js style).
+   - (f) Hybrid combinations of the above.
+
+2. **Decide which features deserve documentation** — not every feature warrants a tutorial entry. Triage which surfaces are non-obvious (Heart Shield workflow, severity reversal, emotions quick-paste, backup architecture, PDF export, language switching).
+
+3. **Decide whether the surface is mainly for the new trial user (first-time experience) OR the existing user who wants to discover a feature** — these have different design implications.
+
+4. **Decide implementation depth for this phase**:
+   - (a) Research + UI-SPEC.md + mockup only — implementation is its own follow-up phase.
+   - (b) Research + design + a minimal "Overview/Help" page implementation, defer deeper interactive tours.
+   - (c) Full implementation in this phase.
+
+**Out of scope (defer):**
+- Marketing-site copy and landing page redesign (separate concern — landing page already exists).
+- Translating help content to all 4 locales — only after the EN content stabilizes.
+- Video walkthroughs / external docs site.
+
+**Constraints:**
+- Whatever surfaces in-app must be RTL-safe (Hebrew is Sapir's primary language).
+- Help content must be i18n-ready (string keys, not hardcoded English) even if only EN is filled initially.
+- No heavyweight dependencies — if a tour library is chosen, must be <30KB minified and locally vendored per existing pattern.
+- Must not regress current overview screen UX (Phase 25 is consolidating it).
+
+**Depends on:** Phase 25 (overview screen is being restructured there — onboarding design needs to know the final overview shape).
+**Plans:** TBD after `/gsd-discuss-phase 26`.
+
+**Origin:** Bundled with Phase 25 backup rework in user request 2026-05-15; split into its own phase because tutorial/onboarding is a different domain (marketing-driven UX research) from backup architecture (bug fix + UI consolidation).
+
+---
+
 ### v1.1 Final Polish & Launch (In Progress)
 
 **Milestone Goal:** Polish the app for free trial users, fix UX pain points, update visual identity, and complete all launch prerequisites so the product can be sold.
