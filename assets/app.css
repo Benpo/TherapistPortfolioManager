@@ -699,6 +699,68 @@ a {
   overflow-wrap:anywhere;
 }
 
+/* Phase 24 Plan 06 — pre-session context card Session-info subsection.
+   Logical properties (border-block-start, padding-inline-start, margin-block-start)
+   are required for RTL — do NOT swap to physical equivalents (D-28). */
+.client-spotlight-session-info {
+  margin-block-start: 0.75rem;
+  padding-block-start: 0;
+  border-block-start: 1px solid var(--color-border-subtle);
+  border-radius: 0;
+  border-inline-start: none;
+  border-inline-end: none;
+  border-block-end: none;
+}
+.client-spotlight-session-info > summary.client-spotlight-session-info-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  background: transparent;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+.client-spotlight-session-info > summary::-webkit-details-marker { display: none; }
+.client-spotlight-session-info > summary::marker { display: none; }
+.client-spotlight-session-info-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-block-end: 0.5rem;
+}
+.client-spotlight-session-info-meta {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+.client-spotlight-session-info-label {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+.client-spotlight-session-info-value {
+  color: var(--color-text);
+  font-weight: 600;
+}
+.client-spotlight-session-info-summary-block {
+  margin-block-start: 0.25rem;
+}
+.client-spotlight-session-info-quote {
+  margin: 0.25rem 0 0;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 3px solid var(--color-border-subtle);
+  color: var(--color-text);
+  font-style: italic;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
 .missing-birth-banner{
   display:flex;
   align-items:center;
