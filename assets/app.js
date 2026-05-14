@@ -363,12 +363,46 @@ window.App = (() => {
    * first render. Existing callers that don't await will still work — the rest of
    * initCommon's synchronous chrome wiring continues, only the cache load is async.
    */
+  /**
+   * Phase 24 Plan 08 — Install unsaved-changes guard on the top-of-page brand link.
+   *
+   * The brand-link element exists on every page that uses the standard header.
+   * Pages without a dirty-able form expose no `window.PortfolioFormDirty`
+   * predicate, so the guard's isDirty callback returns false and the guard
+   * is a no-op there. Pages with a dirty form (add-session.html for both
+   * new and edit flows) trigger the same confirm dialog used by the
+   * back-to-overview link.
+   *
+   * Idempotent: bails if a guard is already installed on this element.
+   */
+  function initBrandLinkGuard() {
+    var brand = document.querySelector('.brand-link');
+    if (!brand) return;
+    if (brand._navGuardInstalled) return;
+    brand._navGuardInstalled = true;
+    App.installNavGuard({
+      trigger: brand,
+      isDirty: function () {
+        return typeof window.PortfolioFormDirty === 'function' && window.PortfolioFormDirty() === true;
+      },
+      message: {
+        titleKey:   'session.leavePage.title',
+        bodyKey:    'session.leavePage.body',
+        confirmKey: 'session.leavePage.confirm',
+        cancelKey:  'session.leavePage.cancel',
+        tone:       'danger'
+      },
+      destination: brand.href
+    });
+  }
+
   async function initCommon() {
     initDemoMode();
     renderNav();
     initThemeToggle();
     initLanguagePopover();
     initSettingsLink(); // Phase 22 — gear-icon entry point to ./settings.html
+    initBrandLinkGuard(); // Phase 24 Plan 08 — protect against logo-click data loss on dirty form
     // initLicenseLink removed per D-03 — license key icon no longer in header
 
     // Phase 22: eager-load therapist settings BEFORE setLanguage, so the first

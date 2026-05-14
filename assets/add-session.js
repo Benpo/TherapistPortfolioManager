@@ -14,6 +14,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     return formDirty && !formSaving;
   };
 
+  // Phase 24 Plan 08 — protect the "Back to Overview" link at the bottom of the
+  // session form. Mirrors the brand-link guard installed in App.initCommon for the
+  // top logo. Both new-session and edit-existing flows share this link, so a
+  // single guard install here covers both.
+  const backToOverviewLink = document.querySelector('a.button.ghost[href="./index.html"]');
+  if (backToOverviewLink && !backToOverviewLink._navGuardInstalled) {
+    backToOverviewLink._navGuardInstalled = true;
+    App.installNavGuard({
+      trigger: backToOverviewLink,
+      isDirty: function () {
+        return typeof window.PortfolioFormDirty === 'function' && window.PortfolioFormDirty() === true;
+      },
+      message: {
+        titleKey:   'session.leavePage.title',
+        bodyKey:    'session.leavePage.body',
+        confirmKey: 'session.leavePage.confirm',
+        cancelKey:  'session.leavePage.cancel',
+        tone:       'danger'
+      },
+      destination: './index.html'
+    });
+  }
+
   const clientSelect = document.getElementById("clientSelect");
   const sessionDate = document.getElementById("sessionDate");
   const sessionForm = document.getElementById("sessionForm");
