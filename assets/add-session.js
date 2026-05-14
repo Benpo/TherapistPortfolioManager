@@ -395,7 +395,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const savedClientId = editingClientId;
       closeEditClientModal();
       clientCache = (await loadClients(savedClientId)) || [];
-      populateSpotlight(savedClientId);
+      await populateSpotlight(savedClientId);
       App.showToast("", "toast.clientSaved");
     });
   }
@@ -410,7 +410,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupToggleGroup("inlineClientTypeGroup");
 
   clientCache = (await loadClients(prefillClientId)) || [];
-  populateSpotlight(prefillClientId || (clientSelect ? clientSelect.value : null));
+  await populateSpotlight(prefillClientId || (clientSelect ? clientSelect.value : null));
   if (clientSelect) {
     clientSelect.addEventListener("change", () => {
       const isNew = clientSelect.value === NEW_CLIENT_VALUE;
@@ -1578,7 +1578,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (clientSelect) clientSelect.value = String(id);
       if (inlineForm) inlineForm.style.display = "none";
       resetInlineClientForm();
-      populateSpotlight(id);
+      await populateSpotlight(id);
       App.showToast("", "toast.clientCreated");
     });
   }
@@ -1713,7 +1713,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     editingSession = await PortfolioDB.getSession(sessionId);
     if (editingSession) {
       populateSession(editingSession, issues, createIssueBlock);
-      populateSpotlight(editingSession.clientId);
+      await populateSpotlight(editingSession.clientId);
       updateSessionTitle(editingSession);
       App.setSubmitLabel("session.form.update", submitButton, submitLabel);
       if (deleteButton) deleteButton.classList.remove("is-hidden");
@@ -1832,24 +1832,66 @@ function getClientDisplayName(client) {
   return last ? `${first} ${last}` : first;
 }
 
+// Phase 24 Plan 06 — pure render helper for the Session-info subsection.
+// Kept side-effect-free (no document.getElementById, no IDB) so it's unit-testable
+// in Node without jsdom. populateSpotlight's async wrapper looks up the refs and
+// the sessions array, then delegates to this helper.
+//
+// `refs` shape: { sessionInfo, lastDate, total, summaryBlock, summaryQuote }
+// `sessions` is the unsorted array of session records for one client.
+// `formatDate` is App.formatDate (locale-aware).
+function renderSpotlightSessionInfo(refs, sessions, formatDate) {
+  // D-30: empty-history clients render no Session-info, no strings, no divider.
+  if (!sessions || sessions.length === 0) {
+    refs.sessionInfo.classList.add("is-hidden");
+    return;
+  }
+  refs.sessionInfo.classList.remove("is-hidden");
+
+  // Sort by date desc; falsy dates fall to epoch so any real date wins.
+  const sorted = sessions.slice().sort((a, b) => {
+    const da = new Date(a.date || 0).getTime();
+    const db = new Date(b.date || 0).getTime();
+    return db - da;
+  });
+  const latest = sorted[0];
+
+  refs.lastDate.textContent = latest.date ? formatDate(latest.date) : "—";
+  refs.total.textContent = String(sessions.length);
+
+  // D-31: customerSummary read-only quote. Use textContent — never innerHTML —
+  // because the value comes from the user-entered session form.
+  const summaryText = (latest.customerSummary || "").trim();
+  if (summaryText) {
+    refs.summaryQuote.textContent = summaryText;
+    refs.summaryBlock.classList.remove("is-hidden");
+  } else {
+    refs.summaryBlock.classList.add("is-hidden");
+  }
+}
+
 // populateSpotlight: SSOT for client spotlight (Phase 24 D-01). Plan 06 extends with Session-info subsection.
-function populateSpotlight(clientId) {
+// Async because Plan 06 loads sessions from IDB to render Last session / Total / Last note.
+async function populateSpotlight(clientId) {
   const spotlight = document.getElementById("clientSpotlight");
   if (!spotlight) return;
   const photo = document.getElementById("clientSpotlightPhoto");
   const placeholder = document.getElementById("clientSpotlightPlaceholder");
   const name = document.getElementById("clientSpotlightName");
   const editBtn = document.getElementById("editClientBtn");
+  const sessionInfoEl = document.getElementById("clientSpotlightSessionInfo");
   const parsedId = Number.parseInt(clientId, 10);
   if (!parsedId) {
     spotlight.classList.add("is-hidden");
     if (editBtn) editBtn.classList.add("is-hidden");
+    if (sessionInfoEl) sessionInfoEl.classList.add("is-hidden");
     return;
   }
   const selectedClient = getSelectedClient(parsedId, clientCache);
   if (!selectedClient) {
     spotlight.classList.add("is-hidden");
     if (editBtn) editBtn.classList.add("is-hidden");
+    if (sessionInfoEl) sessionInfoEl.classList.add("is-hidden");
     return;
   }
   spotlight.classList.remove("is-hidden");
@@ -1897,6 +1939,31 @@ function populateSpotlight(clientId) {
       placeholder.classList.remove("is-hidden");
     }
   }
+
+  // Phase 24 Plan 06 — Session-info subsection (pre-session context card).
+  // Subsection markup may be absent on pages that reuse populateSpotlight without it.
+  if (!sessionInfoEl) return;
+  const refs = {
+    sessionInfo: sessionInfoEl,
+    lastDate: document.getElementById("clientSpotlightLastSessionDate"),
+    total: document.getElementById("clientSpotlightTotalSessions"),
+    summaryBlock: document.getElementById("clientSpotlightLastSummary"),
+    summaryQuote: document.getElementById("clientSpotlightLastSummaryQuote"),
+  };
+  if (!refs.lastDate || !refs.total || !refs.summaryBlock || !refs.summaryQuote) return;
+  let sessionsByClient = [];
+  try {
+    if (window.PortfolioDB && typeof PortfolioDB.getSessionsByClient === "function") {
+      sessionsByClient = await PortfolioDB.getSessionsByClient(parsedId);
+    } else if (window.PortfolioDB && typeof PortfolioDB.getAllSessions === "function") {
+      const all = await PortfolioDB.getAllSessions();
+      sessionsByClient = all.filter(s => s.clientId === parsedId);
+    }
+  } catch (err) {
+    console.warn("Phase 24 Plan 06: failed to load sessions for spotlight:", err);
+    sessionsByClient = [];
+  }
+  renderSpotlightSessionInfo(refs, sessionsByClient, App.formatDate);
 }
 
 function updateSessionTitle(session) {
