@@ -1,6 +1,6 @@
 # Plan 24-04 — Snippet Quick-Paste Engine (Summary)
 
-**Status:** Code shipped + 37 automated test scenarios pass. **Awaiting Ben's browser UAT (`24-04-UAT.md`, 12 scenarios)** before Task 3 closes.
+**Status:** ✅ **SHIPPED + UAT CONFIRMED.** 38 automated test scenarios pass. Browser UAT confirmed by Ben on 2026-05-14 (12/12 scenarios + cell-coverage spot check). One bug surfaced during UAT (seed expansions lacked emotion-name prefix) was fixed in-session and locked with a regression-guard test scenario (G).
 
 **Date shipped:** 2026-05-14
 
@@ -14,6 +14,8 @@
 | `01a6f05` | Task 3 — assets/snippets.js trigger engine + caret popover + 11-scenario regex test + 12-scenario UAT script |
 | `d783922` | Task 4 — wire 7 textareas + App.getSnippets sync cache + BroadcastChannel + backup v3 round-trip + sw.js precache + 5-scenario cache test |
 | `f96a73b` | chore — bump sw.js CACHE_NAME v122 → v123 (hook skips when sw.js is in the diff) |
+| `95ec375` | docs(24-04) — initial SUMMARY |
+| `9c161c3` | fix(24-04) — prepend `<Name> — ` to every seed expansion (240 paragraphs) + regression-guard test scenario G; SW v123 → v124 |
 
 ## What shipped
 
@@ -26,11 +28,11 @@
 7. **Backup round-trip** (assets/backup.js) — manifest version bumped 2→3, appVersion 1.0→1.1, `manifest.snippets` populated on export, validated row-by-row on import, refreshes the in-memory cache after restore. Pre-v1.1 backups (no `snippets` key) restore cleanly — the v5 migration's seed populate fills the empty store with defaults.
 8. **sw.js precache** — `/assets/snippets-seed.js` + `/assets/snippets.js` added to PRECACHE_URLS. CACHE_NAME bumped v122 → v123.
 
-## Test coverage (37 scenarios, all green)
+## Test coverage (38 scenarios, all green)
 
 | File | Scenarios | Surface |
 |------|-----------|---------|
-| `tests/24-04-seed-pack.test.js` | 6 | Frozen array, schema, trigger uniqueness, fallback-chain guarantee, spot-check, tag distribution |
+| `tests/24-04-seed-pack.test.js` | 7 | Frozen array, schema, trigger uniqueness, fallback-chain guarantee, spot-check, tag distribution, emotion-name-prefix regression guard |
 | `tests/24-04-shape-validator.test.js` | 9 | Happy path + every rejection branch + unknown-locale tolerance |
 | `tests/24-04-idb-migration.test.js` | 6 | Fresh seed, idempotency, deletedSeedIds persistence, resetSeedSnippet, pre-existing data intact, clearAll reseeds |
 | `tests/24-04-trigger-regex.test.js` | 11 | Active match, every boundary char, no-boundary-before-prefix rejection, partial-match popover, two-char prefix, locale fallback (active/en/he/de/cs walk), ReDoS timing, hyphenated slug, case-insensitive lookup |
@@ -38,9 +40,9 @@
 
 **Plan 06 regression:** 7/7 spotlight session-info tests still pass — no async drift introduced.
 
-## Awaiting browser UAT (Task 3)
+## UAT confirmed (2026-05-14)
 
-`24-04-UAT.md` has 12 scenarios across LTR + RTL × mobile + desktop × all 7 textareas × keyboard nav × auto-resize × negative control. Task 3 stays `in_progress` until Ben confirms each scenario visually. The caret-mirror popover positioning math is unit-test-unfriendly — this UAT is the verification path.
+`24-04-UAT.md` 12 scenarios + cell-coverage spot check — all PASS. Bug surfaced + fixed in-session: seed expansions were missing the emotion-name prefix on some entries (e.g., Bitterness en started "A harsh, unpleasant…" with no anchor). Fix shipped in commit `9c161c3` with regression-guard test scenario G. Format applied uniformly to all 240 paragraphs: `<emotion-name-in-locale> — <Sapir's meaning>`.
 
 ## Decisions locked this plan
 
@@ -65,6 +67,4 @@
 
 ## Next session
 
-1. Run `24-04-UAT.md` scenarios 1–12 in a real browser (LTR + RTL × mobile + desktop). Mark each Pass/Fail.
-2. If all pass → mark Task 3 complete, close out Plan 04.
-3. Start Plan 24-05 (Snippet Settings UI) — depends on this plan's storage + engine.
+Plan 24-04 is fully closed. **Next:** Plan 24-05 (Snippet Settings UI). Depends on the storage + engine + cache infrastructure this plan shipped. After Plan 05 + its UAT, Phase 24 is launch-shape for v1.1.
