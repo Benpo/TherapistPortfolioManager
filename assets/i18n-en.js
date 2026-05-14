@@ -280,7 +280,7 @@ window.I18N.en = {
   // Phase 22 — Settings page
   "header.settings.label": "Settings",
   "settings.page.title": "Settings",
-  "settings.page.helper": "Customize section names and choose which sections appear in your sessions. Changes are saved on this device.",
+  "settings.page.helper": "Customize the app to your workflow. Changes are saved on this device.",
   "settings.syncMessage.heading": "About saved settings",
   "settings.syncMessage.body": "Saved labels appear immediately here. Open session forms will pick up the new labels on next page navigation. Refresh other tabs to see changes immediately.",
   "settings.row.trapped.description": "Released emotions logged during the session",

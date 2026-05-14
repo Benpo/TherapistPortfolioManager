@@ -280,7 +280,7 @@ window.I18N.he = {
   // Phase 22 — Settings page
   "header.settings.label": "הגדרות",
   "settings.page.title": "הגדרות",
-  "settings.page.helper": "התאם שמות מקטעים ובחר אילו מקטעים יופיעו במפגשים. השינויים נשמרים במכשיר זה.",
+  "settings.page.helper": "התאמת האפליקציה לסגנון העבודה שלך. השינויים נשמרים במכשיר זה.",
   "settings.syncMessage.heading": "על הגדרות שמורות",
   "settings.syncMessage.body": "תוויות שמורות מופיעות כאן מיד. טפסי מפגש פתוחים יקלטו את התוויות החדשות בניווט הבא. רענן כרטיסיות אחרות כדי לראות שינויים מיד.",
   "settings.row.trapped.description": "רגשות משוחררים שנרשמו במהלך המפגש",

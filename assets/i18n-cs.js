@@ -280,7 +280,7 @@ window.I18N.cs = {
   // Phase 22 \u2014 Settings page
   "header.settings.label": "Nastaven\u00ED",
   "settings.page.title": "Nastaven\u00ED",
-  "settings.page.helper": "P\u0159izp\u016Fsobte n\u00E1zvy sekc\u00ED a vyberte, kter\u00E9 sekce se zobraz\u00ED ve va\u0161ich sezen\u00EDch. Zm\u011Bny se ukl\u00E1daj\u00ED na tomto za\u0159\u00EDzen\u00ED.",
+  "settings.page.helper": "P\u0159izp\u016Fsobte aplikaci sv\u00E9mu pracovn\u00EDmu postupu. Zm\u011Bny se ukl\u00E1daj\u00ED na tomto za\u0159\u00EDzen\u00ED.",
   "settings.syncMessage.heading": "O ulo\u017Een\u00FDch nastaven\u00EDch",
   "settings.syncMessage.body": "Ulo\u017Een\u00E9 \u0161t\u00EDtky se zde objev\u00ED okam\u017Eit\u011B. Otev\u0159en\u00E9 formul\u00E1\u0159e sezen\u00ED p\u0159evezmou nov\u00E9 \u0161t\u00EDtky p\u0159i p\u0159\u00ED\u0161t\u00ED navigaci. Obnovte jin\u00E9 karty pro okam\u017Eit\u00E9 zobrazen\u00ED zm\u011Bn.",
   "settings.row.trapped.description": "Uvoln\u011Bn\u00E9 emoce zaznamenan\u00E9 b\u011Bhem sezen\u00ED",

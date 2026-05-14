@@ -280,7 +280,7 @@ window.I18N.de = {
   // Phase 22 \u2014 Settings page
   "header.settings.label": "Einstellungen",
   "settings.page.title": "Einstellungen",
-  "settings.page.helper": "Passen Sie Abschnittsnamen an und w\u00E4hlen Sie, welche Abschnitte in Ihren Sitzungen erscheinen. \u00C4nderungen werden auf diesem Ger\u00E4t gespeichert.",
+  "settings.page.helper": "Passen Sie die App an Ihren Arbeitsablauf an. \u00C4nderungen werden auf diesem Ger\u00E4t gespeichert.",
   "settings.syncMessage.heading": "\u00DCber gespeicherte Einstellungen",
   "settings.syncMessage.body": "Gespeicherte Bezeichnungen erscheinen hier sofort. Ge\u00F6ffnete Sitzungsformulare \u00FCbernehmen die neuen Bezeichnungen beim n\u00E4chsten Seitenwechsel. Andere Tabs neu laden, um \u00C4nderungen sofort zu sehen.",
   "settings.row.trapped.description": "Freigegebene Emotionen w\u00E4hrend der Sitzung",
