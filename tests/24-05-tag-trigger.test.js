@@ -192,6 +192,39 @@ test('E. Snippet with multiple matching tags returned only once', () => {
   }
 });
 
+test('G. Hebrew tag prefix-match — Unicode-aware regex accepts non-Latin chars', () => {
+  // Ben tagged emotion "betrayal" with Hebrew tag "אישי" via the Settings
+  // editor. Now typing ";אישי" in a session textarea must surface the
+  // popover with that snippet. Pre-fix, the trigger regex was [A-Za-z0-9-]
+  // so the regex itself failed to match before tag lookup ever ran.
+  const cache = [
+    snip('betrayal', ['אישי', 'work']),
+    snip('joy',      ['אישי']),
+    snip('alpha',    ['unrelated']),
+  ];
+  const result = detectTrigger(';אישי', ';', buildMap(cache));
+  if (!result || result.type !== 'partial') {
+    throw new Error('G: expected partial result for Hebrew tag, got ' + JSON.stringify(result));
+  }
+  const triggers = result.candidates.map((c) => c.trigger).sort();
+  if (JSON.stringify(triggers) !== JSON.stringify(['betrayal', 'joy'])) {
+    throw new Error('G: wrong candidates: ' + JSON.stringify(triggers));
+  }
+  if (result.matchedTag !== 'אישי') {
+    throw new Error('G: expected matchedTag "אישי", got ' + result.matchedTag);
+  }
+});
+
+test('H. Hebrew tag prefix-match works on partial query (";איש" for tag "אישי")', () => {
+  const cache = [
+    snip('betrayal', ['אישי']),
+  ];
+  const result = detectTrigger(';איש', ';', buildMap(cache));
+  if (!result || result.type !== 'partial' || result.candidates.length !== 1) {
+    throw new Error('H: expected 1 candidate, got ' + JSON.stringify(result));
+  }
+});
+
 test('F. Tag-trigger does NOT apply on boundary (active match path)', () => {
   // Boundary case: ";emotion " (trailing space). With no exact trigger
   // "emotion", the engine returns null — does NOT try the tag fallback.

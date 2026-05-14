@@ -76,9 +76,17 @@ window.Snippets = (function () {
    */
   function detectTrigger(textBeforeCaret, prefix, snippetsByTrigger) {
     if (typeof textBeforeCaret !== "string" || !prefix) return null;
+    // Unicode-aware character class so Hebrew/German/Czech tags can trigger
+    // the popover too (tags can contain any letter; triggers are still
+    // restricted to /^[a-z0-9-]{2,32}$/ at validateSnippetShape time, but
+    // the regex must accept any letter the user types so we even GET to the
+    // tag-lookup fallback when no exact ASCII trigger matches).
+    // \p{L} = any letter, \p{N} = any decimal digit. ReDoS-safe: bounded
+    // {1, MAX_TRIGGER_LEN} quantifier; no nested alternations.
     const re = new RegExp(
       "(^|[\\s.,;:!?])" + escapeRegExp(prefix) +
-      "([A-Za-z0-9-]{1," + MAX_TRIGGER_LEN + "})([\\s.,;:!?\\n])?$"
+      "([\\p{L}\\p{N}-]{1," + MAX_TRIGGER_LEN + "})([\\s.,;:!?\\n])?$",
+      "u"
     );
     const m = textBeforeCaret.match(re);
     if (!m) return null;
