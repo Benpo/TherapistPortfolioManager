@@ -429,8 +429,16 @@ function renderClientRows(clients, sessionsByClient) {
         //   a reversal that is not reproducible — render has been correct since 2026-03-09
         //   (commit bb5e2130). Hebrew RTL bidi may visually flip the parenthesized arrow;
         //   logical data order is fixed.
+        // Plan 06 follow-up (UAT 2026-05-14): guard null/undefined severity values
+        //   so they render as "-" instead of the JS string "null". Mirrors the
+        //   sessions.js convention so both pages agree.
         const issues = (session.issues || [])
-          .map((issue) => `${issue.name} (${issue.before}→${issue.after})`)
+          .map((issue) => {
+            const name = issue.name || "-";
+            const before = issue.before !== null && issue.before !== undefined ? issue.before : "-";
+            const after = issue.after !== null && issue.after !== undefined ? issue.after : "-";
+            return `${name} (${before}→${after})`;
+          })
           .join(", ");
         const meta = document.createElement("div");
         meta.className = "session-meta";
