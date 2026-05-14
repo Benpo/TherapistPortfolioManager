@@ -373,7 +373,7 @@ window.I18N.de = {
 
   // Phase 24 Plan 05 \u2014 Snippet Settings UI (~50 keys)
   "snippets.section.title": "Textbausteine",
-  "snippets.section.helper": "Wiederverwendbare Textbausteine f\u00FCr Sitzungsnotizen.",
+  "snippets.section.helper": "Eine pers\u00F6nliche Bibliothek h\u00E4ufiger Textbausteine f\u00FCr die Sitzungsdokumentation. Speichern Sie wiederkehrende Formulierungen \u2014 Emotionsbedeutungen, Technikenbeschreibungen \u2014 und rufen Sie sie sofort mit einem Ausl\u00F6ser-Pr\u00E4fix und einem kurzen Wort ab. Spart Zeit und sorgt f\u00FCr Konsistenz zwischen Sitzungen. So funktioniert es: Definieren Sie hier einen Baustein (Ausl\u00F6ser + Text), und w\u00E4hrend Sie eine Sitzungsnotiz schreiben, geben Sie Ihr Ausl\u00F6ser-Pr\u00E4fix gefolgt vom Ausl\u00F6ser ein, um den vollst\u00E4ndigen Text sofort einzuf\u00FCgen.",
   "snippets.library.title": "Bausteinbibliothek",
   "snippets.library.helper": "Bausteine durchsuchen, Tags verwalten oder neue hinzuf\u00FCgen. Geben Sie Ihr Ausl\u00F6ser-Pr\u00E4fix gefolgt vom Tag-Namen in einer Sitzungsnotiz ein, um nach Tag zu filtern.",
   "snippets.editor.helper": "Legen Sie einen Ausl\u00F6ser und den Text fest, der eingef\u00FCgt wird, wenn Sie das Pr\u00E4fix + den Ausl\u00F6ser in einer Sitzungsnotiz tippen. Mit Tags lassen sich verwandte Bausteine gruppieren.",

@@ -360,7 +360,7 @@ window.I18N.en = {
 
   // Phase 24 Plan 05 — Snippet Settings UI (~50 keys)
   "snippets.section.title": "Text Snippets",
-  "snippets.section.helper": "Reusable text expansions for session notes.",
+  "snippets.section.helper": "A personal library of frequent text snippets for therapeutic documentation. Save common phrases — emotion meanings, technique descriptions — and recall them instantly with a trigger prefix and a short word. Saves time and keeps documentation consistent across sessions. How it works: define a snippet here (trigger word + text), then while writing a session note, type your trigger prefix followed by the trigger word to insert the full text instantly.",
   "snippets.library.title": "Snippet library",
   "snippets.library.helper": "Search snippets, manage tags, or add new ones. Type your trigger prefix followed by a tag name in any session note to filter by tag.",
   "snippets.editor.helper": "Set a trigger word and the text that will be inserted when you type the prefix + trigger in a session note. Add tags to group related snippets.",
