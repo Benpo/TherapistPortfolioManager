@@ -29,13 +29,24 @@ window.MdRender = (function () {
     return out;
   }
 
+  // D-23 (Phase 24): single-newline paragraph behavior is LOCKED — consecutive non-blank
+  //   lines within a paragraph render with <br> joins (line below). Blank line = new paragraph.
+  //   Matches standard CommonMark / GitHub flavor / Notion contract. Do NOT change.
+  // D-24 (Phase 24): heading regex now accepts an optional body remainder after the
+  //   heading line, so "## heading\nbody" renders as <h2>heading</h2><p>body</p> instead
+  //   of <p>## heading<br>body</p>. Single-line headings unchanged.
   function renderBlock(block) {
     if (!block) return "";
-    // Headings — single-line blocks starting with #.
-    var headingMatch = block.match(/^(#{1,3})\s+(.*)$/);
-    if (headingMatch && block.indexOf("\n") === -1) {
+    // Headings — accept optional body remainder after the heading line.
+    var headingMatch = block.match(/^(#{1,3})\s+([^\n]*)(?:\n([\s\S]*))?$/);
+    if (headingMatch) {
       var level = headingMatch[1].length;
-      return "<h" + level + ">" + applyInline(headingMatch[2]) + "</h" + level + ">";
+      var headingHtml = "<h" + level + ">" + applyInline(headingMatch[2]) + "</h" + level + ">";
+      var remainder = headingMatch[3];
+      if (remainder && remainder.trimStart().length > 0) {
+        return headingHtml + renderBlock(remainder.trimStart());
+      }
+      return headingHtml;
     }
     // Lists — every non-empty line begins with "- " or "* ".
     var lines = block.split(/\r?\n/).filter(function (l) { return l.length > 0; });

@@ -412,6 +412,10 @@ function renderClientRows(clients, sessionsByClient) {
       clientSessions.forEach((session) => {
         const item = document.createElement("div");
         item.className = "session-item";
+        // D-25 (Phase 24): severity render verified before→after. TODO 2026-05-13 reported
+        //   a reversal that is not reproducible — render has been correct since 2026-03-09
+        //   (commit bb5e2130). Hebrew RTL bidi may visually flip the parenthesized arrow;
+        //   logical data order is fixed.
         const issues = (session.issues || [])
           .map((issue) => `${issue.name} (${issue.before}→${issue.after})`)
           .join(", ");
