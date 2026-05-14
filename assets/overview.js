@@ -445,9 +445,12 @@ function renderClientRows(clients, sessionsByClient) {
           }
         }
         const editButton = document.createElement("button");
-        editButton.className = "row-toggle edit-button";
+        editButton.className = "edit-button";
         editButton.type = "button";
         // D-07 (Phase 24): label is "View" (not "Edit") — entry opens read mode by default.
+        // Phase 24-06 follow-up: dropped `row-toggle` (34px circle with grid:place-items:center
+        //   was clipping both label + icon into one cell). .edit-button now styles as a pill
+        //   with label + icon side-by-side.
         editButton.innerHTML = '<span class="button-label" data-i18n="overview.table.view">' + App.t("overview.table.view") + '</span><span class="button-icon" aria-hidden="true">&#9998;</span>';
         editButton.addEventListener("click", () => {
           window.location.href = `./add-session.html?sessionId=${session.id}`;

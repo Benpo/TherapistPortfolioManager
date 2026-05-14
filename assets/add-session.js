@@ -1815,7 +1815,13 @@ function setupToggleGroup(groupId) {
     group.querySelectorAll(".toggle-card").forEach((el) => el.classList.remove("active"));
     card.classList.add("active");
     const input = card.querySelector("input");
-    if (input) input.checked = true;
+    if (input) {
+      input.checked = true;
+      // Programmatic `.checked = true` does NOT fire a change event. Dispatch one
+      // explicitly so the form-level change listener (formDirty + Cancel→Discard label)
+      // reacts to session-type / heart-shield / inline-client-type toggles.
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
   });
 }
 

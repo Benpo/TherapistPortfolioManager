@@ -601,15 +601,24 @@ a {
 }
 
 .session-edit{
+  display:inline-flex;
+  align-items:center;
+  gap:0.4rem;
   background:var(--color-surface);
   border:1px solid var(--color-border);
   border-radius:999px;
-  padding:0.35rem 0.9rem;
+  padding:0.45rem 0.95rem;
+  color:var(--color-text);
   font-weight:700;
+  font-size:0.85rem;
   cursor:pointer;
   opacity:0;
   transform:translateY(4px);
   transition:opacity 0.2s ease, transform 0.2s ease;
+}
+.session-edit .button-icon{
+  font-size:1rem;
+  line-height:1;
 }
 
 .session-row:hover .session-edit{
@@ -1411,8 +1420,21 @@ html[dir="rtl"] .session-header{
 }
 
 .edit-button{
+  display:inline-flex;
+  align-items:center;
+  gap:0.4rem;
+  padding:0.45rem 0.95rem;
+  border-radius:999px;
   background:var(--color-surface);
   border:1px solid var(--color-border);
+  color:var(--color-text);
+  font-weight:700;
+  font-size:0.85rem;
+  cursor:pointer;
+}
+.edit-button .button-icon{
+  font-size:1rem;
+  line-height:1;
 }
 
 .import-label{
