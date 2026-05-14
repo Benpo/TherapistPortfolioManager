@@ -1044,11 +1044,26 @@ window.SettingsPage = (function () {
     var translationsToggle = $("snippetEditorTranslationsToggle");
     var deleteBtn = $("snippetEditorDelete");
     var resetBtn = $("snippetEditorReset");
+    var tagsTextInput = $("snippetEditorTagsTextInput");
+    var tagsSuggestions = $("snippetEditorTagsSuggestions");
+    var tagsList = $("snippetEditorTagsList");
 
     if (!modal || !triggerInput || !activeExpansion) return;
 
     triggerErr.classList.add("is-hidden");
     triggerErr.textContent = "";
+
+    // Defensive reset of ALL tag-input state — must clear before any
+    // per-snippet repopulation. Fixes UAT bug where a tag added to one
+    // snippet appeared in the editor when opening a different snippet.
+    if (tagsList) {
+      while (tagsList.firstChild) tagsList.removeChild(tagsList.firstChild);
+    }
+    if (tagsTextInput) tagsTextInput.value = "";
+    if (tagsSuggestions) {
+      tagsSuggestions.classList.add("is-hidden");
+      while (tagsSuggestions.firstChild) tagsSuggestions.removeChild(tagsSuggestions.firstChild);
+    }
 
     var lang = getCurrentLang();
     activeLangLabel.textContent = t("snippets.editor.expansion.lang." + lang) ||
