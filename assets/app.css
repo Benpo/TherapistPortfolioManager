@@ -620,7 +620,7 @@ a {
 .client-spotlight{
   display:flex;
   gap:1.5rem;
-  align-items:center;
+  align-items:flex-start; /* Phase 24 Plan 06: keep avatar at top — expanding Session-info would otherwise re-center the 170px media. */
   padding:1.1rem 1.4rem;
   border-radius:22px;
   background:var(--color-surface);
@@ -671,6 +671,11 @@ a {
   display:flex;
   flex-direction:column;
   gap:0.35rem;
+  /* Phase 24 Plan 06: stabilize column width so expanding Session-info does not push
+     sibling boxes (notes) wider. Column sits at up to 480px and shrinks on narrow rows. */
+  flex:1 1 auto;
+  min-width:0;
+  max-width:480px;
 }
 
 .client-spotlight-notes{
@@ -700,23 +705,32 @@ a {
 }
 
 /* Phase 24 Plan 06 — pre-session context card Session-info subsection.
-   Logical properties (border-block-start, padding-inline-start, margin-block-start)
+   Visually matches the sibling .client-spotlight-notes box (same cream/tan surface,
+   same radius) so the two read as paired info cards rather than competing styles.
+   Logical properties (padding-inline-start, margin-block-start, border-block-start)
    are required for RTL — do NOT swap to physical equivalents (D-28). */
 .client-spotlight-session-info {
-  margin-block-start: 0.75rem;
-  padding-block-start: 0;
-  border-block-start: 1px solid var(--color-border-subtle);
-  border-radius: 0;
-  border-inline-start: none;
-  border-inline-end: none;
-  border-block-end: none;
+  margin-block-start: 0.4rem;
+  padding: 0;
+  border: none;
+  border-block-start: 1px solid transparent; /* D-28 logical-property marker, no visual line */
+  border-radius: 10px;
+  background: var(--color-surface-media);
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+  overflow: hidden; /* keep child padding inside the rounded box */
 }
 .client-spotlight-session-info > summary.client-spotlight-session-info-summary {
   list-style: none;
   cursor: pointer;
-  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
   background: transparent;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -725,11 +739,22 @@ a {
 }
 .client-spotlight-session-info > summary::-webkit-details-marker { display: none; }
 .client-spotlight-session-info > summary::marker { display: none; }
+.client-spotlight-session-info > summary.client-spotlight-session-info-summary::after {
+  content: "›";
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  transition: transform 0.18s ease;
+}
+.client-spotlight-session-info[open] > summary.client-spotlight-session-info-summary::after {
+  transform: rotate(90deg);
+}
 .client-spotlight-session-info-body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding-block-end: 0.5rem;
+  padding: 0.5rem 0.85rem 0.75rem;
 }
 .client-spotlight-session-info-meta {
   display: flex;
@@ -746,10 +771,16 @@ a {
   font-weight: 600;
 }
 .client-spotlight-session-info-summary-block {
-  margin-block-start: 0.25rem;
+  margin-block-start: 0.35rem;
+  padding-block-start: 0.5rem;
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+.client-spotlight-session-info-summary-block > .client-spotlight-session-info-label {
+  margin-block-end: 0.25rem;
+  font-size: 0.85rem;
 }
 .client-spotlight-session-info-quote {
-  margin: 0.25rem 0 0;
+  margin: 0;
   padding-inline-start: 0.75rem;
   border-inline-start: 3px solid var(--color-border-subtle);
   color: var(--color-text);
