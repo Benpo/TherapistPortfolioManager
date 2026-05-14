@@ -225,6 +225,66 @@ test('H. Hebrew tag prefix-match works on partial query (";איש" for tag "אי
   }
 });
 
+test('I. German tag with umlauts (";persönlich" / ";größe" / ";ärger" / "ß")', () => {
+  const cache = [
+    snip('betrayal', ['persönlich']),
+    snip('joy',      ['größe']),
+    snip('beta',     ['ärger']),
+    snip('gamma',    ['straße']),
+    snip('delta',    ['unrelated']),
+  ];
+  // Exact match — full umlaut tag
+  let result = detectTrigger(';persönlich', ';', buildMap(cache));
+  if (!result || result.candidates.length !== 1 || result.candidates[0].trigger !== 'betrayal') {
+    throw new Error('I1 persönlich: ' + JSON.stringify(result));
+  }
+  // Prefix match — partial input with umlaut
+  result = detectTrigger(';grö', ';', buildMap(cache));
+  if (!result || result.candidates.length !== 1 || result.candidates[0].trigger !== 'joy') {
+    throw new Error('I2 grö→größe: ' + JSON.stringify(result));
+  }
+  // Eszett (ß) — sharpest German edge case
+  result = detectTrigger(';straße', ';', buildMap(cache));
+  if (!result || result.candidates.length !== 1 || result.candidates[0].trigger !== 'gamma') {
+    throw new Error('I3 straße (ß): ' + JSON.stringify(result));
+  }
+  // Umlaut at start
+  result = detectTrigger(';är', ';', buildMap(cache));
+  if (!result || result.candidates.length !== 1 || result.candidates[0].trigger !== 'beta') {
+    throw new Error('I4 är→ärger: ' + JSON.stringify(result));
+  }
+});
+
+test('J. Czech tag with háčeks (";osobní" / ";důležité" / ";čaj" / "ř")', () => {
+  const cache = [
+    snip('alpha', ['osobní']),
+    snip('beta',  ['důležité']),
+    snip('gamma', ['čaj']),
+    snip('delta', ['křehký']),
+    snip('zeta',  ['unrelated']),
+  ];
+  // Full match — Czech with í accent
+  let result = detectTrigger(';osobní', ';', buildMap(cache));
+  if (!result || result.candidates.length !== 1 || result.candidates[0].trigger !== 'alpha') {
+    throw new Error('J1 osobní: ' + JSON.stringify(result));
+  }
+  // Prefix match with ů (kroužek)
+  result = detectTrigger(';dů', ';', buildMap(cache));
+  if (!result || result.candidates.length !== 1 || result.candidates[0].trigger !== 'beta') {
+    throw new Error('J2 dů→důležité: ' + JSON.stringify(result));
+  }
+  // Č (háček) at start
+  result = detectTrigger(';čaj', ';', buildMap(cache));
+  if (!result || result.candidates.length !== 1 || result.candidates[0].trigger !== 'gamma') {
+    throw new Error('J3 čaj: ' + JSON.stringify(result));
+  }
+  // ř — distinctive Czech letter
+  result = detectTrigger(';křeh', ';', buildMap(cache));
+  if (!result || result.candidates.length !== 1 || result.candidates[0].trigger !== 'delta') {
+    throw new Error('J4 křeh→křehký: ' + JSON.stringify(result));
+  }
+});
+
 test('F. Tag-trigger does NOT apply on boundary (active match path)', () => {
   // Boundary case: ";emotion " (trailing space). With no exact trigger
   // "emotion", the engine returns null — does NOT try the tag fallback.
