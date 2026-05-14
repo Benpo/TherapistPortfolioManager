@@ -450,7 +450,24 @@ Plans:
 - Origin/main is now caught up to local main as of 2026-05-12 push — workflow back to normal (worktrees usable again if desired).
 
 **Depends on:** Phase 22 (session workflow + backup encryption pair) + Phase 23 (PDF rewrite + bidi infrastructure shipped).
-**Plans:** TBD after `/gsd-spec-phase 24` (item 4) and `/gsd-discuss-phase 24`.
+**Plans:** 6 plans (planned 2026-05-14)
+
+Plans:
+**Wave 1**
+- [ ] 24-01-PLAN.md — Item 1 BLOCKER: populateSpotlight(clientId) SSOT extraction (D-01)
+- [ ] 24-02-PLAN.md — Items 4 + 5 polish: md-render ## heading bug + overview severity reversal (D-23, D-24, D-25)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 24-03-PLAN.md — Item 2: Cancel/Revert + clock-icon View rename + 4-locale i18n (D-02..D-07, D-33)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 24-06-PLAN.md — Item 6 pre-session context card: extend populateSpotlight with Session-info subsection (last date + total count + customerSummary quote) (D-26..D-32)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 24-04-PLAN.md — Item 3a snippet engine: IDB v5 + 60-seed pack + caret-mirror autocomplete + 7 textareas wired + backup compat + sw.js precache (D-08..D-21, D-33..D-35, REQ-1, REQ-3, REQ-4, REQ-7, REQ-9)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [ ] 24-05-PLAN.md — Item 3b snippet Settings UI: prefix input + list/search/tag-filter + modal editor (single-lang default + Edit translations) + import/export with collision modal + reset-to-default (D-12, D-14..D-18, D-22, REQ-2, REQ-5, REQ-6, REQ-8)
 
 **Recommended workflow:**
 1. `/gsd-spec-phase 24` — scope item 4 (emotions quick-paste) only. Lock WHAT: which fields, which UI pattern, snippet source, management surface.

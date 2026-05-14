@@ -93,7 +93,7 @@ The other 5 Phase 24 items are already specified by their TODO files (see canoni
 
 ### Item 4 — Markdown polish
 
-- **D-23:** Single-newline rendering — **keep current behavior** (paragraph join with space). Consecutive non-blank lines join with space; blank line = new paragraph. Matches standard Markdown contract used by GitHub / Obsidian / Notion. PDF + MD copy + preview pane all stay consistent. No code change for this — locked decision documented for future signal.
+- **D-23:** Single-newline rendering — **keep current behavior** (within a paragraph block, single `\n` → `<br>` via `assets/md-render.js:52` `applyInline(block).replace(/\r?\n/g, "<br>")`; blank line = new paragraph). Verified against `assets/md-render.js` 2026-05-14: the codebase currently joins consecutive non-blank lines with `<br>`, NOT space. Earlier parenthetical phrasing ("join with space") was a description error — corrected here. This behavior is locked; no code change for this item. PDF + MD copy + preview pane stay consistent with the existing `<br>` semantics.
 - **D-24:** Markdown `##` heading bug fix — deterministic. `assets/md-render.js:38` regex requires no internal newlines; fix the regex / parser order so `## heading\nbody` correctly produces `<h2>heading</h2><p>body</p>` instead of `<p>## heading<br>body</p>`. Affects only the export-preview pane (PDF `parseMarkdown` is already correct). Small (~5 LOC) targeted fix.
 
 ### Item 5 — Overview clock-icon severity reversal
