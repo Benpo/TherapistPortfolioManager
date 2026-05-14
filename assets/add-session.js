@@ -135,6 +135,40 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // Phase 24-01 follow-up: moved inside DOMContentLoaded so inlineBirthDatePicker
+  //   (declared `const` at line ~49) is reachable via closure. Previously top-level —
+  //   the bare `inlineBirthDatePicker` reference resolved to window.inlineBirthDatePicker
+  //   (the <div id="inlineBirthDatePicker"> via legacy named-element access) which
+  //   has no .clear() method → TypeError → dropdown change handler aborted before
+  //   reaching populateSpotlight. Root cause of the BLOCKER spotlight bug.
+  function resetInlineClientForm() {
+    const fields = [
+      "inlineClientFirstName",
+      "inlineClientLastName",
+      "inlineClientEmail",
+      "inlineClientPhone",
+      "inlineClientNotes"
+    ];
+    fields.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+    if (inlineBirthDatePicker && typeof inlineBirthDatePicker.clear === "function") {
+      inlineBirthDatePicker.clear();
+    }
+    const photoInput = document.getElementById("inlineClientPhoto");
+    if (photoInput) photoInput.value = "";
+    const photoPreview = document.getElementById("inlineClientPhotoPreview");
+    if (photoPreview) photoPreview.classList.add("is-hidden");
+    inlinePhotoData = "";
+    document.querySelectorAll("input[name='inlineClientType']").forEach((input) => {
+      const card = input.closest(".toggle-card");
+      const isAdult = input.value === "adult";
+      input.checked = isAdult;
+      if (card) card.classList.toggle("active", isAdult);
+    });
+  }
+
   function setReadMode(nextMode) {
     isReadMode = nextMode;
     document.body.classList.toggle("read-mode", isReadMode);
@@ -1882,38 +1916,6 @@ function updateSessionTitle(session) {
     titleEl.textContent = App.t("session.title.edit");
     document.title = App.t("session.title.edit");
   }
-}
-
-function resetInlineClientForm() {
-  const fields = [
-    "inlineClientFirstName",
-    "inlineClientLastName",
-    "inlineClientEmail",
-    "inlineClientPhone",
-    "inlineClientNotes"
-  ];
-  fields.forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.value = "";
-  });
-  // Phase 24-01 follow-up: inlineBirthDatePicker is declared inside DOMContentLoaded
-  //   (line ~49) but this function is top-level — direct reference throws ReferenceError
-  //   and historically blocked the dropdown-change handler from reaching populateSpotlight.
-  //   typeof guard avoids the throw without restructuring the file's scope.
-  if (typeof inlineBirthDatePicker !== "undefined" && inlineBirthDatePicker) {
-    inlineBirthDatePicker.clear();
-  }
-  const photoInput = document.getElementById("inlineClientPhoto");
-  if (photoInput) photoInput.value = "";
-  const photoPreview = document.getElementById("inlineClientPhotoPreview");
-  if (photoPreview) photoPreview.classList.add("is-hidden");
-  inlinePhotoData = "";
-  document.querySelectorAll("input[name='inlineClientType']").forEach((input) => {
-    const card = input.closest(".toggle-card");
-    const isAdult = input.value === "adult";
-    input.checked = isAdult;
-    if (card) card.classList.toggle("active", isAdult);
-  });
 }
 
 function populateSession(session, issues, createIssueBlock) {
