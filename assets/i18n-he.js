@@ -215,6 +215,7 @@ window.I18N.he = {
   "reporting.avgAfter": "עוצמה ממוצעת (אחרי)",
   "reporting.heartShieldCleared": "מפגשי הגנת הלב שנוקו",
   "common.backToOverview": "חזרה לדף הבית",
+  "common.save": "שמירה",
   "common.age": "גיל",
   "common.heartShield": "הגנת הלב",
   "common.type.child": "ילד",

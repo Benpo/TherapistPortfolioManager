@@ -215,6 +215,7 @@ window.I18N.en = {
   "reporting.avgAfter": "Avg Severity (After)",
   "reporting.heartShieldCleared": "Heart Shield Cleared Sessions",
   "common.backToOverview": "Back to Home",
+  "common.save": "Save",
   "common.age": "Age",
   "common.heartShield": "Heart Shield",
   "common.type.child": "Child",

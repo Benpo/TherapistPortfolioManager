@@ -215,6 +215,7 @@ window.I18N.de = {
   "reporting.avgAfter": "Durchschn. Schweregrad (Nachher)",
   "reporting.heartShieldCleared": "Sitzungen mit aufgelöstem Herzschutz",
   "common.backToOverview": "Zurück zur Startseite",
+  "common.save": "Speichern",
   "common.age": "Alter",
   "common.heartShield": "Herzschutz",
   "common.type.child": "Kind",

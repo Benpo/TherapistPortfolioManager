@@ -215,6 +215,7 @@ window.I18N.cs = {
   "reporting.avgAfter": "Průměrná závažnost (po)",
   "reporting.heartShieldCleared": "Sezení s odstraněnou Ochranou srdce",
   "common.backToOverview": "Zpět na domovskou stránku",
+  "common.save": "Uložit",
   "common.age": "Věk",
   "common.heartShield": "Ochrana srdce",
   "common.type.child": "Dítě",
