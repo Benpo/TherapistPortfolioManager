@@ -1,10 +1,11 @@
 ---
 phase: 25
 slug: backup-architectural-rework
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-15
+reviewed_at: 2026-05-15
 ---
 
 # Phase 25 — UI Design Contract
