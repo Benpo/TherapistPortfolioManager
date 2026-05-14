@@ -38,6 +38,11 @@ window.App = (() => {
   // Phase 22: section-label cache. Populated in initCommon BEFORE setLanguage runs.
   let _sectionLabelCache = new Map();
 
+  // Phase 24 Plan 04: snippet cache. Populated in initCommon after the therapist
+  // settings load. Mirrors the sync App.getSectionLabel pattern — async load,
+  // sync read everywhere after. Snippets.js consumes this via window.App.getSnippets.
+  let _snippetCache = [];
+
   /**
    * Resolve the display label for a session section. Returns the user's
    * customLabel from the therapistSettings cache when present and non-empty,
@@ -67,6 +72,41 @@ window.App = (() => {
   function isSectionEnabled(sectionKey) {
     const entry = _sectionLabelCache.get(sectionKey);
     return entry ? entry.enabled !== false : true;
+  }
+
+  /**
+   * App.getSnippets — synchronous read of the cached snippet array.
+   * Returns a SHALLOW COPY so callers mutating the returned array do not
+   * corrupt the cache. Matches the eager-load + sync-read shape established
+   * by getSectionLabel in Phase 22 (D-09/D-10).
+   *
+   * Callers (snippets.js trigger engine, Plan 05 Settings UI) must NOT await
+   * this. The cache is populated in initCommon before the first user input
+   * can race it.
+   */
+  function getSnippets() {
+    return _snippetCache.slice();
+  }
+
+  /**
+   * App.refreshSnippetCache — reload from IDB and dispatch app:snippets-changed.
+   * Called by the BroadcastChannel handler on cross-tab mutations and by
+   * Plan 05 Settings UI after add/update/delete.
+   */
+  async function refreshSnippetCache() {
+    try {
+      if (typeof PortfolioDB !== "undefined" && typeof PortfolioDB.getAllSnippets === "function") {
+        _snippetCache = await PortfolioDB.getAllSnippets();
+      } else {
+        _snippetCache = [];
+      }
+    } catch (err) {
+      console.warn("refreshSnippetCache failed:", err);
+      _snippetCache = [];
+    }
+    try {
+      document.dispatchEvent(new CustomEvent("app:snippets-changed"));
+    } catch (_) { /* ignore */ }
   }
 
   /**
@@ -417,6 +457,17 @@ window.App = (() => {
       _sectionLabelCache = new Map();
     }
 
+    // Phase 24 Plan 04: eager-load snippets so App.getSnippets is synchronously
+    // readable from snippets.js the first time a textarea fires input.
+    try {
+      if (typeof PortfolioDB !== "undefined" && typeof PortfolioDB.getAllSnippets === "function") {
+        _snippetCache = await PortfolioDB.getAllSnippets();
+      }
+    } catch (err) {
+      console.warn("Snippets unavailable on initCommon:", err);
+      _snippetCache = [];
+    }
+
     // Phase 22: cross-tab sync via BroadcastChannel.
     // When another tab updates therapistSettings, refresh the cache and
     // dispatch app:settings-changed so the current page can re-render labels.
@@ -424,7 +475,8 @@ window.App = (() => {
       try {
         const ch = new BroadcastChannel("sessions-garden-settings");
         ch.addEventListener("message", async (e) => {
-          if (e && e.data && e.data.type === "therapist-settings-changed") {
+          if (!e || !e.data) return;
+          if (e.data.type === "therapist-settings-changed") {
             try {
               const rows = await PortfolioDB.getAllTherapistSettings();
               _sectionLabelCache = new Map(rows.map(r => [r.sectionKey, r]));
@@ -432,6 +484,9 @@ window.App = (() => {
             } catch (err) {
               console.warn("BroadcastChannel refresh failed:", err);
             }
+          } else if (e.data.type === "snippets-changed") {
+            // Phase 24 Plan 04 — peer tab added/updated/deleted a snippet.
+            await refreshSnippetCache();
           }
         });
       } catch (err) {
@@ -1049,6 +1104,10 @@ window.App = (() => {
     // Phase 22 — therapist settings cache getters
     getSectionLabel,
     isSectionEnabled,
+
+    // Phase 24 Plan 04 — snippet cache
+    getSnippets,
+    refreshSnippetCache,
   };
 })();
 

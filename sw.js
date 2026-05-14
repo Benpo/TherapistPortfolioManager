@@ -60,7 +60,9 @@ const PRECACHE_URLS = [
   '/assets/jspdf.min.js',
   '/assets/bidi.min.js',
   '/assets/fonts/heebo-base64.js',
-  '/assets/fonts/heebo-bold-base64.js'
+  '/assets/fonts/heebo-bold-base64.js',
+  '/assets/snippets-seed.js',
+  '/assets/snippets.js'
 ];
 
 /**

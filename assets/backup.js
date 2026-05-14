@@ -479,6 +479,12 @@ window.BackupManager = (function () {
     if (!Array.isArray(manifest.therapistSettings)) {
       manifest.therapistSettings = [];
     }
+    // Phase 24 Plan 04: pre-v1.1 backups have no snippets key. Default to empty
+    // array so the restore loop is a no-op AND the v5 migration's seed populate
+    // repopulates the seed pack on the destination DB (D-35).
+    if (!Array.isArray(manifest.snippets)) {
+      manifest.snippets = [];
+    }
     if (!manifest.version) {
       // Old JSON-only format
       return {
@@ -488,11 +494,12 @@ window.BackupManager = (function () {
         clients: manifest.clients || [],
         sessions: manifest.sessions || [],
         therapistSettings: [],
+        snippets: [],
         settings: manifest.settings || null,
       };
     }
-    // version 1, 2, or future — trust the manifest (therapistSettings already
-    // defaulted above if missing).
+    // version 1, 2, 3, or future — trust the manifest (therapistSettings and
+    // snippets already defaulted above if missing).
     return manifest;
   }
 
@@ -526,6 +533,17 @@ window.BackupManager = (function () {
       allTherapistSettings = [];
     }
 
+    // Phase 24 Plan 04: include snippets. Same defensive try/catch pattern.
+    var allSnippets = [];
+    try {
+      if (typeof db.getAllSnippets === "function") {
+        allSnippets = await db.getAllSnippets();
+      }
+    } catch (e) {
+      console.warn("Backup: snippets read failed; exporting empty:", e);
+      allSnippets = [];
+    }
+
     var zip = new JSZip();
     var photosFolder = zip.folder("photos");
 
@@ -556,12 +574,13 @@ window.BackupManager = (function () {
     });
 
     var manifest = {
-      version: 2,
+      version: 3,
       exportedAt: new Date().toISOString(),
-      appVersion: "1.0",
+      appVersion: "1.1",
       clients: clientsClean,
       sessions: allSessions,
       therapistSettings: allTherapistSettings,
+      snippets: allSnippets,
       settings: {
         language: localStorage.getItem("portfolioLang"),
         theme: localStorage.getItem("portfolioTheme"),
@@ -810,6 +829,30 @@ window.BackupManager = (function () {
       } catch (e) {
         console.warn("Backup restore: setTherapistSetting failed for", cleanRec.sectionKey, e);
       }
+    }
+
+    // Phase 24 Plan 04: restore snippets. Each row passes through
+    // validateSnippetShape so malformed entries from crafted backups are
+    // skipped (logged) rather than aborting the whole restore — matches the
+    // partial-restore preference established for therapistSettings.
+    if (Array.isArray(manifest.snippets) && manifest.snippets.length > 0 &&
+        typeof db.validateSnippetShape === "function" &&
+        typeof db.updateSnippet === "function") {
+      for (var n = 0; n < manifest.snippets.length; n++) {
+        var snip = manifest.snippets[n];
+        try {
+          db.validateSnippetShape(snip);
+          await db.updateSnippet(snip); // put — overwrites if id exists
+        } catch (e) {
+          console.warn("Backup restore: skipping malformed snippet", snip && snip.id, e && e.message);
+        }
+      }
+      // Refresh the in-memory cache so the trigger engine sees imported snippets.
+      try {
+        if (window.App && typeof window.App.refreshSnippetCache === "function") {
+          await window.App.refreshSnippetCache();
+        }
+      } catch (_) { /* ignore */ }
     }
 
     // Restore settings
