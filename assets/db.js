@@ -1,9 +1,12 @@
 window.PortfolioDB = (() => {
   const DB_NAME = window.name === "demo-mode" ? "demo_portfolio" : "sessions_garden";
   const OLD_DB_NAME = "emotion_code_portfolio";
-  const DB_VERSION = 4;
+  const DB_VERSION = 5;
+  const DELETED_SEEDS_KEY = "snippetsDeletedSeeds";
 
   let _migrationDone = false;
+  let _seedingDone = false;
+  let _seedingPromise = null;
 
   /**
    * One-time migration: copies data from "emotion_code_portfolio" to "sessions_garden"
@@ -251,6 +254,18 @@ window.PortfolioDB = (() => {
         db.createObjectStore("therapistSettings", { keyPath: "sectionKey" });
       }
     },
+    5: function snippetsStore(db /*, transaction */) {
+      // Phase 24 D-08: additive migration — creates the snippets object store.
+      // Schema: { id, trigger, expansions:{he,en,cs,de}, tags:[], origin, createdAt, updatedAt }
+      // Triggers must be lowercase a-z0-9- (enforced by validateSnippetShape), so a
+      // direct unique index on trigger gives case-insensitive uniqueness for free.
+      // Seed-pack populate is deferred to seedSnippetsIfNeeded(db) — see openDB success.
+      if (!db.objectStoreNames.contains("snippets")) {
+        const store = db.createObjectStore("snippets", { keyPath: "id" });
+        store.createIndex("trigger", "trigger", { unique: true });
+        store.createIndex("origin", "origin", { unique: false });
+      }
+    },
   };
 
   async function openDB() {
@@ -295,11 +310,84 @@ window.PortfolioDB = (() => {
           showDBVersionChangedMessage();
         };
 
-        resolve(db);
+        // Phase 24 D-10: idempotent seed populate runs AFTER upgrade transaction
+        // completes. First open pays the cost; subsequent calls short-circuit via
+        // _seedingDone. Concurrent first-opens share _seedingPromise.
+        seedSnippetsIfNeeded(db)
+          .then(() => resolve(db))
+          .catch((err) => {
+            console.error("seed populate failed:", err);
+            // Resolve anyway — the app still works without snippets seeded.
+            resolve(db);
+          });
       };
 
       request.onerror = () => reject(request.error);
     });
+  }
+
+  /**
+   * seedSnippetsIfNeeded — populates the snippets store from window.SNIPPETS_SEED
+   * the FIRST time this DB is opened on this page load. Idempotent across:
+   *   - Subsequent openDB() calls on the same page load (short-circuits via _seedingDone).
+   *   - Re-running the migration (records compared by id; existing ids skipped).
+   *   - User-deleted seeds (tracked in therapistSettings[snippetsDeletedSeeds].deletedIds).
+   *
+   * Identifier-resolution note: window.SNIPPETS_SEED is referenced with an explicit
+   * window. prefix. snippets-seed.js loads BEFORE db.js on every page that loads db.js,
+   * so the global exists by the time this function runs.
+   */
+  async function seedSnippetsIfNeeded(db) {
+    if (_seedingDone) return;
+    if (_seedingPromise) return _seedingPromise;
+
+    _seedingPromise = (async () => {
+      try {
+        // 1) Read existing snippet ids in this DB.
+        const existing = await new Promise((resolve, reject) => {
+          const tx = db.transaction("snippets", "readonly");
+          const store = tx.objectStore("snippets");
+          const req = store.getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => reject(req.error);
+        });
+        const existingIds = new Set(existing.map((s) => s.id));
+
+        // 2) Read deletedSeedIds from therapistSettings.
+        const deletedRec = await new Promise((resolve, reject) => {
+          const tx = db.transaction("therapistSettings", "readonly");
+          const store = tx.objectStore("therapistSettings");
+          const req = store.get(DELETED_SEEDS_KEY);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+        const deletedIds = new Set((deletedRec && deletedRec.deletedIds) || []);
+
+        // 3) Determine which seeds to add.
+        const seed = (typeof window !== "undefined" && window.SNIPPETS_SEED) || [];
+        const toAdd = [];
+        for (const s of seed) {
+          if (!existingIds.has(s.id) && !deletedIds.has(s.id)) toAdd.push(s);
+        }
+
+        // 4) Add missing seeds in one transaction.
+        if (toAdd.length > 0) {
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction("snippets", "readwrite");
+            const store = tx.objectStore("snippets");
+            for (const s of toAdd) store.add(s);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+          });
+        }
+
+        _seedingDone = true;
+      } finally {
+        _seedingPromise = null;
+      }
+    })();
+
+    return _seedingPromise;
   }
 
   function showDBBlockedMessage() {
@@ -454,6 +542,145 @@ window.PortfolioDB = (() => {
     await clearStore("sessions");
     await clearStore("clients");
     await clearStore("therapistSettings");
+    if ((await openDB()).objectStoreNames.contains("snippets")) {
+      await clearStore("snippets");
+    }
+    // Allow the next openDB() to repopulate the seed pack (debug-wipe flow).
+    _seedingDone = false;
+    _seedingPromise = null;
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Snippets (Phase 24 Plan 04)
+  // ────────────────────────────────────────────────────────────────────
+
+  /**
+   * validateSnippetShape — pure-function validator. Throws on any rejection
+   * branch. Called by addSnippet/updateSnippet, by backup importer, and by
+   * Plan 05 Settings UI before persisting user edits.
+   *
+   * Unknown locale keys in expansions (e.g., expansions.fr) are silently
+   * allowed — the validator only enforces types for he/en/cs/de IF PRESENT
+   * and requires the object itself.
+   */
+  function validateSnippetShape(snippet) {
+    if (!snippet || typeof snippet !== "object" || Array.isArray(snippet)) {
+      throw new Error("validateSnippetShape: snippet must be a non-array object");
+    }
+    if (typeof snippet.id !== "string" || snippet.id.length === 0) {
+      throw new Error("validateSnippetShape: id must be a non-empty string");
+    }
+    if (typeof snippet.trigger !== "string" || !/^[a-z0-9-]{2,32}$/.test(snippet.trigger)) {
+      throw new Error("validateSnippetShape: trigger must match /^[a-z0-9-]{2,32}$/ (got \"" + snippet.trigger + "\")");
+    }
+    if (!snippet.expansions || typeof snippet.expansions !== "object" || Array.isArray(snippet.expansions)) {
+      throw new Error("validateSnippetShape: expansions must be a non-array object");
+    }
+    ["he", "en", "cs", "de"].forEach((loc) => {
+      if (loc in snippet.expansions && typeof snippet.expansions[loc] !== "string") {
+        throw new Error("validateSnippetShape: expansion " + loc + " must be a string (got " + typeof snippet.expansions[loc] + ")");
+      }
+    });
+    if (!Array.isArray(snippet.tags)) {
+      throw new Error("validateSnippetShape: tags must be an array");
+    }
+    snippet.tags.forEach((t, i) => {
+      if (typeof t !== "string") {
+        throw new Error("validateSnippetShape: tag " + i + " must be a string");
+      }
+    });
+    if (snippet.origin !== "seed" && snippet.origin !== "user") {
+      throw new Error("validateSnippetShape: origin must be \"seed\" or \"user\" (got " + JSON.stringify(snippet.origin) + ")");
+    }
+  }
+
+  async function getAllSnippets() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("snippets", "readonly");
+      const store = tx.objectStore("snippets");
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function getSnippet(id) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("snippets", "readonly");
+      const store = tx.objectStore("snippets");
+      const request = store.get(id);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function addSnippet(snippet) {
+    validateSnippetShape(snippet);
+    return withStore("snippets", "readwrite", (store) => store.add(snippet));
+  }
+
+  async function updateSnippet(snippet) {
+    validateSnippetShape(snippet);
+    return withStore("snippets", "readwrite", (store) => store.put(snippet));
+  }
+
+  // Internal: read the deletedSeedIds list from therapistSettings.
+  async function _getDeletedSeedIds() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("therapistSettings", "readonly");
+      const store = tx.objectStore("therapistSettings");
+      const request = store.get(DELETED_SEEDS_KEY);
+      request.onsuccess = () => {
+        const rec = request.result;
+        resolve((rec && rec.deletedIds) || []);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  // Internal: write the deletedSeedIds list.
+  async function _setDeletedSeedIds(ids) {
+    return withStore("therapistSettings", "readwrite", (store) => {
+      return store.put({ sectionKey: DELETED_SEEDS_KEY, deletedIds: ids });
+    });
+  }
+
+  async function deleteSnippet(id) {
+    const snippet = await getSnippet(id);
+    if (snippet && snippet.origin === "seed") {
+      // Persist the deletion so seedSnippetsIfNeeded does not re-add this seed
+      // on next page load.
+      const list = await _getDeletedSeedIds();
+      if (!list.includes(id)) {
+        await _setDeletedSeedIds(list.concat([id]));
+      }
+    }
+    return withStore("snippets", "readwrite", (store) => store.delete(id));
+  }
+
+  /**
+   * resetSeedSnippet — restores a seed snippet from window.SNIPPETS_SEED and
+   * removes it from the deletedSeedIds list. Used by Plan 05 Settings UI
+   * "Reset to default" action.
+   *
+   * Identifier-resolution note: window.SNIPPETS_SEED is accessed explicitly
+   * via the window. prefix (matches seedSnippetsIfNeeded's discipline).
+   */
+  async function resetSeedSnippet(id) {
+    const seed = (typeof window !== "undefined" && window.SNIPPETS_SEED) || [];
+    const original = seed.find((s) => s.id === id);
+    if (!original) {
+      throw new Error("resetSeedSnippet: id \"" + id + "\" not found in seed pack");
+    }
+    await withStore("snippets", "readwrite", (store) => store.put(original));
+    const list = await _getDeletedSeedIds();
+    const filtered = list.filter((x) => x !== id);
+    if (filtered.length !== list.length) {
+      await _setDeletedSeedIds(filtered);
+    }
   }
 
   /**
@@ -546,5 +773,13 @@ window.PortfolioDB = (() => {
     getAllTherapistSettings,
     setTherapistSetting,
     clearTherapistSettings,
+    // Phase 24 Plan 04 — snippets API
+    validateSnippetShape,
+    getAllSnippets,
+    getSnippet,
+    addSnippet,
+    updateSnippet,
+    deleteSnippet,
+    resetSeedSnippet,
   };
 })();
