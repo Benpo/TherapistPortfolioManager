@@ -95,6 +95,38 @@
             </button>
           </div>
         </div>
+
+        <!-- Phase 24 Plan 05 — Text Snippets Settings section -->
+        <section id="snippetsSection" class="settings-section snippets-section">
+          <h2 class="section-title" data-i18n="snippets.section.title">Text Snippets</h2>
+          <p class="section-helper" data-i18n="snippets.section.helper">Reusable text expansions for session notes.</p>
+
+          <div class="form-field">
+            <label class="label" for="snippetPrefixInput" data-i18n="snippets.prefix.label">Trigger prefix</label>
+            <input id="snippetPrefixInput" class="input snippets-prefix-input" type="text" minlength="1" maxlength="2" autocomplete="off" />
+            <p class="helper-text" data-i18n="snippets.prefix.helper">1 or 2 characters. Cannot be a letter, digit, whitespace, quote, or angle bracket.</p>
+            <p id="snippetPrefixError" class="error-text is-hidden"></p>
+          </div>
+
+          <div class="snippets-list-toolbar">
+            <input id="snippetSearchInput" class="input snippets-search-input" type="search" data-i18n-placeholder="snippets.search.placeholder" />
+            <div id="snippetTagFilterRow" class="snippets-tag-filter-row" role="toolbar" aria-label="Tags"></div>
+          </div>
+
+          <div class="snippets-list-actions">
+            <button class="button" id="addSnippetBtn" type="button">
+              <span class="button-label" data-i18n="snippets.action.add">Add snippet</span>
+              <span class="button-icon" aria-hidden="true">+</span>
+            </button>
+            <button class="button ghost" id="exportSnippetsBtn" type="button" data-i18n="snippets.action.export">Export snippets</button>
+            <button class="button ghost" id="importSnippetsBtn" type="button" data-i18n="snippets.action.import">Import snippets</button>
+            <input id="importSnippetsFile" type="file" accept="application/json" class="is-hidden" />
+            <button class="button ghost" id="resetAllSeedsBtn" type="button" data-i18n="snippets.action.resetAllSeeds">Reset all modified seeds</button>
+          </div>
+
+          <div id="snippetList" class="snippets-list" aria-live="polite"></div>
+          <p id="snippetListEmpty" class="helper-text is-hidden" data-i18n="snippets.list.empty">No snippets match the current filters.</p>
+        </section>
       </main>
     </div>
   </div>
@@ -111,6 +143,63 @@
     </div>
   </div>
 
+  <!-- Phase 24 Plan 05 — Snippet editor modal -->
+  <div id="snippetEditorModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="snippetEditorTitle">
+    <div class="modal-overlay"></div>
+    <div class="modal-card snippets-editor-card">
+      <button class="modal-close" id="snippetEditorClose" type="button" aria-label="Close">×</button>
+      <h3 id="snippetEditorTitle" class="modal-title" data-i18n="snippets.editor.title.add">Add snippet</h3>
+
+      <div class="form-field">
+        <label class="label" for="snippetEditorTrigger" data-i18n="snippets.editor.trigger.label">Trigger</label>
+        <input id="snippetEditorTrigger" class="input" type="text" maxlength="32" autocomplete="off" data-i18n-placeholder="snippets.editor.trigger.placeholder" />
+        <p id="snippetEditorTriggerError" class="error-text is-hidden"></p>
+      </div>
+
+      <div class="form-field snippets-editor-current-lang">
+        <label class="label" for="snippetEditorActiveExpansion" id="snippetEditorActiveLangLabel"></label>
+        <textarea id="snippetEditorActiveExpansion" class="textarea" rows="6" data-i18n-placeholder="snippets.editor.expansion.placeholder"></textarea>
+      </div>
+
+      <button id="snippetEditorTranslationsToggle" type="button" class="button ghost" aria-expanded="false">
+        <span class="button-label" data-i18n="snippets.editor.translations.toggle">Edit translations</span>
+      </button>
+
+      <div id="snippetEditorTranslationsBlock" class="snippets-editor-translations is-hidden"></div>
+
+      <div class="form-field">
+        <label class="label" data-i18n="snippets.editor.tags.label">Tags</label>
+        <div id="snippetEditorTagsInput" class="snippets-editor-tags-input" tabindex="0">
+          <ul id="snippetEditorTagsList" class="snippets-tag-chips"></ul>
+          <input id="snippetEditorTagsTextInput" class="snippets-tag-text-input" type="text" data-i18n-placeholder="snippets.editor.tags.placeholder" />
+          <div id="snippetEditorTagsSuggestions" class="snippets-tag-suggestions is-hidden"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="snippetEditorSave" type="button" class="button" data-i18n="common.save">Save</button>
+        <button id="snippetEditorDelete" type="button" class="button danger is-hidden" data-i18n="snippets.editor.delete">Delete</button>
+        <button id="snippetEditorReset" type="button" class="button ghost is-hidden" data-i18n="snippets.editor.resetToDefault">Reset to default</button>
+        <button id="snippetEditorCancel" type="button" class="button ghost" data-i18n="confirm.cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 24 Plan 05 — Import collision modal -->
+  <div id="snippetImportModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="snippetImportTitle">
+    <div class="modal-overlay"></div>
+    <div class="modal-card snippets-import-card">
+      <button class="modal-close" id="snippetImportClose" type="button" aria-label="Close">×</button>
+      <h3 id="snippetImportTitle" class="modal-title" data-i18n="snippets.import.title">Import snippets</h3>
+      <p id="snippetImportSummary" class="helper-text"></p>
+      <div id="snippetImportCollisionList" class="snippets-import-collision-list"></div>
+      <div class="modal-actions">
+        <button id="snippetImportApply" type="button" class="button" data-i18n="snippets.import.apply">Apply</button>
+        <button id="snippetImportCancel" type="button" class="button ghost" data-i18n="confirm.cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast" aria-live="polite"></div>
 
   <script src="./assets/i18n-en.js"></script>
@@ -122,6 +211,7 @@
     <script src="./assets/db.js"></script>
   <script src="./assets/shared-chrome.js"></script>
   <script src="./assets/app.js"></script>
+  <script src="./assets/snippets.js" defer></script>
   <script src="./assets/settings.js"></script>
   <script>
     if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
