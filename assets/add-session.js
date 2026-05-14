@@ -1896,7 +1896,13 @@ function resetInlineClientForm() {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
-  if (inlineBirthDatePicker) inlineBirthDatePicker.clear();
+  // Phase 24-01 follow-up: inlineBirthDatePicker is declared inside DOMContentLoaded
+  //   (line ~49) but this function is top-level — direct reference throws ReferenceError
+  //   and historically blocked the dropdown-change handler from reaching populateSpotlight.
+  //   typeof guard avoids the throw without restructuring the file's scope.
+  if (typeof inlineBirthDatePicker !== "undefined" && inlineBirthDatePicker) {
+    inlineBirthDatePicker.clear();
+  }
   const photoInput = document.getElementById("inlineClientPhoto");
   if (photoInput) photoInput.value = "";
   const photoPreview = document.getElementById("inlineClientPhotoPreview");
