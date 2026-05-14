@@ -1669,13 +1669,15 @@ window.SettingsPage = (function () {
     renderSnippetList();
   }
 
+  // The existing SettingsPage IIFE (above) already registers a DOMContentLoaded
+  // handler that awaits window.App.initCommon(). Registering a second handler
+  // that ALSO calls initCommon() causes double-mounting in #headerActions
+  // (app.js:initThemeToggle + initLanguagePopover have no "already mounted"
+  // guard, unlike app.js:initSettingsGear at line 322). Instead, boot directly
+  // — renderSnippetList() will pick up an empty cache initially, then re-render
+  // when the original handler's initCommon completes and fires the
+  // app:snippets-changed DOM event (see boot() — document listener).
   if (typeof document !== "undefined") {
-    document.addEventListener("DOMContentLoaded", function () {
-      if (window.App && typeof window.App.initCommon === "function") {
-        window.App.initCommon().then(boot, boot);
-      } else {
-        boot();
-      }
-    });
+    document.addEventListener("DOMContentLoaded", boot);
   }
 })();
