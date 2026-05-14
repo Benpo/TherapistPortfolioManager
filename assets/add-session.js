@@ -1854,11 +1854,18 @@ function renderSpotlightSessionInfo(refs, sessions, formatDate) {
   }
   refs.sessionInfo.classList.remove("is-hidden");
 
-  // Sort by date desc; falsy dates fall to epoch so any real date wins.
+  // Sort by date desc, with createdAt and id as tiebreakers. Two sessions
+  // recorded on the SAME date (e.g., two sessions today) sort by createdAt
+  // descending so the most recently created one wins. id is the final
+  // fallback for legacy records that lack createdAt.
   const sorted = sessions.slice().sort((a, b) => {
     const da = new Date(a.date || 0).getTime();
     const db = new Date(b.date || 0).getTime();
-    return db - da;
+    if (db !== da) return db - da;
+    const ca = new Date(a.createdAt || 0).getTime();
+    const cb = new Date(b.createdAt || 0).getTime();
+    if (cb !== ca) return cb - ca;
+    return (b.id || 0) - (a.id || 0);
   });
   const latest = sorted[0];
 

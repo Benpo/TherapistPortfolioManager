@@ -249,6 +249,51 @@ test('D. D-32: helper writes no "open issues" or "severity trend" text', () => {
     'D-32: helper must not surface sparkline text — actual: ' + allText);
 });
 
+// --- Scenario F: same-date tiebreaker — must pick the latest createdAt ---
+// Regression for the UAT bug Ben hit on 2026-05-14: two sessions recorded today,
+// the spotlight surfaced the FIRST one's customerSummary instead of the latest.
+// Root cause: stable sort on equal date kept IDB insertion order, which puts
+// the oldest same-date session at index 0. Fix uses createdAt then id as tiebreakers.
+test('F. Same date — most recent createdAt wins, not insertion order', () => {
+  const refs = {
+    sessionInfo: makeEl(['is-hidden']),
+    lastDate: makeEl([]),
+    total: makeEl([]),
+    summaryBlock: makeEl(['is-hidden']),
+    summaryQuote: makeEl([]),
+  };
+  // Order in the array matches the order PortfolioDB.getSessionsByClient would
+  // return for two same-date sessions: oldest createdAt first (id 1, id 2).
+  const sessions = [
+    { id: 1, date: '2026-05-14', createdAt: '2026-05-14T09:00:00.000Z', customerSummary: 'morning session note' },
+    { id: 2, date: '2026-05-14', createdAt: '2026-05-14T15:30:00.000Z', customerSummary: 'afternoon session note (LATEST)' },
+  ];
+  renderSpotlightSessionInfo(refs, sessions, fakeFormatDate);
+
+  assert.strictEqual(refs.summaryQuote.textContent, 'afternoon session note (LATEST)',
+    'must surface the session with the later createdAt, not the first-inserted one');
+  assert.strictEqual(refs.total.textContent, '2');
+});
+
+// --- Scenario G: same-date, missing createdAt — fall back to id descending ---
+test('G. Same date and missing createdAt — id descending wins as final fallback', () => {
+  const refs = {
+    sessionInfo: makeEl(['is-hidden']),
+    lastDate: makeEl([]),
+    total: makeEl([]),
+    summaryBlock: makeEl(['is-hidden']),
+    summaryQuote: makeEl([]),
+  };
+  const sessions = [
+    { id: 5, date: '2026-05-14', customerSummary: 'older (id 5, no createdAt)' },
+    { id: 9, date: '2026-05-14', customerSummary: 'newer (id 9, no createdAt)' },
+  ];
+  renderSpotlightSessionInfo(refs, sessions, fakeFormatDate);
+
+  assert.strictEqual(refs.summaryQuote.textContent, 'newer (id 9, no createdAt)',
+    'with no createdAt, the higher id should win — sessions are autoincrement');
+});
+
 // --- Scenario E: defensive — sessions with missing/invalid date still picks one ---
 test('E. Sessions with missing date sort to epoch; valid latest still wins', () => {
   const refs = {
