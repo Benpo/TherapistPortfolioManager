@@ -351,7 +351,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const savedClientId = editingClientId;
       closeEditClientModal();
       clientCache = (await loadClients(savedClientId)) || [];
-      updateClientSpotlight();
+      populateSpotlight(savedClientId);
       App.showToast("", "toast.clientSaved");
     });
   }
@@ -366,7 +366,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupToggleGroup("inlineClientTypeGroup");
 
   clientCache = (await loadClients(prefillClientId)) || [];
-  updateClientSpotlight();
+  populateSpotlight(prefillClientId || (clientSelect ? clientSelect.value : null));
   if (clientSelect) {
     clientSelect.addEventListener("change", () => {
       const isNew = clientSelect.value === NEW_CLIENT_VALUE;
@@ -376,7 +376,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!isNew) {
         resetInlineClientForm();
       }
-      updateClientSpotlight();
+      populateSpotlight(clientSelect.value);
     });
   }
 
@@ -1460,7 +1460,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (clientSelect) clientSelect.value = String(id);
       if (inlineForm) inlineForm.style.display = "none";
       resetInlineClientForm();
-      updateClientSpotlight();
+      populateSpotlight(id);
       App.showToast("", "toast.clientCreated");
     });
   }
@@ -1470,7 +1470,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       resetInlineClientForm();
       if (inlineForm) inlineForm.style.display = "none";
       if (clientSelect) clientSelect.value = "";
-      updateClientSpotlight();
+      populateSpotlight(null);
     });
   }
 
@@ -1587,14 +1587,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       App.setSubmitLabel("session.form.update", submitButton, submitLabel);
     }
     if (isReadMode) resizeReadModeTextareas();
-    updateClientSpotlight();
+    populateSpotlight(editingSession ? editingSession.clientId : (clientSelect ? clientSelect.value : null));
   });
 
   if (sessionId && Number.isInteger(sessionId)) {
     editingSession = await PortfolioDB.getSession(sessionId);
     if (editingSession) {
       populateSession(editingSession, issues, createIssueBlock);
-      updateClientSpotlight();
+      populateSpotlight(editingSession.clientId);
       updateSessionTitle(editingSession);
       App.setSubmitLabel("session.form.update", submitButton, submitLabel);
       if (deleteButton) deleteButton.classList.remove("is-hidden");
@@ -1706,32 +1706,29 @@ function getClientDisplayName(client) {
   return last ? `${first} ${last}` : first;
 }
 
-function updateClientSpotlight() {
+// populateSpotlight: SSOT for client spotlight (Phase 24 D-01). Plan 06 extends with Session-info subsection.
+function populateSpotlight(clientId) {
   const spotlight = document.getElementById("clientSpotlight");
+  if (!spotlight) return;
   const photo = document.getElementById("clientSpotlightPhoto");
   const placeholder = document.getElementById("clientSpotlightPlaceholder");
   const name = document.getElementById("clientSpotlightName");
-  const clientSelect = document.getElementById("clientSelect");
   const editBtn = document.getElementById("editClientBtn");
-  if (!spotlight || !clientSelect) return;
-  const clientId = Number.parseInt(clientSelect.value, 10);
-  if (!clientId) {
+  const parsedId = Number.parseInt(clientId, 10);
+  if (!parsedId) {
     spotlight.classList.add("is-hidden");
     if (editBtn) editBtn.classList.add("is-hidden");
     return;
   }
-  const selectedClient = getSelectedClient(clientId, clientCache);
+  const selectedClient = getSelectedClient(parsedId, clientCache);
   if (!selectedClient) {
     spotlight.classList.add("is-hidden");
     if (editBtn) editBtn.classList.add("is-hidden");
     return;
   }
   spotlight.classList.remove("is-hidden");
-  // Show edit button only for real existing clients (not __new__)
   if (editBtn) {
-    const isExistingClient = clientSelect.value !== "__new__" && !!clientId;
-    editBtn.classList.toggle("is-hidden", !isExistingClient);
-    // Update tooltip text
+    editBtn.classList.remove("is-hidden");
     editBtn.title = (window.App && App.t) ? App.t("session.editClient") : "Edit Client";
     editBtn.setAttribute("aria-label", editBtn.title);
   }
@@ -1839,7 +1836,7 @@ function populateSession(session, issues, createIssueBlock) {
   if (limitingBeliefsEl) limitingBeliefsEl.value = session.limitingBeliefs || "";
   const additionalTechEl = document.getElementById("additionalTech");
   if (additionalTechEl) additionalTechEl.value = session.additionalTech || "";
-  updateClientSpotlight();
+  populateSpotlight(session.clientId);
 
   document.querySelectorAll("input[name='sessionType']").forEach((input) => {
     const card = input.closest(".toggle-card");
