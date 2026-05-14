@@ -306,6 +306,8 @@ window.I18N.de = {
   "settings.action.discard": "\u00C4nderungen verwerfen",
   // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
   "settings.banner.heading": "\u00DCber Einstellungen",
+  "settings.tab.fields": "Eigene Feldnamen",
+  "settings.tab.snippets": "Textbausteine",
   "settings.banner.bullet.global": "Eigene Namen gelten f\u00FCr alle Oberfl\u00E4chensprachen \u2014 ein Labelsatz, nicht pro Sprache.",
   "settings.banner.bullet.noDelete": "Das Deaktivieren eines Abschnitts l\u00F6scht keine bestehenden Daten \u2014 fr\u00FChere Sitzungen zeigen Abschnitte mit vorhandenem Inhalt weiterhin an.",
   "settings.confirm.disable.title": "Diesen Abschnitt deaktivieren?",

@@ -306,6 +306,8 @@ window.I18N.cs = {
   "settings.action.discard": "Zahodit zm\u011Bny",
   // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
   "settings.banner.heading": "O nastaven\u00ED",
+  "settings.tab.fields": "Vlastn\u00ED n\u00E1zvy pol\u00ED",
+  "settings.tab.snippets": "Textov\u00E9 \u00FAryvky",
   "settings.banner.bullet.global": "Vlastn\u00ED n\u00E1zvy plat\u00ED pro v\u0161echny jazyky rozhran\u00ED \u2014 jedna sada \u0161t\u00EDtk\u016F, ne podle jazyka.",
   "settings.banner.bullet.noDelete": "Vypnut\u00EDm sekce se nesma\u017Eou existuj\u00EDc\u00ED data \u2014 p\u0159edchoz\u00ED sezen\u00ED nad\u00E1le zobraz\u00ED sekce s obsahem.",
   "settings.confirm.disable.title": "Vypnout tuto sekci?",

@@ -306,6 +306,8 @@ window.I18N.en = {
   "settings.action.discard": "Discard changes",
   // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
   "settings.banner.heading": "About Settings",
+  "settings.tab.fields": "Custom field names",
+  "settings.tab.snippets": "Text Snippets",
   "settings.banner.bullet.global": "Custom names apply to all UI languages — one label set, not per-language.",
   "settings.banner.bullet.noDelete": "Disabling a section never deletes existing data — past sessions still display sections that already have content.",
   "settings.confirm.disable.title": "Disable this section?",

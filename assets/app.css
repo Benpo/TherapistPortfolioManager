@@ -3433,3 +3433,43 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   .snippets-list-row .icon-button:nth-of-type(1) { grid-column: 2; grid-row: 1 / span 2; }
   .snippets-list-row .icon-button:nth-of-type(2) { grid-column: 3; grid-row: 1 / span 2; }
 }
+
+/* ───────────────────────────────────────────────────────────────────
+   Phase 24 Plan 05 — Settings page tabs
+   ─────────────────────────────────────────────────────────────────── */
+
+.settings-tabs {
+  display: flex;
+  gap: var(--space-1, 6px);
+  margin-block: var(--space-3, 12px) var(--space-4, 20px);
+  border-block-end: 1px solid var(--color-border, #e2dcc5);
+  padding-block-end: 0;
+}
+.settings-tab {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding-block: var(--space-2, 10px);
+  padding-inline: var(--space-3, 16px);
+  margin-block-end: -1px;          /* overlap parent's border-block-end */
+  border-block-end: 2px solid transparent;
+  font: inherit;
+  font-weight: 500;
+  color: var(--color-text-muted, #7a6d50);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.settings-tab:hover {
+  color: var(--color-text, #2d2616);
+}
+.settings-tab:focus-visible {
+  outline: 2px solid var(--color-primary, #b9952a);
+  outline-offset: 2px;
+}
+.settings-tab.is-active {
+  color: var(--color-primary-dark, #5a4a23);
+  border-block-end-color: var(--color-primary, #b9952a);
+}
+.settings-tabpanel[hidden] {
+  display: none;
+}

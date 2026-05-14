@@ -48,85 +48,93 @@
       <main class="settings-page">
         <header class="page-header">
           <h2 class="section-title" data-i18n="settings.page.title">Settings</h2>
-          <p class="page-helper" data-i18n="settings.page.helper">Customize section names and choose which sections appear in your sessions. Changes are saved on this device.</p>
+          <p class="page-helper" data-i18n="settings.page.helper">Customize the app to your workflow. Changes are saved on this device.</p>
         </header>
 
-        <div class="settings-info-banner" role="note">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="16" x2="12" y2="12"></line>
-            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-          </svg>
-          <div>
-            <h3 data-i18n="settings.banner.heading">About Settings</h3>
-            <ul>
-              <li data-i18n="settings.banner.bullet.global">Custom names apply to all UI languages — one label set, not per-language.</li>
-              <li data-i18n="settings.banner.bullet.noDelete">Disabling a section never deletes existing data — past sessions still display sections that already have content.</li>
-            </ul>
-          </div>
+        <!-- Phase 24 Plan 05 — Tab navigation between the two settings topics -->
+        <div class="settings-tabs" role="tablist" aria-label="Settings sections">
+          <button type="button" role="tab" id="settingsTabFieldsBtn" class="settings-tab is-active" aria-selected="true" aria-controls="settingsTabFields" data-tab="fields" data-i18n="settings.tab.fields">Custom field names</button>
+          <button type="button" role="tab" id="settingsTabSnippetsBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabSnippets" data-tab="snippets" tabindex="-1" data-i18n="settings.tab.snippets">Text Snippets</button>
         </div>
 
-        <form id="settingsForm" class="settings-form" novalidate>
-          <div id="settingsRowsContainer"></div>
-        </form>
+        <div id="settingsTabFields" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabFieldsBtn">
+          <div class="settings-info-banner" role="note">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <div>
+              <h3 data-i18n="settings.banner.heading">About Settings</h3>
+              <ul>
+                <li data-i18n="settings.banner.bullet.global">Custom names apply to all UI languages — one label set, not per-language.</li>
+                <li data-i18n="settings.banner.bullet.noDelete">Disabling a section never deletes existing data — past sessions still display sections that already have content.</li>
+              </ul>
+            </div>
+          </div>
 
-        <div class="settings-action-bar">
-          <button type="button" class="button ghost" id="settingsDiscardBtn" data-i18n="settings.action.discard">Discard changes</button>
-          <button type="button" class="button" id="settingsSaveBtn" disabled data-i18n="settings.action.save">Save changes</button>
-          <div
-            class="settings-saved-notice"
-            id="settingsSavedNotice"
-            role="status"
-            aria-live="polite"
-            hidden
-          >
-            <span class="settings-saved-notice-mark" aria-hidden="true"></span>
-            <span class="settings-saved-notice-label" data-i18n="settings.saved.notice">Settings saved</span>
-            <button
-              type="button"
-              class="settings-saved-notice-close"
-              data-i18n-aria-label="settings.saved.dismiss"
-              aria-label="Dismiss"
+          <form id="settingsForm" class="settings-form" novalidate>
+            <div id="settingsRowsContainer"></div>
+          </form>
+
+          <div class="settings-action-bar">
+            <button type="button" class="button ghost" id="settingsDiscardBtn" data-i18n="settings.action.discard">Discard changes</button>
+            <button type="button" class="button" id="settingsSaveBtn" disabled data-i18n="settings.action.save">Save changes</button>
+            <div
+              class="settings-saved-notice"
+              id="settingsSavedNotice"
+              role="status"
+              aria-live="polite"
+              hidden
             >
-              <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-                <path d="M2 2 L10 10 M10 2 L2 10" stroke="currentColor"
-                      stroke-width="1.5" stroke-linecap="round" fill="none"/>
-              </svg>
-            </button>
+              <span class="settings-saved-notice-mark" aria-hidden="true"></span>
+              <span class="settings-saved-notice-label" data-i18n="settings.saved.notice">Settings saved</span>
+              <button
+                type="button"
+                class="settings-saved-notice-close"
+                data-i18n-aria-label="settings.saved.dismiss"
+                aria-label="Dismiss"
+              >
+                <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                  <path d="M2 2 L10 10 M10 2 L2 10" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Phase 24 Plan 05 — Text Snippets Settings section -->
-        <section id="snippetsSection" class="settings-section snippets-section">
-          <h2 class="section-title" data-i18n="snippets.section.title">Text Snippets</h2>
-          <p class="section-helper" data-i18n="snippets.section.helper">Reusable text expansions for session notes.</p>
+        <div id="settingsTabSnippets" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabSnippetsBtn" hidden>
+          <section id="snippetsSection" class="snippets-section">
+            <p class="section-helper" data-i18n="snippets.section.helper">Reusable text expansions for session notes.</p>
 
-          <div class="form-field">
-            <label class="label" for="snippetPrefixInput" data-i18n="snippets.prefix.label">Trigger prefix</label>
-            <input id="snippetPrefixInput" class="input snippets-prefix-input" type="text" minlength="1" maxlength="2" autocomplete="off" />
-            <p class="helper-text" data-i18n="snippets.prefix.helper">1 or 2 characters. Cannot be a letter, digit, whitespace, quote, or angle bracket.</p>
-            <p id="snippetPrefixError" class="error-text is-hidden"></p>
-          </div>
+            <div class="form-field">
+              <label class="label" for="snippetPrefixInput" data-i18n="snippets.prefix.label">Trigger prefix</label>
+              <input id="snippetPrefixInput" class="input snippets-prefix-input" type="text" minlength="1" maxlength="2" autocomplete="off" />
+              <p class="helper-text" data-i18n="snippets.prefix.helper">1 or 2 characters. Cannot be a letter, digit, whitespace, quote, or angle bracket.</p>
+              <p id="snippetPrefixError" class="error-text is-hidden"></p>
+            </div>
 
-          <div class="snippets-list-toolbar">
-            <input id="snippetSearchInput" class="input snippets-search-input" type="search" data-i18n-placeholder="snippets.search.placeholder" />
-            <div id="snippetTagFilterRow" class="snippets-tag-filter-row" role="toolbar" aria-label="Tags"></div>
-          </div>
+            <div class="snippets-list-toolbar">
+              <input id="snippetSearchInput" class="input snippets-search-input" type="search" data-i18n-placeholder="snippets.search.placeholder" />
+              <div id="snippetTagFilterRow" class="snippets-tag-filter-row" role="toolbar" aria-label="Tags"></div>
+            </div>
 
-          <div class="snippets-list-actions">
-            <button class="button" id="addSnippetBtn" type="button">
-              <span class="button-label" data-i18n="snippets.action.add">Add snippet</span>
-              <span class="button-icon" aria-hidden="true">+</span>
-            </button>
-            <button class="button ghost" id="exportSnippetsBtn" type="button" data-i18n="snippets.action.export">Export snippets</button>
-            <button class="button ghost" id="importSnippetsBtn" type="button" data-i18n="snippets.action.import">Import snippets</button>
-            <input id="importSnippetsFile" type="file" accept="application/json" class="is-hidden" />
-            <button class="button ghost" id="resetAllSeedsBtn" type="button" data-i18n="snippets.action.resetAllSeeds">Reset all modified seeds</button>
-          </div>
+            <div class="snippets-list-actions">
+              <button class="button" id="addSnippetBtn" type="button">
+                <span class="button-label" data-i18n="snippets.action.add">Add snippet</span>
+                <span class="button-icon" aria-hidden="true">+</span>
+              </button>
+              <button class="button ghost" id="exportSnippetsBtn" type="button" data-i18n="snippets.action.export">Export snippets</button>
+              <button class="button ghost" id="importSnippetsBtn" type="button" data-i18n="snippets.action.import">Import snippets</button>
+              <input id="importSnippetsFile" type="file" accept="application/json" class="is-hidden" />
+              <button class="button ghost" id="resetAllSeedsBtn" type="button" data-i18n="snippets.action.resetAllSeeds">Reset all modified seeds</button>
+            </div>
 
-          <div id="snippetList" class="snippets-list" aria-live="polite"></div>
-          <p id="snippetListEmpty" class="helper-text is-hidden" data-i18n="snippets.list.empty">No snippets match the current filters.</p>
-        </section>
+            <div id="snippetList" class="snippets-list" aria-live="polite"></div>
+            <p id="snippetListEmpty" class="helper-text is-hidden" data-i18n="snippets.list.empty">No snippets match the current filters.</p>
+          </section>
+        </div>
       </main>
     </div>
   </div>

@@ -306,6 +306,8 @@ window.I18N.he = {
   "settings.action.discard": "בטל שינויים",
   // --- Added 2026-04-28 (REQ-21 + locked-rename) ---
   "settings.banner.heading": "על ההגדרות",
+  "settings.tab.fields": "שמות שדות מותאמים",
+  "settings.tab.snippets": "קטעי טקסט",
   "settings.banner.bullet.global": "שמות מותאמים אישית חלים על כל שפות הממשק — סט תוויות אחד, לא לפי שפה.",
   "settings.banner.bullet.noDelete": "השבתת סעיף אינה מוחקת נתונים קיימים — סשנים קודמים עדיין יציגו סעיפים שכבר יש בהם תוכן.",
   "settings.confirm.disable.title": "להשבית את הסעיף הזה?",

@@ -1681,3 +1681,97 @@ window.SettingsPage = (function () {
     document.addEventListener("DOMContentLoaded", boot);
   }
 })();
+
+// ────────────────────────────────────────────────────────────────────────
+// Phase 24 Plan 05 — Settings page tab nav
+//
+// Two-tab tablist: "Custom field names" (the Phase 22 form) and
+// "Text Snippets" (the Plan 05 surface). Activated tab persists across
+// reload via URL param ?tab=fields|snippets. Default = fields.
+//
+// Accessibility per WAI-ARIA tabs pattern:
+//   - role=tablist on the container
+//   - role=tab on each button with aria-selected + aria-controls
+//   - role=tabpanel on each panel with aria-labelledby
+//   - inactive tab buttons have tabindex=-1 (only active is in tab order)
+//   - inactive panels use hidden attribute
+//   - keyboard nav: ArrowLeft/Right between tabs, Home/End to first/last
+// ────────────────────────────────────────────────────────────────────────
+(function () {
+  "use strict";
+
+  function readUrlTab() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var t = params.get("tab");
+      if (t === "fields" || t === "snippets") return t;
+    } catch (e) {}
+    return null;
+  }
+
+  function writeUrlTab(name) {
+    try {
+      var url = new URL(window.location.href);
+      url.searchParams.set("tab", name);
+      window.history.replaceState({}, "", url.toString());
+    } catch (e) {}
+  }
+
+  function boot() {
+    var tablist = document.querySelector('.settings-tabs[role="tablist"]');
+    if (!tablist) return;
+    var tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+    if (tabs.length === 0) return;
+
+    function activate(name, opts) {
+      opts = opts || {};
+      var focusTab = false;
+      if (opts.focus) focusTab = true;
+      var anyMatched = false;
+      tabs.forEach(function (btn) {
+        var match = btn.getAttribute("data-tab") === name;
+        if (match) anyMatched = true;
+        btn.classList.toggle("is-active", match);
+        btn.setAttribute("aria-selected", match ? "true" : "false");
+        btn.tabIndex = match ? 0 : -1;
+        var panelId = btn.getAttribute("aria-controls");
+        var panel = panelId ? document.getElementById(panelId) : null;
+        if (panel) {
+          if (match) panel.removeAttribute("hidden");
+          else panel.setAttribute("hidden", "");
+        }
+        if (match && focusTab) btn.focus();
+      });
+      if (anyMatched && !opts.skipUrl) writeUrlTab(name);
+    }
+
+    // Wire click handlers
+    tabs.forEach(function (btn, idx) {
+      btn.addEventListener("click", function () {
+        var name = btn.getAttribute("data-tab");
+        if (name) activate(name);
+      });
+      btn.addEventListener("keydown", function (e) {
+        var key = e.key;
+        if (key !== "ArrowLeft" && key !== "ArrowRight" && key !== "Home" && key !== "End") return;
+        e.preventDefault();
+        var next;
+        if (key === "Home") next = 0;
+        else if (key === "End") next = tabs.length - 1;
+        else if (key === "ArrowLeft") next = (idx - 1 + tabs.length) % tabs.length;
+        else /* ArrowRight */ next = (idx + 1) % tabs.length;
+        var nextName = tabs[next].getAttribute("data-tab");
+        if (nextName) activate(nextName, { focus: true });
+      });
+    });
+
+    // Initial activation: ?tab= URL param, else first tab.
+    var initial = readUrlTab();
+    if (!initial) initial = tabs[0].getAttribute("data-tab");
+    activate(initial, { skipUrl: !readUrlTab() });
+  }
+
+  if (typeof document !== "undefined") {
+    document.addEventListener("DOMContentLoaded", boot);
+  }
+})();
