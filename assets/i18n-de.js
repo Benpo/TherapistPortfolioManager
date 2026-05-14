@@ -378,6 +378,7 @@ window.I18N.de = {
   "snippets.prefix.helper": "1 oder 2 Zeichen. Keine Buchstaben, Ziffern, Leerzeichen, Anf\u00FChrungszeichen oder spitzen Klammern.",
   "snippets.prefix.error.length": "Pr\u00E4fix muss 1 oder 2 Zeichen lang sein.",
   "snippets.prefix.error.invalidChar": "Pr\u00E4fix enth\u00E4lt ein nicht unterst\u00FCtztes Zeichen.",
+  "snippets.prefix.saved": "Pr\u00E4fix gespeichert",
   "snippets.search.placeholder": "Bausteine durchsuchen\u2026",
   "snippets.action.add": "Baustein hinzuf\u00FCgen",
   "snippets.action.export": "Bausteine exportieren",

@@ -3170,6 +3170,26 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   text-align: center;
 }
+.snippets-prefix-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 10px);
+  flex-wrap: wrap;
+}
+.success-text {
+  margin: 0;
+  color: var(--color-success, #5a8a3a);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+.success-text::before {
+  content: "✓ ";
+}
+.success-text.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
 
 .snippets-list-toolbar {
   display: flex;

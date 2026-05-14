@@ -836,6 +836,7 @@ window.SettingsPage = (function () {
   function wirePrefixInput() {
     var input = $("snippetPrefixInput");
     var errorEl = $("snippetPrefixError");
+    var savedEl = $("snippetPrefixSaved");
     if (!input || !errorEl) return;
 
     // Prefill
@@ -853,6 +854,19 @@ window.SettingsPage = (function () {
     function showError(messageKey) {
       errorEl.textContent = t(messageKey);
       errorEl.classList.remove("is-hidden");
+      // Errors take precedence — hide any lingering success indicator.
+      if (savedEl) savedEl.classList.add("is-hidden");
+    }
+
+    var savedTimer = null;
+    function showSaved() {
+      if (!savedEl) return;
+      savedEl.textContent = t("snippets.prefix.saved");
+      savedEl.classList.remove("is-hidden");
+      if (savedTimer) clearTimeout(savedTimer);
+      savedTimer = setTimeout(function () {
+        savedEl.classList.add("is-hidden");
+      }, 2500);
     }
 
     function validateLocal(value) {
@@ -881,7 +895,10 @@ window.SettingsPage = (function () {
         if (window.Snippets && typeof window.Snippets.setPrefix === "function") {
           window.Snippets.setPrefix(value);
         }
-        showToast("snippets.toast.saved");
+        // Inline "Prefix saved" beside the input — can't be missed
+        // (the bottom toast was too easy to miss and used the misleading
+        // "Snippet saved" copy from the snippet-CRUD path).
+        showSaved();
       } catch (err) {
         // Defensive: Plan 04 setPrefix validates length only, so a local-validation
         // pass should never throw — but hedge against future tightening.

@@ -378,6 +378,7 @@ window.I18N.cs = {
   "snippets.prefix.helper": "1 nebo 2 znaky. Nesm\u00ED b\u00FDt p\u00EDsmeno, \u010D\u00EDslice, mezera, uvozovka ani lomen\u00E1 z\u00E1vorka.",
   "snippets.prefix.error.length": "P\u0159edpona mus\u00ED m\u00EDt 1 nebo 2 znaky.",
   "snippets.prefix.error.invalidChar": "P\u0159edpona obsahuje nepodporovan\u00FD znak.",
+  "snippets.prefix.saved": "P\u0159edpona ulo\u017Eena",
   "snippets.search.placeholder": "Hledat \u00FAryvky\u2026",
   "snippets.action.add": "P\u0159idat \u00FAryvek",
   "snippets.action.export": "Exportovat \u00FAryvky",

@@ -365,6 +365,7 @@ window.I18N.he = {
   "snippets.prefix.helper": "תו אחד או שניים. לא ניתן להשתמש באותיות, ספרות, רווחים, מירכאות או סימני קטן/גדול.",
   "snippets.prefix.error.length": "התחילית חייבת להיות 1 או 2 תווים.",
   "snippets.prefix.error.invalidChar": "התחילית מכילה תו שאינו נתמך.",
+  "snippets.prefix.saved": "התחילית נשמרה",
   "snippets.search.placeholder": "חיפוש קטעים…",
   "snippets.action.add": "הוספת קטע",
   "snippets.action.export": "ייצוא קטעים",

@@ -110,7 +110,10 @@
 
             <div class="form-field">
               <label class="label" for="snippetPrefixInput" data-i18n="snippets.prefix.label">Trigger prefix</label>
-              <input id="snippetPrefixInput" class="input snippets-prefix-input" type="text" minlength="1" maxlength="2" autocomplete="off" />
+              <div class="snippets-prefix-row">
+                <input id="snippetPrefixInput" class="input snippets-prefix-input" type="text" minlength="1" maxlength="2" autocomplete="off" />
+                <p id="snippetPrefixSaved" class="success-text is-hidden" role="status" aria-live="polite" data-i18n="snippets.prefix.saved">Prefix saved</p>
+              </div>
               <p class="helper-text" data-i18n="snippets.prefix.helper">1 or 2 characters. Cannot be a letter, digit, whitespace, quote, or angle bracket.</p>
               <p id="snippetPrefixError" class="error-text is-hidden"></p>
             </div>

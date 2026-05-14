@@ -365,6 +365,7 @@ window.I18N.en = {
   "snippets.prefix.helper": "1 or 2 characters. Cannot be a letter, digit, whitespace, quote, or angle bracket.",
   "snippets.prefix.error.length": "Prefix must be 1 or 2 characters.",
   "snippets.prefix.error.invalidChar": "Prefix contains an unsupported character.",
+  "snippets.prefix.saved": "Prefix saved",
   "snippets.search.placeholder": "Search snippets…",
   "snippets.action.add": "Add snippet",
   "snippets.action.export": "Export snippets",
