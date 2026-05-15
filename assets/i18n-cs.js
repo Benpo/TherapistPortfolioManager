@@ -283,6 +283,27 @@ window.I18N.cs = {
   "backup.share.title": "Záloha Sessions Garden",
   "backup.share.fallback.body": "Záloha byla stažena do složky Downloads. Přiložte prosím {filename} k tomuto e-mailu ručně.",
 
+  // Phase 25 Plan 02 — Backup & Restore modal + header cloud icon entry point
+  "overview.backupRestore": "Záloha a obnova",
+  "backup.modal.title": "Záloha a obnova",
+  "backup.modal.lastBackup": "Poslední záloha: {relative}",
+  "backup.modal.lastBackupNever": "Poslední záloha: nikdy",
+  "backup.contents.heading": "Co je v záloze",
+  "backup.contents.helper": "Každý export obsahuje vše níže uvedené. Obnovení nahradí všechna aktuální data tímto seznamem.",
+  "backup.contents.item.clients": "Klienti",
+  "backup.contents.item.sessions": "Sezení",
+  "backup.contents.item.snippets": "Úryvky",
+  "backup.contents.item.settings": "Nastavení",
+  "backup.contents.item.photos": "Fotky (oříznuté, optimalizované)",
+  "backup.export.heading": "Exportovat zálohu",
+  "backup.export.helper": "Uložit kopii všech vašich dat. Šifrovat heslem (doporučeno), nebo uložit bez ochrany.",
+  "backup.action.export": "Exportovat zálohu",
+  "backup.import.heading": "Importovat zálohu",
+  "backup.import.helper": "Obnovení nahradí všechna aktuální data obsahem souboru zálohy. Tuto akci nelze vrátit zpět.",
+  "backup.import.warning": "⚠ Nahradí všechna aktuální data",
+  "backup.action.import": "Vybrat soubor zálohy",
+  "backup.modal.scheduleFooter": "Nastavit plán v Nastavení → Zálohy, abyste si to nemuseli pamatovat.",
+
   // Phase 22 \u2014 Settings page
   "header.settings.label": "Nastaven\u00ED",
   "settings.page.title": "Nastaven\u00ED",

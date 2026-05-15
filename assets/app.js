@@ -404,6 +404,105 @@ window.App = (() => {
    * initCommon's synchronous chrome wiring continues, only the cache load is async.
    */
   /**
+   * Phase 25 Plan 02 (D-08, updated 2026-05-15) — mount the Backup & Restore
+   * cloud icon button into #headerActions BEFORE the existing settings gear,
+   * on every page that calls initCommon. Idempotent: skips if a
+   * .backup-cloud-btn is already mounted.
+   *
+   * The icon is a 44×44 circular button (Phase 21 MOB-04 minimum touch target).
+   * Initial state class is computed from BackupManager.computeBackupRecencyState()
+   * — Plan 04 ships the post-mount state-update wiring (visibilitychange +
+   * post-export hooks); this mount applies the state at first render only.
+   *
+   * On click: opens the unified Backup & Restore modal via window.openBackupModal()
+   * if defined (overview.js exposes it). On non-overview pages where the modal
+   * markup is not in the DOM, the click navigates to ./index.html?openBackup=1
+   * — overview.js reads the query param on load and auto-opens the modal.
+   * (This single deviation from "modal lives in DOM on every page" is intentional
+   * and minimal; if it becomes a problem the modal markup can be hoisted to a
+   * shared partial in a follow-up plan.)
+   */
+  function mountBackupCloudButton() {
+    var actions = document.getElementById('headerActions') || document.querySelector('.header-actions');
+    if (!actions) return;
+    if (actions.querySelector('.backup-cloud-btn')) return;  // double-mount guard
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'backupCloudBtn';
+
+    // Initial state class — computeBackupRecencyState() returns
+    // 'never' | 'fresh' | 'warning' | 'danger'. Defensive: BackupManager may
+    // not be loaded on legal/standalone pages; default to 'never'.
+    var initialState = 'never';
+    try {
+      if (typeof BackupManager !== 'undefined' && typeof BackupManager.computeBackupRecencyState === 'function') {
+        initialState = BackupManager.computeBackupRecencyState() || 'never';
+      }
+    } catch (_) { /* keep default */ }
+    btn.className = 'header-icon-btn backup-cloud-btn backup-cloud-btn--' + initialState;
+
+    // a11y: aria-label is the entry-point label; title carries the dynamic
+    // recency text. (Plan 04 swaps in the localized recency keys — until then,
+    // the literal-string fallback prevents an undefined-key string from rendering.)
+    var ariaLabel = (typeof t === 'function' ? t('overview.backupRestore') : '') || 'Backup & Restore';
+    btn.setAttribute('aria-label', ariaLabel);
+
+    var labelLastBackup = (typeof t === 'function' ? t('overview.chip.lastBackup') : '') || 'Last backup';
+    var labelNever      = (typeof t === 'function' ? t('overview.chip.never')      : '') || 'never';
+    var sep = ' · ';
+    var relText = labelNever;
+    try {
+      var raw = localStorage.getItem('portfolioLastExport');
+      if (raw && typeof window.formatRelativeTime === 'function') {
+        var rel = window.formatRelativeTime(Number(raw));
+        if (rel) relText = rel;
+      }
+    } catch (_) { /* keep never */ }
+    btn.setAttribute('title', labelLastBackup + sep + relText);
+
+    // Inline cloud SVG — 20×20 inside the 44×44 button, single-color via
+    // currentColor so the state-color modifiers (Plan 04) can repaint the
+    // stroke without overriding the SVG markup.
+    btn.innerHTML = ''
+      + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
+      +   ' stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + '<path d="M17 18 H7 a4 4 0 0 1 -1 -7.9 6 6 0 0 1 11.6 -1.5 4 4 0 0 1 -.6 9.4 z"/>'
+      + '</svg>';
+
+    // Click: open modal if available; otherwise navigate to overview with
+    // the auto-open query param so overview.js can open it after page load.
+    btn.addEventListener('click', function () {
+      if (typeof window.openBackupModal === 'function') {
+        window.openBackupModal();
+      } else {
+        window.location.href = './index.html?openBackup=1';
+      }
+    });
+
+    // Insert BEFORE the settings gear (visual order in LTR: brand … cloud, gear).
+    var gear = actions.querySelector('.settings-gear-btn');
+    if (gear && gear.parentNode === actions) {
+      actions.insertBefore(btn, gear);
+    } else {
+      // Gear not yet mounted (initSettingsLink runs after this) — insert at
+      // start so the eventual gear lands AFTER the cloud regardless of mount order.
+      actions.insertBefore(btn, actions.firstChild);
+    }
+
+    // Re-translate aria-label on language switch — registered exactly once.
+    if (!mountBackupCloudButton._listenerInstalled) {
+      document.addEventListener('app:language', function () {
+        var existing = document.getElementById('backupCloudBtn');
+        if (existing && typeof t === 'function') {
+          existing.setAttribute('aria-label', t('overview.backupRestore') || 'Backup & Restore');
+        }
+      });
+      mountBackupCloudButton._listenerInstalled = true;
+    }
+  }
+
+  /**
    * Phase 24 Plan 08 — Install unsaved-changes guard on the top-of-page brand link.
    *
    * The brand-link element exists on every page that uses the standard header.
@@ -441,6 +540,7 @@ window.App = (() => {
     renderNav();
     initThemeToggle();
     initLanguagePopover();
+    mountBackupCloudButton(); // Phase 25 Plan 02 (D-08) — cloud icon entry point to the Backup & Restore modal
     initSettingsLink(); // Phase 22 — gear-icon entry point to ./settings.html
     initBrandLinkGuard(); // Phase 24 Plan 08 — protect against logo-click data loss on dirty form
     // initLicenseLink removed per D-03 — license key icon no longer in header
@@ -1075,6 +1175,7 @@ window.App = (() => {
     renderNav,
     initThemeToggle,
     initLicenseLink,
+    mountBackupCloudButton: mountBackupCloudButton,
 
     // UI utilities
     showToast,

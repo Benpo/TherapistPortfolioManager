@@ -3505,3 +3505,118 @@ html[dir="rtl"] .export-format-help[open] summary::before {
 .settings-tabpanel[hidden] {
   display: none;
 }
+
+/* =================================================================
+   Phase 25 — Backup & Restore (header icon + modal)
+   =================================================================
+   Plan 02 ships the BASE rules only:
+     - .header-icon-btn — generic 44×44 circular header touch target
+       (parallel to the existing 36×36 .header-control-btn; lines 127–145
+        above remain UNTOUCHED — color is the load-bearing signal for the
+        cloud icon and a transparent default lets state-color modifiers
+        win without specificity battles)
+     - .backup-cloud-btn — cloud-icon-specific overrides (none beyond base
+       for now)
+     - .backup-cloud-btn--never — neutral muted state for first-time users
+   The four ACTIVE state-color modifiers (.backup-cloud-btn--fresh /
+   --warning / --danger) are owned by Plan 04 (D-13 / D-14) and are NOT
+   shipped here.
+   ================================================================= */
+
+.header-icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.header-icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.header-icon-btn svg { display: block; }
+
+.backup-cloud-btn { /* cloud-specific overrides; Plan 04 adds state colors */ }
+.backup-cloud-btn--never {
+  background-color: var(--color-surface-subtle, var(--color-surface-alt));
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
+/* Modal — Phase 25 Backup & Restore */
+.backup-modal-card {
+  max-width: 560px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  padding: var(--space-xl, 32px);
+}
+.backup-modal-header { margin-bottom: var(--space-lg, 24px); }
+.backup-modal-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 var(--space-xs, 4px) 0;
+}
+.backup-modal-subtitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-muted, #666);
+  margin: 0;
+}
+.backup-modal-section { padding: var(--space-md, 16px) 0; }
+.backup-modal-section + .backup-modal-section {
+  border-block-start: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+}
+.backup-modal-section--contents {
+  background: var(--color-surface-alt, #fdf7ed);
+  border-radius: 12px;
+  padding: var(--space-md, 16px);
+}
+.backup-modal-section--export { padding-top: var(--space-lg, 24px); }
+/* Import heading is smaller than Export (Export is the prominent action — D-07) */
+.backup-modal-section--import .backup-modal-section-heading { font-size: 1.125rem; }
+.backup-modal-section-heading {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 var(--space-sm, 8px) 0;
+}
+.backup-modal-section-helper { margin: 0 0 var(--space-md, 16px) 0; }
+.backup-modal-button-row {
+  display: flex;
+  gap: var(--space-sm, 8px);
+  flex-wrap: wrap;
+}
+.backup-modal-import-warning {
+  background: var(--color-danger-bg, #f8d7da);
+  color: var(--color-danger-text, #721c24);
+  border-inline-start: 4px solid var(--color-danger, #ea4b4b);
+  padding: var(--space-sm, 8px) var(--space-md, 16px);
+  margin-bottom: var(--space-md, 16px);
+  border-radius: 4px;
+  font-weight: 700;
+}
+.backup-contents-list { list-style: none; padding: 0; margin: 0; }
+.backup-contents-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs, 4px);
+  padding: var(--space-xs, 4px) 0;
+  font-weight: 700;
+}
+.backup-contents-check {
+  color: var(--color-success-text, #1e6b3a);
+  font-weight: 700;
+}
+.backup-modal-footer {
+  margin-top: var(--space-lg, 24px);
+  padding-top: var(--space-md, 16px);
+  border-block-start: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+}

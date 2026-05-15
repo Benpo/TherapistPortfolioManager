@@ -283,6 +283,27 @@ window.I18N.he = {
   "backup.share.title": "גיבוי Sessions Garden",
   "backup.share.fallback.body": "קובץ הגיבוי הורד לתיקיית ההורדות. נא לצרף את {filename} לאימייל זה ידנית.",
 
+  // Phase 25 Plan 02 — Backup & Restore modal + header cloud icon (D-27 noun/infinitive)
+  "overview.backupRestore": "גיבוי ושחזור",
+  "backup.modal.title": "גיבוי ושחזור",
+  "backup.modal.lastBackup": "גיבוי אחרון: {relative}",
+  "backup.modal.lastBackupNever": "גיבוי אחרון: מעולם לא",
+  "backup.contents.heading": "מה כלול בגיבוי",
+  "backup.contents.helper": "כל ייצוא כולל את כל הפריטים שלהלן. שחזור יחליף את כל הנתונים הנוכחיים ברשימה זו.",
+  "backup.contents.item.clients": "לקוחות",
+  "backup.contents.item.sessions": "מפגשים",
+  "backup.contents.item.snippets": "קטעי טקסט",
+  "backup.contents.item.settings": "הגדרות",
+  "backup.contents.item.photos": "תמונות (חתוכות, ממוטבות)",
+  "backup.export.heading": "ייצוא גיבוי",
+  "backup.export.helper": "שמירה של עותק מכל הנתונים. ניתן להצפין באמצעות סיסמה (מומלץ) או לשמור ללא הגנה.",
+  "backup.action.export": "ייצוא גיבוי",
+  "backup.import.heading": "ייבוא גיבוי",
+  "backup.import.helper": "שחזור יחליף את כל הנתונים הנוכחיים בתוכן קובץ הגיבוי. לא ניתן לבטל פעולה זו.",
+  "backup.import.warning": "⚠ מחליף את כל הנתונים הנוכחיים",
+  "backup.action.import": "בחירת קובץ גיבוי",
+  "backup.modal.scheduleFooter": "הגדרת תזמון בהגדרות ← גיבויים, כדי שלא יהיה צורך לזכור.",
+
   // Phase 22 — Settings page
   "header.settings.label": "הגדרות",
   "settings.page.title": "הגדרות",
