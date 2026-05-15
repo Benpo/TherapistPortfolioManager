@@ -228,10 +228,11 @@ Recent decisions affecting current work:
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260324-oh5 | Rename browser storage key from emotion_code_portfolio to sessions_garden | 2026-03-24 | 6d78bd7 | [260324-oh5-rename-browser-storage-key-from-emotion-](./quick/260324-oh5-rename-browser-storage-key-from-emotion-/) |
+| 260516-1f5 | Fix backup icon always grey on Sessions/Reporting pages (missing backup.js trio) — code fix complete, human-verify pending | 2026-05-15 | bfe61b4 | [260516-1f5-fix-backup-icon-always-grey-on-sessions-](./quick/260516-1f5-fix-backup-icon-always-grey-on-sessions-/) |
 
 ## Session Continuity
 
-Last activity: 2026-05-15
+Last activity: 2026-05-15 - Completed quick task 260516-1f5: fix backup icon always grey on Sessions/Reporting (Phase 25 live bug — code fix on main, Task 3 human-verify pending)
 Stopped at: Phase 25 context gathered (backup architectural rework, expanded scope)
 Resume file: .planning/phases/25-backup-architectural-rework/25-CONTEXT.md
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
