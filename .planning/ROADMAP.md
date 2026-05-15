@@ -491,7 +491,7 @@ Plans:
 
 ### Phase 25: Backup architectural rework
 
-**Goal:** Fix the "Send backup to myself" feature (it currently emails plain text with no attachment because `mailto:` cannot attach files), AND consolidate the 3 backup buttons that currently dominate the overview screen. Split from Phase 24 (was item 3 there) into its own phase so the backup architecture can be discussed and designed independently from the launch-blocker bug fixes.
+**Goal:** Fix the broken "Send to myself" backup, consolidate the 3-button overview cluster into a single Backup & Restore surface, fold scheduled-backup into this rework, add backup-health awareness signals, and reduce backup payload by reworking photo handling. Phase scope was deliberately expanded ("expand wherever possible") to ship a sellable v1.1 backup architecture. The 30 user-locked decisions D-01..D-30 in 25-CONTEXT.md are the authoritative requirement set.
 
 **In scope (one bundled architectural item — N7 from Phase 22 round-3 UAT):**
 
@@ -519,7 +519,17 @@ Plans:
 - Pre-commit hook still auto-bumps `sw.js` CACHE_NAME on asset commits.
 
 **Depends on:** Phase 24 (the launch-blocker bug fixes need to land first so Phase 25 can ship cleanly on top).
-**Plans:** TBD after `/gsd-discuss-phase 25`.
+**Plans:** 8 plans
+
+Plans:
+- [ ] 25-01-PLAN.md — Send-to-Myself removal + Web Share API integration (D-01..D-04)
+- [ ] 25-02-PLAN.md — Backup & Restore modal + overview entry point (D-05..D-10, D-29)
+- [ ] 25-03-PLAN.md — Test-backup-password dry-run safety net (D-12)
+- [ ] 25-04-PLAN.md — Backup awareness chip + 7-day banner suppression (D-13..D-15, D-19, D-30)
+- [ ] 25-05-PLAN.md — Scheduled-backup Settings tab + interval-end prompt + folder picker (D-11, D-16..D-20)
+- [ ] 25-06-PLAN.md — Photo resize-on-upload + crop-only storage (D-21..D-23)
+- [ ] 25-07-PLAN.md — Photos Settings tab (Optimize-all + Delete-all + usage) (D-24..D-25)
+- [ ] 25-08-PLAN.md — Backup round-trip regression tests + encrypt-then-share refactor + single-source audit (D-29..D-30)
 
 **Source TODO:** `2026-05-13-backup-architectural-rework-N7.md` (target_phase updated from 24 → 25).
 

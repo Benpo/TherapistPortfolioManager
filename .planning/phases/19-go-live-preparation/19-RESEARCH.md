@@ -692,6 +692,30 @@ None — existing manual testing approach covers all phase requirements. Automat
 - [IONOS Impressum requirements 2025](https://www.ionos.com/digitalguide/websites/digital-law/a-case-for-thinking-global-germanys-impressum-laws/) — DDG SS5 requirements
 - [eRecht24 Impressum Kleinunternehmer](https://www.e-recht24.de/impressum/13097-impressum-fuer-kleinunternehmer.html) — Kleinunternehmer-specific guidance
 - [OWASP PBKDF2 2025 guidance](https://dev.to/securebitchat/why-you-should-use-310000-iterations-with-pbkdf2-in-2025-3o1e) — Iteration count recommendation (cites OWASP cheat sheet)
+
+## Planning Directives (from user review)
+
+**These directives come from Ben's review of the research and MUST be reflected in plan tasks.**
+
+### SW Cache Update — Mandatory Structured Task
+The risk of forgetting to update `sw.js` when adding 9 new legal page files is real (Pitfall 3 above). The planner MUST:
+1. Create an **explicit task** (not a subtask buried in another task) that updates `sw.js` PRECACHE_URLS with all 12 legal page paths and bumps CACHE_NAME version.
+2. Add a **verification step** that counts `*.html` files in the deploy set vs entries in `sw.js` PRECACHE_URLS — mismatch = fail.
+3. This task MUST be sequenced AFTER the legal page files are created, not before.
+
+### Legal Page Cross-Links — Structured Task
+Switching from `?lang=` URL params to direct file navigation (`impressum-he.html` instead of `impressum.html?lang=he`) is a distinct task, not an afterthought. The planner MUST:
+1. Create a **dedicated task** for updating all cross-links: footer link generation, `globe-lang.js` `onLangChange` callbacks on legal pages, any links from app/landing pages to legal pages.
+2. Touch points: footer on all legal pages, globe language switcher behavior, landing page legal links, app page legal links.
+
+### GH Action Concurrency — Include in Deploy Task
+The `concurrency: { group: deploy, cancel-in-progress: true }` block prevents race conditions when two pushes to `main` happen in quick succession. This is standard practice — include it in the GH Action workflow task, not as a separate concern. Explanation for context: it tells GitHub to cancel an in-progress deploy if a newer push arrives, so two workflows don't fight over force-pushing the deploy branch.
+
+### Legal Content Quality — Two-Pass Approach
+Ben's directive: "No reason why a simple app won't be able to get covered legally without a real lawyer." The approach:
+1. **First pass (this phase):** Create all legal page content based on research (DDG §5, VSBG §36, standard Haftungsausschluss/Urheberrecht). Draft thoroughly.
+2. **Second pass (polishing task):** After all legal pages exist, run a dedicated review/polish pass — potentially using e-recht24 generator output as a cross-reference to validate completeness and wording. This can be a final plan in the phase.
+3. The MEDIUM confidence on legal content is acceptable — the content surface is small (simple local-only app, no tracking, no payment processing, Lemon Squeezy is MoR). Lawyer review is optional, not blocking.
 - [IHK Nuernberg VSBG](https://www.ihk-nuernberg.de/ihr-unternehmen/rechtsinformationen-fuer-unternehmen/internetrecht-recht-des-e-commerce/verbraucherstreitbeilegungsgesetz) — Consumer dispute resolution notice requirements
 - [BZSt Wirtschafts-ID](https://www.bzst.de/DE/Unternehmen/Identifikationsnummern/Wirtschafts-Identifikationsnummer/wirtschaftsidentifikationsnummer_node.html) — W-IdNr rollout timeline
 - [eRecht24 Wirtschafts-ID Impressum](https://www.e-recht24.de/news/ecommerce/13369-die-wirtschafts-id-kommt-was-das-fuer-ihr-impressum-bedeutet.html) — W-IdNr in Impressum obligations
@@ -711,3 +735,64 @@ None — existing manual testing approach covers all phase requirements. Automat
 
 **Research date:** 2026-03-24
 **Valid until:** 2026-04-24 (legal requirements stable; OWASP guidance stable; CF tooling may update)
+
+---
+
+## Addendum: CF Pages Deployment Debugging (2026-03-25)
+
+### Context
+
+Phase 19 was code-complete and deployed via GitHub Actions → `deploy` branch → Cloudflare Pages. The app worked perfectly on localhost but had critical navigation failures on the live CF Pages deployment (sessionsgarden.app). Three debugging sessions across 2026-03-24 and 2026-03-25 resolved all issues.
+
+### CF Pages "Pretty URLs" — The Core Conflict
+
+CF Pages has an always-on "pretty URLs" feature that:
+1. **Strips `.html` extensions**: Requesting `/foo.html` returns a **301 redirect** to `/foo`
+2. **Treats `index.html` as the root document**: `/index.html` redirects to `/`, not `/index`
+3. **Serves content at extensionless paths**: `/foo` serves `foo.html` content directly
+
+This creates two problems for service workers and `_redirects`:
+
+#### Problem 1: SW caching redirected responses
+When a service worker precaches `/foo.html` via `cache.add()`, the fetch follows the 301 redirect to `/foo` and stores the final response. But this response has `response.redirected === true`. When the SW later serves this cached response for a **navigation request**, browsers reject it with: *"Response served by service worker has redirections"* (Safari) / similar errors in Chrome.
+
+**Impact:** Every HTML page in the precache list became unnavigable when served from SW cache.
+
+#### Problem 2: `_redirects` + `index.html` = infinite loop
+The `_redirects` rule `/ /landing.html 302` was meant to show the marketing page at the root URL. But because CF Pages maps `index.html` → `/`, any navigation to `./index.html` (used throughout the app as the main entry point) triggered:
+1. CF Pages: `/index.html` → 301 to `/`
+2. `_redirects`: `/` → 302 to `/landing.html`
+3. CF Pages: `/landing.html` → 301 to `/landing`
+4. User trapped on landing page, never reaches app
+
+**Impact:** ALL links to `./index.html` in the app (license activation redirect, disclaimer "Continue to App", auto-detect redirect) silently failed and sent users to landing.
+
+### Hypotheses Tested
+
+| # | Hypothesis | Result | Why Wrong / Right |
+|---|-----------|--------|-------------------|
+| 1 | SW caching extensionless URL redirects (v27 fix: skip extensionless navigations) | **Partially correct** | Fixed some cases but `.html` requests are ALSO redirected by CF Pages — the extensionless-only check was too narrow |
+| 2 | SW caching ALL navigation redirect responses (v28 fix: skip ALL navigations + remove HTML from precache) | **Correct but insufficient** | Fixed the SW error, but users still looped to landing. The SW was one of two problems. |
+| 3 | `_redirects` rule `/ /landing.html 302` conflicting with CF Pages' `index.html` → `/` mapping | **ROOT CAUSE** | CF Pages treats `index.html` as root document, so every `./index.html` link hit the redirect rule and looped to landing. Removing `_redirects` and replacing with a JS gate in `index.html <head>` fixed the issue. |
+
+### Fixes Applied (commits)
+
+| Commit | Fix | Status |
+|--------|-----|--------|
+| `9883857` | SW v28: skip ALL navigations, remove HTML from precache, never cache redirected responses | Working |
+| `d6915cb` | Remove SW registration from landing.html (marketing page doesn't need it) | Working |
+| `eabcd39` | **Root cause fix:** Remove `_redirects`, add JS Gate 0 in index.html — redirects unlicensed users to landing via JavaScript instead of CF `_redirects` | Working |
+
+### Architectural Decisions
+
+1. **SW only caches subresources** (CSS, JS, images, fonts, JSON). All page navigations go to network. This is the correct architecture for CF Pages with pretty URLs.
+2. **Landing page has no SW** — marketing page should not install or be controlled by the service worker.
+3. **Root URL handling via JS gates** — `index.html` has three `<script>` gates in `<head>` (before any rendering):
+   - Gate 0: No license → redirect to `./landing.html`
+   - Gate 1: No terms accepted → redirect to disclaimer
+   - Gate 2: Terms but no license instance → redirect to license page
+4. **`_redirects` file emptied** — CF Pages `_redirects` cannot safely redirect `/` when the app's main page is `index.html`, because CF treats them as the same thing.
+
+### Key Takeaway for Future CF Pages Projects
+
+**Never use `_redirects` to redirect `/` when your app lives at `index.html`.** CF Pages pretty URLs map `index.html` to `/`, so any `_redirects` rule targeting `/` will intercept all `./index.html` navigations. Handle root URL routing in JavaScript instead.

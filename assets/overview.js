@@ -472,7 +472,7 @@ function renderClientRows(clients, sessionsByClient) {
         // Phase 24-06 follow-up: dropped `row-toggle` (34px circle with grid:place-items:center
         //   was clipping both label + icon into one cell). .edit-button now styles as a pill
         //   with label + icon side-by-side.
-        editButton.innerHTML = '<span class="button-label" data-i18n="overview.table.view">' + App.t("overview.table.view") + '</span><span class="button-icon" aria-hidden="true">&#9998;</span>';
+        editButton.innerHTML = '<span class="button-label" data-i18n="overview.table.view">' + App.t("overview.table.view") + '</span><span class="button-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>';
         editButton.addEventListener("click", () => {
           window.location.href = `./add-session.html?sessionId=${session.id}`;
         });

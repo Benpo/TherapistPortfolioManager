@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Phase 24-06 follow-up: rename Edit→View for consistency with overview's
       // 24-03 D-07 rename. Click opens read mode by default; the in-page edit
       // toggle (#editSessionBtn) is what flips to edit mode.
-      editButton.innerHTML = '<span class="button-label" data-i18n="sessions.table.view">' + App.t("sessions.table.view") + '</span><span class="button-icon" aria-hidden="true">&#9998;</span>';
+      editButton.innerHTML = '<span class="button-label" data-i18n="sessions.table.view">' + App.t("sessions.table.view") + '</span><span class="button-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>';
       editButton.addEventListener("click", () => {
         window.location.href = `./add-session.html?sessionId=${session.id}`;
       });
