@@ -224,8 +224,28 @@
         </div>
       </section>
 
+      <!-- Phase 25 Plan 03 — Test-password sub-card (D-12, D-26).
+           Decrypts a .sgbackup file to memory + validates the manifest header.
+           No PortfolioDB write, no localStorage write — see assets/backup.js
+           testBackupPassword + tests/25-03-testpassword-no-mutation.test.js. -->
       <section class="backup-modal-section backup-modal-section--test" id="backupModalTestPasswordSection">
-        <!-- Test-password sub-card markup is wired in Plan 03; this section is intentionally empty for now -->
+        <div class="backup-test-password-card">
+          <h3 class="backup-modal-section-heading" data-i18n="backup.testPassword.heading">Test backup password</h3>
+          <p class="backup-modal-section-helper helper-text" data-i18n="backup.testPassword.helper">Check that you can decrypt a backup file with your password. Your current data is not touched.</p>
+          <div class="form-field">
+            <label class="button ghost backup-test-password-filebtn import-label" for="backupTestPasswordFile">
+              <span id="backupTestPasswordFileLabel" data-i18n="backup.testPassword.filePlaceholder">Drop a backup file here, or click to choose one.</span>
+              <input id="backupTestPasswordFile" type="file" accept=".sgbackup" class="is-hidden" />
+            </label>
+          </div>
+          <div class="form-field">
+            <input id="backupTestPasswordInput" class="input" type="password" autocomplete="off" data-i18n-placeholder="backup.testPassword.passwordPlaceholder" placeholder="Backup password" />
+          </div>
+          <div class="backup-modal-button-row">
+            <button type="button" class="button" id="backupTestPasswordRun" data-i18n="backup.testPassword.run" disabled>Test password</button>
+          </div>
+          <p id="backupTestPasswordResult" class="backup-test-password-result" role="status" aria-live="polite" hidden></p>
+        </div>
       </section>
 
       <footer class="backup-modal-footer">

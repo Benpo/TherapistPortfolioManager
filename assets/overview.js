@@ -92,6 +92,28 @@ function closeBackupModal() {
   if (!modal) return;
   modal.classList.add('is-hidden');
   App.unlockBodyScroll();
+  // Phase 25 Plan 03 — reset the Test-password sub-card so stale file/password/
+  // result do not leak between modal sessions (avoids visual confusion when the
+  // user reopens the modal after a successful test on a different file).
+  // Implementation note: inlined here rather than re-binding closeBackupModal,
+  // because closeBackupModal is a hoisted `function` declaration.
+  const tpFile = document.getElementById('backupTestPasswordFile');
+  const tpInput = document.getElementById('backupTestPasswordInput');
+  const tpLabel = document.getElementById('backupTestPasswordFileLabel');
+  const tpRun = document.getElementById('backupTestPasswordRun');
+  const tpResult = document.getElementById('backupTestPasswordResult');
+  if (tpFile) tpFile.value = '';
+  if (tpInput) tpInput.value = '';
+  if (tpLabel) {
+    tpLabel.setAttribute('data-i18n', 'backup.testPassword.filePlaceholder');
+    tpLabel.textContent = App.t('backup.testPassword.filePlaceholder');
+  }
+  if (tpResult) {
+    tpResult.hidden = true;
+    tpResult.textContent = '';
+    tpResult.className = 'backup-test-password-result';
+  }
+  if (tpRun) tpRun.disabled = true;
 }
 
 /**
@@ -292,6 +314,87 @@ document.addEventListener("DOMContentLoaded", async () => {
       const file = backupModalImportInput.files && backupModalImportInput.files[0];
       await openImportFlow(file);
       backupModalImportInput.value = "";
+    });
+  }
+
+  // ---------------------------------------------------------------------
+  // Phase 25 Plan 03 — Test-password sub-card handlers (D-12).
+  // The "Test password" button is disabled until BOTH a file is chosen AND
+  // a password is typed. On click, calls BackupManager.testBackupPassword
+  // (which decrypts to memory only, never touches IDB or localStorage) and
+  // renders the result in-card — green success with manifest counts, or
+  // yellow error with the resolved i18n message from the rejection.
+  // ---------------------------------------------------------------------
+  const backupTestPasswordFile = document.getElementById("backupTestPasswordFile");
+  const backupTestPasswordFileLabel = document.getElementById("backupTestPasswordFileLabel");
+  const backupTestPasswordInput = document.getElementById("backupTestPasswordInput");
+  const backupTestPasswordRun = document.getElementById("backupTestPasswordRun");
+  const backupTestPasswordResult = document.getElementById("backupTestPasswordResult");
+
+  function refreshTestPasswordButtonState() {
+    const hasFile = !!(backupTestPasswordFile && backupTestPasswordFile.files && backupTestPasswordFile.files.length > 0);
+    const hasPwd = !!(backupTestPasswordInput && backupTestPasswordInput.value.length > 0);
+    if (backupTestPasswordRun) backupTestPasswordRun.disabled = !(hasFile && hasPwd);
+  }
+
+  function showTestPasswordResult(kind, text) {
+    if (!backupTestPasswordResult) return;
+    backupTestPasswordResult.className = "backup-test-password-result " + kind;
+    backupTestPasswordResult.textContent = text;
+    backupTestPasswordResult.hidden = false;
+  }
+
+  function clearTestPasswordResult() {
+    if (!backupTestPasswordResult) return;
+    backupTestPasswordResult.hidden = true;
+    backupTestPasswordResult.textContent = "";
+    backupTestPasswordResult.className = "backup-test-password-result";
+  }
+
+  if (backupTestPasswordFile && backupTestPasswordFileLabel) {
+    backupTestPasswordFile.addEventListener("change", () => {
+      const f = backupTestPasswordFile.files && backupTestPasswordFile.files[0];
+      if (f) {
+        // Render the chosen filename — drop the data-i18n binding so
+        // applyTranslations does not overwrite the dynamic filename on the
+        // next pass (mirrors the renderLastBackupSubtitle convention).
+        backupTestPasswordFileLabel.removeAttribute("data-i18n");
+        backupTestPasswordFileLabel.textContent = f.name;
+      } else {
+        backupTestPasswordFileLabel.setAttribute("data-i18n", "backup.testPassword.filePlaceholder");
+        backupTestPasswordFileLabel.textContent = App.t("backup.testPassword.filePlaceholder");
+      }
+      clearTestPasswordResult();
+      refreshTestPasswordButtonState();
+    });
+  }
+  if (backupTestPasswordInput) {
+    backupTestPasswordInput.addEventListener("input", () => {
+      clearTestPasswordResult();
+      refreshTestPasswordButtonState();
+    });
+  }
+  if (backupTestPasswordRun) {
+    backupTestPasswordRun.addEventListener("click", async () => {
+      const f = backupTestPasswordFile && backupTestPasswordFile.files && backupTestPasswordFile.files[0];
+      const pwd = backupTestPasswordInput ? backupTestPasswordInput.value : "";
+      if (!f || !pwd) return;
+      backupTestPasswordRun.disabled = true;
+      try {
+        const r = await BackupManager.testBackupPassword(f, pwd);
+        const lang = localStorage.getItem("portfolioLang") || "en";
+        const dateStr = r.exportedAt ? new Date(r.exportedAt).toLocaleDateString(lang) : "—";
+        const successText = App.t("backup.testPassword.success")
+          .replace("{date}", dateStr)
+          .replace("{clients}", String(r.clientCount))
+          .replace("{sessions}", String(r.sessionCount));
+        showTestPasswordResult("success", successText);
+      } catch (err) {
+        const msg = (err && err.message) ? err.message : App.t("backup.testPassword.invalid");
+        showTestPasswordResult("error", msg);
+      } finally {
+        refreshTestPasswordButtonState();
+      }
     });
   }
 

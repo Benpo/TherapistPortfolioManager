@@ -304,6 +304,18 @@ window.I18N.he = {
   "backup.action.import": "בחירת קובץ גיבוי",
   "backup.modal.scheduleFooter": "הגדרת תזמון בהגדרות ← גיבויים, כדי שלא יהיה צורך לזכור.",
 
+  // Phase 25 Plan 03 — Test-backup-password dry-run (D-12). HE uses noun/infinitive forms (D-27).
+  "backup.action.testPassword": "בדיקת סיסמת גיבוי",
+  "backup.testPassword.heading": "בדיקת סיסמת גיבוי",
+  "backup.testPassword.helper": "בדיקה שניתן לפענח קובץ גיבוי עם הסיסמה. הנתונים הנוכחיים אינם נוגעים.",
+  "backup.testPassword.filePlaceholder": "גרירת קובץ גיבוי לכאן, או לחיצה לבחירה.",
+  "backup.testPassword.passwordPlaceholder": "סיסמת גיבוי",
+  "backup.testPassword.run": "בדיקת סיסמה",
+  "backup.testPassword.success": "פוענח בהצלחה. גיבוי מתאריך {date} — {clients} לקוחות, {sessions} מפגשים.",
+  "backup.testPassword.wrongPassphrase": "הסיסמה לא פיענחה את הקובץ. כדאי לבדוק שוב את הסיסמה ששימשה ליצירת הגיבוי, או לנסות קובץ אחר.",
+  "backup.testPassword.notEncrypted": "הקובץ אינו גיבוי מוצפן, ולכן אין צורך בסיסמה. ניתן לייבא אותו ישירות מאזור הייבוא.",
+  "backup.testPassword.invalid": "הקובץ אינו גיבוי תקין של Sessions Garden. כדאי לנסות קובץ אחר.",
+
   // Phase 22 — Settings page
   "header.settings.label": "הגדרות",
   "settings.page.title": "הגדרות",
