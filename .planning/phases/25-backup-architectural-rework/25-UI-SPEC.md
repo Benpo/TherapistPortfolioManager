@@ -107,7 +107,7 @@ Every string below ships in 4 locales (EN/HE/DE/CS) per D-28. EN is canonical; H
 
 | Element | EN copy | HE copy (noun/infinitive) | Existing/New i18n key |
 |---------|---------|---------------------------|----------------------|
-| Overview entry button (replaces 3-button cluster, D-08) | **Backup & Restore** | **גיבוי ושחזור** | NEW `overview.backupRestore` |
+| Header cloud icon button (D-08, updated) — `aria-label` only, no visible text | **Backup & Restore** (`aria-label`) | **גיבוי ושחזור** (`aria-label`) | NEW `overview.backupRestore` (re-purposed for `aria-label` instead of visible button text) |
 | Modal: primary export button | **Export backup** | **ייצוא גיבוי** | NEW `backup.action.export` (replaces `overview.export` "Export / Backup Data") |
 | Modal: secondary share button (D-03) | **Share backup** | **שיתוף גיבוי** | NEW `backup.action.share` |
 | Modal: import file picker | **Choose backup file** | **בחירת קובץ גיבוי** | NEW `backup.action.import` (replaces `overview.import` "Import Data") |
@@ -223,8 +223,8 @@ These are the new interaction surfaces the planner will compose from existing ap
 
 | New surface | Composed from existing classes | New classes (if any) | Where |
 |-------------|--------------------------------|----------------------|-------|
-| **Overview entry button** "Backup & Restore" | `.button.secondary.icon-swap` (mirrors existing "Add Client" / "Add Session" pattern) | none | `index.html:99-115` (replaces 3-button cluster, D-08) |
-| **Last-backup chip** (always visible, D-13) | new pattern, but matches `.snippets-tag-chip` height + `.backup-reminder-banner` color logic | `.backup-chip`, `.backup-chip--fresh`, `.backup-chip--warning`, `.backup-chip--danger`, `.backup-chip--never` | adjacent to entry button on overview (per RESEARCH.md Open Question 4 recommendation: single visual unit) |
+| **Header cloud icon button** "Backup & Restore" (D-08, updated) | new circular icon button (44×44 touch target — Phase 21 MOB-04); pairs with existing settings-gear icon already in `#headerActions` | `.header-icon-btn`, `.backup-cloud-btn`, `.backup-cloud-btn--fresh`, `.backup-cloud-btn--warning`, `.backup-cloud-btn--danger`, `.backup-cloud-btn--never` | inserted into `#headerActions` (`index.html:65`) BEFORE the settings gear (LTR order); RTL flips automatically. Mounted by `App.mountBackupCloudButton(...)` (new helper alongside `mountSettingsGear` at `assets/app.js:332`). |
+| **Overview action cluster** (post-Phase-25) | `.inline-actions` flex container preserved at `index.html:99` | none | After Phase 25, contains only `[Add Client]` and `[Add Session]` — Export / Import / Send / Auto-backup / Send-to-Myself / chip are all removed (folded into header icon → modal). The `.inline-actions` markup wrapper stays for the two remaining buttons. |
 | **Backup & Restore modal** | `.modal`, `.modal-overlay`, `.modal-card` (with custom width), `.modal-close`, `.section-title` for headers | `.backup-modal-card`, `.backup-modal-section`, `.backup-modal-section--export`, `.backup-modal-section--import`, `.backup-modal-section--test`, `.backup-contents-list`, `.backup-contents-item` | new markup in `index.html` (modal lives in DOM), styles in `app.css` |
 | **Backup contents checklist row** (D-09) | `.success-text` checkmark pattern (app.css:3198 `.success-text::before`) | `.backup-contents-item` | inside the modal |
 | **Settings: Backups tab** | `.settings-tab`, `.settings-tabpanel`, `.form-field`, `.label`, `.helper-text`, `.input` (number for custom days), `.button` (Pick folder), `.button.danger` is NOT used here (no destructive in this tab) | `.backup-schedule-frequency`, `.backup-schedule-folder`, `.backup-schedule-callout` | `settings.html` — add 3rd and 4th tabs after "Text Snippets" |
@@ -241,12 +241,15 @@ These are the new interaction surfaces the planner will compose from existing ap
 
 These resolve every "Claude's Discretion" item in CONTEXT plus the open questions in RESEARCH while honoring all 30 locked decisions.
 
-### Overview entry point (D-08)
+### Header entry point (D-08, updated 2026-05-15)
 
-- **Replace** lines `index.html:99-115` (current 5-button cluster: Add Client, Add Session, Export, Import, Send, Auto-backup) with: `[Add Client] [Add Session] [Backup & Restore] [chip]`. The "Send backup to myself" button is removed entirely (D-01). The "Set backup folder" button is removed from overview (D-11) — it moves into Settings → Backups.
-- **Position:** same `.inline-actions` flex container at `index.html:99` (markup wrapper kept; children replaced). The Backup & Restore button is the third action on desktop, slotted on its own line on mobile (existing `.inline-actions` `flex-wrap` already handles this).
-- **Visual treatment:** `.button.secondary` (filled secondary green-soft, not the primary green of "Add Client") — backup is admin work, not the primary workflow per CONTEXT scope statement. The chip provides the urgency signal; the button is a constant, low-fatigue affordance.
-- **Chip:** sits inline-end-adjacent to the button with `gap: var(--space-sm, 8px)`. On RTL (Hebrew) the chip auto-flips to inline-start side via `gap` + flex (no extra CSS needed because the existing `.inline-actions` is already RTL-safe per Phase 16-02 fixes).
+- **Move** the entry point OUT of the overview body and INTO the existing top header. The current 5-button cluster on overview (`index.html:99-115`) collapses to just `[Add Client] [Add Session]` — the Export, Import, Send, and Auto-backup buttons are all removed from the cluster (D-01 removes Send; D-05/D-08 fold the rest into the new modal accessed via the header icon).
+- **Insertion point:** `#headerActions` container at `index.html:65` (already populated with the settings-gear icon by `App.mountSettingsGear` at `assets/app.js:332`). Insert the cloud icon BEFORE the settings gear in LTR (so visual order reads: brand, …, cloud, gear). RTL handled automatically by flex direction.
+- **Markup:** `<button type="button" class="header-icon-btn backup-cloud-btn" id="backupCloudBtn" aria-label="Backup & Restore" title="Last backup · 3 days ago"><svg class="cloud-svg">…</svg></button>`. Icon is inline SVG (cloud glyph — `M12 18 H7 a4 4 0 0 1 -1 -7.9 6 6 0 0 1 11.6 -1.5 4 4 0 0 1 2.4 7.4 H17` outline + fill).
+- **Visual treatment:** circular touch target (44×44 — Phase 21 MOB-04 minimum), `border-radius: 50%`, no border by default, color is the load-bearing signal. The icon glyph itself stays single-color (`currentColor`); the BACKGROUND of the button encodes recency (see D-14 chip thresholds applied to the button's `background-color`).
+- **No separate chip element.** The chip pattern from earlier drafts is replaced by background tinting on the icon — one tap target, one status surface.
+- **On click:** opens the Backup & Restore modal (same modal as before, just summoned from the header instead of an overview button). The icon stays visible while the modal is open.
+- **Tooltip:** `title="Last backup · {relative time}"` (or "Last backup · never") — text is the accessibility-safe equivalent of the color signal. Updates whenever `portfolioLastExport` changes.
 
 ### Backup & Restore modal layout (D-06, D-07)
 
@@ -260,16 +263,20 @@ Vertical stack from top to bottom inside `.backup-modal-card` (max-width 560px, 
 6. **TEST PASSWORD sub-card** (D-12 — placement decision: inside the modal, under Import — RESEARCH.md Open Question 3 recommendation): heading + helper + file-drop area + password input + `[Test password]` button. Background `--color-surface-alt`. Visually subordinated to Import (the actions live at the same hierarchy because both touch a backup file, but Test Password has a tinted card to mark it as "read-only safe").
 7. **Modal footer** — link `Set up a schedule in Settings → Backups` (text-link style, not a button — the modal is for one-shot backup actions; recurring config lives in Settings).
 
-### Backup chip color thresholds (D-13, D-14)
+### Cloud icon color thresholds (D-13, D-14, updated 2026-05-15)
 
-| State | Background | Text | Left-border accent | When (Schedule OFF) | When (Schedule ON) |
-|-------|-----------|------|---------------------|---------------------|---------------------|
-| `--never` | `--color-surface-subtle` | `--color-text-muted` | none | no `portfolioLastExport` key | same |
-| `--fresh` | `--color-success-bg` | `--color-success-text` | 3px `--color-primary` | ≤ 7 days | ≤ chosen interval |
-| `--warning` | `--color-warning-bg` | `--color-warning-text` | none | 7 < x ≤ 14 days | interval < x ≤ interval × 1.5 |
-| `--danger` | `--color-danger-bg` | `--color-danger-text` | none | > 14 days | > interval × 2 |
+The thresholds below are applied to the **header cloud icon button's `background-color`** (D-08). There is no separate chip element. The icon glyph stays single-color (`currentColor` resolved against the button's text color, which flips with the background to maintain WCAG AA contrast).
 
-Chip text format: `Last backup · {relative time}` (e.g. "Last backup · 3 days ago" / "Last backup · never"). On click, opens the Backup & Restore modal (single tap target with the adjacent button).
+| State | Button background | Icon glyph color | When (Schedule OFF) | When (Schedule ON) |
+|-------|-------------------|------------------|---------------------|---------------------|
+| `--never` | `--color-surface-subtle` (or transparent w/ 1px `--color-border` outline) | `--color-text-muted` | no `portfolioLastExport` key | same |
+| `--fresh` | `--color-success-bg` | `--color-success-text` | ≤ 7 days | ≤ chosen interval |
+| `--warning` | `--color-warning-bg` | `--color-warning-text` | 7 < x ≤ 14 days | interval < x ≤ interval × 1.5 |
+| `--danger` | `--color-danger-bg` | `--color-danger-text` | > 14 days | > interval × 2 |
+
+CSS class naming: `.backup-cloud-btn--never` / `--fresh` / `--warning` / `--danger`, applied to the `#backupCloudBtn` element. State updated via the same helper that previously updated the chip — `BackupManager.computeBackupRecencyState()` returns the state string; the consumer toggles the class.
+
+Tooltip (`title` attribute) format: `Last backup · {relative time}` (e.g. "Last backup · 3 days ago" / "Last backup · never"). On click, opens the Backup & Restore modal. Updates whenever `portfolioLastExport` changes (visibilitychange + post-export hook).
 
 ### Settings tabs structure
 
@@ -295,7 +302,7 @@ Per the autonomous-mode default cited in the prompt: schedule password is **re-p
 | A1 | Schedule password is NOT persisted; user re-enters at each scheduled fire | RESEARCH.md Open Q1 + autonomous-mode prompt instruction "Schedule password is RE-PROMPTED on each fire, NOT persisted" | Low. If user feedback shows this is too friction-y, a session-scoped `sessionStorage` cache could be added without changing the schema. |
 | A2 | Test-backup-password lives **inside the Backup & Restore modal**, under the Import section | Autonomous-mode prompt instruction + RESEARCH.md Open Q3 recommendation | Low. If the modal becomes too tall, can be split to its own tab in Settings — but co-location is the better discoverability story for the safety net. |
 | A3 | Backups & Photos are **two new Settings tabs**, not sections within an existing tab | Autonomous-mode prompt + RESEARCH.md Open Q2 + existing `settings.html:55-58` pattern | Low. If 4 tabs feel crowded on mobile, the existing horizontal scroll already handles it (Phase 21 MOB-09 audit). |
-| A4 | Chip placement is **inline-end-adjacent to the "Backup & Restore" button on overview**, single visual unit | Autonomous-mode prompt + RESEARCH.md Open Q4 | Low. Alternative placements (header, top-of-card) considered; adjacency to the entry button gives the strongest single-tap/single-glance experience. |
+| A4 | ~~Chip placement is **inline-end-adjacent to the "Backup & Restore" button on overview**, single visual unit~~ **SUPERSEDED 2026-05-15**: Ben directed the entry point to the **top header as a cloud icon** (D-08 updated), with the icon's background color encoding recency (D-13/D-14 updated). No separate chip element. One tap target, one status surface. | User direction during plan-phase review | None — explicit user override. |
 | A5 | Last-backup timestamp uses the **existing `localStorage.portfolioLastExport` key** | Autonomous-mode prompt instruction "canonical, already used by 7-day reminder" + RESEARCH.md Architectural Map row | None — this is the existing key, just being read by additional surfaces. |
 | A6 | Modal title is `28px/700` Display (slightly larger than the existing `.modal-title 1.4rem`) | D-26 mandates "clear headers + instructions" + the modal is replacing what was visually a 3-button cluster — needs page-replacement gravitas | Low. Can drop to 1.4rem if visual checkpoint flags it as oversized. |
 | A7 | "Optimize all photos" confirm uses **`tone: 'neutral'`** (button-primary green, not red), even though it's irreversible | Optimize is a one-way operation but **non-destructive** to data semantics (nothing is lost, only re-encoded). Matches Phase 22-09 D-02 precedent for first-disable confirm. | Low. Can flip to `danger` if Sapir feedback says "felt scary the first time." |

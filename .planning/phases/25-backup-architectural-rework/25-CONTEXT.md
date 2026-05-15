@@ -29,7 +29,7 @@ New capabilities outside this domain (in-app onboarding/help, full IDB encryptio
 - **D-05:** **Single "Backup & Restore" surface** opened from the overview. The 3 dominant buttons (Export, Import, Send) collapse to ONE entry point.
 - **D-06:** Implementation pattern: **modal**, NOT a separate page. Reasons: keeps backup co-located with overview where the user actually thinks about their data; reuses the existing modal/dialog plumbing (`assets/app.js` modal helpers); cleanest 4-locale story; preserves PWA install-screen real estate. (Recommendation B from N7 confirmed.)
 - **D-07:** Modal layout: **Export prominent (top, full visual weight) + Import secondary (bottom section, smaller, with a clear destructive warning).** NOT a 50/50 dual-pane split. Reason: export should drive habit (frequent, encouraged), import is rare and destructive — equal visual weight risks mis-clicks. Co-location preserved so the new-device-restore flow is still discoverable.
-- **D-08:** Entry point on overview: **one clearly-labeled button** ("Backup & Restore" or "Backup") replacing the current 3-button cluster. Position: same card area as today, but the button cluster shrinks. Exact placement (header chip vs in-card vs nav) — planner's discretion within the constraint that it must be highly noticeable.
+- **D-08:** Entry point lives in the **top header** (`#headerActions` container, alongside the existing settings gear) as a **single cloud icon button** — NOT on the overview body. The 3-button cluster on overview is removed entirely; nothing replaces it on the overview card itself (the row collapses to just `[Add Client] [Add Session]`). The cloud icon is `aria-label="Backup & Restore"` (i18n: `overview.backupRestore`) and tappable from any screen, not just the overview. **Updated 2026-05-15** (was: "labeled button on overview card"). Reason for the move: backup is admin work that should be reachable from anywhere, not occupy primary content real-estate; the header icon doubles as the always-visible status surface (see D-13 update).
 
 ### Area 3 — Surface Contents (What Goes Inside the Modal)
 
@@ -46,13 +46,14 @@ New capabilities outside this domain (in-app onboarding/help, full IDB encryptio
 
 ### Area 4 — Backup Awareness on Overview (Chip)
 
-- **D-13:** **Passive "last backup" chip on overview**, color-thresholded. Always present (not only when overdue) — gives positive reinforcement when fresh.
-- **D-14:** **Color thresholds couple to schedule state:**
-  - Schedule OFF (default): green ≤7 days, warning ≤14 days, danger >14 days.
+- **D-13:** **Passive "last backup" status surface lives on the cloud icon in the top header (D-08)**, color-thresholded. Always present (the icon is constant — color is the signal). The icon's BACKGROUND/FILL color encodes recency; no separate chip element. **Updated 2026-05-15** (was: "passive chip on overview"). Reason: combining entry point and status into one tap target removes redundancy and frees overview real-estate. Tooltip / `title` attribute reads "Last backup · {relative time}" so the textual status is still discoverable without color vision.
+- **D-14:** **Color thresholds (applied to the cloud icon's background / fill) couple to schedule state:**
+  - Schedule OFF (default): green ≤7 days, warning (yellow) ≤14 days, danger (red) >14 days.
   - Schedule ON: green ≤ chosen interval, warning ≤ interval × 1.5, danger > interval × 2.
-- **D-15:** **Schedule ↔ banner ↔ chip coupling:**
-  - Schedule OFF: existing 7-day reminder banner stays as today. Chip provides passive signal.
-  - Schedule ON: **suppress the 7-day reminder banner entirely** — the scheduled interval-end prompt IS the reminder. Banner-and-schedule never compete. Chip remains as the constant indicator across both modes.
+  - "Never backed up": neutral / muted state (grey outline, no fill) — distinct from danger so first-time users aren't alarmed.
+- **D-15:** **Schedule ↔ banner ↔ icon coupling:**
+  - Schedule OFF: existing 7-day reminder banner stays as today. Cloud icon color provides passive signal in the header.
+  - Schedule ON: **suppress the 7-day reminder banner entirely** — the scheduled interval-end prompt IS the reminder. Banner-and-schedule never compete. Cloud icon color remains the constant indicator across both modes.
 
 ### Area 5 — Scheduled-Backup Fold (Folded from TODO 2026-03-12)
 
