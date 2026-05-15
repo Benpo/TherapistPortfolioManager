@@ -206,3 +206,16 @@ in `withStore`.
 _Reviewed: 2026-05-15T22:21:03Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
+
+---
+
+## Post-review resolution (2026-05-16)
+
+- **WR-01 — RESOLVED** (commit `6719968`): the un-ack cascade now forces the
+  schedule off directly and unconditionally instead of routing through the
+  cancellable `applyFrequencyChange('off')` disable-confirm. Cancelling can no
+  longer leave `scheduleMode=active` with `passwordAcked=false`. D-18 invariant
+  restored. Full suite 58/58 green after fix.
+- **WR-02, WR-03, Info-1..4 — DEFERRED** (Ben decision 2026-05-16): minor edge
+  cases / cosmetic; captured as a post-25 cleanup follow-up. Do not block phase
+  close. See `.planning/phases/25-backup-architectural-rework/25-FOLLOWUPS.md`.
