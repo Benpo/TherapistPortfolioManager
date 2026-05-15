@@ -61,6 +61,12 @@ const SOURCE_SESSIONS = [
 const SOURCE_THERAPIST_SETTINGS = [
   { sectionKey: 'trapped', customLabel: 'Locked', enabled: true },
   { sectionKey: 'heartShield', customLabel: null, enabled: false },
+  // Phase 25 Plan 10 (CR-02) — sentinel row. Distinct shape: no customLabel /
+  // enabled. Locks the round-trip contract for snippet-deletion preferences.
+  // The dedicated mock extension below records the sentinel write via the
+  // _writeTherapistSentinel spy and surfaces it on __sentinelWrites for the
+  // assertion below to introspect.
+  { sectionKey: 'snippetsDeletedSeeds', deletedIds: ['seed-x', 'seed-y'] },
 ];
 
 const SOURCE_SNIPPETS = [
@@ -291,6 +297,10 @@ async function test(name, fn) {
   const destAddSession = destMock.__calls.get('addSession') || [];
   const destSetTherapist = destMock.__calls.get('setTherapistSetting') || [];
   const destUpdateSnippet = destMock.__calls.get('updateSnippet') || [];
+  // Phase 25 Plan 10 (CR-02) — sentinel write path is distinct from section
+  // writes. SOURCE_THERAPIST_SETTINGS includes one sentinel row + two section
+  // rows, so this spy must record exactly one call.
+  const destSentinelWrites = destMock.__calls.get('_writeTherapistSentinel') || [];
 
   await test('clearAll() was called exactly once before any add* writes (importBackup contract)', () => {
     assert.strictEqual(destClearAll.length, 1,
@@ -307,9 +317,16 @@ async function test(name, fn) {
       'addSession should be called once per source session');
   });
 
-  await test('therapistSettings COUNT round-trips (2 in, 2 out)', () => {
-    assert.strictEqual(destSetTherapist.length, SOURCE_THERAPIST_SETTINGS.length,
-      'setTherapistSetting should be called once per source row');
+  await test('therapistSettings COUNT round-trips (2 section rows in, 2 out via setTherapistSetting)', () => {
+    // Plan 25-10 (CR-02): SOURCE_THERAPIST_SETTINGS now has 3 rows — 2 section
+    // rows + 1 sentinel. The sentinel goes to _writeTherapistSentinel (asserted
+    // separately below), so setTherapistSetting must receive ONLY the section rows.
+    const sectionRowCount = SOURCE_THERAPIST_SETTINGS.filter(function (r) {
+      return r.sectionKey !== 'snippetsDeletedSeeds';
+    }).length;
+    assert.strictEqual(destSetTherapist.length, sectionRowCount,
+      'setTherapistSetting should be called once per source SECTION row (sentinel goes elsewhere); ' +
+      'expected ' + sectionRowCount + ', got ' + destSetTherapist.length);
   });
 
   await test('snippets COUNT round-trips (2 in, 2 out)', () => {
@@ -352,6 +369,21 @@ async function test(name, fn) {
     assert.strictEqual(t0.sectionKey, 'trapped');
     assert.strictEqual(t0.customLabel, 'Locked');
     assert.strictEqual(t0.enabled, true);
+  });
+
+  // Plan 25-10 (CR-02) — sentinel round-trip locked into the canonical D-29 test.
+  await test('snippetsDeletedSeeds sentinel survives round-trip (CR-02)', () => {
+    assert.strictEqual(destSentinelWrites.length, 1,
+      '_writeTherapistSentinel must be called exactly once for the snippetsDeletedSeeds row; ' +
+      'got ' + destSentinelWrites.length + ' call(s)');
+    const sentinel = destSentinelWrites[0][0];
+    assert.ok(sentinel && typeof sentinel === 'object',
+      'sentinel write must receive an object; got: ' + JSON.stringify(sentinel));
+    assert.strictEqual(sentinel.sectionKey, 'snippetsDeletedSeeds',
+      'sentinel sectionKey must round-trip verbatim');
+    assert.deepStrictEqual((sentinel.deletedIds || []).slice().sort(),
+      ['seed-x', 'seed-y'].sort(),
+      'sentinel deletedIds must equal source verbatim');
   });
 
   await test('snippets field-level lossless (trigger + tags survive)', () => {

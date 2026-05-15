@@ -705,6 +705,55 @@ window.PortfolioDB = (() => {
     }
   }
 
+  // Phase 25 Plan 10 (CR-02 fix) — allow-set for the dedicated sentinel write
+  // path. Kept narrow on purpose: any new sentinel record (non-section
+  // therapistSettings row) MUST be added here AND in
+  // backup.js#ALLOWED_SENTINEL_KEYS, in lock-step.
+  const _SENTINEL_KEYS = new Set([DELETED_SEEDS_KEY]); // 'snippetsDeletedSeeds'
+
+  /**
+   * _writeTherapistSentinel — raw `put` into the therapistSettings store for
+   * sentinel records that do NOT carry the {sectionKey, customLabel, enabled}
+   * shape (e.g. snippetsDeletedSeeds with a deletedIds array).
+   *
+   * Why a separate path: setTherapistSetting coerces customLabel/enabled and
+   * would store {sectionKey, customLabel:null, enabled:true, deletedIds:...}
+   * which silently loses the sentinel semantics on read (the existing
+   * _getDeletedSeedIds reader looks at .deletedIds which would survive, BUT
+   * the customLabel/enabled fields polluting the row would confuse any future
+   * code that walks therapistSettings looking only at section rows). This is
+   * also a defence-in-depth boundary: section writes go through validation
+   * (Phase 22 T-22-07-03), sentinels go through a tightly-scoped allow-set.
+   *
+   * Used by:
+   *   - assets/backup.js importBackup loop (Plan 25-10 fix for CR-02)
+   *
+   * Input contract:
+   *   record.sectionKey  — must be in _SENTINEL_KEYS
+   *   record.deletedIds  — array (non-array → coerced to []); non-string
+   *                        entries filtered silently (matches the discipline
+   *                        in _setDeletedSeedIds).
+   *
+   * Returns: same promise shape as withStore put.
+   */
+  async function _writeTherapistSentinel(record) {
+    if (!record || typeof record.sectionKey !== "string") {
+      throw new Error("_writeTherapistSentinel: record.sectionKey required");
+    }
+    if (!_SENTINEL_KEYS.has(record.sectionKey)) {
+      throw new Error("_writeTherapistSentinel: sectionKey '" +
+        record.sectionKey + "' is not a registered sentinel");
+    }
+    const rawIds = Array.isArray(record.deletedIds) ? record.deletedIds : [];
+    const cleanIds = rawIds.filter((x) => typeof x === "string");
+    return withStore("therapistSettings", "readwrite", function (store) {
+      return store.put({
+        sectionKey: record.sectionKey,
+        deletedIds: cleanIds,
+      });
+    });
+  }
+
   /**
    * setTherapistSetting — stores a record. customLabel is stored verbatim.
    * Consumers MUST render via .textContent or .value (never innerHTML) to prevent XSS.
@@ -796,6 +845,8 @@ window.PortfolioDB = (() => {
     clearAll,
     getAllTherapistSettings,
     setTherapistSetting,
+    // Phase 25 Plan 10 (CR-02) — raw sentinel write path; see definition above.
+    _writeTherapistSentinel,
     clearTherapistSettings,
     // Phase 24 Plan 04 — snippets API
     validateSnippetShape,

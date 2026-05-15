@@ -33,6 +33,11 @@ const WRITE_METHODS = [
   'addSession',
   'setTherapistSetting',
   'updateSnippet',
+  // Phase 25 Plan 10 (CR-02) — sentinel write path. Added to the shared
+  // helper so Plan 25-08 round-trip test can assert sentinel survival
+  // without duplicating mock plumbing. assertNoWrites picks this up
+  // automatically (any mutation MUST be opt-in for no-mutation tests).
+  '_writeTherapistSentinel',
 ];
 
 const READ_METHODS = [
@@ -77,6 +82,11 @@ function createMockPortfolioDB(opts) {
     addSession: makeWriteSpy('addSession'),
     setTherapistSetting: makeWriteSpy('setTherapistSetting'),
     updateSnippet: makeWriteSpy('updateSnippet'),
+    // Phase 25 Plan 10 (CR-02) — raw sentinel write path for the
+    // snippetsDeletedSeeds therapistSettings row. backup.js importBackup
+    // calls this BEFORE the snippet-restore loop so seedSnippetsIfNeeded
+    // sees the restored deleted-ids.
+    _writeTherapistSentinel: makeWriteSpy('_writeTherapistSentinel'),
 
     // Reads (return configured arrays; spied call-shape)
     getAllClients: makeReadSpy('getAllClients', opts.clients || []),

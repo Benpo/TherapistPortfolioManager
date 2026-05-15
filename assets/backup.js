@@ -499,6 +499,19 @@ window.BackupManager = (function () {
     if (!Array.isArray(manifest.therapistSettings)) {
       manifest.therapistSettings = [];
     }
+    // Phase 25 Plan 10 (CR-02) — older backups that pre-date the sentinel
+    // export may carry a snippetsDeletedSeeds row with no deletedIds field
+    // (or null). Default missing deletedIds to [] so the import sentinel
+    // branch does not throw on rec.deletedIds access. This keeps the restore
+    // loop's "skip-malformed-row, continue-with-rest" contract intact.
+    for (var _ts = 0; _ts < manifest.therapistSettings.length; _ts++) {
+      var _row = manifest.therapistSettings[_ts];
+      if (_row && typeof _row === "object" &&
+          _row.sectionKey === "snippetsDeletedSeeds" &&
+          !Array.isArray(_row.deletedIds)) {
+        _row.deletedIds = [];
+      }
+    }
     // Phase 24 Plan 04: pre-v1.1 backups have no snippets key. Default to empty
     // array so the restore loop is a no-op AND the v5 migration's seed populate
     // repopulates the seed pack on the destination DB (D-35).
@@ -991,7 +1004,21 @@ window.BackupManager = (function () {
     // that fails to write is logged and skipped — the restore continues
     // (T-22-07-07: clients/sessions already restored, partial therapistSettings
     // restoration is preferable to a thrown error).
-    var ALLOWED_KEYS = [
+    //
+    // Phase 25 Plan 10 (CR-02) — therapistSettings carries two row shapes:
+    //   1) section rows  → {sectionKey, customLabel, enabled}
+    //   2) sentinel rows → {sectionKey:'snippetsDeletedSeeds', deletedIds:[...]}
+    // The sentinel records the user's deleted-seed preferences. It was being
+    // silently dropped by the original ALLOWED_KEYS whitelist, so on restore
+    // the next openDB()/seedSnippetsIfNeeded re-seeded the full pack, wiping
+    // the deletion preference. We now branch on sectionKey: sentinel rows go
+    // to the dedicated _writeTherapistSentinel path (no customLabel/enabled
+    // coercion), section rows fall through to setTherapistSetting as before.
+    //
+    // ORDERING NOTE: this loop runs BEFORE the snippet-restore loop further
+    // down, so any seedSnippetsIfNeeded triggered as a side-effect of snippet
+    // writes will see the restored deletedIds and skip re-seeding.
+    var ALLOWED_SECTION_KEYS = [
       "trapped",
       "insights",
       "limitingBeliefs",
@@ -1002,13 +1029,32 @@ window.BackupManager = (function () {
       "comments",
       "nextSession",
     ];
+    var ALLOWED_SENTINEL_KEYS = new Set(["snippetsDeletedSeeds"]);
     for (var k = 0; k < manifest.therapistSettings.length; k++) {
       var rec = manifest.therapistSettings[k];
       if (!rec || typeof rec !== "object" || typeof rec.sectionKey !== "string") {
         console.warn("Backup restore: skipping malformed therapistSettings row", rec);
         continue;
       }
-      if (ALLOWED_KEYS.indexOf(rec.sectionKey) === -1) {
+      // CR-02 fix: sentinel branch comes BEFORE the section-key check so the
+      // sentinel does not fall through and trip "unknown sectionKey".
+      if (ALLOWED_SENTINEL_KEYS.has(rec.sectionKey)) {
+        if (typeof db._writeTherapistSentinel !== "function") {
+          console.warn("Backup restore: _writeTherapistSentinel unavailable; skipping sentinel", rec.sectionKey);
+          continue;
+        }
+        var sentinelIds = Array.isArray(rec.deletedIds) ? rec.deletedIds : [];
+        try {
+          await db._writeTherapistSentinel({
+            sectionKey: rec.sectionKey,
+            deletedIds: sentinelIds,
+          });
+        } catch (e) {
+          console.warn("Backup restore: _writeTherapistSentinel failed for", rec.sectionKey, e);
+        }
+        continue;
+      }
+      if (ALLOWED_SECTION_KEYS.indexOf(rec.sectionKey) === -1) {
         console.warn("Backup restore: ignoring unknown sectionKey", rec.sectionKey);
         continue;
       }
