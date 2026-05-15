@@ -137,24 +137,42 @@ test('UAT-D6: .backup-test-password-filebtn has border-style: dashed (or dashed 
   }
 });
 
-test('UAT-D6: .backup-test-password-filebtn separates from password input below (margin-block-end / margin-bottom ≥ var(--space-md, 16px))', function () {
-  const rules = findRule('.backup-test-password-filebtn');
-  if (rules.length === 0) {
-    throw new Error('.backup-test-password-filebtn rule missing entirely');
+test('UAT-D6: ≥16px separation between the drop zone and the password input below it (round-5: now owned by the .backup-test-password-card container gap)', function () {
+  // Round-5 supersession (Change 4, 2026-05-15): the round-3 fix put a
+  // per-element margin-block-end on .backup-test-password-filebtn, which
+  // spaced drop-zone↔input but left input↔Check-button flush. The fix
+  // moved the spacing onto the SINGLE container gap
+  // (.backup-test-password-card { display:flex; flex-direction:column;
+  // gap:≥16px }) so ALL stacked controls — drop zone, input, Check
+  // button, result — get consistent breathing room. The ≥16px
+  // drop-zone↔input visual contract is preserved; only the mechanism
+  // moved from per-element margin to container gap.
+  const cardRules = findRule('.backup-test-password-card');
+  if (cardRules.length === 0) {
+    throw new Error('.backup-test-password-card rule missing entirely');
   }
-  const hasSpacing = rules.some(function (r) {
-    // var(--space-md, *) or var(--space-lg, *) or var(--space-xl, *) — anything ≥16px tokens
+  const hasCardGap = cardRules.some(function (r) {
+    if (!/\bdisplay\s*:\s*flex\b/.test(r.body)) return false;
+    if (/\bgap\s*:\s*var\(--space-(md|lg|xl)/.test(r.body)) return true;
+    const m = r.body.match(/\bgap\s*:\s*(\d+)\s*px/);
+    if (m && parseInt(m[1], 10) >= 16) return true;
+    const r2 = r.body.match(/\bgap\s*:\s*(\d+(\.\d+)?)\s*rem/);
+    if (r2 && parseFloat(r2[1]) >= 1) return true;
+    return false;
+  });
+  // Back-compat: a per-element ≥16px margin-block-end on the drop zone
+  // also satisfies the contract (in case a future change reverts to it).
+  const fbRules = findRule('.backup-test-password-filebtn');
+  const hasElemMargin = fbRules.some(function (r) {
     if (/margin-(block-end|bottom)\s*:\s*var\(--space-(md|lg|xl)/.test(r.body)) return true;
-    // Numeric fallback: 16px or larger
     const m = r.body.match(/margin-(block-end|bottom)\s*:\s*(\d+)\s*px/);
     if (m && parseInt(m[2], 10) >= 16) return true;
-    // rem fallback: 1rem or larger
     const r2 = r.body.match(/margin-(block-end|bottom)\s*:\s*(\d+(\.\d+)?)\s*rem/);
     if (r2 && parseFloat(r2[2]) >= 1) return true;
     return false;
   });
-  if (!hasSpacing) {
-    throw new Error('.backup-test-password-filebtn does not declare ≥16px margin-block-end / margin-bottom');
+  if (!hasCardGap && !hasElemMargin) {
+    throw new Error('Neither .backup-test-password-card declares a flex column with ≥16px gap nor .backup-test-password-filebtn declares ≥16px margin-block-end — D6 drop-zone↔input separation missing');
   }
 });
 

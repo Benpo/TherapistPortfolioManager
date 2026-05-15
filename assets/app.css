@@ -3680,6 +3680,18 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   background: var(--color-surface-alt, #fdf7ed);
   border-radius: 12px;
   padding: var(--space-md, 16px);
+  /* Phase 25 round-5 (D6 + D7, 2026-05-15): the card stacks heading,
+   * helper, drop zone, password input, the Test-password button row and
+   * the result line. Without a flex gap the password input sat flush
+   * against the Check button below it (UAT-D6) and the controls read as
+   * one undifferentiated block (UAT-D7 "no space between buttons"). A
+   * flex column with a 16px gap gives every stacked control consistent
+   * breathing room — drop zone → input → Check → result. This is the
+   * single spacing source for the sub-card (the drop zone's old
+   * per-element margin-block-end is removed below). */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md, 16px);
 }
 .backup-test-password-filebtn {
   display: inline-flex;
@@ -3836,7 +3848,13 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   border-radius: 8px;
   background: var(--color-surface, transparent);
   padding: var(--space-md, 16px);
-  margin-block-end: var(--space-md, 16px);
+  /* Phase 25 round-5 (D6, 2026-05-15): the drop-zone→input gap is now
+   * owned by `.backup-test-password-card { gap: var(--space-md) }` (single
+   * spacing source for the whole sub-card). The old per-element
+   * margin-block-end here would double the gap below the drop zone, so
+   * it is removed. The ≥16px drop-zone↔input separation contract is
+   * preserved — it just lives on the container now. */
+  margin-block-end: 0;
   color: var(--color-text-muted);
   /* The .button rule shadows the drop zone with `var(--shadow-button)`
    * which makes the dashed border read as a hover pill. Strip it. */
