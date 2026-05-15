@@ -186,11 +186,29 @@
           </div>
         </div>
 
-        <!-- Phase 25 Plan 05 — Photos tab SHELL. Plan 07 fills the body. -->
+        <!-- Phase 25 Plan 07 — Photos tab body (D-24 optimize, D-25 delete-all). -->
         <div id="settingsTabPhotos" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabPhotosBtn" hidden>
           <header class="page-header">
-            <h3 class="section-title" data-i18n="settings.tab.photos">Photos</h3>
+            <h3 class="section-title" data-i18n="photos.heading">Photos</h3>
+            <p class="page-helper section-helper" data-i18n="photos.helper">Manage how client photos use your browser storage.</p>
           </header>
+
+          <p class="photos-storage-usage helper-text" id="photosStorageUsage" data-i18n="photos.usage.unavailable">Storage usage is not available in this browser.</p>
+
+          <p class="photos-empty helper-text is-hidden" id="photosEmpty" data-i18n="photos.empty">You have no client photos yet.</p>
+
+          <section class="form-field" id="photosOptimizeSection">
+            <h4 class="settings-subsection-title" data-i18n="photos.optimize.heading">Optimize existing photos</h4>
+            <p class="helper-text" data-i18n="photos.optimize.helper">Re-process photos that were uploaded before resize-on-upload was added. New uploads are already optimized automatically.</p>
+            <p class="helper-text photos-savings-preview" id="photosOptimizePreview" hidden></p>
+            <button type="button" class="button" id="photosOptimizeBtn" data-i18n="photos.optimize.action">Optimize all photos</button>
+          </section>
+
+          <section class="form-field" id="photosDeleteAllSection">
+            <h4 class="settings-subsection-title" data-i18n="photos.deleteAll.heading">Delete all photos</h4>
+            <p class="helper-text" data-i18n="photos.deleteAll.helper">Removes every client photo from your browser. Client records and sessions are kept. Cannot be undone.</p>
+            <button type="button" class="button danger" id="photosDeleteAllBtn" data-i18n="photos.deleteAll.action">Delete all photos</button>
+          </section>
         </div>
       </main>
     </div>
@@ -277,6 +295,8 @@
     <script src="./assets/db.js"></script>
   <script src="./assets/shared-chrome.js"></script>
   <script src="./assets/app.js"></script>
+  <!-- Phase 25 Plan 07 — Photos tab needs CropModule.resizeToMaxDimension for optimize-all. -->
+  <script src="./assets/crop.js"></script>
   <script src="./assets/snippets.js" defer></script>
   <script src="./assets/settings.js"></script>
   <script>

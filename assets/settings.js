@@ -2229,3 +2229,249 @@ window.SettingsPage = (function () {
 
   // Task 2 (UI wiring) is appended below this IIFE.
 })();
+
+// ────────────────────────────────────────────────────────────────────────
+// Phase 25 Plan 07 Task 2 — Photos Settings tab UI wiring
+//
+// Reads PortfolioDB.estimatePhotosBytes + navigator.storage.estimate to
+// render the usage line, hides the action sections + surfaces an empty
+// state when no photos exist, and invokes the testable loop helpers
+// (window.__PhotosTabHelpers) on button clicks behind confirm dialogs.
+//
+// Optimize-all confirm uses tone:'neutral' (UI-SPEC: irreversible but the
+// visual quality stays the same — not a destructive action). Delete-all
+// confirm uses tone:'danger'.
+// ────────────────────────────────────────────────────────────────────────
+(function () {
+  "use strict";
+
+  function $(id) { return document.getElementById(id); }
+
+  function tt(key, fallback) {
+    if (typeof App !== 'undefined' && typeof App.t === 'function') {
+      var v = App.t(key);
+      if (v && v !== key) return v;
+    }
+    return fallback || key;
+  }
+
+  function readHumanBytes(n) {
+    var h = window.__PhotosTabHelpers;
+    if (h && typeof h.humanBytes === 'function') return h.humanBytes(n);
+    if (n == null || isNaN(n)) return '—';
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+    return (n / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  /**
+   * refreshPhotosTab — re-renders the storage usage line, empty state, and
+   * optimize/delete sections based on the current set of clients.
+   */
+  async function refreshPhotosTab() {
+    var usageEl = $('photosStorageUsage');
+    var emptyEl = $('photosEmpty');
+    var optimizeBtn = $('photosOptimizeBtn');
+    var deleteAllBtn = $('photosDeleteAllBtn');
+    var previewEl = $('photosOptimizePreview');
+    var optimizeSection = $('photosOptimizeSection');
+    var deleteSection = $('photosDeleteAllSection');
+    if (!usageEl) return; // not on this page
+
+    var clients = [];
+    try {
+      if (typeof PortfolioDB !== 'undefined' && typeof PortfolioDB.getAllClients === 'function') {
+        clients = await PortfolioDB.getAllClients();
+      }
+    } catch (_) {}
+
+    var photoBytes = 0;
+    if (typeof PortfolioDB !== 'undefined' && typeof PortfolioDB.estimatePhotosBytes === 'function') {
+      photoBytes = PortfolioDB.estimatePhotosBytes(clients);
+    }
+    var hasPhotos = photoBytes > 0;
+
+    if (emptyEl && optimizeSection && deleteSection) {
+      if (hasPhotos) {
+        emptyEl.classList.add('is-hidden');
+        optimizeSection.removeAttribute('hidden');
+        deleteSection.removeAttribute('hidden');
+      } else {
+        emptyEl.classList.remove('is-hidden');
+        optimizeSection.setAttribute('hidden', '');
+        deleteSection.setAttribute('hidden', '');
+      }
+    }
+
+    // Storage usage line: prefer the photo-only number; only fall back to
+    // navigator.storage.estimate top-level when no photos exist.
+    var displayBytes = photoBytes;
+    if (!hasPhotos && typeof navigator !== 'undefined' &&
+        navigator.storage && typeof navigator.storage.estimate === 'function') {
+      try {
+        var est = await navigator.storage.estimate();
+        if (est && typeof est.usage === 'number') {
+          displayBytes = est.usage; // total app storage, not photo-only
+        }
+      } catch (_) {}
+    }
+
+    if (hasPhotos) {
+      usageEl.removeAttribute('data-i18n');
+      var template = tt('photos.usage.line', 'Photos use {size} of your browser storage.');
+      usageEl.textContent = template.replace('{size}', readHumanBytes(displayBytes));
+      // Estimated savings preview (heuristic 60% reduction; show only when
+      // there's enough storage at stake for the preview to be meaningful).
+      if (previewEl && photoBytes > 100 * 1024) {
+        var estimated = Math.floor(photoBytes * 0.6);
+        previewEl.removeAttribute('hidden');
+        var prevTemplate = tt('photos.optimize.savingsPreview', 'Estimated savings: ~{size}');
+        previewEl.textContent = prevTemplate.replace('{size}', '~' + readHumanBytes(estimated));
+      } else if (previewEl) {
+        previewEl.setAttribute('hidden', '');
+      }
+    } else {
+      usageEl.setAttribute('data-i18n', 'photos.usage.unavailable');
+      usageEl.textContent = tt('photos.usage.unavailable', 'Storage usage is not available in this browser.');
+      if (previewEl) previewEl.setAttribute('hidden', '');
+    }
+  }
+
+  /**
+   * handleOptimize — confirm via App.confirmDialog (tone:'neutral'), then
+   * invoke _optimizeAllPhotosLoop with the production dependencies:
+   *   - PortfolioDB.getAllClients
+   *   - PortfolioDB.updateClient (same write path as edit-client save — D-30)
+   *   - CropModule.resizeToMaxDimension (same resize as add-client — D-30)
+   */
+  async function handleOptimize() {
+    var btn = $('photosOptimizeBtn');
+    if (!btn) return;
+
+    var clients = [];
+    try {
+      if (typeof PortfolioDB !== 'undefined' && typeof PortfolioDB.getAllClients === 'function') {
+        clients = await PortfolioDB.getAllClients();
+      }
+    } catch (_) {}
+
+    var photoBytes = (typeof PortfolioDB !== 'undefined' && typeof PortfolioDB.estimatePhotosBytes === 'function')
+      ? PortfolioDB.estimatePhotosBytes(clients) : 0;
+    if (photoBytes === 0) {
+      if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+        App.showToast('', 'photos.empty');
+      }
+      return;
+    }
+
+    var confirmed = false;
+    if (typeof App !== 'undefined' && typeof App.confirmDialog === 'function') {
+      try {
+        confirmed = await App.confirmDialog({
+          titleKey: 'photos.optimize.confirm.title',
+          messageKey: 'photos.optimize.confirm.body',
+          confirmKey: 'photos.optimize.confirm.yes',
+          cancelKey: 'confirm.cancel',
+          tone: 'neutral'    // UI-SPEC: irreversible but visual quality stays the same.
+        });
+      } catch (_) { confirmed = false; }
+    } else {
+      return; // No confirm available → refuse rather than mass-mutate silently.
+    }
+    if (!confirmed) return;
+
+    if (typeof CropModule === 'undefined' || typeof CropModule.resizeToMaxDimension !== 'function') {
+      if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+        App.showToast('Optimize is unavailable — photo helpers not loaded', '');
+      }
+      return;
+    }
+
+    btn.disabled = true;
+    try {
+      var h = window.__PhotosTabHelpers || {};
+      var result = await h._optimizeAllPhotosLoop(
+        function () { return PortfolioDB.getAllClients(); },
+        function (c) { return PortfolioDB.updateClient(c); },
+        function (b, m, q) { return CropModule.resizeToMaxDimension(b, m, q); },
+        h.blobToDataURL,
+        h.dataURLToBlob
+      );
+      var msgKey = (result.failed > 0) ? 'photos.optimize.partialFailure' : 'photos.optimize.success';
+      var template = tt(msgKey, msgKey);
+      var msg = template
+        .replace('{success}', String(result.success))
+        .replace('{failed}', String(result.failed))
+        .replace('{size}', readHumanBytes(result.savedBytes));
+      if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+        App.showToast(msg, '');
+      }
+      await refreshPhotosTab();
+    } catch (err) {
+      if (typeof console !== 'undefined' && console.error) console.error('Optimize all failed:', err);
+      if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+        App.showToast('Could not optimize photos', '');
+      }
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  /**
+   * handleDeleteAll — destructive confirm (tone:'danger'), then invoke
+   * _deleteAllPhotosLoop. Same updateClient write path as edit-client (D-30).
+   */
+  async function handleDeleteAll() {
+    var btn = $('photosDeleteAllBtn');
+    if (!btn) return;
+
+    var confirmed = false;
+    if (typeof App !== 'undefined' && typeof App.confirmDialog === 'function') {
+      try {
+        confirmed = await App.confirmDialog({
+          titleKey: 'photos.deleteAll.confirm.title',
+          messageKey: 'photos.deleteAll.confirm.body',
+          confirmKey: 'photos.deleteAll.confirm.yes',
+          cancelKey: 'confirm.cancel',
+          tone: 'danger'
+        });
+      } catch (_) { confirmed = false; }
+    } else {
+      return;
+    }
+    if (!confirmed) return;
+
+    btn.disabled = true;
+    try {
+      var h = window.__PhotosTabHelpers || {};
+      await h._deleteAllPhotosLoop(
+        function () { return PortfolioDB.getAllClients(); },
+        function (c) { return PortfolioDB.updateClient(c); }
+      );
+      if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+        App.showToast('', 'photos.deleteAll.success');
+      }
+      await refreshPhotosTab();
+    } catch (err) {
+      if (typeof console !== 'undefined' && console.error) console.error('Delete all failed:', err);
+      if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+        App.showToast('Could not delete photos', '');
+      }
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function bindPhotosTab() {
+    var optBtn = $('photosOptimizeBtn');
+    var delBtn = $('photosDeleteAllBtn');
+    if (!optBtn && !delBtn) return; // tab not present on this page
+    if (optBtn) optBtn.addEventListener('click', handleOptimize);
+    if (delBtn) delBtn.addEventListener('click', handleDeleteAll);
+    refreshPhotosTab();
+  }
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', bindPhotosTab);
+  }
+})();
