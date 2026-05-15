@@ -1565,8 +1565,13 @@ html[dir="rtl"] .session-header{
   border-inline-start:4px solid transparent;
 }
 .photos-usage-verdict--compact{
-  color:var(--color-text-muted);
-  font-weight:500;
+  color:var(--color-info-text, #004085);
+  background:var(--color-info-bg, #cce5ff);
+  border-inline-start-color:var(--color-info-text, #004085);
+}
+.photos-usage-verdict--compact::before{
+  content:"\2713\00a0"; /* ✓ + nbsp — at-a-glance "you're good, nothing to do" */
+  font-weight:700;
 }
 .photos-usage-verdict--optional{
   color:var(--color-text);
