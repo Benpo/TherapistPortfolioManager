@@ -2,6 +2,184 @@
 let _allClients = [];
 let _sessionsByClient = new Map();
 
+// ===========================================================================
+// Phase 25 Plan 02 — Backup & Restore modal helpers (D-05..D-10, D-26)
+//
+// These functions are hoisted to module-top so:
+//   - App.mountBackupCloudButton (assets/app.js) can read window.formatRelativeTime
+//     to render the cloud icon's title attribute at mount time.
+//   - Plan 04's state-update wiring (visibilitychange + post-export refresh)
+//     can call window.renderLastBackupSubtitle without a load-order dependency.
+//   - Plan 05's scheduled-backup interval-end prompt can call
+//     window.openBackupModal from settings.js.
+// ===========================================================================
+
+/**
+ * Localized relative-time formatter ("3 days ago" / "1 hour ago" / "moments ago").
+ * Returns null when timestamp is missing/NaN — callers render the "never" string.
+ */
+function formatRelativeTime(timestampMs) {
+  if (!timestampMs || isNaN(timestampMs)) return null;
+  const elapsed = Date.now() - Number(timestampMs);
+  const lang = (typeof localStorage !== 'undefined' && localStorage.getItem('portfolioLang')) || 'en';
+  let rtf;
+  try {
+    rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+  } catch (_) {
+    rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  }
+  const dayMs = 24 * 60 * 60 * 1000;
+  const hourMs = 60 * 60 * 1000;
+  const minMs = 60 * 1000;
+  if (elapsed >= dayMs) return rtf.format(-Math.floor(elapsed / dayMs), 'day');
+  if (elapsed >= hourMs) return rtf.format(-Math.floor(elapsed / hourMs), 'hour');
+  if (elapsed >= minMs) return rtf.format(-Math.floor(elapsed / minMs), 'minute');
+  return rtf.format(-Math.floor(elapsed / 1000), 'second');
+}
+if (typeof window !== 'undefined') window.formatRelativeTime = formatRelativeTime;
+
+/** Update the modal subtitle (#backupModalLastBackup) from localStorage.portfolioLastExport. */
+function renderLastBackupSubtitle() {
+  const el = document.getElementById('backupModalLastBackup');
+  if (!el) return;
+  const ts = Number(localStorage.getItem('portfolioLastExport'));
+  const rel = formatRelativeTime(ts);
+  if (rel === null) {
+    el.setAttribute('data-i18n', 'backup.modal.lastBackupNever');
+    el.textContent = App.t('backup.modal.lastBackupNever');
+  } else {
+    // Dynamic content — no static i18n binding so applyTranslations does not
+    // overwrite the substituted relative time on the next pass.
+    el.removeAttribute('data-i18n');
+    el.textContent = App.t('backup.modal.lastBackup').replace('{relative}', rel);
+  }
+}
+
+/** Probe Web Share API capability with a small probe File and hide/show the Share button. */
+function probeShareSupport() {
+  const btn = document.getElementById('backupModalShare');
+  if (!btn) return;
+  try {
+    const probe = new File(
+      [new Blob(['x'], { type: 'application/octet-stream' })],
+      'probe.sgbackup',
+      { type: 'application/octet-stream' }
+    );
+    if (BackupManager.isShareSupported(probe)) {
+      btn.classList.remove('is-hidden');
+    } else {
+      btn.classList.add('is-hidden');
+    }
+  } catch (_) {
+    btn.classList.add('is-hidden');
+  }
+}
+
+/** Open the Backup & Restore modal — refreshes subtitle, probes Share, translates. */
+function openBackupModal() {
+  const modal = document.getElementById('backupModal');
+  if (!modal) return;
+  renderLastBackupSubtitle();
+  probeShareSupport();
+  modal.classList.remove('is-hidden');
+  App.lockBodyScroll();
+  App.applyTranslations(modal);
+}
+
+/** Close the Backup & Restore modal. */
+function closeBackupModal() {
+  const modal = document.getElementById('backupModal');
+  if (!modal) return;
+  modal.classList.add('is-hidden');
+  App.unlockBodyScroll();
+}
+
+/**
+ * Export flow — preserves the Phase 22-15 encrypt-or-skip behavior verbatim,
+ * capturing the resulting blob+filename for the optional `afterExport` hook
+ * (Share button chain).
+ *
+ * HONEST-BODY (D-02): in the encrypted branch, exportEncryptedBackup downloads
+ * the file inside its own promise and DOES NOT return the encrypted blob. Plan 02
+ * cannot plumb the encrypted blob into Share without re-prompting the passphrase,
+ * so the Share button is EXPLICITLY HIDDEN after an encrypted export completes.
+ * Plan 08's refactor of exportEncryptedBackup to return { blob, filename } is what
+ * re-enables the encrypted-share path; until then, no visible-but-broken UX ships.
+ */
+async function openExportFlow(opts) {
+  opts = opts || {};
+  const shareBtn = document.getElementById('backupModalShare');
+  try {
+    const encrypted = await BackupManager.exportEncryptedBackup();
+    if (encrypted === 'cancel') return null;
+    let producedBlob = null;
+    let producedFilename = null;
+    if (encrypted === false) {
+      // Skip-encryption path: capture blob, leave Share visibility to the probe.
+      const result = await BackupManager.exportBackup();
+      BackupManager.triggerDownload(result.blob, result.filename);
+      if (BackupManager.isAutoBackupActive()) {
+        await BackupManager.autoSaveToFolder(result.blob, result.filename);
+      }
+      producedBlob = result.blob;
+      producedFilename = result.filename;
+      probeShareSupport();
+    } else {
+      // encrypted === true: file was downloaded inside exportEncryptedBackup.
+      // We do NOT have the encrypted blob in scope — Plan 08 refactors this.
+      // HONEST BODY: hide the Share button explicitly so the user never sees
+      // a broken affordance.
+      if (shareBtn) shareBtn.classList.add('is-hidden');
+    }
+    App.showToast('', 'toast.exportSuccess');
+    renderLastBackupSubtitle();
+    if (typeof opts.afterExport === 'function' && producedBlob) {
+      await opts.afterExport({ blob: producedBlob, filename: producedFilename });
+    }
+    return { blob: producedBlob, filename: producedFilename };
+  } catch (err) {
+    console.error('Backup export failed:', err);
+    let msg = (err && err.message) ? err.message : String(err);
+    if (msg.includes('subtle') || msg.includes('crypto')) {
+      msg = 'Encrypted backup requires HTTPS or localhost. Try accessing via localhost instead of IP.';
+    }
+    App.showToast(msg, 'toast.exportError');
+    return null;
+  }
+}
+
+/** Import flow — preserves the existing destructive-replace confirm + importBackup defense. */
+async function openImportFlow(file) {
+  if (!file) return;
+  if (window.name === 'demo-mode') {
+    App.showToast('', 'toast.importDisabledDemo');
+    return;
+  }
+  try {
+    const confirmed = await App.confirmDialog({
+      messageKey: 'backup.confirmReplace',
+      confirmKey: 'confirm.import',
+      cancelKey: 'confirm.cancel',
+    });
+    if (!confirmed) return;
+    await BackupManager.importBackup(file);
+    App.showToast('', 'toast.importSuccess');
+    await loadOverview();
+    renderLastBackupSubtitle();
+    closeBackupModal();
+  } catch (err) {
+    if (err === null) return; // passphrase modal cancelled
+    console.error('Import failed:', err);
+    const msg = (err && err.message) ? err.message : '';
+    App.showToast(msg || App.t('toast.importError'));
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.openBackupModal = openBackupModal;
+  window.renderLastBackupSubtitle = renderLastBackupSubtitle;
+}
+
 function getDailyQuote(lang) {
   const allQuotes = window.QUOTES || {};
   const langQuotes = allQuotes[lang] || allQuotes["en"] || [];
@@ -57,97 +235,74 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const addClientBtn = document.getElementById("addClientBtn");
   const addSessionBtn = document.getElementById("addSessionBtn");
-  const exportBtn = document.getElementById("exportBtn");
-  const importInput = document.getElementById("importInput");
 
   if (addClientBtn) addClientBtn.addEventListener("click", () => (window.location.href = "./add-client.html"));
   if (addSessionBtn) addSessionBtn.addEventListener("click", () => (window.location.href = "./add-session.html"));
 
-  if (exportBtn) {
-    exportBtn.addEventListener("click", async () => {
-      try {
-        // Passphrase-first flow: modal returns true (encrypted), false (skip), or 'cancel' (abort).
-        var encrypted = await BackupManager.exportEncryptedBackup();
-        if (encrypted === 'cancel') {
-          // User aborted — DO NOT download anything, DO NOT toast success.
-          return;
-        }
-        if (encrypted === false) {
-          // User chose "Skip encryption" — do regular unencrypted export
-          const { blob, filename } = await BackupManager.exportBackup();
-          BackupManager.triggerDownload(blob, filename);
-          if (BackupManager.isAutoBackupActive()) {
-            await BackupManager.autoSaveToFolder(blob, filename);
-          }
-        }
-        // encrypted === true means file was already downloaded inside exportEncryptedBackup
-        App.showToast("", "toast.exportSuccess");
-      } catch (err) {
-        console.error("Backup export failed:", err);
-        // Show the actual error for debugging
-        var msg = (err && err.message) ? err.message : String(err);
-        if (msg.includes("subtle") || msg.includes("crypto")) {
-          msg = "Encrypted backup requires HTTPS or localhost. Try accessing via localhost instead of IP.";
-        }
-        App.showToast(msg, "toast.exportError");
-      }
+  // -----------------------------------------------------------------------
+  // Phase 25 Plan 02 — Backup & Restore modal handlers (D-05..D-10, D-26).
+  // The 5-button overview cluster is collapsed; the cloud icon in
+  // #headerActions (mounted by App.mountBackupCloudButton) opens this modal.
+  // The pre-Phase-25 overview button handlers (Export / Import / Send-to-myself
+  // / Set-backup-folder) are deleted — their behavior moves into openExportFlow,
+  // openImportFlow, and shareBackup invoked from the modal Share button.
+  // The folder picker moves to Settings → Backups tab in Plan 05.
+  // -----------------------------------------------------------------------
+
+  // Auto-open modal if navigated from another page via the cloud icon
+  // (the icon on add-client/add-session/settings pages routes here with
+  // ?openBackup=1 because the modal markup only ships in index.html).
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("openBackup") === "1") {
+      setTimeout(() => openBackupModal(), 0);
+      params.delete("openBackup");
+      const newUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + window.location.hash;
+      window.history.replaceState({}, "", newUrl);
+    }
+  } catch (_) {
+    /* defensive: bad URL state, skip auto-open */
+  }
+
+  const backupModalClose = document.getElementById("backupModalClose");
+  if (backupModalClose) backupModalClose.addEventListener("click", closeBackupModal);
+
+  const backupModalOverlay = document.querySelector("#backupModal .modal-overlay");
+  if (backupModalOverlay) backupModalOverlay.addEventListener("click", closeBackupModal);
+
+  const backupModalExport = document.getElementById("backupModalExport");
+  if (backupModalExport) {
+    backupModalExport.addEventListener("click", () => openExportFlow());
+  }
+
+  const backupModalShare = document.getElementById("backupModalShare");
+  if (backupModalShare) {
+    backupModalShare.addEventListener("click", async () => {
+      await openExportFlow({
+        afterExport: async ({ blob, filename }) => {
+          await BackupManager.shareBackup(blob, filename);
+        },
+      });
     });
   }
 
-  if (importInput) {
-    importInput.addEventListener("change", async () => {
-      const file = importInput.files && importInput.files[0];
-      if (!file) return;
-      // Guard against demo mode
-      if (window.name === "demo-mode") {
-        App.showToast("", "toast.importDisabledDemo");
-        importInput.value = "";
-        return;
-      }
-      try {
-        const confirmed = await App.confirmDialog({
-          messageKey: "backup.confirmReplace",
-          confirmKey: "confirm.import",
-          cancelKey: "confirm.cancel"
-        });
-        if (!confirmed) { importInput.value = ""; return; }
-        await BackupManager.importBackup(file);
-        App.showToast("", "toast.importSuccess");
-        await loadOverview();
-      } catch (err) {
-        if (err === null) return; // User cancelled passphrase modal
-        console.error("Import failed:", err);
-        // Show specific error message (e.g., wrong passphrase) instead of generic "Import failed"
-        var msg = (err && err.message) ? err.message : "";
-        App.showToast(msg || App.t("toast.importError"));
-      } finally {
-        importInput.value = "";
-      }
+  const backupModalImportInput = document.getElementById("backupModalImportInput");
+  if (backupModalImportInput) {
+    backupModalImportInput.addEventListener("change", async () => {
+      const file = backupModalImportInput.files && backupModalImportInput.files[0];
+      await openImportFlow(file);
+      backupModalImportInput.value = "";
     });
   }
 
-  const sendBackupBtn = document.getElementById("sendBackupBtn");
-  if (sendBackupBtn) {
-    sendBackupBtn.addEventListener("click", async () => {
-      try {
-        const { blob, filename } = await BackupManager.exportBackup();
-        await BackupManager.sendToMyself(blob, filename);
-      } catch (err) {
-        App.showToast("", "toast.exportError");
-      }
-    });
-  }
-
-  const autoBackupBtn = document.getElementById("autoBackupBtn");
-  if (autoBackupBtn && BackupManager.isAutoBackupSupported()) {
-    autoBackupBtn.style.display = "";
-    autoBackupBtn.addEventListener("click", async () => {
-      const handle = await BackupManager.pickBackupFolder();
-      if (handle) {
-        App.showToast("", "toast.autoBackupSet");
-      }
-    });
-  }
+  // Esc closes the backup modal when open.
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const modal = document.getElementById("backupModal");
+    if (modal && !modal.classList.contains("is-hidden")) {
+      closeBackupModal();
+    }
+  });
 
   setupModal();
 
