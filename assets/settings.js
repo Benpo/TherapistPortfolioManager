@@ -518,7 +518,7 @@ window.SettingsPage = (function () {
     } catch (err) {
       formSaving = false;
       console.warn("settings: save failed", err);
-      if (window.App && App.showToast) App.showToast("Save failed", "");
+      if (window.App && App.showToast) App.showToast("", "settings.save.failed");
     }
   }
 
@@ -2318,7 +2318,10 @@ window.SettingsPage = (function () {
 
     if (hasPhotos) {
       usageEl.removeAttribute('data-i18n');
-      var template = tt('photos.usage.line', 'Photos use {size} of your browser storage.');
+      // UAT-C3: route storage line through i18n key `photos.usage.body` (no
+      // English fallback literal — `tt` returns the i18n value or the key
+      // string if missing, never an English template).
+      var template = tt('photos.usage.body', 'photos.usage.body');
       usageEl.textContent = template.replace('{size}', readHumanBytes(displayBytes));
       // Estimated savings preview (heuristic 60% reduction; show only when
       // there's enough storage at stake for the preview to be meaningful).
@@ -2382,7 +2385,7 @@ window.SettingsPage = (function () {
 
     if (typeof CropModule === 'undefined' || typeof CropModule.resizeToMaxDimension !== 'function') {
       if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
-        App.showToast('Optimize is unavailable — photo helpers not loaded', '');
+        App.showToast('', 'photos.optimize.unavailable');
       }
       return;
     }
@@ -2410,7 +2413,7 @@ window.SettingsPage = (function () {
     } catch (err) {
       if (typeof console !== 'undefined' && console.error) console.error('Optimize all failed:', err);
       if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
-        App.showToast('Could not optimize photos', '');
+        App.showToast('', 'photos.optimize.failed');
       }
     } finally {
       btn.disabled = false;
@@ -2455,7 +2458,7 @@ window.SettingsPage = (function () {
     } catch (err) {
       if (typeof console !== 'undefined' && console.error) console.error('Delete all failed:', err);
       if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
-        App.showToast('Could not delete photos', '');
+        App.showToast('', 'photos.deleteAll.failed');
       }
     } finally {
       btn.disabled = false;
