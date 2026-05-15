@@ -196,7 +196,7 @@ window.I18N.cs = {
   "photos.optimize.unavailable": "Optimalizace fotografi\u00ed nen\u00ed dostupn\u00e1 \u2014 pomocn\u00e9 soubory se nena\u010detly.",
   "photos.optimize.failed": "Fotografie se nepoda\u0159ilo optimalizovat.",
   "photos.deleteAll.heading": "Smazat v\u0161echny fotky",
-  "photos.deleteAll.helper": "Odstran\u00ed v\u0161echny fotky klient\u016f z prohl\u00ed\u017ee\u010de. Z\u00e1znamy klient\u016f a sezen\u00ed z\u016fstanou. Nelze vr\u00e1tit zp\u011bt.",
+  "photos.deleteAll.helper": "T\u00edmto odstran\u00edte v\u0161echny fotky klient\u016f z aplikace. V\u0161echny ostatn\u00ed \u00fadaje klient\u016f z\u016fstanou zachov\u00e1ny.\nSmazan\u00e9 fotky nelze obnovit.",
   "photos.deleteAll.action": "Smazat v\u0161echny fotky",
   "photos.deleteAll.confirm.title": "Smazat v\u0161echny fotky?",
   "photos.deleteAll.confirm.body": "Tato akce odstran\u00ed v\u0161echny fotky klient\u016f z aplikace. V\u0161echny ostatn\u00ed \u00fadaje o klientech z\u016fstanou zachov\u00e1ny.\nSmazan\u00e9 fotky nelze obnovit.",

@@ -196,7 +196,7 @@ window.I18N.en = {
   "photos.optimize.unavailable": "Photo optimization is unavailable — helper files didn't load.",
   "photos.optimize.failed": "Could not optimize photos.",
   "photos.deleteAll.heading": "Delete all photos",
-  "photos.deleteAll.helper": "Removes every client photo from your browser. Client records and sessions are kept. Cannot be undone.",
+  "photos.deleteAll.helper": "This will remove all client photos from the app. All other client details are kept.\nDeleted photos cannot be recovered.",
   "photos.deleteAll.action": "Delete all photos",
   "photos.deleteAll.confirm.title": "Delete all photos?",
   "photos.deleteAll.confirm.body": "This will remove all client photos from the app. All other client details are kept.\nDeleted photos cannot be recovered.",

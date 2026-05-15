@@ -196,7 +196,7 @@ window.I18N.de = {
   "photos.optimize.unavailable": "Foto-Optimierung ist nicht verfügbar — Hilfsdateien wurden nicht geladen.",
   "photos.optimize.failed": "Fotos konnten nicht optimiert werden.",
   "photos.deleteAll.heading": "Alle Fotos löschen",
-  "photos.deleteAll.helper": "Entfernt jedes Klientenfoto aus Ihrem Browser. Klientendatensätze und Sitzungen bleiben erhalten. Kann nicht rückgängig gemacht werden.",
+  "photos.deleteAll.helper": "Dies entfernt alle Klientenfotos aus der App. Alle übrigen Klientendaten bleiben erhalten.\nGelöschte Fotos können nicht wiederhergestellt werden.",
   "photos.deleteAll.action": "Alle Fotos löschen",
   "photos.deleteAll.confirm.title": "Alle Fotos löschen?",
   "photos.deleteAll.confirm.body": "Dies entfernt alle Klientenfotos aus der App. Alle anderen Klientendaten bleiben erhalten.\nGelöschte Fotos können nicht wiederhergestellt werden.",

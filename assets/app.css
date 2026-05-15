@@ -1544,6 +1544,41 @@ html[dir="rtl"] .session-header{
   white-space:pre-line;
 }
 
+/* Phase 25 round-6 (C1, 2026-05-15): the Settings → Photos delete-all
+ * helper text is authored as two \n-separated sentences and must render
+ * as two visual lines (Ben re-clarified the target was the settings-page
+ * helper, not the confirm dialog). */
+.helper-text--multiline{
+  white-space:pre-line;
+}
+
+/* Phase 25 round-6 (Ben 2026-05-15): the optimize VERDICT is a live,
+ * recomputed-on-render recommendation — it must not read as dead static
+ * caption text (it lost the green treatment the old standalone savings
+ * line had). Tier-aware emphasis: compact = quiet/reassuring (nothing to
+ * do), optional = neutral-but-noticed, recommended = act-now accent. */
+.photos-usage-verdict{
+  font-weight:600;
+  line-height:1.5;
+  padding:var(--space-sm, 8px) var(--space-md, 16px);
+  border-radius:8px;
+  border-inline-start:4px solid transparent;
+}
+.photos-usage-verdict--compact{
+  color:var(--color-text-muted);
+  font-weight:500;
+}
+.photos-usage-verdict--optional{
+  color:var(--color-text);
+  background:var(--color-warning-bg);
+  border-inline-start-color:var(--color-warning-text);
+}
+.photos-usage-verdict--recommended{
+  color:var(--color-success-text);
+  background:var(--color-success-bg);
+  border-inline-start-color:var(--color-success-border);
+}
+
 .confirm-actions{
   justify-content:flex-end;
   gap:0.75rem;

@@ -2398,21 +2398,34 @@ window.SettingsPage = (function () {
         ? _ph.OPTIMIZE_RECOMMEND_THRESHOLD_BYTES
         : 2 * 1024 * 1024;
 
-      var verdictKey, verdictFallback;
+      var verdictKey, verdictFallback, verdictTier;
       if (estimated < floorBytes) {
         verdictKey = 'photos.usage.compact';
         verdictFallback = 'Photos use {size} of your browser storage. Already compact — optimizing won\'t help.';
+        verdictTier = 'compact';
       } else if (estimated < recommendBytes) {
         verdictKey = 'photos.usage.optional';
         verdictFallback = 'Photos use {size} of your browser storage. Optimizing could free about {savings} (optional).';
+        verdictTier = 'optional';
       } else {
         verdictKey = 'photos.usage.recommended';
         verdictFallback = 'Photos use {size} of your browser storage. Optimizing could free about {savings} — recommended.';
+        verdictTier = 'recommended';
       }
       var verdictTemplate = tt(verdictKey, verdictFallback);
       usageEl.textContent = verdictTemplate
         .replace('{size}', readHumanBytes(displayBytes))
         .replace('{savings}', readHumanBytes(estimated));
+      // Phase 25 round-6 (Ben 2026-05-15): the folded verdict lost the
+      // green treatment the old standalone savings line had and read as
+      // dead static text. Tag the line with a tier class so it visibly
+      // reads as a live recommendation, not a fixed caption.
+      usageEl.classList.remove(
+        'photos-usage-verdict--compact',
+        'photos-usage-verdict--optional',
+        'photos-usage-verdict--recommended'
+      );
+      usageEl.classList.add('photos-usage-verdict', 'photos-usage-verdict--' + verdictTier);
 
       // The standalone savings-preview line is absorbed into the verdict
       // above. Keep #photosOptimizePreview hidden during a normal render —
@@ -2425,6 +2438,12 @@ window.SettingsPage = (function () {
     } else {
       usageEl.setAttribute('data-i18n', 'photos.usage.unavailable');
       usageEl.textContent = tt('photos.usage.unavailable', 'Storage usage is not available in this browser.');
+      usageEl.classList.remove(
+        'photos-usage-verdict',
+        'photos-usage-verdict--compact',
+        'photos-usage-verdict--optional',
+        'photos-usage-verdict--recommended'
+      );
       if (previewEl) previewEl.setAttribute('hidden', '');
     }
   }
