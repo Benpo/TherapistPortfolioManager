@@ -1898,10 +1898,9 @@ window.SettingsPage = (function () {
       return (n && n > 0) ? n : 7;
     } catch (_) { return 7; }
   }
-  function readFolderName() {
-    try { return localStorage.getItem('portfolioBackupFolderName') || ''; }
-    catch (_) { return ''; }
-  }
+  // Phase 25 Plan 12 UAT-D1: readFolderName + refreshFolderState removed
+  // along with the folder-picker UI. The BackupManager primitives
+  // (pickBackupFolder / isAutoBackupSupported) stay in backup.js.
 
   function tt(key, fallback) {
     if (typeof App !== 'undefined' && typeof App.t === 'function') {
@@ -1925,35 +1924,6 @@ window.SettingsPage = (function () {
     if (!wrap) return;
     if (readScheduleMode() === 'custom') wrap.removeAttribute('hidden');
     else wrap.setAttribute('hidden', '');
-  }
-
-  function refreshFolderState() {
-    var stateEl = $('scheduleFolderState');
-    var unsupportedEl = $('scheduleFolderUnsupported');
-    var pickBtn = $('scheduleFolderPickBtn');
-    if (!stateEl || !pickBtn) return;
-    // Safari/Firefox: BackupManager.isAutoBackupSupported() returns false →
-    // hide picker, surface the unsupported helper line.
-    if (typeof BackupManager !== 'undefined' &&
-        typeof BackupManager.isAutoBackupSupported === 'function' &&
-        !BackupManager.isAutoBackupSupported()) {
-      pickBtn.setAttribute('hidden', '');
-      stateEl.setAttribute('hidden', '');
-      if (unsupportedEl) unsupportedEl.classList.remove('is-hidden');
-      return;
-    }
-    if (unsupportedEl) unsupportedEl.classList.add('is-hidden');
-    pickBtn.removeAttribute('hidden');
-    stateEl.removeAttribute('hidden');
-    var name = readFolderName();
-    if (name) {
-      stateEl.removeAttribute('data-i18n');
-      var template = tt('schedule.folder.repick', 'Folder: {name} — Re-pick');
-      stateEl.textContent = template.replace('{name}', name);
-    } else {
-      stateEl.setAttribute('data-i18n', 'schedule.folder.empty');
-      stateEl.textContent = tt('schedule.folder.empty', 'No folder chosen.');
-    }
   }
 
   /**
@@ -2012,6 +1982,14 @@ window.SettingsPage = (function () {
     }
     refreshFrequencyHelper();
     refreshCustomDaysVisibility();
+    // Phase 25 Plan 12 UAT-D3: surface a save-toast every time the schedule
+    // frequency is actually persisted. The toast key resolves through the
+    // shared i18n bundle (new 'schedule.savedToast' key in all 4 locales —
+    // shipped alongside this commit) so the user always sees explicit
+    // confirmation that the change took effect.
+    if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+      App.showToast('', 'schedule.savedToast');
+    }
     return true;
   }
 
@@ -2021,7 +1999,6 @@ window.SettingsPage = (function () {
     sel.value = readScheduleMode();
     refreshFrequencyHelper();
     refreshCustomDaysVisibility();
-    refreshFolderState();
 
     var customDays = $('scheduleCustomDays');
     if (customDays) customDays.value = String(readCustomDays());
@@ -2035,6 +2012,13 @@ window.SettingsPage = (function () {
         var n = Math.max(1, Math.min(365, Number(customDays.value) || 7));
         customDays.value = String(n);
         try { localStorage.setItem('portfolioBackupScheduleCustomDays', String(n)); } catch (_) {}
+        // UAT-D3: save-toast whenever the custom-days value is committed
+        // (only meaningful when mode === 'custom', but firing it on every
+        // commit is harmless and keeps the contract uniform).
+        if (readScheduleMode() === 'custom' &&
+            typeof App !== 'undefined' && typeof App.showToast === 'function') {
+          App.showToast('', 'schedule.savedToast');
+        }
       });
     }
 
@@ -2047,36 +2031,26 @@ window.SettingsPage = (function () {
             ack.checked ? 'true' : 'false');
         } catch (_) {}
         // If user un-acks while a schedule is active, force it back to Off.
+        // applyFrequencyChange will surface its own save-toast on the
+        // forced transition.
         if (!ack.checked && readScheduleMode() !== 'off') {
           sel.value = 'off';
           applyFrequencyChange('off');
+        } else if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+          // UAT-D3: save-toast for the ack-checkbox toggle itself (only
+          // when we did NOT cascade into applyFrequencyChange — that path
+          // surfaces its own toast).
+          App.showToast('', 'schedule.savedToast');
         }
         var err = $('schedulePasswordError');
         if (err) err.classList.add('is-hidden');
       });
     }
 
-    var pickBtn = $('scheduleFolderPickBtn');
-    if (pickBtn) {
-      pickBtn.addEventListener('click', async function () {
-        try {
-          if (typeof BackupManager === 'undefined' ||
-              typeof BackupManager.pickBackupFolder !== 'function') return;
-          var handle = await BackupManager.pickBackupFolder();
-          if (handle && handle.name) {
-            try { localStorage.setItem('portfolioBackupFolderName', handle.name); } catch (_) {}
-            refreshFolderState();
-            if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
-              App.showToast('', 'toast.autoBackupSet');
-            }
-          }
-        } catch (err) {
-          if (typeof console !== 'undefined' && console.error) {
-            console.error('Folder picker failed:', err);
-          }
-        }
-      });
-    }
+    // Phase 25 Plan 12 UAT-D1: folder-picker click handler removed.
+    // The BackupManager.pickBackupFolder primitive stays in backup.js
+    // (kept for any future caller); only the Settings → Backups UI host
+    // is removed.
   }
 
   if (typeof document !== 'undefined') {
@@ -2367,6 +2341,23 @@ window.SettingsPage = (function () {
       return;
     }
 
+    // Phase 25 Plan 12 UAT-C2: count photos AND compute estimated savings up
+    // front so we can pass them through the confirmDialog placeholders bag.
+    // The dialog title carries {n} and the body carries {n} + {size}; both
+    // must be substituted BEFORE render — see App.confirmDialog placeholders
+    // option (Plan 12 extension).
+    var photoCount = 0;
+    for (var pi = 0; pi < clients.length; pi++) {
+      var c = clients[pi];
+      if (c && typeof c.photoData === 'string' && c.photoData.indexOf(',') !== -1) {
+        photoCount++;
+      }
+    }
+    // Match the 60% reduction heuristic used by refreshPhotosTab's
+    // savingsPreview line (D-30 single-source).
+    var estimatedSavings = Math.floor(photoBytes * 0.6);
+    var estimatedSavingsLabel = readHumanBytes(estimatedSavings);
+
     var confirmed = false;
     if (typeof App !== 'undefined' && typeof App.confirmDialog === 'function') {
       try {
@@ -2375,7 +2366,9 @@ window.SettingsPage = (function () {
           messageKey: 'photos.optimize.confirm.body',
           confirmKey: 'photos.optimize.confirm.yes',
           cancelKey: 'confirm.cancel',
-          tone: 'neutral'    // UI-SPEC: irreversible but visual quality stays the same.
+          tone: 'neutral',    // UI-SPEC: irreversible but visual quality stays the same.
+          // UAT-C2: substitute {n} and {size} in title + body before render.
+          placeholders: { n: String(photoCount), size: estimatedSavingsLabel }
         });
       } catch (_) { confirmed = false; }
     } else {
@@ -2406,10 +2399,43 @@ window.SettingsPage = (function () {
         .replace('{success}', String(result.success))
         .replace('{failed}', String(result.failed))
         .replace('{size}', readHumanBytes(result.savedBytes));
+
+      // Phase 25 Plan 12 UAT-D4: surface the savings number INLINE next to
+      // the Optimize button so the cause→effect link is obvious. The toast
+      // remains as a secondary cross-page signal. The inline pill persists
+      // for 8 seconds — enough to read the savings number even on a slow
+      // glance. refreshPhotosTab() runs FIRST (which can re-populate the
+      // preview element with the pre-flight savings line); we then
+      // overwrite it with the result message and re-arm the persistence
+      // timer so the result wins over the pre-flight estimate.
+      await refreshPhotosTab();
+      var inlinePreview = $('photosOptimizePreview');
+      if (inlinePreview) {
+        // Stop any previous pre-flight rendering from claiming the slot.
+        inlinePreview.removeAttribute('data-i18n');
+        inlinePreview.removeAttribute('hidden');
+        inlinePreview.textContent = msg;
+        inlinePreview.classList.add('photos-savings-preview--result');
+        if (typeof window !== 'undefined' && window.__photosOptimizeResultTimer) {
+          try { clearTimeout(window.__photosOptimizeResultTimer); } catch (_) {}
+        }
+        var clearTimer = setTimeout(function () {
+          var el = $('photosOptimizePreview');
+          if (el) {
+            el.classList.remove('photos-savings-preview--result');
+            el.textContent = '';
+            el.setAttribute('hidden', '');
+          }
+        }, 8000);
+        if (typeof window !== 'undefined') window.__photosOptimizeResultTimer = clearTimer;
+      }
+
+      // Keep the toast for cross-page legibility — same shape Plan 11
+      // settled on (literal msg in arg 0, '' in arg 1 because the message
+      // is already an i18n-resolved + substituted string).
       if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
         App.showToast(msg, '');
       }
-      await refreshPhotosTab();
     } catch (err) {
       if (typeof console !== 'undefined' && console.error) console.error('Optimize all failed:', err);
       if (typeof App !== 'undefined' && typeof App.showToast === 'function') {

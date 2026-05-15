@@ -170,20 +170,25 @@
 
           <div class="backup-reminder-banner schedule-password-callout" id="schedulePasswordCallout" role="note">
             <p data-i18n="schedule.password.callout">Scheduled backups require a backup password. You'll be asked for it each time the prompt appears. Save this password somewhere safe — we cannot recover it.</p>
-            <label class="form-field schedule-password-acked-row">
-              <input type="checkbox" id="schedulePasswordAcked" />
-              <span data-i18n="schedule.password.ackedLabel">I have a backup password and have stored it safely.</span>
-            </label>
+            <!-- Phase 25 Plan 12 UAT-B: password-ack restructured so the
+                 2-line verification text appears ABOVE the checkbox row.
+                 .schedule-password-acked-row is now a flex-column container
+                 (CSS in app.css); the inner __control label holds the
+                 checkbox + short caption on its own horizontal row. -->
+            <div class="form-field schedule-password-acked-row">
+              <p data-i18n="schedule.password.ackedLabel" id="schedulePasswordAckedLabel">I have a backup password and have stored it safely.</p>
+              <label class="schedule-password-acked-row__control">
+                <input type="checkbox" id="schedulePasswordAcked" />
+                <span data-i18n="schedule.password.ackedShort">I have a backup password.</span>
+              </label>
+            </div>
             <p class="error-text is-hidden" id="schedulePasswordError" role="alert" data-i18n="schedule.password.required">Please confirm you have a backup password before enabling a schedule.</p>
           </div>
 
-          <div class="form-field backup-schedule-folder" id="scheduleFolderField">
-            <label class="label" data-i18n="schedule.folder.label">Backup folder</label>
-            <p class="helper-text" data-i18n="schedule.folder.helper">Optional. The next time you save a scheduled backup, your browser will suggest this folder.</p>
-            <p class="helper-text" id="scheduleFolderState" data-i18n="schedule.folder.empty">No folder chosen.</p>
-            <button type="button" class="button" id="scheduleFolderPickBtn" data-i18n="schedule.folder.pick">Pick backup folder</button>
-            <p class="helper-text is-hidden" id="scheduleFolderUnsupported" data-i18n="schedule.folder.unsupported">Folder picking is only available in Chromium-based browsers (Chrome, Edge, Brave).</p>
-          </div>
+          <!-- Phase 25 Plan 12 UAT-D1: folder picker UI removed.
+               Phase 25 uses browser download / Web Share API / mailto;
+               the folder picker is dead UI. The BackupManager.pickBackupFolder
+               primitive stays in backup.js for any future caller. -->
         </div>
 
         <!-- Phase 25 Plan 07 — Photos tab body (D-24 optimize, D-25 delete-all). -->
