@@ -317,6 +317,112 @@ $ for t in tests/25-*.test.js; do node "$t" > /dev/null 2>&1 || echo "FAIL: $t";
 
 Per-commit pre-commit hook auto-bumped CACHE_NAME across the 4 fix commits: v162 → v163 → v164 → v165 → v166.
 
+## Round-2 post-UAT fixes (Ben 2026-05-15)
+
+After the first round of post-UAT fixes shipped, Ben re-ran the same live Safari UAT and surfaced **3 more follow-up changes**, all rooted in copy + visual-hierarchy decisions that the first round didn't get to. Each is committed atomically with its own RED behavior test (committed first, then GREEN implementation).
+
+| # | Change                                                                                  | RED commit | GREEN commit | Tests file                                              |
+| - | --------------------------------------------------------------------------------------- | ---------- | ------------ | ------------------------------------------------------- |
+| A | Password-ack callout redesign + copy revisions ("Please note:" opener + bolder label)   | `298e8b8`  | `b86bfb4`    | `tests/25-12-password-callout-redesign.test.js` (8/8)   |
+| B | Optimize estimate display floor (1 KB → friendly "Minimal savings" string)              | `298e8b8`  | `55ac0d9`    | `tests/25-12-optimize-estimate-floor.test.js` (11/11)   |
+| C | "How reminders work" explainer card on the backup modal (`<details>` + 4-locale i18n)   | `298e8b8`  | `7a2c373`    | `tests/25-12-reminders-explainer.test.js` (14/14)       |
+
+### Change A — Password callout redesign
+
+**What changed:**
+
+- **Copy** (`schedule.password.callout` in all 4 locales, D-28 parity):
+  - EN now opens with `"Please note:"` and closes with `"it cannot be recovered."`
+  - HE now opens with `"לתשומת ליבך:"` and closes with `"ניתן לשחזר אותה."`
+  - DE: `"Bitte beachten:"` + `"nicht wiederhergestellt werden."`
+  - CS: `"Upozornění:"` + `"nelze jej obnovit."`
+  - `schedule.password.ackedLabel` / `.ackedShort` strings unchanged.
+
+- **Layout** (`settings.html` + `assets/app.css`):
+  - The standalone `<p data-i18n="schedule.password.ackedLabel">` that sat ABOVE the checkbox row was removed. The ackedLabel text now IS the inline checkbox label — `[checkbox] [label]` on one horizontal line.
+  - `.schedule-password-acked-row`: `flex-direction: column` → defaults to `row`; `align-items: center` keeps the checkbox vertically centered against the wrapping label on narrow viewports; `width: 100%` retained so the row claims its own line inside the parent `.backup-reminder-banner` flex-wrap container.
+  - `.schedule-password-acked-row__control` (the label span) styled `font-weight: 600` + `font-size: 1.05em` so the ack label reads bolder + slightly larger than the callout paragraph above. The label IS the action; the callout above is just context.
+
+- **Round-1 tests superseded:** `tests/25-12-password-ack-stacking.test.js` and `tests/25-12-password-ack-full-width.test.js` locked in the round-1 vertical-stacking contract (DOM-order proof + `flex-direction: column`). The round-2 redesign DELIBERATELY removes that stacking. Both files were updated to (a) document the round-1 → round-2 supersession in their header comments, and (b) flip the flex-direction:column assertions so a future revert to the old layout is caught. The active layout contract lives in `tests/25-12-password-callout-redesign.test.js` (the new round-2 test).
+
+### Change B — Optimize estimate display floor
+
+**Problem:** Round-1 introduced a per-photo threshold so already-optimized photos contribute 0 to `estimatePhotoSavings`. When NO photo crosses the threshold, the estimator legitimately returns 0 — and the UI rendered `"~0 B"`. Running Optimize still saves ~50 bytes from metadata stripping, but the byte amount isn't useful signal at that magnitude.
+
+**Fix:**
+
+- **New constant** `ESTIMATE_DISPLAY_FLOOR_BYTES = 1024` (1 KB) declared in `assets/settings.js` next to `PHOTO_OPTIMIZED_BYTES_THRESHOLD`. Exposed on `window.__PhotosTabHelpers` for D-30 single-source consumption + test readback.
+- **`refreshPhotosTab`** — when `estimated < floor`, the inline preview renders `i18n("photos.optimize.minimal")` and STAYS VISIBLE (previously the preview was hidden when estimate was 0; Ben wanted some signal even in the minimal case so the Optimize button has context).
+- **`handleOptimize`** — when `estimated < floor`, the confirm dialog's `placeholders.size` receives the minimal-savings string instead of a byte label. The body's `"Estimated savings: ~{size}"` template renders cleanly with the substituted phrase.
+
+**New i18n key `photos.optimize.minimal` in all 4 locales (D-28 parity):**
+
+| Locale | String                                  |
+| ------ | --------------------------------------- |
+| en     | `Minimal savings expected`              |
+| he     | `צפויה הפחתה זניחה`                     |
+| de     | `Nur minimale Einsparungen erwartet`    |
+| cs     | `Očekává se jen minimální úspora`       |
+
+The Optimize button stays clickable in the minimal-savings state — Ben didn't ask to disable it, and the metadata-stripping pass may still free a handful of bytes.
+
+### Change C — Reminders explainer card on backup modal
+
+**Problem:** `schedule.frequency.helperOn` ended with "The 7-day banner is muted while a schedule is active." Ben surfaced that this references a banner the user might never have seen, and the relationship between the legacy 7-day banner and the new auto-backup schedule is a three-mode story (no schedule / schedule active / switching off) that wasn't explained coherently anywhere.
+
+**Fix:**
+
+- **New `<section>` + `<details>` block** inserted in the `#backupModal` markup (`index.html`) AFTER the test-password subcard and BEFORE the footer schedule-link. Native `<details>`/`<summary>` for progressive disclosure (no JS). Closed by default — opt-in education.
+
+- **`<summary>`** carries `data-i18n="reminders.helper.heading"`. **Body `<div>`** carries `data-i18n="reminders.helper.body"`.
+
+- **New i18n keys** in all 4 locales:
+
+  | Locale | `reminders.helper.heading`                |
+  | ------ | ------------------------------------------ |
+  | en     | `How reminders work`                       |
+  | he     | `איך התזכורות עובדות`                      |
+  | de     | `Wie Erinnerungen funktionieren`           |
+  | cs     | `Jak fungují připomínky`                   |
+
+  `reminders.helper.body` (each locale) explains the three modes — no schedule (7-day banner active), schedule active (in-app prompt + banner muted), switching off (banner becomes active again).
+
+- **Cleanup of duplicate strings:**
+  - `schedule.frequency.helperOn` — dropped the trailing "7-day banner" sentence in all 4 locales. EN now reads: `"A backup prompt will appear when this interval elapses."`
+  - `schedule.disableConfirm.body` — dropped the duplicate "The 7-day backup reminder banner will become active again" sentence; EN now reads: `"Reminders will revert to the default behavior. You will not lose any data."` The full disable-mode explanation lives in the explainer card.
+
+### Why behavior tests, not shape-grep
+
+Each round-2 change is locked down by a falsifiable behavior test that would have caught Ben's UAT feedback automatically. Following the project rule in `feedback-behavior-verification.md`:
+
+- **Change A copy:** `STARTS WITH "Please note:"` + `ENDS WITH "it cannot be recovered."` is a content assertion, not a presence check. A future copy change that drops the opener fails the test.
+- **Change A layout:** asserts the absence of `flex-direction: column` (the obsolete shape) AND the presence of font-weight ≥ 600 + font-size ≥ 1.05em (the new shape). Catches both regressions and silent reverts.
+- **Change B floor:** vm-sandbox runtime test asserts the rendered text of `#photosOptimizePreview` contains the i18n minimal-savings string when the helper returns 500 bytes; asserts it contains a byte amount when the helper returns 5000 bytes. The confirm-dialog spy reads `placeholders.size` directly.
+- **Change C explainer:** asserts the `<details>` element exists INSIDE the `#backupModal` markup boundary (not somewhere else); asserts the 7-day reference is GONE from all 4 locales' `schedule.frequency.helperOn` strings via locale-specific regex (HE: `7\s*[-־]?\s*ה?ימים`, CS: `7[\s-]?(dní|dnech|dnů|dny)`, etc.).
+
+### Files touched
+
+- `assets/i18n-{en,he,de,cs}.js` — `schedule.password.callout` reworded (4 locales); `photos.optimize.minimal` added (4 locales); `reminders.helper.heading` + `reminders.helper.body` added (4 locales); `schedule.frequency.helperOn` shortened (4 locales); `schedule.disableConfirm.body` shortened (4 locales).
+- `settings.html` — restructured `#schedulePasswordCallout`: removed the standalone `<p ackedLabel>`; the ackedLabel data-i18n now lives on a `<span>` inside the row's `<label>`.
+- `assets/app.css` — `.schedule-password-acked-row` reverted from column to row + `align-items: center`; `.schedule-password-acked-row__control` gets `font-weight: 600` + `font-size: 1.05em`.
+- `assets/settings.js` — new constant `ESTIMATE_DISPLAY_FLOOR_BYTES = 1024`; `refreshPhotosTab` + `handleOptimize` consume it.
+- `index.html` — new `<section class="backup-modal-section--reminders">` with `<details>` inside `#backupModal`.
+- `tests/25-12-password-callout-redesign.test.js` — new, +250 lines, 8 assertions.
+- `tests/25-12-optimize-estimate-floor.test.js` — new, +370 lines, 11 assertions.
+- `tests/25-12-reminders-explainer.test.js` — new, +145 lines, 14 assertions.
+- `tests/25-12-password-ack-stacking.test.js` + `tests/25-12-password-ack-full-width.test.js` — round-1 contracts superseded; obsolete `flex-direction: column` assertions removed.
+
+No changes to `STATE.md`, `ROADMAP.md`, or any other phase's planning files.
+
+### Verification result
+
+```
+$ for t in tests/25-*.test.js; do node "$t" > /dev/null 2>&1 || echo "FAIL: $t"; done
+(no output — all Phase 25 tests pass; Phase 24 also all green)
+```
+
+Per-commit pre-commit hook auto-bumped CACHE_NAME across the 3 round-2 commits: v166 → v167 → v168 → v169.
+
 ## Self-Check
 
 Created files exist:
@@ -325,20 +431,27 @@ Created files exist:
 - `tests/25-12-folder-picker-removed.test.js`: FOUND
 - `tests/25-12-schedule-saved-toast.test.js`: FOUND
 - `tests/25-12-password-ack-stacking.test.js`: FOUND
-- `tests/25-12-custom-days-effective-visibility.test.js`: FOUND (post-UAT fix)
-- `tests/25-12-password-ack-full-width.test.js`: FOUND (post-UAT fix)
-- `tests/25-12-optimize-stale-estimate.test.js`: FOUND (post-UAT fix)
-- `tests/25-12-photos-usage-language-rerender.test.js`: FOUND (post-UAT fix)
+- `tests/25-12-custom-days-effective-visibility.test.js`: FOUND (round-1 post-UAT)
+- `tests/25-12-password-ack-full-width.test.js`: FOUND (round-1 post-UAT)
+- `tests/25-12-optimize-stale-estimate.test.js`: FOUND (round-1 post-UAT)
+- `tests/25-12-photos-usage-language-rerender.test.js`: FOUND (round-1 post-UAT)
+- `tests/25-12-password-callout-redesign.test.js`: FOUND (round-2 post-UAT, Change A)
+- `tests/25-12-optimize-estimate-floor.test.js`: FOUND (round-2 post-UAT, Change B)
+- `tests/25-12-reminders-explainer.test.js`: FOUND (round-2 post-UAT, Change C)
 
 Commits in git log:
 - `6c45e6c`: FOUND (original Plan 12 RED tests)
 - `d9cbc8f`: FOUND
 - `8908648`: FOUND
 - `40354fa`: FOUND
-- `9c7d7c5`: FOUND (post-UAT 4 RED behavior tests)
-- `8366894`: FOUND (post-UAT bug 1 fix)
-- `d3dbe86`: FOUND (post-UAT bug 2 fix)
-- `a466106`: FOUND (post-UAT bug 3 fix)
-- `2a2d2a2`: FOUND (post-UAT bug 4 fix)
+- `9c7d7c5`: FOUND (round-1 post-UAT — 4 RED behavior tests)
+- `8366894`: FOUND (round-1 post-UAT — bug 1 fix)
+- `d3dbe86`: FOUND (round-1 post-UAT — bug 2 fix)
+- `a466106`: FOUND (round-1 post-UAT — bug 3 fix)
+- `2a2d2a2`: FOUND (round-1 post-UAT — bug 4 fix)
+- `298e8b8`: FOUND (round-2 post-UAT — 3 RED behavior tests)
+- `b86bfb4`: FOUND (round-2 post-UAT — Change A: password callout redesign + copy)
+- `55ac0d9`: FOUND (round-2 post-UAT — Change B: optimize estimate display floor)
+- `7a2c373`: FOUND (round-2 post-UAT — Change C: reminders explainer card)
 
 ## Self-Check: PASSED
