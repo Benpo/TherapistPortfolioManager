@@ -248,6 +248,20 @@
         </div>
       </section>
 
+      <!-- Phase 25 Plan 12 round-2 post-UAT (Change C, 2026-05-15) —
+           "How reminders work" explainer card. Centralizes the three
+           reminder modes (no schedule / schedule active / switching off)
+           that were previously scattered across schedule.frequency.helperOn
+           and schedule.disableConfirm.body. Native <details> for
+           progressive-disclosure semantics (no JS). Closed by default —
+           the user opts in to read it. -->
+      <section class="backup-modal-section backup-modal-section--reminders">
+        <details class="backup-reminders-explainer">
+          <summary class="backup-modal-section-heading" data-i18n="reminders.helper.heading">How reminders work</summary>
+          <div class="helper-text" data-i18n="reminders.helper.body">A gentle 7-day reminder banner appears on the overview if you haven't exported a backup in the last week. When you set up a schedule, Sessions Garden prompts you in-app at your chosen interval and the 7-day banner stays quiet so you only get one channel. If you turn the schedule off, the 7-day reminder banner becomes active again.</div>
+        </details>
+      </section>
+
       <footer class="backup-modal-footer">
         <a href="./settings.html?tab=backups" id="backupModalScheduleLink" class="text-link" data-i18n="backup.modal.scheduleFooter">Set up a schedule in Settings &rarr; Backups so you don&#39;t have to remember.</a>
       </footer>
