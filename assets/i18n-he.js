@@ -304,6 +304,11 @@ window.I18N.he = {
   "backup.action.import": "בחירת קובץ גיבוי",
   "backup.modal.scheduleFooter": "הגדרת תזמון בהגדרות ← גיבויים, כדי שלא יהיה צורך לזכור.",
 
+  // Phase 25 Plan 04 — cloud icon title-text fragments (D-13, D-27 noun/infinitive).
+  "overview.chip.lastBackup": "גיבוי אחרון",
+  "overview.chip.never": "מעולם לא",
+  "overview.chip.separator": " · ",
+
   // Phase 25 Plan 03 — Test-backup-password dry-run (D-12). HE uses noun/infinitive forms (D-27).
   "backup.action.testPassword": "בדיקת סיסמת גיבוי",
   "backup.testPassword.heading": "בדיקת סיסמת גיבוי",

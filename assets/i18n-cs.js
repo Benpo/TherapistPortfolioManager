@@ -304,6 +304,11 @@ window.I18N.cs = {
   "backup.action.import": "Vybrat soubor zálohy",
   "backup.modal.scheduleFooter": "Nastavit plán v Nastavení → Zálohy, abyste si to nemuseli pamatovat.",
 
+  // Phase 25 Plan 04 — cloud icon title-text fragments (D-13). CS uses literal Unicode (Plan 25-01 precedent).
+  "overview.chip.lastBackup": "Poslední záloha",
+  "overview.chip.never": "nikdy",
+  "overview.chip.separator": " · ",
+
   // Phase 25 Plan 03 — Test-backup-password dry-run (D-12). CS uses literal Unicode (Plan 25-01 precedent).
   "backup.action.testPassword": "Otestovat heslo zálohy",
   "backup.testPassword.heading": "Otestovat heslo zálohy",

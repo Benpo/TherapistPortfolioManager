@@ -304,6 +304,11 @@ window.I18N.de = {
   "backup.action.import": "Backup-Datei w\u00e4hlen",
   "backup.modal.scheduleFooter": "Zeitplan unter Einstellungen \u2192 Backups einrichten, damit Sie nicht daran denken m\u00fcssen.",
 
+  // Phase 25 Plan 04 \u2014 cloud icon title-text fragments (D-13).
+  "overview.chip.lastBackup": "Letztes Backup",
+  "overview.chip.never": "nie",
+  "overview.chip.separator": " \u00b7 ",
+
   // Phase 25 Plan 03 \u2014 Test-backup-password dry-run (D-12). DE uses literal Unicode (Plan 25-01 precedent).
   "backup.action.testPassword": "Backup-Passwort testen",
   "backup.testPassword.heading": "Backup-Passwort testen",

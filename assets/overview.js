@@ -155,6 +155,10 @@ async function openExportFlow(opts) {
     }
     App.showToast('', 'toast.exportSuccess');
     renderLastBackupSubtitle();
+    // Phase 25 Plan 04 (D-08/D-13) — refresh cloud icon color + title text
+    // immediately after a successful export, so the user sees the state flip
+    // without waiting for the next visibilitychange tick.
+    App.updateBackupCloudState(document.getElementById('backupCloudBtn'));
     if (typeof opts.afterExport === 'function' && producedBlob) {
       await opts.afterExport({ blob: producedBlob, filename: producedFilename });
     }
@@ -188,6 +192,10 @@ async function openImportFlow(file) {
     App.showToast('', 'toast.importSuccess');
     await loadOverview();
     renderLastBackupSubtitle();
+    // Phase 25 Plan 04 (D-08/D-13) — refresh cloud icon color + title text
+    // immediately after a successful import (importBackup writes
+    // portfolioLastExport, so the recency state changes).
+    App.updateBackupCloudState(document.getElementById('backupCloudBtn'));
     closeBackupModal();
   } catch (err) {
     if (err === null) return; // passphrase modal cancelled

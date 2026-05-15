@@ -3544,10 +3544,33 @@ html[dir="rtl"] .export-format-help[open] summary::before {
 .header-icon-btn svg { display: block; }
 
 .backup-cloud-btn { /* cloud-specific overrides; Plan 04 adds state colors */ }
+
+/* Phase 25 Plan 04 — cloud icon recency state colors (D-13 / D-14, updated 2026-05-15)
+   The button background encodes recency; the icon glyph color flips
+   alongside so the SVG stroke (drawn via currentColor) maintains WCAG AA
+   contrast against the new background. Only existing semantic tokens —
+   no new color literals. Plan 02 provisionally shipped the --never rule;
+   the canonical four-state map lives here.
+*/
 .backup-cloud-btn--never {
   background-color: var(--color-surface-subtle, var(--color-surface-alt));
   color: var(--color-text-muted);
   border-color: var(--color-border);
+}
+.backup-cloud-btn--fresh {
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
+  border-color: transparent;
+}
+.backup-cloud-btn--warning {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border-color: transparent;
+}
+.backup-cloud-btn--danger {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger-text);
+  border-color: transparent;
 }
 
 /* Modal — Phase 25 Backup & Restore */

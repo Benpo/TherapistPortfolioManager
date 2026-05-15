@@ -1157,30 +1157,108 @@ window.BackupManager = (function () {
    */
   var BACKUP_CONTENTS_KEYS = ['clients', 'sessions', 'snippets', 'therapistSettings', 'photos'];
 
+  // -------------------------------------------------------------------------
+  // Phase 25 Plan 04 — schedule-interval map + chip-state derivation (D-14/D-30)
+  // -------------------------------------------------------------------------
+
   /**
-   * Plan 02 stub for cloud-icon initial state at mount time.
+   * Canonical schedule-interval map. Single source of truth (D-30) consumed by:
+   *   - computeBackupRecencyState (cloud icon mount-time + post-mount state)
+   *   - checkBackupReminder (app.js banner suppression — D-15/D-19)
+   *   - Plan 05's schedule-fire scheduler (interval-end prompt)
+   */
+  var SCHEDULE_INTERVAL_MS = {
+    daily:   24 * 60 * 60 * 1000,
+    weekly:  7 * 24 * 60 * 60 * 1000,
+    monthly: 30 * 24 * 60 * 60 * 1000
+  };
+
+  /**
+   * Read the active backup-schedule interval in milliseconds.
    *
-   * Returns one of: 'never' | 'fresh' | 'warning' | 'danger'.
+   * Returns null when no schedule is configured (mode missing, mode='off',
+   * or mode is an unrecognized string). Returns a positive number for
+   * daily/weekly/monthly/custom (custom falls back to 7 days when the
+   * day count is missing/zero/invalid).
    *
-   * Plan 04 will replace this body to delegate to getChipState({ now, lastExport,
-   * intervalMs }) — the full schedule-coupled variant (D-14). Until Plan 04 ships,
-   * this stub gives the cloud icon a sensible initial color based on schedule-OFF
-   * thresholds only (fresh ≤7d, warning ≤14d, danger >14d).
+   * Defensive: localStorage access is wrapped in try/catch so the helper
+   * never throws on pages where storage is disabled.
+   */
+  function getScheduleIntervalMs() {
+    var mode;
+    try {
+      mode = localStorage.getItem('portfolioBackupScheduleMode') || 'off';
+    } catch (_) {
+      return null;
+    }
+    if (mode === 'off') return null;
+    if (mode === 'custom') {
+      var raw;
+      try { raw = Number(localStorage.getItem('portfolioBackupScheduleCustomDays')); }
+      catch (_) { raw = NaN; }
+      var days = (raw && raw > 0) ? raw : 7;
+      return days * 24 * 60 * 60 * 1000;
+    }
+    return SCHEDULE_INTERVAL_MS[mode] || null;
+  }
+
+  /**
+   * Pure-function cloud-icon state derivation. Returns one of:
+   *   'never' | 'fresh' | 'warning' | 'danger'.
    *
-   * Defensive: any localStorage read failure (e.g., disabled storage on legal pages)
-   * falls back to 'never' so the icon never throws at mount.
+   * Function name retained for code-stability (referenced from VALIDATION.md
+   * and the Plan 04 source-of-truth chain). No chip DOM element exists
+   * anymore — this helper drives the cloud icon's background color (D-13
+   * updated 2026-05-15).
+   *
+   * Thresholds (D-14 updated 2026-05-15 — Ben confirmed 3-color intent):
+   *   intervalMs === null (schedule OFF): fresh ≤7d, warning >7 ≤14d, danger >14d.
+   *   intervalMs > 0     (schedule ON):  fresh ≤ intervalMs,
+   *                                       warning > intervalMs AND ≤ intervalMs×2,
+   *                                       danger > intervalMs×2.
+   * Boundary semantics: <= is fresh, > is escalation.
+   */
+  function getChipState(opts) {
+    opts = opts || {};
+    var now = (typeof opts.now === 'number') ? opts.now : Date.now();
+    var lastExport = opts.lastExport;
+    if (lastExport === null || typeof lastExport === 'undefined' || isNaN(lastExport)) {
+      return 'never';
+    }
+    var intervalMs = (typeof opts.intervalMs === 'number') ? opts.intervalMs : null;
+    var elapsed = now - Number(lastExport);
+    var DAY = 24 * 60 * 60 * 1000;
+    var freshLimit, warningLimit;
+    if (intervalMs === null) {
+      freshLimit = 7 * DAY;
+      warningLimit = 14 * DAY;
+    } else {
+      freshLimit = intervalMs;
+      warningLimit = intervalMs * 2;
+    }
+    if (elapsed <= freshLimit) return 'fresh';
+    if (elapsed <= warningLimit) return 'warning';
+    return 'danger';
+  }
+
+  /**
+   * Cloud-icon state surface. Public API — consumed by:
+   *   - App.mountBackupCloudButton (Plan 02 mount-time state class)
+   *   - App.updateBackupCloudState (Plan 04 post-mount updater)
+   *
+   * Plan 02 stub body REPLACED in Plan 04 with a one-line delegation to
+   * getChipState + getScheduleIntervalMs (D-30 single source of truth).
+   * The function name and signature are unchanged so Plan 02's callers
+   * keep working.
+   *
+   * Defensive: any localStorage read failure (e.g., disabled storage on
+   * legal pages) falls back to 'never' so the icon never throws at mount.
    */
   function computeBackupRecencyState() {
     try {
       var raw = localStorage.getItem('portfolioLastExport');
-      if (!raw) return 'never';
-      var ts = Number(raw);
-      if (isNaN(ts)) return 'never';
-      var elapsed = Date.now() - ts;
-      var DAY = 24 * 60 * 60 * 1000;
-      if (elapsed <= 7 * DAY) return 'fresh';
-      if (elapsed <= 14 * DAY) return 'warning';
-      return 'danger';
+      var lastExport = raw ? Number(raw) : null;
+      return getChipState({ now: Date.now(), lastExport: lastExport, intervalMs: getScheduleIntervalMs() });
     } catch (_) {
       return 'never';
     }
@@ -1205,5 +1283,7 @@ window.BackupManager = (function () {
     isAutoBackupActive: isAutoBackupActive,
     BACKUP_CONTENTS_KEYS: BACKUP_CONTENTS_KEYS,
     computeBackupRecencyState: computeBackupRecencyState,
+    getScheduleIntervalMs: getScheduleIntervalMs,
+    getChipState: getChipState,
   };
 })();

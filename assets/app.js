@@ -503,6 +503,52 @@ window.App = (() => {
   }
 
   /**
+   * Phase 25 Plan 04 (D-08 / D-13 / D-14, updated 2026-05-15) — update the
+   * cloud icon's recency state class + title text on every relevant event:
+   * page load (post-mount), post-export, post-import, visibilitychange,
+   * schedule-change, language-change.
+   *
+   * Pure DOM update with no side-effects beyond the button element passed in.
+   * If buttonEl is null/missing, no-op (defensive: pages without the icon).
+   *
+   * D-30: state derivation routes through BackupManager.computeBackupRecencyState,
+   * which delegates to getChipState + getScheduleIntervalMs. Single source of
+   * truth shared with Plan 02's mount-time class assignment, Plan 05's
+   * schedule fire, and checkBackupReminder's banner suppression.
+   */
+  function updateBackupCloudState(buttonEl) {
+    if (!buttonEl) return;
+    var STATES = ['never', 'fresh', 'warning', 'danger'];
+    var state = 'never';
+    try {
+      if (typeof BackupManager !== 'undefined' && typeof BackupManager.computeBackupRecencyState === 'function') {
+        state = BackupManager.computeBackupRecencyState() || 'never';
+      }
+    } catch (_) { /* keep default */ }
+    if (STATES.indexOf(state) === -1) state = 'never';
+
+    // Swap the state class — remove all four, add the matching one.
+    for (var i = 0; i < STATES.length; i++) {
+      buttonEl.classList.remove('backup-cloud-btn--' + STATES[i]);
+    }
+    buttonEl.classList.add('backup-cloud-btn--' + state);
+
+    // Update the title text (textual a11y-safe equivalent of the color signal).
+    var labelLastBackup = (typeof t === 'function' ? t('overview.chip.lastBackup') : '') || 'Last backup';
+    var labelNever      = (typeof t === 'function' ? t('overview.chip.never')      : '') || 'never';
+    var sep = ' · ';
+    var relText = labelNever;
+    try {
+      var raw = localStorage.getItem('portfolioLastExport');
+      if (raw && typeof window.formatRelativeTime === 'function') {
+        var rel = window.formatRelativeTime(Number(raw));
+        if (rel) relText = rel;
+      }
+    } catch (_) { /* keep never */ }
+    buttonEl.setAttribute('title', labelLastBackup + sep + relText);
+  }
+
+  /**
    * Phase 24 Plan 08 — Install unsaved-changes guard on the top-of-page brand link.
    *
    * The brand-link element exists on every page that uses the standard header.
@@ -543,6 +589,25 @@ window.App = (() => {
     mountBackupCloudButton(); // Phase 25 Plan 02 (D-08) — cloud icon entry point to the Backup & Restore modal
     initSettingsLink(); // Phase 22 — gear-icon entry point to ./settings.html
     initBrandLinkGuard(); // Phase 24 Plan 08 — protect against logo-click data loss on dirty form
+
+    // Phase 25 Plan 04 (D-13 / D-14) — refresh cloud icon state on initial load,
+    // and install a visibilitychange + app:language listener pair so the
+    // icon's color/title stay in sync with the underlying recency.
+    // Listener installation is idempotent via a static flag on initCommon.
+    updateBackupCloudState(document.getElementById('backupCloudBtn'));
+    if (!initCommon._backupVisibilityListenerInstalled) {
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') {
+          updateBackupCloudState(document.getElementById('backupCloudBtn'));
+        }
+      });
+      document.addEventListener('app:language', function () {
+        // Re-render title text on language switch (the state class is unchanged,
+        // but the localized "Last backup" / "never" strings need to re-flow).
+        updateBackupCloudState(document.getElementById('backupCloudBtn'));
+      });
+      initCommon._backupVisibilityListenerInstalled = true;
+    }
     // initLicenseLink removed per D-03 — license key icon no longer in header
 
     // Phase 22: eager-load therapist settings BEFORE setLanguage, so the first
@@ -835,6 +900,20 @@ window.App = (() => {
   }
 
   function checkBackupReminder() {
+    // Phase 25 Plan 04 (D-15 / D-19) — when a backup schedule is active, the
+    // scheduled interval-end prompt IS the reminder. The 7-day banner is
+    // suppressed entirely so the two channels never compete.
+    //
+    // BackupManager may not be loaded on every page (only pages that include
+    // backup.js); guard the call. If BackupManager throws inside the helper,
+    // fall through to the legacy banner path (defensive: pages without backup
+    // data still get the reminder).
+    try {
+      if (typeof BackupManager !== 'undefined' && typeof BackupManager.getScheduleIntervalMs === 'function') {
+        if (BackupManager.getScheduleIntervalMs() !== null) return;
+      }
+    } catch (_) { /* defensive: fall through to legacy banner behavior */ }
+
     const snoozedUntil = localStorage.getItem("portfolioBackupSnoozedUntil");
     if (snoozedUntil && Date.now() < Number(snoozedUntil)) return; // Still snoozed
 
@@ -1176,6 +1255,12 @@ window.App = (() => {
     initThemeToggle,
     initLicenseLink,
     mountBackupCloudButton: mountBackupCloudButton,
+    updateBackupCloudState: updateBackupCloudState,
+    // Phase 25 Plan 04 Task 3 — test seams for the D-15/D-19 behavior gate
+    // (tests/25-04-banner-suppression.test.js). No in-browser behavior
+    // change; the functions are still called internally as before.
+    checkBackupReminder: checkBackupReminder,
+    showBackupBanner: showBackupBanner,
 
     // UI utilities
     showToast,

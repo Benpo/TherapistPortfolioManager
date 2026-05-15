@@ -305,6 +305,14 @@ window.I18N.en = {
   "backup.action.import": "Choose backup file",
   "backup.modal.scheduleFooter": "Set up a schedule in Settings → Backups so you don’t have to remember.",
 
+  // Phase 25 Plan 04 — cloud icon title-text fragments (D-13). The KEY NAMES
+  // are kept under the overview.chip.* namespace for code-stability (also
+  // referenced from Plan 02's mountBackupCloudButton title fallback path).
+  // No chip DOM element exists — these strings drive the cloud icon's title.
+  "overview.chip.lastBackup": "Last backup",
+  "overview.chip.never": "never",
+  "overview.chip.separator": " · ",
+
   // Phase 25 Plan 03 — Test-backup-password dry-run (D-12)
   "backup.action.testPassword": "Test backup password",
   "backup.testPassword.heading": "Test backup password",
