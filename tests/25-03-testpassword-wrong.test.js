@@ -149,7 +149,10 @@ await test('OperationError → REJECTS with backup.testPassword.wrongPassphrase'
     caught = err;
   }
   assert.ok(caught, 'expected testBackupPassword to reject on OperationError');
-  assert.ok(caught instanceof Error, 'rejection must be an Error instance');
+  // Note: `instanceof Error` is unreliable across vm realms — backup.js runs in
+  // its own context, so the Error constructor differs. We assert on the duck-
+  // typed shape (has a string `.message`) instead.
+  assert.strictEqual(typeof caught.message, 'string', 'rejection must expose a .message string');
   const msg = caught.message || '';
   const acceptable = (msg === WRONG_PASS_KEY) || (msg === WRONG_PASS_EN_FALLBACK);
   assert.ok(acceptable,

@@ -165,7 +165,9 @@ async function test(name, fn) {
 
 function assertRejectMessage(err, acceptableKey, acceptableFallback, label) {
   assert.ok(err, label + ': expected reject but got resolve');
-  assert.ok(err instanceof Error, label + ': rejection must be an Error');
+  // Note: `instanceof Error` is unreliable across vm realms — backup.js runs in
+  // its own context. We duck-type on the .message string instead.
+  assert.strictEqual(typeof err.message, 'string', label + ': rejection must expose a .message string');
   const msg = err.message || '';
   const ok = (msg === acceptableKey) || (msg === acceptableFallback);
   assert.ok(ok,

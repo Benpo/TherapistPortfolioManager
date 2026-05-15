@@ -124,7 +124,23 @@ window.BackupManager = (function () {
       // Phase 25 Plan 01 — Share affordance (D-02, D-03)
       'backup.action.share': 'Share backup',
       'backup.share.title': 'Sessions Garden backup',
-      'backup.share.fallback.body': 'Backup downloaded to your Downloads folder. Please attach {filename} to this email manually.'
+      'backup.share.fallback.body': 'Backup downloaded to your Downloads folder. Please attach {filename} to this email manually.',
+      // Phase 25 Plan 03 — Test-backup-password dry-run (D-12).
+      // ALL 10 keys live in this fallbacks map so testBackupPassword resolves
+      // its reject messages BEFORE App is initialized. The 6 reject-path keys
+      // (run / success / wrongPassphrase / notEncrypted / invalid / heading)
+      // plus the 4 UI keys (action + helper + filePlaceholder + passwordPlaceholder)
+      // are listed in <interfaces> in 25-03-PLAN.md.
+      'backup.action.testPassword': 'Test backup password',
+      'backup.testPassword.heading': 'Test backup password',
+      'backup.testPassword.helper': 'Check that you can decrypt a backup file with your password. Your current data is not touched.',
+      'backup.testPassword.filePlaceholder': 'Drop a backup file here, or click to choose one.',
+      'backup.testPassword.passwordPlaceholder': 'Backup password',
+      'backup.testPassword.run': 'Test password',
+      'backup.testPassword.success': 'Decrypted successfully. Backup from {date} — {clients} clients, {sessions} sessions.',
+      'backup.testPassword.wrongPassphrase': "That password didn't decrypt this file. Double-check the password you used when creating the backup, or try a different file.",
+      'backup.testPassword.notEncrypted': "This file isn't an encrypted backup, so no password is needed. You can import it directly from the Import section.",
+      'backup.testPassword.invalid': "This file isn't a valid Sessions Garden backup. Try a different file."
     };
     return fallbacks[key] || key;
   }
@@ -761,6 +777,78 @@ window.BackupManager = (function () {
   }
 
   // ---------------------------------------------------------------------------
+  // Phase 25 Plan 03 — testBackupPassword: dry-run safety net (D-12, T-25-03-01)
+  //
+  // Verifies a backup file decrypts with the given passphrase WITHOUT touching
+  // IndexedDB or localStorage. The user's current data is NEVER mutated.
+  //
+  // Contract (load-bearing — tests/25-03-testpassword-no-mutation.test.js
+  // is the falsifiable assertion):
+  //   - NO call to db.clearAll / addClient / addSession / setTherapistSetting /
+  //     updateSnippet.
+  //   - NO localStorage.setItem('portfolio*') call (no false-positive "last
+  //     export" advance, no settings.language / settings.theme overwrite).
+  //   - Returns a memory-only result object describing the manifest header.
+  //
+  // Reject paths surface honest, distinct error messages (i18n keys resolved
+  // via _t with EN fallbacks):
+  //   - File extension !== 'sgbackup' (.zip / .json / etc.) → notEncrypted.
+  //     This is the V5 input-validation defense (T-25-03-04): we never call
+  //     _decryptBlob on a non-encrypted file.
+  //   - _decryptBlob returns null (magic bytes mismatch)       → invalid.
+  //   - crypto.subtle.decrypt throws OperationError            → wrongPassphrase.
+  //   - JSZip.loadAsync resolves but backup.json is missing    → invalid.
+  //   - backup.json parses but JSON.parse throws               → invalid.
+  // ---------------------------------------------------------------------------
+
+  async function testBackupPassword(file, passphrase) {
+    if (!file) throw new Error(_t('backup.testPassword.invalid'));
+    var name = file.name || '';
+    var ext = name.split('.').pop().toLowerCase();
+    if (ext !== 'sgbackup') {
+      throw new Error(_t('backup.testPassword.notEncrypted'));
+    }
+    var zipBlob;
+    try {
+      zipBlob = await _decryptBlob(file, passphrase);
+    } catch (err) {
+      if (err && err.name === 'OperationError') {
+        throw new Error(_t('backup.testPassword.wrongPassphrase'));
+      }
+      throw err;
+    }
+    if (!zipBlob) {
+      // _decryptBlob returns null when SGBACKUP_MAGIC does not match — the
+      // file claims to be .sgbackup but its header bytes say otherwise.
+      throw new Error(_t('backup.testPassword.invalid'));
+    }
+    var arrayBuffer = await zipBlob.arrayBuffer();
+    var zip = await JSZip.loadAsync(arrayBuffer);
+    var jsonFile = zip.file('backup.json');
+    if (!jsonFile) {
+      throw new Error(_t('backup.testPassword.invalid'));
+    }
+    var text = await jsonFile.async('string');
+    var manifest;
+    try {
+      manifest = JSON.parse(text);
+    } catch (_) {
+      throw new Error(_t('backup.testPassword.invalid'));
+    }
+    // Memory-only result. NOT calling normalizeManifest deliberately: that
+    // function mutates its argument with defensive defaults — we want the
+    // raw manifest header for the result, and an undefined clients/sessions
+    // array is treated as count 0.
+    return {
+      ok: true,
+      manifestVersion: manifest.version || null,
+      exportedAt: manifest.exportedAt || null,
+      clientCount: Array.isArray(manifest.clients) ? manifest.clients.length : 0,
+      sessionCount: Array.isArray(manifest.sessions) ? manifest.sessions.length : 0
+    };
+  }
+
+  // ---------------------------------------------------------------------------
   // importBackup — accept a File, detect format, restore
   // ---------------------------------------------------------------------------
 
@@ -1109,6 +1197,7 @@ window.BackupManager = (function () {
     importBackup: importBackup,
     shareBackup: shareBackup,
     isShareSupported: isShareSupported,
+    testBackupPassword: testBackupPassword,
     pickBackupFolder: pickBackupFolder,
     autoSaveToFolder: autoSaveToFolder,
     normalizeManifest: normalizeManifest,
