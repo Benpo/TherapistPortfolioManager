@@ -481,9 +481,15 @@ await test('Scenario 3: Delete-all failed path → showToast("", "photos.deleteA
 //   - The rendered DOM text contains the substituted byte count.
 // ────────────────────────────────────────────────────────────────────
 
-await test('Scenario 4: UAT-C3 — storage line renders via App.t("photos.usage.body")', async function () {
-  // Use a Hebrew-style translated value so we can prove substitution worked
-  // through the i18n key (not the English literal).
+await test('Scenario 4: UAT-C3 — storage line renders via an i18n verdict key (not an English literal)', async function () {
+  // Phase 25 round-5 supersession (Change 3, 2026-05-15): UAT-C3's
+  // contract is "the storage line is ROUTED THROUGH i18n, not a
+  // hardcoded English literal". Change 3 folded a 3-tier verdict into
+  // that line, so the key is now photos.usage.compact/.optional/.
+  // recommended (selected by estimatePhotoSavings) instead of the flat
+  // photos.usage.body. A 37.5 KB photo (< 100 KB optimize threshold)
+  // estimates 0 savings ⇒ the "compact" verdict. The i18n-routing +
+  // {size} substitution + translated-prefix contract is unchanged.
   const ctx = makeSandbox({
     elementIds: [
       'photosStorageUsage',
@@ -499,6 +505,10 @@ await test('Scenario 4: UAT-C3 — storage line renders via App.t("photos.usage.
     ],
     confirmResult: true,
     tValues: {
+      // Hebrew-style verdict value so substitution-through-the-key is provable.
+      'photos.usage.compact': 'התמונות תופסות {size} מאחסון הדפדפן. כבר קומפקטיות.',
+      'photos.usage.optional': 'התמונות תופסות {size} מאחסון הדפדפן. אפשר לפנות {savings}.',
+      'photos.usage.recommended': 'התמונות תופסות {size} מאחסון הדפדפן. מומלץ לפנות {savings}.',
       'photos.usage.body': 'התמונות תופסות {size} מאחסון הדפדפן.',
       'photos.optimize.savingsPreview': 'Estimated savings: ~{size}',
       'photos.usage.unavailable': 'Storage usage is not available in this browser.',
@@ -509,10 +519,11 @@ await test('Scenario 4: UAT-C3 — storage line renders via App.t("photos.usage.
   // setup; wait for the microtask chain to settle.
   await new Promise(function (r) { setTimeout(r, 20); });
 
-  // Assert App.t was called with the new i18n key.
+  // Assert App.t was called with an i18n verdict key (not the English literal).
   const tCallKeys = ctx.tCalls.map(function (c) { return c[0]; });
-  if (tCallKeys.indexOf('photos.usage.body') === -1) {
-    throw new Error('App.t was never called with "photos.usage.body"; got ' + JSON.stringify(tCallKeys));
+  const verdictKeys = ['photos.usage.compact', 'photos.usage.optional', 'photos.usage.recommended', 'photos.usage.body'];
+  if (!verdictKeys.some(function (k) { return tCallKeys.indexOf(k) !== -1; })) {
+    throw new Error('App.t was never called with an i18n storage-verdict key (' + verdictKeys.join('/') + '); got ' + JSON.stringify(tCallKeys));
   }
 
   // Assert the DOM textContent does NOT contain the old English template fragment.

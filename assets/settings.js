@@ -2124,6 +2124,17 @@ window.SettingsPage = (function () {
   // sub-KB is "not worth showing as bytes," KB-scale is worth showing.
   var ESTIMATE_DISPLAY_FLOOR_BYTES = 1024; // 1 KB
 
+  // Phase 25 round-5 post-UAT (Change 3, 2026-05-15) — the
+  // optimize-estimate VERDICT threshold. Folded into the storage-usage
+  // line as a 3-tier verdict recomputed on every refreshPhotosTab:
+  //   S < ESTIMATE_DISPLAY_FLOOR_BYTES (1 KB)      → "already compact"
+  //   ESTIMATE_DISPLAY_FLOOR_BYTES ≤ S < this (2 MB) → "optional"
+  //   S ≥ OPTIMIZE_RECOMMEND_THRESHOLD_BYTES (2 MB) → "recommended"
+  // 2 MB is the point where shrinking photos is worth a deliberate
+  // recommendation (a few hundred KB is "nice to have"; multi-MB is a
+  // meaningful local-storage + app-speed win for a therapist on a phone).
+  var OPTIMIZE_RECOMMEND_THRESHOLD_BYTES = 2 * 1024 * 1024; // 2 MB
+
   /**
    * estimatePhotoSavings — per-photo savings estimate with a threshold
    * gate. Photos already at or below PHOTO_OPTIMIZED_BYTES_THRESHOLD
@@ -2264,6 +2275,10 @@ window.SettingsPage = (function () {
       // floor so the UI layers (refreshPhotosTab + handleOptimize) share
       // the same value (D-30 single-source) and tests can read it back.
       ESTIMATE_DISPLAY_FLOOR_BYTES: ESTIMATE_DISPLAY_FLOOR_BYTES,
+      // Round-5 post-UAT (Change 3): the "recommended" verdict threshold
+      // (2 MB). Single-source so refreshPhotosTab's 3-tier verdict and any
+      // future caller agree, and tests can read it back.
+      OPTIMIZE_RECOMMEND_THRESHOLD_BYTES: OPTIMIZE_RECOMMEND_THRESHOLD_BYTES,
     };
   }
 
@@ -2358,21 +2373,20 @@ window.SettingsPage = (function () {
 
     if (hasPhotos) {
       usageEl.removeAttribute('data-i18n');
-      // UAT-C3: route storage line through i18n key `photos.usage.body` (no
-      // English fallback literal — `tt` returns the i18n value or the key
-      // string if missing, never an English template).
-      var template = tt('photos.usage.body', 'photos.usage.body');
-      usageEl.textContent = template.replace('{size}', readHumanBytes(displayBytes));
-      // Estimated savings preview — Plan 12 post-UAT (round 1, bug 3):
-      // per-photo threshold heuristic via __PhotosTabHelpers.estimatePhotoSavings
-      // (D-30 single-source with handleOptimize).
+      // Phase 25 round-5 post-UAT (Change 3, 2026-05-15) — fold a 3-tier
+      // optimize VERDICT into the storage-usage line, recomputed on every
+      // refreshPhotosTab() call. Replaces the standalone savings-preview /
+      // "Minimal savings expected" line (UAT-C3's photos.usage.body is
+      // kept as a back-compat fallback but the live render now selects
+      // compact / optional / recommended):
       //
-      // Round-2 fix (Change B, 2026-05-15): when the estimate is below
-      // ESTIMATE_DISPLAY_FLOOR_BYTES (~1 KB), render the friendly i18n
-      // string `photos.optimize.minimal` instead of a tiny byte count
-      // ("0 B" / "500 B"). The Optimize button stays clickable — the
-      // metadata-stripping pass may still save a handful of bytes — but
-      // we don't promise a measurable savings number in the UI.
+      //   S < ESTIMATE_DISPLAY_FLOOR_BYTES (1 KB)   → photos.usage.compact
+      //   1 KB ≤ S < OPTIMIZE_RECOMMEND (2 MB)       → photos.usage.optional
+      //   S ≥ OPTIMIZE_RECOMMEND_THRESHOLD (2 MB)    → photos.usage.recommended
+      //
+      // Estimate routes through __PhotosTabHelpers.estimatePhotoSavings
+      // (D-30 single-source with handleOptimize). {size} = total photo
+      // storage; {savings} = estimated freeable bytes.
       var _ph = (typeof window !== 'undefined' && window.__PhotosTabHelpers) || null;
       var estimated = (_ph && typeof _ph.estimatePhotoSavings === 'function')
         ? _ph.estimatePhotoSavings(clients)
@@ -2380,18 +2394,33 @@ window.SettingsPage = (function () {
       var floorBytes = (_ph && typeof _ph.ESTIMATE_DISPLAY_FLOOR_BYTES === 'number')
         ? _ph.ESTIMATE_DISPLAY_FLOOR_BYTES
         : 1024;
-      if (previewEl) {
-        if (estimated >= floorBytes) {
-          previewEl.removeAttribute('hidden');
-          var prevTemplate = tt('photos.optimize.savingsPreview', 'Estimated savings: ~{size}');
-          previewEl.textContent = prevTemplate.replace('{size}', '~' + readHumanBytes(estimated));
-        } else {
-          // Sub-floor estimate — show the friendly minimal-savings text
-          // and keep the preview visible (no "0 B" noise, but the user
-          // still sees what to expect if they click Optimize).
-          previewEl.removeAttribute('hidden');
-          previewEl.textContent = tt('photos.optimize.minimal', 'Minimal savings expected');
-        }
+      var recommendBytes = (_ph && typeof _ph.OPTIMIZE_RECOMMEND_THRESHOLD_BYTES === 'number')
+        ? _ph.OPTIMIZE_RECOMMEND_THRESHOLD_BYTES
+        : 2 * 1024 * 1024;
+
+      var verdictKey, verdictFallback;
+      if (estimated < floorBytes) {
+        verdictKey = 'photos.usage.compact';
+        verdictFallback = 'Photos use {size} of your browser storage. Already compact — optimizing won\'t help.';
+      } else if (estimated < recommendBytes) {
+        verdictKey = 'photos.usage.optional';
+        verdictFallback = 'Photos use {size} of your browser storage. Optimizing could free about {savings} (optional).';
+      } else {
+        verdictKey = 'photos.usage.recommended';
+        verdictFallback = 'Photos use {size} of your browser storage. Optimizing could free about {savings} — recommended.';
+      }
+      var verdictTemplate = tt(verdictKey, verdictFallback);
+      usageEl.textContent = verdictTemplate
+        .replace('{size}', readHumanBytes(displayBytes))
+        .replace('{savings}', readHumanBytes(estimated));
+
+      // The standalone savings-preview line is absorbed into the verdict
+      // above. Keep #photosOptimizePreview hidden during a normal render —
+      // handleOptimize (UAT-D4) still writes the post-optimize result
+      // there for ~8s, so we don't remove the element, just clear it.
+      if (previewEl && !previewEl.classList.contains('photos-savings-preview--result')) {
+        previewEl.textContent = '';
+        previewEl.setAttribute('hidden', '');
       }
     } else {
       usageEl.setAttribute('data-i18n', 'photos.usage.unavailable');
