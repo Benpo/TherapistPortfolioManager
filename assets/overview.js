@@ -117,42 +117,56 @@ function closeBackupModal() {
 }
 
 /**
- * Export flow — preserves the Phase 22-15 encrypt-or-skip behavior verbatim,
- * capturing the resulting blob+filename for the optional `afterExport` hook
- * (Share button chain).
+ * Export flow — preserves the Phase 22-15 encrypt-or-skip behavior, capturing
+ * the resulting blob+filename for the optional `afterExport` hook (Share-button
+ * chain).
  *
- * HONEST-BODY (D-02): in the encrypted branch, exportEncryptedBackup downloads
- * the file inside its own promise and DOES NOT return the encrypted blob. Plan 02
- * cannot plumb the encrypted blob into Share without re-prompting the passphrase,
- * so the Share button is EXPLICITLY HIDDEN after an encrypted export completes.
- * Plan 08's refactor of exportEncryptedBackup to return { blob, filename } is what
- * re-enables the encrypted-share path; until then, no visible-but-broken UX ships.
+ * Plan 08 refactor: exportEncryptedBackup now resolves to an object shape
+ * { ok, skip, cancelled, blob, filename } instead of the legacy tri-state
+ * (true / false / 'cancel'). This closes Plan 02's deferred limitation — the
+ * encrypted path now exposes the encrypted blob+filename so the Share button
+ * can chain through it (D-04 inheritance for BOTH share paths).
+ *
+ *   result.cancelled === true → user dismissed; abort silently.
+ *   result.skip      === true → user pressed Skip Encryption; we run the
+ *                                unencrypted exportBackup path ourselves and
+ *                                capture the unencrypted blob for Share.
+ *   result.ok        === true → encrypted backup downloaded; result.blob is
+ *                                the encrypted blob, result.filename the
+ *                                .sgbackup name. Share button chains through.
  */
 async function openExportFlow(opts) {
   opts = opts || {};
-  const shareBtn = document.getElementById('backupModalShare');
   try {
-    const encrypted = await BackupManager.exportEncryptedBackup();
-    if (encrypted === 'cancel') return null;
+    const result = await BackupManager.exportEncryptedBackup();
+    if (result.cancelled) return null;
     let producedBlob = null;
     let producedFilename = null;
-    if (encrypted === false) {
-      // Skip-encryption path: capture blob, leave Share visibility to the probe.
-      const result = await BackupManager.exportBackup();
-      BackupManager.triggerDownload(result.blob, result.filename);
+    if (result.skip) {
+      // Skip-encryption path: produce the unencrypted ZIP ourselves so Share
+      // can chain through (and so autoSaveToFolder writes the unencrypted ZIP
+      // when the user has a folder picked).
+      const unenc = await BackupManager.exportBackup();
+      BackupManager.triggerDownload(unenc.blob, unenc.filename);
       if (BackupManager.isAutoBackupActive()) {
-        await BackupManager.autoSaveToFolder(result.blob, result.filename);
+        await BackupManager.autoSaveToFolder(unenc.blob, unenc.filename);
       }
+      producedBlob = unenc.blob;
+      producedFilename = unenc.filename;
+    } else if (result.ok) {
+      // Encrypted path: the .sgbackup file was downloaded inside
+      // exportEncryptedBackup; result.blob is the encrypted blob and
+      // result.filename is the .sgbackup name — we forward both into the
+      // afterExport hook so the Share button shares the ENCRYPTED file.
       producedBlob = result.blob;
       producedFilename = result.filename;
-      probeShareSupport();
-    } else {
-      // encrypted === true: file was downloaded inside exportEncryptedBackup.
-      // We do NOT have the encrypted blob in scope — Plan 08 refactors this.
-      // HONEST BODY: hide the Share button explicitly so the user never sees
-      // a broken affordance.
-      if (shareBtn) shareBtn.classList.add('is-hidden');
     }
+    // Reprobe Share-button visibility AFTER the export completes — the button
+    // is gated only by the platform capability check (navigator.canShare with
+    // a real .sgbackup probe), not by which path the user took. This unhides
+    // the Share button for BOTH encrypted and skip-encryption paths once a
+    // valid blob is in producedBlob.
+    probeShareSupport();
     App.showToast('', 'toast.exportSuccess');
     renderLastBackupSubtitle();
     // Phase 25 Plan 04 (D-08/D-13) — refresh cloud icon color + title text
@@ -208,6 +222,10 @@ async function openImportFlow(file) {
 if (typeof window !== 'undefined') {
   window.openBackupModal = openBackupModal;
   window.renderLastBackupSubtitle = renderLastBackupSubtitle;
+  // Phase 25 Plan 08 — expose openExportFlow for cross-file invocation
+  // (encrypt-then-share behavior test sandbox; future programmatic invocation
+  // from scheduled-backup interval-end prompt or command palette).
+  window.openExportFlow = openExportFlow;
 }
 
 function getDailyQuote(lang) {
