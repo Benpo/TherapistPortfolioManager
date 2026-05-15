@@ -2574,5 +2574,23 @@ window.SettingsPage = (function () {
 
   if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', bindPhotosTab);
+    // Phase 25 Plan 12 post-UAT fix (bug 4, 2026-05-15): refreshPhotosTab
+    // sets usageEl.textContent directly and removes the data-i18n
+    // attribute (so applyTranslations() does not try to replace the
+    // substituted value with the bare template at next setLanguage()
+    // pass). The trade-off: applyTranslations() also won't re-render the
+    // storage line when the language changes. Listen on the `app:language`
+    // custom event (dispatched by app.js setLanguage at line 126) and
+    // re-run refreshPhotosTab so the storage line picks up the new
+    // locale's "photos.usage.body" / "photos.usage.unavailable" template
+    // along with the rest of the UI. The re-run is idempotent — the same
+    // clients are fetched, the same DOM elements are populated.
+    document.addEventListener('app:language', function () {
+      // refreshPhotosTab is async but the listener doesn't need to await;
+      // applyTranslations() runs synchronously and the photo-tab re-render
+      // can complete in its own microtask without blocking the rest of
+      // the language switch.
+      try { refreshPhotosTab(); } catch (_) {}
+    });
   }
 })();
