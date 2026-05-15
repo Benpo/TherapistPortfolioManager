@@ -49,7 +49,7 @@ New capabilities outside this domain (in-app onboarding/help, full IDB encryptio
 - **D-13:** **Passive "last backup" status surface lives on the cloud icon in the top header (D-08)**, color-thresholded. Always present (the icon is constant — color is the signal). The icon's BACKGROUND/FILL color encodes recency; no separate chip element. **Updated 2026-05-15** (was: "passive chip on overview"). Reason: combining entry point and status into one tap target removes redundancy and frees overview real-estate. Tooltip / `title` attribute reads "Last backup · {relative time}" so the textual status is still discoverable without color vision.
 - **D-14:** **Color thresholds (applied to the cloud icon's background / fill) couple to schedule state:**
   - Schedule OFF (default): green ≤7 days, warning (yellow) ≤14 days, danger (red) >14 days.
-  - Schedule ON: green ≤ chosen interval, warning ≤ interval × 1.5, danger > interval × 2.
+  - Schedule ON: green ≤ chosen interval, warning > interval AND ≤ interval × 2, danger > interval × 2. (Updated 2026-05-15 — Ben confirmed 3-color intent; the (1.5×, 2×] gap in the original phrasing resolves as 'warning'.)
   - "Never backed up": neutral / muted state (grey outline, no fill) — distinct from danger so first-time users aren't alarmed.
 - **D-15:** **Schedule ↔ banner ↔ icon coupling:**
   - Schedule OFF: existing 7-day reminder banner stays as today. Cloud icon color provides passive signal in the header.

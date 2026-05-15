@@ -79,7 +79,7 @@ Phase 25 uses the project's existing semantic tokens (defined in `assets/tokens.
 | Secondary (30%) | `--color-surface-alt` + `--color-surface-secondary-btn` + `--color-primary-soft` | `#fdf7ed` cream-alt / `#e8f5ee` green-soft | `#253030` panel-alt / `#253030` soft | Backup-contents checklist row backgrounds; Test-password sub-card background; Settings tab strip; chip default (Schedule-OFF / fresh) background |
 | Accent (10%) | `--color-primary` | `#2d6a4f` garden green | `#5aacac` soft teal | Primary CTA "Export backup" button; "Pick backup folder" button; "Optimize all photos" button; chip "fresh" left-border accent; tab.is-active border-block-end |
 | Destructive | `--color-danger` + `--color-danger-bg` + `--color-danger-text` | `#ea4b4b` red / `#f8d7da` bg / `#721c24` text | same red on `#ea4b4b` / dark-mode bg through soft overlay | Import-section destructive warning ("⚠ Replaces all current data"); "Delete all photos" button; chip "danger" state (>14 days OFF, >interval×2 ON) |
-| Warning | `--color-warning-bg` + `--color-warning-text` | `#fff3cd` / `#856404` | inherited (dark mode reads through) | Chip "warning" state (>7 days OFF / >interval×1.5 ON); Test-password "wrong passphrase" inline error background; "Save this password somewhere safe" callout in scheduled-backup setup |
+| Warning | `--color-warning-bg` + `--color-warning-text` | `#fff3cd` / `#856404` | inherited (dark mode reads through) | Cloud-icon "warning" state (>7d & ≤14d OFF / >interval & ≤interval×2 ON); Test-password "wrong passphrase" inline error background; "Save this password somewhere safe" callout in scheduled-backup setup |
 | Success | `--color-success-bg` + `--color-success-text` + `--color-success-border` | `#e6f4ea` / `#1e6b3a` / `#4caf50` | `#1f3a2a` / `#b6e5c4` / `#4caf50` | Chip "fresh" state (≤7 days OFF / ≤interval ON); Test-password "Decrypted successfully" toast; Optimize-photos success toast |
 
 **Accent reserved-for list (the 10% — explicit; never "all interactive elements"):**
@@ -271,7 +271,7 @@ The thresholds below are applied to the **header cloud icon button's `background
 |-------|-------------------|------------------|---------------------|---------------------|
 | `--never` | `--color-surface-subtle` (or transparent w/ 1px `--color-border` outline) | `--color-text-muted` | no `portfolioLastExport` key | same |
 | `--fresh` | `--color-success-bg` | `--color-success-text` | ≤ 7 days | ≤ chosen interval |
-| `--warning` | `--color-warning-bg` | `--color-warning-text` | 7 < x ≤ 14 days | interval < x ≤ interval × 1.5 |
+| `--warning` | `--color-warning-bg` | `--color-warning-text` | 7 < x ≤ 14 days | interval < x ≤ interval × 2 |
 | `--danger` | `--color-danger-bg` | `--color-danger-text` | > 14 days | > interval × 2 |
 
 CSS class naming: `.backup-cloud-btn--never` / `--fresh` / `--warning` / `--danger`, applied to the `#backupCloudBtn` element. State updated via the same helper that previously updated the chip — `BackupManager.computeBackupRecencyState()` returns the state string; the consumer toggles the class.
