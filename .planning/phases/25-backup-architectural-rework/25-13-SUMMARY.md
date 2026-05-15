@@ -220,3 +220,178 @@ Open `index.html` in Safari. Click the header cloud icon to open the Backup & Re
 When verification is complete: paste the 3 screenshots into the placeholders above and either:
 1. Type `approved` and commit the updated SUMMARY, OR
 2. Describe which item fails and what you see — Plan 25-13 will reopen for a round-2 fix.
+
+---
+
+## Round-5 post-UAT fixes (Ben 2026-05-15)
+
+Ben re-tested the full build in Safari and surfaced six remaining open
+items. This is the consolidated record for ALL six round-5 changes (they
+span plans 25-09 / 25-12 / 25-13; their SUMMARYs cross-reference here).
+Each change has a falsifiable behavior test committed RED-first
+(`8146ba0`) then GREEN.
+
+| # | Item | Type | RED | GREEN | Tests |
+| - | ---- | ---- | --- | ----- | ----- |
+| 1 | UAT-D2 — backup modal opens IN-PLACE on every page (no bounce to index.html) | behavior | `8146ba0` | `f6a9f71` | `tests/25-09-modal-global-inplace.test.js` (4/4); CR-01 `tests/25-09-schedule-debounce-no-modal.test.js` 4/4 still GREEN |
+| 2 | C1 — delete-all confirm split into two lines (4 locales) | i18n+css+behavior | `8146ba0` | `d172a6d` | `tests/25-12-deleteall-confirm-split.test.js` (9/9) |
+| 3 | Optimize verdict — 3-tier storage-usage line (compact/optional/recommended) | behavior+i18n | `8146ba0` | `41bc7a4` | `tests/25-12-optimize-verdict.test.js` (22/22) |
+| 4 | UAT-D6 — spacing drop-zone → password input → Check button | css-audit | `8146ba0` | `8eb3f49` | `tests/25-13-css-audit.test.js` (14/14) |
+| 5 | UAT-D7 — real gap on the actual action-row container | css-audit | `8146ba0` | `8eb3f49` (folded; container gap already present) | `tests/25-13-css-audit.test.js` |
+| 6 | UAT-F1 — RTL-correct alignment for photos buttons | css-audit | `8146ba0` | `574f3b9` | `tests/25-13-css-audit.test.js` |
+
+### Change 1 — UAT-D2 (plan 25-09 lineage): in-place modal on every page
+
+**Root cause:** the modal markup lived only in `index.html` and its
+handlers + `window.openBackupModal` only in `overview.js`. On
+settings/add-client/add-session the header cloud-icon click (app.js ~475)
+found no `window.openBackupModal` and did
+`window.location.href='./index.html?openBackup=1'` — a navigation, not an
+in-place open.
+
+**Fix:** new page-agnostic **`assets/backup-modal.js`** owns:
+- the modal markup (injected into `<body>` only when `#backupModal` is
+  absent — index.html's static copy still wins; no duplicate),
+- every handler (export/import/share/test-password/close/Esc/`?openBackup=1`),
+- `window.openBackupModal` / `closeBackupModal` / `renderLastBackupSubtitle`
+  / `openExportFlow` / `formatRelativeTime`.
+
+Loaded on index/settings/add-client/add-session (with `jszip.min.js` +
+`backup.js` added where missing); added to `sw.js` precache (`backup-modal.js`).
+`overview.js` now only registers `window.__afterBackupRestore` so an
+in-place restore re-renders the overview list (other pages reload).
+`checkBackupSchedule` (backup.js) was already structured to call
+`window.openBackupModal()` in-place first, with the CR-01 `if (opened)`
+debounce gate + redirect fallback intact — now that the symbol is global
+the schedule prompt opens in-place wherever the user is. CR-01 regression
+(`tests/25-09-schedule-debounce-no-modal.test.js`) stays 4/4 GREEN.
+
+**Rule 1 supersession:** `tests/25-08-encrypt-then-share.test.js` and
+`tests/25-08-single-source-audit.test.js` re-pointed from `overview.js` to
+`backup-modal.js` (the encrypt-then-share + shareBackup single-source
+behavior contract is unchanged; only the owning file moved).
+
+### Change 2 — C1 (plan 25-12 lineage): two-line delete-all confirm
+
+`photos.deleteAll.confirm.body` now reads as two visually separate lines,
+Ben's exact he/en wording + faithful de/cs (D-28 4-locale parity kept):
+a `\n` separator authored into all 4 bodies + `.confirm-body
+{ white-space: pre-line }` so the newline renders as two lines
+(App.confirmDialog renders the body via `.textContent`).
+
+### Change 3 — Optimize verdict (plan 25-12 lineage)
+
+3-tier verdict folded into the Photos-tab storage-usage line, recomputed
+every `refreshPhotosTab` (and on `app:language`):
+`S < 1 KB` → `photos.usage.compact` ("Already compact — won't help"),
+`1 KB ≤ S < 2 MB` → `photos.usage.optional`,
+`S ≥ 2 MB` → `photos.usage.recommended`.
+New `OPTIMIZE_RECOMMEND_THRESHOLD_BYTES = 2*1024*1024` exposed on
+`__PhotosTabHelpers` (D-30 single-source). 3 new i18n keys × 4 locales
+(HE therapist-natural; D-28 parity). `photos.usage.body` kept as
+back-compat fallback. The standalone `#photosOptimizePreview`
+minimal/savings line is absorbed into the verdict; the element is kept for
+the UAT-D4 post-optimize result pill.
+
+**Rule 1 supersession:** `tests/25-12-optimize-estimate-floor.test.js`,
+`tests/25-11-toast-behavior.test.js` (Scenario 4 / UAT-C3), and
+`tests/25-12-photos-usage-language-rerender.test.js` re-pointed from the
+standalone preview / `photos.usage.body` to the verdict line. The
+underlying contracts (sub-KB shows no raw byte noise; storage line is
+i18n-routed not an English literal; re-renders on `app:language`) are
+preserved.
+
+### Changes 4 & 5 — UAT-D6 + UAT-D7 (plan 25-13)
+
+`.backup-test-password-card` became a flex column with
+`gap: var(--space-md, 16px)` — ONE spacing source for every stacked
+control (heading → helper → drop zone → password input → Check button →
+result). This closes D6 (input↔button was flush) AND the D7 "no space
+between buttons" in that cluster. The drop-zone's now-redundant
+per-element `margin-block-end` is set to `0` so the gap isn't doubled.
+The Export/Import action rows already declare
+`.backup-modal-button-row { gap: var(--space-sm) }` and nothing resets it
+— the round-5 D7 audit asserts this against the **real** container
+selector present in `index.html` (the round-3 miss was asserting a
+non-applied class). D7 has no separate code change beyond the shared card
+gap, so it folded into the D6 commit `8eb3f49`.
+
+**Rule 1 supersession:** the round-3 D6 audit asserted the per-element
+`margin-block-end`; it now asserts the container gap (≥16px
+drop-zone↔input contract preserved; mechanism moved), with a back-compat
+fallback to the old per-element form.
+
+### Change 6 — UAT-F1 (plan 25-13): RTL-correct photos buttons
+
+Round-3's `align-self: flex-start` + `html[dir="rtl"] { align-self:
+flex-end }` did not flip in Hebrew — `flex-start`/`flex-end` are
+flex-flow relative, not writing-mode relative, so on a column flex
+container's cross axis they did not respect `dir="rtl"`. Replaced with
+`align-self: start` (the `start`/`end` keywords ARE `dir`/writing-mode
+relative) + `margin-inline-end: auto` (logical property). Direction-correct
+with NO `html[dir="rtl"]` override — LTR → left, RTL → right.
+
+### Why behavior tests, not shape-grep
+
+Per `feedback-behavior-verification.md`: Changes 1 and 3 are exercised in
+vm-sandbox DOM (modal injection + cloud-icon click → no navigation;
+verdict tier selection driven through a mocked `estimatePhotoSavings` at
+0 / 500 / 800 KB / 5 MB). Change 2 asserts the exact he/en sentences +
+the runtime `#confirmMessage` keeps the `\n`. Changes 4/5/6 are CSS;
+Change 5's audit asserts against the **real** `.backup-modal-button-row`
+container present in `index.html` (verified by a guard that the Export
+button lives inside that div), not a non-applied class.
+
+### Files touched (round-5)
+
+- **created:** `assets/backup-modal.js`,
+  `tests/25-09-modal-global-inplace.test.js`,
+  `tests/25-12-deleteall-confirm-split.test.js`,
+  `tests/25-12-optimize-verdict.test.js`
+- **modified:** `assets/overview.js`, `assets/settings.js`,
+  `assets/app.css`, `assets/i18n-{en,he,de,cs}.js`,
+  `index.html`, `settings.html`, `add-client.html`, `add-session.html`,
+  `sw.js` (precache + CACHE_NAME auto-bumped v173→v177 across commits),
+  `tests/25-13-css-audit.test.js`,
+  `tests/25-08-encrypt-then-share.test.js`,
+  `tests/25-08-single-source-audit.test.js`,
+  `tests/25-12-optimize-estimate-floor.test.js`,
+  `tests/25-11-toast-behavior.test.js`,
+  `tests/25-12-photos-usage-language-rerender.test.js`
+
+No `STATE.md` / `ROADMAP.md` changes (orchestrator owns those).
+
+### Round-5 commits
+
+| # | Type | Hash | Summary |
+| - | ---- | ---- | ------- |
+| 1 | RED | `8146ba0` | round-5 behavior tests (D2/C1/verdict/D6/D7/F1) |
+| 2 | fix | `f6a9f71` | D2 — backup modal on every page, opens in-place |
+| 3 | fix | `d172a6d` | C1 — delete-all confirm split into two lines (4 locales) |
+| 4 | feat | `41bc7a4` | optimize verdict — 3-tier storage-usage line |
+| 5 | fix | `8eb3f49` | D6 (+D7 cluster) — test-password card spacing |
+| 6 | fix | `574f3b9` | F1 — RTL-correct photos-button alignment |
+
+### Round-5 verification result
+
+```
+$ for t in tests/25-*.test.js; do node "$t" >/dev/null 2>&1 || echo FAIL $t; done
+(no output — 42/42 Phase 25 test files GREEN)
+$ node tests/25-09-schedule-debounce-no-modal.test.js   # CR-01 gate
+Plan 09 schedule-debounce-no-modal tests — 4 passed, 0 failed
+$ for t in tests/*.test.js; do node "$t" >/dev/null 2>&1 || echo FAIL $t; done
+(no output — entire repo suite 58/58 GREEN; 24-* 11/11 GREEN)
+```
+
+### Self-Check (round-5)
+
+Files claimed created:
+- `assets/backup-modal.js` — FOUND
+- `tests/25-09-modal-global-inplace.test.js` — FOUND
+- `tests/25-12-deleteall-confirm-split.test.js` — FOUND
+- `tests/25-12-optimize-verdict.test.js` — FOUND
+
+Commits claimed (verified in `git log`): `8146ba0`, `f6a9f71`,
+`d172a6d`, `41bc7a4`, `8eb3f49`, `574f3b9` — all FOUND.
+
+**Round-5 Self-Check: PASSED**
