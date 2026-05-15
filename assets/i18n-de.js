@@ -395,6 +395,7 @@ window.I18N.de = {
   "schedule.frequency.helperOn": "Eine Backup-Aufforderung erscheint, wenn dieses Intervall verstreicht. Das 7-Tage-Banner ist stummgeschaltet, während ein Zeitplan aktiv ist.",
   "schedule.password.callout": "Geplante Backups erfordern ein Backup-Passwort. Sie werden bei jeder Aufforderung danach gefragt. Bewahren Sie dieses Passwort sicher auf — wir können es nicht wiederherstellen.",
   "schedule.password.ackedLabel": "Ich habe ein Backup-Passwort und habe es sicher gespeichert.",
+  "schedule.password.ackedShort": "Ich habe ein Backup-Passwort.",
   "schedule.password.required": "Bitte bestätigen Sie, dass Sie ein Backup-Passwort haben, bevor Sie einen Zeitplan aktivieren.",
   "schedule.savedToast": "Zeitplan aktualisiert.",
   "schedule.disableConfirm.title": "Geplante Backups deaktivieren?",

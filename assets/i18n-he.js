@@ -395,6 +395,7 @@ window.I18N.he = {
   "schedule.frequency.helperOn": "תופיע בקשת גיבוי כאשר המרווח חולף. באנר 7-הימים מושתק כל עוד פעיל לוח זמנים.",
   "schedule.password.callout": "גיבויים מתוזמנים דורשים סיסמת גיבוי. הסיסמה תידרש בכל הופעת בקשת גיבוי. שמירת הסיסמה במקום בטוח — לא ניתן לשחזר אותה.",
   "schedule.password.ackedLabel": "יש לי סיסמת גיבוי והיא מאוחסנת במקום בטוח.",
+  "schedule.password.ackedShort": "יש לי סיסמת גיבוי.",
   "schedule.password.required": "נא לאשר שיש לך סיסמת גיבוי לפני הפעלת לוח זמנים.",
   "schedule.savedToast": "לוח הזמנים עודכן.",
   "schedule.disableConfirm.title": "כיבוי גיבויים מתוזמנים?",

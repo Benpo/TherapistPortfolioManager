@@ -2399,10 +2399,43 @@ window.SettingsPage = (function () {
         .replace('{success}', String(result.success))
         .replace('{failed}', String(result.failed))
         .replace('{size}', readHumanBytes(result.savedBytes));
+
+      // Phase 25 Plan 12 UAT-D4: surface the savings number INLINE next to
+      // the Optimize button so the cause→effect link is obvious. The toast
+      // remains as a secondary cross-page signal. The inline pill persists
+      // for 8 seconds — enough to read the savings number even on a slow
+      // glance. refreshPhotosTab() runs FIRST (which can re-populate the
+      // preview element with the pre-flight savings line); we then
+      // overwrite it with the result message and re-arm the persistence
+      // timer so the result wins over the pre-flight estimate.
+      await refreshPhotosTab();
+      var inlinePreview = $('photosOptimizePreview');
+      if (inlinePreview) {
+        // Stop any previous pre-flight rendering from claiming the slot.
+        inlinePreview.removeAttribute('data-i18n');
+        inlinePreview.removeAttribute('hidden');
+        inlinePreview.textContent = msg;
+        inlinePreview.classList.add('photos-savings-preview--result');
+        if (typeof window !== 'undefined' && window.__photosOptimizeResultTimer) {
+          try { clearTimeout(window.__photosOptimizeResultTimer); } catch (_) {}
+        }
+        var clearTimer = setTimeout(function () {
+          var el = $('photosOptimizePreview');
+          if (el) {
+            el.classList.remove('photos-savings-preview--result');
+            el.textContent = '';
+            el.setAttribute('hidden', '');
+          }
+        }, 8000);
+        if (typeof window !== 'undefined') window.__photosOptimizeResultTimer = clearTimer;
+      }
+
+      // Keep the toast for cross-page legibility — same shape Plan 11
+      // settled on (literal msg in arg 0, '' in arg 1 because the message
+      // is already an i18n-resolved + substituted string).
       if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
         App.showToast(msg, '');
       }
-      await refreshPhotosTab();
     } catch (err) {
       if (typeof console !== 'undefined' && console.error) console.error('Optimize all failed:', err);
       if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
