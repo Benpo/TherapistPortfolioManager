@@ -1321,18 +1321,44 @@ window.BackupManager = (function () {
     catch (_) { lastPrompt = 0; }
     if (now - lastPrompt < 60 * 60 * 1000) return;
 
-    try { localStorage.setItem(lastPromptKey, String(now)); } catch (_) {}
-
-    // Open the unified Backup & Restore modal (Plan 02 exposes
-    // window.openBackupModal). The modal's Export section IS the
-    // interval-end prompt — clicking Export routes through the encrypt-or-skip
-    // flow, which then asks for the scheduled-backup password (D-18 — never
-    // persisted, re-prompted every fire).
+    // CR-01 fix (Plan 09): gate the debounce write on a SUCCESSFUL prompt path.
+    // Pre-fix the stamp was written unconditionally here, which silently
+    // consumed the 1-hour debounce on every non-overview page (the
+    // openBackupModal symbol only ships on index.html). The fix:
+    //   1. Try to open the modal in-place (happy path when overview.js is loaded).
+    //   2. ELSE redirect to ./index.html?openBackup=1 — overview.js auto-opens
+    //      the modal from this URL param (the redirect IS the prompt).
+    //   3. ELSE (already on overview but modal genuinely missing — pathological)
+    //      do NOT advance the stamp so the NEXT visit can still fire.
+    // Each window-touching branch has its own try/catch so a thrown
+    // SecurityError / DOMException on a hardened-iframe page leaves the
+    // function safely no-op rather than half-committed.
+    var opened = false;
     try {
       if (typeof window !== 'undefined' && typeof window.openBackupModal === 'function') {
         window.openBackupModal();
+        opened = true;
       }
     } catch (_) {}
+
+    if (!opened) {
+      try {
+        if (typeof window !== 'undefined' && window.location && typeof window.location.pathname === 'string') {
+          var pathname = window.location.pathname;
+          // Already on overview (index.html or '/') AND no modal — no redirect
+          // helps; leave debounce intact for the next visit.
+          var onOverview = (/index\.html$/.test(pathname)) || (pathname === '/');
+          if (!onOverview) {
+            window.location.href = './index.html?openBackup=1';
+            opened = true;
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (opened) {
+      try { localStorage.setItem(lastPromptKey, String(now)); } catch (_) {}
+    }
   }
 
   /**
