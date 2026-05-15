@@ -2095,6 +2095,50 @@ window.SettingsPage = (function () {
     return (n / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
+  // Phase 25 Plan 12 post-UAT fix (bug 3, 2026-05-15) — per-photo
+  // "already-optimized" threshold. A photo that has been through the
+  // resize-to-800px @ q=0.75 pipeline typically lands in the 30-80 KB
+  // range. Anything below 100 KB is treated as already-optimized and
+  // contributes 0 to the savings estimate. Photos at or above 100 KB
+  // are assumed to have ~60% room to shrink (matches the historical
+  // heuristic, but now applied per-photo instead of to the total).
+  //
+  // Why a constant (vs. a deeper dry-run): a true dry-run would decode
+  // every photo, run resizeToMaxDimension, encode, and measure — that
+  // is expensive enough to delay the confirm dialog noticeably for
+  // larger portfolios. The threshold heuristic is fast, schema-free,
+  // and accurate enough for the user-facing "Estimated savings: ~XX"
+  // line; the actual loop still only persists when the new size is
+  // strictly smaller, so the heuristic can never cause data corruption.
+  var PHOTO_OPTIMIZED_BYTES_THRESHOLD = 100 * 1024; // 100 KB
+
+  /**
+   * estimatePhotoSavings — per-photo savings estimate with a threshold
+   * gate. Photos already at or below PHOTO_OPTIMIZED_BYTES_THRESHOLD
+   * contribute 0 (they are assumed already-optimized).
+   *
+   * @param {Array<{photoData?:string, photo?:string}>} clients
+   * @returns {number} estimated saved bytes
+   */
+  function estimatePhotoSavings(clients) {
+    if (!Array.isArray(clients)) return 0;
+    var total = 0;
+    for (var i = 0; i < clients.length; i++) {
+      var c = clients[i] || {};
+      var photo = c.photoData || c.photo;
+      if (typeof photo !== 'string') continue;
+      if (photo.indexOf('data:') !== 0) continue;
+      var commaIdx = photo.indexOf(',');
+      if (commaIdx < 0) continue;
+      var b64 = photo.slice(commaIdx + 1);
+      var bytes = Math.floor(b64.length * 0.75);
+      if (bytes > PHOTO_OPTIMIZED_BYTES_THRESHOLD) {
+        total += Math.floor(bytes * 0.6);
+      }
+    }
+    return total;
+  }
+
   // ── dataURL ↔ Blob conversion (both directions for the optimize loop). ──
   function dataURLToBlob(dataURL) {
     var commaIdx = dataURL.indexOf(',');
@@ -2198,6 +2242,12 @@ window.SettingsPage = (function () {
       humanBytes: humanBytes,
       dataURLToBlob: dataURLToBlob,
       blobToDataURL: blobToDataURL,
+      // Plan 12 post-UAT fix (bug 3): per-photo savings estimator used
+      // by handleOptimize for the confirm-dialog estimate. Replaces the
+      // flat photoBytes*0.6 heuristic that produced stale estimates
+      // after the first optimize pass.
+      estimatePhotoSavings: estimatePhotoSavings,
+      PHOTO_OPTIMIZED_BYTES_THRESHOLD: PHOTO_OPTIMIZED_BYTES_THRESHOLD,
     };
   }
 
@@ -2297,10 +2347,17 @@ window.SettingsPage = (function () {
       // string if missing, never an English template).
       var template = tt('photos.usage.body', 'photos.usage.body');
       usageEl.textContent = template.replace('{size}', readHumanBytes(displayBytes));
-      // Estimated savings preview (heuristic 60% reduction; show only when
-      // there's enough storage at stake for the preview to be meaningful).
-      if (previewEl && photoBytes > 100 * 1024) {
-        var estimated = Math.floor(photoBytes * 0.6);
+      // Estimated savings preview — Plan 12 post-UAT fix (bug 3): same
+      // per-photo threshold heuristic the confirm dialog uses (D-30
+      // single-source via __PhotosTabHelpers.estimatePhotoSavings).
+      // Hide the preview entirely when the heuristic returns 0 — that
+      // signals all photos are already at or below the optimized
+      // threshold, so re-running optimize would do nothing visible.
+      var _ph = (typeof window !== 'undefined' && window.__PhotosTabHelpers) || null;
+      var estimated = (_ph && typeof _ph.estimatePhotoSavings === 'function')
+        ? _ph.estimatePhotoSavings(clients)
+        : Math.floor(photoBytes * 0.6);
+      if (previewEl && estimated > 0) {
         previewEl.removeAttribute('hidden');
         var prevTemplate = tt('photos.optimize.savingsPreview', 'Estimated savings: ~{size}');
         previewEl.textContent = prevTemplate.replace('{size}', '~' + readHumanBytes(estimated));
@@ -2353,9 +2410,24 @@ window.SettingsPage = (function () {
         photoCount++;
       }
     }
-    // Match the 60% reduction heuristic used by refreshPhotosTab's
-    // savingsPreview line (D-30 single-source).
-    var estimatedSavings = Math.floor(photoBytes * 0.6);
+    // Phase 25 Plan 12 post-UAT fix (bug 3, 2026-05-15): use the
+    // per-photo threshold heuristic from __PhotosTabHelpers.estimatePhotoSavings
+    // instead of the flat `photoBytes * 0.6`. Already-optimized photos
+    // (each below PHOTO_OPTIMIZED_BYTES_THRESHOLD = 100 KB) contribute 0
+    // to the estimate, so a second optimize click after the photos have
+    // been shrunk shows a near-zero estimate instead of the stale MB-scale
+    // number the flat heuristic produced. The actual loop still only
+    // persists when the new size is strictly smaller, so the estimate
+    // remains advisory — it can never cause data corruption.
+    var _photosHelpers = (typeof window !== 'undefined' && window.__PhotosTabHelpers) || null;
+    var estimatedSavings;
+    if (_photosHelpers && typeof _photosHelpers.estimatePhotoSavings === 'function') {
+      estimatedSavings = _photosHelpers.estimatePhotoSavings(clients);
+    } else {
+      // Defensive fallback (should never hit in production — the helper
+      // is exported above and runs in the same settings.js bundle).
+      estimatedSavings = Math.floor(photoBytes * 0.6);
+    }
     var estimatedSavingsLabel = readHumanBytes(estimatedSavings);
 
     var confirmed = false;
