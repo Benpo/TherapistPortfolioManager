@@ -51,10 +51,13 @@
           <p class="page-helper" data-i18n="settings.page.helper">Customize the app to your workflow. Changes are saved on this device.</p>
         </header>
 
-        <!-- Phase 24 Plan 05 — Tab navigation between the two settings topics -->
+        <!-- Phase 24 Plan 05 — Tab navigation between the settings topics.
+             Phase 25 Plan 05 adds the "Backups" and "Photos" tabs. -->
         <div class="settings-tabs" role="tablist" aria-label="Settings sections">
           <button type="button" role="tab" id="settingsTabFieldsBtn" class="settings-tab is-active" aria-selected="true" aria-controls="settingsTabFields" data-tab="fields" data-i18n="settings.tab.fields">Custom field names</button>
           <button type="button" role="tab" id="settingsTabSnippetsBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabSnippets" data-tab="snippets" tabindex="-1" data-i18n="settings.tab.snippets">Text Snippets</button>
+          <button type="button" role="tab" id="settingsTabBackupsBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabBackups" data-tab="backups" tabindex="-1" data-i18n="settings.tab.backups">Backups</button>
+          <button type="button" role="tab" id="settingsTabPhotosBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabPhotos" data-tab="photos" tabindex="-1" data-i18n="settings.tab.photos">Photos</button>
         </div>
 
         <div id="settingsTabFields" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabFieldsBtn">
@@ -140,6 +143,54 @@
             <div id="snippetList" class="snippets-list" aria-live="polite"></div>
             <p id="snippetListEmpty" class="helper-text is-hidden" data-i18n="snippets.list.empty">No snippets match the current filters.</p>
           </section>
+        </div>
+
+        <!-- Phase 25 Plan 05 — Backups tab (frequency selector, password-mandatory gate, folder picker, ON→OFF confirm). -->
+        <div id="settingsTabBackups" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabBackupsBtn" hidden>
+          <header class="page-header">
+            <h3 class="section-title" data-i18n="schedule.heading">Scheduled backups</h3>
+            <p class="page-helper section-helper" data-i18n="schedule.helper">Schedule regular backup reminders and pick where to save them.</p>
+          </header>
+
+          <div class="form-field backup-schedule-frequency">
+            <label class="label" for="scheduleFrequencySelect" data-i18n="schedule.frequency.label">Backup frequency</label>
+            <select class="input select-field" id="scheduleFrequencySelect">
+              <option value="off" data-i18n="schedule.frequency.off">Off</option>
+              <option value="daily" data-i18n="schedule.frequency.daily">Daily</option>
+              <option value="weekly" data-i18n="schedule.frequency.weekly">Weekly</option>
+              <option value="monthly" data-i18n="schedule.frequency.monthly">Monthly</option>
+              <option value="custom" data-i18n="schedule.frequency.custom">Custom (days)</option>
+            </select>
+            <div class="form-field" id="scheduleCustomDaysWrapper" hidden>
+              <label class="label" for="scheduleCustomDays" data-i18n="schedule.frequency.customDaysLabel">Days</label>
+              <input class="input" type="number" id="scheduleCustomDays" min="1" max="365" value="7" />
+            </div>
+            <p class="helper-text" id="scheduleFrequencyHelper" data-i18n="schedule.frequency.helperOff">You will see a reminder banner if you haven't backed up in 7 days.</p>
+          </div>
+
+          <div class="backup-reminder-banner schedule-password-callout" id="schedulePasswordCallout" role="note">
+            <p data-i18n="schedule.password.callout">Scheduled backups require a backup password. You'll be asked for it each time the prompt appears. Save this password somewhere safe — we cannot recover it.</p>
+            <label class="form-field schedule-password-acked-row">
+              <input type="checkbox" id="schedulePasswordAcked" />
+              <span data-i18n="schedule.password.ackedLabel">I have a backup password and have stored it safely.</span>
+            </label>
+            <p class="error-text is-hidden" id="schedulePasswordError" role="alert" data-i18n="schedule.password.required">Please confirm you have a backup password before enabling a schedule.</p>
+          </div>
+
+          <div class="form-field backup-schedule-folder" id="scheduleFolderField">
+            <label class="label" data-i18n="schedule.folder.label">Backup folder</label>
+            <p class="helper-text" data-i18n="schedule.folder.helper">Optional. The next time you save a scheduled backup, your browser will suggest this folder.</p>
+            <p class="helper-text" id="scheduleFolderState" data-i18n="schedule.folder.empty">No folder chosen.</p>
+            <button type="button" class="button" id="scheduleFolderPickBtn" data-i18n="schedule.folder.pick">Pick backup folder</button>
+            <p class="helper-text is-hidden" id="scheduleFolderUnsupported" data-i18n="schedule.folder.unsupported">Folder picking is only available in Chromium-based browsers (Chrome, Edge, Brave).</p>
+          </div>
+        </div>
+
+        <!-- Phase 25 Plan 05 — Photos tab SHELL. Plan 07 fills the body. -->
+        <div id="settingsTabPhotos" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabPhotosBtn" hidden>
+          <header class="page-header">
+            <h3 class="section-title" data-i18n="settings.tab.photos">Photos</h3>
+          </header>
         </div>
       </main>
     </div>
