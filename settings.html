@@ -297,6 +297,16 @@
   <script src="./assets/app.js"></script>
   <!-- Phase 25 Plan 07 — Photos tab needs CropModule.resizeToMaxDimension for optimize-all. -->
   <script src="./assets/crop.js"></script>
+  <!--
+    Phase 25 Plan 08 fix-up: load backup.js on settings.html so the Plan 05
+    Backups-tab handlers (BackupManager.canEnableSchedule + checkBackupSchedule
+    + schedule-disable confirm + password-mandatory enforcement) are actually
+    active. Plan 05 wrote `typeof BackupManager !== 'undefined'` guards that
+    silently no-op'd because no script tag here exposed BackupManager. The
+    Backups tab is unusable without this — adding the script restores the
+    intended behavior.
+  -->
+  <script src="./assets/backup.js"></script>
   <script src="./assets/snippets.js" defer></script>
   <script src="./assets/settings.js"></script>
   <script>
