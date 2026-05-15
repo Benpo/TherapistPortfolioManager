@@ -33,6 +33,12 @@ function readSrc(rel) {
 
 const backupJs    = readSrc('assets/backup.js');
 const overviewJs  = readSrc('assets/overview.js');
+// Phase 25 round-5 (Change 1 / UAT-D2): the Backup & Restore modal Share
+// button + its afterExport→shareBackup chain moved from overview.js into
+// the page-agnostic backup-modal.js so the modal opens in-place on every
+// page. The D-30 single-source contract (shareBackup defined in backup.js,
+// one consumer) is unchanged — only the consuming file moved.
+const backupModalJs = readSrc('assets/backup-modal.js');
 const appJs       = readSrc('assets/app.js');
 const settingsJs  = readSrc('assets/settings.js');
 const addClientJs = readSrc('assets/add-client.js');
@@ -131,9 +137,11 @@ check('BACKUP_CONTENTS_KEYS exposed on BackupManager public API',
 // ===========================================================================
 // D-30 HELPER 5: BackupManager.shareBackup
 //
-// Defined in backup.js. Consumed by overview.js (Plan 02 modal Share button +
-// Plan 08 encrypted-then-share path). The same shareBackup is called from
-// both encrypted and skip-encryption afterExport callbacks — D-30 single-source.
+// Defined in backup.js. Consumed by backup-modal.js (Plan 02 modal Share
+// button + Plan 08 encrypted-then-share path; relocated from overview.js in
+// the Phase 25 round-5 UAT-D2 in-place-modal rework). The same shareBackup
+// is called from both encrypted and skip-encryption afterExport callbacks —
+// D-30 single-source.
 // ===========================================================================
 
 check('shareBackup defined in backup.js',
@@ -142,8 +150,8 @@ check('shareBackup defined in backup.js',
 check('shareBackup exposed on BackupManager public API',
   /shareBackup\s*:\s*shareBackup/.test(backupJs));
 
-check('shareBackup consumed by overview.js (modal Share button afterExport)',
-  /BackupManager\.shareBackup\s*\(/.test(overviewJs));
+check('shareBackup consumed by backup-modal.js (modal Share button afterExport)',
+  /BackupManager\.shareBackup\s*\(|BM\.shareBackup\s*\(/.test(backupModalJs));
 
 // ===========================================================================
 // D-30 NEGATIVE — sendToMyself fully purged (Plan 01 D-01 closure)
@@ -154,6 +162,9 @@ check('sendToMyself fully purged from backup.js (D-01)',
 
 check('sendToMyself fully purged from overview.js (D-01)',
   !/sendToMyself/.test(overviewJs));
+
+check('sendToMyself fully purged from backup-modal.js (D-01)',
+  !/sendToMyself/.test(backupModalJs));
 
 // ===========================================================================
 // D-30 NEGATIVE — no rogue canvas-API pipelines in settings.js or db.js

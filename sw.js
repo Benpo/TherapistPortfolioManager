@@ -22,6 +22,7 @@ const PRECACHE_URLS = [
   '/assets/app.css',
   '/assets/jszip.min.js',
   '/assets/backup.js',
+  '/assets/backup-modal.js',
   '/assets/shared-chrome.js',
   '/assets/app.js',
   '/assets/db.js',

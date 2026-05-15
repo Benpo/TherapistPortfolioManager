@@ -70,13 +70,29 @@ function makeDom(opts) {
       get innerHTML() { return this._html; },
       set innerHTML(v) {
         this._html = String(v);
-        // Parse only the ids we care about so getElementById works after inject.
+        // Parse the ids declared in the markup so getElementById works
+        // after inject. The first id-bearing top-level element is the
+        // injected modal (id="backupModal"); model it as a child node.
         const ids = [];
         const re = /id="([^"]+)"/g;
         let m;
         while ((m = re.exec(this._html)) !== null) ids.push(m[1]);
         this._parsedIds = ids;
+        // Synthesize the root node so .firstElementChild works (browser
+        // parity: setting innerHTML builds a child tree).
+        this._children = [];
+        if (/<div id="backupModal"/.test(this._html)) {
+          const root = makeEl('div');
+          root.id = 'backupModal';
+          root._parsedIds = ids;
+          // classList from the markup so closeBackupModal / openBackupModal
+          // .classList.remove('is-hidden') has something to act on.
+          root.classList.add('is-hidden');
+          this._children.push(root);
+        }
       },
+      get firstElementChild() { return this._children[0] || null; },
+      get firstChild() { return this._children[0] || null; },
       setAttribute(k, v) { this._attrs.set(k, String(v)); if (k === 'id') this._id = String(v); },
       getAttribute(k) { return this._attrs.has(k) ? this._attrs.get(k) : null; },
       removeAttribute(k) { this._attrs.delete(k); },
