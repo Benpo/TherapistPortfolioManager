@@ -101,6 +101,13 @@
     <script src="./assets/db.js"></script>
   <script src="./assets/shared-chrome.js"></script>
   <script src="./assets/app.js"></script>
+  <!-- Quick 260516-1f5: load backup.js so the header cloud icon's
+       recency color is derived from the last-backup timestamp (was
+       always grey here because BackupManager was undefined). Trio
+       mirrors the 4 working pages; also opens the modal in-place. -->
+  <script src="./assets/jszip.min.js"></script>
+  <script src="./assets/backup.js"></script>
+  <script src="./assets/backup-modal.js"></script>
   <script src="./assets/sessions.js"></script>
   <script>
     if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
