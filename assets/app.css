@@ -3669,3 +3669,17 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   color: var(--color-warning-text, #856404);
   border-inline-start: 4px solid var(--color-warning-text, #856404);
 }
+
+/* Phase 25 Plan 07 — Photos Settings tab body (D-24 / D-25).
+ * Reuses .form-field / .helper-text / .button / .button.danger / .section-title;
+ * these three utility classes are the only new style hooks. */
+.photos-storage-usage {
+  font-size: 1rem;
+}
+.photos-savings-preview {
+  color: var(--color-success-text, #1e6b3a);
+  font-weight: 700;
+}
+.photos-empty {
+  font-style: italic;
+}
