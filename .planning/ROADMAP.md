@@ -519,7 +519,7 @@ Plans:
 - Pre-commit hook still auto-bumps `sw.js` CACHE_NAME on asset commits.
 
 **Depends on:** Phase 24 (the launch-blocker bug fixes need to land first so Phase 25 can ship cleanly on top).
-**Plans:** 12/13 plans executed
+**Plans:** 13/13 plans complete
 
 Plans:
 - [x] 25-01-PLAN.md — Send-to-Myself removal + Web Share API integration (D-01..D-04)
@@ -536,7 +536,7 @@ Plans:
 - [x] 25-10-PLAN.md — CR-02: preserve snippetsDeletedSeeds sentinel on restore (wave 9)
 - [x] 25-11-PLAN.md — Hebrew rewordings (CR-03 + UAT-C1/C3/C4/C5/F2/F3) + WR-01 hardcoded English toasts (wave 8)
 - [x] 25-12-PLAN.md — Settings UX: folder-picker removal (UAT-D1), custom-days visibility (UAT-A), optimize placeholders (UAT-C2), save-toast (UAT-D3), inline result (UAT-D4), password-ack stacking (UAT-B) (wave 9)
-- [ ] 25-13-PLAN.md — CSS/layout polish: modal footer link (UAT-D5), drop zone (UAT-D6), button gaps (UAT-D7), photo button sizing (UAT-F1), cloud-icon ring for --fresh (UAT-E1) (wave 10)
+- [x] 25-13-PLAN.md — CSS/layout polish: modal footer link (UAT-D5), drop zone (UAT-D6), button gaps (UAT-D7), photo button sizing (UAT-F1), cloud-icon ring for --fresh (UAT-E1) (wave 10)
 
 **Source TODO:** `2026-05-13-backup-architectural-rework-N7.md` (target_phase updated from 24 → 25).
 
