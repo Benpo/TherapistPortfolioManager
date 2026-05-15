@@ -262,6 +262,61 @@ The 4 implementation tasks are complete and committed (3 GREEN feat commits + 1 
 
 Resume signal: type "approved" if all 6 checks pass; or describe which UAT item still fails.
 
+## Post-UAT fixes (Ben 2026-05-15)
+
+Ben ran the checkpoint UAT in Safari macOS on 2026-05-15 and surfaced **4 real bugs** that the original Plan 12 shape-grep tests missed. Each bug was rooted in a behavior the original tests did not falsifiably assert — they verified the SHAPE of the JS / HTML / CSS but not the EFFECTIVE rendered behavior. The 4 follow-up fixes below close each gap with a falsifiable behavior test that would have caught the bug, plus the minimal code change required.
+
+| # | Bug summary                                                                            | Root cause                                                                                                                | Fix                                                                                  | RED test                                                          | GREEN commit |
+| - | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------- | ------------ |
+| 1 | `#scheduleCustomDaysWrapper` does NOT hide when frequency != 'custom'                  | `.form-field { display: flex }` (app.css:965) wins specificity battle against UA `[hidden] { display: none }`             | `.form-field[hidden] { display: none }` override                                     | `tests/25-12-custom-days-effective-visibility.test.js`            | `8366894`    |
+| 2 | Password-ack checkbox renders INLINE next to the verification text, not below it       | Parent `.backup-reminder-banner` is `flex-wrap: wrap; justify-content: space-between` — form-field shared its flex line   | `.schedule-password-acked-row { width: 100% }` forces the form-field to its own row  | `tests/25-12-password-ack-full-width.test.js`                     | `d3dbe86`    |
+| 3 | "Optimize all photos" estimate stays at "~XX MB" across runs after photos shrink       | `Math.floor(photoBytes * 0.6)` flat heuristic ignores already-optimized photos                                            | New `__PhotosTabHelpers.estimatePhotoSavings(clients)` with per-photo 100KB threshold | `tests/25-12-optimize-stale-estimate.test.js`                     | `a466106`    |
+| 4 | `photos.usage.body` doesn't re-render when the language switches (Hebrew → English)    | `refreshPhotosTab` removes `data-i18n` from `#photosStorageUsage` so `applyTranslations()` skips it on `setLanguage()`    | Add `document.addEventListener('app:language', refreshPhotosTab)` in `bindPhotosTab` | `tests/25-12-photos-usage-language-rerender.test.js`              | `2a2d2a2`    |
+
+### Behavior-test parity (per `feedback-behavior-verification.md`)
+
+Each of the 4 new tests is RED on the pre-fix code and GREEN on the post-fix code — proven by committing the RED test first (commit `9c7d7c5`) and then the fix in a separate commit. The tests are NOT shape-grep regressions on top of the original Plan 12 tests; they add NEW falsifiable assertions:
+
+| New test                                                | Source-grep gate                                                                                  | Runtime-behavior gate                                                                                                                       |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `25-12-custom-days-effective-visibility.test.js`        | app.css must contain a `display: none` override for `.form-field[hidden]` (or equivalent)         | (CSS-only — no runtime gate possible without a browser; the override is the load-bearing fix and is locked down structurally)                |
+| `25-12-password-ack-full-width.test.js`                 | app.css must declare `width: 100%` / `flex-basis: 100%` / `flex: 1 1 100%` on the form-field rule | Root-cause assertion: settings.html still places the callout under `.backup-reminder-banner` (so the fix's `width: 100%` remains necessary) |
+| `25-12-optimize-stale-estimate.test.js`                 | `handleOptimize` must call an `estimate*Savings` helper OR have a per-photo threshold loop        | Two-click vm-sandbox: first click sees 1MB photos → ~600KB estimate; second sees 60KB photos → < 5KB estimate (with bug it stays at 36KB)   |
+| `25-12-photos-usage-language-rerender.test.js`          | photos-tab IIFE must register an `app:language` listener                                          | vm-sandbox: initial render in HE, fire app:language with `en`, assert `usageEl.textContent` contains the English translation (no HE remnant) |
+
+### Why the original Plan 12 tests passed but the bugs were live
+
+The two CSS bugs (1, 2) demonstrate a category of failure the project's saved memory `feedback-behavior-verification.md` already flagged: grep gates verify SHAPE not BEHAVIOR. The original tests asserted:
+
+- "the JS handler toggles the `hidden` attribute on the wrapper" (true — but the attribute had no visual effect)
+- ".schedule-password-acked-row has `display: flex; flex-direction: column`" (true — but the parent flex-row context broke the stacking)
+
+Both assertions are TRUE about the codebase but UNTRUE about the user experience. The new tests assert about the cascade outcome (override rule exists) and the layout-context interaction (parent flex-row + width:100%) — both are still source-grep-level assertions, but they target the FAILURE MODE rather than the SUCCESS PATH structure.
+
+The optimize-estimate bug (3) is an example of a heuristic that's mathematically correct but USER-FACING-WRONG. The Plan 12 placeholders test asserted the dialog gets real numbers — it did. The new test asserts the numbers are SENSIBLE across multiple invocations.
+
+The language re-render bug (4) is a classic stale-listener gap: the initial render path was wired correctly but the re-render hook was forgotten. A simple source-grep for the `app:language` listener would have caught this immediately, but Plan 12's i18n tests focused on the locale parity contract, not on the re-render lifecycle.
+
+### Files touched
+
+- `assets/app.css` — `.form-field[hidden] { display: none }` override (+10 lines); `.schedule-password-acked-row { width: 100% }` (+12 lines).
+- `assets/settings.js` — new helper `estimatePhotoSavings(clients)` exported on `__PhotosTabHelpers` (+47 lines); `handleOptimize` uses helper instead of flat heuristic (~10 lines); `refreshPhotosTab` preview line uses same helper for D-30 consistency (~10 lines); `bindPhotosTab` IIFE registers `app:language` listener (+10 lines).
+- `tests/25-12-custom-days-effective-visibility.test.js` — new, +110 lines.
+- `tests/25-12-password-ack-full-width.test.js` — new, +110 lines.
+- `tests/25-12-optimize-stale-estimate.test.js` — new, +302 lines.
+- `tests/25-12-photos-usage-language-rerender.test.js` — new, +245 lines.
+
+No changes to `STATE.md`, `ROADMAP.md`, or any `i18n-*.js` file (the original Plan 12 i18n contract still holds).
+
+### Verification result
+
+```
+$ for t in tests/25-*.test.js; do node "$t" > /dev/null 2>&1 || echo "FAIL: $t"; done
+(no output — all 51 Phase 24/25 tests pass)
+```
+
+Per-commit pre-commit hook auto-bumped CACHE_NAME across the 4 fix commits: v162 → v163 → v164 → v165 → v166.
+
 ## Self-Check
 
 Created files exist:
@@ -270,11 +325,20 @@ Created files exist:
 - `tests/25-12-folder-picker-removed.test.js`: FOUND
 - `tests/25-12-schedule-saved-toast.test.js`: FOUND
 - `tests/25-12-password-ack-stacking.test.js`: FOUND
+- `tests/25-12-custom-days-effective-visibility.test.js`: FOUND (post-UAT fix)
+- `tests/25-12-password-ack-full-width.test.js`: FOUND (post-UAT fix)
+- `tests/25-12-optimize-stale-estimate.test.js`: FOUND (post-UAT fix)
+- `tests/25-12-photos-usage-language-rerender.test.js`: FOUND (post-UAT fix)
 
 Commits in git log:
-- `6c45e6c`: FOUND
+- `6c45e6c`: FOUND (original Plan 12 RED tests)
 - `d9cbc8f`: FOUND
 - `8908648`: FOUND
 - `40354fa`: FOUND
+- `9c7d7c5`: FOUND (post-UAT 4 RED behavior tests)
+- `8366894`: FOUND (post-UAT bug 1 fix)
+- `d3dbe86`: FOUND (post-UAT bug 2 fix)
+- `a466106`: FOUND (post-UAT bug 3 fix)
+- `2a2d2a2`: FOUND (post-UAT bug 4 fix)
 
 ## Self-Check: PASSED
