@@ -167,7 +167,6 @@ window.I18N.de = {
   "toast.heartShieldRequired": "Bitte auswählen, ob der Herzschutz aufgelöst wurde",
   "toast.importSuccess": "Daten importiert",
   "toast.importError": "Import fehlgeschlagen",
-  "overview.sendBackup": "Backup an mich senden",
   "overview.autoBackup": "Backup-Ordner festlegen",
   "backup.confirmReplace": "Alle aktuellen Daten werden durch das Backup ersetzt. Fortfahren?",
   "toast.exportSuccess": "Backup erfolgreich exportiert",
@@ -276,6 +275,11 @@ window.I18N.de = {
   "backup.passphrase.rules.minLength": "Mindestens 6 Zeichen lang sein",
   "backup.passphrase.rules.notRepeated": "Nicht aus demselben wiederholten Zeichen bestehen",
   "backup.passphrase.rules.notOnlyDigits": "Nicht nur aus Zahlen bestehen",
+
+  // Phase 25 Plan 01 \u2014 Share affordance (D-02, D-03)
+  "backup.action.share": "Backup teilen",
+  "backup.share.title": "Sessions Garden Backup",
+  "backup.share.fallback.body": "Backup wurde in den Download-Ordner geladen. Bitte h\u00e4ngen Sie {filename} manuell an diese E-Mail an.",
 
   // Phase 22 \u2014 Settings page
   "header.settings.label": "Einstellungen",
