@@ -42,7 +42,7 @@ Phase 25 uses **decision IDs (D-XX)** as requirement IDs (Phase 25 has no separa
 | Decision | Plan | Wave | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |----------|------|------|------------|-----------------|-----------|-------------------|-------------|--------|
 | D-01 | 25-01 | 1 | T1 | `BackupManager.sendToMyself` is removed | unit (grep + module export check) | `node tests/25-01-sendToMyself-removed.test.js` | ❌ W0 | ⬜ pending |
-| D-02 | 25-01 | 1 | T2 | `shareBackup(blob, filename)` invokes `navigator.share({files})` when `canShare` returns true | unit (mock navigator) | `node tests/25-01-share-invoke.test.js` | ❌ W0 | ⬜ pending |
+| D-02 | 25-01 | 1 | T2 | `shareBackup(blob, filename)` invokes `navigator.share({files})` when `canShare` returns true; same path also asserts shareBackup never re-encrypts (T2 inheritance) | unit (mock navigator) | `node tests/25-01-share-encryption-inherit.test.js` | ❌ W0 | ⬜ pending |
 | D-02 | 25-01 | 1 | T2 | `shareBackup` falls back to triggerDownload + mailto when `canShare` returns false | unit (mock navigator) | `node tests/25-01-share-fallback.test.js` | ❌ W0 | ⬜ pending |
 | D-04 | 25-08 | 7 | T2 | Share path receives the SAME blob produced by `exportEncryptedBackup` (encrypted-then-share inheritance) | unit (vm sandbox + sentinel blob assertion) | `node tests/25-08-encrypt-then-share.test.js` | ❌ W0 | ⬜ pending |
 | D-09 / D-29 | 25-02 | 2 | — | Backup contents checklist matches `exportBackup` output stores | unit (introspect manifest + checklist) | `node tests/25-02-checklist-store-parity.test.js` | ❌ W0 | ⬜ pending |
@@ -54,7 +54,7 @@ Phase 25 uses **decision IDs (D-XX)** as requirement IDs (Phase 25 has no separa
 | D-18 | 25-05 | 5 | T3 | Schedule cannot be enabled without a password setup; `canEnableSchedule()` returns false until password set | unit | `node tests/25-05-schedule-password-mandatory.test.js` | ❌ W0 | ⬜ pending |
 | D-21 | 25-06 | 1 | T6 | `resizeToMaxDimension(blob, 800, 0.75)` constrains longest edge to 800px (asserted via `createImageBitmap` opts capture) | unit (vm sandbox + stubbed createImageBitmap) | `node tests/25-06-resize-pure.test.js` | ❌ W0 | ⬜ pending |
 | D-22 | 25-06 | 1 | T6 | After photo upload, `clients.photoData` contains only the cropped+resized output (no original blob persisted) | unit (mock IDB write inspection) | `node tests/25-06-crop-only.test.js` | ❌ W0 | ⬜ pending |
-| D-29 | 25-08 | 7 | — | Backup round-trip completeness — export → import → diff every store losslessly | integration (jsdom + fake-indexeddb OR scripted manual) | `node tests/25-08-round-trip.test.js` (or manual UAT script) | ❌ W0 | ⬜ pending |
+| D-29 | 25-08 | 7 | — | Backup round-trip completeness — export → import → diff every store losslessly | integration (jsdom + fake-indexeddb OR scripted manual) | `node tests/25-08-roundtrip-stores.test.js` (or manual UAT script) | ❌ W0 | ⬜ pending |
 | D-30 | 25-08 | 7 | — | Schedule fire and Settings backup-password validator share a single function | unit (assert imports same module export) | `node tests/25-08-single-source-audit.test.js` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
