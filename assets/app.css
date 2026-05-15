@@ -1579,6 +1579,39 @@ html[dir="rtl"] .session-header{
   border-inline-start-color:var(--color-success-border);
 }
 
+/* Phase 25 round-6 (#7, Ben 2026-05-15): .error-text had NO rule at all,
+ * so the schedule-password-required message rendered as invisible-looking
+ * plain text buried in the callout. It now lives directly under the
+ * frequency <select> (locus of the user's action) and reads as a real
+ * error: danger color, semibold, danger-tinted inline-start band. */
+.error-text{
+  color:var(--color-danger-text, #721c24);
+  background:var(--color-danger-bg, #f8d7da);
+  border-inline-start:4px solid var(--color-danger, #ea4b4b);
+  border-radius:8px;
+  padding:var(--space-sm, 8px) var(--space-md, 16px);
+  margin-block:var(--space-sm, 8px);
+  font-weight:600;
+  line-height:1.5;
+}
+
+/* When a blocked frequency change fires, briefly pull the user's eye to
+ * the password callout they need to act on (the error explains WHY; this
+ * shows WHERE). settings.js toggles the class and self-clears it. */
+@keyframes schedule-callout-attention{
+  0%   { box-shadow:0 0 0 0 var(--color-danger-shadow, rgba(234,75,75,0.28)); }
+  60%  { box-shadow:0 0 0 6px var(--color-danger-shadow, rgba(234,75,75,0.28)); }
+  100% { box-shadow:0 0 0 0 var(--color-danger-shadow, rgba(234,75,75,0.28)); }
+}
+.schedule-password-callout--attention{
+  animation:schedule-callout-attention 1s ease-out 2;
+  outline:2px solid var(--color-danger, #ea4b4b);
+  outline-offset:2px;
+}
+@media (prefers-reduced-motion: reduce){
+  .schedule-password-callout--attention{ animation:none; }
+}
+
 .confirm-actions{
   justify-content:flex-end;
   gap:0.75rem;

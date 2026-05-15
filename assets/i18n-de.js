@@ -400,7 +400,7 @@ window.I18N.de = {
   "schedule.password.callout": "Bitte beachten: Geplante Backups erfordern ein Backup-Passwort. Sie werden bei jeder Aufforderung danach gefragt. Bewahren Sie dieses Passwort sicher auf — es kann nicht wiederhergestellt werden.",
   "schedule.password.ackedLabel": "Ich habe ein Backup-Passwort und habe es sicher gespeichert.",
   "schedule.password.ackedShort": "Ich habe ein Backup-Passwort.",
-  "schedule.password.required": "Bitte bestätigen Sie, dass Sie ein Backup-Passwort haben, bevor Sie einen Zeitplan aktivieren.",
+  "schedule.password.required": "Um geplante Backups zu aktivieren, bestätigen Sie zuerst unten, dass Sie ein Backup-Passwort haben.",
   "schedule.savedToast": "Zeitplan aktualisiert.",
   "schedule.disableConfirm.title": "Geplante Backups deaktivieren?",
   "schedule.disableConfirm.body": "Die Erinnerungen kehren zum Standardverhalten zurück. Sie verlieren keine Daten.",

@@ -404,7 +404,7 @@ window.I18N.en = {
   "schedule.password.callout": "Please note: Scheduled backups require a backup password. You'll be asked for it each time the prompt appears. Save this password somewhere safe — it cannot be recovered.",
   "schedule.password.ackedLabel": "I have a backup password and have stored it safely.",
   "schedule.password.ackedShort": "I have a backup password.",
-  "schedule.password.required": "Please confirm you have a backup password before enabling a schedule.",
+  "schedule.password.required": "To enable scheduled backups, first tick the box below confirming you have a backup password.",
   "schedule.savedToast": "Schedule updated.",
   "schedule.disableConfirm.title": "Turn off scheduled backups?",
   "schedule.disableConfirm.body": "Reminders will revert to the default behavior. You will not lose any data.",

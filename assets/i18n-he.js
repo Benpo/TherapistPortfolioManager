@@ -400,7 +400,7 @@ window.I18N.he = {
   "schedule.password.callout": "לתשומת ליבך: גיבויים מתוזמנים דורשים סיסמת גיבוי. הסיסמה תידרש בכל הופעת בקשת גיבוי. יש לשמור את הסיסמה במקום בטוח — לא ניתן לשחזר אותה.",
   "schedule.password.ackedLabel": "יש לי סיסמת גיבוי והיא מאוחסנת במקום בטוח.",
   "schedule.password.ackedShort": "יש לי סיסמת גיבוי.",
-  "schedule.password.required": "נא לאשר שיש לך סיסמת גיבוי לפני הפעלת לוח זמנים.",
+  "schedule.password.required": "כדי להפעיל גיבוי מתוזמן, יש לסמן תחילה את התיבה שלמטה המאשרת שיש לך סיסמת גיבוי.",
   "schedule.savedToast": "לוח הזמנים עודכן.",
   "schedule.disableConfirm.title": "כיבוי גיבויים מתוזמנים?",
   "schedule.disableConfirm.body": "התזכורות יחזרו להתנהגות ברירת המחדל. לא יאבדו נתונים.",

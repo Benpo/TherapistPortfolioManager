@@ -1950,9 +1950,30 @@ window.SettingsPage = (function () {
     if (!gateAllowed) {
       if (ackedErr) ackedErr.classList.remove('is-hidden');
       if (sel) sel.value = prev;
+      // Phase 25 round-6 (#7, Ben 2026-05-15): the error explains WHY the
+      // change bounced; this leads the eye to WHERE to act. Pulse the
+      // password callout + focus the ack checkbox, then self-clear so the
+      // highlight doesn't linger after the user moves on.
+      var callout = $('schedulePasswordCallout');
+      var ackBox = $('schedulePasswordAcked');
+      if (callout) {
+        callout.classList.remove('schedule-password-callout--attention');
+        // reflow so the animation restarts on repeat offences
+        void callout.offsetWidth;
+        callout.classList.add('schedule-password-callout--attention');
+        clearTimeout(applyFrequencyChange._attnTimer);
+        applyFrequencyChange._attnTimer = setTimeout(function () {
+          callout.classList.remove('schedule-password-callout--attention');
+        }, 2200);
+      }
+      if (ackBox && typeof ackBox.focus === 'function') {
+        try { ackBox.focus({ preventScroll: false }); } catch (_) { ackBox.focus(); }
+      }
       return false;
     }
     if (ackedErr) ackedErr.classList.add('is-hidden');
+    var _calloutOk = $('schedulePasswordCallout');
+    if (_calloutOk) _calloutOk.classList.remove('schedule-password-callout--attention');
 
     // ON → OFF requires a neutral-tone confirm (UI-SPEC).
     if (prev !== 'off' && newMode === 'off') {

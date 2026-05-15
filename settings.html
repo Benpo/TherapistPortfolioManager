@@ -161,6 +161,7 @@
               <option value="monthly" data-i18n="schedule.frequency.monthly">Monthly</option>
               <option value="custom" data-i18n="schedule.frequency.custom">Custom (days)</option>
             </select>
+            <p class="error-text is-hidden" id="schedulePasswordError" role="alert" data-i18n="schedule.password.required">To enable scheduled backups, first tick the box below confirming you have a backup password.</p>
             <div class="form-field" id="scheduleCustomDaysWrapper" hidden>
               <label class="label" for="scheduleCustomDays" data-i18n="schedule.frequency.customDaysLabel">Days</label>
               <input class="input" type="number" id="scheduleCustomDays" min="1" max="365" value="7" />
@@ -181,7 +182,6 @@
               <input type="checkbox" id="schedulePasswordAcked" />
               <span class="schedule-password-acked-row__control" data-i18n="schedule.password.ackedLabel">I have a backup password and have stored it safely.</span>
             </label>
-            <p class="error-text is-hidden" id="schedulePasswordError" role="alert" data-i18n="schedule.password.required">Please confirm you have a backup password before enabling a schedule.</p>
           </div>
 
           <!-- Phase 25 Plan 12 UAT-D1: folder picker UI removed.
