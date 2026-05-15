@@ -183,6 +183,7 @@ window.I18N.en = {
   "photos.optimize.heading": "Optimize existing photos",
   "photos.optimize.helper": "Re-process photos that were uploaded before resize-on-upload was added. New uploads are already optimized automatically.",
   "photos.optimize.savingsPreview": "Estimated savings: ~{size}",
+  "photos.optimize.minimal": "Minimal savings expected",
   "photos.optimize.action": "Optimize all photos",
   "photos.optimize.confirm.title": "Optimize {n} photos?",
   "photos.optimize.confirm.body": "This rewrites every photo to a smaller size in your browser. It cannot be undone, but the visual quality stays the same. Estimated savings: ~{size}.",

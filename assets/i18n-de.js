@@ -183,6 +183,7 @@ window.I18N.de = {
   "photos.optimize.heading": "Vorhandene Fotos optimieren",
   "photos.optimize.helper": "Verarbeiten Sie Fotos neu, die vor der automatischen Größenanpassung hochgeladen wurden. Neue Uploads werden bereits automatisch optimiert.",
   "photos.optimize.savingsPreview": "Geschätzte Einsparung: ~{size}",
+  "photos.optimize.minimal": "Nur minimale Einsparungen erwartet",
   "photos.optimize.action": "Alle Fotos optimieren",
   "photos.optimize.confirm.title": "{n} Fotos optimieren?",
   "photos.optimize.confirm.body": "Dies schreibt jedes Foto in kleinerer Größe in Ihrem Browser neu. Kann nicht rückgängig gemacht werden, aber die visuelle Qualität bleibt gleich. Geschätzte Einsparung: ~{size}.",

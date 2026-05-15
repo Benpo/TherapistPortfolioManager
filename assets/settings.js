@@ -2112,6 +2112,18 @@ window.SettingsPage = (function () {
   // strictly smaller, so the heuristic can never cause data corruption.
   var PHOTO_OPTIMIZED_BYTES_THRESHOLD = 100 * 1024; // 100 KB
 
+  // Phase 25 Plan 12 round-2 post-UAT fix (Change B, 2026-05-15) —
+  // display floor for the savings estimate. When estimatePhotoSavings
+  // returns < ESTIMATE_DISPLAY_FLOOR_BYTES, the UI (refreshPhotosTab
+  // inline preview + handleOptimize confirm dialog) renders the
+  // friendly i18n string `photos.optimize.minimal` instead of a tiny
+  // raw byte count. Below ~1 KB the user gains no signal from the
+  // number itself — the optimize button still runs and still saves
+  // ~50 bytes of metadata, but the friendly text is more honest about
+  // the magnitude. 1 KB feels right next to the 100 KB threshold above:
+  // sub-KB is "not worth showing as bytes," KB-scale is worth showing.
+  var ESTIMATE_DISPLAY_FLOOR_BYTES = 1024; // 1 KB
+
   /**
    * estimatePhotoSavings — per-photo savings estimate with a threshold
    * gate. Photos already at or below PHOTO_OPTIMIZED_BYTES_THRESHOLD
@@ -2248,6 +2260,10 @@ window.SettingsPage = (function () {
       // after the first optimize pass.
       estimatePhotoSavings: estimatePhotoSavings,
       PHOTO_OPTIMIZED_BYTES_THRESHOLD: PHOTO_OPTIMIZED_BYTES_THRESHOLD,
+      // Plan 12 round-2 post-UAT fix (Change B): expose the display
+      // floor so the UI layers (refreshPhotosTab + handleOptimize) share
+      // the same value (D-30 single-source) and tests can read it back.
+      ESTIMATE_DISPLAY_FLOOR_BYTES: ESTIMATE_DISPLAY_FLOOR_BYTES,
     };
   }
 
@@ -2347,22 +2363,35 @@ window.SettingsPage = (function () {
       // string if missing, never an English template).
       var template = tt('photos.usage.body', 'photos.usage.body');
       usageEl.textContent = template.replace('{size}', readHumanBytes(displayBytes));
-      // Estimated savings preview — Plan 12 post-UAT fix (bug 3): same
-      // per-photo threshold heuristic the confirm dialog uses (D-30
-      // single-source via __PhotosTabHelpers.estimatePhotoSavings).
-      // Hide the preview entirely when the heuristic returns 0 — that
-      // signals all photos are already at or below the optimized
-      // threshold, so re-running optimize would do nothing visible.
+      // Estimated savings preview — Plan 12 post-UAT (round 1, bug 3):
+      // per-photo threshold heuristic via __PhotosTabHelpers.estimatePhotoSavings
+      // (D-30 single-source with handleOptimize).
+      //
+      // Round-2 fix (Change B, 2026-05-15): when the estimate is below
+      // ESTIMATE_DISPLAY_FLOOR_BYTES (~1 KB), render the friendly i18n
+      // string `photos.optimize.minimal` instead of a tiny byte count
+      // ("0 B" / "500 B"). The Optimize button stays clickable — the
+      // metadata-stripping pass may still save a handful of bytes — but
+      // we don't promise a measurable savings number in the UI.
       var _ph = (typeof window !== 'undefined' && window.__PhotosTabHelpers) || null;
       var estimated = (_ph && typeof _ph.estimatePhotoSavings === 'function')
         ? _ph.estimatePhotoSavings(clients)
         : Math.floor(photoBytes * 0.6);
-      if (previewEl && estimated > 0) {
-        previewEl.removeAttribute('hidden');
-        var prevTemplate = tt('photos.optimize.savingsPreview', 'Estimated savings: ~{size}');
-        previewEl.textContent = prevTemplate.replace('{size}', '~' + readHumanBytes(estimated));
-      } else if (previewEl) {
-        previewEl.setAttribute('hidden', '');
+      var floorBytes = (_ph && typeof _ph.ESTIMATE_DISPLAY_FLOOR_BYTES === 'number')
+        ? _ph.ESTIMATE_DISPLAY_FLOOR_BYTES
+        : 1024;
+      if (previewEl) {
+        if (estimated >= floorBytes) {
+          previewEl.removeAttribute('hidden');
+          var prevTemplate = tt('photos.optimize.savingsPreview', 'Estimated savings: ~{size}');
+          previewEl.textContent = prevTemplate.replace('{size}', '~' + readHumanBytes(estimated));
+        } else {
+          // Sub-floor estimate — show the friendly minimal-savings text
+          // and keep the preview visible (no "0 B" noise, but the user
+          // still sees what to expect if they click Optimize).
+          previewEl.removeAttribute('hidden');
+          previewEl.textContent = tt('photos.optimize.minimal', 'Minimal savings expected');
+        }
       }
     } else {
       usageEl.setAttribute('data-i18n', 'photos.usage.unavailable');
@@ -2428,7 +2457,18 @@ window.SettingsPage = (function () {
       // is exported above and runs in the same settings.js bundle).
       estimatedSavings = Math.floor(photoBytes * 0.6);
     }
-    var estimatedSavingsLabel = readHumanBytes(estimatedSavings);
+    // Phase 25 Plan 12 round-2 post-UAT fix (Change B, 2026-05-15):
+    // when the estimate is below the display floor (~1 KB), pass the
+    // friendly i18n string `photos.optimize.minimal` as the {size}
+    // placeholder instead of a raw byte amount. The dialog still opens
+    // and the user can still confirm — the optimize loop continues to
+    // skip photos that wouldn't shrink (avoiding the bloat regression).
+    var floorBytes = (_photosHelpers && typeof _photosHelpers.ESTIMATE_DISPLAY_FLOOR_BYTES === 'number')
+      ? _photosHelpers.ESTIMATE_DISPLAY_FLOOR_BYTES
+      : 1024;
+    var estimatedSavingsLabel = (estimatedSavings >= floorBytes)
+      ? readHumanBytes(estimatedSavings)
+      : tt('photos.optimize.minimal', 'Minimal savings expected');
 
     var confirmed = false;
     if (typeof App !== 'undefined' && typeof App.confirmDialog === 'function') {

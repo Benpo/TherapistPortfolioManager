@@ -183,6 +183,7 @@ window.I18N.cs = {
   "photos.optimize.heading": "Optimalizovat existuj\u00edc\u00ed fotky",
   "photos.optimize.helper": "Znovu zpracujte fotky nahran\u00e9 p\u0159ed p\u0159id\u00e1n\u00edm automatick\u00e9 \u00fapravy velikosti. Nov\u00e9 fotky se ji\u017e optimalizuj\u00ed automaticky.",
   "photos.optimize.savingsPreview": "Odhadovan\u00e1 \u00faspora: ~{size}",
+  "photos.optimize.minimal": "O\u010dek\u00e1v\u00e1 se jen minim\u00e1ln\u00ed \u00faspora",
   "photos.optimize.action": "Optimalizovat v\u0161echny fotky",
   "photos.optimize.confirm.title": "Optimalizovat {n} fotek?",
   "photos.optimize.confirm.body": "Tato akce p\u0159ep\u00ed\u0161e ka\u017edou fotku v men\u0161\u00ed velikosti ve va\u0161em prohl\u00ed\u017ee\u010di. Nelze vr\u00e1tit zp\u011bt, ale vizu\u00e1ln\u00ed kvalita z\u016fstane stejn\u00e1. Odhadovan\u00e1 \u00faspora: ~{size}.",
