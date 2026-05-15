@@ -25,14 +25,17 @@ Existing inputs to gap-closure:
 
 ## A. Hebrew translation issues
 
-### UAT-C1 — Ambiguous Export contents-list disclaimer
-String: `רשומות לקוחות ומפגשים נשמרות. לא ניתן לבטל.`
-Problem: Phrasing parses as "client and session records are saved — cannot cancel," but the intended action being uncancellable is unclear (cancel what — the save? the export?). Either reword for clarity or drop the second sentence here.
-Reachable from: Backup & Restore modal contents-list.
+### UAT-C1 — Delete-all-photos confirm reads awkwardly
+Full string: `הסרת כל תמונות הלקוחות מהדפדפן. רשומות לקוחות ומפגשים נשמרות. לא ניתן לבטל.`
+Intent: "Remove all client photos from browser. Client/session records are preserved. Cannot be undone."
+Problem: The middle sentence parses ambiguously next to "cannot be undone" — readers parse the second sentence as if "cannot cancel" attaches to "records are saved" (i.e. "records are saved and cannot be cancelled"). Rephrase for clearer flow.
+Suggested direction (he, draft): `פעולה זו תסיר את כל תמונות הלקוחות מהדפדפן. רשומות הלקוחות והמפגשים יישמרו, אך לא ניתן יהיה לשחזר את התמונות.`
+Reachable from: Settings → Photos tab → Delete-all-photos confirm dialog.
 
-### UAT-C2 — Optimize-images dialog placeholders not substituted
+### UAT-C2 — Optimize-images dialog placeholders not substituted (CONFIRMED)
 String: `מיטוב {n} תמונות?\nפעולה זו תכתוב מחדש כל תמונה בגודל קטן יותר בדפדפן. לא ניתן לבטל, אך איכות התצוגה נשמרת. חיסכון משוער: ~{size}.`
-Problem: `{n}` and `{size}` rendered literally — i18n placeholder substitution is failing for this string in Hebrew (likely English fallback path doesn't compose, or the optimize-all confirm uses raw text instead of `App.t(..., {n, size})`).
+Problem: User confirmed both `{n}` and `{size}` render literally. The confirm dialog likely uses the raw locale string instead of `App.t('photos.optimize.confirm', {n, size})` — substitution helper not invoked.
+Fix: Route confirm body through the i18n substitution path (or pre-substitute before passing to `App.confirmDialog`). Add a behavior test asserting both placeholders are substituted before the dialog opens.
 Reachable from: Settings → Photos tab → "Optimize all" button.
 
 ### UAT-C3 — Hard-coded English in Hebrew UI
