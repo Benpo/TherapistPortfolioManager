@@ -1050,6 +1050,55 @@ window.BackupManager = (function () {
   }
 
   // ---------------------------------------------------------------------------
+  // Phase 25 Plan 02 — Backup contents source-of-truth + recency-state helper
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Canonical list of IDB stores that round-trip through Export → Import.
+   * Consumed by:
+   *   - The Backup & Restore modal's "What's in your backup" checklist (D-09)
+   *   - tests/25-02-checklist-store-parity.test.js (regression-guard against
+   *     a new db.js store shipping without updating exportBackup)
+   *   - Plan 08's round-trip test (canonical store list)
+   *
+   * D-29: when a new IDB store is added to db.js, this array AND exportBackup's
+   * manifest object MUST be updated in the same change. The parity test enforces it.
+   *
+   * 'photos' is special — photos live as files inside the ZIP (photosFolder),
+   * not as a top-level manifest key. The parity test handles it separately.
+   */
+  var BACKUP_CONTENTS_KEYS = ['clients', 'sessions', 'snippets', 'therapistSettings', 'photos'];
+
+  /**
+   * Plan 02 stub for cloud-icon initial state at mount time.
+   *
+   * Returns one of: 'never' | 'fresh' | 'warning' | 'danger'.
+   *
+   * Plan 04 will replace this body to delegate to getChipState({ now, lastExport,
+   * intervalMs }) — the full schedule-coupled variant (D-14). Until Plan 04 ships,
+   * this stub gives the cloud icon a sensible initial color based on schedule-OFF
+   * thresholds only (fresh ≤7d, warning ≤14d, danger >14d).
+   *
+   * Defensive: any localStorage read failure (e.g., disabled storage on legal pages)
+   * falls back to 'never' so the icon never throws at mount.
+   */
+  function computeBackupRecencyState() {
+    try {
+      var raw = localStorage.getItem('portfolioLastExport');
+      if (!raw) return 'never';
+      var ts = Number(raw);
+      if (isNaN(ts)) return 'never';
+      var elapsed = Date.now() - ts;
+      var DAY = 24 * 60 * 60 * 1000;
+      if (elapsed <= 7 * DAY) return 'fresh';
+      if (elapsed <= 14 * DAY) return 'warning';
+      return 'danger';
+    } catch (_) {
+      return 'never';
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Public API
   // ---------------------------------------------------------------------------
 
@@ -1065,5 +1114,7 @@ window.BackupManager = (function () {
     normalizeManifest: normalizeManifest,
     isAutoBackupSupported: isAutoBackupSupported,
     isAutoBackupActive: isAutoBackupActive,
+    BACKUP_CONTENTS_KEYS: BACKUP_CONTENTS_KEYS,
+    computeBackupRecencyState: computeBackupRecencyState,
   };
 })();

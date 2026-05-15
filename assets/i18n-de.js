@@ -283,6 +283,27 @@ window.I18N.de = {
   "backup.share.title": "Sessions Garden Backup",
   "backup.share.fallback.body": "Backup wurde in den Download-Ordner geladen. Bitte h\u00e4ngen Sie {filename} manuell an diese E-Mail an.",
 
+  // Phase 25 Plan 02 \u2014 Backup & Restore modal + header cloud icon entry point
+  "overview.backupRestore": "Backup & Wiederherstellung",
+  "backup.modal.title": "Backup & Wiederherstellung",
+  "backup.modal.lastBackup": "Letztes Backup: {relative}",
+  "backup.modal.lastBackupNever": "Letztes Backup: nie",
+  "backup.contents.heading": "Was im Backup enthalten ist",
+  "backup.contents.helper": "Jeder Export enth\u00e4lt alle unten aufgef\u00fchrten Punkte. Beim Wiederherstellen werden alle aktuellen Daten durch diese Liste ersetzt.",
+  "backup.contents.item.clients": "Klienten",
+  "backup.contents.item.sessions": "Sitzungen",
+  "backup.contents.item.snippets": "Textbausteine",
+  "backup.contents.item.settings": "Einstellungen",
+  "backup.contents.item.photos": "Fotos (zugeschnitten, optimiert)",
+  "backup.export.heading": "Backup exportieren",
+  "backup.export.helper": "Eine Kopie aller Daten speichern. Mit einem Passwort verschl\u00fcsseln (empfohlen) oder ungesch\u00fctzt speichern.",
+  "backup.action.export": "Backup exportieren",
+  "backup.import.heading": "Backup importieren",
+  "backup.import.helper": "Beim Wiederherstellen werden alle aktuellen Daten durch den Inhalt der Backup-Datei ersetzt. Dies kann nicht r\u00fcckg\u00e4ngig gemacht werden.",
+  "backup.import.warning": "\u26a0 Ersetzt alle aktuellen Daten",
+  "backup.action.import": "Backup-Datei w\u00e4hlen",
+  "backup.modal.scheduleFooter": "Zeitplan unter Einstellungen \u2192 Backups einrichten, damit Sie nicht daran denken m\u00fcssen.",
+
   // Phase 22 \u2014 Settings page
   "header.settings.label": "Einstellungen",
   "settings.page.title": "Einstellungen",

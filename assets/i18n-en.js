@@ -283,6 +283,28 @@ window.I18N.en = {
   "backup.share.title": "Sessions Garden backup",
   "backup.share.fallback.body": "Backup downloaded to your Downloads folder. Please attach {filename} to this email manually.",
 
+  // Phase 25 Plan 02 — Backup & Restore modal + header cloud icon entry point
+  // (D-05/D-06/D-07/D-08/D-09/D-10/D-26)
+  "overview.backupRestore": "Backup & Restore",
+  "backup.modal.title": "Backup & Restore",
+  "backup.modal.lastBackup": "Last backup: {relative}",
+  "backup.modal.lastBackupNever": "Last backup: never",
+  "backup.contents.heading": "What's in your backup",
+  "backup.contents.helper": "Every export includes everything below. Restoring replaces all current data with this list.",
+  "backup.contents.item.clients": "Clients",
+  "backup.contents.item.sessions": "Sessions",
+  "backup.contents.item.snippets": "Snippets",
+  "backup.contents.item.settings": "Settings",
+  "backup.contents.item.photos": "Photos (cropped, optimized)",
+  "backup.export.heading": "Export backup",
+  "backup.export.helper": "Save a copy of all your data. Encrypt it with a password (recommended), or save it unprotected.",
+  "backup.action.export": "Export backup",
+  "backup.import.heading": "Import backup",
+  "backup.import.helper": "Restoring replaces all current data with the contents of the backup file. This cannot be undone.",
+  "backup.import.warning": "⚠ Replaces all current data",
+  "backup.action.import": "Choose backup file",
+  "backup.modal.scheduleFooter": "Set up a schedule in Settings → Backups so you don’t have to remember.",
+
   // Phase 22 — Settings page
   "header.settings.label": "Settings",
   "settings.page.title": "Settings",

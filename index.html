@@ -105,13 +105,6 @@
             <span class="button-label" data-i18n="overview.addSession">Add Session</span>
             <span class="button-icon" aria-hidden="true">+&#128197;</span>
           </button>
-          <button class="button ghost" id="exportBtn" data-i18n="overview.export">Export / Backup Data</button>
-          <label class="button ghost import-label">
-            <span data-i18n="overview.import">Import Data</span>
-            <input id="importInput" type="file" accept=".zip,.json,.sgbackup" class="is-hidden" />
-          </label>
-          <button class="button ghost" id="sendBackupBtn" data-i18n="overview.sendBackup">Send backup to myself</button>
-          <button class="button ghost" id="autoBackupBtn" data-i18n="overview.autoBackup" style="display:none">Set backup folder</button>
         </div>
         <h2 class="section-title" data-i18n="overview.clients.title">Clients</h2>
         <div class="filter-bar">
@@ -179,6 +172,65 @@
         <p id="security-persistent-body">All your data is stored only in this browser — nothing is sent to any server. Clearing browser data or uninstalling the app permanently deletes all records. Use encrypted backups and keep your device locked to protect your clients' privacy.</p>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Phase 25 Plan 02 — Backup & Restore modal (D-05/D-06/D-07/D-09/D-10/D-26).
+       Opened from the cloud icon in #headerActions (mounted by App.mountBackupCloudButton).
+       Hosts: Export (prominent) → Import (secondary, with destructive warning) → Test password sub-card
+       (Plan 03 fills it in) → Settings footer link to scheduled-backup tab (Plan 05). -->
+  <div id="backupModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="backupModalTitle">
+    <div class="modal-overlay"></div>
+    <div class="modal-card backup-modal-card">
+      <button class="modal-close" type="button" aria-label="Close" id="backupModalClose"></button>
+
+      <div class="backup-modal-header">
+        <h2 id="backupModalTitle" class="backup-modal-title" data-i18n="backup.modal.title">Backup &amp; Restore</h2>
+        <p class="backup-modal-subtitle" id="backupModalLastBackup" data-i18n="backup.modal.lastBackupNever">Last backup: never</p>
+      </div>
+
+      <section class="backup-modal-section backup-modal-section--contents">
+        <h3 class="backup-modal-section-heading" data-i18n="backup.contents.heading">What&#39;s in your backup</h3>
+        <p class="backup-modal-section-helper helper-text" data-i18n="backup.contents.helper">Every export includes everything below. Restoring replaces all current data with this list.</p>
+        <ul class="backup-contents-list">
+          <li class="backup-contents-item"><span class="backup-contents-check" aria-hidden="true">&#10003;</span> <span data-i18n="backup.contents.item.clients">Clients</span></li>
+          <li class="backup-contents-item"><span class="backup-contents-check" aria-hidden="true">&#10003;</span> <span data-i18n="backup.contents.item.sessions">Sessions</span></li>
+          <li class="backup-contents-item"><span class="backup-contents-check" aria-hidden="true">&#10003;</span> <span data-i18n="backup.contents.item.snippets">Snippets</span></li>
+          <li class="backup-contents-item"><span class="backup-contents-check" aria-hidden="true">&#10003;</span> <span data-i18n="backup.contents.item.settings">Settings</span></li>
+          <li class="backup-contents-item"><span class="backup-contents-check" aria-hidden="true">&#10003;</span> <span data-i18n="backup.contents.item.photos">Photos (cropped, optimized)</span></li>
+        </ul>
+      </section>
+
+      <section class="backup-modal-section backup-modal-section--export">
+        <h3 class="backup-modal-section-heading" data-i18n="backup.export.heading">Export backup</h3>
+        <p class="backup-modal-section-helper helper-text" data-i18n="backup.export.helper">Save a copy of all your data. Encrypt it with a password (recommended), or save it unprotected.</p>
+        <div class="backup-modal-button-row">
+          <button type="button" class="button" id="backupModalExport" data-i18n="backup.action.export">Export backup</button>
+          <button type="button" class="button ghost is-hidden" id="backupModalShare" data-i18n="backup.action.share">Share backup</button>
+        </div>
+      </section>
+
+      <section class="backup-modal-section backup-modal-section--import">
+        <h3 class="backup-modal-section-heading" data-i18n="backup.import.heading">Import backup</h3>
+        <p class="backup-modal-section-helper helper-text" data-i18n="backup.import.helper">Restoring replaces all current data with the contents of the backup file. This cannot be undone.</p>
+        <div class="backup-modal-import-warning" role="alert">
+          <span data-i18n="backup.import.warning">&#9888; Replaces all current data</span>
+        </div>
+        <div class="backup-modal-button-row">
+          <label class="button ghost import-label">
+            <span data-i18n="backup.action.import">Choose backup file</span>
+            <input id="backupModalImportInput" type="file" accept=".zip,.json,.sgbackup" class="is-hidden" />
+          </label>
+        </div>
+      </section>
+
+      <section class="backup-modal-section backup-modal-section--test" id="backupModalTestPasswordSection">
+        <!-- Test-password sub-card markup is wired in Plan 03; this section is intentionally empty for now -->
+      </section>
+
+      <footer class="backup-modal-footer">
+        <a href="./settings.html?tab=backups" id="backupModalScheduleLink" class="text-link" data-i18n="backup.modal.scheduleFooter">Set up a schedule in Settings &rarr; Backups so you don&#39;t have to remember.</a>
+      </footer>
     </div>
   </div>
 
