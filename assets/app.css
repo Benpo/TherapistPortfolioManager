@@ -967,6 +967,15 @@ html[data-theme="dark"] .missing-birth-banner-icon{
   flex-direction: column;
   gap: 0.5rem;
 }
+/* Phase 25 Plan 12 post-UAT fix (bug 1, 2026-05-15) — the rule above
+ * has equal specificity to the UA `[hidden]` rule but wins because
+ * author stylesheets beat the UA stylesheet. Without this override the
+ * boolean `hidden` HTML attribute has no visual effect on .form-field
+ * elements (e.g., #scheduleCustomDaysWrapper which Plan 05 authored
+ * with `hidden`). Restore the expected hide-on-[hidden] behavior. */
+.form-field[hidden] {
+  display: none;
+}
 
 .birth-date-picker {
   display: flex;
