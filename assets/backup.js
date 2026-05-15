@@ -655,10 +655,24 @@ window.BackupManager = (function () {
    * Show passphrase modal, build ZIP via exportBackup(), encrypt it, download
    * as .sgbackup file.
    *
-   * Returns a Promise that resolves to one of:
-   *   true     — user confirmed; .sgbackup file downloaded
-   *   false    — user pressed "Skip encryption"; caller should do unencrypted export
-   *   'cancel' — user pressed Cancel / X / Escape; caller MUST abort entire flow
+   * Returns a Promise that resolves to an object describing the outcome:
+   *   { ok: true,  skip: false, cancelled: false, blob: <encBlob>, filename: <encFilename> }
+   *     — user confirmed; .sgbackup file downloaded; encrypted blob+filename
+   *       exposed so the caller can chain into the Share button (D-04 inheritance
+   *       for the encrypted path).
+   *
+   *   { ok: false, skip: true,  cancelled: false, blob: null, filename: null }
+   *     — user pressed "Skip encryption"; caller should run the unencrypted
+   *       export path itself (overview.js's openExportFlow does exactly this).
+   *
+   *   { ok: false, skip: false, cancelled: true,  blob: null, filename: null }
+   *     — user pressed Cancel / X / Escape; caller MUST abort the entire flow.
+   *
+   * Refactor history: Plan 02 shipped the original tri-state return (true /
+   * false / 'cancel'). Plan 08 replaced it with this object shape so the
+   * encrypted-then-share path can pass the encrypted blob through to
+   * BackupManager.shareBackup() — closing the Plan 02 deferred limitation.
+   * Sole caller (verified by grep): overview.js openExportFlow.
    */
   async function exportEncryptedBackup() {
     return new Promise(function(resolve, reject) {
@@ -672,20 +686,21 @@ window.BackupManager = (function () {
             var a = document.createElement('a');
             a.href = url;
             var dateStr = new Date().toISOString().slice(0, 10);
-            a.download = 'sessions-garden-' + dateStr + '.sgbackup';
+            var encFilename = 'sessions-garden-' + dateStr + '.sgbackup';
+            a.download = encFilename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
             localStorage.setItem("portfolioLastExport", String(Date.now()));
-            resolve(true);
+            resolve({ ok: true, skip: false, cancelled: false, blob: encBlob, filename: encFilename });
           } catch (err) {
             console.error('Encrypted backup failed:', err);
             reject(err);
           }
         },
-        onSkip: function() { resolve(false); },          // user pressed Skip Encryption
-        onCancel: function() { resolve('cancel'); }      // user pressed Cancel / X / Escape — abort
+        onSkip: function() { resolve({ ok: false, skip: true, cancelled: false, blob: null, filename: null }); },   // user pressed Skip Encryption
+        onCancel: function() { resolve({ ok: false, skip: false, cancelled: true, blob: null, filename: null }); }  // user pressed Cancel / X / Escape — abort
       });
     });
   }
