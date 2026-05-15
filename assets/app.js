@@ -730,9 +730,19 @@ window.App = (() => {
    * @param {string} options.messageKey - i18n key for dialog message
    * @param {string} [options.confirmKey='confirm.delete'] - i18n key for confirm button
    * @param {string} [options.cancelKey='confirm.cancel'] - i18n key for cancel button
+   * @param {string} [options.tone='danger'] - 'danger' (red confirm) or 'neutral' (primary confirm)
+   * @param {Object} [options.placeholders] - i18n placeholder bag (UAT-C2, Phase 25 Plan 12).
+   *   Each key in the object is substituted into title AND message strings via
+   *   String.prototype.replace('{key}', String(value)). E.g.
+   *   `placeholders: { n: 3, size: '12 MB' }` rewrites '{n}' → '3' and
+   *   '{size}' → '12 MB' on both the title and the message AFTER i18n
+   *   resolution. The substitution runs BEFORE the dialog renders so the user
+   *   never sees the bare '{n}' / '{size}' literals. Reusable D-30 helper —
+   *   any future caller with a parameterised i18n string can pass placeholders
+   *   here instead of pre-substituting at the call site.
    * @returns {Promise<boolean>} Resolves true if confirmed, false if cancelled
    */
-  function confirmDialog({ titleKey, messageKey, confirmKey = "confirm.delete", cancelKey = "confirm.cancel", tone = "danger" }) {
+  function confirmDialog({ titleKey, messageKey, confirmKey = "confirm.delete", cancelKey = "confirm.cancel", tone = "danger", placeholders = null }) {
     const modal = document.getElementById("confirmModal");
     if (!modal) {
       return Promise.resolve(false);
@@ -749,6 +759,38 @@ window.App = (() => {
     if (confirmBtn && confirmKey) confirmBtn.setAttribute("data-i18n", confirmKey);
     if (cancelBtn && cancelKey) cancelBtn.setAttribute("data-i18n", cancelKey);
     applyTranslations(modal);
+
+    // Phase 25 Plan 12 UAT-C2: substitute {key} placeholders in the
+    // resolved title + message strings AFTER applyTranslations has set the
+    // base text. We resolve directly off the DOM textContent (which holds
+    // the i18n-translated string post-applyTranslations) and clear the
+    // data-i18n attribute so a subsequent setLanguage() re-render does NOT
+    // overwrite the substituted text with the bare template.
+    if (placeholders && typeof placeholders === "object") {
+      const keys = Object.keys(placeholders);
+      const substitute = function (el) {
+        if (!el) return;
+        let txt = el.textContent || "";
+        for (let i = 0; i < keys.length; i++) {
+          const k = keys[i];
+          const value = String(placeholders[k]);
+          // Replace EVERY occurrence of {key}. The loop guard caps at the
+          // text length so a malformed value containing '{k}' cannot cause
+          // infinite expansion (defensive against echo bugs).
+          const token = "{" + k + "}";
+          let guard = txt.length;
+          while (txt.indexOf(token) !== -1 && guard-- > 0) {
+            txt = txt.replace(token, value);
+          }
+        }
+        el.textContent = txt;
+        // Stop applyTranslations from rewriting the substituted text on
+        // any subsequent re-render while this dialog is open.
+        el.removeAttribute("data-i18n");
+      };
+      substitute(titleEl);
+      substitute(messageEl);
+    }
 
     // Tone: 'danger' (default — destructive red) or 'neutral' (button-primary).
     // We swap classes on open and restore on close so other consumers' default styling is unaffected.

@@ -396,6 +396,7 @@ window.I18N.he = {
   "schedule.password.callout": "גיבויים מתוזמנים דורשים סיסמת גיבוי. הסיסמה תידרש בכל הופעת בקשת גיבוי. שמירת הסיסמה במקום בטוח — לא ניתן לשחזר אותה.",
   "schedule.password.ackedLabel": "יש לי סיסמת גיבוי והיא מאוחסנת במקום בטוח.",
   "schedule.password.required": "נא לאשר שיש לך סיסמת גיבוי לפני הפעלת לוח זמנים.",
+  "schedule.savedToast": "לוח הזמנים עודכן.",
   "schedule.disableConfirm.title": "כיבוי גיבויים מתוזמנים?",
   "schedule.disableConfirm.body": "באנר תזכורת הגיבוי כל 7 ימים יופעל מחדש. לא יאבדו נתונים.",
   "schedule.disableConfirm.yes": "כיבוי לוח זמנים",

@@ -396,6 +396,7 @@ window.I18N.cs = {
   "schedule.password.callout": "Napl\u00E1novan\u00E9 z\u00E1lohy vy\u017Eaduj\u00ED heslo z\u00E1lohy. Bude vy\u017Eadov\u00E1no p\u0159i ka\u017Ed\u00E9 v\u00FDzv\u011B. Uschovejte heslo na bezpe\u010Dn\u00E9m m\u00EDst\u011B \u2014 nelze jej obnovit.",
   "schedule.password.ackedLabel": "M\u00E1m heslo z\u00E1lohy a bezpe\u010Dn\u011B jsem jej ulo\u017Eil/a.",
   "schedule.password.required": "P\u0159ed povolen\u00EDm pl\u00E1nu pros\u00EDm potvr\u010Fte, \u017Ee m\u00E1te heslo z\u00E1lohy.",
+  "schedule.savedToast": "Pl\u00E1n aktualizov\u00E1n.",
   "schedule.disableConfirm.title": "Vypnout napl\u00E1novan\u00E9 z\u00E1lohy?",
   "schedule.disableConfirm.body": "Banner s p\u0159ipom\u00EDnkou po 7 dnech bude op\u011Bt aktivn\u00ED. Nep\u0159ijdete o \u017E\u00E1dn\u00E1 data.",
   "schedule.disableConfirm.yes": "Vypnout pl\u00E1n",

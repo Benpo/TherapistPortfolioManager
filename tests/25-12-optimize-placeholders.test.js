@@ -90,13 +90,23 @@ test('settings.js optimize call site passes placeholders (or pre-substitutes) fo
 //   - the function body references `options.placeholders` (positional shape).
 // ────────────────────────────────────────────────────────────────────
 
-test('app.js confirmDialog accepts a placeholders option', () => {
-  // Locate the confirmDialog function.
+// Helper: slice the confirmDialog function body up to (but not including) the
+// next top-level `function ` declaration. This is forgiving against comments
+// that pad the body length — the previous fixed 1800-char window was too
+// narrow once Plan 12 added the placeholder-substitution block + JSDoc.
+function getConfirmDialogBody() {
   const fnIdx = appSrc.search(/function\s+confirmDialog\s*\(/);
   if (fnIdx === -1) throw new Error('confirmDialog function not found in assets/app.js');
-  // Take the next ~1200 chars (function body is ~70 lines).
-  const body = appSrc.slice(fnIdx, Math.min(appSrc.length, fnIdx + 1800));
+  // Look forward for the next `function ` declaration at column 2 (the
+  // module IIFE indentation). Cap at 8000 chars defensively.
+  const rest = appSrc.slice(fnIdx + 1, fnIdx + 8000);
+  const nextFnIdx = rest.search(/\n\s{2}function\s+\w+\s*\(/);
+  const end = nextFnIdx === -1 ? appSrc.length : (fnIdx + 1 + nextFnIdx);
+  return appSrc.slice(fnIdx, end);
+}
 
+test('app.js confirmDialog accepts a placeholders option', () => {
+  const body = getConfirmDialogBody();
   // Acceptable: destructured `placeholders` in the parameter list OR a body
   // reference to a placeholders variable / property.
   const hasParamPlaceholders = /\{[^}]*placeholders[^}]*\}/.test(body.slice(0, 250)); // within signature
@@ -108,9 +118,7 @@ test('app.js confirmDialog accepts a placeholders option', () => {
 });
 
 test('app.js confirmDialog body contains a .replace call (placeholder substitution)', () => {
-  const fnIdx = appSrc.search(/function\s+confirmDialog\s*\(/);
-  if (fnIdx === -1) throw new Error('confirmDialog function not found in assets/app.js');
-  const body = appSrc.slice(fnIdx, Math.min(appSrc.length, fnIdx + 1800));
+  const body = getConfirmDialogBody();
   // The substitution path must call .replace('{x}', value) somewhere — either
   // a for-loop over Object.keys(placeholders) or an explicit replace chain.
   if (!/\.replace\(/.test(body)) {

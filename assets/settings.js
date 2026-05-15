@@ -1982,6 +1982,14 @@ window.SettingsPage = (function () {
     }
     refreshFrequencyHelper();
     refreshCustomDaysVisibility();
+    // Phase 25 Plan 12 UAT-D3: surface a save-toast every time the schedule
+    // frequency is actually persisted. The toast key resolves through the
+    // shared i18n bundle (new 'schedule.savedToast' key in all 4 locales —
+    // shipped alongside this commit) so the user always sees explicit
+    // confirmation that the change took effect.
+    if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+      App.showToast('', 'schedule.savedToast');
+    }
     return true;
   }
 
@@ -2004,6 +2012,13 @@ window.SettingsPage = (function () {
         var n = Math.max(1, Math.min(365, Number(customDays.value) || 7));
         customDays.value = String(n);
         try { localStorage.setItem('portfolioBackupScheduleCustomDays', String(n)); } catch (_) {}
+        // UAT-D3: save-toast whenever the custom-days value is committed
+        // (only meaningful when mode === 'custom', but firing it on every
+        // commit is harmless and keeps the contract uniform).
+        if (readScheduleMode() === 'custom' &&
+            typeof App !== 'undefined' && typeof App.showToast === 'function') {
+          App.showToast('', 'schedule.savedToast');
+        }
       });
     }
 
@@ -2016,9 +2031,16 @@ window.SettingsPage = (function () {
             ack.checked ? 'true' : 'false');
         } catch (_) {}
         // If user un-acks while a schedule is active, force it back to Off.
+        // applyFrequencyChange will surface its own save-toast on the
+        // forced transition.
         if (!ack.checked && readScheduleMode() !== 'off') {
           sel.value = 'off';
           applyFrequencyChange('off');
+        } else if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+          // UAT-D3: save-toast for the ack-checkbox toggle itself (only
+          // when we did NOT cascade into applyFrequencyChange — that path
+          // surfaces its own toast).
+          App.showToast('', 'schedule.savedToast');
         }
         var err = $('schedulePasswordError');
         if (err) err.classList.add('is-hidden');
@@ -2319,6 +2341,23 @@ window.SettingsPage = (function () {
       return;
     }
 
+    // Phase 25 Plan 12 UAT-C2: count photos AND compute estimated savings up
+    // front so we can pass them through the confirmDialog placeholders bag.
+    // The dialog title carries {n} and the body carries {n} + {size}; both
+    // must be substituted BEFORE render — see App.confirmDialog placeholders
+    // option (Plan 12 extension).
+    var photoCount = 0;
+    for (var pi = 0; pi < clients.length; pi++) {
+      var c = clients[pi];
+      if (c && typeof c.photoData === 'string' && c.photoData.indexOf(',') !== -1) {
+        photoCount++;
+      }
+    }
+    // Match the 60% reduction heuristic used by refreshPhotosTab's
+    // savingsPreview line (D-30 single-source).
+    var estimatedSavings = Math.floor(photoBytes * 0.6);
+    var estimatedSavingsLabel = readHumanBytes(estimatedSavings);
+
     var confirmed = false;
     if (typeof App !== 'undefined' && typeof App.confirmDialog === 'function') {
       try {
@@ -2327,7 +2366,9 @@ window.SettingsPage = (function () {
           messageKey: 'photos.optimize.confirm.body',
           confirmKey: 'photos.optimize.confirm.yes',
           cancelKey: 'confirm.cancel',
-          tone: 'neutral'    // UI-SPEC: irreversible but visual quality stays the same.
+          tone: 'neutral',    // UI-SPEC: irreversible but visual quality stays the same.
+          // UAT-C2: substitute {n} and {size} in title + body before render.
+          placeholders: { n: String(photoCount), size: estimatedSavingsLabel }
         });
       } catch (_) { confirmed = false; }
     } else {
