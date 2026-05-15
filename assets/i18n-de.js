@@ -196,7 +196,7 @@ window.I18N.de = {
   "photos.deleteAll.helper": "Entfernt jedes Klientenfoto aus Ihrem Browser. Klientendatensätze und Sitzungen bleiben erhalten. Kann nicht rückgängig gemacht werden.",
   "photos.deleteAll.action": "Alle Fotos löschen",
   "photos.deleteAll.confirm.title": "Alle Fotos löschen?",
-  "photos.deleteAll.confirm.body": "Dies entfernt dauerhaft jedes Klientenfoto aus diesem Browser. Klienten- und Sitzungsdatensätze bleiben erhalten. Kann nicht rückgängig gemacht werden.",
+  "photos.deleteAll.confirm.body": "Dies entfernt alle Klientenfotos aus der App. Alle anderen Klientendaten bleiben erhalten.\nGelöschte Fotos können nicht wiederhergestellt werden.",
   "photos.deleteAll.confirm.yes": "Ja, alle Fotos löschen",
   "photos.deleteAll.success": "Alle Fotos gelöscht.",
   "photos.deleteAll.failed": "Fotos konnten nicht gelöscht werden.",

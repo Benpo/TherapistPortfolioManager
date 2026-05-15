@@ -196,7 +196,7 @@ window.I18N.en = {
   "photos.deleteAll.helper": "Removes every client photo from your browser. Client records and sessions are kept. Cannot be undone.",
   "photos.deleteAll.action": "Delete all photos",
   "photos.deleteAll.confirm.title": "Delete all photos?",
-  "photos.deleteAll.confirm.body": "This permanently removes every client photo from this browser. Client and session records are kept. Cannot be undone.",
+  "photos.deleteAll.confirm.body": "This will remove all client photos from the app. All other client details are kept.\nDeleted photos cannot be recovered.",
   "photos.deleteAll.confirm.yes": "Yes, delete all photos",
   "photos.deleteAll.success": "All photos deleted.",
   "photos.deleteAll.failed": "Could not delete photos.",

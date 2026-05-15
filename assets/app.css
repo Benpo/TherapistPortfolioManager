@@ -1536,6 +1536,12 @@ html[dir="rtl"] .session-header{
   font-weight:600;
   line-height:1.5;
   margin-bottom:1.6rem;
+  /* Phase 25 round-5 (C1, 2026-05-15): confirm bodies are rendered via
+   * .textContent (App.confirmDialog). pre-line honours the \n line
+   * separators authored in multi-sentence i18n bodies (e.g.
+   * photos.deleteAll.confirm.body) so they render as two visual lines
+   * while still collapsing incidental whitespace. */
+  white-space:pre-line;
 }
 
 .confirm-actions{
