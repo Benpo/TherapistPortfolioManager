@@ -423,6 +423,59 @@ $ for t in tests/25-*.test.js; do node "$t" > /dev/null 2>&1 || echo "FAIL: $t";
 
 Per-commit pre-commit hook auto-bumped CACHE_NAME across the 3 round-2 commits: v166 → v167 → v168 → v169.
 
+## Round-3 post-UAT fix (Ben 2026-05-15)
+
+Ben re-tested in Safari macOS after the round-2 fixes shipped and surfaced **one more visual regression** on the password callout. Screenshot showed:
+
+- The checkbox sat centered on its own line ABOVE the bold ack label line, NOT inline with it.
+- The whole green-tinted callout block spanned the full viewport width, too wide for comfortable reading.
+
+### Root cause
+
+`.schedule-password-acked-row` was set to `display: flex; align-items: center; gap: 0.5rem; width: 100%` — with no explicit `flex-direction`. The element ALSO carries class `form-field`, and `.form-field` at `assets/app.css:965` declares `flex-direction: column`. The two rules have equal specificity. The round-2 redesign removed the column declaration from `.schedule-password-acked-row`'s own body but never named the direction explicitly, so the column direction inherited from `.form-field` leaked through — the checkbox stacked ABOVE the label instead of beside it.
+
+This is the exact failure category described in `feedback-behavior-verification.md`: the round-2 test asserted on what the rule body LITERALLY said (no `flex-direction: column` substring), but a CSS rule body that DOESN'T NAME a property still inherits that property's value from any other rule that DOES name it, at equal specificity. Shape-grep on the rule body cannot see cross-class cascade collisions.
+
+The full-width callout was a parallel issue: the base `.backup-reminder-banner` rule sets no `max-width` (it's shared across other banners and intentionally fluid), so the password callout filled the entire Settings → Backups column.
+
+### Fix
+
+| Layer        | Change                                                                                                                                                                                |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CSS row      | `.schedule-password-acked-row` gains an EXPLICIT `flex-direction: row` declaration. Defeats `.form-field`'s column direction on equal specificity.                                    |
+| CSS width    | New ID-selector rule `#schedulePasswordCallout { max-width: 640px; margin-inline: auto }`. Targets the callout specifically — NOT the shared `.backup-reminder-banner` class.         |
+| Test         | `tests/25-12-password-callout-redesign.test.js` gains two new assertions (Contract 2b): explicit row direction AND own-selector max-width + auto inline margin. Both fail RED pre-fix. |
+| HTML         | No change — settings.html structure remains as round-2 left it (label + span inline).                                                                                                 |
+| i18n         | No change — copy unchanged from round-2.                                                                                                                                              |
+
+### Why the round-2 test missed this
+
+The round-2 assertion only checked the ABSENCE of `flex-direction: column` in the `.schedule-password-acked-row` rule body. That passed because the rule body did not mention the property at all — but the element ALSO carries `.form-field`, and the property inherited from there at equal specificity. The new round-3 assertion checks for the PRESENCE of an explicit `flex-direction: row` (or `flex-flow: row …`) declaration, which is the load-bearing override that wins the cascade.
+
+### Files touched
+
+- `assets/app.css` — `.schedule-password-acked-row` gains `flex-direction: row` (+1 line, ~7 lines of explanatory comment); new `#schedulePasswordCallout` rule (+11 lines including comment).
+- `tests/25-12-password-callout-redesign.test.js` — extended with Contract 2b (two new assertions, +101 lines including header rationale update).
+
+### Commits
+
+| # | Type | Hash      | Summary                                                |
+| - | ---- | --------- | ------------------------------------------------------ |
+| 1 | RED  | `d074f07` | `test(25-12): RED — round-3 flex-row + max-width assertions` |
+| 2 | GREEN | `29b5162` | `fix(25-12): D — row layout + narrower password callout` |
+
+### Verification result
+
+```
+$ node tests/25-12-password-callout-redesign.test.js
+Plan 25-12 password-callout-redesign tests — 10 passed, 0 failed
+
+$ for t in tests/25-*.test.js; do node "$t" > /dev/null 2>&1 || echo "FAIL: $t"; done
+(no output — all 38 Phase 25 tests pass)
+```
+
+Pre-commit hook auto-bumped CACHE_NAME v169 → v170 on the GREEN commit.
+
 ## Self-Check
 
 Created files exist:
@@ -453,5 +506,7 @@ Commits in git log:
 - `b86bfb4`: FOUND (round-2 post-UAT — Change A: password callout redesign + copy)
 - `55ac0d9`: FOUND (round-2 post-UAT — Change B: optimize estimate display floor)
 - `7a2c373`: FOUND (round-2 post-UAT — Change C: reminders explainer card)
+- `d074f07`: FOUND (round-3 post-UAT — RED: flex-row + max-width assertions)
+- `29b5162`: FOUND (round-3 post-UAT — GREEN: row layout + narrower callout)
 
 ## Self-Check: PASSED
