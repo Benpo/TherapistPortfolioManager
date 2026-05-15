@@ -685,30 +685,20 @@ async function estimatePhotosBytes() {
 
 **If this table is empty:** All claims in this research were verified or cited. **It is not empty — A1 in particular needs Ben's confirmation in discuss-phase or plan-phase.**
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Schedule password storage policy**
-   - **What we know:** D-18 mandates password setup before schedule can be enabled. D-17 says interval-end prompt invokes the existing encryption flow.
-   - **What's unclear:** Is the password stored anywhere, or does the user re-enter at each fire? CONTEXT does not specify.
-   - **Recommendation:** Default to "do not persist" (matches the no-recovery encryption philosophy). Discuss with Ben in plan-phase.
+**Resolution date:** 2026-05-15 (during plan-phase, autonomous run — Ben asleep, authorized adoption of researcher recommendations).
+**All five recommendations were adopted as-is into Phase 25 plans.** Plan-checker verified no plan contradicts any resolution.
 
-2. **Backups & Photos as new Settings TABS vs new Settings SECTIONS**
-   - **What we know:** Settings already has 2 tabs (settings.html:55). The pattern works.
-   - **What's unclear:** D-25 says "new dedicated Photos section" — language suggests SECTION (a panel within an existing tab) but the Settings page is currently structured around tabs.
-   - **Recommendation:** Two new tabs ("Backups" and "Photos") matches the existing pattern most cleanly. Planner discretion per CONTEXT.
+1. **Schedule password storage policy** — **RESOLVED: do NOT persist.** Schedule fire re-prompts the user for the passphrase via the existing `exportEncryptedBackup` modal each time. Implemented in Plan 05 (T3 mitigation: passphrase never written to localStorage / IDB / sessionStorage).
 
-3. **Where does Test-backup-password live: modal or Settings?**
-   - **What we know:** D-12 explicitly leaves this to planner.
-   - **Recommendation:** Inside the Backup & Restore modal (under the Import section). Reasoning: it's a backup-file action; co-locating with Import makes it discoverable when users are about to attempt a restore. Settings is a workflow-busting hop.
+2. **Backups & Photos as new Settings TABS vs new Settings SECTIONS** — **RESOLVED: two new TABS.** Matches existing `settings.html:55` pattern. Implemented in Plans 05 (Backups tab) and 07 (Photos tab).
 
-4. **Does the chip (D-13) live in the header or the page body?**
-   - **What we know:** D-13 says "always present" + color-thresholded; D-8 says the modal entry button replaces the cluster.
-   - **Recommendation:** Chip lives next to (or inside) the "Backup & Restore" button on the overview card. Tap-target serves both: chip shows status, button opens modal. Single visual unit.
+3. **Where does Test-backup-password live: modal or Settings?** — **RESOLVED: inside the Backup & Restore modal**, under the Import section. Co-located with Import for discoverability when users are about to attempt a restore. Implemented in Plan 03.
 
-5. **Folder picker UX inside Settings — invocation timing**
-   - **What we know:** D-11 moves picker to Settings. D-20 defers silent-write. Picker handle is session-scoped (resets on reload).
-   - **What's unclear:** What does the Settings UI show when no handle is picked? When a handle IS picked but on a different session? The picker inherently re-prompts.
-   - **Recommendation:** Settings UI shows a "Pick backup folder" button. On click, calls `pickBackupFolder()`. If picked, label changes to "Folder: [name] (re-pick)". Folder is used by D-17 prompt's "save here" affordance (when implemented in a future phase). For Phase 25, the folder is purely a UX preference — it doesn't trigger silent writes.
+4. **Does the chip (D-13) live in the header or the page body?** — **RESOLVED: adjacent to the "Backup & Restore" button on the overview card** as a single visual unit. Implemented in Plan 04.
+
+5. **Folder picker UX inside Settings — invocation timing** — **RESOLVED: pick-on-click button inside the Backups Settings tab.** Label changes to "Folder: [name] (re-pick)" when picked. Folder is a UX preference only this phase (D-20 keeps silent folder-write deferred). Implemented in Plan 05.
 
 ## Environment Availability
 
