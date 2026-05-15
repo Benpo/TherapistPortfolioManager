@@ -3554,22 +3554,38 @@ html[dir="rtl"] .export-format-help[open] summary::before {
 
 .backup-cloud-btn { /* cloud-specific overrides; Plan 04 adds state colors */ }
 
-/* Phase 25 Plan 04 — cloud icon recency state colors (D-13 / D-14, updated 2026-05-15)
-   The button background encodes recency; the icon glyph color flips
-   alongside so the SVG stroke (drawn via currentColor) maintains WCAG AA
-   contrast against the new background. Only existing semantic tokens —
-   no new color literals. Plan 02 provisionally shipped the --never rule;
-   the canonical four-state map lives here.
-*/
+/* Phase 25 Plan 04 — cloud icon recency state colors (D-13 / D-14,
+ * Plan 13 update 2026-05-15 — UAT-E1 visual hierarchy fix).
+ *
+ * The button background encodes recency; the icon glyph color flips
+ * alongside so the SVG stroke (drawn via currentColor) maintains WCAG AA
+ * contrast against the new treatment. Only existing semantic tokens —
+ * no new color literals.
+ *
+ * UAT-E1 (Ben, 2026-05-15): On settings.html the gear icon's current-
+ * page indicator is filled green AND the cloud icon's --fresh state was
+ * filled --color-success-bg, so the header read as "two equally
+ * important things" instead of "you are on Settings." The UI-SPEC sets
+ * the gear as the load-bearing current-page signal, so the cloud's
+ * --fresh state must visually subordinate to it.
+ *
+ * Pattern A (chosen): non-fill ring.
+ *   --fresh uses transparent background + a thin success-border ring.
+ *   The fill-treatment is preserved for --warning and --danger where
+ *   the signal needs to be stronger (semantic ladder: weaker signal
+ *   = weaker visual weight).
+ * --never gets a dashed border for symmetry with the --fresh ring,
+ *   reading as "no backup yet" without competing with the gear green.
+ */
 .backup-cloud-btn--never {
-  background-color: var(--color-surface-subtle, var(--color-surface-alt));
+  background-color: transparent;
   color: var(--color-text-muted);
-  border-color: var(--color-border);
+  border: 1px dashed var(--color-border);
 }
 .backup-cloud-btn--fresh {
-  background-color: var(--color-success-bg);
+  background-color: transparent;
   color: var(--color-success-text);
-  border-color: transparent;
+  border: 2px solid var(--color-success-border);
 }
 .backup-cloud-btn--warning {
   background-color: var(--color-warning-bg);
