@@ -136,7 +136,8 @@ const CropModule = (function () {
           cropImage.naturalWidth * cropScale,
           cropImage.naturalHeight * cropScale
         );
-        var croppedDataUrl = offCanvas.toDataURL("image/jpeg", 0.85);
+        // D-21: standardize new uploads + bulk optimize on q=0.75 (was 0.85).
+        var croppedDataUrl = offCanvas.toDataURL("image/jpeg", 0.75);
         closeCropModal();
         if (onSaveCallback) onSaveCallback(croppedDataUrl);
       });
@@ -188,6 +189,65 @@ const CropModule = (function () {
   }
 
   /**
+   * Resize a raw photo Blob to a maximum longest-edge dimension and re-encode
+   * as JPEG. Uses a two-pass createImageBitmap pattern:
+   *   pass 1 (probe): decode with imageOrientation:'from-image' to read the
+   *     real (EXIF-rotated) dimensions.
+   *   pass 2 (resize): re-decode with resizeWidth/resizeHeight hints so the
+   *     browser downscales DURING decode — much lower peak memory than a
+   *     full-res decode followed by canvas scale (Pitfall 3 mitigation for
+   *     iPhone OOM on 12MP camera photos).
+   *
+   * Canvas re-encode strips EXIF metadata (including GPS) as a security
+   * side-benefit — see threat T-25-06-01 in plan 25-06's threat register.
+   *
+   * @param {Blob|File} blob   - Raw photo blob (any JPEG / PNG / HEIC the browser can decode)
+   * @param {number}    maxEdge - Maximum longest-edge in CSS pixels (default 800)
+   * @param {number}    quality - JPEG quality 0..1 (default 0.75)
+   * @returns {Promise<Blob>} JPEG Blob whose longest edge is <= maxEdge
+   */
+  async function resizeToMaxDimension(blob, maxEdge, quality) {
+    maxEdge = (typeof maxEdge === "number" && maxEdge > 0) ? maxEdge : 800;
+    quality = (typeof quality === "number" && quality > 0 && quality <= 1) ? quality : 0.75;
+
+    // Pass 1: probe — decode with EXIF orientation applied so width/height
+    // reflect the rotated image. No resize hints yet (we don't know the target).
+    var probeBitmap = await createImageBitmap(blob, { imageOrientation: "from-image" });
+    var srcW = probeBitmap.width;
+    var srcH = probeBitmap.height;
+    if (probeBitmap.close) probeBitmap.close();
+
+    var longEdge = Math.max(srcW, srcH);
+    var scale = longEdge > maxEdge ? maxEdge / longEdge : 1;
+    var w = Math.round(srcW * scale);
+    var h = Math.round(srcH * scale);
+
+    // Pass 2: re-decode with resize hints when downscaling. The browser
+    // performs the downscale during decode → much lower peak memory.
+    var decodeOpts = { imageOrientation: "from-image" };
+    if (scale < 1) {
+      decodeOpts.resizeWidth = w;
+      decodeOpts.resizeHeight = h;
+      decodeOpts.resizeQuality = "high";
+    }
+    var bitmap = await createImageBitmap(blob, decodeOpts);
+
+    var canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    if (bitmap.close) bitmap.close();
+
+    return new Promise(function (resolve, reject) {
+      canvas.toBlob(function (out) {
+        if (out) resolve(out);
+        else reject(new Error("canvas.toBlob returned null"));
+      }, "image/jpeg", quality);
+    });
+  }
+
+  /**
    * Open the crop modal with an image.
    * @param {string} dataURL - The image data URL to crop
    * @param {function} onSave - Called with croppedDataUrl on confirm
@@ -225,5 +285,5 @@ const CropModule = (function () {
     img.src = dataURL;
   }
 
-  return { openCropModal: openCropModal };
+  return { openCropModal: openCropModal, resizeToMaxDimension: resizeToMaxDimension };
 })();
