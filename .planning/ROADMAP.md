@@ -519,17 +519,24 @@ Plans:
 - Pre-commit hook still auto-bumps `sw.js` CACHE_NAME on asset commits.
 
 **Depends on:** Phase 24 (the launch-blocker bug fixes need to land first so Phase 25 can ship cleanly on top).
-**Plans:** 8 plans
+**Plans:** 13 plans (8 shipped + 5 gap-closure)
 
 Plans:
-- [ ] 25-01-PLAN.md — Send-to-Myself removal + Web Share API integration (D-01..D-04)
-- [ ] 25-02-PLAN.md — Backup & Restore modal + overview entry point (D-05..D-10, D-29)
-- [ ] 25-03-PLAN.md — Test-backup-password dry-run safety net (D-12)
-- [ ] 25-04-PLAN.md — Backup awareness chip + 7-day banner suppression (D-13..D-15, D-19, D-30)
-- [ ] 25-05-PLAN.md — Scheduled-backup Settings tab + interval-end prompt + folder picker (D-11, D-16..D-20)
-- [ ] 25-06-PLAN.md — Photo resize-on-upload + crop-only storage (D-21..D-23)
-- [ ] 25-07-PLAN.md — Photos Settings tab (Optimize-all + Delete-all + usage) (D-24..D-25)
-- [ ] 25-08-PLAN.md — Backup round-trip regression tests + encrypt-then-share refactor + single-source audit (D-29..D-30)
+- [x] 25-01-PLAN.md — Send-to-Myself removal + Web Share API integration (D-01..D-04)
+- [x] 25-02-PLAN.md — Backup & Restore modal + overview entry point (D-05..D-10, D-29)
+- [x] 25-03-PLAN.md — Test-backup-password dry-run safety net (D-12)
+- [x] 25-04-PLAN.md — Backup awareness chip + 7-day banner suppression (D-13..D-15, D-19, D-30)
+- [x] 25-05-PLAN.md — Scheduled-backup Settings tab + interval-end prompt + folder picker (D-11, D-16..D-20)
+- [x] 25-06-PLAN.md — Photo resize-on-upload + crop-only storage (D-21..D-23)
+- [x] 25-07-PLAN.md — Photos Settings tab (Optimize-all + Delete-all + usage) (D-24..D-25)
+- [x] 25-08-PLAN.md — Backup round-trip regression tests + encrypt-then-share refactor + single-source audit (D-29..D-30)
+
+**Gap-closure plans** (verification CR-01..CR-03 + UAT round 1, 2026-05-15):
+- [ ] 25-09-PLAN.md — CR-01: gate schedule debounce on modal open or redirect (wave 8)
+- [ ] 25-10-PLAN.md — CR-02: preserve snippetsDeletedSeeds sentinel on restore (wave 9)
+- [ ] 25-11-PLAN.md — Hebrew rewordings (CR-03 + UAT-C1/C3/C4/C5/F2/F3) + WR-01 hardcoded English toasts (wave 8)
+- [ ] 25-12-PLAN.md — Settings UX: folder-picker removal (UAT-D1), custom-days visibility (UAT-A), optimize placeholders (UAT-C2), save-toast (UAT-D3), inline result (UAT-D4), password-ack stacking (UAT-B) (wave 9)
+- [ ] 25-13-PLAN.md — CSS/layout polish: modal footer link (UAT-D5), drop zone (UAT-D6), button gaps (UAT-D7), photo button sizing (UAT-F1), cloud-icon ring for --fresh (UAT-E1) (wave 10)
 
 **Source TODO:** `2026-05-13-backup-architectural-rework-N7.md` (target_phase updated from 24 → 25).
 
