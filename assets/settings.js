@@ -2083,3 +2083,149 @@ window.SettingsPage = (function () {
     document.addEventListener('DOMContentLoaded', bindBackupsTab);
   }
 })();
+
+// ────────────────────────────────────────────────────────────────────────
+// Phase 25 Plan 07 — Photos Settings tab
+//
+// Owns the Settings → Photos tab body. Two bulk operations:
+//   - Optimize all photos (D-24): walks every client.photoData through the
+//     same CropModule.resizeToMaxDimension(blob, 800, 0.75) that powers new
+//     uploads (D-30 single-source-of-truth). Only persists when the new size
+//     is strictly smaller than the original — no-op on already-optimized
+//     photos. Confirm dialog uses tone:'neutral' (irreversible but not
+//     destructive: visual quality stays the same).
+//   - Delete all photos (D-25): walks every client and clears photoData via
+//     PortfolioDB.updateClient — same write path as the existing edit-client
+//     save (D-30). Confirm dialog uses tone:'danger'.
+//
+// Storage usage line reads PortfolioDB.estimatePhotosBytes(clients) for the
+// photo-only number; falls back to navigator.storage.estimate() top-level
+// usage when no photos exist. Photos tab also hides the action sections and
+// surfaces an empty state when no client has photoData.
+//
+// Two testable loop helpers live INSIDE the IIFE and are exposed on
+// window.__PhotosTabHelpers (mirror of the Plan 24 __SnippetEditorHelpers
+// pattern). Tests inject getAllClients + updateClient (+ resize + dataURL
+// adapters for the optimize loop) as function dependencies — no IDB.
+// ────────────────────────────────────────────────────────────────────────
+(function () {
+  "use strict";
+
+  function $(id) { return document.getElementById(id); }
+
+  // ── humanBytes — display formatter (KB/MB) per RESEARCH pattern. ──
+  function humanBytes(n) {
+    if (n == null || isNaN(n)) return '—';
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+    return (n / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  // ── dataURL ↔ Blob conversion (both directions for the optimize loop). ──
+  function dataURLToBlob(dataURL) {
+    var commaIdx = dataURL.indexOf(',');
+    var header = dataURL.slice(0, commaIdx);
+    var b64 = dataURL.slice(commaIdx + 1);
+    var mime = (header.match(/data:([^;]+)/) || [])[1] || 'image/jpeg';
+    var bytes = atob(b64);
+    var arr = new Uint8Array(bytes.length);
+    for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  }
+  function blobToDataURL(blob) {
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader();
+      fr.onload = function () { resolve(fr.result); };
+      fr.onerror = function () { reject(new Error('FileReader failed')); };
+      fr.readAsDataURL(blob);
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Pure loop helpers — testable via injected function dependencies.
+  // Exposed on window.__PhotosTabHelpers for the regression tests.
+  // ──────────────────────────────────────────────────────────────────
+
+  /**
+   * _deleteAllPhotosLoop — clears photoData on every client that has one.
+   * @param {() => Promise<Client[]>} getAllClients
+   * @param {(c: Client) => Promise<void>} updateClient
+   * @returns {Promise<{success:number, failed:number}>}
+   */
+  async function _deleteAllPhotosLoop(getAllClients, updateClient) {
+    var success = 0;
+    var failed = 0;
+    var clients = await getAllClients();
+    for (var i = 0; i < clients.length; i++) {
+      var c = clients[i];
+      if (!c || !c.photoData) continue;          // skip clients without photos
+      try {
+        var updated = Object.assign({}, c, { photoData: '' });
+        await updateClient(updated);
+        success++;
+      } catch (_) {
+        failed++;
+      }
+    }
+    return { success: success, failed: failed };
+  }
+
+  /**
+   * _optimizeAllPhotosLoop — re-runs the resize-on-upload pipeline for every
+   * stored photo. Only persists when the new size is strictly smaller, so
+   * already-optimized photos are a no-op (avoids bloat regression).
+   *
+   * @param {() => Promise<Client[]>} getAllClients
+   * @param {(c: Client) => Promise<void>} updateClient
+   * @param {(blob: Blob, maxEdge: number, quality: number) => Promise<Blob>} resize
+   *        — CropModule.resizeToMaxDimension (D-30 single-source-of-truth with Plan 06).
+   * @param {(blob: Blob) => Promise<string>} blobToDataURLFn
+   * @param {(dataURL: string) => Blob} dataURLToBlobFn
+   * @returns {Promise<{success:number, failed:number, savedBytes:number}>}
+   */
+  async function _optimizeAllPhotosLoop(getAllClients, updateClient, resize, blobToDataURLFn, dataURLToBlobFn) {
+    var success = 0;
+    var failed = 0;
+    var savedBytes = 0;
+    var clients = await getAllClients();
+    for (var i = 0; i < clients.length; i++) {
+      var c = clients[i];
+      if (!c || typeof c.photoData !== 'string' || !c.photoData.startsWith('data:')) continue;
+      try {
+        var origCommaIdx = c.photoData.indexOf(',');
+        var origBytes = Math.floor(((c.photoData.slice(origCommaIdx + 1)) || '').length * 0.75);
+        var inBlob = dataURLToBlobFn(c.photoData);
+        var outBlob = await resize(inBlob, 800, 0.75);
+        var outDataURL = await blobToDataURLFn(outBlob);
+        var newCommaIdx = outDataURL.indexOf(',');
+        var newBytes = Math.floor(((outDataURL.slice(newCommaIdx + 1)) || '').length * 0.75);
+        // Only persist if it actually got smaller — avoid bloating
+        // already-optimized photos that re-encode to the same or larger size.
+        if (newBytes < origBytes) {
+          var updated = Object.assign({}, c, { photoData: outDataURL });
+          await updateClient(updated);
+          savedBytes += (origBytes - newBytes);
+          success++;
+        }
+      } catch (_) {
+        failed++;
+      }
+    }
+    return { success: success, failed: failed, savedBytes: savedBytes };
+  }
+
+  // Expose for unit tests (mirrors __SnippetEditorHelpers at settings.js:762).
+  if (typeof window !== 'undefined') {
+    window.__PhotosTabHelpers = {
+      _deleteAllPhotosLoop: _deleteAllPhotosLoop,
+      _optimizeAllPhotosLoop: _optimizeAllPhotosLoop,
+      // Adapters re-exposed so the Task-2 UI handlers (defined below) and
+      // future maintainers share the same conversion code path.
+      humanBytes: humanBytes,
+      dataURLToBlob: dataURLToBlob,
+      blobToDataURL: blobToDataURL,
+    };
+  }
+
+  // Task 2 (UI wiring) is appended below this IIFE.
+})();

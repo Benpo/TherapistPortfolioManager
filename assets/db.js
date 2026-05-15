@@ -500,6 +500,28 @@ window.PortfolioDB = (() => {
     });
   }
 
+  // Phase 25 Plan 07 — PURE photo-storage size estimator.
+  // Sums (b64 length × 0.75) across every client whose photoData (or legacy
+  // `photo`) starts with a data: URL prefix. No IDB call — caller supplies
+  // the clients array (typically from PortfolioDB.getAllClients()). Powers
+  // the Photos Settings tab usage display AND the bulk-optimize savings
+  // preview. Non-string, non-data:, null, and number values contribute 0.
+  function estimatePhotosBytes(clients) {
+    if (!Array.isArray(clients)) return 0;
+    let total = 0;
+    for (let i = 0; i < clients.length; i++) {
+      const c = clients[i] || {};
+      const photo = c.photoData || c.photo;
+      if (typeof photo !== "string") continue;
+      if (!photo.startsWith("data:")) continue;
+      const commaIdx = photo.indexOf(",");
+      if (commaIdx < 0) continue;
+      const b64 = photo.slice(commaIdx + 1);
+      total += Math.floor(b64.length * 0.75);
+    }
+    return total;
+  }
+
   async function getSession(id) {
     const db = await openDB();
     return new Promise((resolve, reject) => {
@@ -762,6 +784,8 @@ window.PortfolioDB = (() => {
     updateClient,
     getClient,
     getAllClients,
+    // Phase 25 Plan 07 — pure storage-size estimator
+    estimatePhotosBytes,
     addSession,
     updateSession,
     deleteSession,
