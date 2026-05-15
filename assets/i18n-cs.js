@@ -393,7 +393,7 @@ window.I18N.cs = {
   "schedule.frequency.custom": "Vlastn\u00ED (dn\u016F)",
   "schedule.frequency.helperOff": "Zobraz\u00ED se p\u0159ipom\u00EDnkov\u00FD banner, pokud jste nez\u00E1lohovali 7 dn\u00ED.",
   "schedule.frequency.helperOn": "P\u0159i uplynut\u00ED intervalu se zobraz\u00ED v\u00FDzva k z\u00E1lohov\u00E1n\u00ED. Banner po 7 dnech je p\u0159i aktivn\u00EDm pl\u00E1nu ztlumen.",
-  "schedule.password.callout": "Napl\u00E1novan\u00E9 z\u00E1lohy vy\u017Eaduj\u00ED heslo z\u00E1lohy. Bude vy\u017Eadov\u00E1no p\u0159i ka\u017Ed\u00E9 v\u00FDzv\u011B. Uschovejte heslo na bezpe\u010Dn\u00E9m m\u00EDst\u011B \u2014 nelze jej obnovit.",
+  "schedule.password.callout": "Upozorn\u011Bn\u00ED: Napl\u00E1novan\u00E9 z\u00E1lohy vy\u017Eaduj\u00ED heslo z\u00E1lohy. Bude vy\u017Eadov\u00E1no p\u0159i ka\u017Ed\u00E9 v\u00FDzv\u011B. Uschovejte heslo na bezpe\u010Dn\u00E9m m\u00EDst\u011B \u2014 nelze jej obnovit.",
   "schedule.password.ackedLabel": "M\u00E1m heslo z\u00E1lohy a bezpe\u010Dn\u011B jsem jej ulo\u017Eil/a.",
   "schedule.password.ackedShort": "M\u00E1m z\u00E1lohovac\u00ED heslo.",
   "schedule.password.required": "P\u0159ed povolen\u00EDm pl\u00E1nu pros\u00EDm potvr\u010Fte, \u017Ee m\u00E1te heslo z\u00E1lohy.",

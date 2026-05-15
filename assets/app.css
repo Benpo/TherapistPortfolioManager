@@ -3693,29 +3693,35 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   font-style: italic;
 }
 
-/* Phase 25 Plan 12 UAT-B — password-ack stacks vertically: the 2-line
- * verification text sits on top, the checkbox + short caption row sits
- * underneath. flex-column gives the vertical stack; the inner __control
- * label is a horizontal row for the checkbox + label.
+/* Phase 25 Plan 12 — password-ack row.
  *
- * Post-UAT fix (bug 2, 2026-05-15): parent #schedulePasswordCallout
- * uses .backup-reminder-banner which is `display: flex; flex-wrap:
- * wrap; align-items: center; justify-content: space-between` — i.e., a
- * horizontal flex-row. Without `width: 100%` on this form-field, it
- * shared its line with the callout `<p>` text and was horizontally
- * shrunk so the inner ackedLabel <p> + control <label> appeared side
- * by side instead of stacked. width:100% forces the form-field to
- * occupy its own row inside the parent's `flex-wrap: wrap` flow. */
+ * Round-2 redesign (post-UAT, 2026-05-15): the previous layout
+ * stacked a long verification text ABOVE the checkbox + short caption
+ * — Ben felt the two sentences were redundant and the layout too tall.
+ * The round-2 row is a single horizontal flex line: [checkbox] [label]
+ * — the label IS the verification statement (data-i18n="schedule.
+ * password.ackedLabel" — "I have a backup password and have stored it
+ * safely."). The label is styled bolder + slightly larger than the
+ * callout paragraph above so it visually reads as "the action the user
+ * takes," not just another paragraph of fine print.
+ *
+ * width:100% keeps the row on its own line inside the parent's
+ * `.backup-reminder-banner` flex-wrap:wrap flow (otherwise it would
+ * share a line with the callout <p>).  align-items:center keeps the
+ * checkbox vertically centered against the label even when the label
+ * wraps onto a second line on narrow viewports. */
 .schedule-password-acked-row {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-sm, 8px);
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
 }
 .schedule-password-acked-row__control {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm, 8px);
+  /* The span carrying the label text. Bolder + slightly larger than
+   * the callout paragraph above (which inherits .backup-reminder-banner
+   * font-size: var(--text-sm, 14px) / font-weight: normal). */
+  font-weight: 600;
+  font-size: 1.05em;
 }
 
 /* Phase 25 Plan 12 UAT-D4 — the inline optimize-result line uses a

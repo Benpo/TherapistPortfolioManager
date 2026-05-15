@@ -1,21 +1,26 @@
 /**
- * Phase 25 Plan 12 — UAT-B: password-ack checkbox sits BELOW the
- * verification text, not to its side.
+ * Phase 25 Plan 12 — UAT-B: password-ack checkbox visual hierarchy.
  *
- * Two acceptable proofs (test passes if either one succeeds):
+ * History:
+ *   • Round 1 (Plan 12 original task 4): the checkbox stacked BELOW
+ *     a separate verification-text paragraph (.schedule-password-acked-row
+ *     was flex-direction:column with the <p ackedLabel> sibling above).
+ *   • Round 1 post-UAT fix (bug 2, 2026-05-15): added width:100% so the
+ *     row claimed its own line inside the parent flex-wrap container.
+ *   • Round 2 redesign (post-UAT, 2026-05-15 — Ben surfaced that the
+ *     two sentences were redundant + the layout was too tall): collapsed
+ *     to a single inline row [checkbox] [label], with the label styled
+ *     bolder + slightly larger than the callout paragraph above.
  *
- *   A. DOM-order proof
- *      Inside #schedulePasswordCallout, the element carrying
- *      data-i18n="schedule.password.ackedLabel" appears BEFORE the wrapper
- *      element with class "schedule-password-acked-row__control" in document
- *      order.
+ * Round-2 contract enforced here:
+ *   The .schedule-password-acked-row__control class must exist (it now
+ *   targets the label-span carrying data-i18n="schedule.password.ackedLabel").
+ *   This catches the case where a future refactor accidentally drops
+ *   the class hook and breaks the bolder/larger styling.
  *
- *   B. CSS-flex-column proof
- *      assets/app.css contains a rule selector `.schedule-password-acked-row`
- *      whose declarations include `display: flex` AND `flex-direction: column`
- *      (or `display: grid` with `grid-template-rows`). This survives a
- *      pure-CSS-stacking implementation where DOM order is unchanged but
- *      visual stacking is achieved by flex/grid.
+ *   The flex-direction:column / DOM-order assertions from round 1 are
+ *   superseded by tests/25-12-password-callout-redesign.test.js which
+ *   asserts the round-2 inline-row contract.
  *
  * Run: node tests/25-12-password-ack-stacking.test.js
  * Exits 0 on full pass, 1 on any failure.
@@ -101,27 +106,23 @@ function cssFlexColumnProof() {
 }
 
 // ────────────────────────────────────────────────────────────────────
-// Combined assertion: at least one proof must succeed.
+// Round-2 contract: .schedule-password-acked-row__control class hook
+// must exist in settings.html (catches accidental refactor that drops
+// the styling hook). The round-1 DOM-order / CSS-flex-column proofs
+// are superseded — see tests/25-12-password-callout-redesign.test.js
+// for the active layout contract.
 // ────────────────────────────────────────────────────────────────────
 
-test('Either DOM-order OR CSS-flex-column proves vertical stacking of password-ack checkbox', () => {
-  const dom = domOrderProof();
-  const css = cssFlexColumnProof();
-  if (dom.ok || css.ok) return; // pass
-  throw new Error(
-    'Neither stacking proof succeeded.\n' +
-    '        Proof A (DOM-order): ' + dom.reason + '\n' +
-    '        Proof B (CSS-flex-column): ' + css.reason
-  );
-});
-
-// Supplemental: the new schedule-password-acked-row__control class must exist
-// in settings.html (locks in the structural fix introduced by Task 4).
-test('settings.html contains class="schedule-password-acked-row__control" wrapper (Task 4)', () => {
+test('settings.html contains class="schedule-password-acked-row__control" styling hook', () => {
   if (settingsHtml.indexOf('schedule-password-acked-row__control') === -1) {
     throw new Error('class "schedule-password-acked-row__control" not present in settings.html');
   }
 });
+
+// Touch the now-unused proof helpers so this file does not accumulate
+// dead code yet allows a future rollback to re-enable the round-1 proofs
+// without rewriting the inspector functions.
+void domOrderProof; void cssFlexColumnProof;
 
 // ─── Report ─────────────────────────────────────────────────────────
 console.log('');

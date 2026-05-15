@@ -107,18 +107,31 @@ test('.schedule-password-acked-row declares width: 100% OR flex-basis: 100% (for
 });
 
 // ────────────────────────────────────────────────────────────────────
-// Regression lock-down: keep the original Plan 12 contract (flex-column
-// stacking inside the form-field).
+// Round-2 supersession (post-UAT 2026-05-15): the original Plan 12
+// contract was a flex-column stack; Ben's round-2 redesign collapsed
+// the row to a single horizontal line ([checkbox] [bolder label]),
+// so flex-direction:column is now expressly absent. The width:100%
+// assertion above STILL holds — the row still claims its own line
+// inside the parent flex-wrap container, just as a row-direction
+// flex item this time. The active layout contract is enforced by
+// tests/25-12-password-callout-redesign.test.js.
 // ────────────────────────────────────────────────────────────────────
 
-test('.schedule-password-acked-row still declares display: flex + flex-direction: column (Plan 12 regression)', () => {
+test('.schedule-password-acked-row still declares display: flex (round-2 horizontal row)', () => {
   const bodies = findAckedRowRuleBodies();
   const combined = bodies.join('\n');
   if (!/display\s*:\s*flex\b/.test(combined)) {
     throw new Error('.schedule-password-acked-row no longer declares display: flex');
   }
-  if (!/flex-direction\s*:\s*column\b/.test(combined)) {
-    throw new Error('.schedule-password-acked-row no longer declares flex-direction: column');
+  // Round-2 explicitly REMOVES flex-direction:column. Sanity-check that
+  // the obsolete declaration is not silently reintroduced (which would
+  // re-break the inline-row layout Ben requested).
+  if (/flex-direction\s*:\s*column\b/.test(combined)) {
+    throw new Error(
+      '.schedule-password-acked-row has flex-direction:column again — round-2\n' +
+      '        redesign requires the row to be horizontal. Did a refactor\n' +
+      '        accidentally restore the round-1 stacked layout?'
+    );
   }
 });
 

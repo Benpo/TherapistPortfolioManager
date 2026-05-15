@@ -169,19 +169,18 @@
           </div>
 
           <div class="backup-reminder-banner schedule-password-callout" id="schedulePasswordCallout" role="note">
-            <p data-i18n="schedule.password.callout">Scheduled backups require a backup password. You'll be asked for it each time the prompt appears. Save this password somewhere safe — we cannot recover it.</p>
-            <!-- Phase 25 Plan 12 UAT-B: password-ack restructured so the
-                 2-line verification text appears ABOVE the checkbox row.
-                 .schedule-password-acked-row is now a flex-column container
-                 (CSS in app.css); the inner __control label holds the
-                 checkbox + short caption on its own horizontal row. -->
-            <div class="form-field schedule-password-acked-row">
-              <p data-i18n="schedule.password.ackedLabel" id="schedulePasswordAckedLabel">I have a backup password and have stored it safely.</p>
-              <label class="schedule-password-acked-row__control">
-                <input type="checkbox" id="schedulePasswordAcked" />
-                <span data-i18n="schedule.password.ackedShort">I have a backup password.</span>
-              </label>
-            </div>
+            <p data-i18n="schedule.password.callout">Please note: Scheduled backups require a backup password. You'll be asked for it each time the prompt appears. Save this password somewhere safe — it cannot be recovered.</p>
+            <!-- Phase 25 Plan 12 (round-2 post-UAT, 2026-05-15) Change A:
+                 password-ack redesigned to a single horizontal flex row.
+                 The long verification text moved out (Plan 05's ackedLabel
+                 <p> previously sat ABOVE the checkbox); the round-2 layout
+                 keeps only the checkbox + label inline. The label is
+                 styled bolder + slightly larger than the callout paragraph
+                 above (CSS .schedule-password-acked-row__control). -->
+            <label class="form-field schedule-password-acked-row" id="schedulePasswordAckedLabel">
+              <input type="checkbox" id="schedulePasswordAcked" />
+              <span class="schedule-password-acked-row__control" data-i18n="schedule.password.ackedLabel">I have a backup password and have stored it safely.</span>
+            </label>
             <p class="error-text is-hidden" id="schedulePasswordError" role="alert" data-i18n="schedule.password.required">Please confirm you have a backup password before enabling a schedule.</p>
           </div>
 

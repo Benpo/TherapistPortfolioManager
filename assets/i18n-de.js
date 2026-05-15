@@ -393,7 +393,7 @@ window.I18N.de = {
   "schedule.frequency.custom": "Benutzerdefiniert (Tage)",
   "schedule.frequency.helperOff": "Sie sehen ein Erinnerungs-Banner, wenn Sie länger als 7 Tage kein Backup gemacht haben.",
   "schedule.frequency.helperOn": "Eine Backup-Aufforderung erscheint, wenn dieses Intervall verstreicht. Das 7-Tage-Banner ist stummgeschaltet, während ein Zeitplan aktiv ist.",
-  "schedule.password.callout": "Geplante Backups erfordern ein Backup-Passwort. Sie werden bei jeder Aufforderung danach gefragt. Bewahren Sie dieses Passwort sicher auf — wir können es nicht wiederherstellen.",
+  "schedule.password.callout": "Bitte beachten: Geplante Backups erfordern ein Backup-Passwort. Sie werden bei jeder Aufforderung danach gefragt. Bewahren Sie dieses Passwort sicher auf — es kann nicht wiederhergestellt werden.",
   "schedule.password.ackedLabel": "Ich habe ein Backup-Passwort und habe es sicher gespeichert.",
   "schedule.password.ackedShort": "Ich habe ein Backup-Passwort.",
   "schedule.password.required": "Bitte bestätigen Sie, dass Sie ein Backup-Passwort haben, bevor Sie einen Zeitplan aktivieren.",

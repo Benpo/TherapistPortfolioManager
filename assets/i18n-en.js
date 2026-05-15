@@ -397,7 +397,7 @@ window.I18N.en = {
   "schedule.frequency.custom": "Custom (days)",
   "schedule.frequency.helperOff": "You will see a reminder banner if you haven't backed up in 7 days.",
   "schedule.frequency.helperOn": "A backup prompt will appear when this interval elapses. The 7-day banner is muted while a schedule is active.",
-  "schedule.password.callout": "Scheduled backups require a backup password. You'll be asked for it each time the prompt appears. Save this password somewhere safe — we cannot recover it.",
+  "schedule.password.callout": "Please note: Scheduled backups require a backup password. You'll be asked for it each time the prompt appears. Save this password somewhere safe — it cannot be recovered.",
   "schedule.password.ackedLabel": "I have a backup password and have stored it safely.",
   "schedule.password.ackedShort": "I have a backup password.",
   "schedule.password.required": "Please confirm you have a backup password before enabling a schedule.",
