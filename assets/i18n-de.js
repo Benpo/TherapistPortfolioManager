@@ -171,6 +171,8 @@ window.I18N.de = {
   "backup.confirmReplace": "Alle aktuellen Daten werden durch das Backup ersetzt. Fortfahren?",
   "toast.exportSuccess": "Backup erfolgreich exportiert",
   "toast.exportError": "Backup-Export fehlgeschlagen",
+  "photos.upload.warning": "Großes Foto — die Verarbeitung kann einen Moment dauern.",
+  "photos.upload.tooLarge": "Dieses Foto ist zu groß zur Verarbeitung. Bitte wählen Sie ein kleineres Bild.",
   "toast.autoBackupSet": "Backup-Ordner f\u00fcr diese Sitzung festgelegt",
   "toast.importDisabledDemo": "Import ist im Demo-Modus nicht verf\u00fcgbar",
   "confirm.import": "Importieren",

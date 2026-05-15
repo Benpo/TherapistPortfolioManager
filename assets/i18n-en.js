@@ -171,6 +171,8 @@ window.I18N.en = {
   "backup.confirmReplace": "This will replace all your current data with the backup. Are you sure?",
   "toast.exportSuccess": "Backup exported successfully",
   "toast.exportError": "Backup export failed",
+  "photos.upload.warning": "Large photo — this may take a moment to process.",
+  "photos.upload.tooLarge": "This photo is too large to process. Please choose a smaller image.",
   "toast.autoBackupSet": "Backup folder set for this session",
   "toast.importDisabledDemo": "Import is not available in demo mode",
   "confirm.import": "Import",

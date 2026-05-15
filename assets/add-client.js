@@ -58,12 +58,33 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   if (photoInput) {
+    // D-23: no hard upload-size cap, but a soft warning when input is very
+    // large so the user understands the slowdown. 25MB chosen as the point
+    // where most phones still decode but the user notices latency.
+    const SOFT_SIZE_CAP_BYTES = 25 * 1024 * 1024;
     photoInput.addEventListener("change", async () => {
       const file = photoInput.files && photoInput.files[0];
       if (!file) return;
       try {
-        const rawDataURL = await App.readFileAsDataURL(file);
-        CropModule.openCropModal(rawDataURL, function (croppedDataUrl) {
+        if (file.size > SOFT_SIZE_CAP_BYTES) {
+          console.warn("Large photo upload:", file.size, "bytes — proceeding per D-23 (no hard cap)");
+          App.showToast("", "photos.upload.warning");
+        }
+        // D-21: resize on upload — longest edge <= 800px, JPEG q=0.75.
+        // The original `file` is held only during this call; it is garbage-
+        // collected as soon as resizeToMaxDimension returns (D-22 crop-only
+        // storage — original never persisted).
+        let resizedBlob;
+        try {
+          resizedBlob = await CropModule.resizeToMaxDimension(file, 800, 0.75);
+        } catch (err) {
+          console.error("Resize failed (likely memory):", err);
+          App.showToast("", "photos.upload.tooLarge");
+          if (photoInput) photoInput.value = "";
+          return;
+        }
+        const resizedDataURL = await App.readFileAsDataURL(resizedBlob);
+        CropModule.openCropModal(resizedDataURL, function (croppedDataUrl) {
           photoData = croppedDataUrl;
           if (photoPreview) {
             photoPreview.src = photoData;
