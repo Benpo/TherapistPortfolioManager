@@ -205,6 +205,23 @@ CR-01 should flip from `failed` → `satisfied` on the next verifier run.
 ## Self-Check: PASSED
 
 ---
+
+## Round-5 post-UAT (Ben 2026-05-15) — UAT-D2 fully closed in-place
+
+Plan 09's objective explicitly deferred UAT-D2's "modal opens in-place on
+every page" rework (the redirect was the gap-closure compromise). Ben's
+round-5 UAT requested the full in-place behavior. It is now delivered:
+the modal markup + handlers + `window.openBackupModal` moved to the
+page-agnostic `assets/backup-modal.js` (loaded on every app page), so the
+cloud icon — and this plan's `checkBackupSchedule` scheduled prompt —
+open the modal in-place wherever the user is. The CR-01 `if (opened)`
+debounce gate and the redirect fallback are preserved; the CR-01
+behavior test (`tests/25-09-schedule-debounce-no-modal.test.js`) remains
+4/4 GREEN. Full record + commits: see the **"Round-5 post-UAT fixes
+(Ben 2026-05-15)"** section in `25-13-SUMMARY.md` (Change 1). New
+behavior test: `tests/25-09-modal-global-inplace.test.js` (4/4).
+
+---
 *Phase: 25-backup-architectural-rework*
 *Plan: 09*
 *Completed: 2026-05-15*

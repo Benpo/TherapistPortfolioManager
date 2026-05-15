@@ -312,76 +312,79 @@ function makeDataURLOfBytes(targetBytes) {
 // path (which uses the helper). And for refreshPhotosTab itself we
 // re-fire DOMContentLoaded with a stubbed estimatePhotoSavings.
 
-await test('Runtime: refreshPhotosTab inline preview shows the minimal-savings i18n text when estimate is < floor', async () => {
-  // Clients with one large photo (so refreshPhotosTab takes the
-  // hasPhotos=true branch and renders the preview). The actual byte
-  // count from estimatePhotoSavings will be stubbed to 500.
+// Phase 25 round-5 supersession (Change 3, 2026-05-15): the standalone
+// #photosOptimizePreview "Minimal savings expected" / "Estimated savings:
+// ~X" line is ABSORBED into the storage-usage verdict line
+// (#photosStorageUsage → photos.usage.compact / .optional / .recommended).
+// These two tests previously asserted the standalone preview render; they
+// now assert the same SIGNAL (sub-floor ⇒ "already compact, won't help";
+// ≥-floor ⇒ a byte figure) on the verdict line. The round-2 floor
+// CONTRACT (sub-1KB shows no raw "0 B"/"500 B" noise) is preserved — only
+// the element that carries the signal moved (objective Change 3 / Rule 1).
+await test('Runtime: sub-floor estimate folds into the storage VERDICT line as the "already compact" message (no raw byte noise)', async () => {
   const big = makeDataURLOfBytes(200 * 1024);
   const clientsRef = { value: [{ id: 'c1', photoData: big }] };
 
   const ctx = makeSandbox({ clientsRef });
 
-  // Stub the helper to return a sub-floor value.
   const helpers = ctx.sandbox.window.__PhotosTabHelpers;
   if (!helpers) throw new Error('__PhotosTabHelpers not exposed');
-  helpers.estimatePhotoSavings = () => 500;
+  helpers.estimatePhotoSavings = () => 500; // < ESTIMATE_DISPLAY_FLOOR_BYTES
 
-  // DOMContentLoaded already fired during sandbox setup; explicitly
-  // re-bind the photos tab so refreshPhotosTab runs against our stub.
-  const docListeners = (ctx.document._listeners && ctx.document._listeners.get) ? ctx.document._listeners.get('DOMContentLoaded') : null;
-  // Easier path: directly call refreshPhotosTab via a microtask hook.
-  // It isn't directly exported, but bindPhotosTab is invoked on DOMContentLoaded
-  // and calls refreshPhotosTab. We've already done that. Re-fire to pick
-  // up the stub.
   ctx.document._fireReady();
   await new Promise(r => setTimeout(r, 30));
 
-  const previewEl = ctx.elements.get('photosOptimizePreview');
-  if (!previewEl) throw new Error('photosOptimizePreview not mounted');
+  const usageEl = ctx.elements.get('photosStorageUsage');
+  if (!usageEl) throw new Error('photosStorageUsage not mounted');
+  const rendered = usageEl.textContent || '';
 
-  const minimalText = I18N.en['photos.optimize.minimal'];
-  if (!minimalText) throw new Error('photos.optimize.minimal missing in EN (gate above should have caught this)');
-
-  const rendered = previewEl.textContent || '';
-  if (!rendered.includes(minimalText)) {
+  // Sub-floor ⇒ photos.usage.compact ("Already compact — optimizing
+  // won't help"). The {savings} placeholder is NOT in that template, so
+  // there is no raw "~500 B" / "~0 B" noise — the round-2 floor contract.
+  if (!/already compact/i.test(rendered) || !/won't help|wont help/i.test(rendered)) {
     throw new Error(
-      'inline preview does not contain the minimal-savings i18n string.\n' +
-      '        Expected to find: ' + JSON.stringify(minimalText) + '\n' +
-      '        Got rendered text: ' + JSON.stringify(rendered)
-    );
-  }
-  // Negative: must NOT contain the byte amount.
-  if (/~?\s*\d+\s*B\b/.test(rendered) && !/KB|MB|GB/.test(rendered)) {
-    throw new Error(
-      'inline preview still renders a raw byte amount (likely "~500 B" or "~0 B").\n' +
+      'sub-floor estimate must fold into the compact verdict on #photosStorageUsage.\n' +
       '        Got: ' + JSON.stringify(rendered)
     );
+  }
+  if (/~\s*\d+\s*B\b/.test(rendered) && !/KB|MB|GB/.test(rendered)) {
+    throw new Error(
+      'verdict line still renders a raw sub-KB byte amount (round-2 floor contract violated).\n' +
+      '        Got: ' + JSON.stringify(rendered)
+    );
+  }
+  // The standalone preview must NOT separately render the old minimal text.
+  const previewEl = ctx.elements.get('photosOptimizePreview');
+  const prev = (previewEl && previewEl.textContent) || '';
+  const minimalText = I18N.en['photos.optimize.minimal'];
+  if (minimalText && prev.includes(minimalText)) {
+    throw new Error('standalone #photosOptimizePreview should no longer render the minimal-savings line (absorbed into the verdict). Got: ' + JSON.stringify(prev));
   }
 });
 
-await test('Runtime: refreshPhotosTab inline preview shows the byte amount when estimate is >= floor', async () => {
+await test('Runtime: ≥-floor estimate folds into the storage VERDICT line with a byte figure (optional/recommended tier)', async () => {
   const big = makeDataURLOfBytes(200 * 1024);
   const clientsRef = { value: [{ id: 'c1', photoData: big }] };
 
   const ctx = makeSandbox({ clientsRef });
   const helpers = ctx.sandbox.window.__PhotosTabHelpers;
-  helpers.estimatePhotoSavings = () => 5000; // ≥ 1024 → byte amount expected
+  helpers.estimatePhotoSavings = () => 5000; // ≥ 1024 (and < 2 MB) → optional + byte figure
 
   ctx.document._fireReady();
   await new Promise(r => setTimeout(r, 30));
 
-  const previewEl = ctx.elements.get('photosOptimizePreview');
-  const rendered = previewEl.textContent || '';
-  // 5000 bytes formats as ~4.9 KB via humanBytes.
+  const usageEl = ctx.elements.get('photosStorageUsage');
+  const rendered = usageEl.textContent || '';
+  // 5000 bytes formats as ~4.9 KB via humanBytes — must appear as the
+  // {savings} substitution in the optional verdict.
   if (!/\b\d+(\.\d+)?\s*KB\b/.test(rendered) && !/\b\d+\s*B\b/.test(rendered)) {
-    throw new Error('inline preview does not contain a byte-formatted size. Got: ' + JSON.stringify(rendered));
+    throw new Error('≥-floor verdict line does not contain a byte-formatted savings figure. Got: ' + JSON.stringify(rendered));
   }
-  const minimalText = I18N.en['photos.optimize.minimal'];
-  if (minimalText && rendered.includes(minimalText)) {
-    throw new Error(
-      '>= floor path should NOT render the minimal-savings i18n string.\n' +
-      '        Got: ' + JSON.stringify(rendered)
-    );
+  if (!/optional/i.test(rendered) && !/recommended/i.test(rendered)) {
+    throw new Error('≥-floor estimate must render the optional or recommended verdict. Got: ' + JSON.stringify(rendered));
+  }
+  if (/already compact/i.test(rendered)) {
+    throw new Error('≥-floor path must NOT render the compact verdict. Got: ' + JSON.stringify(rendered));
   }
 });
 

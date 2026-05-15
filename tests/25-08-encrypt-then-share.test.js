@@ -38,7 +38,15 @@ const assert = require('assert');
 
 // ---------------------------------------------------------------------------
 // Sub-case A — Shape grep (read sources as text and regex against the
-// refactored backup.js + openExportFlow in overview.js)
+// refactored backup.js + openExportFlow).
+//
+// Phase 25 round-5 supersession (Change 1 / UAT-D2, 2026-05-15): the
+// Backup & Restore modal handlers — including openExportFlow + the
+// `window.openExportFlow = …` exposure + the shareBackup afterExport
+// chain — moved out of overview.js into the page-agnostic
+// assets/backup-modal.js so the modal opens IN-PLACE on every app page.
+// The encrypt-then-share BEHAVIOR contract is unchanged; only the file
+// that owns openExportFlow changed. This test now sources backup-modal.js.
 // ---------------------------------------------------------------------------
 
 const backupSrc = fs.readFileSync(
@@ -46,7 +54,7 @@ const backupSrc = fs.readFileSync(
   'utf8'
 );
 const overviewSrc = fs.readFileSync(
-  path.join(__dirname, '..', 'assets', 'overview.js'),
+  path.join(__dirname, '..', 'assets', 'backup-modal.js'),
   'utf8'
 );
 
@@ -99,7 +107,7 @@ test('Sub-case A.3: exportEncryptedBackup resolves cancel with { ok: false, skip
     "backup.js must contain a resolve({ ok: false, skip: false, cancelled: true, blob: null, filename: null }) call");
 });
 
-test('Sub-case A.4: openExportFlow in overview.js consumes the new object shape (result.cancelled/skip/ok/blob)', () => {
+test('Sub-case A.4: openExportFlow in backup-modal.js consumes the new object shape (result.cancelled/skip/ok/blob)', () => {
   const fieldHits = (overviewSrc.match(/result\.(cancelled|skip|ok|blob|filename)/g) || []).length;
   assert.ok(fieldHits >= 4,
     'openExportFlow must reference result.cancelled / result.skip / result.ok / result.blob — got ' +
@@ -109,13 +117,13 @@ test('Sub-case A.4: openExportFlow in overview.js consumes the new object shape 
 test('Sub-case A.5: old branches purged — no `encrypted === \'cancel\'` or `=== false`', () => {
   const oldBranches = (overviewSrc.match(/encrypted\s*===\s*'cancel'|encrypted\s*===\s*false|encrypted\s*===\s*"cancel"/g) || []).length;
   assert.strictEqual(oldBranches, 0,
-    'overview.js still contains old `encrypted === \'cancel\'` / `=== false` branches; expected 0, got ' + oldBranches);
+    'backup-modal.js still contains old `encrypted === \'cancel\'` / `=== false` branches; expected 0, got ' + oldBranches);
 });
 
 test('Sub-case A.6: window.openExportFlow is exposed in overview.js (for the behavior-test sandbox + future programmatic invocation)', () => {
   const re = /window\.openExportFlow\s*=\s*openExportFlow/;
   assert.match(overviewSrc, re,
-    'overview.js must expose openExportFlow on window for cross-file invocation');
+    'backup-modal.js must expose openExportFlow on window for cross-file invocation');
 });
 
 // ---------------------------------------------------------------------------
@@ -146,18 +154,30 @@ function makeBehaviorSandbox() {
     Blob: Blob, File: File,
     URL: { createObjectURL: () => 'blob:stub', revokeObjectURL: () => {} },
     document: {
+      // backup-modal.js binds on load when readyState !== 'loading'.
+      readyState: 'complete',
       addEventListener: () => {},
       removeEventListener: () => {},
       // openExportFlow does getElementById('backupCloudBtn') for the
-      // updateBackupCloudState call — return a dummy element.
+      // updateBackupCloudState call. backup-modal.js also looks up the
+      // modal sub-nodes during bindBackupModal — a generic dummy element
+      // is fine (we only exercise openExportFlow programmatically).
       getElementById: (id) => {
         if (id === 'backupCloudBtn') return { id: 'backupCloudBtn', classList: { add: () => {}, remove: () => {} } };
-        return null;
+        if (id === 'backupModal') return {
+          id: 'backupModal',
+          classList: { add: () => {}, remove: () => {}, contains: () => true },
+          querySelector: () => null,
+        };
+        return { id: id, classList: { add: () => {}, remove: () => {}, contains: () => false },
+          addEventListener: () => {}, removeAttribute: () => {}, setAttribute: () => {},
+          files: [], value: '', disabled: false, hidden: false, textContent: '' };
       },
       createElement: () => ({
         style: {}, classList: { add: () => {}, remove: () => {} },
         setAttribute: () => {}, appendChild: () => {}, click: () => {},
-        addEventListener: () => {},
+        addEventListener: () => {}, innerHTML: '',
+        get firstElementChild() { return null; }, get firstChild() { return null; },
       }),
       body: { appendChild: () => {}, removeChild: () => {} },
       querySelector: () => null,
@@ -217,16 +237,13 @@ function makeBehaviorSandbox() {
   sandbox.window.localStorage = sandbox.localStorage;
   vm.createContext(sandbox);
 
-  // Strip the DOMContentLoaded init block — we ONLY want the hoisted
-  // function declarations (formatRelativeTime / openBackupModal /
-  // closeBackupModal / openExportFlow / openImportFlow + the
-  // `window.openExportFlow = …` exposure). Take everything before the
-  // `document.addEventListener("DOMContentLoaded", ...)` block. The hoisted
-  // `function` declarations and the window-export block all live before it.
-  let src = fs.readFileSync(path.join(__dirname, '..', 'assets', 'overview.js'), 'utf8');
-  const initIdx = src.indexOf('document.addEventListener("DOMContentLoaded"');
-  if (initIdx > 0) src = src.slice(0, initIdx);
-  vm.runInContext(src, sandbox, { filename: 'assets/overview.js' });
+  // Round-5 supersession: openExportFlow now lives in backup-modal.js
+  // (an IIFE that self-exposes window.openExportFlow on load). Load it
+  // whole — bindBackupModal() is defensive and no-ops against the dummy
+  // DOM; the encrypt-then-share contract is exercised by calling
+  // window.openExportFlow programmatically below.
+  const src = fs.readFileSync(path.join(__dirname, '..', 'assets', 'backup-modal.js'), 'utf8');
+  vm.runInContext(src, sandbox, { filename: 'assets/backup-modal.js' });
 
   return {
     sandbox,

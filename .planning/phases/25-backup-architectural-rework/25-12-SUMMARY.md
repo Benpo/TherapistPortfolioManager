@@ -509,4 +509,27 @@ Commits in git log:
 - `d074f07`: FOUND (round-3 post-UAT — RED: flex-row + max-width assertions)
 - `29b5162`: FOUND (round-3 post-UAT — GREEN: row layout + narrower callout)
 
+## Round-5 post-UAT (Ben 2026-05-15) — C1 + optimize verdict
+
+Two plan-25-12-lineage changes shipped in round-5:
+
+- **C1** — `photos.deleteAll.confirm.body` split into two visually
+  separate lines, Ben's exact he/en wording + faithful de/cs (D-28
+  parity), via a `\n` separator + `.confirm-body { white-space: pre-line }`.
+- **Optimize verdict (Change 3)** — the round-2 `photos.optimize.minimal`
+  standalone preview is absorbed into a 3-tier storage-usage verdict line
+  (`photos.usage.compact` / `.optional` / `.recommended`, selected by
+  `estimatePhotoSavings` against the new
+  `OPTIMIZE_RECOMMEND_THRESHOLD_BYTES = 2 MB`). `photos.usage.body` kept
+  as a back-compat fallback. The round-2 estimate-floor test + the
+  25-11 C3 storage-line test + the language-rerender test were
+  superseded (Rule 1) to assert the verdict line while preserving their
+  underlying contracts.
+
+Full record, commits, behavior-test detail and Rule-1 supersession notes:
+see the **"Round-5 post-UAT fixes (Ben 2026-05-15)"** section in
+`25-13-SUMMARY.md` (Changes 2 and 3). New behavior tests:
+`tests/25-12-deleteall-confirm-split.test.js` (9/9),
+`tests/25-12-optimize-verdict.test.js` (22/22).
+
 ## Self-Check: PASSED

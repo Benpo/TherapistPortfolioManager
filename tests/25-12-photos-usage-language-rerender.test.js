@@ -258,9 +258,27 @@ function makeSandbox(translations, currentLangRef) {
 (async function runAll() {
 
 await test('Runtime: storage line re-renders to EN when app:language fires after initial HE render', async () => {
+  // Phase 25 round-5 supersession (Change 3, 2026-05-15): the storage
+  // line is now a 3-tier verdict (photos.usage.compact/.optional/.
+  // recommended) selected by estimatePhotoSavings. The app:language
+  // RE-RENDER LIFECYCLE contract this test guards is unchanged — only
+  // the resolved key set widened. Provide every verdict key in both
+  // locales so whichever tier the test photo selects has a HE + EN value.
+  const heUsage = 'התמונות תופסות {size} מאחסון הדפדפן.';
+  const enUsage = 'Photos use {size} of your browser storage.';
   const translations = {
-    he: { 'photos.usage.body': 'התמונות תופסות {size} מאחסון הדפדפן.' },
-    en: { 'photos.usage.body': 'Photos use {size} of your browser storage.' },
+    he: {
+      'photos.usage.body': heUsage,
+      'photos.usage.compact': heUsage + ' כבר קומפקטיות.',
+      'photos.usage.optional': heUsage + ' אפשר לפנות {savings}.',
+      'photos.usage.recommended': heUsage + ' מומלץ לפנות {savings}.',
+    },
+    en: {
+      'photos.usage.body': enUsage,
+      'photos.usage.compact': enUsage + ' Already compact.',
+      'photos.usage.optional': enUsage + ' Optimizing could free about {savings}.',
+      'photos.usage.recommended': enUsage + ' Optimizing could free about {savings}.',
+    },
   };
   const currentLangRef = { value: 'he' };
   const ctx = makeSandbox(translations, currentLangRef);

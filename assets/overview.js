@@ -3,229 +3,30 @@ let _allClients = [];
 let _sessionsByClient = new Map();
 
 // ===========================================================================
-// Phase 25 Plan 02 — Backup & Restore modal helpers (D-05..D-10, D-26)
+// Phase 25 round-5 post-UAT (Change 1 / UAT-D2, Ben 2026-05-15)
 //
-// These functions are hoisted to module-top so:
-//   - App.mountBackupCloudButton (assets/app.js) can read window.formatRelativeTime
-//     to render the cloud icon's title attribute at mount time.
-//   - Plan 04's state-update wiring (visibilitychange + post-export refresh)
-//     can call window.renderLastBackupSubtitle without a load-order dependency.
-//   - Plan 05's scheduled-backup interval-end prompt can call
-//     window.openBackupModal from settings.js.
+// The Backup & Restore modal markup + ALL its handlers (export / import /
+// share / test-password / close / Esc / ?openBackup=1) + the public surface
+// (window.openBackupModal / renderLastBackupSubtitle / openExportFlow /
+// closeBackupModal / formatRelativeTime) now live in the page-agnostic
+// assets/backup-modal.js, loaded on EVERY app page so the header cloud icon
+// opens the modal IN-PLACE wherever the user clicks it (it previously bounced
+// to index.html?openBackup=1 on settings/add-client/add-session).
+//
+// overview.js only registers the post-restore refresh hook so an in-place
+// restore re-renders the overview list without a full page reload (other
+// pages reload via backup-modal.js's fallback).
 // ===========================================================================
-
-/**
- * Localized relative-time formatter ("3 days ago" / "1 hour ago" / "moments ago").
- * Returns null when timestamp is missing/NaN — callers render the "never" string.
- */
-function formatRelativeTime(timestampMs) {
-  if (!timestampMs || isNaN(timestampMs)) return null;
-  const elapsed = Date.now() - Number(timestampMs);
-  const lang = (typeof localStorage !== 'undefined' && localStorage.getItem('portfolioLang')) || 'en';
-  let rtf;
-  try {
-    rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
-  } catch (_) {
-    rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
-  }
-  const dayMs = 24 * 60 * 60 * 1000;
-  const hourMs = 60 * 60 * 1000;
-  const minMs = 60 * 1000;
-  if (elapsed >= dayMs) return rtf.format(-Math.floor(elapsed / dayMs), 'day');
-  if (elapsed >= hourMs) return rtf.format(-Math.floor(elapsed / hourMs), 'hour');
-  if (elapsed >= minMs) return rtf.format(-Math.floor(elapsed / minMs), 'minute');
-  return rtf.format(-Math.floor(elapsed / 1000), 'second');
-}
-if (typeof window !== 'undefined') window.formatRelativeTime = formatRelativeTime;
-
-/** Update the modal subtitle (#backupModalLastBackup) from localStorage.portfolioLastExport. */
-function renderLastBackupSubtitle() {
-  const el = document.getElementById('backupModalLastBackup');
-  if (!el) return;
-  const ts = Number(localStorage.getItem('portfolioLastExport'));
-  const rel = formatRelativeTime(ts);
-  if (rel === null) {
-    el.setAttribute('data-i18n', 'backup.modal.lastBackupNever');
-    el.textContent = App.t('backup.modal.lastBackupNever');
-  } else {
-    // Dynamic content — no static i18n binding so applyTranslations does not
-    // overwrite the substituted relative time on the next pass.
-    el.removeAttribute('data-i18n');
-    el.textContent = App.t('backup.modal.lastBackup').replace('{relative}', rel);
-  }
-}
-
-/** Probe Web Share API capability with a small probe File and hide/show the Share button. */
-function probeShareSupport() {
-  const btn = document.getElementById('backupModalShare');
-  if (!btn) return;
-  try {
-    const probe = new File(
-      [new Blob(['x'], { type: 'application/octet-stream' })],
-      'probe.sgbackup',
-      { type: 'application/octet-stream' }
-    );
-    if (BackupManager.isShareSupported(probe)) {
-      btn.classList.remove('is-hidden');
-    } else {
-      btn.classList.add('is-hidden');
-    }
-  } catch (_) {
-    btn.classList.add('is-hidden');
-  }
-}
-
-/** Open the Backup & Restore modal — refreshes subtitle, probes Share, translates. */
-function openBackupModal() {
-  const modal = document.getElementById('backupModal');
-  if (!modal) return;
-  renderLastBackupSubtitle();
-  probeShareSupport();
-  modal.classList.remove('is-hidden');
-  App.lockBodyScroll();
-  App.applyTranslations(modal);
-}
-
-/** Close the Backup & Restore modal. */
-function closeBackupModal() {
-  const modal = document.getElementById('backupModal');
-  if (!modal) return;
-  modal.classList.add('is-hidden');
-  App.unlockBodyScroll();
-  // Phase 25 Plan 03 — reset the Test-password sub-card so stale file/password/
-  // result do not leak between modal sessions (avoids visual confusion when the
-  // user reopens the modal after a successful test on a different file).
-  // Implementation note: inlined here rather than re-binding closeBackupModal,
-  // because closeBackupModal is a hoisted `function` declaration.
-  const tpFile = document.getElementById('backupTestPasswordFile');
-  const tpInput = document.getElementById('backupTestPasswordInput');
-  const tpLabel = document.getElementById('backupTestPasswordFileLabel');
-  const tpRun = document.getElementById('backupTestPasswordRun');
-  const tpResult = document.getElementById('backupTestPasswordResult');
-  if (tpFile) tpFile.value = '';
-  if (tpInput) tpInput.value = '';
-  if (tpLabel) {
-    tpLabel.setAttribute('data-i18n', 'backup.testPassword.filePlaceholder');
-    tpLabel.textContent = App.t('backup.testPassword.filePlaceholder');
-  }
-  if (tpResult) {
-    tpResult.hidden = true;
-    tpResult.textContent = '';
-    tpResult.className = 'backup-test-password-result';
-  }
-  if (tpRun) tpRun.disabled = true;
-}
-
-/**
- * Export flow — preserves the Phase 22-15 encrypt-or-skip behavior, capturing
- * the resulting blob+filename for the optional `afterExport` hook (Share-button
- * chain).
- *
- * Plan 08 refactor: exportEncryptedBackup now resolves to an object shape
- * { ok, skip, cancelled, blob, filename } instead of the legacy tri-state
- * (true / false / 'cancel'). This closes Plan 02's deferred limitation — the
- * encrypted path now exposes the encrypted blob+filename so the Share button
- * can chain through it (D-04 inheritance for BOTH share paths).
- *
- *   result.cancelled === true → user dismissed; abort silently.
- *   result.skip      === true → user pressed Skip Encryption; we run the
- *                                unencrypted exportBackup path ourselves and
- *                                capture the unencrypted blob for Share.
- *   result.ok        === true → encrypted backup downloaded; result.blob is
- *                                the encrypted blob, result.filename the
- *                                .sgbackup name. Share button chains through.
- */
-async function openExportFlow(opts) {
-  opts = opts || {};
-  try {
-    const result = await BackupManager.exportEncryptedBackup();
-    if (result.cancelled) return null;
-    let producedBlob = null;
-    let producedFilename = null;
-    if (result.skip) {
-      // Skip-encryption path: produce the unencrypted ZIP ourselves so Share
-      // can chain through (and so autoSaveToFolder writes the unencrypted ZIP
-      // when the user has a folder picked).
-      const unenc = await BackupManager.exportBackup();
-      BackupManager.triggerDownload(unenc.blob, unenc.filename);
-      if (BackupManager.isAutoBackupActive()) {
-        await BackupManager.autoSaveToFolder(unenc.blob, unenc.filename);
-      }
-      producedBlob = unenc.blob;
-      producedFilename = unenc.filename;
-    } else if (result.ok) {
-      // Encrypted path: the .sgbackup file was downloaded inside
-      // exportEncryptedBackup; result.blob is the encrypted blob and
-      // result.filename is the .sgbackup name — we forward both into the
-      // afterExport hook so the Share button shares the ENCRYPTED file.
-      producedBlob = result.blob;
-      producedFilename = result.filename;
-    }
-    // Reprobe Share-button visibility AFTER the export completes — the button
-    // is gated only by the platform capability check (navigator.canShare with
-    // a real .sgbackup probe), not by which path the user took. This unhides
-    // the Share button for BOTH encrypted and skip-encryption paths once a
-    // valid blob is in producedBlob.
-    probeShareSupport();
-    App.showToast('', 'toast.exportSuccess');
-    renderLastBackupSubtitle();
-    // Phase 25 Plan 04 (D-08/D-13) — refresh cloud icon color + title text
-    // immediately after a successful export, so the user sees the state flip
-    // without waiting for the next visibilitychange tick.
-    App.updateBackupCloudState(document.getElementById('backupCloudBtn'));
-    if (typeof opts.afterExport === 'function' && producedBlob) {
-      await opts.afterExport({ blob: producedBlob, filename: producedFilename });
-    }
-    return { blob: producedBlob, filename: producedFilename };
-  } catch (err) {
-    console.error('Backup export failed:', err);
-    let msg = (err && err.message) ? err.message : String(err);
-    if (msg.includes('subtle') || msg.includes('crypto')) {
-      msg = 'Encrypted backup requires HTTPS or localhost. Try accessing via localhost instead of IP.';
-    }
-    App.showToast(msg, 'toast.exportError');
-    return null;
-  }
-}
-
-/** Import flow — preserves the existing destructive-replace confirm + importBackup defense. */
-async function openImportFlow(file) {
-  if (!file) return;
-  if (window.name === 'demo-mode') {
-    App.showToast('', 'toast.importDisabledDemo');
-    return;
-  }
-  try {
-    const confirmed = await App.confirmDialog({
-      messageKey: 'backup.confirmReplace',
-      confirmKey: 'confirm.import',
-      cancelKey: 'confirm.cancel',
-    });
-    if (!confirmed) return;
-    await BackupManager.importBackup(file);
-    App.showToast('', 'toast.importSuccess');
-    await loadOverview();
-    renderLastBackupSubtitle();
-    // Phase 25 Plan 04 (D-08/D-13) — refresh cloud icon color + title text
-    // immediately after a successful import (importBackup writes
-    // portfolioLastExport, so the recency state changes).
-    App.updateBackupCloudState(document.getElementById('backupCloudBtn'));
-    closeBackupModal();
-  } catch (err) {
-    if (err === null) return; // passphrase modal cancelled
-    console.error('Import failed:', err);
-    const msg = (err && err.message) ? err.message : '';
-    App.showToast(msg || App.t('toast.importError'));
-  }
-}
-
 if (typeof window !== 'undefined') {
-  window.openBackupModal = openBackupModal;
-  window.renderLastBackupSubtitle = renderLastBackupSubtitle;
-  // Phase 25 Plan 08 — expose openExportFlow for cross-file invocation
-  // (encrypt-then-share behavior test sandbox; future programmatic invocation
-  // from scheduled-backup interval-end prompt or command palette).
-  window.openExportFlow = openExportFlow;
+  window.__afterBackupRestore = function () {
+    return Promise.resolve()
+      .then(function () { return loadOverview(); })
+      .then(function () {
+        if (typeof window.renderLastBackupSubtitle === 'function') {
+          window.renderLastBackupSubtitle();
+        }
+      });
+  };
 }
 
 function getDailyQuote(lang) {
@@ -288,150 +89,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (addSessionBtn) addSessionBtn.addEventListener("click", () => (window.location.href = "./add-session.html"));
 
   // -----------------------------------------------------------------------
-  // Phase 25 Plan 02 — Backup & Restore modal handlers (D-05..D-10, D-26).
-  // The 5-button overview cluster is collapsed; the cloud icon in
-  // #headerActions (mounted by App.mountBackupCloudButton) opens this modal.
-  // The pre-Phase-25 overview button handlers (Export / Import / Send-to-myself
-  // / Set-backup-folder) are deleted — their behavior moves into openExportFlow,
-  // openImportFlow, and shareBackup invoked from the modal Share button.
-  // The folder picker moves to Settings → Backups tab in Plan 05.
+  // Phase 25 round-5 post-UAT (Change 1 / UAT-D2): the Backup & Restore
+  // modal markup + ALL its handlers (?openBackup=1 auto-open, close/overlay,
+  // export/share/import, the Test-password sub-card, Esc-to-close) are owned
+  // by assets/backup-modal.js, loaded on every app page. overview.js no
+  // longer wires them — backup-modal.js's bindBackupModal() runs on
+  // DOMContentLoaded (and is idempotent via window.__backupModalWired). The
+  // post-restore overview re-render is registered above as
+  // window.__afterBackupRestore.
   // -----------------------------------------------------------------------
-
-  // Auto-open modal if navigated from another page via the cloud icon
-  // (the icon on add-client/add-session/settings pages routes here with
-  // ?openBackup=1 because the modal markup only ships in index.html).
-  try {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("openBackup") === "1") {
-      setTimeout(() => openBackupModal(), 0);
-      params.delete("openBackup");
-      const newUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + window.location.hash;
-      window.history.replaceState({}, "", newUrl);
-    }
-  } catch (_) {
-    /* defensive: bad URL state, skip auto-open */
-  }
-
-  const backupModalClose = document.getElementById("backupModalClose");
-  if (backupModalClose) backupModalClose.addEventListener("click", closeBackupModal);
-
-  const backupModalOverlay = document.querySelector("#backupModal .modal-overlay");
-  if (backupModalOverlay) backupModalOverlay.addEventListener("click", closeBackupModal);
-
-  const backupModalExport = document.getElementById("backupModalExport");
-  if (backupModalExport) {
-    backupModalExport.addEventListener("click", () => openExportFlow());
-  }
-
-  const backupModalShare = document.getElementById("backupModalShare");
-  if (backupModalShare) {
-    backupModalShare.addEventListener("click", async () => {
-      await openExportFlow({
-        afterExport: async ({ blob, filename }) => {
-          await BackupManager.shareBackup(blob, filename);
-        },
-      });
-    });
-  }
-
-  const backupModalImportInput = document.getElementById("backupModalImportInput");
-  if (backupModalImportInput) {
-    backupModalImportInput.addEventListener("change", async () => {
-      const file = backupModalImportInput.files && backupModalImportInput.files[0];
-      await openImportFlow(file);
-      backupModalImportInput.value = "";
-    });
-  }
-
-  // ---------------------------------------------------------------------
-  // Phase 25 Plan 03 — Test-password sub-card handlers (D-12).
-  // The "Test password" button is disabled until BOTH a file is chosen AND
-  // a password is typed. On click, calls BackupManager.testBackupPassword
-  // (which decrypts to memory only, never touches IDB or localStorage) and
-  // renders the result in-card — green success with manifest counts, or
-  // yellow error with the resolved i18n message from the rejection.
-  // ---------------------------------------------------------------------
-  const backupTestPasswordFile = document.getElementById("backupTestPasswordFile");
-  const backupTestPasswordFileLabel = document.getElementById("backupTestPasswordFileLabel");
-  const backupTestPasswordInput = document.getElementById("backupTestPasswordInput");
-  const backupTestPasswordRun = document.getElementById("backupTestPasswordRun");
-  const backupTestPasswordResult = document.getElementById("backupTestPasswordResult");
-
-  function refreshTestPasswordButtonState() {
-    const hasFile = !!(backupTestPasswordFile && backupTestPasswordFile.files && backupTestPasswordFile.files.length > 0);
-    const hasPwd = !!(backupTestPasswordInput && backupTestPasswordInput.value.length > 0);
-    if (backupTestPasswordRun) backupTestPasswordRun.disabled = !(hasFile && hasPwd);
-  }
-
-  function showTestPasswordResult(kind, text) {
-    if (!backupTestPasswordResult) return;
-    backupTestPasswordResult.className = "backup-test-password-result " + kind;
-    backupTestPasswordResult.textContent = text;
-    backupTestPasswordResult.hidden = false;
-  }
-
-  function clearTestPasswordResult() {
-    if (!backupTestPasswordResult) return;
-    backupTestPasswordResult.hidden = true;
-    backupTestPasswordResult.textContent = "";
-    backupTestPasswordResult.className = "backup-test-password-result";
-  }
-
-  if (backupTestPasswordFile && backupTestPasswordFileLabel) {
-    backupTestPasswordFile.addEventListener("change", () => {
-      const f = backupTestPasswordFile.files && backupTestPasswordFile.files[0];
-      if (f) {
-        // Render the chosen filename — drop the data-i18n binding so
-        // applyTranslations does not overwrite the dynamic filename on the
-        // next pass (mirrors the renderLastBackupSubtitle convention).
-        backupTestPasswordFileLabel.removeAttribute("data-i18n");
-        backupTestPasswordFileLabel.textContent = f.name;
-      } else {
-        backupTestPasswordFileLabel.setAttribute("data-i18n", "backup.testPassword.filePlaceholder");
-        backupTestPasswordFileLabel.textContent = App.t("backup.testPassword.filePlaceholder");
-      }
-      clearTestPasswordResult();
-      refreshTestPasswordButtonState();
-    });
-  }
-  if (backupTestPasswordInput) {
-    backupTestPasswordInput.addEventListener("input", () => {
-      clearTestPasswordResult();
-      refreshTestPasswordButtonState();
-    });
-  }
-  if (backupTestPasswordRun) {
-    backupTestPasswordRun.addEventListener("click", async () => {
-      const f = backupTestPasswordFile && backupTestPasswordFile.files && backupTestPasswordFile.files[0];
-      const pwd = backupTestPasswordInput ? backupTestPasswordInput.value : "";
-      if (!f || !pwd) return;
-      backupTestPasswordRun.disabled = true;
-      try {
-        const r = await BackupManager.testBackupPassword(f, pwd);
-        const lang = localStorage.getItem("portfolioLang") || "en";
-        const dateStr = r.exportedAt ? new Date(r.exportedAt).toLocaleDateString(lang) : "—";
-        const successText = App.t("backup.testPassword.success")
-          .replace("{date}", dateStr)
-          .replace("{clients}", String(r.clientCount))
-          .replace("{sessions}", String(r.sessionCount));
-        showTestPasswordResult("success", successText);
-      } catch (err) {
-        const msg = (err && err.message) ? err.message : App.t("backup.testPassword.invalid");
-        showTestPasswordResult("error", msg);
-      } finally {
-        refreshTestPasswordButtonState();
-      }
-    });
-  }
-
-  // Esc closes the backup modal when open.
-  document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape") return;
-    const modal = document.getElementById("backupModal");
-    if (modal && !modal.classList.contains("is-hidden")) {
-      closeBackupModal();
-    }
-  });
 
   setupModal();
 

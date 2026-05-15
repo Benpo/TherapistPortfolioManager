@@ -310,7 +310,13 @@
     Backups tab is unusable without this — adding the script restores the
     intended behavior.
   -->
+  <!-- Phase 25 round-5 (UAT-D2): JSZip + backup-modal.js so the header
+       cloud icon opens the Backup & Restore modal IN-PLACE on settings.html
+       (previously it bounced to index.html?openBackup=1). JSZip is required
+       by BackupManager.exportBackup / importBackup invoked from the modal. -->
+  <script src="./assets/jszip.min.js"></script>
   <script src="./assets/backup.js"></script>
+  <script src="./assets/backup-modal.js"></script>
   <script src="./assets/snippets.js" defer></script>
   <script src="./assets/settings.js"></script>
   <script>

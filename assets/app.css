@@ -1536,6 +1536,12 @@ html[dir="rtl"] .session-header{
   font-weight:600;
   line-height:1.5;
   margin-bottom:1.6rem;
+  /* Phase 25 round-5 (C1, 2026-05-15): confirm bodies are rendered via
+   * .textContent (App.confirmDialog). pre-line honours the \n line
+   * separators authored in multi-sentence i18n bodies (e.g.
+   * photos.deleteAll.confirm.body) so they render as two visual lines
+   * while still collapsing incidental whitespace. */
+  white-space:pre-line;
 }
 
 .confirm-actions{
@@ -3674,6 +3680,18 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   background: var(--color-surface-alt, #fdf7ed);
   border-radius: 12px;
   padding: var(--space-md, 16px);
+  /* Phase 25 round-5 (D6 + D7, 2026-05-15): the card stacks heading,
+   * helper, drop zone, password input, the Test-password button row and
+   * the result line. Without a flex gap the password input sat flush
+   * against the Check button below it (UAT-D6) and the controls read as
+   * one undifferentiated block (UAT-D7 "no space between buttons"). A
+   * flex column with a 16px gap gives every stacked control consistent
+   * breathing room — drop zone → input → Check → result. This is the
+   * single spacing source for the sub-card (the drop zone's old
+   * per-element margin-block-end is removed below). */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md, 16px);
 }
 .backup-test-password-filebtn {
   display: inline-flex;
@@ -3830,7 +3848,13 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   border-radius: 8px;
   background: var(--color-surface, transparent);
   padding: var(--space-md, 16px);
-  margin-block-end: var(--space-md, 16px);
+  /* Phase 25 round-5 (D6, 2026-05-15): the drop-zone→input gap is now
+   * owned by `.backup-test-password-card { gap: var(--space-md) }` (single
+   * spacing source for the whole sub-card). The old per-element
+   * margin-block-end here would double the gap below the drop zone, so
+   * it is removed. The ≥16px drop-zone↔input separation contract is
+   * preserved — it just lives on the container now. */
+  margin-block-end: 0;
   color: var(--color-text-muted);
   /* The .button rule shadows the drop zone with `var(--shadow-button)`
    * which makes the dashed border read as a hover pill. Strip it. */
@@ -3862,20 +3886,25 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   gap: var(--space-sm, 8px);
 }
 
-/* UAT-F1 — Photos-tab buttons sized to content.
- * The parent `.form-field` is `display: flex; flex-direction: column`
- * (app.css:965), which means children get cross-axis `stretch` by
- * default and the button spans the full container width. Override per
- * button so it sizes to its content with a comfortable min-width.
- * `align-self: flex-start` pins to the inline-start edge; RTL flips it
- * to the inline-end edge via the existing `html[dir="rtl"]` pattern. */
+/* UAT-F1 — Photos-tab buttons sized to content, direction-correct.
+ *
+ * Phase 25 round-5 fix (Ben re-tested Safari HE, 2026-05-15): round-3
+ * used `align-self: flex-start` + an `html[dir="rtl"]` override flipping
+ * to `flex-end`. `flex-start`/`flex-end` are FLEX-FLOW relative, not
+ * writing-mode relative — on the cross axis of a column flex container
+ * they did NOT reliably flip for `dir="rtl"`, so in Hebrew the buttons
+ * stayed visually LEFT-aligned (RTL start should be the visual RIGHT).
+ *
+ * Fix: drop `flex-start`/`flex-end` entirely. Use `align-self: start`
+ * (the `start`/`end` keywords ARE writing-mode/`dir` relative — they
+ * resolve to inline-start, which is left in LTR and right in RTL) AND
+ * `margin-inline-end: auto` (a logical property that pushes the button
+ * toward inline-start in BOTH directions). This is direction-correct
+ * without any `html[dir="rtl"]` override — LTR → left, RTL → right. */
 #photosOptimizeBtn,
 #photosDeleteAllBtn {
   width: auto;
-  align-self: flex-start;
+  align-self: start;
+  margin-inline-end: auto;
   min-width: 180px;
-}
-html[dir="rtl"] #photosOptimizeBtn,
-html[dir="rtl"] #photosDeleteAllBtn {
-  align-self: flex-end;
 }
