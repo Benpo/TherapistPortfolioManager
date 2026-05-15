@@ -2051,16 +2051,27 @@ window.SettingsPage = (function () {
           localStorage.setItem('portfolioBackupSchedulePasswordAcked',
             ack.checked ? 'true' : 'false');
         } catch (_) {}
-        // If user un-acks while a schedule is active, force it back to Off.
-        // applyFrequencyChange will surface its own save-toast on the
-        // forced transition.
+        // WR-01 (code-review 2026-05-16): if the user un-acks while a
+        // schedule is active, the schedule MUST go off — D-18 forbids an
+        // active schedule without an acked password. This is NOT the
+        // user-initiated "do you want to turn it off?" path, so it must
+        // NOT route through the cancellable applyFrequencyChange('off')
+        // disable-confirm: cancelling that left scheduleMode=active while
+        // passwordAcked=false, silently defeating the gate. Force it off
+        // directly and unconditionally (mirrors applyFrequencyChange's
+        // OFF write: persist + refresh helper/visibility + save-toast).
         if (!ack.checked && readScheduleMode() !== 'off') {
+          try { localStorage.setItem('portfolioBackupScheduleMode', 'off'); } catch (_) {}
           sel.value = 'off';
-          applyFrequencyChange('off');
+          refreshFrequencyHelper();
+          refreshCustomDaysVisibility();
+          if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+            App.showToast('', 'schedule.savedToast');
+          }
         } else if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
           // UAT-D3: save-toast for the ack-checkbox toggle itself (only
-          // when we did NOT cascade into applyFrequencyChange — that path
-          // surfaces its own toast).
+          // when we did NOT force the schedule off — that path surfaces
+          // its own toast above).
           App.showToast('', 'schedule.savedToast');
         }
         var err = $('schedulePasswordError');
