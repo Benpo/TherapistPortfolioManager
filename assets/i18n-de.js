@@ -304,6 +304,18 @@ window.I18N.de = {
   "backup.action.import": "Backup-Datei w\u00e4hlen",
   "backup.modal.scheduleFooter": "Zeitplan unter Einstellungen \u2192 Backups einrichten, damit Sie nicht daran denken m\u00fcssen.",
 
+  // Phase 25 Plan 03 \u2014 Test-backup-password dry-run (D-12). DE uses literal Unicode (Plan 25-01 precedent).
+  "backup.action.testPassword": "Backup-Passwort testen",
+  "backup.testPassword.heading": "Backup-Passwort testen",
+  "backup.testPassword.helper": "Pr\u00fcfen Sie, ob Sie eine Backup-Datei mit Ihrem Passwort entschl\u00fcsseln k\u00f6nnen. Ihre aktuellen Daten werden nicht ver\u00e4ndert.",
+  "backup.testPassword.filePlaceholder": "Backup-Datei hier ablegen oder zum Ausw\u00e4hlen klicken.",
+  "backup.testPassword.passwordPlaceholder": "Backup-Passwort",
+  "backup.testPassword.run": "Passwort testen",
+  "backup.testPassword.success": "Erfolgreich entschl\u00fcsselt. Backup vom {date} \u2014 {clients} Klienten, {sessions} Sitzungen.",
+  "backup.testPassword.wrongPassphrase": "Mit diesem Passwort konnte die Datei nicht entschl\u00fcsselt werden. Bitte \u00fcberpr\u00fcfen Sie das beim Erstellen des Backups verwendete Passwort oder versuchen Sie eine andere Datei.",
+  "backup.testPassword.notEncrypted": "Diese Datei ist kein verschl\u00fcsseltes Backup, daher wird kein Passwort ben\u00f6tigt. Sie k\u00f6nnen sie direkt aus dem Import-Bereich importieren.",
+  "backup.testPassword.invalid": "Diese Datei ist kein g\u00fcltiges Sessions Garden Backup. Bitte w\u00e4hlen Sie eine andere Datei.",
+
   // Phase 22 \u2014 Settings page
   "header.settings.label": "Einstellungen",
   "settings.page.title": "Einstellungen",

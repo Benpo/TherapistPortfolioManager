@@ -304,6 +304,18 @@ window.I18N.cs = {
   "backup.action.import": "Vybrat soubor zálohy",
   "backup.modal.scheduleFooter": "Nastavit plán v Nastavení → Zálohy, abyste si to nemuseli pamatovat.",
 
+  // Phase 25 Plan 03 — Test-backup-password dry-run (D-12). CS uses literal Unicode (Plan 25-01 precedent).
+  "backup.action.testPassword": "Otestovat heslo zálohy",
+  "backup.testPassword.heading": "Otestovat heslo zálohy",
+  "backup.testPassword.helper": "Ověřte, že lze dešifrovat soubor zálohy heslem. Vaše aktuální data nejsou nijak dotčena.",
+  "backup.testPassword.filePlaceholder": "Sem přetáhněte soubor zálohy, nebo klikněte pro výběr.",
+  "backup.testPassword.passwordPlaceholder": "Heslo zálohy",
+  "backup.testPassword.run": "Otestovat heslo",
+  "backup.testPassword.success": "Úspěšně dešifrováno. Záloha z {date} — {clients} klientů, {sessions} sezení.",
+  "backup.testPassword.wrongPassphrase": "Tímto heslem se soubor nepodařilo dešifrovat. Zkontrolujte heslo použité při vytvoření zálohy, nebo zkuste jiný soubor.",
+  "backup.testPassword.notEncrypted": "Tento soubor není zašifrovaná záloha, takže není potřeba heslo. Můžete jej importovat přímo z části Import.",
+  "backup.testPassword.invalid": "Tento soubor není platná záloha Sessions Garden. Vyzkoušejte jiný soubor.",
+
   // Phase 22 \u2014 Settings page
   "header.settings.label": "Nastaven\u00ED",
   "settings.page.title": "Nastaven\u00ED",

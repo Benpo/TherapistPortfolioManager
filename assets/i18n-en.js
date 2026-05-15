@@ -305,6 +305,18 @@ window.I18N.en = {
   "backup.action.import": "Choose backup file",
   "backup.modal.scheduleFooter": "Set up a schedule in Settings → Backups so you don’t have to remember.",
 
+  // Phase 25 Plan 03 — Test-backup-password dry-run (D-12)
+  "backup.action.testPassword": "Test backup password",
+  "backup.testPassword.heading": "Test backup password",
+  "backup.testPassword.helper": "Check that you can decrypt a backup file with your password. Your current data is not touched.",
+  "backup.testPassword.filePlaceholder": "Drop a backup file here, or click to choose one.",
+  "backup.testPassword.passwordPlaceholder": "Backup password",
+  "backup.testPassword.run": "Test password",
+  "backup.testPassword.success": "Decrypted successfully. Backup from {date} — {clients} clients, {sessions} sessions.",
+  "backup.testPassword.wrongPassphrase": "That password didn't decrypt this file. Double-check the password you used when creating the backup, or try a different file.",
+  "backup.testPassword.notEncrypted": "This file isn't an encrypted backup, so no password is needed. You can import it directly from the Import section.",
+  "backup.testPassword.invalid": "This file isn't a valid Sessions Garden backup. Try a different file.",
+
   // Phase 22 — Settings page
   "header.settings.label": "Settings",
   "settings.page.title": "Settings",
