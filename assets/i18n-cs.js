@@ -167,7 +167,6 @@ window.I18N.cs = {
   "toast.heartShieldRequired": "Vyberte, zda byla Ochrana srdce odstraněna",
   "toast.importSuccess": "Data importována",
   "toast.importError": "Import selhal",
-  "overview.sendBackup": "Poslat z\u00e1lohu sob\u011b",
   "overview.autoBackup": "Nastavit slo\u017eku z\u00e1loh",
   "backup.confirmReplace": "T\u00edmto nahrad\u00edte v\u0161echna aktu\u00e1ln\u00ed data z\u00e1lohou. Pokra\u010dovat?",
   "toast.exportSuccess": "Z\u00e1loha \u00fasp\u011b\u0161n\u011b exportov\u00e1na",
@@ -276,6 +275,11 @@ window.I18N.cs = {
   "backup.passphrase.rules.minLength": "M\u00EDt alespo\u0148 6 znak\u016F",
   "backup.passphrase.rules.notRepeated": "Nesm\u00ED b\u00FDt stejn\u00FD znak opakovan\u011B",
   "backup.passphrase.rules.notOnlyDigits": "Nesm\u00ED b\u00FDt jen \u010D\u00EDsla",
+
+  // Phase 25 Plan 01 \u2014 Share affordance (D-02, D-03)
+  "backup.action.share": "Sdílet zálohu",
+  "backup.share.title": "Záloha Sessions Garden",
+  "backup.share.fallback.body": "Záloha byla stažena do složky Downloads. Přiložte prosím {filename} k tomuto e-mailu ručně.",
 
   // Phase 22 \u2014 Settings page
   "header.settings.label": "Nastaven\u00ED",

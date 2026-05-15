@@ -167,7 +167,6 @@ window.I18N.he = {
   "toast.heartShieldRequired": "יש לבחור אם הגנת הלב נוקתה או לא",
   "toast.importSuccess": "הנתונים יובאו",
   "toast.importError": "ייבוא נכשל",
-  "overview.sendBackup": "\u05e9\u05dc\u05d7 \u05d2\u05d9\u05d1\u05d5\u05d9 \u05dc\u05e2\u05e6\u05de\u05d9",
   "overview.autoBackup": "\u05d1\u05d7\u05e8 \u05ea\u05d9\u05e7\u05d9\u05d9\u05ea \u05d2\u05d9\u05d1\u05d5\u05d9",
   "backup.confirmReplace": "\u05e4\u05e2\u05d5\u05dc\u05d4 \u05d6\u05d5 \u05ea\u05d7\u05dc\u05d9\u05e3 \u05d0\u05ea \u05db\u05dc \u05d4\u05e0\u05ea\u05d5\u05e0\u05d9\u05dd \u05d4\u05e0\u05d5\u05db\u05d7\u05d9\u05d9\u05dd \u05d1\u05d2\u05d9\u05d1\u05d5\u05d9. \u05dc\u05d4\u05de\u05e9\u05d9\u05da?",
   "toast.exportSuccess": "\u05d4\u05d2\u05d9\u05d1\u05d5\u05d9 \u05d9\u05d5\u05e6\u05d0 \u05d1\u05d4\u05e6\u05dc\u05d7\u05d4",
@@ -276,6 +275,11 @@ window.I18N.he = {
   "backup.passphrase.rules.minLength": "להכיל לפחות 6 תווים",
   "backup.passphrase.rules.notRepeated": "לא להיות חזרה על אותו תו",
   "backup.passphrase.rules.notOnlyDigits": "לא להיות רק ספרות",
+
+  // Phase 25 Plan 01 — Share affordance (D-02, D-03, D-27 noun/infinitive)
+  "backup.action.share": "שיתוף גיבוי",
+  "backup.share.title": "גיבוי Sessions Garden",
+  "backup.share.fallback.body": "קובץ הגיבוי הורד לתיקיית ההורדות. נא לצרף את {filename} לאימייל זה ידנית.",
 
   // Phase 22 — Settings page
   "header.settings.label": "הגדרות",
