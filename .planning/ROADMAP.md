@@ -585,6 +585,36 @@ Plans:
 
 ---
 
+### Phase 27: Backup & Restore modal — visual cohesion (UI-SPEC pass)
+
+**Goal:** Redesign the Backup & Restore modal for visual cohesion. Phase 25 closed every functional gap, but the modal accumulated visual devices round-by-round (each fix added its own treatment) and now reads as "not thought through" (Ben, 2026-05-16 UAT). This phase produces a single coherent visual system for the modal — a design-contract pass (`/gsd-ui-phase 27` → UI-SPEC.md), then implementation.
+
+**The concrete problem (Ben's screenshot, 2026-05-16):** the modal mixes
+- two tinted card backgrounds (peach/cream "what's included" + "test password" cards) against the plain modal body,
+- a red danger banner for Import,
+- filled-green primary + outlined secondary + dashed drop-zone + the new tier-banded verdict (blue/amber/green) + the reminders `<details>` + the password callout + the relocated red error band,
+- several heading weights/sizes.
+Each is individually defensible; together they have no shared rhythm.
+
+**In scope (refine in `/gsd-ui-phase 27`):**
+1. One section rhythm — drop the tinted cards for the plain section + divider cadence used elsewhere (or commit to cards everywhere, consistently).
+2. One button language — single primary (filled) + single secondary (outline); retire ad-hoc dashed/pill variants except where a control genuinely needs a distinct affordance (the drop zone).
+3. Restrained accent use — verdict tiers, the Import danger warning, and the password-required error should share ONE severity palette, not three independent color systems.
+4. Quiet-but-clear danger — demote the full red Import banner to a calm-but-clear warning consistent with the other inline messages.
+5. Preserve every behavior Phase 25 shipped (Export/Import/Share gating, Test-password, schedule, reminders explainer, 3-tier verdict, password gate) — visual only, no functional regression.
+
+**Out of scope:** any backup logic change; GAP-25-H1 (desktop Web Share — separate deferred item in `25-FOLLOWUPS.md`); overview/header surfaces (modal only).
+
+**Constraints:** RTL-safe (Hebrew primary); i18n string keys only; reuse existing design tokens (`--color-*`, `--space-*`) — no new ad-hoc hex; must not regress the 58/58 test suite or the Phase 25 UAT closures.
+
+**Depends on:** Phase 25 (complete). Independent of Phase 26.
+
+**Plans:** TBD after `/gsd-ui-phase 27`.
+
+**Origin:** Phase 25 UAT item #1 (Ben, 2026-05-16) — explicitly agreed to defer the visual-cohesion redesign to a dedicated UI-SPEC phase while Phase 25 shipped the functional fixes. Cross-ref: `.planning/phases/25-backup-architectural-rework/25-FOLLOWUPS.md`.
+
+---
+
 ### v1.1 Final Polish & Launch (In Progress)
 
 **Milestone Goal:** Polish the app for free trial users, fix UX pain points, update visual identity, and complete all launch prerequisites so the product can be sold.
