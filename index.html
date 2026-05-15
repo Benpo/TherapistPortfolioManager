@@ -204,7 +204,7 @@
       <section class="backup-modal-section backup-modal-section--export">
         <h3 class="backup-modal-section-heading" data-i18n="backup.export.heading">Export backup</h3>
         <p class="backup-modal-section-helper helper-text" data-i18n="backup.export.helper">Save a copy of all your data. Encrypt it with a password (recommended), or save it unprotected.</p>
-        <div class="backup-modal-button-row">
+        <div class="backup-modal-button-row backup-modal-actions">
           <button type="button" class="button" id="backupModalExport" data-i18n="backup.action.export">Export backup</button>
           <button type="button" class="button ghost is-hidden" id="backupModalShare" data-i18n="backup.action.share">Share backup</button>
         </div>
@@ -216,7 +216,7 @@
         <div class="backup-modal-import-warning" role="alert">
           <span data-i18n="backup.import.warning">&#9888; Replaces all current data</span>
         </div>
-        <div class="backup-modal-button-row">
+        <div class="backup-modal-button-row backup-modal-actions">
           <label class="button ghost import-label">
             <span data-i18n="backup.action.import">Choose backup file</span>
             <input id="backupModalImportInput" type="file" accept=".zip,.json,.sgbackup" class="is-hidden" />
@@ -241,7 +241,7 @@
           <div class="form-field">
             <input id="backupTestPasswordInput" class="input" type="password" autocomplete="off" data-i18n-placeholder="backup.testPassword.passwordPlaceholder" placeholder="Backup password" />
           </div>
-          <div class="backup-modal-button-row">
+          <div class="backup-modal-button-row backup-modal-actions">
             <button type="button" class="button" id="backupTestPasswordRun" data-i18n="backup.testPassword.run" disabled>Test password</button>
           </div>
           <p id="backupTestPasswordResult" class="backup-test-password-result" role="status" aria-live="polite" hidden></p>

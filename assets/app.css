@@ -3554,22 +3554,38 @@ html[dir="rtl"] .export-format-help[open] summary::before {
 
 .backup-cloud-btn { /* cloud-specific overrides; Plan 04 adds state colors */ }
 
-/* Phase 25 Plan 04 — cloud icon recency state colors (D-13 / D-14, updated 2026-05-15)
-   The button background encodes recency; the icon glyph color flips
-   alongside so the SVG stroke (drawn via currentColor) maintains WCAG AA
-   contrast against the new background. Only existing semantic tokens —
-   no new color literals. Plan 02 provisionally shipped the --never rule;
-   the canonical four-state map lives here.
-*/
+/* Phase 25 Plan 04 — cloud icon recency state colors (D-13 / D-14,
+ * Plan 13 update 2026-05-15 — UAT-E1 visual hierarchy fix).
+ *
+ * The button background encodes recency; the icon glyph color flips
+ * alongside so the SVG stroke (drawn via currentColor) maintains WCAG AA
+ * contrast against the new treatment. Only existing semantic tokens —
+ * no new color literals.
+ *
+ * UAT-E1 (Ben, 2026-05-15): On settings.html the gear icon's current-
+ * page indicator is filled green AND the cloud icon's --fresh state was
+ * filled --color-success-bg, so the header read as "two equally
+ * important things" instead of "you are on Settings." The UI-SPEC sets
+ * the gear as the load-bearing current-page signal, so the cloud's
+ * --fresh state must visually subordinate to it.
+ *
+ * Pattern A (chosen): non-fill ring.
+ *   --fresh uses transparent background + a thin success-border ring.
+ *   The fill-treatment is preserved for --warning and --danger where
+ *   the signal needs to be stronger (semantic ladder: weaker signal
+ *   = weaker visual weight).
+ * --never gets a dashed border for symmetry with the --fresh ring,
+ *   reading as "no backup yet" without competing with the gear green.
+ */
 .backup-cloud-btn--never {
-  background-color: var(--color-surface-subtle, var(--color-surface-alt));
+  background-color: transparent;
   color: var(--color-text-muted);
-  border-color: var(--color-border);
+  border: 1px dashed var(--color-border);
 }
 .backup-cloud-btn--fresh {
-  background-color: var(--color-success-bg);
+  background-color: transparent;
   color: var(--color-success-text);
-  border-color: transparent;
+  border: 2px solid var(--color-success-border);
 }
 .backup-cloud-btn--warning {
   background-color: var(--color-warning-bg);
@@ -3755,4 +3771,111 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   color: var(--color-success-text, #1e6b3a);
   border-radius: 8px;
   border-inline-start: 4px solid var(--color-success-border, #4caf50);
+}
+
+/* =================================================================
+   Phase 25 Plan 13 — UAT-D5/D6/D7/F1 visual polish (2026-05-15)
+   Five visual gaps Ben surfaced during the 2026-05-15 UAT pass:
+     D5 — modal footer link looks clickable.
+     D6 — test-password drop zone visually distinct from password input.
+     D7 — backup-modal action rows have visible button spacing.
+     E1 — cloud icon --fresh subordinates to gear current-page green
+          (Pattern A — non-fill ring; handled in the .backup-cloud-btn--*
+          band above, not here).
+     F1 — photos-tab buttons sized to content (not full-stretch).
+   ================================================================= */
+
+/* UAT-D5 — Modal footer link styling.
+ * The global `a { text-decoration: none; color: inherit; }` rule at the
+ * top of this file strips all link affordances. The modal-footer link
+ * needs the affordances restored so users recognize it as clickable.
+ * Bind to both the class on the existing `<a>` (`.text-link`) and the
+ * structural selectors (.backup-modal-footer a, #backupModalScheduleLink)
+ * so the rule survives markup changes. */
+.backup-modal-footer a,
+#backupModalScheduleLink,
+.text-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.backup-modal-footer a:hover,
+.backup-modal-footer a:focus-visible,
+#backupModalScheduleLink:hover,
+#backupModalScheduleLink:focus-visible,
+.text-link:hover,
+.text-link:focus-visible {
+  color: var(--color-primary-dark, var(--color-primary));
+  text-decoration-thickness: 2px;
+}
+
+/* UAT-D6 — Test-password drop zone visual distinction.
+ * Override the minimal Plan 03 rule (display: inline-flex; cursor:
+ * pointer;) with a dashed-border drop-zone treatment so users read it as
+ * a file picker, not a stacked text input above the password field.
+ * margin-block-end creates the ≥16px gap from the password input below
+ * (UAT-D6 explicit requirement). The .import-label rule at app.css:1450
+ * still applies (position:relative; overflow:hidden; cursor:pointer for
+ * the hidden <input>). */
+.backup-test-password-filebtn {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  /* Override `.button` (border-radius:999px pill) and `.button.ghost`
+   * (border:1px solid var(--color-border-ghost)) so this label reads as
+   * a drop zone, not a pill button next to the password input. */
+  border: 2px dashed var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface, transparent);
+  padding: var(--space-md, 16px);
+  margin-block-end: var(--space-md, 16px);
+  color: var(--color-text-muted);
+  /* The .button rule shadows the drop zone with `var(--shadow-button)`
+   * which makes the dashed border read as a hover pill. Strip it. */
+  box-shadow: none;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+.backup-test-password-filebtn:hover,
+.backup-test-password-filebtn:focus-within {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+  /* `.button:hover { transform: translateY(-1px) }` makes the drop zone
+   * jump on hover — that pill-button feel is exactly what we're trying
+   * to avoid. Cancel the lift; keep the color shift as the affordance. */
+  transform: none;
+}
+
+/* UAT-D7 — Backup-modal section-level gap.
+ * Plan 02 already shipped `.backup-modal-button-row { gap: var(--space-sm) }`
+ * which covers the export/import action rows. Add a section-level rule
+ * that makes the vertical rhythm inside each section explicit, so the
+ * section heading → helper → button row stack reads with predictable
+ * spacing even when section content gets added/removed later. */
+.backup-modal-section--export,
+.backup-modal-section--import,
+.backup-modal-section--test {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm, 8px);
+}
+
+/* UAT-F1 — Photos-tab buttons sized to content.
+ * The parent `.form-field` is `display: flex; flex-direction: column`
+ * (app.css:965), which means children get cross-axis `stretch` by
+ * default and the button spans the full container width. Override per
+ * button so it sizes to its content with a comfortable min-width.
+ * `align-self: flex-start` pins to the inline-start edge; RTL flips it
+ * to the inline-end edge via the existing `html[dir="rtl"]` pattern. */
+#photosOptimizeBtn,
+#photosDeleteAllBtn {
+  width: auto;
+  align-self: flex-start;
+  min-width: 180px;
+}
+html[dir="rtl"] #photosOptimizeBtn,
+html[dir="rtl"] #photosDeleteAllBtn {
+  align-self: flex-end;
 }
