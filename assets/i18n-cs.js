@@ -171,6 +171,8 @@ window.I18N.cs = {
   "backup.confirmReplace": "T\u00edmto nahrad\u00edte v\u0161echna aktu\u00e1ln\u00ed data z\u00e1lohou. Pokra\u010dovat?",
   "toast.exportSuccess": "Z\u00e1loha \u00fasp\u011b\u0161n\u011b exportov\u00e1na",
   "toast.exportError": "Export z\u00e1lohy selhal",
+  "photos.upload.warning": "Velk\u00e1 fotografie \u2014 zpracov\u00e1n\u00ed m\u016f\u017ee chv\u00edli trvat.",
+  "photos.upload.tooLarge": "Tato fotografie je p\u0159\u00edli\u0161 velk\u00e1 ke zpracov\u00e1n\u00ed. Vyberte pros\u00edm men\u0161\u00ed obr\u00e1zek.",
   "toast.autoBackupSet": "Slo\u017eka z\u00e1loh nastavena pro toto sezen\u00ed",
   "toast.importDisabledDemo": "Import nen\u00ed v demo re\u017eimu dostupn\u00fd",
   "confirm.import": "Importovat",
