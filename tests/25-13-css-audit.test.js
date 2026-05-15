@@ -29,6 +29,7 @@ const path = require('path');
 
 const cssPath = path.join(__dirname, '..', 'assets', 'app.css');
 const css = fs.readFileSync(cssPath, 'utf8');
+const indexHtml = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 
 let passed = 0;
 let failed = 0;
@@ -250,6 +251,150 @@ test('UAT-F1: #photosOptimizeBtn and #photosDeleteAllBtn have width: auto OR a n
   });
   if (!hasSizingFix) {
     throw new Error('#photosOptimizeBtn / #photosDeleteAllBtn lack width:auto / align-self / max-width — buttons still stretch full-width');
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════
+// Round-5 post-UAT (Ben 2026-05-15) — D6 / D7 / F1 re-test.
+//
+// Round-3's grep-audit passed but the LIVE layout still showed:
+//   D6 — no padding between the password input and the Check button.
+//   D7 — buttons still touching ("not really" — the asserted class was
+//        not on the real container).
+//   F1 — RTL buttons LEFT-aligned in Hebrew (align-self:flex-start does
+//        not flip with dir=rtl on a column cross-axis).
+// These assertions target the REAL containers + a direction-correct
+// alignment, not just any rule that declares a gap.
+// ════════════════════════════════════════════════════════════════════
+
+// ─── Change 4 — D6: spacing drop-zone → input → Check button ────────
+test('Round-5 D6: the test-password container (.backup-test-password-card) declares a non-zero gap OR the password input/button have non-zero margin-block', function () {
+  // The drop zone, password input, and Test-password button are stacked
+  // inside .backup-test-password-card. Real fix: that card becomes a
+  // flex column WITH a gap so all three controls get consistent
+  // vertical spacing (the round-3 margin-block-end on the drop zone
+  // alone left input↔button touching).
+  const cardRules = findRule('.backup-test-password-card');
+  if (cardRules.length === 0) {
+    throw new Error('.backup-test-password-card rule missing — D6 target container not styled');
+  }
+  const cardHasGap = cardRules.some(function (r) {
+    if (/\bgap\s*:\s*var\(--space-(xs|sm|md|lg|xl)/.test(r.body)) return true;
+    const m = r.body.match(/\bgap\s*:\s*([\d.]+)\s*(px|rem|em)/);
+    if (m && parseFloat(m[1]) > 0) return true;
+    return false;
+  });
+  // Alternative acceptable shape: an explicit margin-block on the
+  // password input (#backupTestPasswordInput) OR the run button
+  // (#backupTestPasswordRun) creating the gap.
+  const inputRules = [
+    findRule('#backupTestPasswordInput'),
+    findRule('#backupTestPasswordRun'),
+  ].flat();
+  const inputHasMargin = inputRules.some(function (r) {
+    if (/margin-block(-start|-end)?\s*:\s*var\(--space-(sm|md|lg|xl)/.test(r.body)) return true;
+    if (/margin-(top|bottom)\s*:\s*var\(--space-(sm|md|lg|xl)/.test(r.body)) return true;
+    const m = r.body.match(/margin-(block-start|block-end|top|bottom)\s*:\s*([\d.]+)\s*(px|rem|em)/);
+    if (m && parseFloat(m[2]) > 0) return true;
+    return false;
+  });
+  if (!cardHasGap && !inputHasMargin) {
+    throw new Error('Neither .backup-test-password-card declares a non-zero gap nor the password input/button declare a non-zero margin-block — D6 input↔button gap missing');
+  }
+});
+
+// ─── Change 5 — D7: gap on the REAL action-row container ────────────
+test('Round-5 D7: the real Backup-modal action-row container present in index.html declares a non-zero gap that is not reset', function () {
+  // Inspect index.html to find the ACTUAL class on the divs that hold the
+  // Export / Import / Test buttons. Round-3 added `.backup-modal-actions`
+  // as a CO-CLASS alongside `.backup-modal-button-row` on each of those
+  // divs — assert the selector that genuinely matches them declares a gap.
+  const rowMatches = indexHtml.match(/class="backup-modal-button-row[^"]*"/g) || [];
+  if (rowMatches.length < 2) {
+    throw new Error('Expected ≥2 .backup-modal-button-row containers in index.html (export/import/test) — found ' + rowMatches.length + '. Selector assumption invalid.');
+  }
+  // The real container carries `backup-modal-button-row`. Assert the
+  // rule for THAT class (the one actually on the element) declares a gap.
+  const realRowRules = findRule('.backup-modal-button-row');
+  if (realRowRules.length === 0) {
+    throw new Error('.backup-modal-button-row (the class actually on the action-row divs in index.html) has NO css rule — buttons would touch');
+  }
+  const declaresGap = realRowRules.some(function (r) {
+    if (/\bgap\s*:\s*var\(--space-(xs|sm|md|lg|xl)/.test(r.body)) return true;
+    const m = r.body.match(/\bgap\s*:\s*([\d.]+)\s*(px|rem|em)/);
+    return !!(m && parseFloat(m[1]) > 0);
+  });
+  if (!declaresGap) {
+    throw new Error('.backup-modal-button-row does not declare a non-zero gap — adjacent buttons touch');
+  }
+  // Guard: no later .backup-modal-button-row rule resets the gap to 0.
+  const resets = realRowRules.some(function (r) {
+    return /\bgap\s*:\s*0(\s*(px|rem|em))?\s*[;}]/.test(r.body);
+  });
+  if (resets) {
+    throw new Error('A .backup-modal-button-row rule resets gap to 0 later in the cascade — the fix is defeated');
+  }
+});
+
+test('Round-5 D7: index.html action-row divs carry backup-modal-button-row (selector this test asserts is the real one)', function () {
+  // Falsifiable guard against the round-3 miss (asserting a class not on
+  // the real element): the Export button row in index.html must be inside
+  // a div whose class list includes backup-modal-button-row.
+  if (!/<div class="backup-modal-button-row[^"]*">\s*<button[^>]*id="backupModalExport"/.test(indexHtml.replace(/\s+/g, ' '))) {
+    throw new Error('Export button is not inside a .backup-modal-button-row div in index.html — the D7 assertion targets the wrong selector');
+  }
+});
+
+// ─── Change 6 — F1: RTL-correct photos-button alignment ─────────────
+test('Round-5 F1: photos buttons align direction-correctly (logical alignment OR an explicit html[dir="rtl"] override)', function () {
+  // align-self: flex-start does NOT flip for dir=rtl on this column
+  // cross-axis. The fix is either a logical property that is inherently
+  // RTL-safe (align-self: start + the buttons in a flex column already
+  // flips? no — must be margin-inline-end:auto OR an explicit RTL rule).
+  // Accept EITHER:
+  //   (a) #photosOptimizeBtn / #photosDeleteAllBtn use
+  //       margin-inline-end: auto (direction-correct, no RTL rule needed),
+  //   (b) an explicit html[dir="rtl"] #photosOptimizeBtn rule exists that
+  //       sets align-self: flex-end (or margin-inline-start:auto / float).
+  const directRules = [
+    findRule('#photosOptimizeBtn'),
+    findRule('#photosDeleteAllBtn'),
+  ].flat();
+  const logicalSafe = directRules.some(function (r) {
+    return /margin-inline-end\s*:\s*auto/.test(r.body) ||
+           /align-self\s*:\s*self-start/.test(r.body);
+  });
+  // RTL override rule: a selector containing html[dir="rtl"] AND one of
+  // the two photo button ids, that flips the alignment.
+  const rtlOverride = findRule('html[dir="rtl"]').some(function (r) {
+    const sel = r.selector;
+    const touchesPhotosBtn = /#photosOptimizeBtn|#photosDeleteAllBtn/.test(sel);
+    const flips = /align-self\s*:\s*(flex-end|end)/.test(r.body) ||
+                  /margin-inline-start\s*:\s*auto/.test(r.body) ||
+                  /margin-inline-end\s*:\s*0/.test(r.body) ||
+                  /float\s*:\s*(right|inline-end)/.test(r.body);
+    return touchesPhotosBtn && flips;
+  });
+  if (!logicalSafe && !rtlOverride) {
+    throw new Error('Photos buttons have neither a direction-correct logical alignment (margin-inline-end:auto) nor an explicit html[dir="rtl"] #photosOptimizeBtn override that flips alignment to inline-end — RTL still left-aligns them');
+  }
+});
+
+test('Round-5 F1: LTR alignment is still inline-start (align-self present OR margin-inline-end:auto), so the fix did not break LTR', function () {
+  const directRules = [
+    findRule('#photosOptimizeBtn'),
+    findRule('#photosDeleteAllBtn'),
+  ].flat();
+  if (directRules.length === 0) {
+    throw new Error('No #photosOptimizeBtn / #photosDeleteAllBtn rule found');
+  }
+  const ltrStart = directRules.some(function (r) {
+    return /align-self\s*:\s*(flex-start|start)/.test(r.body) ||
+           /margin-inline-end\s*:\s*auto/.test(r.body) ||
+           /\bwidth\s*:\s*auto\b/.test(r.body);
+  });
+  if (!ltrStart) {
+    throw new Error('Photos buttons lost their inline-start LTR alignment / content-sizing — F1 regression');
   }
 });
 
