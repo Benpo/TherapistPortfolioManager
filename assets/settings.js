@@ -1786,7 +1786,8 @@ window.SettingsPage = (function () {
     try {
       var params = new URLSearchParams(window.location.search);
       var t = params.get("tab");
-      if (t === "fields" || t === "snippets") return t;
+      // Phase 25 Plan 05 — Backups + Photos tabs are now valid ?tab= targets.
+      if (t === "fields" || t === "snippets" || t === "backups" || t === "photos") return t;
     } catch (e) {}
     return null;
   }
@@ -1855,5 +1856,230 @@ window.SettingsPage = (function () {
 
   if (typeof document !== "undefined") {
     document.addEventListener("DOMContentLoaded", boot);
+  }
+})();
+
+// ────────────────────────────────────────────────────────────────────────
+// Phase 25 Plan 05 — Backups tab handlers (D-11 / D-16 / D-17 / D-18 / D-19)
+//
+// Wires the new Backups tab:
+//   - Frequency selector writes localStorage.portfolioBackupScheduleMode and
+//     refreshes the helper text. D-18 password-mandatory gate is enforced
+//     via BackupManager.canEnableSchedule (pure helper from Plan 05 Task 1);
+//     a non-Off selection without an acknowledged password reverts the
+//     selector and shows the inline error.
+//   - Custom-days input clamps to [1..365] and writes
+//     localStorage.portfolioBackupScheduleCustomDays.
+//   - Password-acked checkbox writes localStorage.portfolioBackupSchedulePasswordAcked.
+//     Unchecking it while a schedule is active force-disables the schedule
+//     (D-18: schedule cannot live without an acknowledged password).
+//   - Folder picker invokes BackupManager.pickBackupFolder() — moved here
+//     from the overview per D-11. Persists only the folder NAME for UI;
+//     the FileSystemDirectoryHandle stays session-scoped (D-20).
+//   - ON→OFF requires a neutral-tone confirm (UI-SPEC: disabling is
+//     reversible — banner returns when the 7-day threshold next crosses).
+// ────────────────────────────────────────────────────────────────────────
+(function () {
+  "use strict";
+
+  function $(id) { return document.getElementById(id); }
+
+  function readScheduleMode() {
+    try { return localStorage.getItem('portfolioBackupScheduleMode') || 'off'; }
+    catch (_) { return 'off'; }
+  }
+  function readPasswordAcked() {
+    try { return localStorage.getItem('portfolioBackupSchedulePasswordAcked') === 'true'; }
+    catch (_) { return false; }
+  }
+  function readCustomDays() {
+    try {
+      var n = Number(localStorage.getItem('portfolioBackupScheduleCustomDays'));
+      return (n && n > 0) ? n : 7;
+    } catch (_) { return 7; }
+  }
+  function readFolderName() {
+    try { return localStorage.getItem('portfolioBackupFolderName') || ''; }
+    catch (_) { return ''; }
+  }
+
+  function tt(key, fallback) {
+    if (typeof App !== 'undefined' && typeof App.t === 'function') {
+      var v = App.t(key);
+      if (v && v !== key) return v;
+    }
+    return fallback || key;
+  }
+
+  function refreshFrequencyHelper() {
+    var helper = $('scheduleFrequencyHelper');
+    if (!helper) return;
+    var mode = readScheduleMode();
+    var key = (mode === 'off') ? 'schedule.frequency.helperOff' : 'schedule.frequency.helperOn';
+    helper.setAttribute('data-i18n', key);
+    helper.textContent = tt(key, helper.textContent || '');
+  }
+
+  function refreshCustomDaysVisibility() {
+    var wrap = $('scheduleCustomDaysWrapper');
+    if (!wrap) return;
+    if (readScheduleMode() === 'custom') wrap.removeAttribute('hidden');
+    else wrap.setAttribute('hidden', '');
+  }
+
+  function refreshFolderState() {
+    var stateEl = $('scheduleFolderState');
+    var unsupportedEl = $('scheduleFolderUnsupported');
+    var pickBtn = $('scheduleFolderPickBtn');
+    if (!stateEl || !pickBtn) return;
+    // Safari/Firefox: BackupManager.isAutoBackupSupported() returns false →
+    // hide picker, surface the unsupported helper line.
+    if (typeof BackupManager !== 'undefined' &&
+        typeof BackupManager.isAutoBackupSupported === 'function' &&
+        !BackupManager.isAutoBackupSupported()) {
+      pickBtn.setAttribute('hidden', '');
+      stateEl.setAttribute('hidden', '');
+      if (unsupportedEl) unsupportedEl.classList.remove('is-hidden');
+      return;
+    }
+    if (unsupportedEl) unsupportedEl.classList.add('is-hidden');
+    pickBtn.removeAttribute('hidden');
+    stateEl.removeAttribute('hidden');
+    var name = readFolderName();
+    if (name) {
+      stateEl.removeAttribute('data-i18n');
+      var template = tt('schedule.folder.repick', 'Folder: {name} — Re-pick');
+      stateEl.textContent = template.replace('{name}', name);
+    } else {
+      stateEl.setAttribute('data-i18n', 'schedule.folder.empty');
+      stateEl.textContent = tt('schedule.folder.empty', 'No folder chosen.');
+    }
+  }
+
+  /**
+   * Persist a new schedule mode after enforcing the D-18 password-mandatory
+   * gate and (for ON→OFF) the neutral-tone confirm. Returns true if the
+   * write happened, false if the user cancelled or the gate blocked it.
+   * In both rejection paths the <select> is reverted to the previously
+   * persisted mode so the UI stays consistent with localStorage.
+   */
+  async function applyFrequencyChange(newMode) {
+    var sel = $('scheduleFrequencySelect');
+    var ackedErr = $('schedulePasswordError');
+    var prev = readScheduleMode();
+
+    // D-18: gate non-Off transitions on canEnableSchedule (pure helper).
+    var gateAllowed = true;
+    if (typeof BackupManager !== 'undefined' &&
+        typeof BackupManager.canEnableSchedule === 'function') {
+      gateAllowed = BackupManager.canEnableSchedule(newMode);
+    } else {
+      // Defensive fallback if BackupManager is missing on this page.
+      gateAllowed = (newMode === 'off') || readPasswordAcked();
+    }
+    if (!gateAllowed) {
+      if (ackedErr) ackedErr.classList.remove('is-hidden');
+      if (sel) sel.value = prev;
+      return false;
+    }
+    if (ackedErr) ackedErr.classList.add('is-hidden');
+
+    // ON → OFF requires a neutral-tone confirm (UI-SPEC).
+    if (prev !== 'off' && newMode === 'off') {
+      var confirmed = false;
+      if (typeof App !== 'undefined' && typeof App.confirmDialog === 'function') {
+        try {
+          confirmed = await App.confirmDialog({
+            titleKey: 'schedule.disableConfirm.title',
+            messageKey: 'schedule.disableConfirm.body',
+            confirmKey: 'schedule.disableConfirm.yes',
+            cancelKey: 'schedule.disableConfirm.cancel',
+            tone: 'neutral'
+          });
+        } catch (_) { confirmed = false; }
+      } else {
+        confirmed = true; // No confirm dialog available → don't block.
+      }
+      if (!confirmed) {
+        if (sel) sel.value = prev;
+        return false;
+      }
+    }
+
+    try { localStorage.setItem('portfolioBackupScheduleMode', newMode); } catch (_) {}
+    if (newMode === 'custom') {
+      try { localStorage.setItem('portfolioBackupScheduleCustomDays', String(readCustomDays())); } catch (_) {}
+    }
+    refreshFrequencyHelper();
+    refreshCustomDaysVisibility();
+    return true;
+  }
+
+  function bindBackupsTab() {
+    var sel = $('scheduleFrequencySelect');
+    if (!sel) return; // Backups tab not present on this page.
+    sel.value = readScheduleMode();
+    refreshFrequencyHelper();
+    refreshCustomDaysVisibility();
+    refreshFolderState();
+
+    var customDays = $('scheduleCustomDays');
+    if (customDays) customDays.value = String(readCustomDays());
+
+    sel.addEventListener('change', function () {
+      applyFrequencyChange(sel.value);
+    });
+
+    if (customDays) {
+      customDays.addEventListener('change', function () {
+        var n = Math.max(1, Math.min(365, Number(customDays.value) || 7));
+        customDays.value = String(n);
+        try { localStorage.setItem('portfolioBackupScheduleCustomDays', String(n)); } catch (_) {}
+      });
+    }
+
+    var ack = $('schedulePasswordAcked');
+    if (ack) {
+      ack.checked = readPasswordAcked();
+      ack.addEventListener('change', function () {
+        try {
+          localStorage.setItem('portfolioBackupSchedulePasswordAcked',
+            ack.checked ? 'true' : 'false');
+        } catch (_) {}
+        // If user un-acks while a schedule is active, force it back to Off.
+        if (!ack.checked && readScheduleMode() !== 'off') {
+          sel.value = 'off';
+          applyFrequencyChange('off');
+        }
+        var err = $('schedulePasswordError');
+        if (err) err.classList.add('is-hidden');
+      });
+    }
+
+    var pickBtn = $('scheduleFolderPickBtn');
+    if (pickBtn) {
+      pickBtn.addEventListener('click', async function () {
+        try {
+          if (typeof BackupManager === 'undefined' ||
+              typeof BackupManager.pickBackupFolder !== 'function') return;
+          var handle = await BackupManager.pickBackupFolder();
+          if (handle && handle.name) {
+            try { localStorage.setItem('portfolioBackupFolderName', handle.name); } catch (_) {}
+            refreshFolderState();
+            if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
+              App.showToast('', 'toast.autoBackupSet');
+            }
+          }
+        } catch (err) {
+          if (typeof console !== 'undefined' && console.error) {
+            console.error('Folder picker failed:', err);
+          }
+        }
+      });
+    }
+  }
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', bindBackupsTab);
   }
 })();

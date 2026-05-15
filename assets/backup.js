@@ -1264,6 +1264,77 @@ window.BackupManager = (function () {
     }
   }
 
+  // -------------------------------------------------------------------------
+  // Phase 25 Plan 05 — Foreground schedule check + password-mandatory gate
+  // -------------------------------------------------------------------------
+
+  /**
+   * Foreground schedule check (D-17). Called on page load and on
+   * visibilitychange='visible' from assets/app.js. When the elapsed time
+   * since the last export exceeds the schedule interval AND the 1-hour
+   * debounce key is not active, opens the unified Backup & Restore modal
+   * via window.openBackupModal() — D-20 prohibits silent folder-write, so
+   * the user must press Export themselves.
+   *
+   * `opts.now` is optional and used by tests to inject a deterministic
+   * timestamp; production callers pass nothing and `Date.now()` is used.
+   *
+   * Defensive: every localStorage access is wrapped in try/catch so a
+   * disabled-storage page (e.g., legal disclaimer) never throws here.
+   */
+  function checkBackupSchedule(opts) {
+    opts = opts || {};
+    var now = (typeof opts.now === 'number') ? opts.now : Date.now();
+    var intervalMs = getScheduleIntervalMs();
+    // Schedule OFF — banner-suppression (Plan 04) is also OFF; the legacy
+    // 7-day banner handles reminders. Never open the modal unsolicited.
+    if (intervalMs === null) return;
+
+    var lastExportRaw;
+    try { lastExportRaw = localStorage.getItem('portfolioLastExport'); }
+    catch (_) { return; }
+    var lastExport = lastExportRaw ? Number(lastExportRaw) : 0;
+
+    var dueAt = lastExport + intervalMs;
+    if (now < dueAt) return;
+
+    // 1-hour debounce so the prompt does not re-fire on every visibilitychange
+    // flip in the same hour. Keyed on portfolioBackupSchedulePromptedAt.
+    var lastPromptKey = 'portfolioBackupSchedulePromptedAt';
+    var lastPrompt;
+    try { lastPrompt = Number(localStorage.getItem(lastPromptKey)) || 0; }
+    catch (_) { lastPrompt = 0; }
+    if (now - lastPrompt < 60 * 60 * 1000) return;
+
+    try { localStorage.setItem(lastPromptKey, String(now)); } catch (_) {}
+
+    // Open the unified Backup & Restore modal (Plan 02 exposes
+    // window.openBackupModal). The modal's Export section IS the
+    // interval-end prompt — clicking Export routes through the encrypt-or-skip
+    // flow, which then asks for the scheduled-backup password (D-18 — never
+    // persisted, re-prompted every fire).
+    try {
+      if (typeof window !== 'undefined' && typeof window.openBackupModal === 'function') {
+        window.openBackupModal();
+      }
+    } catch (_) {}
+  }
+
+  /**
+   * D-18 password-mandatory gate. Returns true when the supplied schedule
+   * mode is allowed to be persisted, false when the user has not yet
+   * acknowledged that they have a backup password.
+   *
+   * Pure function — the only side-effect is a localStorage READ (no writes).
+   * Consumed by the Settings → Backups handler in assets/settings.js AND
+   * exposed for tests.
+   */
+  function canEnableSchedule(mode) {
+    if (mode === 'off') return true;
+    try { return localStorage.getItem('portfolioBackupSchedulePasswordAcked') === 'true'; }
+    catch (_) { return false; }
+  }
+
   // ---------------------------------------------------------------------------
   // Public API
   // ---------------------------------------------------------------------------
@@ -1285,5 +1356,7 @@ window.BackupManager = (function () {
     computeBackupRecencyState: computeBackupRecencyState,
     getScheduleIntervalMs: getScheduleIntervalMs,
     getChipState: getChipState,
+    checkBackupSchedule: checkBackupSchedule,
+    canEnableSchedule: canEnableSchedule,
   };
 })();

@@ -662,6 +662,26 @@ window.App = (() => {
     const savedLang = localStorage.getItem("portfolioLang") || window.I18N_DEFAULT || "en";
     setLanguage(savedLang);
     checkBackupReminder();
+
+    // Phase 25 Plan 05 (D-17) — foreground schedule check. When a backup
+    // schedule is active and the interval has elapsed (and the 1-hour
+    // debounce has not), opens the unified Backup & Restore modal via
+    // window.openBackupModal. The visibility listener catches the user
+    // returning to the tab after the interval has passed. Defensive
+    // guards: BackupManager may not be loaded on every page; the helper
+    // itself wraps its localStorage reads in try/catch.
+    if (typeof BackupManager !== 'undefined' && typeof BackupManager.checkBackupSchedule === 'function') {
+      try { BackupManager.checkBackupSchedule(); } catch (_) {}
+      if (!initCommon._backupScheduleListenerInstalled) {
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible') {
+            try { BackupManager.checkBackupSchedule(); } catch (_) {}
+          }
+        });
+        initCommon._backupScheduleListenerInstalled = true;
+      }
+    }
+
     requestPersistentStorage();
     showFirstLaunchSecurityNote();
     initPersistentSecuritySection();
