@@ -3712,6 +3712,14 @@ html[dir="rtl"] .export-format-help[open] summary::before {
  * wraps onto a second line on narrow viewports. */
 .schedule-password-acked-row {
   display: flex;
+  /* Phase 25 Plan 12 round-3 fix (Ben re-tested Safari 2026-05-15):
+   * The element ALSO carries `.form-field`, whose rule sets the
+   * vertical-stack direction at equal specificity. Without this
+   * EXPLICIT row override that direction inherits and the checkbox
+   * visually stacks ABOVE the label instead of sitting next to it.
+   * Lock the direction to row here so the cross-class cascade is
+   * unambiguous. */
+  flex-direction: row;
   align-items: center;
   gap: 0.5rem;
   width: 100%;
@@ -3722,6 +3730,19 @@ html[dir="rtl"] .export-format-help[open] summary::before {
    * font-size: var(--text-sm, 14px) / font-weight: normal). */
   font-weight: 600;
   font-size: 1.05em;
+}
+
+/* Phase 25 Plan 12 round-3 fix (Ben re-tested Safari 2026-05-15):
+ * The green-tinted callout block was filling the full container width
+ * because the base `.backup-reminder-banner` rule sets no max-width
+ * (it is shared across other banners in the app and intentionally
+ * fluid). Constrain THIS callout specifically via the ID selector
+ * — not the shared class — and center it within its container with
+ * an auto inline margin. The 640px max-width matches the comfortable
+ * reading width of the surrounding Settings → Backups column. */
+#schedulePasswordCallout {
+  max-width: 640px;
+  margin-inline: auto;
 }
 
 /* Phase 25 Plan 12 UAT-D4 — the inline optimize-result line uses a
