@@ -120,7 +120,11 @@ window.BackupManager = (function () {
       'backup.passphrase.rules.heading': 'Password must:',
       'backup.passphrase.rules.minLength': 'Be at least 6 characters',
       'backup.passphrase.rules.notRepeated': 'Not be the same character repeated',
-      'backup.passphrase.rules.notOnlyDigits': 'Not be only numbers'
+      'backup.passphrase.rules.notOnlyDigits': 'Not be only numbers',
+      // Phase 25 Plan 01 — Share affordance (D-02, D-03)
+      'backup.action.share': 'Share backup',
+      'backup.share.title': 'Sessions Garden backup',
+      'backup.share.fallback.body': 'Backup downloaded to your Downloads folder. Please attach {filename} to this email manually.'
     };
     return fallbacks[key] || key;
   }
@@ -671,6 +675,92 @@ window.BackupManager = (function () {
   }
 
   // ---------------------------------------------------------------------------
+  // Web Share API — shareBackup + isShareSupported (Phase 25 Plan 01, D-02..D-04)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Feature-probe the Web Share API with the ACTUAL File the caller intends
+   * to share. We pass the real File so .sgbackup MIME-type rejection on
+   * Safari macOS surfaces here (RESEARCH.md Pitfall 1), not later inside
+   * navigator.share().
+   *
+   * Returns true if the platform can share this specific file, false otherwise.
+   * Never throws — a thrown canShare is treated as "not supported".
+   */
+  function isShareSupported(file) {
+    try {
+      if (typeof navigator === 'undefined') return false;
+      if (typeof navigator.canShare !== 'function') return false;
+      if (typeof navigator.share !== 'function') return false;
+      return !!navigator.canShare({ files: [file] });
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
+   * Share a precomputed backup blob via the Web Share API, falling back to
+   * download + an HONEST mailto on platforms that don't support file share.
+   *
+   * CRITICAL CONTRACT (D-04, T-25-01-01): this function MUST NOT rebuild the
+   * blob via exportBackup() or exportEncryptedBackup(). The blob passed in
+   * already reflects the user's encryption choice. Re-deriving the blob
+   * here would silently undo that choice (this was the original Phase 22-era
+   * security regression that Plan 25-01 closes).
+   *
+   * Honesty contract (D-02, T-25-01-03): the mailto fallback body MUST NOT
+   * claim a file is attached. It directs the user to attach the downloaded
+   * file manually.
+   *
+   * Returns one of:
+   *   { ok: true,  via: 'share' }            — share sheet completed
+   *   { ok: false, via: 'share', cancelled: true } — user dismissed sheet
+   *   { ok: true,  via: 'mailto-fallback' }  — downloaded + opened mailto
+   */
+  async function shareBackup(blob, filename) {
+    // Build a File from the EXACT blob passed in. MIME falls back to
+    // application/octet-stream (matches _encryptBlob output and is what most
+    // mail clients accept as a generic attachment).
+    var fileType = (blob && blob.type) || 'application/octet-stream';
+    var file = new File([blob], filename, { type: fileType });
+
+    // Try the Web Share API first.
+    if (isShareSupported(file)) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: _t('backup.share.title'),
+          text: ''
+        });
+        return { ok: true, via: 'share' };
+      } catch (err) {
+        if (err && err.name === 'AbortError') {
+          // User dismissed the share sheet intentionally — silent (per UI-SPEC).
+          return { ok: false, via: 'share', cancelled: true };
+        }
+        // Other errors (Safari .sgbackup false-positive from canShare, etc.)
+        // fall through to the mailto fallback. Log once for diagnostics.
+        try { console.warn('BackupManager.shareBackup: navigator.share failed, falling back to mailto:', err); } catch (_) {}
+      }
+    }
+
+    // Mailto fallback — honest body (T-25-01-03).
+    triggerDownload(blob, filename);
+
+    var today = new Date();
+    var dateStr = today.getFullYear() + '-' +
+      String(today.getMonth() + 1).padStart(2, '0') + '-' +
+      String(today.getDate()).padStart(2, '0');
+    var subject = 'Sessions Garden backup - ' + dateStr;
+    var bodyTemplate = _t('backup.share.fallback.body');
+    var body = bodyTemplate.replace('{filename}', filename);
+    window.location.href = 'mailto:?subject=' + encodeURIComponent(subject) +
+      '&body=' + encodeURIComponent(body);
+
+    return { ok: true, via: 'mailto-fallback' };
+  }
+
+  // ---------------------------------------------------------------------------
   // importBackup — accept a File, detect format, restore
   // ---------------------------------------------------------------------------
 
@@ -872,37 +962,6 @@ window.BackupManager = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // sendToMyself — download + open mailto
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Download the backup ZIP, then open the user's email client with a reminder
-   * to attach the just-downloaded file.
-   */
-  async function sendToMyself(blob, filename) {
-    // Trigger download first so the file is available for the user to attach
-    triggerDownload(blob, filename);
-
-    var today = new Date();
-    var dateStr =
-      today.getFullYear() +
-      "-" +
-      String(today.getMonth() + 1).padStart(2, "0") +
-      "-" +
-      String(today.getDate()).padStart(2, "0");
-
-    var subject = encodeURIComponent("Sessions Garden backup - " + dateStr);
-    var body = encodeURIComponent(
-      "Hi,\n\n" +
-      "Please find attached the Sessions Garden backup file: " + filename + "\n\n" +
-      "To restore from this backup, open Sessions Garden and use the Import option.\n\n" +
-      "(This message was generated automatically by Sessions Garden)"
-    );
-
-    window.location.href = "mailto:?subject=" + subject + "&body=" + body;
-  }
-
-  // ---------------------------------------------------------------------------
   // File System Access API — auto-save to user-chosen folder
   // ---------------------------------------------------------------------------
 
@@ -999,7 +1058,8 @@ window.BackupManager = (function () {
     exportEncryptedBackup: exportEncryptedBackup,
     triggerDownload: triggerDownload,
     importBackup: importBackup,
-    sendToMyself: sendToMyself,
+    shareBackup: shareBackup,
+    isShareSupported: isShareSupported,
     pickBackupFolder: pickBackupFolder,
     autoSaveToFolder: autoSaveToFolder,
     normalizeManifest: normalizeManifest,

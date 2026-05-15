@@ -33,15 +33,25 @@ function makeLocalStorage() {
   };
 }
 
+// Record every anchor element created — this is how we detect triggerDownload()
+// since shareBackup calls the IIFE-scoped triggerDownload (a closure binding
+// we can't spy on directly from outside). triggerDownload's only observable
+// side effects are: URL.createObjectURL(blob), document.createElement('a'),
+// a.href = url, a.download = filename, a.click().
+const anchorsCreated = [];
+
 function makeDoc() {
   return {
-    createElement: function () {
-      return {
+    createElement: function (tag) {
+      var el = {
+        tagName: String(tag || '').toUpperCase(),
         href: '', download: '', style: {},
         setAttribute: function () {}, appendChild: function () {},
         click: function () {}, addEventListener: function () {},
         classList: { add: function () {}, remove: function () {} },
       };
+      if (el.tagName === 'A') anchorsCreated.push(el);
+      return el;
     },
     body: { appendChild: function () {}, removeChild: function () {} },
     head: { appendChild: function () {} },
@@ -52,6 +62,10 @@ function makeDoc() {
     querySelectorAll: function () { return []; },
   };
 }
+
+// Record every URL.createObjectURL(blob) call so we can verify the blob
+// reference flowed through unchanged.
+const objectURLBlobs = [];
 
 // Track every navigation assignment so we can assert on the mailto: target.
 const navState = { hrefAssignments: [] };
@@ -69,7 +83,10 @@ const sandbox = {
   JSZip: function () { return { folder: function () { return { file: function () {} }; }, file: function () {}, generateAsync: function () { return Promise.resolve(new sandbox.Blob([])); } }; },
   Blob: function (parts, opts) { this.parts = parts; this.type = (opts && opts.type) || ''; this.size = (parts && parts[0] && (parts[0].length || parts[0].byteLength)) || 0; },
   File: function (parts, name, opts) { this.parts = parts; this.name = name; this.type = (opts && opts.type) || ''; this.size = (parts && parts[0] && (parts[0].length || parts[0].byteLength)) || 0; },
-  URL: { createObjectURL: function () { return 'blob:mock'; }, revokeObjectURL: function () {} },
+  URL: {
+    createObjectURL: function (blob) { objectURLBlobs.push(blob); return 'blob:mock'; },
+    revokeObjectURL: function () {},
+  },
   document: makeDoc(),
 };
 
@@ -124,13 +141,15 @@ if (!BM || typeof BM.shareBackup !== 'function') {
   process.exit(1);
 }
 
-// Spy on triggerDownload — record every call.
-const triggerCalls = [];
-const originalTrigger = BM.triggerDownload;
-BM.triggerDownload = function (blob, filename) {
-  triggerCalls.push({ blob: blob, filename: filename });
-  // do NOT call through — we don't want side effects in this test
-};
+// NOTE: triggerDownload is an IIFE-scoped closure binding inside backup.js,
+// not the same function as BackupManager.triggerDownload (which is just a
+// reference exported on the public API). We therefore cannot spy on it by
+// reassigning BM.triggerDownload — instead we observe its side effects:
+//   - URL.createObjectURL(blob) is called with the blob argument
+//   - document.createElement('a') is called and the anchor's `.download`
+//     property is assigned to the filename
+//   - localStorage.portfolioLastExport is updated
+// These three together are the load-bearing proof that triggerDownload ran.
 
 let passed = 0;
 let failed = 0;
@@ -160,16 +179,30 @@ function test(name, fn) {
     process.exit(1);
   }
 
-  await test('triggerDownload was called exactly once with (testBlob, "test.sgbackup")', function () {
-    if (triggerCalls.length !== 1) {
-      throw new Error('expected 1 triggerDownload call, got ' + triggerCalls.length);
+  await test('triggerDownload ran: URL.createObjectURL called once with the EXACT blob (no re-encoding)', function () {
+    if (objectURLBlobs.length !== 1) {
+      throw new Error('expected 1 URL.createObjectURL call, got ' + objectURLBlobs.length);
     }
-    if (triggerCalls[0].filename !== testFilename) {
-      throw new Error('expected filename "' + testFilename + '", got "' + triggerCalls[0].filename + '"');
+    if (objectURLBlobs[0] !== testBlob) {
+      throw new Error('expected the SAME blob reference to be passed through (got a different reference — possible re-encoding)');
     }
-    if (triggerCalls[0].blob !== testBlob) {
-      throw new Error('expected the SAME blob reference to be passed through (no re-encoding)');
+  });
+
+  await test('triggerDownload ran: an anchor was created with download="test.sgbackup"', function () {
+    if (anchorsCreated.length === 0) {
+      throw new Error('expected at least one <a> element to be created by triggerDownload');
     }
+    var matched = anchorsCreated.filter(function (a) { return a.download === testFilename; });
+    if (matched.length !== 1) {
+      throw new Error('expected exactly 1 <a download="' + testFilename + '">, got ' + matched.length +
+        ' (downloads observed: ' + JSON.stringify(anchorsCreated.map(function (a) { return a.download; })) + ')');
+    }
+  });
+
+  await test('triggerDownload ran: localStorage.portfolioLastExport was updated', function () {
+    var v = sandbox.localStorage.getItem('portfolioLastExport');
+    if (!v) throw new Error('portfolioLastExport not set — triggerDownload did not run');
+    if (!/^\d+$/.test(v)) throw new Error('portfolioLastExport is not a numeric timestamp: ' + v);
   });
 
   await test('window.location.href was set to a "mailto:?" URL', function () {
