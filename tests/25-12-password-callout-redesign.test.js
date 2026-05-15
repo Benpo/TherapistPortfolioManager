@@ -39,6 +39,22 @@
  *     stacks vertically.
  *   - No font-weight/font-size override exists for the ack label.
  *
+ * Round-3 (Ben re-tested in Safari 2026-05-15, screenshot proof):
+ *   - Even with round-2 removing flex-direction: column from
+ *     `.schedule-password-acked-row`, the element ALSO carries
+ *     `.form-field` which DECLARES flex-direction: column at equal
+ *     specificity. Without an EXPLICIT flex-direction: row override
+ *     the column inherits and the checkbox stacks ABOVE the label.
+ *   - The green-tinted callout block spans the full viewport width.
+ *     `#schedulePasswordCallout` needs an own-selector max-width plus
+ *     auto inline margin so the block centers within its container.
+ *
+ * MUST FAIL before the round-3 fix:
+ *   - `.schedule-password-acked-row` rule body does not name
+ *     flex-direction (or flex-flow) at all → no explicit row override.
+ *   - `#schedulePasswordCallout` has no own CSS rule, so no max-width
+ *     constraint exists for it.
+ *
  * Run: node tests/25-12-password-callout-redesign.test.js
  * Exits 0 on full pass, 1 on any failure.
  */
@@ -189,6 +205,103 @@ test('settings.html: inside #schedulePasswordCallout, the checkbox INPUT is a si
       '        long verification text OUT of the inline row so the row is\n' +
       '        just [checkbox] [short label] on one line. Remove the <p>\n' +
       '        from inside .schedule-password-acked-row.'
+    );
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────
+// Contract 2b — round-3 (2026-05-15): explicit flex-direction:row +
+// narrower callout width.
+//
+// The round-2 assertion above only checked the ABSENCE of
+// `flex-direction: column` on `.schedule-password-acked-row`. That
+// passed against the codebase because the rule body did not name the
+// property at all. But the element ALSO carries `.form-field`, which
+// sets `flex-direction: column` at lower-precedence source order but
+// EQUAL specificity. With nothing overriding it, the column direction
+// leaked through and the checkbox visually stacked ABOVE the label.
+//
+// Round-3 closes that gap two ways:
+//   (a) `.schedule-password-acked-row` must EXPLICITLY declare
+//       `flex-direction: row` (or the equivalent `flex-flow: row …`
+//       shorthand), so a co-class with `flex-direction: column` cannot
+//       fight it on equal specificity.
+//   (b) `#schedulePasswordCallout` must constrain its own width with
+//       `max-width: …` AND an auto inline margin so the green-tinted
+//       callout no longer spans the full viewport.
+// ─────────────────────────────────────────────────────────────────────
+
+test('.schedule-password-acked-row EXPLICITLY declares flex-direction: row (round-3, defeats .form-field column on equal specificity)', () => {
+  const bodies = findAckedRowRuleBodies();
+  if (!bodies.length) throw new Error('no .schedule-password-acked-row rule found in app.css');
+  const combined = bodies.join('\n');
+  // Accept either an explicit `flex-direction: row` declaration OR a
+  // `flex-flow: row …` shorthand (the shorthand sets flex-direction).
+  const hasExplicitRow =
+    /flex-direction\s*:\s*row\b/.test(combined) ||
+    /flex-flow\s*:\s*row\b/.test(combined);
+  if (!hasExplicitRow) {
+    throw new Error(
+      '.schedule-password-acked-row must EXPLICITLY declare\n' +
+      '        flex-direction: row (or flex-flow: row …).\n' +
+      '        The element ALSO carries class="form-field" which sets\n' +
+      '        flex-direction: column at equal specificity. Without an\n' +
+      '        explicit row override the checkbox stacks ABOVE the label.\n' +
+      '        Bodies inspected:\n        ' + bodies.map(b => b.trim().replace(/\s+/g, ' ')).join('\n        ')
+    );
+  }
+});
+
+function findSchedulePasswordCalloutRuleBodies() {
+  const bodies = [];
+  // Match `#schedulePasswordCallout` selectors (with or without combinators).
+  const re = /(?:^|[\s,])#schedulePasswordCallout(?![\w-])[^{]*\{([^}]*)\}/g;
+  let m;
+  while ((m = re.exec(appCss)) !== null) bodies.push(m[1]);
+  return bodies;
+}
+
+test('#schedulePasswordCallout constrains its own width: a max-width declaration + auto inline margin (round-3)', () => {
+  const bodies = findSchedulePasswordCalloutRuleBodies();
+  if (!bodies.length) {
+    throw new Error(
+      '#schedulePasswordCallout has no own CSS rule in app.css.\n' +
+      '        Round-3 requires constraining the callout width via the\n' +
+      '        ID selector (NOT .backup-reminder-banner, which is shared).'
+    );
+  }
+  const combined = bodies.join('\n');
+
+  // (1) max-width must be declared and must be a useful value — accept
+  // a px, rem, ch, or var() token. Reject `none`.
+  const maxMatch = combined.match(/max-width\s*:\s*([^;]+);?/);
+  if (!maxMatch) {
+    throw new Error(
+      '#schedulePasswordCallout must declare a max-width so the green-\n' +
+      '        tinted callout no longer spans the full container width.\n' +
+      '        Bodies inspected:\n        ' + bodies.map(b => b.trim().replace(/\s+/g, ' ')).join('\n        ')
+    );
+  }
+  const maxVal = maxMatch[1].trim();
+  if (/^none\b/i.test(maxVal)) {
+    throw new Error('#schedulePasswordCallout declares max-width: none — that defeats the purpose.');
+  }
+
+  // (2) Auto inline margin — accept `margin-inline: auto`,
+  // `margin: … auto` with auto in horizontal slots, or
+  // `margin-left/right: auto` pair.
+  const hasMarginInlineAuto = /margin-inline\s*:\s*auto\b/.test(combined);
+  const hasMarginShorthandAuto = /margin\s*:\s*[^;]*\bauto\b[^;]*;?/.test(combined);
+  const hasMarginLeftAuto = /margin-left\s*:\s*auto\b/.test(combined);
+  const hasMarginRightAuto = /margin-right\s*:\s*auto\b/.test(combined);
+  const hasInlineAutoPair = hasMarginLeftAuto && hasMarginRightAuto;
+
+  if (!hasMarginInlineAuto && !hasMarginShorthandAuto && !hasInlineAutoPair) {
+    throw new Error(
+      '#schedulePasswordCallout must center within its container via an\n' +
+      '        auto inline margin (margin-inline: auto, OR margin: … auto …,\n' +
+      '        OR margin-left:auto + margin-right:auto).\n' +
+      '        Bodies inspected:\n        ' + bodies.map(b => b.trim().replace(/\s+/g, ' ')).join('\n        ')
     );
   }
 });
