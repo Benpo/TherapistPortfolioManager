@@ -900,6 +900,20 @@ window.App = (() => {
   }
 
   function checkBackupReminder() {
+    // Phase 25 Plan 04 (D-15 / D-19) — when a backup schedule is active, the
+    // scheduled interval-end prompt IS the reminder. The 7-day banner is
+    // suppressed entirely so the two channels never compete.
+    //
+    // BackupManager may not be loaded on every page (only pages that include
+    // backup.js); guard the call. If BackupManager throws inside the helper,
+    // fall through to the legacy banner path (defensive: pages without backup
+    // data still get the reminder).
+    try {
+      if (typeof BackupManager !== 'undefined' && typeof BackupManager.getScheduleIntervalMs === 'function') {
+        if (BackupManager.getScheduleIntervalMs() !== null) return;
+      }
+    } catch (_) { /* defensive: fall through to legacy banner behavior */ }
+
     const snoozedUntil = localStorage.getItem("portfolioBackupSnoozedUntil");
     if (snoozedUntil && Date.now() < Number(snoozedUntil)) return; // Still snoozed
 
@@ -1242,6 +1256,11 @@ window.App = (() => {
     initLicenseLink,
     mountBackupCloudButton: mountBackupCloudButton,
     updateBackupCloudState: updateBackupCloudState,
+    // Phase 25 Plan 04 Task 3 — test seams for the D-15/D-19 behavior gate
+    // (tests/25-04-banner-suppression.test.js). No in-browser behavior
+    // change; the functions are still called internally as before.
+    checkBackupReminder: checkBackupReminder,
+    showBackupBanner: showBackupBanner,
 
     // UI utilities
     showToast,

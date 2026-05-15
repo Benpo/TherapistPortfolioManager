@@ -198,7 +198,7 @@ test('A. schedule ON + 30d-stale last-export → banner NOT rendered (D-15/D-19)
   storage.clear();
   storage.removeItem('portfolioBackupSnoozedUntil');
   storage.setItem('portfolioLastExport', String(Date.now() - 30 * DAY));
-  sandbox.window.BackupManager = { getScheduleIntervalMs: () => 86400000 };
+  sandbox.BackupManager = { getScheduleIntervalMs: () => 86400000 };
   bannerRendered = 0;
   App.checkBackupReminder();
   assert.strictEqual(bannerRendered, 0,
@@ -210,7 +210,7 @@ test('B. schedule OFF + 8d-stale last-export → banner IS rendered (legacy path
   storage.clear();
   storage.removeItem('portfolioBackupSnoozedUntil');
   storage.setItem('portfolioLastExport', String(Date.now() - 8 * DAY));
-  sandbox.window.BackupManager = { getScheduleIntervalMs: () => null };
+  sandbox.BackupManager = { getScheduleIntervalMs: () => null };
   bannerRendered = 0;
   App.checkBackupReminder();
   assert.strictEqual(bannerRendered, 1,
@@ -222,7 +222,7 @@ test('C. schedule OFF + 1d-fresh last-export → banner NOT rendered (no false p
   storage.clear();
   storage.removeItem('portfolioBackupSnoozedUntil');
   storage.setItem('portfolioLastExport', String(Date.now() - 1 * DAY));
-  sandbox.window.BackupManager = { getScheduleIntervalMs: () => null };
+  sandbox.BackupManager = { getScheduleIntervalMs: () => null };
   bannerRendered = 0;
   App.checkBackupReminder();
   assert.strictEqual(bannerRendered, 0,
@@ -234,7 +234,7 @@ test('D. BackupManager.getScheduleIntervalMs throws → try/catch falls through 
   storage.clear();
   storage.removeItem('portfolioBackupSnoozedUntil');
   storage.setItem('portfolioLastExport', String(Date.now() - 10 * DAY));
-  sandbox.window.BackupManager = { getScheduleIntervalMs: () => { throw new Error('boom'); } };
+  sandbox.BackupManager = { getScheduleIntervalMs: () => { throw new Error('boom'); } };
   bannerRendered = 0;
   App.checkBackupReminder();
   assert.strictEqual(bannerRendered, 1,
