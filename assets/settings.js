@@ -1898,10 +1898,9 @@ window.SettingsPage = (function () {
       return (n && n > 0) ? n : 7;
     } catch (_) { return 7; }
   }
-  function readFolderName() {
-    try { return localStorage.getItem('portfolioBackupFolderName') || ''; }
-    catch (_) { return ''; }
-  }
+  // Phase 25 Plan 12 UAT-D1: readFolderName + refreshFolderState removed
+  // along with the folder-picker UI. The BackupManager primitives
+  // (pickBackupFolder / isAutoBackupSupported) stay in backup.js.
 
   function tt(key, fallback) {
     if (typeof App !== 'undefined' && typeof App.t === 'function') {
@@ -1925,35 +1924,6 @@ window.SettingsPage = (function () {
     if (!wrap) return;
     if (readScheduleMode() === 'custom') wrap.removeAttribute('hidden');
     else wrap.setAttribute('hidden', '');
-  }
-
-  function refreshFolderState() {
-    var stateEl = $('scheduleFolderState');
-    var unsupportedEl = $('scheduleFolderUnsupported');
-    var pickBtn = $('scheduleFolderPickBtn');
-    if (!stateEl || !pickBtn) return;
-    // Safari/Firefox: BackupManager.isAutoBackupSupported() returns false →
-    // hide picker, surface the unsupported helper line.
-    if (typeof BackupManager !== 'undefined' &&
-        typeof BackupManager.isAutoBackupSupported === 'function' &&
-        !BackupManager.isAutoBackupSupported()) {
-      pickBtn.setAttribute('hidden', '');
-      stateEl.setAttribute('hidden', '');
-      if (unsupportedEl) unsupportedEl.classList.remove('is-hidden');
-      return;
-    }
-    if (unsupportedEl) unsupportedEl.classList.add('is-hidden');
-    pickBtn.removeAttribute('hidden');
-    stateEl.removeAttribute('hidden');
-    var name = readFolderName();
-    if (name) {
-      stateEl.removeAttribute('data-i18n');
-      var template = tt('schedule.folder.repick', 'Folder: {name} — Re-pick');
-      stateEl.textContent = template.replace('{name}', name);
-    } else {
-      stateEl.setAttribute('data-i18n', 'schedule.folder.empty');
-      stateEl.textContent = tt('schedule.folder.empty', 'No folder chosen.');
-    }
   }
 
   /**
@@ -2021,7 +1991,6 @@ window.SettingsPage = (function () {
     sel.value = readScheduleMode();
     refreshFrequencyHelper();
     refreshCustomDaysVisibility();
-    refreshFolderState();
 
     var customDays = $('scheduleCustomDays');
     if (customDays) customDays.value = String(readCustomDays());
@@ -2056,27 +2025,10 @@ window.SettingsPage = (function () {
       });
     }
 
-    var pickBtn = $('scheduleFolderPickBtn');
-    if (pickBtn) {
-      pickBtn.addEventListener('click', async function () {
-        try {
-          if (typeof BackupManager === 'undefined' ||
-              typeof BackupManager.pickBackupFolder !== 'function') return;
-          var handle = await BackupManager.pickBackupFolder();
-          if (handle && handle.name) {
-            try { localStorage.setItem('portfolioBackupFolderName', handle.name); } catch (_) {}
-            refreshFolderState();
-            if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
-              App.showToast('', 'toast.autoBackupSet');
-            }
-          }
-        } catch (err) {
-          if (typeof console !== 'undefined' && console.error) {
-            console.error('Folder picker failed:', err);
-          }
-        }
-      });
-    }
+    // Phase 25 Plan 12 UAT-D1: folder-picker click handler removed.
+    // The BackupManager.pickBackupFolder primitive stays in backup.js
+    // (kept for any future caller); only the Settings → Backups UI host
+    // is removed.
   }
 
   if (typeof document !== 'undefined') {
