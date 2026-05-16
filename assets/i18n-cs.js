@@ -54,6 +54,7 @@ window.I18N.cs = {
   "overview.addClient": "Přidat klienta",
   "overview.addSession": "Přidat sezení",
   "overview.missingBirth.notice": "{n} klient(ů) bez roku narození — otevři klienta a doplň.",
+  "overview.missingBirth.showThem": "Zobrazit",
   "overview.addBirthYear": "+ Přidat rok narození",
   "client.title": "Přidat nového klienta",
   "client.title.edit": "Upravit klienta",

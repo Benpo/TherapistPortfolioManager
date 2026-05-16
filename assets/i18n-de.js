@@ -54,6 +54,7 @@ window.I18N.de = {
   "overview.addClient": "Neuer Klient",
   "overview.addSession": "Neue Sitzung",
   "overview.missingBirth.notice": "{n} Klient(en) ohne Geburtsjahr — öffne einen Klienten unten, um es hinzuzufügen.",
+  "overview.missingBirth.showThem": "Anzeigen",
   "overview.addBirthYear": "+ Geburtsjahr hinzufügen",
   "client.title": "Neuen Klienten hinzufügen",
   "client.title.edit": "Klient bearbeiten",
