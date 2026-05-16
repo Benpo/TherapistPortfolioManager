@@ -1657,6 +1657,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const additionalTech = (document.getElementById("additionalTech") || {}).value?.trim() || "";
       const customerSummary = customerSummaryInput ? customerSummaryInput.value.trim() : "";
 
+      let savedId;
       if (editingSession) {
         await PortfolioDB.updateSession({
           ...editingSession,
@@ -1675,9 +1676,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           shieldRemoved,
           updatedAt: new Date().toISOString()
         });
+        savedId = editingSession.id;
         App.showToast("", "toast.sessionUpdated");
       } else {
-        await PortfolioDB.addSession({
+        const newId = await PortfolioDB.addSession({
           clientId,
           date,
           sessionType,
@@ -1693,11 +1695,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           shieldRemoved,
           createdAt: new Date().toISOString()
         });
+        savedId = newId;
         App.showToast("", "toast.sessionSaved");
       }
       formSaving = true;
       setTimeout(() => {
-        window.location.href = "./index.html";
+        window.location.href = `./add-session.html?sessionId=${savedId}`;
       }, 600);
     });
   }
