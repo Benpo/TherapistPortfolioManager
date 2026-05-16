@@ -1402,6 +1402,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const editor = document.getElementById("exportEditor");
     const preview = document.getElementById("exportPreview");
+    // Defensively bind the export editor for snippet expansion. The static
+    // editor already carries data-snippets="true" (bound by Snippets.init()
+    // at DOMContentLoaded), but this idempotent call (guarded by Snippets'
+    // internal _bound WeakMap) guarantees binding even if the modal markup
+    // is ever re-rendered.
+    if (window.Snippets && editor) window.Snippets.bindTextarea(editor);
     if (editor) editor.value = "";
     if (preview) preview.innerHTML = "";
 
