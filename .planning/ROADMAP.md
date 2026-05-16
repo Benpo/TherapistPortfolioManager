@@ -582,8 +582,11 @@ Plans:
 **Plans:** 3 plans in 2 waves (design-only — no production code, per D-08)
 
 Plans:
+**Wave 1**
 - [ ] 26-01-PLAN.md — Author 26-UI-SPEC.md: help-system architecture, "?" entry point, full-screen welcome, and the D-11 graceful-degradation tour contract (Wave 1)
 - [ ] 26-02-PLAN.md — Author 26-CONTENT-OUTLINE-EN.md: workflow-spine + flagship personalization story + fully-folded PWA/user-manual technical track, i18n-key-mapped (Wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 26-03-PLAN.md — Build the clickable garden-coherent mockup (welcome + Help page + interactive tour) validating the UI-SPEC against the EN content (Wave 2, depends on 26-01 + 26-02)
 
 **Origin:** Bundled with Phase 25 backup rework in user request 2026-05-15; split into its own phase because tutorial/onboarding is a different domain (marketing-driven UX research) from backup architecture (bug fix + UI consolidation).

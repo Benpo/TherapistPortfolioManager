@@ -4,8 +4,8 @@ milestone: v1.1
 milestone_name: Final Polish & Launch
 status: ready_to_plan
 stopped_at: Phase 26 context gathered
-last_updated: "2026-05-16T09:55:41.119Z"
-last_activity: "2026-05-15 - Completed quick task 260516-1f5: fix backup icon always grey on Sessions/Reporting (Phase 25 live bug — code fix on main, Task 3 human-verify pending)"
+last_updated: "2026-05-16T10:22:21.624Z"
+last_activity: 2026-05-16
 progress:
   total_phases: 6
   completed_phases: 6
@@ -233,7 +233,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last activity: 2026-05-16 - Completed quick task 260516-g7p: four small UI bugs (save-return, export snippets, seed text, missing-birth filter) — 4 atomic commits on main
+Last activity: 2026-05-16
 Stopped at: Phase 26 context gathered
 Resume file: .planning/phases/26-in-app-onboarding-overview-help-system/26-CONTEXT.md
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
