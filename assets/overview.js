@@ -24,6 +24,17 @@ function clearMissingBirthFilter() {
   _missingBirthFilterActive = false;
 }
 
+// Quick 260516-g7p follow-up (UAT 2026-05-16): the banner's "Show them"
+// button is only an affordance to ACTIVATE the filter. Once active, hide it —
+// the filtered table already shows the result and the global "Clear Filters"
+// control is the single, canonical place to undo it (a second in-banner
+// "remove filter" would duplicate that control). The button reappears when
+// the filter is cleared or the banner re-renders with the filter inactive.
+function syncMissingBirthButton() {
+  const btn = document.getElementById("missingBirthFilterBtn");
+  if (btn) btn.classList.toggle("is-hidden", _missingBirthFilterActive);
+}
+
 function countMissingBirth(clients) {
   return (clients || []).filter(clientMissingBirth).length;
 }
@@ -230,6 +241,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (clientYearFilter) clientYearFilter.value = "";
       if (clientSortSelect) clientSortSelect.value = "name";
       clearMissingBirthFilter();
+      syncMissingBirthButton();
       applyFiltersAndSort();
       updateClearButton();
     });
@@ -242,6 +254,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (missingBirthFilterBtn) {
     missingBirthFilterBtn.addEventListener("click", () => {
       setMissingBirthFilter(true);
+      syncMissingBirthButton();
       applyFiltersAndSort();
       updateClearButton();
       const tableBody = document.getElementById("clientTableBody");
@@ -330,6 +343,9 @@ function updateMissingBirthBanner(clients) {
   const template = App.t("overview.missingBirth.notice");
   textEl.textContent = template.replace("{n}", String(missing));
   banner.classList.remove("is-hidden");
+  // Keep the "Show them" button hidden if the filter is still active across a
+  // banner re-render (e.g. language switch while filtered).
+  syncMissingBirthButton();
 }
 
 function renderClientRows(clients, sessionsByClient) {
