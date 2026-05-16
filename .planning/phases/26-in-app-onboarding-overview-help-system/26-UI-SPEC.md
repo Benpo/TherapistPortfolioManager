@@ -30,7 +30,7 @@ created: 2026-05-16
 | Component library | none — bespoke vanilla components; new surfaces compose existing `app.css` patterns |
 | Token source of truth | `assets/tokens.css` — primitive → semantic two-tier tokens, `[data-theme="dark"]` overrides. **New surfaces MUST reference semantic `--color-*` / `--shadow-*` vars only. No ad-hoc hex.** (Pitfall 2; D-10) |
 | Icon library | Inline SVG (project convention — cloud/gear in `#headerActions` are inline SVG). The "?" affordance is an inline SVG glyph, same render path as `backup-cloud-btn` / `settings-gear-btn`. |
-| Font | **Rubik** (self-hosted woff2, `font-display: swap`), weights 400 / 600 / 700. Fallback `system-ui, sans-serif`. RTL uses the same family. |
+| Font | **Rubik** (self-hosted woff2, `font-display: swap`). New surfaces use **only weights 400 and 700** (the 600 face exists in the project but is NOT used by Phase 26 surfaces — see Typography). Fallback `system-ui, sans-serif`. RTL uses the same family. |
 | Tour-engine approach | **Bespoke**, modeled on `assets/demo-hints.js` *rendering patterns only* (D-13). NOT a vendored library (Shepherd/Intro AGPL — rejected; Driver.js MIT viable fallback only). The token-mapped, logical-property, dark-aware tour CSS layer is project-authored regardless (RESEARCH.md Standard Stack). |
 | Marketing demo | `demo.html` / `demo-hints.js` / `landing.html:228` are **untouched** (D-13). |
 
@@ -52,14 +52,9 @@ their current values (do not refactor — D-08, no production code).
 | 2xl | 3rem | 48px | Welcome overlay hero-to-CTA separation |
 | 3xl | 4rem | 64px | Welcome overlay top/bottom safe padding on large viewports (matches `.app-shell` 4rem bottom) |
 
-**Exceptions (mandatory, not optional):**
-- **44px minimum touch target** for the "?" affordance, welcome CTAs, tour Next/Back/Close,
-  and "Take me there" links — Apple HIG, matches the existing global 44px rule (`app.css:1265`)
-  and the cloud/gear buttons (`app.css:872`, 44×44). The "?" visual box is **36×36** to match
-  `.header-control-btn` siblings; the 44×44 tap target is enforced by the existing global rule.
-- Tour tooltip: flexible height, `min-width` ~ 16rem, `max-width` ~ 22rem, **logical-property
-  padding only** (`padding-inline-*`) — Hebrew/German length variance is a real overflow risk
-  (RESEARCH.md i18n constraints; `demo-hints.js .demo-tooltip` is the template).
+Exceptions: none. (The 44px minimum interactive-element size is an **accessibility**
+constraint, not a spacing-rhythm token — see the Interaction Contract. Tour-tooltip
+`min-width`/`max-width` sizing constraints also live in the Interaction Contract.)
 
 ---
 
@@ -73,14 +68,16 @@ survives RTL/translation length variance.
 | Role | Size | Weight | Line Height | Used for |
 |------|------|--------|-------------|----------|
 | Body | 1rem (16px) | 400 | 1.6 | Help page body copy, tour step descriptions, welcome subtitle (1.6 matches existing long-form copy at `app.css:354`) |
-| Label / UI | 0.9rem (≈14px) | 600 | 1.4 | Buttons, "Take me there" links, step counter, nav Help label, technical-track sub-labels |
+| Label / UI | 0.9rem (≈14px) | 700 | 1.4 | Buttons, "Take me there" links, step counter, nav Help label, technical-track sub-labels |
 | Heading | 1.25rem (20px) | 700 | 1.3 | Help page section headings (workflow-spine step titles), tour tooltip title |
 | Display | 1.75rem (28px) | 700 | 1.2 | Welcome overlay greeting headline only |
 
 **Rules:**
 - Exactly these 4 roles in new surfaces. No new font sizes introduced beyond this set.
-- Weights restricted to **400 (body) and 700 (headings/labels)**; 600 permitted for the
-  Label/UI role only (matches existing button convention). Do not use 500 or 800 in new surfaces.
+- **Exactly two font weights: 400 (body) and 700 (labels, headings, display).** The Label/UI
+  role uses 700 — consistent with the project's existing bold-button convention. The 600
+  (SemiBold) face that exists elsewhere in the project is **not used by any Phase 26 surface**.
+  Do not use 500, 600, or 800 in new surfaces.
 - Body line-height **1.6** (not 1.5) deliberately — help is long-form reading for a
   non-technical audience; matches the existing long-copy precedent.
 - All new headings authored as **nouns / gerunds, not imperatives** (Pitfall 5; Phase 24 D-05):
@@ -112,11 +109,11 @@ token vars (which auto-resolve in `[data-theme="dark"]`), never the literal hex.
 6. **Focus-visible outline**: `2px solid var(--color-primary)`, `outline-offset: 2px`
    (exact existing pattern, `app.css:3181`) — on every interactive element in new surfaces.
 
-Everything else (secondary CTA "I'll explore myself", Back/Close, body links, "Take me there"
-fallback links, technical-track section chrome) uses **neutral/surface tokens** — secondary
-buttons use `--color-surface-secondary-btn` (`--color-green-100`), text uses `--color-text` /
-`--color-text-muted`. The "explore myself" path is visually first-class but **not** accent-colored
-(non-forced tone — RESEARCH.md Six Patterns; Calm "respects autonomy").
+Everything else (secondary CTA "I'll explore myself", Previous step / Close, body links,
+"Take me there" fallback links, technical-track section chrome) uses **neutral/surface
+tokens** — secondary buttons use `--color-surface-secondary-btn` (`--color-green-100`), text
+uses `--color-text` / `--color-text-muted`. The "explore myself" path is visually first-class
+but **not** accent-colored (non-forced tone — RESEARCH.md Six Patterns; Calm "respects autonomy").
 
 **Botanical illustration usage (D-10):** reuse existing repo art only —
 `assets/illustrations/watering-can.png`, `garden.png`/`garden-2.png`, `hero-left/right.png`.
@@ -147,13 +144,19 @@ canonical wording is drafted in the EN content outline and clinically reviewed b
 | Flagship personalization heading (lead, don't bury — D-04) | "Making Sessions Garden yours" | `help.spine.customSections.title` |
 | Technical-track section heading | "The technical bits, in plain language" | `help.tech.title` |
 | Tour step forward button | "Next" / final step "Done" | `help.tour.next` / `help.tour.done` |
-| Tour step back / close | "Back" / "Close tour" | `help.tour.back` / `help.tour.close` |
+| Tour step back / close | "Previous step" / "Close tour" | `help.tour.back` / `help.tour.close` |
 | Tour step counter | "Step {n} of {total}" | `help.tour.counter` |
 | **Fallback (anchor missing) — required, never silent (D-11, Pitfall 6)** | "This is on the {screen} screen." + link **"Take me there"** | `help.tour.fallbackBody` / `help.tour.takeMeThere` |
 | Empty state heading (formalized 3rd hybrid leg — Open Q2) | reuse existing "No clients yet." | `overview.clients.empty` (exists) |
 | Empty state body + next step | "No clients yet. Add your first client to get started." + inline link to Help "Adding a client" | `overview.clients.empty` (exists) + `help.deeplink.addClient` (new) |
 | Error / troubleshooting state (technical track) | "Don't see your clients? Your data is stored in this browser. Clearing site data or switching browsers hides it. Here's how to check and restore." | `help.tech.troubleshoot.notFound` |
 | PWA-install (per-browser — Pitfall 4, no universal button) | iOS Safari: "Open the Share menu, then choose Add to Home Screen." (illustrated, with the iOS share glyph) | `help.tech.install.iosSafari` (+ `.chromeDesktop`, `.android`) |
+
+**Tour back-button copy rationale:** the back-control label is **"Previous step"** (a
+noun phrase), not the single word "Back". For a non-technical, calm-tone audience an explicit
+phrase reads gentler and clearer than terse "Back", pairs symmetrically with "Close tour" and
+"Take me there", and authors cleanly into a Hebrew noun form (Phase 24 D-05) without an
+imperative. This is the deliberate choice; no bare single-word controls are used in new surfaces.
 
 **Destructive actions in this phase:** **NONE.** Phase 26 delivers a design contract, a
 mockup, and a content outline. No data is created, deleted, or mutated. The `--color-danger`
@@ -163,6 +166,8 @@ elsewhere — e.g. deactivate/transfer — but introduces no new destructive UI.
 **Microcopy rules:**
 - No emojis in any new copy (project-wide convention).
 - No imperative-only EN that forces unnatural Hebrew imperatives (Pitfall 5; Phase 24 D-05).
+- No bare single-word controls — interactive labels are noun/noun-phrase (e.g. "Previous step",
+  not "Back"), consistent with the calm tone and the Hebrew noun-form constraint.
 - Per-browser PWA-install content branches by detected UA; **never** a single universal
   "Install" button (no `beforeinstallprompt` on iOS — Pitfall 4).
 - "Data never leaves your browser" is the **emotional anchor** of the technical track for this
@@ -174,11 +179,20 @@ elsewhere — e.g. deactivate/transfer — but introduces no new destructive UI.
 
 These are hard constraints the mockup must demonstrate and the build phase must honor.
 
+**Accessibility — minimum interactive size (inherited, not a spacing token):** every
+interactive element in new surfaces (the "?" affordance, welcome CTAs, tour Next / Previous
+step / Close, "Take me there" links) has a **44×44px minimum tap target**, inherited from the
+existing global rule at `app.css:1265` and matching the cloud/gear buttons (`app.css:872`,
+44×44). Visual icon boxes may render at 36×36 (matching `.header-control-btn` siblings) while
+the 44×44 hit area is enforced by that existing global rule. This is an Apple-HIG accessibility
+constraint, deliberately kept out of the Spacing Scale so it is not read as a rhythm step.
+
 | Surface | Contract |
 |---------|----------|
 | "?" entry point (D-02) | Lives in `#headerActions` beside cloud + gear. 36×36 visual, 44×44 tap target, inline SVG, `.is-active` mirrors `.settings-gear-btn`, focus-visible = 2px `--color-primary` + 2px offset. RTL: order auto-flips (logical layout, no JS). UI-SPEC mockup shows it here; a bottom-corner floating variant may be shown as the alternative but header-icon is the locked default for Phase-25-chrome consistency (RESEARCH.md Open Q1). MUST NOT regress the Phase 25 consolidated header (25-UI-SPEC.md). |
 | Welcome overlay (D-09/D-15) | Full-screen, garden tokens, one botanical hero, two CTAs (primary accent / secondary neutral). One-shot via `localStorage 'sg.welcomeSeen'` (absent ⇒ first-run; covers upgraders once, no migration). Re-openable only via "?". Dismissible by either CTA or Esc. RTL via logical properties; dark via `[data-theme]`. |
 | Tour step schema (D-11 — the most fragile element) | Each step: `{ id, page, anchor?: '[data-tour="…"]', i18nKey, takeMeThereHref }`. Resolution: **anchor present & visible → spotlight + tooltip; anchor missing / `offsetParent === null` → centered MODAL with i18n text + working "Take me there" link (NEVER a silent skip — Pitfall 6); step on another page → navigate `location.href`, persist `{tourId,stepIndex}` in `sessionStorage`, resume on next page init.** Re-renders on the `app:language` CustomEvent (cleanup-then-replace, `demo-hints.js` pattern). ~6–9 steps along the workflow spine. |
+| Tour tooltip sizing | Flexible height, `min-width` ≈ 16rem, `max-width` ≈ 22rem, **logical-property padding only** (`padding-inline-*`). Hebrew/German length variance is a real overflow risk (RESEARCH.md i18n constraints; `demo-hints.js .demo-tooltip` is the template). |
 | Anchors | Bind ONLY to dedicated `data-tour="…"` attributes (invisible to styling/i18n/refactor, locale-independent, RTL-stable). Never `#id`, `:nth-child`, or text. UI-SPEC mockup enumerates the exact `data-tour` anchor list as a contract for the build phase. |
 | Help page (D-01) | New standalone page following the per-page pattern; nav entry via `renderNav()` (`data-nav` active); reuses `SharedChrome.renderFooter()` + nav. Single source of truth. Workflow spine is the organizing spine (7 steps), flagship personalization led early, technical track a clearly-separated parallel section. |
 | RTL / dark | Every new surface: logical properties only (`*-inline-*`, `inset-inline-*`), `[data-theme="dark"]` reads dark token vars, no physical `right:`/`left:`/`margin-left`, no literal hex. Validated per RESEARCH.md Design Validation table. |
