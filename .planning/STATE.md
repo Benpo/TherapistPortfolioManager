@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: ready_to_plan
-stopped_at: Phase 25 context gathered (backup architectural rework, expanded scope)
-last_updated: "2026-05-15T18:04:12.198Z"
-last_activity: 2026-05-15
+stopped_at: Phase 26 context gathered
+last_updated: "2026-05-16T09:55:41.119Z"
+last_activity: "2026-05-15 - Completed quick task 260516-1f5: fix backup icon always grey on Sessions/Reporting (Phase 25 live bug — code fix on main, Task 3 human-verify pending)"
 progress:
   total_phases: 6
-  completed_phases: 7
+  completed_phases: 6
   total_plans: 15
   completed_plans: 15
-  percent: 117
+  percent: 100
 ---
 
 # Project State
@@ -233,8 +233,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last activity: 2026-05-15 - Completed quick task 260516-1f5: fix backup icon always grey on Sessions/Reporting (Phase 25 live bug — code fix on main, Task 3 human-verify pending)
-Stopped at: Phase 25 context gathered (backup architectural rework, expanded scope)
-Resume file: .planning/phases/25-backup-architectural-rework/25-CONTEXT.md
+Stopped at: Phase 26 context gathered
+Resume file: .planning/phases/26-in-app-onboarding-overview-help-system/26-CONTEXT.md
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
 
 **Planned Phase:** 22 (session-workflow-loop-pre-session-context-card-editable-sess) — 9 plans — 2026-05-06T18:41:19.496Z
