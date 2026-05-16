@@ -54,6 +54,7 @@ window.I18N.he = {
   "overview.addClient": "הוספת לקוח",
   "overview.addSession": "הוספת מפגש",
   "overview.missingBirth.notice": "ל-{n} לקוחות חסרה שנת לידה — פתח/י לקוח כדי להוסיף.",
+  "overview.missingBirth.showThem": "הצג אותם",
   "overview.addBirthYear": "+ הוספת שנת לידה",
   "client.title": "הוספת לקוח חדש",
   "client.title.edit": "עריכת לקוח",

@@ -1402,6 +1402,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const editor = document.getElementById("exportEditor");
     const preview = document.getElementById("exportPreview");
+    // Defensively bind the export editor for snippet expansion. The static
+    // editor already carries data-snippets="true" (bound by Snippets.init()
+    // at DOMContentLoaded), but this idempotent call (guarded by Snippets'
+    // internal _bound WeakMap) guarantees binding even if the modal markup
+    // is ever re-rendered.
+    if (window.Snippets && editor) window.Snippets.bindTextarea(editor);
     if (editor) editor.value = "";
     if (preview) preview.innerHTML = "";
 
@@ -1657,6 +1663,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const additionalTech = (document.getElementById("additionalTech") || {}).value?.trim() || "";
       const customerSummary = customerSummaryInput ? customerSummaryInput.value.trim() : "";
 
+      let savedId;
       if (editingSession) {
         await PortfolioDB.updateSession({
           ...editingSession,
@@ -1675,9 +1682,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           shieldRemoved,
           updatedAt: new Date().toISOString()
         });
+        savedId = editingSession.id;
         App.showToast("", "toast.sessionUpdated");
       } else {
-        await PortfolioDB.addSession({
+        const newId = await PortfolioDB.addSession({
           clientId,
           date,
           sessionType,
@@ -1693,11 +1701,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           shieldRemoved,
           createdAt: new Date().toISOString()
         });
+        savedId = newId;
         App.showToast("", "toast.sessionSaved");
       }
       formSaving = true;
       setTimeout(() => {
-        window.location.href = "./index.html";
+        window.location.href = `./add-session.html?sessionId=${savedId}`;
       }, 600);
     });
   }

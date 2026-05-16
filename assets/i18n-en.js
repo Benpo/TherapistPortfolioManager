@@ -54,6 +54,7 @@ window.I18N.en = {
   "overview.addClient": "Add Client",
   "overview.addSession": "Add Session",
   "overview.missingBirth.notice": "{n} client(s) are missing a birth year — open any client below to add it.",
+  "overview.missingBirth.showThem": "Show them",
   "overview.addBirthYear": "+ Add birth year",
   "client.title": "Add New Client",
   "client.title.edit": "Edit Client",

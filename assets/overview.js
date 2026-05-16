@@ -2,6 +2,52 @@
 let _allClients = [];
 let _sessionsByClient = new Map();
 
+// Quick 260516-g7p Bug #4 — "missing birth year" warning is actionable:
+// a module-level flag toggled by the banner's "Show them" control and
+// honored inside applyFiltersAndSort()'s existing filter pipeline. The
+// predicate below is the SINGLE source of truth shared by both the banner
+// count (updateMissingBirthBanner) and the filter, so the filtered set is
+// guaranteed to equal the warned count.
+let _missingBirthFilterActive = false;
+
+// Pure: a client is "missing birth info" when it has neither a birthDate
+// nor an age. Reused verbatim by the banner count and the filter.
+function clientMissingBirth(c) {
+  return !c.birthDate && !c.age;
+}
+
+function setMissingBirthFilter(active) {
+  _missingBirthFilterActive = !!active;
+}
+
+function clearMissingBirthFilter() {
+  _missingBirthFilterActive = false;
+}
+
+function countMissingBirth(clients) {
+  return (clients || []).filter(clientMissingBirth).length;
+}
+
+// Pure list filter used by the behavior test (and conceptually mirrors the
+// one extra predicate added to applyFiltersAndSort): when the flag is
+// active, keep only the missing-birth clients; otherwise keep all.
+function filterByMissingBirth(clients) {
+  if (!_missingBirthFilterActive) return (clients || []).slice();
+  return (clients || []).filter(clientMissingBirth);
+}
+
+// Expose pure helpers for the falsifiable behavior test
+// (tests/quick-260516-g7p-missing-birth-filter.test.js). DOM-free.
+if (typeof window !== 'undefined') {
+  window.__OverviewTestHooks = {
+    clientMissingBirth,
+    setMissingBirthFilter,
+    clearMissingBirthFilter,
+    countMissingBirth,
+    filterByMissingBirth,
+  };
+}
+
 // ===========================================================================
 // Phase 25 round-5 post-UAT (Change 1 / UAT-D2, Ben 2026-05-15)
 //
@@ -115,6 +161,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const sortVal = clientSortSelect ? clientSortSelect.value : "name";
 
     let filtered = _allClients.filter(c => {
+      // Missing-birth-year filter (Bug #4) — uses the SAME predicate as the
+      // banner count so the filtered set equals the warned count exactly.
+      if (_missingBirthFilterActive && !clientMissingBirth(c)) return false;
       // Name search
       if (query && !getClientDisplayName(c).toLowerCase().includes(query)) return false;
       // Client type filter
@@ -163,6 +212,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       (clientTypeFilter && clientTypeFilter.value) ||
       (clientHeartShieldFilter && clientHeartShieldFilter.value) ||
       (clientYearFilter && clientYearFilter.value) ||
+      _missingBirthFilterActive ||
       (clientSortSelect && clientSortSelect.value !== "name");
     clearFiltersBtn.classList.toggle("is-hidden", !hasFilters);
   }
@@ -179,8 +229,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (clientHeartShieldFilter) clientHeartShieldFilter.value = "";
       if (clientYearFilter) clientYearFilter.value = "";
       if (clientSortSelect) clientSortSelect.value = "name";
+      clearMissingBirthFilter();
       applyFiltersAndSort();
       updateClearButton();
+    });
+  }
+
+  // Bug #4 — the missing-birth banner's "Show them" control filters the
+  // existing client table to exactly the clients with no birth year and
+  // scrolls the list into view so the therapist immediately sees them.
+  const missingBirthFilterBtn = document.getElementById("missingBirthFilterBtn");
+  if (missingBirthFilterBtn) {
+    missingBirthFilterBtn.addEventListener("click", () => {
+      setMissingBirthFilter(true);
+      applyFiltersAndSort();
+      updateClearButton();
+      const tableBody = document.getElementById("clientTableBody");
+      const section = tableBody ? tableBody.closest("section") : null;
+      const scrollTarget = section || tableBody;
+      if (scrollTarget && typeof scrollTarget.scrollIntoView === "function") {
+        scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     });
   }
 
@@ -253,7 +322,7 @@ function updateMissingBirthBanner(clients) {
   const banner = document.getElementById("missingBirthBanner");
   const textEl = document.getElementById("missingBirthBannerText");
   if (!banner || !textEl) return;
-  const missing = clients.filter(c => !c.birthDate && !c.age).length;
+  const missing = countMissingBirth(clients);
   if (missing === 0) {
     banner.classList.add("is-hidden");
     return;
