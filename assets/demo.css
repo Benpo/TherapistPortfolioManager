@@ -1,0 +1,46 @@
+/* === DEMO MODE STYLES === */
+/* Styles specific to the demo shell page (demo.html) */
+
+/* --- Demo banner --- */
+.demo-banner {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  padding: 0.5rem 1rem;
+  background: color-mix(in srgb, var(--color-primary) 88%, white);
+  color: #fff;
+  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .demo-banner {
+  background: color-mix(in srgb, var(--color-primary) 75%, black);
+}
+
+/* --- Hide backup/install banners in demo mode --- */
+body[data-demo="true"] #backupBanner {
+  display: none !important;
+}
+
+body[data-demo="true"] #ios-install-banner {
+  display: none !important;
+}
+
+/* --- Compact layout for iframe embedding --- */
+body[data-demo="true"] {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body[data-demo="true"] .app-shell {
+  padding: 0;
+}
+
+body[data-demo="true"] .container {
+  padding-inline: 0.75rem;
+  padding-block-start: 0;
+}

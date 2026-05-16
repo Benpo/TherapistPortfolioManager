@@ -1,0 +1,3983 @@
+/* === Z-index Token Scale === */
+:root {
+  --z-dropdown: 100;
+  --z-nav: 200;
+  --z-modal: 300;
+  --z-modal-top: 350; /* Phase 24 Plan 07 — stacked modal layer for crop popup that opens from inside another modal (edit-client → photo crop). */
+  --z-toast: 400;
+  --z-banner: 500;
+}
+
+/* Body scroll lock — prevents scroll-behind on mobile modals */
+body.is-modal-open {
+  overflow: hidden;
+  position: fixed;
+  inset-inline: 0;
+  width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, var(--color-background-gradient-start) 0%, var(--color-background) 55%, var(--color-background-gradient-end) 100%);
+  color: var(--color-text);
+  font-family: Rubik, system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+html[dir="rtl"] {
+  font-family: Rubik, system-ui, sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.app-shell {
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  box-shadow: var(--shadow-brand);
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.brand-subtitle {
+  display: none;
+}
+
+.app-nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.nav-divider{
+  width:1px;
+  background:var(--color-border);
+  align-self:stretch;
+  border-radius:999px;
+  margin:0 0.15rem;
+}
+
+.app-nav a {
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-nav);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.app-nav a.active,
+.app-nav a:hover {
+  background: var(--color-primary);
+  color: var(--color-surface);
+  transform: translateY(-1px);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs, 0.5rem);
+  margin-inline-start: auto;
+}
+
+/* --- Header controls (globe + theme toggle) --- */
+.header-control-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.header-control-btn:hover {
+  background: var(--color-hover, var(--color-primary-soft));
+  border-color: var(--color-primary);
+}
+
+/* Legal topbar controls (back link + globe + theme toggle) */
+.legal-topbar-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm, 0.5rem);
+}
+
+/* Language selector popover */
+.lang-selector {
+  position: relative;
+}
+.lang-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  inset-inline-end: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  padding: 0.25rem;
+  z-index: var(--z-dropdown);
+  min-width: 120px;
+}
+.lang-option {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: none;
+  text-align: start;
+  cursor: pointer;
+  border-radius: 0.375rem;
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+.lang-option:hover {
+  background: var(--color-hover, var(--color-primary-soft));
+}
+.lang-option.active {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.select {
+  padding: 0.45rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-weight: 600;
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: 24px;
+  padding: 1.75rem;
+  box-shadow: var(--shadow-card);
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0 0 1rem;
+}
+
+.session-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  margin-bottom:1rem;
+  flex-wrap:wrap;
+}
+
+.session-header .section-title{
+  margin:0;
+}
+
+.session-header-actions{
+  display:flex;
+  align-items:center;
+  gap:0.6rem;
+  flex-wrap:wrap;
+}
+
+.icon-button{
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  border:1px solid var(--color-border);
+  background:var(--color-surface);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  color:inherit;
+  font-size:1.375rem;
+  line-height:1;
+  transition:transform 0.2s ease, background 0.2s ease;
+}
+
+.icon-button:hover{
+  background:var(--color-primary-soft);
+  transform:translateY(-1px);
+}
+
+.field-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:0.75rem;
+}
+
+.field-copy{
+  display:none;
+}
+
+.read-mode .field-copy{
+  display:grid;
+}
+
+@keyframes greeting-border-spin {
+  from { --greeting-border-angle: 0deg; }
+  to { --greeting-border-angle: 360deg; }
+}
+
+@property --greeting-border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.greeting-card {
+  --_radius: 16px;
+  position: relative;
+  background: var(--color-surface);
+  border-radius: var(--_radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-soft);
+  border: none;
+  z-index: 0;
+}
+
+.greeting-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--_radius) + 2px);
+  background: conic-gradient(
+    from var(--greeting-border-angle),
+    var(--color-green-400),
+    var(--color-green-200),
+    transparent 40%,
+    transparent 60%,
+    var(--color-green-200),
+    var(--color-green-400)
+  );
+  z-index: -2;
+  animation: greeting-border-spin 4s linear infinite;
+  opacity: 0.7;
+}
+
+.greeting-card::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: calc(var(--_radius) - 1px);
+  background: var(--color-surface);
+  z-index: -1;
+}
+
+[data-theme="dark"] .greeting-card::before {
+  background: conic-gradient(
+    from var(--greeting-border-angle),
+    var(--color-green-600),
+    var(--color-green-700),
+    transparent 40%,
+    transparent 60%,
+    var(--color-green-700),
+    var(--color-green-600)
+  );
+  opacity: 0.6;
+}
+
+.greeting-text {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.75rem;
+}
+
+.greeting-quote {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.greeting-sparkle {
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  margin-block-start: 0.2rem;
+  flex-shrink: 0;
+}
+
+.quote-text {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 1.4rem;
+  border-radius: 20px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.stat-label {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.6rem 1.3rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--color-primary);
+  color: var(--color-surface);
+  box-shadow: var(--shadow-button);
+  transition: transform 0.2s ease;
+}
+
+.button.icon-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.button.icon-inline .button-icon {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.button.icon-swap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button.icon-swap .button-label {
+  transition: opacity 0.2s ease;
+}
+
+.button.icon-swap .button-icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.button.icon-swap:hover .button-label,
+.button.icon-swap:focus-visible .button-label {
+  opacity: 0;
+}
+
+.button.icon-swap:hover .button-icon,
+.button.icon-swap:focus-visible .button-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.button.secondary {
+  background: var(--color-surface-secondary-btn);
+  color: var(--color-primary-dark);
+  box-shadow: none;
+}
+
+.button.ghost {
+  background: transparent;
+  border: 1px solid var(--color-border-ghost);
+  color: var(--color-text);
+  box-shadow: none;
+}
+
+.button.danger {
+  background: var(--color-danger);
+  box-shadow: var(--shadow-danger);
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  text-align: start;
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--color-border-soft);
+  font-size: 0.95rem;
+}
+
+.table th {
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.table .row-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.row-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:0.5rem;
+}
+
+.row-quick-add{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:0;
+  background:var(--color-primary);
+  color:var(--color-surface);
+  font-size:1.1rem;
+  font-weight:700;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+}
+
+.session-list {
+  margin: 0.75rem 0 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.session-item {
+  padding: 0.75rem 1rem;
+  border-radius: 16px;
+  background: var(--color-surface-alt);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.session-meta {
+  font-weight: 700;
+  color: var(--color-text-meta);
+}
+
+.session-issues {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.session-comments{
+  font-size:0.85rem;
+  color:var(--color-text-muted);
+  word-break:break-word;
+}
+
+.filter-bar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:1rem;
+  margin:1rem 0 1.5rem;
+  align-items:flex-end;
+}
+
+.filter-field{
+  display:flex;
+  flex-direction:column;
+  gap:0.35rem;
+  min-width:180px;
+}
+
+.issues-cell{
+  min-width:220px;
+}
+
+.issue-list{
+  display:flex;
+  flex-direction:column;
+  gap:0.35rem;
+}
+
+.issue-line{
+  background:var(--color-primary-soft);
+  border-radius:10px;
+  padding:0.25rem 0.5rem;
+  font-size:0.85rem;
+  font-weight:600;
+  word-break:break-word;
+}
+
+.sessions-table td{
+  vertical-align:top;
+}
+
+.sessions-table tbody tr{
+  border-bottom:1px solid var(--color-border-faint);
+}
+
+.sessions-table tbody tr:nth-child(even){
+  background:var(--color-surface-hover);
+}
+
+.trapped-cell{
+  font-size:0.85rem;
+  color:var(--color-text-muted);
+  word-break:break-word;
+}
+
+.session-actions-cell{
+  width:110px;
+  text-align:end;
+}
+
+.session-edit{
+  display:inline-flex;
+  align-items:center;
+  gap:0.4rem;
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:999px;
+  padding:0.45rem 0.95rem;
+  color:var(--color-text);
+  font-weight:700;
+  font-size:0.85rem;
+  cursor:pointer;
+  opacity:0;
+  transform:translateY(4px);
+  transition:opacity 0.2s ease, transform 0.2s ease;
+}
+.session-edit .button-icon{
+  font-size:1rem;
+  line-height:1;
+}
+
+.session-row:hover .session-edit{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.client-spotlight{
+  display:flex;
+  gap:1.5rem;
+  align-items:flex-start; /* Phase 24 Plan 06: keep avatar at top — expanding Session-info would otherwise re-center the 170px media. */
+  padding:1.1rem 1.4rem;
+  border-radius:22px;
+  background:var(--color-surface);
+  box-shadow:var(--shadow-card);
+  margin:1rem 0 1.2rem;
+}
+
+.client-spotlight-media{
+  width:170px;
+  height:170px;
+  border-radius:22px;
+  overflow:hidden;
+  background:var(--color-surface-media);
+  display:grid;
+  place-items:center;
+}
+
+.client-spotlight-photo{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.client-spotlight-placeholder{
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  font-size:2.6rem;
+  font-weight:800;
+  color:var(--color-surface);
+  background:var(--color-placeholder-gradient);
+}
+
+.client-spotlight-name{
+  font-size:1.6rem;
+  font-weight:800;
+}
+
+.client-spotlight-age {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+.client-spotlight-text{
+  display:flex;
+  flex-direction:column;
+  gap:0.35rem;
+  /* Phase 24 Plan 06: stabilize column width so expanding Session-info does not push
+     sibling boxes (notes) wider. Column sits at up to 480px and shrinks on narrow rows. */
+  flex:1 1 auto;
+  min-width:0;
+  max-width:480px;
+}
+
+.client-spotlight-notes{
+  margin-top:0.4rem;
+  padding:0.55rem 0.75rem;
+  border-radius:10px;
+  background:var(--color-surface-media);
+  max-width:480px;
+}
+
+.client-spotlight-notes-label{
+  font-size:0.72rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  color:var(--color-text-muted);
+  margin-bottom:0.2rem;
+}
+
+.client-spotlight-notes-text{
+  font-size:0.92rem;
+  line-height:1.4;
+  color:var(--color-text);
+  white-space:pre-wrap;
+  word-wrap:break-word;
+  overflow-wrap:anywhere;
+}
+
+/* Phase 24 Plan 06 — pre-session context card Session-info subsection.
+   Visually matches the sibling .client-spotlight-notes box (same cream/tan surface,
+   same radius) so the two read as paired info cards rather than competing styles.
+   Logical properties (padding-inline-start, margin-block-start, border-block-start)
+   are required for RTL — do NOT swap to physical equivalents (D-28). */
+.client-spotlight-session-info {
+  margin-block-start: 0.4rem;
+  padding: 0;
+  border: none;
+  border-block-start: 1px solid transparent; /* D-28 logical-property marker, no visual line */
+  border-radius: 10px;
+  background: var(--color-surface-media);
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+  overflow: hidden; /* keep child padding inside the rounded box */
+}
+.client-spotlight-session-info > summary.client-spotlight-session-info-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+.client-spotlight-session-info > summary::-webkit-details-marker { display: none; }
+.client-spotlight-session-info > summary::marker { display: none; }
+.client-spotlight-session-info > summary.client-spotlight-session-info-summary::after {
+  content: "›";
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  transition: transform 0.18s ease;
+}
+.client-spotlight-session-info[open] > summary.client-spotlight-session-info-summary::after {
+  transform: rotate(90deg);
+}
+.client-spotlight-session-info-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem 0.75rem;
+}
+.client-spotlight-session-info-meta {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+.client-spotlight-session-info-label {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+.client-spotlight-session-info-value {
+  color: var(--color-text);
+  font-weight: 600;
+}
+.client-spotlight-session-info-summary-block {
+  margin-block-start: 0.35rem;
+  padding-block-start: 0.5rem;
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+.client-spotlight-session-info-summary-block > .client-spotlight-session-info-label {
+  margin-block-end: 0.25rem;
+  font-size: 0.85rem;
+}
+.client-spotlight-session-info-quote {
+  margin: 0;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 3px solid var(--color-border-subtle);
+  color: var(--color-text);
+  font-style: italic;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.missing-birth-banner{
+  display:flex;
+  align-items:center;
+  gap:0.65rem;
+  padding:0.75rem 1rem;
+  margin:0.5rem 0 1rem;
+  border-radius:12px;
+  background:#fff7e6;
+  border:1px solid #f5c97a;
+  color:#7a4a00;
+  font-size:0.92rem;
+  line-height:1.35;
+}
+
+html[data-theme="dark"] .missing-birth-banner{
+  background:#3a2a05;
+  border-color:#7a5418;
+  color:#ffd9a3;
+}
+
+.missing-birth-banner-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:#f5c97a;
+  color:#5a3700;
+  font-weight:800;
+  flex-shrink:0;
+}
+
+html[data-theme="dark"] .missing-birth-banner-icon{
+  background:#7a5418;
+  color:#ffd9a3;
+}
+
+.add-birth-year-link{
+  color:var(--color-accent, #b07020);
+  text-decoration:none;
+  border-bottom:1px dashed currentColor;
+  cursor:pointer;
+}
+
+.add-birth-year-link:hover,
+.add-birth-year-link:focus{
+  text-decoration:none;
+  opacity:0.85;
+}
+
+.heartwall-section{
+  margin: 0.5rem 0 0.5rem;
+}
+
+/* Edit client button inside client spotlight */
+.client-spotlight {
+  position: relative;
+}
+
+.edit-client-btn {
+  position: absolute;
+  inset-inline-start: 0.75rem;
+  top: 0.75rem;
+  background: var(--color-surface-modal-close);
+  border: 0;
+  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.edit-client-btn:hover {
+  background: var(--color-primary);
+  color: var(--color-text-inverse, #fff);
+}
+
+/* Phase 22-14 (Gap N2 / D2) — scale the inner SVG glyph to the locked
+ * accessible-icon ratio (~50% of the 44x44 container) per 22-UI-SPEC icon role.
+ * Selector is scoped to .edit-client-btn so no other inline SVGs are affected. */
+.edit-client-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Edit client modal */
+.edit-client-card {
+  width: min(640px, 92vw);
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+
+.edit-client-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.edit-client-form .form-grid {
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.edit-client-form .form-field {
+  margin-bottom: 0.75rem;
+}
+
+.edit-client-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.toggle-group-sm .toggle-card {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.9rem;
+}
+
+.heartwall-badge{
+  align-self: flex-start;
+  background:var(--color-heartwall-badge);
+  color:var(--color-surface);
+  border-radius:999px;
+  padding:0.2rem 0.75rem;
+  font-weight:700;
+  font-size:0.85rem;
+  display:inline-flex;
+  align-items:center;
+  gap:0.35rem;
+}
+
+.heartwall-badge::before{
+  content:"♥";
+}
+
+.heartwall-badge.badge-active{
+  background:var(--color-heartwall-badge);
+}
+
+.heartwall-badge.badge-removed{
+  background:var(--color-success);
+}
+
+.heart-badge.heart-badge-removed{
+  background:transparent;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+/* Phase 25 Plan 12 post-UAT fix (bug 1, 2026-05-15) — the rule above
+ * has equal specificity to the UA `[hidden]` rule but wins because
+ * author stylesheets beat the UA stylesheet. Without this override the
+ * boolean `hidden` HTML attribute has no visual effect on .form-field
+ * elements (e.g., #scheduleCustomDaysWrapper which Plan 05 authored
+ * with `hidden`). Restore the expected hide-on-[hidden] behavior. */
+.form-field[hidden] {
+  display: none;
+}
+
+.birth-date-picker {
+  display: flex;
+  gap: var(--space-xs, 0.5rem);
+}
+.birth-date-picker select {
+  flex: 1;
+  min-width: 0;
+}
+.birth-date-year {
+  flex: 1.2 !important;
+}
+.birth-date-month {
+  flex: 1.5 !important;
+}
+
+.label {
+  font-weight: 700;
+}
+
+.input,
+.textarea,
+.select-field {
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  padding: 0.7rem 0.9rem;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.read-mode .textarea.session-textarea{
+  min-height:56px;
+  resize:none;
+  overflow:hidden;
+}
+
+.read-mode .input:disabled,
+.read-mode .textarea:read-only,
+.read-mode .select-field:disabled{
+  background:var(--color-surface-disabled);
+  color:var(--color-text);
+  opacity:1;
+}
+
+.toggle-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.read-mode .toggle-group{
+  pointer-events:none;
+}
+
+.toggle-card {
+  flex: 1 1 auto;
+  min-width: fit-content;
+  padding: 0.9rem;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  background: var(--color-surface-toggle);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.toggle-card input {
+  display: none;
+}
+
+.toggle-card.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.icon-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--color-surface);
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+}
+
+.issue-block {
+  border-radius: 20px;
+  border: 1px solid var(--color-border-subtle);
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  background: var(--color-surface);
+  position: relative;
+}
+
+.issue-remove{
+  position:absolute;
+  top:0.75rem;
+  inset-inline-end:0.75rem;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  border:0;
+  background:var(--color-surface-modal-close);
+  color:var(--color-primary-dark);
+  font-weight:700;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+}
+
+.read-mode .issue-remove,
+.read-mode #addIssueBtn{
+  display:none;
+}
+
+.issue-remove:hover{
+  background:var(--color-cream-900);
+}
+
+.issue-grid {
+  display: grid;
+  grid-template-columns: minmax(200px, 1.2fr) minmax(220px, 1fr);
+  gap: 1rem;
+  align-items: center;
+}
+
+.severity-scale {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.severity-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 2px solid var(--sev-color, var(--color-sev-default-border));
+  background: var(--color-surface);
+  font-weight: 700;
+  color: var(--sev-color, var(--color-sev-default-text));
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.read-mode .severity-button{
+  pointer-events:none;
+}
+
+.severity-button.is-active {
+  background: var(--sev-color, var(--color-sev-default-border));
+  color: var(--color-surface);
+}
+
+.severity-button:hover {
+  transform: translateY(-1px);
+}
+
+.section-divider {
+  height: 1px;
+  background: var(--color-border-subtle);
+  margin: 2rem 0;
+}
+
+.helper-text {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.inline-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.read-mode .session-save-button{
+  display:none;
+}
+
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  inset-inline-end: 2rem;
+  background: var(--color-toast-bg);
+  color: var(--color-surface);
+  padding: 0.75rem 1.4rem;
+  border-radius: 999px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: var(--z-toast);
+  font-weight: 600;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+html[dir="rtl"] {
+  direction: rtl;
+}
+
+html[dir="rtl"] .issue-grid {
+  grid-template-columns: minmax(220px, 1fr) minmax(200px, 1.2fr);
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  html[dir="rtl"] .app-header {
+    align-items: flex-end; /* intentional semantic RTL override */
+  }
+
+  .issue-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell {
+    padding: 1.5rem 1rem 3rem;
+    overflow-x: hidden;
+  }
+
+  .app-nav {
+    width: 100%;
+    max-width: 100vw;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    gap: 0.35rem;
+  }
+  .app-nav::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row,
+  .inline-form-row {
+    flex-direction: column;
+  }
+
+  .form-row > *,
+  .inline-form-row > * {
+    width: 100%;
+  }
+
+  /* Legal pages basic responsive */
+  .legal-content,
+  .license-content {
+    padding-inline: 1rem;
+  }
+
+  .license-form .input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .session-edit {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .client-spotlight {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  html[dir="rtl"] .client-spotlight {
+    align-items: flex-end;
+  }
+
+  /* Global 44px tap targets (Apple HIG) — scoped to avoid demo-dot, toggle-card, etc. */
+  .app-nav button,
+  .app-nav a,
+  .modal-close,
+  .header-control-btn,
+  .row-actions button,
+  select,
+  .button,
+  .nav-link {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* --- Responsive table: stacked cards on mobile --- */
+@media (max-width: 640px) {
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .table tbody tr.client-row {
+    display: block;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--color-border-soft);
+    border-radius: 8px;
+    padding: 0.75rem;
+  }
+
+  .table tbody tr.client-row td {
+    display: block;
+    text-align: start;
+    padding: 0.25rem 0;
+    border-bottom: none;
+  }
+
+  .table tbody tr.client-row td[data-label]::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--color-text-muted);
+    display: block;
+    font-size: 0.75rem;
+    margin-bottom: 0.1rem;
+  }
+
+  /* Name cell is the card header — no label needed */
+  .table tbody tr.client-row td:first-child::before {
+    display: none;
+  }
+
+  .table tbody tr.client-row td:first-child {
+    font-size: 1rem;
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border-soft);
+    margin-bottom: 0.35rem;
+  }
+
+  /* Actions row inline */
+  .table tbody tr.client-row td:last-child::before {
+    display: none;
+  }
+
+  .table tbody tr.client-row td:last-child {
+    padding-top: 0.5rem;
+  }
+
+  /* Hide detail rows that span columns */
+  .table tbody tr.detail-row td {
+    display: block;
+    padding: 0 0 1rem;
+  }
+}
+
+.detail-row td {
+  padding: 0 0.5rem 1rem;
+}
+
+.detail-row td .session-list {
+  margin-top: 0.5rem;
+}
+
+html[dir="rtl"] .row-actions{
+  justify-content:flex-start;
+}
+
+html[dir="rtl"] .heartwall-badge{
+  align-self: flex-end;
+}
+
+html[dir="rtl"] .session-header{
+  flex-direction:row-reverse;
+}
+
+
+.checkbox-field{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  font-weight:700;
+}
+
+.checkbox-field input{
+  width:18px;
+  height:18px;
+}
+
+.photo-preview{
+  width:120px;
+  height:120px;
+  border-radius:18px;
+  object-fit:cover;
+  box-shadow:var(--shadow-card);
+  margin-top:.75rem;
+}
+
+.is-hidden{
+  display:none !important;
+}
+
+.client-name{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  border:0;
+  background:transparent;
+  font-weight:700;
+  color:inherit;
+  cursor:pointer;
+}
+
+.client-avatar{
+  width:36px;
+  height:36px;
+  border-radius:12px;
+  object-fit:cover;
+  background:var(--color-surface-avatar);
+  display:grid;
+  place-items:center;
+  font-weight:800;
+  color:var(--color-primary-dark);
+}
+
+.client-avatar.placeholder{
+  text-transform:uppercase;
+}
+
+.heart-badge{
+  margin-inline-start:.35rem;
+  background:transparent;
+  border-radius:999px;
+  padding:.15rem .2rem;
+  font-size:.85rem;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.session-actions{
+  margin-top:.5rem;
+  display:flex;
+  gap:.5rem;
+}
+
+.edit-button{
+  display:inline-flex;
+  align-items:center;
+  gap:0.4rem;
+  padding:0.45rem 0.95rem;
+  border-radius:999px;
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  color:var(--color-text);
+  font-weight:700;
+  font-size:0.85rem;
+  cursor:pointer;
+}
+.edit-button .button-icon{
+  font-size:1rem;
+  line-height:1;
+}
+
+.import-label{
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+}
+
+.import-label input{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  cursor:pointer;
+}
+
+.muted-label{
+  color:var(--color-text-muted);
+  opacity:0.7;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index: var(--z-modal);
+}
+
+/* Phase 24 Plan 07 — crop modal opens from inside the edit-client modal (when
+   the therapist re-uploads a photo on an existing client). Without an
+   explicit stacking bump, edit-client's later DOM position made it cover the
+   crop modal — user had to close edit-client to see the crop, but then
+   confirming crop silently lost the photo because edit-client's Save handler
+   was no longer mounted. --z-modal-top puts crop above any plain modal so
+   the user never needs to close edit-client to interact with crop. */
+#cropModal.modal{
+  z-index: var(--z-modal-top);
+}
+
+.modal-overlay{
+  position:absolute;
+  inset:0;
+  background:var(--color-modal-overlay-bg);
+}
+
+.modal-card{
+  position:relative;
+  background:var(--color-surface);
+  border-radius:24px;
+  padding:1.8rem;
+  width:min(720px, 90vw);
+  box-shadow:var(--shadow-modal);
+  z-index:1;
+  text-align:start;
+  max-height: 90vh;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-card-body {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.modal-card-actions {
+  flex-shrink: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.confirm-card{
+  width:min(520px, 92vw);
+  padding:2rem;
+  max-height: 90vh;
+  max-height: 90dvh;
+}
+
+.confirm-title{
+  font-size:1.35rem;
+  font-weight:800;
+  margin-bottom:0.5rem;
+}
+
+.confirm-body{
+  color:var(--color-text-muted);
+  font-weight:600;
+  line-height:1.5;
+  margin-bottom:1.6rem;
+  /* Phase 25 round-5 (C1, 2026-05-15): confirm bodies are rendered via
+   * .textContent (App.confirmDialog). pre-line honours the \n line
+   * separators authored in multi-sentence i18n bodies (e.g.
+   * photos.deleteAll.confirm.body) so they render as two visual lines
+   * while still collapsing incidental whitespace. */
+  white-space:pre-line;
+}
+
+/* Phase 25 round-6 (C1, 2026-05-15): the Settings → Photos delete-all
+ * helper text is authored as two \n-separated sentences and must render
+ * as two visual lines (Ben re-clarified the target was the settings-page
+ * helper, not the confirm dialog). */
+.helper-text--multiline{
+  white-space:pre-line;
+}
+
+/* Phase 25 round-6 (Ben 2026-05-15): the optimize VERDICT is a live,
+ * recomputed-on-render recommendation — it must not read as dead static
+ * caption text (it lost the green treatment the old standalone savings
+ * line had). Tier-aware emphasis: compact = quiet/reassuring (nothing to
+ * do), optional = neutral-but-noticed, recommended = act-now accent. */
+.photos-usage-verdict{
+  font-weight:600;
+  line-height:1.5;
+  padding:var(--space-sm, 8px) var(--space-md, 16px);
+  border-radius:8px;
+  border-inline-start:4px solid transparent;
+}
+.photos-usage-verdict--compact{
+  color:var(--color-info-text, #004085);
+  background:var(--color-info-bg, #cce5ff);
+  border-inline-start-color:var(--color-info-text, #004085);
+}
+.photos-usage-verdict--compact::before{
+  content:"\2713\00a0"; /* ✓ + nbsp — at-a-glance "you're good, nothing to do" */
+  font-weight:700;
+}
+.photos-usage-verdict--optional{
+  color:var(--color-text);
+  background:var(--color-warning-bg);
+  border-inline-start-color:var(--color-warning-text);
+}
+.photos-usage-verdict--recommended{
+  color:var(--color-success-text);
+  background:var(--color-success-bg);
+  border-inline-start-color:var(--color-success-border);
+}
+
+/* Phase 25 round-6 (#7, Ben 2026-05-15): .error-text had NO rule at all,
+ * so the schedule-password-required message rendered as invisible-looking
+ * plain text buried in the callout. It now lives directly under the
+ * frequency <select> (locus of the user's action) and reads as a real
+ * error: danger color, semibold, danger-tinted inline-start band. */
+.error-text{
+  color:var(--color-danger-text, #721c24);
+  background:var(--color-danger-bg, #f8d7da);
+  border-inline-start:4px solid var(--color-danger, #ea4b4b);
+  border-radius:8px;
+  padding:var(--space-sm, 8px) var(--space-md, 16px);
+  margin-block:var(--space-sm, 8px);
+  font-weight:600;
+  line-height:1.5;
+}
+
+/* When a blocked frequency change fires, briefly pull the user's eye to
+ * the password callout they need to act on (the error explains WHY; this
+ * shows WHERE). settings.js toggles the class and self-clears it. */
+@keyframes schedule-callout-attention{
+  0%   { box-shadow:0 0 0 0 var(--color-danger-shadow, rgba(234,75,75,0.28)); }
+  60%  { box-shadow:0 0 0 6px var(--color-danger-shadow, rgba(234,75,75,0.28)); }
+  100% { box-shadow:0 0 0 0 var(--color-danger-shadow, rgba(234,75,75,0.28)); }
+}
+.schedule-password-callout--attention{
+  animation:schedule-callout-attention 1s ease-out 2;
+  outline:2px solid var(--color-danger, #ea4b4b);
+  outline-offset:2px;
+}
+@media (prefers-reduced-motion: reduce){
+  .schedule-password-callout--attention{ animation:none; }
+}
+
+.confirm-actions{
+  justify-content:flex-end;
+  gap:0.75rem;
+  flex-wrap:wrap;
+}
+
+.confirm-actions .button{
+  min-width:120px;
+}
+
+.modal-close{
+  position:absolute;
+  top:1rem;
+  inset-inline-end:1rem;
+  border:0;
+  background:var(--color-surface-modal-close);
+  width:36px;
+  height:36px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+.modal-close:before,
+.modal-close:after{
+  content:"";
+  position:absolute;
+  top:50%;
+  left:50%; /* centering trick — not directional, keep as physical */
+  width:16px;
+  height:2px;
+  background:var(--color-primary-dark);
+}
+
+.modal-close:before{
+  transform:translate(-50%, -50%) rotate(45deg);
+}
+
+.modal-close:after{
+  transform:translate(-50%, -50%) rotate(-45deg);
+}
+
+.modal-header{
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  margin-bottom:1.5rem;
+}
+
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:0.6rem;
+  margin:0 0 1.2rem;
+}
+
+.modal-avatar{
+  width:64px;
+  height:64px;
+  border-radius:18px;
+  object-fit:cover;
+}
+
+.modal-title{
+  font-size:1.4rem;
+  font-weight:800;
+}
+
+.modal-subtitle{
+  color:var(--color-text-muted);
+  font-weight:600;
+}
+
+.modal-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+  gap:1rem;
+  margin-bottom:1.5rem;
+}
+
+.modal-stat{
+  background:var(--color-primary-soft);
+  border-radius:18px;
+  padding:1rem;
+}
+
+.modal-stat-value{
+  font-size:1.4rem;
+  font-weight:800;
+  color:var(--color-primary);
+}
+
+.modal-stat-label{
+  font-size:.9rem;
+  color:var(--color-text-muted);
+}
+
+.modal-notes-title{
+  font-weight:700;
+  margin-bottom:.4rem;
+}
+
+.modal-notes-body{
+  color:var(--color-text-muted);
+}
+
+html[dir="rtl"] .client-name{
+  justify-content:flex-end;
+}
+
+html[dir="rtl"] .modal-actions{
+  justify-content:flex-start;
+}
+
+.issue-summary .input[readonly]{
+  background:var(--color-surface-subtle);
+  border-color:var(--color-border-subtle);
+  color:var(--color-text-muted);
+}
+
+.client-name{
+  padding:0;
+}
+
+.client-name:hover span{
+  color:var(--color-primary);
+}
+
+
+/* === EXPANDABLE FIELDS === */
+.expandable-field {
+  margin-top: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.expandable-field > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface-alt);
+  gap: 0.5rem;
+  user-select: none;
+}
+
+.expandable-field > summary::-webkit-details-marker { display: none; }
+.expandable-field > summary::marker { display: none; }
+
+.expandable-field > summary .label {
+  margin: 0;
+  cursor: pointer;
+}
+
+.expand-arrow {
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+
+.expandable-field[open] .expand-arrow {
+  transform: rotate(90deg);
+}
+
+.expandable-body {
+  padding: 0.75rem;
+  background: var(--color-surface);
+}
+
+.expandable-body .textarea {
+  margin: 0;
+  min-height: 80px;
+  width: 100%;
+}
+
+/* === SEVERITY DELTA === */
+.severity-delta {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm, 4px);
+  min-width: 2rem;
+  text-align: center;
+  margin-inline-start: 0.5rem;
+}
+
+.delta-negative { color: var(--color-success, #22c55e); }  /* Improvement */
+.delta-positive { color: var(--color-danger, #ef4444); }   /* Worsening */
+
+/* ── Heart Shield Section ────────────────────────────────────────── */
+
+.heart-shield-section {
+  margin-block: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt, var(--color-surface));
+}
+
+.heart-shield-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--color-border);
+  border-radius: 26px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  inset-inline-start: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--color-primary);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(22px);
+}
+
+html[dir="rtl"] .toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(-22px);
+}
+
+.heart-shield-conditional {
+  margin-block-start: 1rem;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 3px solid var(--color-primary);
+}
+
+.shield-removed-options {
+  display: flex;
+  gap: 1rem;
+  margin-block-start: 0.5rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+  accent-color: var(--color-primary);
+}
+
+body.read-mode .heart-shield-section input {
+  pointer-events: none;
+}
+
+/* === CROP MODAL === */
+.crop-card {
+  width: min(480px, 92vw);
+  text-align: center;
+  max-height: 90vh;
+  max-height: 90dvh;
+}
+
+.crop-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.crop-canvas-container {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 0 auto;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--color-background);
+  cursor: grab;
+  touch-action: none;
+}
+
+.crop-canvas-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.crop-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.crop-zoom-slider {
+  width: 140px;
+  accent-color: var(--color-primary);
+}
+
+.crop-zoom-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 1.2rem;
+  border-radius: 12px;
+}
+
+.crop-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.crop-recrop-btn {
+  margin-top: 0.5rem;
+}
+
+/* ---- App botanical decorations (home page only) ---- */
+
+.app-botanical {
+  pointer-events: none;
+  user-select: none;
+  text-align: center;
+  overflow: hidden;
+}
+
+.app-botanical-img {
+  display: block;
+  margin-inline: auto;
+  height: auto;
+  opacity: 0.5;
+  filter: brightness(1.1);
+  mix-blend-mode: multiply;
+}
+
+/* Garden divider between greeting and stats */
+.app-botanical-divider {
+  padding: 0.5rem 0;
+}
+
+.app-botanical-divider-img {
+  max-inline-size: min(500px, 85vw);
+  opacity: 0.55;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10% 90%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 10% 90%, transparent 100%);
+}
+
+/* Watering can at footer — centered, subtle */
+.app-botanical-footer {
+  padding: 1.5rem 0 0.5rem;
+}
+
+.app-botanical-footer .app-botanical-img {
+  width: 100px;
+  opacity: 0.35;
+}
+
+/* Dark mode treatment — same pattern as landing page */
+[data-theme="dark"] .app-botanical-img {
+  filter: invert(1);
+  opacity: 0.3;
+  mix-blend-mode: screen;
+}
+
+[data-theme="dark"] .app-botanical-footer .app-botanical-img {
+  opacity: 0.2;
+}
+
+/* Responsive — shrink elements on small screens */
+@media (max-width: 480px) {
+  .app-botanical-divider-img {
+    max-inline-size: min(300px, 80vw);
+  }
+  .app-botanical-footer .app-botanical-img {
+    width: 70px;
+  }
+
+  .severity-scale {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.3rem;
+  }
+
+  .severity-button {
+    width: 100%;
+    min-height: 38px;
+    height: 38px;
+  }
+
+  .crop-canvas-container {
+    width: 220px;
+    height: 220px;
+  }
+
+  .crop-zoom-slider {
+    width: 100px;
+  }
+
+  .legal-content {
+    font-size: 0.9rem;
+  }
+}
+
+/* === Accordion Sections (mobile add-session form) === */
+.accordion-section .accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 44px;
+  user-select: none;
+}
+
+.accordion-section .accordion-header::after {
+  content: "\25B6"; /* right triangle */
+  font-size: 0.7rem;
+  transition: transform 0.3s ease;
+  color: var(--color-text-muted);
+}
+
+.accordion-section.is-active .accordion-header::after {
+  transform: rotate(90deg);
+}
+
+.accordion-section .accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.accordion-section.is-active .accordion-body {
+  max-height: 2000px;
+}
+
+@media (min-width: 769px) {
+  /* On desktop, accordion is always open */
+  .accordion-section .accordion-body {
+    max-height: none !important;
+    overflow: visible;
+  }
+  .accordion-section .accordion-header {
+    cursor: default;
+  }
+  .accordion-section .accordion-header::after {
+    display: none;
+  }
+}
+
+/* === DB Error Banners === */
+.db-error-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-md, 12px) var(--space-lg, 16px);
+  text-align: center;
+  z-index: var(--z-banner);
+  font-family: var(--font-family, Rubik, system-ui, sans-serif);
+  font-size: var(--text-base, 14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.db-error-banner--blocked {
+  background: var(--color-warning-bg, #fff3cd);
+  color: var(--color-warning-text, #856404);
+}
+
+.db-error-banner--version {
+  background: var(--color-info-bg, #cce5ff);
+  color: var(--color-info-text, #004085);
+}
+
+.db-error-banner--migration {
+  background: var(--color-danger-bg, #f8d7da);
+  color: var(--color-danger-text, #721c24);
+}
+
+.db-error-btn {
+  margin-top: var(--space-sm, 4px);
+  padding: var(--space-xs, 2px) var(--space-md, 12px);
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  font-family: var(--font-family, Rubik, system-ui, sans-serif);
+  font-size: var(--text-sm, 13px);
+  font-weight: 600;
+  background: var(--color-primary, #2d6a4f);
+  color: var(--color-text-inverse, #fff);
+}
+
+.db-error-btn:hover {
+  opacity: 0.9;
+}
+
+/* ── Backup Reminder Banner ──────────────────────────────────────── */
+
+.backup-reminder-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm, 8px);
+  padding: var(--space-sm, 8px) var(--space-md, 16px);
+  background: var(--color-primary-soft, #c8e6d4);
+  border-bottom: 1px solid var(--color-border, rgba(45, 106, 79, 0.2));
+  font-family: var(--font-family, Rubik, system-ui, sans-serif);
+  font-size: var(--text-sm, 14px);
+  color: var(--color-text, #2f2d38);
+}
+
+.backup-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm, 8px);
+  flex-wrap: wrap;
+}
+
+.backup-reminder-btn {
+  padding: var(--space-xs, 6px) var(--space-md, 14px);
+  border: 1px solid var(--color-border, rgba(45, 106, 79, 0.2));
+  border-radius: var(--radius-sm, 8px);
+  background: transparent;
+  color: var(--color-text, #2f2d38);
+  cursor: pointer;
+  font-family: var(--font-family, Rubik, system-ui, sans-serif);
+  font-size: var(--text-sm, 13px);
+  white-space: nowrap;
+}
+
+.backup-reminder-btn:hover {
+  background: var(--color-surface-hover, rgba(45, 106, 79, 0.08));
+}
+
+.backup-reminder-btn--primary {
+  background: var(--color-primary, #2d6a4f);
+  color: var(--color-surface, #fff);
+  border-color: var(--color-primary, #2d6a4f);
+  font-weight: 600;
+}
+
+.backup-reminder-btn--primary:hover {
+  opacity: 0.9;
+}
+
+.backup-reminder-btn--close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--color-text-muted, #5f5c72);
+  padding: 0 4px;
+}
+
+.backup-reminder-btn--close:hover {
+  color: var(--color-text, #2f2d38);
+}
+
+/* ---------------------------------------------------------------------------
+   Passphrase Modal — encrypted backup export/import
+   --------------------------------------------------------------------------- */
+
+.passphrase-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: var(--space-md, 16px);
+}
+
+.passphrase-modal {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  padding: 2rem 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.passphrase-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-end: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.passphrase-modal-close:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.passphrase-modal h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.passphrase-warning {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.passphrase-irreversible {
+  padding: 0.5rem 1rem;
+  background: var(--color-warning-bg, #fff3cd);
+  color: var(--color-warning-text, #856404);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.passphrase-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-sizing: border-box;
+}
+
+.passphrase-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -1px;
+  border-color: var(--color-primary);
+}
+
+.passphrase-error {
+  color: var(--color-danger, #ea4b4b);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.passphrase-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.passphrase-btn-cancel {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-family: inherit;
+}
+
+.passphrase-btn-cancel:hover {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+.passphrase-btn-dismiss {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+.passphrase-btn-dismiss:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.passphrase-btn-confirm {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.passphrase-btn-confirm:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.passphrase-btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Phase 22-15 (Gap N11 / D1 + Gap N12 / D3) — Skip-Encryption confirm pane + complexity-rules hint block ── */
+
+/* Skip-confirm pane wrapper. Same column-flex shape as the entry pane; the parent .passphrase-modal already supplies padding. */
+.passphrase-skip-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Destructive primary on the skip-confirm pane. Mirrors .passphrase-btn-confirm but with --color-danger
+   background (matching the existing --color-danger token at .passphrase-error L2092 and .button.danger L454).
+   The two-step gesture (Skip → confirm pane → this button) is what the destructive colour visually anchors. */
+.passphrase-btn-destructive {
+  background: var(--color-danger, #ea4b4b);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* Hover state matches .passphrase-btn-confirm:hover for consistency. */
+.passphrase-btn-destructive:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Phase 22-15 (Gap N12 / D3) — static complexity-rules hint block.
+   Visual family matches .passphrase-irreversible via the same warning tokens.
+   Mirrors isWeakPassphrase()'s three rules exactly. Label-role heading (14px / 600 / 1.4);
+   compact Body-role list items (14px / 400 / 1.4). Logical padding-inline-start for
+   RTL-safe list-bullet indent. */
+.passphrase-rules {
+  padding: 0.5rem 1rem;
+  background: var(--color-warning-bg, #fff3cd);
+  color: var(--color-warning-text, #856404);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.passphrase-rules-heading {
+  font-weight: 600;
+  margin-block-end: 0.25rem;
+}
+
+.passphrase-rules-list {
+  margin: 0;
+  padding-inline-start: 1.25rem;
+  list-style: disc;
+}
+
+.passphrase-rules-list li {
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ── License Link (header) ───────────────────────────────────────── */
+
+.header-license-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+.header-license-link:hover {
+  color: var(--color-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   Security Guidance Note — appears at multiple touchpoints
+   --------------------------------------------------------------------------- */
+
+.security-guidance-note {
+  background: var(--color-primary-soft, #c8e6d4);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.security-guidance-note h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.security-guidance-note p {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.security-guidance-note p:last-of-type {
+  margin-bottom: 1rem;
+}
+
+.security-guidance-dismiss {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 44px;
+  float: inline-end;
+}
+
+.security-guidance-dismiss:hover {
+  opacity: 0.9;
+}
+
+/* Persistent privacy section (always visible on overview page) */
+.security-guidance-persistent {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.security-guidance-persistent h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.security-guidance-persistent p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+/* --- App Footer (shared-chrome.js) --- */
+.app-footer {
+  text-align: center;
+  padding: var(--space-lg, 2rem) var(--space-md, 1rem) var(--space-md, 1rem);
+  margin-top: var(--space-xl, 3rem);
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+.app-footer:hover {
+  opacity: 1;
+}
+.app-footer-botanical {
+  margin-bottom: var(--space-sm, 0.5rem);
+}
+.app-footer-botanical-img {
+  width: 60px;
+  height: auto;
+  opacity: 0.6;
+}
+[data-theme="dark"] .app-footer-botanical-img {
+  filter: invert(1);
+  mix-blend-mode: screen;
+  opacity: 0.4;
+}
+.app-footer-links {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md, 1rem);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-xs, 0.25rem);
+}
+.app-footer-links a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+.app-footer-links a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+.app-footer-contact {
+  margin: var(--space-xs, 0.25rem) 0;
+}
+.app-footer-contact a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+.app-footer-contact a:hover {
+  color: var(--color-primary);
+}
+.app-footer-copy {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  margin: var(--space-xs, 0.25rem) 0 0;
+}
+.app-footer-tagline {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  margin: 0.25rem 0 0;
+  font-style: italic;
+}
+
+/* Phase 22 — Settings page */
+.brand-link {
+  text-decoration: none;
+  color: inherit;
+}
+.settings-page {
+  padding-block: 32px 64px;
+}
+.settings-page .page-header {
+  margin-block-end: 16px;
+}
+.settings-page .page-helper {
+  color: var(--color-text-muted);
+  margin-block-end: 24px;
+}
+.settings-info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 24px;
+  margin-block-end: 24px;
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+  border-radius: 16px;
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+}
+.settings-info-banner svg {
+  flex-shrink: 0;
+  inline-size: 24px;
+  block-size: 24px;
+}
+.settings-info-banner h3 {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.settings-info-banner ul {
+  margin: 0;
+  padding-inline-start: 24px;
+}
+.settings-info-banner li {
+  margin-block-end: 4px;
+}
+.settings-row {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  padding: 24px;
+  margin-block-end: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.settings-row-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.settings-row-label-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.settings-row-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.settings-row-desc {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+.disabled-indicator-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: var(--color-surface-disabled);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-inline-start: 8px;
+}
+.settings-rename-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.settings-rename-input {
+  inline-size: 100%;
+}
+.settings-rename-input[disabled],
+.settings-rename-input[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.settings-locked-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 24px;
+  block-size: 24px;
+  color: var(--color-text-muted);
+  cursor: help;
+  position: relative;
+}
+.settings-locked-info::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  inset-block-end: calc(100% + 8px);
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  background: var(--color-surface-elevated, var(--color-surface));
+  color: var(--color-text);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: normal;
+  max-inline-size: 240px;
+  min-inline-size: 160px;
+  box-shadow: 0 4px 16px var(--color-modal-shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-in-out;
+  z-index: 10;
+}
+.settings-locked-info:hover::after,
+.settings-locked-info:focus::after,
+.settings-locked-info:focus-within::after {
+  opacity: 1;
+}
+/* RTL: keep horizontal centering identical (translateX percentages flip axis under RTL,
+   so override to translateX(50%) to defend against transform inheritance). */
+html[dir="rtl"] .settings-locked-info::after {
+  inset-inline-start: 50%;
+  transform: translateX(50%);
+}
+.settings-row-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.reset-row-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+.reset-row-btn[disabled] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+/* Phase 22-13 (Gap N4) — visible label next to the reset icon. Logical
+   padding flips correctly in RTL (HE). Values strictly follow 22-UI-SPEC
+   tokens: 8px = `xs` spacing token; weight 600 + line-height 1.4 = Label
+   role typography. */
+.reset-row-btn-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  padding-inline-start: 8px;
+  color: inherit;
+}
+.settings-action-bar {
+  position: sticky;
+  inset-block-end: 0;
+  background: var(--color-surface);
+  padding: 16px;
+  border-block-start: 1px solid var(--color-border-soft);
+  box-shadow: 0 -4px 16px var(--color-modal-shadow);
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  z-index: 1;
+}
+@media (min-width: 769px) {
+  .settings-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+  }
+  .settings-row-meta { flex: 1; }
+  .settings-rename-wrap { inline-size: 280px; }
+  .settings-rename-input { inline-size: 100%; }
+}
+
+/* Phase 22 — Settings page: post-save success pill (D2 locked design spec).
+   Inserted next to the Save button as a content-sized pill, auto-dismisses on
+   next interaction. (Replaced the OLD blue notice that previously lived here.) */
+.settings-saved-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding-block: 0.5rem;
+  padding-inline-start: 0.875rem;
+  padding-inline-end: 0.5rem;
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success-border);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 220ms ease-out, transform 220ms cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: none;
+}
+.settings-saved-notice[data-active] { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.settings-saved-notice[data-active="leaving"] { opacity: 0; transition: opacity 180ms ease-in; }
+.settings-saved-notice[hidden] { display: none; }
+
+.settings-saved-notice-mark {
+  width: 0.875rem; height: 0.875rem;
+  border-radius: 50%;
+  background: currentColor;
+  position: relative;
+  flex-shrink: 0;
+}
+.settings-saved-notice-mark::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 28%;
+  inset-block-start: 18%;
+  width: 22%;
+  height: 50%;
+  border-block-end: 1.5px solid var(--color-success-bg);
+  border-inline-end: 1.5px solid var(--color-success-bg);
+  transform: rotate(45deg);
+}
+
+.settings-saved-notice-close {
+  display: inline-grid;
+  place-items: center;
+  width: 1.25rem; height: 1.25rem;
+  padding: 0;
+  margin-inline-start: 0.125rem;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  opacity: 0.55;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+.settings-saved-notice-close:hover,
+.settings-saved-notice-close:focus-visible {
+  opacity: 1;
+  background-color: color-mix(in oklab, currentColor 10%, transparent);
+  outline: none;
+}
+.settings-saved-notice-close > svg { width: 0.6875rem; height: 0.6875rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-saved-notice,
+  .settings-saved-notice[data-active="leaving"] {
+    transition-duration: 0ms;
+    transform: none;
+  }
+}
+
+/* Phase 22 — Export modal */
+.export-card {
+  inline-size: min(720px, 92vw);
+}
+.export-step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-inline-size: 360px;
+  margin-inline: auto;
+  margin-block: 0 24px;
+}
+.export-step-dot {
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.export-step-dot.is-active {
+  inline-size: 36px;
+  block-size: 36px;
+  background: var(--color-primary);
+  color: var(--color-surface);
+  font-size: 1.05rem;
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+  transform: scale(1.05);
+}
+.export-step-dot.is-completed {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+.export-step-connector {
+  flex: 1;
+  block-size: 1px;
+  background: var(--color-border-soft);
+}
+.export-step-connector.is-completed {
+  background: var(--color-primary);
+}
+
+/* Phase 22-11 — labelled stepper pill (wraps the dot + an inline label) */
+.export-step-pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.export-step-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.2;
+}
+.export-step-pill.is-active .export-step-label {
+  color: var(--color-primary-dark, var(--color-primary));
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+.export-step-pill.is-completed .export-step-label { color: var(--color-text); }
+@media (min-width: 769px) {
+  .export-step-pill { flex-direction: row; gap: 8px; }
+}
+
+/* Phase 22-11 — defensive z-index so the X close button always paints
+   above the Step 3 .export-output-card buttons (root cause of the
+   "Step 3 X does nothing" UAT bug: same stacking level + later DOM order). */
+.export-card .modal-close { z-index: 2; }
+.export-card .export-output-card { position: relative; z-index: 1; }
+
+.export-step { display: none; }
+.export-step.is-active { display: block; }
+
+/* Phase 22-11 — per-step contextual helper paragraph (UAT Test 2 gap:
+   "give therapist contextual guidance — what each screen does"). */
+.export-step-helper {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  margin-block: 0 16px;
+  padding-block-end: 12px;
+  border-block-end: 1px solid var(--color-border-soft);
+}
+
+/* Phase 22-11 — Step 2 markdown formatting cheatsheet (UAT Test 2 gap:
+   "therapist with no markdown background should be able to apply
+   bold/italic/headings without leaving the modal"). */
+.export-format-help {
+  margin-block-start: 16px;
+  padding: 12px 16px;
+  background: var(--color-surface-subtle);
+  border-radius: 12px;
+  font-size: 0.8125rem;
+}
+.export-format-help summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text);
+  padding-block: 4px;
+  list-style: none;
+}
+.export-format-help summary::-webkit-details-marker { display: none; }
+.export-format-help summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-inline-end: 8px;
+  transition: transform 120ms ease-in-out;
+}
+.export-format-help[open] summary::before {
+  transform: rotate(90deg);
+}
+html[dir="rtl"] .export-format-help summary::before {
+  content: "◂";
+}
+html[dir="rtl"] .export-format-help[open] summary::before {
+  transform: rotate(-90deg);
+}
+.export-format-help-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.export-format-help-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+.export-format-help-list code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.8125rem;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.export-section-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-block: 8px;
+  padding-inline: 16px;
+  border-radius: 16px;
+  min-block-size: 44px;
+  cursor: pointer;
+}
+.export-section-row:hover {
+  background: var(--color-surface-hover);
+}
+.export-section-row.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.export-section-row.is-disabled input {
+  pointer-events: none;
+}
+.export-section-label {
+  flex: 1;
+}
+
+.export-edit-area {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+.export-editor {
+  min-block-size: 240px;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+}
+.export-preview {
+  min-block-size: 240px;
+  padding: 16px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  background: var(--color-surface);
+  overflow-y: auto;
+}
+/* Phase 22-14 (Gap N1 / D1) — visible pane title above each Step 2 pane
+ * (editor on inline-start, preview on inline-end at desktop). Label-role
+ * typography per 22-UI-SPEC: 14px / 600 / 1.4. Logical margin-block-end of
+ * 8px (xs spacing token) for the gap to the pane below. */
+.export-pane-label {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-text);
+  margin-block-end: 10px;
+}
+.export-preview h1 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-block-end: 8px;
+}
+.export-preview h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  border-block-end: 1px solid var(--color-border);
+  margin-block: 16px 8px;
+  padding-block-end: 4px;
+}
+.export-preview h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-block: 16px 4px;
+}
+.export-preview p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.export-preview ul {
+  padding-inline-start: 24px;
+}
+
+.export-mobile-tabs {
+  display: none;
+  gap: 8px;
+  margin-block-end: 16px;
+}
+.export-mobile-tabs .tab-btn {
+  padding-block: 8px;
+  padding-inline: 16px;
+  border-radius: 16px;
+  min-block-size: 44px;
+  background: var(--color-surface-toggle);
+  border: 1px solid var(--color-border-soft);
+}
+.export-mobile-tabs .tab-btn.is-active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
+.export-output-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  margin-block-end: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  min-block-size: 64px;
+  inline-size: 100%;
+  text-align: start;
+  cursor: pointer;
+}
+.export-output-card:hover {
+  background: var(--color-surface-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button);
+}
+.output-card-icon {
+  font-size: 24px;
+  color: var(--color-primary-dark);
+}
+.output-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.output-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.output-card-subtitle {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 769px) {
+  .export-edit-area {
+    grid-template-columns: 1fr 1fr;
+    /* Phase 22-14 (Gap N1 / D1) — row 1 = pane labels, row 2 = textarea + preview */
+    grid-template-rows: auto 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .export-edit-area {
+    grid-template-columns: 1fr;
+  }
+  .export-mobile-tabs {
+    display: inline-flex;
+  }
+}
+
+/* Phase 22 — Header gear icon */
+.settings-gear-btn {
+  /* Inherits .header-control-btn base size (36x36). 44x44 tap target enforced by global rule. */
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.settings-gear-btn:hover {
+  background: var(--color-surface-hover);
+}
+.settings-gear-btn.is-active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+.settings-gear-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ─── Snippet autocomplete popover (Phase 24 Plan 04) ────────────── */
+.snippets-popover {
+  position: fixed;
+  z-index: 200;
+  min-width: 220px;
+  max-width: 360px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #d4cbb4);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.snippets-popover__row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.snippets-popover__row.is-selected,
+.snippets-popover__row:hover {
+  background: var(--color-primary-soft, #f1ebda);
+}
+.snippets-popover__trigger {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  color: var(--color-primary-dark, #5a4a23);
+  flex-shrink: 0;
+}
+.snippets-popover__preview {
+  color: var(--color-text-muted, #7a6d50);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+.snippets-popover__empty {
+  padding: 8px 10px;
+  color: var(--color-text-muted, #7a6d50);
+  font-style: italic;
+}
+
+/* ───────────────────────────────────────────────────────────────────
+   Phase 24 Plan 05 — Snippet Settings UI
+   Logical properties throughout for RTL safety. Reuses Phase 21/22
+   .modal / .modal-card infrastructure for the editor + collision modal.
+   ─────────────────────────────────────────────────────────────────── */
+
+.snippets-section {
+  margin-block-start: var(--space-5, 24px);
+  padding-block: var(--space-4, 20px);
+  border-block-start: 1px solid var(--color-border, #e2dcc5);
+}
+.snippets-section .section-title {
+  margin-block-end: var(--space-2, 8px);
+}
+.snippets-section .section-helper {
+  margin-block-end: var(--space-3, 12px);
+  color: var(--color-text-muted, #7a6d50);
+}
+.snippets-section .form-field {
+  margin-block-end: var(--space-3, 12px);
+}
+
+.snippets-prefix-input {
+  inline-size: 5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-align: center;
+}
+.snippets-prefix-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 10px);
+  flex-wrap: wrap;
+}
+.snippets-subsection-title {
+  margin-block-start: var(--space-5, 24px);
+  margin-block-end: var(--space-1, 6px);
+  font-size: var(--font-size-md, 1rem);
+  font-weight: 600;
+  color: var(--color-text, #2d2616);
+}
+.snippets-editor-helper {
+  margin-block-start: 0;
+  margin-block-end: var(--space-3, 12px);
+  color: var(--color-text-muted, #7a6d50);
+}
+.success-text {
+  margin: 0;
+  color: var(--color-success, #5a8a3a);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+.success-text::before {
+  content: "✓ ";
+}
+.success-text.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.snippets-list-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+  margin-block: var(--space-3, 12px);
+}
+.snippets-search-input {
+  inline-size: 100%;
+}
+.snippets-tag-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1, 6px);
+  min-block-size: 0;
+}
+.snippets-tag-filter-row:empty {
+  display: none;
+}
+
+.snippets-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2, 8px);
+  margin-block: var(--space-3, 12px);
+  align-items: center;
+}
+
+.snippets-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 6px);
+  margin-block-start: var(--space-2, 8px);
+}
+.snippets-list-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, auto) 1fr auto auto auto;
+  align-items: center;
+  gap: var(--space-2, 10px);
+  padding-block: var(--space-2, 8px);
+  padding-inline: var(--space-3, 12px);
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e2dcc5);
+  border-radius: var(--radius-md, 8px);
+}
+.snippets-list-trigger {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600;
+  color: var(--color-primary-dark, #5a4a23);
+  white-space: nowrap;
+}
+.snippets-list-preview {
+  color: var(--color-text-muted, #7a6d50);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-sm, 0.875rem);
+}
+.snippets-list-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-inline-size: 12rem;
+}
+
+.snippets-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-block: 2px;
+  padding-inline: 8px;
+  background: var(--color-primary-soft, #f1ebda);
+  color: var(--color-primary-dark, #5a4a23);
+  border: 1px solid var(--color-border, #e2dcc5);
+  border-radius: var(--radius-full, 999px);
+  font-size: var(--font-size-xs, 0.75rem);
+  cursor: pointer;
+  user-select: none;
+}
+.snippets-tag-chip.is-active {
+  background: var(--color-primary, #b9952a);
+  color: var(--color-on-primary, #fff);
+  border-color: var(--color-primary, #b9952a);
+}
+.snippets-tag-chip button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1.1em;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+/* ── Editor modal ───────────────────────────────────────────────── */
+
+.snippets-editor-card {
+  max-inline-size: min(560px, 92vw);
+  max-block-size: 90vh;
+  overflow-y: auto;
+}
+.snippets-editor-card .form-field {
+  margin-block-end: var(--space-3, 12px);
+}
+.snippets-editor-current-lang label {
+  display: block;
+  margin-block-end: var(--space-1, 6px);
+}
+.snippets-editor-translations {
+  margin-block-start: var(--space-3, 12px);
+  padding-block-start: var(--space-3, 12px);
+  border-block-start: 1px dashed var(--color-border, #e2dcc5);
+}
+.snippets-editor-translation {
+  margin-block-end: var(--space-3, 12px);
+}
+.snippets-editor-translation label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.snippets-editor-locale-dot {
+  display: inline-block;
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 50%;
+  background: var(--color-border, #e2dcc5);
+}
+.snippets-editor-locale-dot[data-state="filled"] {
+  background: var(--color-success, #5a8a3a);
+}
+
+/* ── Tag chip input (Gmail-style) ───────────────────────────────── */
+
+.snippets-editor-tags-input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  padding-block: 6px;
+  padding-inline: 8px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e2dcc5);
+  border-radius: var(--radius-md, 8px);
+  position: relative;
+  cursor: text;
+}
+.snippets-editor-tags-input:focus-within {
+  border-color: var(--color-primary, #b9952a);
+  box-shadow: 0 0 0 2px var(--color-primary-soft, #f1ebda);
+}
+.snippets-tag-chips {
+  display: contents;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.snippets-tag-chips .snippets-tag-chip {
+  cursor: default;
+}
+.snippets-tag-text-input {
+  flex: 1;
+  min-inline-size: 6rem;
+  border: none;
+  outline: none;
+  padding: 2px 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+}
+.snippets-tag-suggestions {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  margin-block-start: 4px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e2dcc5);
+  border-radius: var(--radius-md, 8px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  max-block-size: 200px;
+  overflow-y: auto;
+  z-index: var(--z-popover, 350);
+}
+.snippets-tag-suggestion {
+  display: block;
+  inline-size: 100%;
+  text-align: start;
+  padding-block: 6px;
+  padding-inline: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.snippets-tag-suggestion:hover,
+.snippets-tag-suggestion:focus {
+  background: var(--color-primary-soft, #f1ebda);
+}
+
+/* ── Import collision modal ─────────────────────────────────────── */
+
+.snippets-import-card {
+  max-inline-size: min(520px, 92vw);
+  max-block-size: 90vh;
+  overflow-y: auto;
+}
+.snippets-import-collision-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+  margin-block: var(--space-3, 12px);
+  max-block-size: 50vh;
+  overflow-y: auto;
+}
+.snippets-import-collision-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2, 8px);
+  padding-block: var(--space-1, 6px);
+  padding-inline: var(--space-2, 8px);
+  background: var(--color-surface-soft, #faf6e8);
+  border-radius: var(--radius-md, 8px);
+}
+.snippets-import-collision-trigger {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600;
+}
+.snippets-import-collision-toggle {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid var(--color-border, #e2dcc5);
+  border-radius: var(--radius-md, 8px);
+  overflow: hidden;
+}
+.snippets-import-collision-toggle button {
+  padding-block: 4px;
+  padding-inline: 10px;
+  background: transparent;
+  border: none;
+  color: var(--color-text, #2d2616);
+  font: inherit;
+  cursor: pointer;
+}
+.snippets-import-collision-toggle button.is-active {
+  background: var(--color-primary, #b9952a);
+  color: var(--color-on-primary, #fff);
+}
+
+/* Mobile collapse of list-row grid */
+@media (max-inline-size: 600px) {
+  .snippets-list-row {
+    grid-template-columns: 1fr auto auto;
+    grid-template-rows: auto auto;
+  }
+  .snippets-list-trigger { grid-column: 1; grid-row: 1; }
+  .snippets-list-preview { grid-column: 1; grid-row: 2; white-space: normal; }
+  .snippets-list-tags { grid-column: 1; grid-row: 3; max-inline-size: none; }
+  .snippets-list-row .icon-button:nth-of-type(1) { grid-column: 2; grid-row: 1 / span 2; }
+  .snippets-list-row .icon-button:nth-of-type(2) { grid-column: 3; grid-row: 1 / span 2; }
+}
+
+/* ───────────────────────────────────────────────────────────────────
+   Phase 24 Plan 05 — Settings page tabs
+   ─────────────────────────────────────────────────────────────────── */
+
+.settings-tabs {
+  display: flex;
+  gap: var(--space-1, 6px);
+  margin-block: var(--space-3, 12px) var(--space-4, 20px);
+  border-block-end: 1px solid var(--color-border, #e2dcc5);
+  padding-block-end: 0;
+}
+.settings-tab {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding-block: var(--space-2, 10px);
+  padding-inline: var(--space-3, 16px);
+  margin-block-end: -1px;          /* overlap parent's border-block-end */
+  border-block-end: 2px solid transparent;
+  font: inherit;
+  font-weight: 500;
+  color: var(--color-text-muted, #7a6d50);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.settings-tab:hover {
+  color: var(--color-text, #2d2616);
+}
+.settings-tab:focus-visible {
+  outline: 2px solid var(--color-primary, #b9952a);
+  outline-offset: 2px;
+}
+.settings-tab.is-active {
+  color: var(--color-primary-dark, #5a4a23);
+  border-block-end-color: var(--color-primary, #b9952a);
+}
+.settings-tabpanel[hidden] {
+  display: none;
+}
+
+/* =================================================================
+   Phase 25 — Backup & Restore (header icon + modal)
+   =================================================================
+   Plan 02 ships the BASE rules only:
+     - .header-icon-btn — generic 44×44 circular header touch target
+       (parallel to the existing 36×36 .header-control-btn; lines 127–145
+        above remain UNTOUCHED — color is the load-bearing signal for the
+        cloud icon and a transparent default lets state-color modifiers
+        win without specificity battles)
+     - .backup-cloud-btn — cloud-icon-specific overrides (none beyond base
+       for now)
+     - .backup-cloud-btn--never — neutral muted state for first-time users
+   The four ACTIVE state-color modifiers (.backup-cloud-btn--fresh /
+   --warning / --danger) are owned by Plan 04 (D-13 / D-14) and are NOT
+   shipped here.
+   ================================================================= */
+
+.header-icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.header-icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.header-icon-btn svg { display: block; }
+
+.backup-cloud-btn { /* cloud-specific overrides; Plan 04 adds state colors */ }
+
+/* Phase 25 Plan 04 — cloud icon recency state colors (D-13 / D-14,
+ * Plan 13 update 2026-05-15 — UAT-E1 visual hierarchy fix).
+ *
+ * The button background encodes recency; the icon glyph color flips
+ * alongside so the SVG stroke (drawn via currentColor) maintains WCAG AA
+ * contrast against the new treatment. Only existing semantic tokens —
+ * no new color literals.
+ *
+ * UAT-E1 (Ben, 2026-05-15): On settings.html the gear icon's current-
+ * page indicator is filled green AND the cloud icon's --fresh state was
+ * filled --color-success-bg, so the header read as "two equally
+ * important things" instead of "you are on Settings." The UI-SPEC sets
+ * the gear as the load-bearing current-page signal, so the cloud's
+ * --fresh state must visually subordinate to it.
+ *
+ * Pattern A (chosen): non-fill ring.
+ *   --fresh uses transparent background + a thin success-border ring.
+ *   The fill-treatment is preserved for --warning and --danger where
+ *   the signal needs to be stronger (semantic ladder: weaker signal
+ *   = weaker visual weight).
+ * --never gets a dashed border for symmetry with the --fresh ring,
+ *   reading as "no backup yet" without competing with the gear green.
+ */
+.backup-cloud-btn--never {
+  background-color: transparent;
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
+}
+.backup-cloud-btn--fresh {
+  background-color: transparent;
+  color: var(--color-success-text);
+  border: 2px solid var(--color-success-border);
+}
+.backup-cloud-btn--warning {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border-color: transparent;
+}
+.backup-cloud-btn--danger {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger-text);
+  border-color: transparent;
+}
+
+/* Modal — Phase 25 Backup & Restore */
+.backup-modal-card {
+  max-width: 560px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  padding: var(--space-xl, 32px);
+}
+.backup-modal-header { margin-bottom: var(--space-lg, 24px); }
+.backup-modal-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 var(--space-xs, 4px) 0;
+}
+.backup-modal-subtitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-muted, #666);
+  margin: 0;
+}
+.backup-modal-section { padding: var(--space-md, 16px) 0; }
+.backup-modal-section + .backup-modal-section {
+  border-block-start: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+}
+.backup-modal-section--contents {
+  background: var(--color-surface-alt, #fdf7ed);
+  border-radius: 12px;
+  padding: var(--space-md, 16px);
+}
+.backup-modal-section--export { padding-top: var(--space-lg, 24px); }
+/* Import heading is smaller than Export (Export is the prominent action — D-07) */
+.backup-modal-section--import .backup-modal-section-heading { font-size: 1.125rem; }
+.backup-modal-section-heading {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 var(--space-sm, 8px) 0;
+}
+.backup-modal-section-helper { margin: 0 0 var(--space-md, 16px) 0; }
+.backup-modal-button-row {
+  display: flex;
+  gap: var(--space-sm, 8px);
+  flex-wrap: wrap;
+}
+.backup-modal-import-warning {
+  background: var(--color-danger-bg, #f8d7da);
+  color: var(--color-danger-text, #721c24);
+  border-inline-start: 4px solid var(--color-danger, #ea4b4b);
+  padding: var(--space-sm, 8px) var(--space-md, 16px);
+  margin-bottom: var(--space-md, 16px);
+  border-radius: 4px;
+  font-weight: 700;
+}
+.backup-contents-list { list-style: none; padding: 0; margin: 0; }
+.backup-contents-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs, 4px);
+  padding: var(--space-xs, 4px) 0;
+  font-weight: 700;
+}
+.backup-contents-check {
+  color: var(--color-success-text, #1e6b3a);
+  font-weight: 700;
+}
+.backup-modal-footer {
+  margin-top: var(--space-lg, 24px);
+  padding-top: var(--space-md, 16px);
+  border-block-start: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+}
+
+/* Phase 25 Plan 03 — Test-password sub-card inside #backupModalTestPasswordSection (D-12, D-26) */
+.backup-test-password-card {
+  background: var(--color-surface-alt, #fdf7ed);
+  border-radius: 12px;
+  padding: var(--space-md, 16px);
+  /* Phase 25 round-5 (D6 + D7, 2026-05-15): the card stacks heading,
+   * helper, drop zone, password input, the Test-password button row and
+   * the result line. Without a flex gap the password input sat flush
+   * against the Check button below it (UAT-D6) and the controls read as
+   * one undifferentiated block (UAT-D7 "no space between buttons"). A
+   * flex column with a 16px gap gives every stacked control consistent
+   * breathing room — drop zone → input → Check → result. This is the
+   * single spacing source for the sub-card (the drop zone's old
+   * per-element margin-block-end is removed below). */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md, 16px);
+}
+.backup-test-password-filebtn {
+  display: inline-flex;
+  cursor: pointer;
+}
+.backup-test-password-result {
+  margin: var(--space-sm, 8px) 0 0 0;
+  padding: var(--space-sm, 8px) var(--space-md, 16px);
+  border-radius: 4px;
+}
+.backup-test-password-result.success {
+  background: var(--color-success-bg, #e6f4ea);
+  color: var(--color-success-text, #1e6b3a);
+  border-inline-start: 4px solid var(--color-success-border, #4caf50);
+}
+.backup-test-password-result.error {
+  background: var(--color-warning-bg, #fff3cd);
+  color: var(--color-warning-text, #856404);
+  border-inline-start: 4px solid var(--color-warning-text, #856404);
+}
+
+/* Phase 25 Plan 07 — Photos Settings tab body (D-24 / D-25).
+ * Reuses .form-field / .helper-text / .button / .button.danger / .section-title;
+ * these three utility classes are the only new style hooks. */
+.photos-storage-usage {
+  font-size: 1rem;
+}
+.photos-savings-preview {
+  color: var(--color-success-text, #1e6b3a);
+  font-weight: 700;
+}
+.photos-empty {
+  font-style: italic;
+}
+
+/* Phase 25 Plan 12 — password-ack row.
+ *
+ * Round-2 redesign (post-UAT, 2026-05-15): the previous layout
+ * stacked a long verification text ABOVE the checkbox + short caption
+ * — Ben felt the two sentences were redundant and the layout too tall.
+ * The round-2 row is a single horizontal flex line: [checkbox] [label]
+ * — the label IS the verification statement (data-i18n="schedule.
+ * password.ackedLabel" — "I have a backup password and have stored it
+ * safely."). The label is styled bolder + slightly larger than the
+ * callout paragraph above so it visually reads as "the action the user
+ * takes," not just another paragraph of fine print.
+ *
+ * width:100% keeps the row on its own line inside the parent's
+ * `.backup-reminder-banner` flex-wrap:wrap flow (otherwise it would
+ * share a line with the callout <p>).  align-items:center keeps the
+ * checkbox vertically centered against the label even when the label
+ * wraps onto a second line on narrow viewports. */
+.schedule-password-acked-row {
+  display: flex;
+  /* Phase 25 Plan 12 round-3 fix (Ben re-tested Safari 2026-05-15):
+   * The element ALSO carries `.form-field`, whose rule sets the
+   * vertical-stack direction at equal specificity. Without this
+   * EXPLICIT row override that direction inherits and the checkbox
+   * visually stacks ABOVE the label instead of sitting next to it.
+   * Lock the direction to row here so the cross-class cascade is
+   * unambiguous. */
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+.schedule-password-acked-row__control {
+  /* The span carrying the label text. Bolder + slightly larger than
+   * the callout paragraph above (which inherits .backup-reminder-banner
+   * font-size: var(--text-sm, 14px) / font-weight: normal). */
+  font-weight: 600;
+  font-size: 1.05em;
+}
+
+/* Phase 25 Plan 12 round-3 fix (Ben re-tested Safari 2026-05-15):
+ * The green-tinted callout block was filling the full container width
+ * because the base `.backup-reminder-banner` rule sets no max-width
+ * (it is shared across other banners in the app and intentionally
+ * fluid). Constrain THIS callout specifically via the ID selector
+ * — not the shared class — and center it within its container with
+ * an auto inline margin. The 640px max-width matches the comfortable
+ * reading width of the surrounding Settings → Backups column. */
+#schedulePasswordCallout {
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+/* Phase 25 Plan 12 UAT-D4 — the inline optimize-result line uses a
+ * success-pill treatment so the savings number stands out next to the
+ * Optimize button for the full 8-second persistence window. Reuses the
+ * existing --color-success-* token family that Phase 22-10 added. */
+.photos-savings-preview--result {
+  padding: var(--space-sm, 8px) var(--space-md, 16px);
+  background: var(--color-success-bg, #e6f4ea);
+  color: var(--color-success-text, #1e6b3a);
+  border-radius: 8px;
+  border-inline-start: 4px solid var(--color-success-border, #4caf50);
+}
+
+/* =================================================================
+   Phase 25 Plan 13 — UAT-D5/D6/D7/F1 visual polish (2026-05-15)
+   Five visual gaps Ben surfaced during the 2026-05-15 UAT pass:
+     D5 — modal footer link looks clickable.
+     D6 — test-password drop zone visually distinct from password input.
+     D7 — backup-modal action rows have visible button spacing.
+     E1 — cloud icon --fresh subordinates to gear current-page green
+          (Pattern A — non-fill ring; handled in the .backup-cloud-btn--*
+          band above, not here).
+     F1 — photos-tab buttons sized to content (not full-stretch).
+   ================================================================= */
+
+/* UAT-D5 — Modal footer link styling.
+ * The global `a { text-decoration: none; color: inherit; }` rule at the
+ * top of this file strips all link affordances. The modal-footer link
+ * needs the affordances restored so users recognize it as clickable.
+ * Bind to both the class on the existing `<a>` (`.text-link`) and the
+ * structural selectors (.backup-modal-footer a, #backupModalScheduleLink)
+ * so the rule survives markup changes. */
+.backup-modal-footer a,
+#backupModalScheduleLink,
+.text-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.backup-modal-footer a:hover,
+.backup-modal-footer a:focus-visible,
+#backupModalScheduleLink:hover,
+#backupModalScheduleLink:focus-visible,
+.text-link:hover,
+.text-link:focus-visible {
+  color: var(--color-primary-dark, var(--color-primary));
+  text-decoration-thickness: 2px;
+}
+
+/* UAT-D6 — Test-password drop zone visual distinction.
+ * Override the minimal Plan 03 rule (display: inline-flex; cursor:
+ * pointer;) with a dashed-border drop-zone treatment so users read it as
+ * a file picker, not a stacked text input above the password field.
+ * margin-block-end creates the ≥16px gap from the password input below
+ * (UAT-D6 explicit requirement). The .import-label rule at app.css:1450
+ * still applies (position:relative; overflow:hidden; cursor:pointer for
+ * the hidden <input>). */
+.backup-test-password-filebtn {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  /* Override `.button` (border-radius:999px pill) and `.button.ghost`
+   * (border:1px solid var(--color-border-ghost)) so this label reads as
+   * a drop zone, not a pill button next to the password input. */
+  border: 2px dashed var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface, transparent);
+  padding: var(--space-md, 16px);
+  /* Phase 25 round-5 (D6, 2026-05-15): the drop-zone→input gap is now
+   * owned by `.backup-test-password-card { gap: var(--space-md) }` (single
+   * spacing source for the whole sub-card). The old per-element
+   * margin-block-end here would double the gap below the drop zone, so
+   * it is removed. The ≥16px drop-zone↔input separation contract is
+   * preserved — it just lives on the container now. */
+  margin-block-end: 0;
+  color: var(--color-text-muted);
+  /* The .button rule shadows the drop zone with `var(--shadow-button)`
+   * which makes the dashed border read as a hover pill. Strip it. */
+  box-shadow: none;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+.backup-test-password-filebtn:hover,
+.backup-test-password-filebtn:focus-within {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+  /* `.button:hover { transform: translateY(-1px) }` makes the drop zone
+   * jump on hover — that pill-button feel is exactly what we're trying
+   * to avoid. Cancel the lift; keep the color shift as the affordance. */
+  transform: none;
+}
+
+/* UAT-D7 — Backup-modal section-level gap.
+ * Plan 02 already shipped `.backup-modal-button-row { gap: var(--space-sm) }`
+ * which covers the export/import action rows. Add a section-level rule
+ * that makes the vertical rhythm inside each section explicit, so the
+ * section heading → helper → button row stack reads with predictable
+ * spacing even when section content gets added/removed later. */
+.backup-modal-section--export,
+.backup-modal-section--import,
+.backup-modal-section--test {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm, 8px);
+}
+
+/* UAT-F1 — Photos-tab buttons sized to content, direction-correct.
+ *
+ * Phase 25 round-5 fix (Ben re-tested Safari HE, 2026-05-15): round-3
+ * used `align-self: flex-start` + an `html[dir="rtl"]` override flipping
+ * to `flex-end`. `flex-start`/`flex-end` are FLEX-FLOW relative, not
+ * writing-mode relative — on the cross axis of a column flex container
+ * they did NOT reliably flip for `dir="rtl"`, so in Hebrew the buttons
+ * stayed visually LEFT-aligned (RTL start should be the visual RIGHT).
+ *
+ * Fix: drop `flex-start`/`flex-end` entirely. Use `align-self: start`
+ * (the `start`/`end` keywords ARE writing-mode/`dir` relative — they
+ * resolve to inline-start, which is left in LTR and right in RTL) AND
+ * `margin-inline-end: auto` (a logical property that pushes the button
+ * toward inline-start in BOTH directions). This is direction-correct
+ * without any `html[dir="rtl"]` override — LTR → left, RTL → right. */
+#photosOptimizeBtn,
+#photosDeleteAllBtn {
+  width: auto;
+  align-self: start;
+  margin-inline-end: auto;
+  min-width: 180px;
+}

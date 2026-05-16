@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/branding/favicon-32.png">
+  <link rel="icon" type="image/x-icon" href="./assets/branding/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Terms of Use — Sessions Garden</title>
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="stylesheet" href="./assets/globe-lang.css" />
+  <link rel="manifest" href="./manifest.json" />
+  <style>
+    .disclaimer-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--color-bg); color: var(--color-text); }
+    .disclaimer-topbar { display: flex; align-items: center; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--color-border); background: var(--color-surface); flex-wrap: wrap; gap: 0.75rem; }
+    .disclaimer-brand { flex: 1; display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: inherit; }
+    .disclaimer-brand-title { font-size: 1.1rem; font-weight: 700; color: var(--color-primary); }
+    .disclaimer-back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; }
+    .disclaimer-back-link:hover { text-decoration: underline; }
+    .disclaimer-main { flex: 1; display: flex; justify-content: center; padding: 2rem 1rem 3rem; }
+    .disclaimer-card { width: 100%; max-width: 740px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 2rem 2.25rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .disclaimer-heading { font-size: 1.5rem; font-weight: 700; color: var(--color-primary); margin: 0 0 0.5rem; }
+    .disclaimer-subheading { font-size: 0.95rem; color: var(--color-text-muted); margin: 0 0 1.75rem; }
+    .disclaimer-section { margin-bottom: 1.5rem; }
+    .disclaimer-section-title { font-size: 1rem; font-weight: 700; color: var(--color-text); margin: 0 0 0.4rem; }
+    .disclaimer-section-body { font-size: 0.9rem; line-height: 1.65; color: var(--color-text-muted); margin: 0; }
+    .disclaimer-divider { border: none; border-top: 1px solid var(--color-border); margin: 1.75rem 0; }
+    .disclaimer-checkbox-area { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+    .disclaimer-checkbox-row { display: flex; align-items: flex-start; gap: 0.75rem; }
+    .disclaimer-checkbox-row input[type="checkbox"] { margin-top: 0.2rem; flex-shrink: 0; width: 1.1rem; height: 1.1rem; accent-color: var(--color-primary); cursor: pointer; }
+    .disclaimer-checkbox-row label { font-size: 0.9rem; line-height: 1.55; color: var(--color-text); cursor: pointer; }
+    .disclaimer-widerruf-row label { font-weight: 500; }
+    .disclaimer-accept-btn { width: 100%; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; background: var(--color-primary); color: #fff; border: none; border-radius: var(--radius-md); cursor: pointer; transition: background 0.15s, opacity 0.15s; }
+    .disclaimer-accept-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .disclaimer-accept-btn:not(:disabled):hover { background: var(--color-primary-hover, var(--color-primary)); filter: brightness(1.07); }
+    .disclaimer-accepted-msg { font-size: 0.95rem; color: var(--color-primary); font-weight: 600; text-align: center; margin-bottom: 1rem; }
+    .disclaimer-post-accept { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .disclaimer-post-accept button { flex: 1; min-width: 160px; padding: 0.65rem 1rem; font-size: 0.9rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: filter 0.15s; }
+    #download-receipt-btn { background: var(--color-surface-raised, var(--color-surface)); border: 1px solid var(--color-border) !important; color: var(--color-text); }
+    #continue-btn { background: var(--color-primary); color: #fff; }
+    .disclaimer-post-accept button:hover { filter: brightness(1.06); }
+    .disclaimer-readonly-note { font-size: 0.875rem; color: var(--color-text-muted); background: var(--color-surface-raised, var(--color-surface)); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.6rem 0.9rem; margin-top: 1.5rem; }
+    .disclaimer-footer { text-align: center; padding: 1.5rem; font-size: 0.875rem; color: var(--color-text-muted); border-top: 1px solid var(--color-border); display: flex; justify-content: center; gap: 1.5rem; }
+    .disclaimer-footer a { color: var(--color-primary); text-decoration: none; }
+    .disclaimer-footer a:hover { text-decoration: underline; }
+    .courtesy-banner { background: var(--color-primary-soft, #c8e6d4); border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 16px; font-size: 14px; margin-bottom: 1.5rem; color: var(--color-text); }
+    .courtesy-banner a { color: var(--color-primary); }
+    @media (max-width: 500px) { .disclaimer-card { padding: 1.25rem 1rem; } .disclaimer-post-accept { flex-direction: column; } }
+  </style>
+</head>
+<body>
+<div class="disclaimer-page">
+
+  <div class="disclaimer-topbar">
+    <a class="disclaimer-brand" href="./landing.html" role="banner">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" style="color:var(--color-primary)">
+        <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+        <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+        <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+        <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+      </svg>
+      <span class="disclaimer-brand-title">Sessions Garden</span>
+    </a>
+    <div id="globe-container"></div>
+    <a class="disclaimer-back-link" href="./landing.html">Back to home</a>
+  </div>
+
+  <main class="disclaimer-main">
+    <div class="disclaimer-card">
+
+      <aside class="courtesy-banner">
+        This is a courtesy translation. In case of discrepancies, the <a href="./disclaimer.html">German version</a> is legally binding.
+      </aside>
+
+      <h1 class="disclaimer-heading">Terms of Use</h1>
+      <p class="disclaimer-subheading">Please read and accept the following terms before using Sessions Garden.</p>
+
+      <div class="disclaimer-readonly-note" id="readonly-note" style="display:none">You are viewing the Terms of Use in read-only mode.</div>
+
+      <div id="disclaimer-sections">
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Not a Medical Device</h2>
+          <p class="disclaimer-section-body">Sessions Garden is an organizational and administrative tool designed for energy balancing and holistic health practitioners. It is not a medical device, does not provide medical advice, and is not a substitute for professional medical diagnosis or treatment. Any information entered is for the practitioner's own organizational purposes only. Users must not rely on this application for any clinical decision-making.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Data Privacy — Local Storage Only</h2>
+          <p class="disclaimer-section-body">All data you enter into Sessions Garden is stored exclusively on your own device using browser-based local storage (IndexedDB). The developer has absolutely no access to your data. No data is transmitted to any server, cloud service, or third party. You have full control over your data at all times.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Backup Responsibility</h2>
+          <p class="disclaimer-section-body">You are solely responsible for backing up your data. Sessions Garden provides an export function for this purpose. The developer assumes no liability for data loss due to device failure, browser updates, clearing of browser storage, or any other event. It is strongly recommended to export your data regularly.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Warranty and Liability</h2>
+          <p class="disclaimer-section-body">Sessions Garden is subject to the statutory warranty rights for digital products under applicable law. If the application has a defect, you are entitled to the statutory warranty claims.</p>
+          <p class="disclaimer-section-body">The developer is liable without limitation for damages arising from injury to life, body, or health, as well as for damages caused by intent or gross negligence. For damages caused by slight negligence, the developer is only liable in the event of a breach of a material contractual obligation (cardinal obligation); in such cases, liability is limited to the foreseeable, contract-typical damage. Liability under mandatory product liability law remains unaffected.</p>
+          <p class="disclaimer-section-body">Since all client-related data is stored exclusively on your device and the developer has no access to this data, you are responsible for backing up your data (see the "Backup Responsibility" section).</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Intellectual Property</h2>
+          <p class="disclaimer-section-body">Sessions Garden and all its content, code, and design are protected by copyright. Reproduction, distribution, or modification beyond the intended use is not permitted without the prior written consent of the developer. The user's statutory rights under applicable copyright law (in particular decompilation for interoperability purposes and creation of backup copies) remain unaffected. You may not share your license key with others or make the application available to third parties.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Single-User License</h2>
+          <p class="disclaimer-section-body">Your license to use Sessions Garden is personal and non-transferable. Your license includes two (2) activation slots.</p>
+          <p class="disclaimer-section-body">An <strong>"Activation"</strong> refers to each separate browser environment in which the application is activated using your license key. Different browsers on the same device (e.g., Chrome and Firefox on the same laptop), different devices, and different browser profiles each count as separate Activations.</p>
+          <p class="disclaimer-section-body">You may deactivate an existing Activation at any time through the application's license management interface. Upon deactivation, the activation slot is released and may be used to activate the application in a different browser environment. If you lose access to an activation due to a lost device, browser reinstallation, or cleared browser data, contact <a href="mailto:contact@sessionsgarden.app">contact@sessionsgarden.app</a> to reset your activation slots.</p>
+          <p class="disclaimer-section-body">You may not sublicense, resell, or otherwise transfer your license. This license entitles you to unlimited use of the application, including all future updates.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Right of Withdrawal</h2>
+          <p class="disclaimer-section-body">You have the right to withdraw from this contract within fourteen days without giving any reason.</p>
+          <p class="disclaimer-section-body">The withdrawal period is fourteen days from the day of the conclusion of the contract.</p>
+          <p class="disclaimer-section-body">To exercise the right of withdrawal, you must inform us (Sapir Ben-Porath, Pettenkoferstr.&nbsp;4E, 10247 Berlin, email: contact@sessionsgarden.app) of your decision to withdraw from this contract by an unequivocal statement (e.g. a letter sent by post or email). You may use the model withdrawal form below, but it is not obligatory.</p>
+          <p class="disclaimer-section-body">To meet the withdrawal deadline, it is sufficient for you to send your communication concerning the exercise of the right of withdrawal before the withdrawal period has expired.</p>
+          <p class="disclaimer-section-body">Effects of withdrawal: If you withdraw from this contract, we shall reimburse to you all payments received from you without undue delay and in any event not later than fourteen days from the day on which we are informed about your decision to withdraw from this contract. We will carry out such reimbursement using the same means of payment as you used for the initial transaction, unless you have expressly agreed otherwise; in any event, you will not incur any fees as a result of such reimbursement.</p>
+          <p class="disclaimer-section-body">Note on premature expiry of the right of withdrawal: Your right of withdrawal expires for a contract for the supply of digital content which is not supplied on a tangible medium if we have begun the performance of the contract after you have given your express consent that we may begin performance before the expiry of the withdrawal period and you have confirmed your knowledge that by giving your consent you lose your right of withdrawal with the beginning of the performance of the contract.</p>
+        </section>
+        <section class="disclaimer-section">
+          <h2 class="disclaimer-section-title">Model Withdrawal Form</h2>
+          <p class="disclaimer-section-body">(Complete and return this form only if you wish to withdraw from the contract.)</p>
+          <p class="disclaimer-section-body">To: Sapir Ben-Porath, Pettenkoferstr.&nbsp;4E, 10247 Berlin, email: contact@sessionsgarden.app</p>
+          <p class="disclaimer-section-body">I/We (*) hereby give notice that I/We (*) withdraw from my/our (*) contract for the purchase of the following digital content: Sessions Garden License</p>
+          <p class="disclaimer-section-body">Ordered on (*) / received on (*): ___<br>Name of consumer(s): ___<br>Address of consumer(s): ___<br>Date: ___</p>
+          <p class="disclaimer-section-body">(*) Delete as appropriate.</p>
+        </section>
+      </div>
+
+      <hr class="disclaimer-divider" />
+
+      <div class="disclaimer-checkbox-area" id="checkbox-area">
+        <div class="disclaimer-checkbox-row">
+          <input type="checkbox" id="check-general" name="check-general" />
+          <label for="check-general">I have read and accept the Terms of Use.</label>
+        </div>
+        <div class="disclaimer-checkbox-row disclaimer-widerruf-row">
+          <input type="checkbox" id="check-widerruf" name="check-widerruf" />
+          <label for="check-widerruf">I expressly consent to the performance of the contract (delivery of digital content) beginning before the expiry of the withdrawal period, and I confirm my knowledge that I thereby lose my right of withdrawal.</label>
+        </div>
+      </div>
+
+      <div id="accept-btn-area">
+        <button type="button" class="disclaimer-accept-btn" id="accept-btn" disabled>Accept and Continue</button>
+      </div>
+
+      <p class="disclaimer-accepted-msg" id="accepted-msg" style="display:none">Thank you. Your acceptance has been recorded.</p>
+      <div class="disclaimer-post-accept" id="post-accept-area" style="display:none">
+        <button type="button" id="download-receipt-btn">Download Acceptance Receipt</button>
+        <button type="button" id="continue-btn">Continue to App</button>
+      </div>
+
+    </div>
+  </main>
+
+
+</div>
+
+<script src="./assets/globe-lang.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  function getParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+  }
+
+  var isReadonly = (getParam('readonly') === 'true');
+
+  // Globe switcher — preserve ?readonly and ?next params on language change
+  initGlobeLang({
+    containerId: 'globe-container',
+    currentLang: 'en',
+    onLangChange: function(newLang) {
+      try { localStorage.setItem('portfolioLang', newLang); } catch(e) {}
+      var params = window.location.search || '';
+      // Sibling navigation: disclaimer.html (de), disclaimer-en.html, disclaimer-he.html, disclaimer-cs.html
+      var base = newLang === 'de' ? './disclaimer.html' : './disclaimer-' + newLang + '.html';
+      window.location.href = base + params;
+    }
+  });
+
+  // Readonly mode
+  if (isReadonly) {
+    var note = document.getElementById('readonly-note');
+    if (note) note.style.display = '';
+    var cbArea = document.getElementById('checkbox-area');
+    if (cbArea) cbArea.style.display = 'none';
+    var acceptArea = document.getElementById('accept-btn-area');
+    if (acceptArea) acceptArea.style.display = 'none';
+    return;
+  }
+
+  // Acceptance flow
+  var checkGeneral = document.getElementById('check-general');
+  var checkWiderruf = document.getElementById('check-widerruf');
+  var acceptBtn = document.getElementById('accept-btn');
+  var acceptedMsg = document.getElementById('accepted-msg');
+  var postAcceptArea = document.getElementById('post-accept-area');
+
+  function updateBtn() {
+    if (acceptBtn) acceptBtn.disabled = !(checkGeneral && checkGeneral.checked && checkWiderruf && checkWiderruf.checked);
+  }
+
+  if (checkGeneral) checkGeneral.addEventListener('change', updateBtn);
+  if (checkWiderruf) checkWiderruf.addEventListener('change', updateBtn);
+
+  if (acceptBtn) {
+    acceptBtn.addEventListener('click', function() {
+      var timestamp = new Date().toISOString();
+      try {
+        localStorage.setItem('portfolioTermsAccepted', timestamp);
+        localStorage.setItem('portfolioTermsLang', 'en');
+      } catch(e) {}
+      var cbArea = document.getElementById('checkbox-area');
+      if (cbArea) cbArea.style.display = 'none';
+      var btnArea = document.getElementById('accept-btn-area');
+      if (btnArea) btnArea.style.display = 'none';
+      if (acceptedMsg) acceptedMsg.style.display = '';
+      if (postAcceptArea) postAcceptArea.style.display = '';
+    });
+  }
+
+  var downloadBtn = document.getElementById('download-receipt-btn');
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', function() {
+      var timestamp;
+      try { timestamp = localStorage.getItem('portfolioTermsAccepted') || new Date().toISOString(); } catch(e) { timestamp = new Date().toISOString(); }
+      var licenseKey = '';
+      try { licenseKey = atob(localStorage.getItem('portfolioLicenseKey') || ''); } catch(e) {}
+      var lines = [
+        'Sessions Garden — Terms Acceptance Receipt',
+        '==========================================',
+        'Accepted: ' + timestamp,
+        'Language: English'
+      ];
+      if (licenseKey) lines.push('License Key: ' + licenseKey);
+      lines.push('', 'The user accepted the Sessions Garden Terms of Use and Privacy Disclosure.',
+        'This document serves as a personal record of acceptance.',
+        'This receipt is non-transferable and personal to the purchaser.');
+      var blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'sessions-garden-acceptance-' + timestamp.slice(0, 10) + '.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  var continueBtn = document.getElementById('continue-btn');
+  if (continueBtn) {
+    continueBtn.addEventListener('click', function() {
+      try { localStorage.setItem('portfolioLang', 'en'); } catch(e) {}
+      var next = getParam('next');
+      if (next) {
+        window.location.href = decodeURIComponent(next);
+      } else {
+        window.location.href = './index.html';
+      }
+    });
+  }
+})();
+</script>
+<script src="./assets/shared-chrome.js"></script>
+<script>
+  if (typeof SharedChrome !== 'undefined' && SharedChrome.renderFooter) {
+    SharedChrome.renderFooter();
+    SharedChrome.updateBackLinks();
+  }
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}</script>
+</body>
+</html>

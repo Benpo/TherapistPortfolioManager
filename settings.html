@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script>
+    (function(){try{if(window.name==='demo-mode')return;if(!localStorage.getItem('portfolioTermsAccepted')){var n=encodeURIComponent(window.location.pathname+window.location.search);var l=localStorage.getItem('portfolioLang')||'en';var d=(l==='de')?'./disclaimer.html':'./disclaimer-'+l+'.html';window.location.replace(d+'?next='+n);}}catch(e){}})();
+  </script>
+  <script>
+    (function(){try{if(window.name==='demo-mode')return;if(localStorage.getItem('portfolioTermsAccepted')&&(!localStorage.getItem('portfolioLicenseActivated')||!localStorage.getItem('portfolioLicenseInstance'))){window.location.replace('./license.html');}}catch(e){}})();
+  </script>
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/branding/favicon-32.png">
+  <link rel="icon" type="image/x-icon" href="./assets/branding/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sessions Garden</title>
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="manifest" href="./manifest.json" />
+</head>
+<body data-nav="settings">
+  <div class="app-shell">
+    <div class="container">
+      <header class="app-header">
+        <a href="./index.html" class="brand brand-link">
+          <div class="brand-mark">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+              <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+              <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+              <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-title">Sessions Garden</div>
+            <div class="brand-subtitle" data-i18n="app.subtitle">Documentation and tracking of therapeutic sessions</div>
+          </div>
+        </a>
+        <div id="nav-placeholder"></div>
+        <div class="header-actions" id="headerActions"></div>
+      </header>
+
+      <main class="settings-page">
+        <header class="page-header">
+          <h2 class="section-title" data-i18n="settings.page.title">Settings</h2>
+          <p class="page-helper" data-i18n="settings.page.helper">Customize the app to your workflow. Changes are saved on this device.</p>
+        </header>
+
+        <!-- Phase 24 Plan 05 — Tab navigation between the settings topics.
+             Phase 25 Plan 05 adds the "Backups" and "Photos" tabs. -->
+        <div class="settings-tabs" role="tablist" aria-label="Settings sections">
+          <button type="button" role="tab" id="settingsTabFieldsBtn" class="settings-tab is-active" aria-selected="true" aria-controls="settingsTabFields" data-tab="fields" data-i18n="settings.tab.fields">Custom field names</button>
+          <button type="button" role="tab" id="settingsTabSnippetsBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabSnippets" data-tab="snippets" tabindex="-1" data-i18n="settings.tab.snippets">Text Snippets</button>
+          <button type="button" role="tab" id="settingsTabBackupsBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabBackups" data-tab="backups" tabindex="-1" data-i18n="settings.tab.backups">Backups</button>
+          <button type="button" role="tab" id="settingsTabPhotosBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabPhotos" data-tab="photos" tabindex="-1" data-i18n="settings.tab.photos">Photos</button>
+        </div>
+
+        <div id="settingsTabFields" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabFieldsBtn">
+          <div class="settings-info-banner" role="note">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <div>
+              <h3 data-i18n="settings.banner.heading">About Settings</h3>
+              <ul>
+                <li data-i18n="settings.banner.bullet.global">Custom names apply to all UI languages — one label set, not per-language.</li>
+                <li data-i18n="settings.banner.bullet.noDelete">Disabling a section never deletes existing data — past sessions still display sections that already have content.</li>
+              </ul>
+            </div>
+          </div>
+
+          <form id="settingsForm" class="settings-form" novalidate>
+            <div id="settingsRowsContainer"></div>
+          </form>
+
+          <div class="settings-action-bar">
+            <button type="button" class="button ghost" id="settingsDiscardBtn" data-i18n="settings.action.discard">Discard changes</button>
+            <button type="button" class="button" id="settingsSaveBtn" disabled data-i18n="settings.action.save">Save changes</button>
+            <div
+              class="settings-saved-notice"
+              id="settingsSavedNotice"
+              role="status"
+              aria-live="polite"
+              hidden
+            >
+              <span class="settings-saved-notice-mark" aria-hidden="true"></span>
+              <span class="settings-saved-notice-label" data-i18n="settings.saved.notice">Settings saved</span>
+              <button
+                type="button"
+                class="settings-saved-notice-close"
+                data-i18n-aria-label="settings.saved.dismiss"
+                aria-label="Dismiss"
+              >
+                <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                  <path d="M2 2 L10 10 M10 2 L2 10" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="settingsTabSnippets" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabSnippetsBtn" hidden>
+          <section id="snippetsSection" class="snippets-section">
+            <p class="section-helper" data-i18n="snippets.section.helper">Reusable text expansions for session notes.</p>
+
+            <div class="form-field">
+              <label class="label" for="snippetPrefixInput" data-i18n="snippets.prefix.label">Trigger prefix</label>
+              <p class="helper-text" data-i18n="snippets.prefix.helper">1 or 2 characters. Cannot be a letter, digit, whitespace, quote, or angle bracket.</p>
+              <div class="snippets-prefix-row">
+                <input id="snippetPrefixInput" class="input snippets-prefix-input" type="text" minlength="1" maxlength="2" autocomplete="off" />
+                <p id="snippetPrefixSaved" class="success-text is-hidden" role="status" aria-live="polite" data-i18n="snippets.prefix.saved">Prefix saved</p>
+                <p id="snippetPrefixError" class="error-text is-hidden" role="status" aria-live="polite"></p>
+              </div>
+            </div>
+
+            <h3 class="snippets-subsection-title" data-i18n="snippets.library.title">Snippet library</h3>
+            <p class="helper-text" data-i18n="snippets.library.helper">Search snippets, manage tags, or add new ones. Type your trigger prefix followed by a tag name in any session note to filter by tag.</p>
+
+            <div class="snippets-list-toolbar">
+              <input id="snippetSearchInput" class="input snippets-search-input" type="search" data-i18n-placeholder="snippets.search.placeholder" />
+              <div id="snippetTagFilterRow" class="snippets-tag-filter-row" role="toolbar" aria-label="Tags"></div>
+            </div>
+
+            <div class="snippets-list-actions">
+              <button class="button" id="addSnippetBtn" type="button">
+                <span class="button-label" data-i18n="snippets.action.add">Add snippet</span>
+                <span class="button-icon" aria-hidden="true">+</span>
+              </button>
+              <button class="button ghost" id="exportSnippetsBtn" type="button" data-i18n="snippets.action.export">Export snippets</button>
+              <button class="button ghost" id="importSnippetsBtn" type="button" data-i18n="snippets.action.import">Import snippets</button>
+              <input id="importSnippetsFile" type="file" accept="application/json" class="is-hidden" />
+              <button class="button ghost" id="resetAllSeedsBtn" type="button" data-i18n="snippets.action.resetAllSeeds">Reset all modified seeds</button>
+            </div>
+
+            <div id="snippetList" class="snippets-list" aria-live="polite"></div>
+            <p id="snippetListEmpty" class="helper-text is-hidden" data-i18n="snippets.list.empty">No snippets match the current filters.</p>
+          </section>
+        </div>
+
+        <!-- Phase 25 Plan 05 — Backups tab (frequency selector, password-mandatory gate, folder picker, ON→OFF confirm). -->
+        <div id="settingsTabBackups" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabBackupsBtn" hidden>
+          <header class="page-header">
+            <h3 class="section-title" data-i18n="schedule.heading">Scheduled backups</h3>
+            <p class="page-helper section-helper" data-i18n="schedule.helper">Schedule regular backup reminders and pick where to save them.</p>
+          </header>
+
+          <div class="form-field backup-schedule-frequency">
+            <label class="label" for="scheduleFrequencySelect" data-i18n="schedule.frequency.label">Backup frequency</label>
+            <select class="input select-field" id="scheduleFrequencySelect">
+              <option value="off" data-i18n="schedule.frequency.off">Off</option>
+              <option value="daily" data-i18n="schedule.frequency.daily">Daily</option>
+              <option value="weekly" data-i18n="schedule.frequency.weekly">Weekly</option>
+              <option value="monthly" data-i18n="schedule.frequency.monthly">Monthly</option>
+              <option value="custom" data-i18n="schedule.frequency.custom">Custom (days)</option>
+            </select>
+            <p class="error-text is-hidden" id="schedulePasswordError" role="alert" data-i18n="schedule.password.required">To enable scheduled backups, first tick the box below confirming you have a backup password.</p>
+            <div class="form-field" id="scheduleCustomDaysWrapper" hidden>
+              <label class="label" for="scheduleCustomDays" data-i18n="schedule.frequency.customDaysLabel">Days</label>
+              <input class="input" type="number" id="scheduleCustomDays" min="1" max="365" value="7" />
+            </div>
+            <p class="helper-text" id="scheduleFrequencyHelper" data-i18n="schedule.frequency.helperOff">You will see a reminder banner if you haven't backed up in 7 days.</p>
+          </div>
+
+          <div class="backup-reminder-banner schedule-password-callout" id="schedulePasswordCallout" role="note">
+            <p data-i18n="schedule.password.callout">Please note: Scheduled backups require a backup password. You'll be asked for it each time the prompt appears. Save this password somewhere safe — it cannot be recovered.</p>
+            <!-- Phase 25 Plan 12 (round-2 post-UAT, 2026-05-15) Change A:
+                 password-ack redesigned to a single horizontal flex row.
+                 The long verification text moved out (Plan 05's ackedLabel
+                 <p> previously sat ABOVE the checkbox); the round-2 layout
+                 keeps only the checkbox + label inline. The label is
+                 styled bolder + slightly larger than the callout paragraph
+                 above (CSS .schedule-password-acked-row__control). -->
+            <label class="form-field schedule-password-acked-row" id="schedulePasswordAckedLabel">
+              <input type="checkbox" id="schedulePasswordAcked" />
+              <span class="schedule-password-acked-row__control" data-i18n="schedule.password.ackedLabel">I have a backup password and have stored it safely.</span>
+            </label>
+          </div>
+
+          <!-- Phase 25 Plan 12 UAT-D1: folder picker UI removed.
+               Phase 25 uses browser download / Web Share API / mailto;
+               the folder picker is dead UI. The BackupManager.pickBackupFolder
+               primitive stays in backup.js for any future caller. -->
+        </div>
+
+        <!-- Phase 25 Plan 07 — Photos tab body (D-24 optimize, D-25 delete-all). -->
+        <div id="settingsTabPhotos" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabPhotosBtn" hidden>
+          <header class="page-header">
+            <h3 class="section-title" data-i18n="photos.heading">Photos</h3>
+            <p class="page-helper section-helper" data-i18n="photos.helper">Manage how client photos use your browser storage.</p>
+          </header>
+
+          <p class="photos-storage-usage helper-text" id="photosStorageUsage" data-i18n="photos.usage.unavailable">Storage usage is not available in this browser.</p>
+
+          <p class="photos-empty helper-text is-hidden" id="photosEmpty" data-i18n="photos.empty">You have no client photos yet.</p>
+
+          <section class="form-field" id="photosOptimizeSection">
+            <h4 class="settings-subsection-title" data-i18n="photos.optimize.heading">Optimize existing photos</h4>
+            <p class="helper-text" data-i18n="photos.optimize.helper">Re-process photos that were uploaded before resize-on-upload was added. New uploads are already optimized automatically.</p>
+            <p class="helper-text photos-savings-preview" id="photosOptimizePreview" hidden></p>
+            <button type="button" class="button" id="photosOptimizeBtn" data-i18n="photos.optimize.action">Optimize all photos</button>
+          </section>
+
+          <section class="form-field" id="photosDeleteAllSection">
+            <h4 class="settings-subsection-title" data-i18n="photos.deleteAll.heading">Delete all photos</h4>
+            <p class="helper-text helper-text--multiline" data-i18n="photos.deleteAll.helper">This will remove all client photos from the app. All other client details are kept.
+Deleted photos cannot be recovered.</p>
+            <button type="button" class="button danger" id="photosDeleteAllBtn" data-i18n="photos.deleteAll.action">Delete all photos</button>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+    <div class="modal-overlay"></div>
+    <div class="modal-card confirm-card">
+      <div id="confirmTitle" class="confirm-title"></div>
+      <div id="confirmMessage" class="confirm-body"></div>
+      <div class="modal-actions confirm-actions">
+        <button class="button ghost" type="button" id="confirmCancelBtn" data-i18n="confirm.cancel">Cancel</button>
+        <button class="button danger" type="button" id="confirmOkBtn" data-i18n="confirm.delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 24 Plan 05 — Snippet editor modal -->
+  <div id="snippetEditorModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="snippetEditorTitle">
+    <div class="modal-overlay"></div>
+    <div class="modal-card snippets-editor-card">
+      <button class="modal-close" id="snippetEditorClose" type="button" aria-label="Close">×</button>
+      <h3 id="snippetEditorTitle" class="modal-title" data-i18n="snippets.editor.title.add">Add snippet</h3>
+      <p class="helper-text snippets-editor-helper" data-i18n="snippets.editor.helper">Set a trigger word and the text that will be inserted when you type the prefix + trigger in a session note. Add tags to group related snippets.</p>
+
+      <div class="form-field">
+        <label class="label" for="snippetEditorTrigger" data-i18n="snippets.editor.trigger.label">Trigger</label>
+        <input id="snippetEditorTrigger" class="input" type="text" maxlength="32" autocomplete="off" data-i18n-placeholder="snippets.editor.trigger.placeholder" />
+        <p id="snippetEditorTriggerError" class="error-text is-hidden"></p>
+      </div>
+
+      <div class="form-field snippets-editor-current-lang">
+        <label class="label" for="snippetEditorActiveExpansion" id="snippetEditorActiveLangLabel"></label>
+        <textarea id="snippetEditorActiveExpansion" class="textarea" rows="6" data-i18n-placeholder="snippets.editor.expansion.placeholder"></textarea>
+      </div>
+
+      <button id="snippetEditorTranslationsToggle" type="button" class="button ghost" aria-expanded="false">
+        <span class="button-label" data-i18n="snippets.editor.translations.toggle">Edit translations</span>
+      </button>
+
+      <div id="snippetEditorTranslationsBlock" class="snippets-editor-translations is-hidden"></div>
+
+      <div class="form-field">
+        <label class="label" data-i18n="snippets.editor.tags.label">Tags</label>
+        <div id="snippetEditorTagsInput" class="snippets-editor-tags-input" tabindex="0">
+          <ul id="snippetEditorTagsList" class="snippets-tag-chips"></ul>
+          <input id="snippetEditorTagsTextInput" class="snippets-tag-text-input" type="text" data-i18n-placeholder="snippets.editor.tags.placeholder" />
+          <div id="snippetEditorTagsSuggestions" class="snippets-tag-suggestions is-hidden"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="snippetEditorSave" type="button" class="button" data-i18n="common.save">Save</button>
+        <button id="snippetEditorDelete" type="button" class="button danger is-hidden" data-i18n="snippets.editor.delete">Delete</button>
+        <button id="snippetEditorReset" type="button" class="button ghost is-hidden" data-i18n="snippets.editor.resetToDefault">Reset to default</button>
+        <button id="snippetEditorCancel" type="button" class="button ghost" data-i18n="confirm.cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 24 Plan 05 — Import collision modal -->
+  <div id="snippetImportModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="snippetImportTitle">
+    <div class="modal-overlay"></div>
+    <div class="modal-card snippets-import-card">
+      <button class="modal-close" id="snippetImportClose" type="button" aria-label="Close">×</button>
+      <h3 id="snippetImportTitle" class="modal-title" data-i18n="snippets.import.title">Import snippets</h3>
+      <p id="snippetImportSummary" class="helper-text"></p>
+      <div id="snippetImportCollisionList" class="snippets-import-collision-list"></div>
+      <div class="modal-actions">
+        <button id="snippetImportApply" type="button" class="button" data-i18n="snippets.import.apply">Apply</button>
+        <button id="snippetImportCancel" type="button" class="button ghost" data-i18n="confirm.cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="./assets/i18n-en.js"></script>
+  <script src="./assets/i18n-he.js"></script>
+  <script src="./assets/i18n-de.js"></script>
+  <script src="./assets/i18n-cs.js"></script>
+  <script src="./assets/i18n.js"></script>
+  <script src="./assets/snippets-seed.js"></script>
+    <script src="./assets/db.js"></script>
+  <script src="./assets/shared-chrome.js"></script>
+  <script src="./assets/app.js"></script>
+  <!-- Phase 25 Plan 07 — Photos tab needs CropModule.resizeToMaxDimension for optimize-all. -->
+  <script src="./assets/crop.js"></script>
+  <!--
+    Phase 25 Plan 08 fix-up: load backup.js on settings.html so the Plan 05
+    Backups-tab handlers (BackupManager.canEnableSchedule + checkBackupSchedule
+    + schedule-disable confirm + password-mandatory enforcement) are actually
+    active. Plan 05 wrote `typeof BackupManager !== 'undefined'` guards that
+    silently no-op'd because no script tag here exposed BackupManager. The
+    Backups tab is unusable without this — adding the script restores the
+    intended behavior.
+  -->
+  <!-- Phase 25 round-5 (UAT-D2): JSZip + backup-modal.js so the header
+       cloud icon opens the Backup & Restore modal IN-PLACE on settings.html
+       (previously it bounced to index.html?openBackup=1). JSZip is required
+       by BackupManager.exportBackup / importBackup invoked from the modal. -->
+  <script src="./assets/jszip.min.js"></script>
+  <script src="./assets/backup.js"></script>
+  <script src="./assets/backup-modal.js"></script>
+  <script src="./assets/snippets.js" defer></script>
+  <script src="./assets/settings.js"></script>
+  <script>
+    if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
+  </script>
+</body>
+</html>

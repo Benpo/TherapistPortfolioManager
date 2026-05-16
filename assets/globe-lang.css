@@ -1,0 +1,88 @@
+/**
+ * globe-lang.css — Shared globe language selector component styles
+ * Used by: disclaimer.html, impressum.html, datenschutz.html
+ */
+
+.globe-lang-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.globe-lang-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--color-text-muted, #666);
+  transition: background 0.15s, color 0.15s;
+}
+
+.globe-lang-btn:hover,
+.globe-lang-btn:focus-visible {
+  background: var(--color-surface-raised, rgba(0, 0, 0, 0.06));
+  color: var(--color-primary, #5a7c5a);
+  outline: none;
+}
+
+.globe-lang-btn[aria-expanded="true"] {
+  background: var(--color-surface-raised, rgba(0, 0, 0, 0.06));
+  color: var(--color-primary, #5a7c5a);
+}
+
+.globe-lang-popover {
+  position: absolute;
+  inset-block-start: calc(100% + 6px);
+  inset-inline-end: 0;
+  min-width: 140px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: var(--radius-md, 8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.globe-lang-popover[hidden] {
+  display: none;
+}
+
+.globe-lang-option {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: start;
+  font-size: 0.9rem;
+  color: var(--color-text, #222);
+  transition: background 0.1s;
+}
+
+.globe-lang-option:hover {
+  background: var(--color-surface-raised, #f5f5f5);
+}
+
+.globe-lang-option[aria-selected="true"] {
+  background: var(--color-primary, #5a7c5a);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Dark mode */
+[data-theme="dark"] .globe-lang-btn:hover,
+[data-theme="dark"] .globe-lang-btn:focus-visible,
+[data-theme="dark"] .globe-lang-btn[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .globe-lang-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}

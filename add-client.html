@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script>
+    (function(){try{if(window.name==='demo-mode')return;if(!localStorage.getItem('portfolioTermsAccepted')){var n=encodeURIComponent(window.location.pathname+window.location.search);var l=localStorage.getItem('portfolioLang')||'en';var d=(l==='de')?'./disclaimer.html':'./disclaimer-'+l+'.html';window.location.replace(d+'?next='+n);}}catch(e){}})();
+  </script>
+  <script>
+    (function(){try{if(window.name==='demo-mode')return;if(localStorage.getItem('portfolioTermsAccepted')&&(!localStorage.getItem('portfolioLicenseActivated')||!localStorage.getItem('portfolioLicenseInstance'))){window.location.replace('./license.html');}}catch(e){}})();
+  </script>
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/branding/favicon-32.png">
+  <link rel="icon" type="image/x-icon" href="./assets/branding/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sessions Garden</title>
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="manifest" href="./manifest.json" />
+</head>
+<body data-nav="addClient">
+  <div class="app-shell">
+    <div class="container">
+      <header class="app-header">
+        <a href="./index.html" class="brand brand-link" style="text-decoration:none;color:inherit;">
+          <div class="brand-mark">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+              <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+              <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+              <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-title">Sessions Garden</div>
+            <div class="brand-subtitle" data-i18n="app.subtitle">Documentation and tracking of therapeutic sessions</div>
+          </div>
+        </a>
+        <div id="nav-placeholder"></div>
+        <div class="header-actions" id="headerActions"></div>
+      </header>
+
+      <section class="card">
+        <h2 class="section-title" data-i18n="client.title">Add New Client</h2>
+        <form id="clientForm">
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="label" data-i18n="client.form.firstName">First Name *</label>
+              <input class="input" id="clientFirstName" type="text" required data-i18n-placeholder="client.form.firstName.placeholder" placeholder="First name" />
+            </div>
+            <div class="form-field">
+              <label class="label" data-i18n="client.form.lastName">Last Name</label>
+              <input class="input" id="clientLastName" type="text" data-i18n-placeholder="client.form.lastName.placeholder" placeholder="Last name" />
+            </div>
+            <div class="form-field">
+              <label class="label" data-i18n="client.form.birthDate">Date of Birth</label>
+              <div id="birthDatePicker" class="birth-date-picker"></div>
+              <input type="hidden" id="clientBirthDate" />
+            </div>
+            <div class="form-field">
+              <label class="label" data-i18n="client.form.email">Email</label>
+              <input class="input" id="clientEmail" type="email" data-i18n-placeholder="client.form.email.placeholder" placeholder="name@email.com" />
+            </div>
+            <div class="form-field">
+              <label class="label" data-i18n="client.form.phone">Phone</label>
+              <input class="input" id="clientPhone" type="tel" data-i18n-placeholder="client.form.phone.placeholder" placeholder="Phone number" />
+            </div>
+            <div class="form-field">
+              <label class="label" data-i18n="client.form.notes">Notes</label>
+              <textarea class="textarea" id="clientNotes" data-i18n-placeholder="client.form.notes.placeholder" placeholder="Optional notes"></textarea>
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top:1.25rem;">
+            <div class="form-field">
+              <label class="label" data-i18n="client.form.photo">Client Photo (Optional)</label>
+              <input class="input" id="clientPhoto" type="file" accept="image/*" />
+              <img id="clientPhotoPreview" class="photo-preview is-hidden" alt="Client preview" />
+              <button type="button" class="button button-ghost button-sm crop-recrop-btn is-hidden" id="recropBtn" data-i18n="crop.recrop">Recrop</button>
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-top:1.25rem;">
+            <label class="label" data-i18n="client.form.type">Client Type</label>
+            <div class="toggle-group" id="clientTypeGroup">
+              <label class="toggle-card" data-type="child">
+                <input type="radio" name="clientType" value="child" />
+                <span class="icon-badge">🧒</span>
+                <span data-i18n="client.form.type.child">Child</span>
+              </label>
+              <label class="toggle-card active" data-type="adult">
+                <input type="radio" name="clientType" value="adult" checked />
+                <span class="icon-badge">🧍</span>
+                <span data-i18n="client.form.type.adult">Adult</span>
+              </label>
+              <label class="toggle-card" data-type="animal">
+                <input type="radio" name="clientType" value="animal" />
+                <span class="icon-badge">🐾</span>
+                <span data-i18n="client.form.type.animal">Animal</span>
+              </label>
+              <label class="toggle-card" data-type="other">
+                <input type="radio" name="clientType" value="other" />
+                <span class="icon-badge">&#10067;</span>
+                <span data-i18n="client.form.type.other">Other</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-top:1.25rem;">
+            <label class="label" data-i18n="client.form.referralSource">Referral Source</label>
+            <select class="select-field" id="clientReferralSource">
+              <option value="" data-i18n="client.form.referral.placeholder">Select...</option>
+              <option value="facebook">Facebook</option>
+              <option value="instagram">Instagram</option>
+              <option value="wordOfMouth" data-i18n="client.form.referral.wordOfMouth">Word of mouth</option>
+              <option value="colleague" data-i18n="client.form.referral.colleague">Colleague referral</option>
+              <option value="internet" data-i18n="client.form.referral.internet">Internet search</option>
+              <option value="other" data-i18n="client.form.referral.other">Other</option>
+            </select>
+            <input class="input" id="clientReferralOther" type="text" style="display:none; margin-top:0.5rem;"
+              data-i18n-placeholder="client.form.referral.otherPlaceholder" placeholder="Please specify..." />
+          </div>
+
+          <div class="inline-actions" style="margin-top:1.5rem;">
+            <button class="button icon-swap" type="submit">
+              <span class="button-label" data-i18n="client.form.save">Save Client</span>
+              <span class="button-icon" aria-hidden="true">&#128190;</span>
+            </button>
+            <button class="button secondary icon-swap" type="submit" id="saveAndSessionBtn">
+              <span class="button-label" data-i18n="client.form.saveAndSession">Save &amp; Create First Session</span>
+              <span class="button-icon" aria-hidden="true">&#128190; &#43; &#128197;</span>
+            </button>
+            <button class="button ghost" type="button" id="cancelBtn" data-i18n="client.form.cancel">Cancel</button>
+            <button class="button danger icon-swap is-hidden" type="button" id="deleteClientBtn">
+              <span class="button-label" data-i18n="client.form.delete">Delete Client</span>
+              <span class="button-icon" aria-hidden="true">&#128465;</span>
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <div id="cropModal" class="modal is-hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-card crop-card">
+      <button class="modal-close" id="cropClose"></button>
+      <h3 class="crop-title" data-i18n="crop.title">Adjust Photo</h3>
+      <div class="crop-canvas-container">
+        <canvas id="cropCanvas"></canvas>
+      </div>
+      <div class="crop-controls">
+        <button type="button" class="button button-ghost crop-zoom-btn" id="cropZoomOut">-</button>
+        <input type="range" id="cropZoomSlider" min="1" max="3" step="0.1" value="1" class="crop-zoom-slider" />
+        <button type="button" class="button button-ghost crop-zoom-btn" id="cropZoomIn">+</button>
+      </div>
+      <div class="crop-actions">
+        <button type="button" class="button button-ghost" id="cropCancelBtn" data-i18n="crop.cancel">Cancel</button>
+        <button type="button" class="button button-primary" id="cropConfirmBtn" data-i18n="crop.confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+    <div class="modal-overlay"></div>
+    <div class="modal-card confirm-card">
+      <div id="confirmTitle" class="confirm-title"></div>
+      <div id="confirmMessage" class="confirm-body"></div>
+      <div class="modal-actions confirm-actions">
+        <button class="button ghost" type="button" id="confirmCancelBtn" data-i18n="confirm.cancel">Cancel</button>
+        <button class="button danger" type="button" id="confirmOkBtn" data-i18n="confirm.delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="./assets/i18n-en.js"></script>
+  <script src="./assets/i18n-he.js"></script>
+  <script src="./assets/i18n-de.js"></script>
+  <script src="./assets/i18n-cs.js"></script>
+  <script src="./assets/i18n.js"></script>
+  <script src="./assets/snippets-seed.js"></script>
+    <script src="./assets/db.js"></script>
+  <script src="./assets/shared-chrome.js"></script>
+  <script src="./assets/app.js"></script>
+  <!-- Phase 25 round-5 (UAT-D2): JSZip + backup.js + backup-modal.js so the
+       header cloud icon opens the Backup & Restore modal IN-PLACE on
+       add-client.html (previously it bounced to index.html?openBackup=1). -->
+  <script src="./assets/jszip.min.js"></script>
+  <script src="./assets/backup.js"></script>
+  <script src="./assets/backup-modal.js"></script>
+  <script src="./assets/crop.js"></script>
+  <script src="./assets/add-client.js"></script>
+  <script>
+    if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
+  </script>
+</body>
+</html>

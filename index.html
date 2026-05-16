@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script>
+    // Gate 0: No license at all → landing page (demo-mode bypasses all gates)
+    (function(){try{if(window.name==='demo-mode')return;if(!localStorage.getItem('portfolioLicenseActivated')){window.location.replace('./landing.html');}}catch(e){}})();
+  </script>
+  <script>
+    // Gate 1: License but no terms accepted → disclaimer
+    (function(){try{if(window.name==='demo-mode')return;if(!localStorage.getItem('portfolioTermsAccepted')){var n=encodeURIComponent(window.location.pathname+window.location.search);var l=localStorage.getItem('portfolioLang')||'en';var d=(l==='de')?'./disclaimer.html':'./disclaimer-'+l+'.html';window.location.replace(d+'?next='+n);}}catch(e){}})();
+  </script>
+  <script>
+    // Gate 2: Terms accepted but license incomplete → license page
+    (function(){try{if(window.name==='demo-mode')return;if(localStorage.getItem('portfolioTermsAccepted')&&(!localStorage.getItem('portfolioLicenseActivated')||!localStorage.getItem('portfolioLicenseInstance'))){window.location.replace('./license.html');}}catch(e){}})();
+  </script>
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/branding/favicon-32.png">
+  <link rel="icon" type="image/x-icon" href="./assets/branding/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sessions Garden — Therapeutic Session Tracking for Energy Healers</title>
+  <meta name="description" content="Organize client sessions, emotions, imbalances, and healing notes — without the paper chaos. All data stays on your device. One-time purchase, lifetime license." />
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sessionsgarden.app/" />
+  <meta property="og:title" content="Sessions Garden — Therapeutic Session Tracking for Energy Healers" />
+  <meta property="og:description" content="Organize client sessions, emotions, imbalances, and healing notes — without the paper chaos. All data stays on your device. One-time purchase, lifetime license." />
+  <meta property="og:image" content="https://sessionsgarden.app/assets/branding/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sessions Garden — Therapeutic Session Tracking for Energy Healers" />
+  <meta name="twitter:description" content="Organize client sessions, emotions, imbalances, and healing notes — without the paper chaos. All data stays on your device." />
+  <meta name="twitter:image" content="https://sessionsgarden.app/assets/branding/og-image.jpg" />
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="manifest" href="./manifest.json" />
+</head>
+<body data-nav="overview">
+  <div class="app-shell">
+    <div class="container">
+      <header class="app-header">
+        <a href="./index.html" class="brand brand-link" style="text-decoration:none;color:inherit;">
+          <div class="brand-mark">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+              <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+              <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+              <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-title">Sessions Garden</div>
+            <div class="brand-subtitle" data-i18n="app.subtitle">Documentation and tracking of therapeutic sessions</div>
+          </div>
+        </a>
+        <div id="nav-placeholder"></div>
+        <div class="header-actions" id="headerActions"></div>
+      </header>
+
+      <div id="greeting-card" class="greeting-card">
+        <p id="greeting-text" class="greeting-text"></p>
+        <div class="greeting-quote">
+          <span class="greeting-sparkle" aria-hidden="true">✦</span>
+          <p id="quote-text" class="quote-text"></p>
+        </div>
+      </div>
+
+      <div class="app-botanical app-botanical-divider" aria-hidden="true">
+        <img src="./assets/illustrations/garden.png" alt="" class="app-botanical-img app-botanical-divider-img" />
+      </div>
+
+      <!-- Security guidance note: populated by JS on first launch after activation (D-23 touchpoint #1) -->
+      <div id="security-guidance-container"></div>
+
+      <section class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statClients">0</div>
+          <div class="stat-label" data-i18n="overview.stats.clients">Total Clients</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statSessions">0</div>
+          <div class="stat-label" data-i18n="overview.stats.sessions">Total Sessions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statMonth">0</div>
+          <div class="stat-label" data-i18n="overview.stats.month">Sessions This Month</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="inline-actions" style="margin-bottom:1rem;">
+          <button class="button icon-swap" id="addClientBtn">
+            <span class="button-label" data-i18n="overview.addClient">Add Client</span>
+            <span class="button-icon" aria-hidden="true">+&#128100;</span>
+          </button>
+          <button class="button secondary icon-swap" id="addSessionBtn">
+            <span class="button-label" data-i18n="overview.addSession">Add Session</span>
+            <span class="button-icon" aria-hidden="true">+&#128197;</span>
+          </button>
+        </div>
+        <h2 class="section-title" data-i18n="overview.clients.title">Clients</h2>
+        <div class="filter-bar">
+          <div class="filter-field" style="flex:1;min-width:200px;">
+            <input type="text" id="clientSearch" class="input search-input"
+              data-i18n-placeholder="overview.search.placeholder" placeholder="Search by name..." />
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="overview.filter.type">Client Type</label>
+            <select class="select-field" id="clientTypeFilter">
+              <option value="" data-i18n="overview.filter.type.all">All Types</option>
+              <option value="child" data-i18n="common.type.child">Child</option>
+              <option value="adult" data-i18n="common.type.adult">Adult</option>
+              <option value="animal" data-i18n="common.type.animal">Animal</option>
+              <option value="other" data-i18n="common.type.other">Other</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="overview.filter.heartShield">Session Type</label>
+            <select class="select-field" id="clientHeartShieldFilter">
+              <option value="" data-i18n="sessions.filter.type.all">All</option>
+              <option value="heartShield" data-i18n="sessions.filter.type.heartShield">Heart Shield</option>
+              <option value="regular" data-i18n="sessions.filter.type.regular">Regular</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="overview.filter.year">Year</label>
+            <select class="select-field" id="clientYearFilter">
+              <option value="" data-i18n="overview.filter.year.all">All Years</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="overview.filter.sort">Sort By</label>
+            <select class="select-field" id="clientSortSelect">
+              <option value="name" data-i18n="overview.filter.sort.name">Name</option>
+              <option value="lastSession" data-i18n="overview.filter.sort.lastSession">Last Session</option>
+              <option value="sessions" data-i18n="overview.filter.sort.sessions">Number of Sessions</option>
+            </select>
+          </div>
+          <div class="filter-field" style="align-self:flex-end;">
+            <button class="button ghost is-hidden" type="button" id="clearFiltersBtn" data-i18n="overview.filter.clear">Clear Filters</button>
+          </div>
+        </div>
+        <div id="missingBirthBanner" class="missing-birth-banner is-hidden" role="status">
+          <span class="missing-birth-banner-icon" aria-hidden="true">!</span>
+          <span class="missing-birth-banner-text" id="missingBirthBannerText"></span>
+          <button class="button ghost" type="button" id="missingBirthFilterBtn" data-i18n="overview.missingBirth.showThem">Show them</button>
+        </div>
+        <div id="emptyState" class="helper-text" data-i18n="overview.clients.empty" style="display:none;"></div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th data-i18n="overview.table.name">Name</th>
+              <th data-i18n="overview.table.type">Type</th>
+              <th data-i18n="overview.table.sessions">Sessions</th>
+              <th data-i18n="overview.table.lastSession">Last Session</th>
+            </tr>
+          </thead>
+          <tbody id="clientTableBody"></tbody>
+        </table>
+      </section>
+
+      <!-- Persistent privacy section: always visible, D-23 touchpoint #3 -->
+      <div class="security-guidance-persistent" id="security-persistent">
+        <h3 id="security-persistent-heading">Privacy &amp; Data Security</h3>
+        <p id="security-persistent-body">All your data is stored only in this browser — nothing is sent to any server. Clearing browser data or uninstalling the app permanently deletes all records. Use encrypted backups and keep your device locked to protect your clients' privacy.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Phase 25 Plan 02 — Backup & Restore modal (D-05/D-06/D-07/D-09/D-10/D-26).
+       Opened from the cloud icon in #headerActions (mounted by App.mountBackupCloudButton).
+       Hosts: Export (prominent) → Import (secondary, with destructive warning) → Test password sub-card
+       (Plan 03 fills it in) → Settings footer link to scheduled-backup tab (Plan 05). -->
+  <div id="backupModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="backupModalTitle">
+    <div class="modal-overlay"></div>
+    <div class="modal-card backup-modal-card">
+      <button class="modal-close" type="button" aria-label="Close" id="backupModalClose"></button>
+
+      <div class="backup-modal-header">
+        <h2 id="backupModalTitle" class="backup-modal-title" data-i18n="backup.modal.title">Backup &amp; Restore</h2>
+        <p class="backup-modal-subtitle" id="backupModalLastBackup" data-i18n="backup.modal.lastBackupNever">Last backup: never</p>
+      </div>
+
+      <section class="backup-modal-section backup-modal-section--contents">
+        <h3 class="backup-modal-section-heading" data-i18n="backup.contents.heading">What&#39;s in your backup</h3>
+        <p class="backup-modal-section-helper helper-text" data-i18n="backup.contents.helper">Every export includes everything below. Restoring replaces all current data with this list.</p>
+        <ul class="backup-contents-list">
+          <li class="backup-contents-item"><span class="backup-contents-check" aria-hidden="true">&#10003;</span> <span data-i18n="backup.contents.item.clients">Clients</span></li>
+          <li class="backup-contents-item"><span class="backup-contents-check" aria-hidden="true">&#10003;</span> <span data-i18n="backup.contents.item.sessions">Sessions</span></li>
+          <li class="backup-contents-item"><span class="backup-contents-check" aria-hidden="true">&#10003;</span> <span data-i18n="backup.contents.item.snippets">Snippets</span></li>
+          <li class="backup-contents-item"><span class="backup-contents-check" aria-hidden="true">&#10003;</span> <span data-i18n="backup.contents.item.settings">Settings</span></li>
+          <li class="backup-contents-item"><span class="backup-contents-check" aria-hidden="true">&#10003;</span> <span data-i18n="backup.contents.item.photos">Photos (cropped, optimized)</span></li>
+        </ul>
+      </section>
+
+      <section class="backup-modal-section backup-modal-section--export">
+        <h3 class="backup-modal-section-heading" data-i18n="backup.export.heading">Export backup</h3>
+        <p class="backup-modal-section-helper helper-text" data-i18n="backup.export.helper">Save a copy of all your data. Encrypt it with a password (recommended), or save it unprotected.</p>
+        <div class="backup-modal-button-row backup-modal-actions">
+          <button type="button" class="button" id="backupModalExport" data-i18n="backup.action.export">Export backup</button>
+          <button type="button" class="button ghost is-hidden" id="backupModalShare" data-i18n="backup.action.share">Share backup</button>
+        </div>
+      </section>
+
+      <section class="backup-modal-section backup-modal-section--import">
+        <h3 class="backup-modal-section-heading" data-i18n="backup.import.heading">Import backup</h3>
+        <p class="backup-modal-section-helper helper-text" data-i18n="backup.import.helper">Restoring replaces all current data with the contents of the backup file. This cannot be undone.</p>
+        <div class="backup-modal-import-warning" role="alert">
+          <span data-i18n="backup.import.warning">&#9888; Replaces all current data</span>
+        </div>
+        <div class="backup-modal-button-row backup-modal-actions">
+          <label class="button ghost import-label">
+            <span data-i18n="backup.action.import">Choose backup file</span>
+            <input id="backupModalImportInput" type="file" accept=".zip,.json,.sgbackup" class="is-hidden" />
+          </label>
+        </div>
+      </section>
+
+      <!-- Phase 25 Plan 03 — Test-password sub-card (D-12, D-26).
+           Decrypts a .sgbackup file to memory + validates the manifest header.
+           No PortfolioDB write, no localStorage write — see assets/backup.js
+           testBackupPassword + tests/25-03-testpassword-no-mutation.test.js. -->
+      <section class="backup-modal-section backup-modal-section--test" id="backupModalTestPasswordSection">
+        <div class="backup-test-password-card">
+          <h3 class="backup-modal-section-heading" data-i18n="backup.testPassword.heading">Test backup password</h3>
+          <p class="backup-modal-section-helper helper-text" data-i18n="backup.testPassword.helper">Check that you can decrypt a backup file with your password. Your current data is not touched.</p>
+          <div class="form-field">
+            <label class="button ghost backup-test-password-filebtn import-label" for="backupTestPasswordFile">
+              <span id="backupTestPasswordFileLabel" data-i18n="backup.testPassword.filePlaceholder">Drop a backup file here, or click to choose one.</span>
+              <input id="backupTestPasswordFile" type="file" accept=".sgbackup" class="is-hidden" />
+            </label>
+          </div>
+          <div class="form-field">
+            <input id="backupTestPasswordInput" class="input" type="password" autocomplete="off" data-i18n-placeholder="backup.testPassword.passwordPlaceholder" placeholder="Backup password" />
+          </div>
+          <div class="backup-modal-button-row backup-modal-actions">
+            <button type="button" class="button" id="backupTestPasswordRun" data-i18n="backup.testPassword.run" disabled>Test password</button>
+          </div>
+          <p id="backupTestPasswordResult" class="backup-test-password-result" role="status" aria-live="polite" hidden></p>
+        </div>
+      </section>
+
+      <!-- Phase 25 Plan 12 round-2 post-UAT (Change C, 2026-05-15) —
+           "How reminders work" explainer card. Centralizes the three
+           reminder modes (no schedule / schedule active / switching off)
+           that were previously scattered across schedule.frequency.helperOn
+           and schedule.disableConfirm.body. Native <details> for
+           progressive-disclosure semantics (no JS). Closed by default —
+           the user opts in to read it. -->
+      <section class="backup-modal-section backup-modal-section--reminders">
+        <details class="backup-reminders-explainer">
+          <summary class="backup-modal-section-heading" data-i18n="reminders.helper.heading">How reminders work</summary>
+          <div class="helper-text" data-i18n="reminders.helper.body">A gentle 7-day reminder banner appears on the overview if you haven't exported a backup in the last week. When you set up a schedule, Sessions Garden prompts you in-app at your chosen interval and the 7-day banner stays quiet so you only get one channel. If you turn the schedule off, the 7-day reminder banner becomes active again.</div>
+        </details>
+      </section>
+
+      <footer class="backup-modal-footer">
+        <a href="./settings.html?tab=backups" id="backupModalScheduleLink" class="text-link" data-i18n="backup.modal.scheduleFooter">Set up a schedule in Settings &rarr; Backups so you don&#39;t have to remember.</a>
+      </footer>
+    </div>
+  </div>
+
+  <div id="clientModal" class="modal is-hidden" role="dialog" aria-modal="true">
+    <div class="modal-overlay"></div>
+    <div class="modal-card">
+      <button class="modal-close" type="button" aria-label="Close"></button>
+      <div class="modal-header">
+        <img id="modalAvatar" class="modal-avatar is-hidden" alt="Client avatar" />
+        <div>
+          <div id="modalName" class="modal-title"></div>
+          <div id="modalMeta" class="modal-subtitle"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="button secondary" id="modalEditClient" type="button" data-i18n="overview.modal.editClient">Edit Client</button>
+        <button class="button" id="modalAddSession" type="button" data-i18n="overview.modal.addSession">Add Session</button>
+      </div>
+      <div class="modal-grid">
+        <div class="modal-stat">
+          <div class="modal-stat-value" id="modalSessions">0</div>
+          <div class="modal-stat-label" data-i18n="overview.modal.sessions">Sessions</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-value" id="modalIssues">0</div>
+          <div class="modal-stat-label" data-i18n="overview.modal.issues">Issues Addressed</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-value" id="modalAvgBefore">-</div>
+          <div class="modal-stat-label" data-i18n="overview.modal.avgBefore">Avg Severity (Before)</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-value" id="modalAvgAfter">-</div>
+          <div class="modal-stat-label" data-i18n="overview.modal.avgAfter">Avg Severity (After)</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-value" id="modalAvgDays">-</div>
+          <div class="modal-stat-label" data-i18n="overview.modal.avgDays">Avg Days Between Sessions</div>
+        </div>
+      </div>
+      <div class="modal-notes">
+        <div class="modal-notes-title" data-i18n="overview.modal.notes">Notes</div>
+        <div id="modalNotes" class="modal-notes-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+    <div class="modal-overlay"></div>
+    <div class="modal-card confirm-card">
+      <div id="confirmTitle" class="confirm-title"></div>
+      <div id="confirmMessage" class="confirm-body"></div>
+      <div class="modal-actions confirm-actions">
+        <button class="button ghost" type="button" id="confirmCancelBtn" data-i18n="confirm.cancel">Cancel</button>
+        <button class="button danger" type="button" id="confirmOkBtn" data-i18n="confirm.delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="./assets/i18n-en.js"></script>
+  <script src="./assets/i18n-he.js"></script>
+  <script src="./assets/i18n-de.js"></script>
+  <script src="./assets/i18n-cs.js"></script>
+  <script src="./assets/i18n.js"></script>
+  <script src="./assets/snippets-seed.js"></script>
+    <script src="./assets/db.js"></script>
+  <script src="./assets/jszip.min.js"></script>
+  <script src="./assets/backup.js"></script>
+  <script src="./assets/shared-chrome.js"></script>
+  <script src="./assets/app.js"></script>
+  <script src="./assets/backup-modal.js"></script>
+  <script src="./assets/overview.js"></script>
+  <script>
+    if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
+  </script>
+  <script>
+    /* iOS install prompt — shown once per session when not already in standalone mode */
+    (function(){
+      if(/iP(hone|ad|od)/.test(navigator.userAgent)&&!window.matchMedia('(display-mode: standalone)').matches&&!sessionStorage.getItem('iosPromptDismissed')){
+        var b=document.createElement('div');
+        b.id='ios-install-banner';
+        b.setAttribute('role','banner');
+        b.style.cssText='position:fixed;bottom:0;left:0;right:0;background:var(--color-primary);color:#fff;padding:0.75rem 1rem;font-size:0.875rem;display:flex;align-items:center;justify-content:space-between;z-index:9999;gap:0.5rem;';
+        b.innerHTML='<span>Install Sessions Garden: tap the Share button \u{1F4E4}, then \u201CAdd to Home Screen\u201D</span><button onclick="sessionStorage.setItem(\'iosPromptDismissed\',\'1\');this.parentNode.remove();" style="background:rgba(255,255,255,0.25);border:none;color:#fff;padding:0.25rem 0.625rem;border-radius:0.25rem;cursor:pointer;font-size:0.8rem;flex-shrink:0;">Dismiss</button>';
+        document.body.appendChild(b);
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script>
+    (function(){try{if(window.name==='demo-mode')return;if(!localStorage.getItem('portfolioTermsAccepted')){var n=encodeURIComponent(window.location.pathname+window.location.search);var l=localStorage.getItem('portfolioLang')||'en';var d=(l==='de')?'./disclaimer.html':'./disclaimer-'+l+'.html';window.location.replace(d+'?next='+n);}}catch(e){}})();
+  </script>
+  <script>
+    (function(){try{if(window.name==='demo-mode')return;if(localStorage.getItem('portfolioTermsAccepted')&&(!localStorage.getItem('portfolioLicenseActivated')||!localStorage.getItem('portfolioLicenseInstance'))){window.location.replace('./license.html');}}catch(e){}})();
+  </script>
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/branding/favicon-32.png">
+  <link rel="icon" type="image/x-icon" href="./assets/branding/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sessions Garden</title>
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="manifest" href="./manifest.json" />
+</head>
+<body data-nav="addSession">
+  <div class="app-shell">
+    <div class="container">
+      <header class="app-header">
+        <a href="./index.html" class="brand brand-link" style="text-decoration:none;color:inherit;">
+          <div class="brand-mark">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+              <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+              <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+              <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-title">Sessions Garden</div>
+            <div class="brand-subtitle" data-i18n="app.subtitle">Documentation and tracking of therapeutic sessions</div>
+          </div>
+        </a>
+        <div id="nav-placeholder"></div>
+        <div class="header-actions" id="headerActions"></div>
+      </header>
+
+      <section class="card">
+        <div class="session-header">
+          <h2 class="section-title" data-i18n="session.title">Add New Session</h2>
+          <div class="session-header-actions">
+            <button class="button ghost icon-inline is-hidden" type="button" id="copySessionBtn">
+              <span class="button-label" data-i18n="session.copyAll">Copy session text</span>
+              <span class="button-icon" aria-hidden="true">&#128203;</span>
+            </button>
+            <button class="button icon-inline is-hidden" type="button" id="exportSessionBtn">
+              <span class="button-label" data-i18n="session.export">Export</span>
+              <span class="button-icon" aria-hidden="true">&#128228;</span>
+            </button>
+            <button class="icon-button is-hidden" type="button" id="editSessionBtn">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+          </div>
+        </div>
+        <form id="sessionForm">
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="label" data-i18n="session.form.client">Client *</label>
+              <select class="select-field" id="clientSelect" data-i18n-placeholder="session.form.client.placeholder">
+                <option value="" data-i18n="session.form.client.placeholder">Select a client</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="label" data-i18n="session.form.sessionType">Session Type</label>
+              <div class="toggle-group" id="sessionTypeGroup">
+                <label class="toggle-card active" data-type="clinic">
+                  <input type="radio" name="sessionType" value="clinic" checked />
+                  <span data-i18n="session.form.clinic">Clinic</span>
+                </label>
+                <label class="toggle-card" data-type="online">
+                  <input type="radio" name="sessionType" value="online" />
+                  <span data-i18n="session.form.online">Online</span>
+                </label>
+                <label class="toggle-card" data-type="other">
+                  <input type="radio" name="sessionType" value="other" />
+                  <span data-i18n="session.form.other">Other</span>
+                </label>
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="label" data-i18n="session.form.date">Session Date *</label>
+              <input class="input" id="sessionDate" type="date" required />
+            </div>
+          </div>
+
+          <div id="clientSpotlight" class="client-spotlight is-hidden">
+            <div class="client-spotlight-media">
+              <img id="clientSpotlightPhoto" class="client-spotlight-photo is-hidden" alt="Client photo" />
+              <div id="clientSpotlightPlaceholder" class="client-spotlight-placeholder">?</div>
+            </div>
+            <div class="client-spotlight-text">
+              <div id="clientSpotlightName" class="client-spotlight-name"></div>
+              <div id="clientSpotlightAge" class="client-spotlight-age is-hidden"></div>
+              <div id="clientSpotlightNotes" class="client-spotlight-notes is-hidden">
+                <div class="client-spotlight-notes-label" data-i18n="client.form.notes">Notes</div>
+                <div id="clientSpotlightNotesText" class="client-spotlight-notes-text"></div>
+              </div>
+              <!-- Phase 24 Plan 06: Session-info subsection (pre-session context card) — populated by populateSpotlight -->
+              <details id="clientSpotlightSessionInfo" class="expandable-field client-spotlight-session-info is-hidden">
+                <summary class="client-spotlight-session-info-summary">
+                  <span data-i18n="spotlight.recentActivity">Recent activity</span>
+                </summary>
+                <div class="client-spotlight-session-info-body">
+                  <div class="client-spotlight-session-info-meta">
+                    <span class="client-spotlight-session-info-label" data-i18n="spotlight.lastSession">Last session</span>
+                    <span id="clientSpotlightLastSessionDate" class="client-spotlight-session-info-value"></span>
+                  </div>
+                  <div class="client-spotlight-session-info-meta">
+                    <span class="client-spotlight-session-info-label" data-i18n="spotlight.totalSessions">Total sessions</span>
+                    <span id="clientSpotlightTotalSessions" class="client-spotlight-session-info-value"></span>
+                  </div>
+                  <div id="clientSpotlightLastSummary" class="client-spotlight-session-info-summary-block is-hidden">
+                    <div class="client-spotlight-session-info-label" data-i18n="spotlight.lastSummary">Last note for next session</div>
+                    <blockquote id="clientSpotlightLastSummaryQuote" class="client-spotlight-session-info-quote"></blockquote>
+                  </div>
+                </div>
+              </details>
+            </div>
+            <button type="button" class="edit-client-btn is-hidden" id="editClientBtn" data-i18n-title="session.editClient">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
+          </div>
+
+          <div id="inlineClientForm" class="card" style="margin-top:1.5rem; display:none;">
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.firstName">First Name *</label>
+                <input class="input" id="inlineClientFirstName" type="text" data-i18n-placeholder="client.form.firstName.placeholder" />
+              </div>
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.lastName">Last Name</label>
+                <input class="input" id="inlineClientLastName" type="text" data-i18n-placeholder="client.form.lastName.placeholder" />
+              </div>
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.birthDate">Date of Birth</label>
+                <div id="inlineBirthDatePicker" class="birth-date-picker"></div>
+                <input type="hidden" id="inlineClientBirthDate" />
+              </div>
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.email">Email</label>
+                <input class="input" id="inlineClientEmail" type="email" data-i18n-placeholder="client.form.email.placeholder" />
+              </div>
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.phone">Phone</label>
+                <input class="input" id="inlineClientPhone" type="tel" data-i18n-placeholder="client.form.phone.placeholder" />
+              </div>
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.notes">Notes</label>
+                <textarea class="textarea" id="inlineClientNotes" data-i18n-placeholder="client.form.notes.placeholder"></textarea>
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-top:1.25rem;">
+              <div class="form-field">
+                <label class="label" data-i18n="client.form.photo">Client Photo (Optional)</label>
+                <input class="input" id="inlineClientPhoto" type="file" accept="image/*" capture="environment" />
+                <img id="inlineClientPhotoPreview" class="photo-preview is-hidden" alt="Client preview" />
+              </div>
+            </div>
+
+            <div class="form-field" style="margin-top:1.25rem;">
+              <label class="label" data-i18n="client.form.type">Client Type</label>
+              <div class="toggle-group" id="inlineClientTypeGroup">
+                <label class="toggle-card" data-type="child">
+                  <input type="radio" name="inlineClientType" value="child" />
+                  <span class="icon-badge">🧒</span>
+                  <span data-i18n="client.form.type.child">Child</span>
+                </label>
+                <label class="toggle-card active" data-type="adult">
+                  <input type="radio" name="inlineClientType" value="adult" checked />
+                  <span class="icon-badge">🧍</span>
+                  <span data-i18n="client.form.type.adult">Adult</span>
+                </label>
+                <label class="toggle-card" data-type="animal">
+                  <input type="radio" name="inlineClientType" value="animal" />
+                  <span class="icon-badge">🐾</span>
+                  <span data-i18n="client.form.type.animal">Animal</span>
+                </label>
+                <label class="toggle-card" data-type="other">
+                  <input type="radio" name="inlineClientType" value="other" />
+                  <span class="icon-badge">&#10067;</span>
+                  <span data-i18n="client.form.type.other">Other</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="inline-actions" style="margin-top:1.5rem;">
+              <button class="button icon-swap" type="button" id="inlineClientSave">
+                <span class="button-label" data-i18n="client.form.save">Save Client</span>
+                <span class="button-icon" aria-hidden="true">&#128190;</span>
+              </button>
+              <button class="button ghost" type="button" id="inlineClientCancel" data-i18n="client.form.cancel">Cancel</button>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="accordion-section" data-accordion="heart-shield">
+            <div class="accordion-header" data-i18n="session.form.heartShield">Heart Shield Session</div>
+            <div class="accordion-body">
+              <div class="session-section" data-section-key="heartShield">
+                <div class="heart-shield-section" id="heartShieldSection">
+                  <div class="heart-shield-toggle">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="heartShieldToggle" />
+                      <span class="toggle-slider"></span>
+                    </label>
+                    <span class="label" data-i18n="session.form.heartShield">Heart Shield Session</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="session-section" data-section-key="issues">
+                <div class="form-field">
+                  <label class="label" data-i18n="session.form.issuesHeading">נושאי המפגש *</label>
+                  <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                  <div class="helper-text" data-i18n="session.form.issueLimit">You may list up to 3 issues per session</div>
+                </div>
+                <div id="issueList"></div>
+                <button class="button secondary" type="button" id="addIssueBtn" data-i18n="session.form.addIssue">Add Another Issue</button>
+              </div>
+
+              <div class="session-section" data-section-key="heartShieldEmotions">
+                <details class="expandable-field is-hidden" id="heartShieldEmotionsField">
+                  <summary>
+                    <span class="label" data-i18n="session.form.heartShieldEmotions">Emotions in the Heart Shield</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <span class="expand-arrow" aria-hidden="true">›</span>
+                  </summary>
+                  <div class="expandable-body">
+                    <textarea class="textarea session-textarea" id="heartShieldEmotions" data-snippets="true" data-i18n-placeholder="session.form.heartShieldEmotions.placeholder"></textarea>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-section is-active" data-accordion="emotions">
+            <div class="accordion-header" data-i18n="session.accordion.emotions">Emotions &amp; Techniques</div>
+            <div class="accordion-body">
+              <div class="session-section" data-section-key="trapped">
+                <details class="expandable-field">
+                  <summary>
+                    <span class="label" data-i18n="session.form.trapped">Trapped Emotions Released</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <span class="expand-arrow" aria-hidden="true">›</span>
+                  </summary>
+                  <div class="expandable-body">
+                    <textarea class="textarea session-textarea" id="trappedEmotions" data-snippets="true" data-i18n-placeholder="session.form.trapped.placeholder"></textarea>
+                  </div>
+                </details>
+              </div>
+
+              <div class="session-section" data-section-key="insights">
+                <details class="expandable-field">
+                  <summary>
+                    <span class="label" data-i18n="session.form.insights">Physical Imbalance</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <span class="expand-arrow" aria-hidden="true">›</span>
+                  </summary>
+                  <div class="expandable-body">
+                    <textarea class="textarea session-textarea" id="sessionInsights" data-snippets="true" data-i18n-placeholder="session.form.insights.placeholder"></textarea>
+                  </div>
+                </details>
+              </div>
+
+              <div class="session-section" data-section-key="limitingBeliefs">
+                <details class="expandable-field">
+                  <summary>
+                    <span class="label" data-i18n="session.form.limitingBeliefs">Limiting Beliefs</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <span class="expand-arrow" aria-hidden="true">›</span>
+                  </summary>
+                  <div class="expandable-body">
+                    <textarea class="textarea session-textarea" id="limitingBeliefs" data-snippets="true" data-i18n-placeholder="session.form.limitingBeliefs.placeholder"></textarea>
+                  </div>
+                </details>
+              </div>
+
+              <div class="session-section" data-section-key="additionalTech">
+                <details class="expandable-field">
+                  <summary>
+                    <span class="label" data-i18n="session.form.additionalTech">Additional Treatment Techniques</span>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <span class="expand-arrow" aria-hidden="true">›</span>
+                  </summary>
+                  <div class="expandable-body">
+                    <textarea class="textarea session-textarea" id="additionalTech" data-snippets="true" data-i18n-placeholder="session.form.additionalTech.placeholder"></textarea>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-section" data-accordion="severity">
+            <div class="accordion-header" data-i18n="session.form.afterSeverityTitle">Issue severity</div>
+            <div class="accordion-body">
+              <div class="form-field">
+                <label class="label muted-label" data-i18n="session.form.afterSeverityTitle">Issue severity at the end of this session *</label>
+              </div>
+              <div id="issueSummaryList"></div>
+            </div>
+          </div>
+
+          <div class="accordion-section" data-accordion="notes">
+            <div class="accordion-header" data-i18n="session.form.comments.title">Session Notes</div>
+            <div class="accordion-body">
+              <div class="session-section" data-section-key="comments">
+                <div class="form-field">
+                  <div class="field-header">
+                    <label class="label" data-i18n="session.form.comments">Session Notes and Observations</label>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <button class="icon-button field-copy" type="button" data-copy-target="sessionComments">
+                      <span aria-hidden="true">&#128203;</span>
+                    </button>
+                  </div>
+                  <textarea class="textarea session-textarea" id="sessionComments" data-snippets="true" data-i18n-placeholder="session.form.comments.placeholder"></textarea>
+                </div>
+              </div>
+
+              <div class="session-section" data-section-key="nextSession">
+                <div class="form-field" style="margin-top:1.5rem;">
+                  <div class="field-header">
+                    <label class="label" data-i18n="session.form.nextSession">Information for Next Session</label>
+                    <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+                    <button class="icon-button field-copy" type="button" data-copy-target="customerSummary">
+                      <span aria-hidden="true">&#128203;</span>
+                    </button>
+                  </div>
+                  <textarea class="textarea session-textarea" id="customerSummary" data-snippets="true" data-i18n-placeholder="session.form.nextSession.placeholder"></textarea>
+                </div>
+              </div>
+
+              <div class="heart-shield-conditional is-hidden" id="heartShieldConditional" style="margin-top:1.5rem;">
+                <div class="form-field">
+                  <label class="label" data-i18n="session.form.shieldRemoved">Was the Heart Shield removed? *</label>
+                  <div class="shield-removed-options">
+                    <label class="radio-option">
+                      <input type="radio" name="shieldRemoved" value="yes" />
+                      <span data-i18n="session.form.shieldRemoved.yes">Yes</span>
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" name="shieldRemoved" value="no" />
+                      <span data-i18n="session.form.shieldRemoved.no">No</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="inline-actions" style="margin-top:1.5rem;">
+            <button class="button icon-swap session-save-button" type="submit">
+              <span class="button-label" data-i18n="session.form.save">Save Session</span>
+              <span class="button-icon" aria-hidden="true">&#128190;</span>
+            </button>
+            <button class="button ghost icon-swap is-hidden" type="button" id="cancelSessionBtn">
+              <span class="button-label" data-i18n="confirm.cancel">Cancel</span>
+              <span class="button-icon" aria-hidden="true">&#10005;</span>
+            </button>
+            <button class="button danger icon-swap is-hidden" type="button" id="deleteSessionBtn">
+              <span class="button-label" data-i18n="session.form.delete">Delete Session</span>
+              <span class="button-icon" aria-hidden="true">&#128465;</span>
+            </button>
+            <a class="button ghost" href="./index.html" data-i18n="common.backToOverview">Back to Overview</a>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <div id="cropModal" class="modal is-hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-card crop-card">
+      <button class="modal-close" id="cropClose"></button>
+      <h3 class="crop-title" data-i18n="crop.title">Adjust Photo</h3>
+      <div class="crop-canvas-container">
+        <canvas id="cropCanvas"></canvas>
+      </div>
+      <div class="crop-controls">
+        <button type="button" class="button button-ghost crop-zoom-btn" id="cropZoomOut">-</button>
+        <input type="range" id="cropZoomSlider" min="1" max="3" step="0.1" value="1" class="crop-zoom-slider" />
+        <button type="button" class="button button-ghost crop-zoom-btn" id="cropZoomIn">+</button>
+      </div>
+      <div class="crop-actions">
+        <button type="button" class="button button-ghost" id="cropCancelBtn" data-i18n="crop.cancel">Cancel</button>
+        <button type="button" class="button button-primary" id="cropConfirmBtn" data-i18n="crop.confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+    <div class="modal-overlay"></div>
+    <div class="modal-card confirm-card">
+      <div id="confirmTitle" class="confirm-title"></div>
+      <div id="confirmMessage" class="confirm-body"></div>
+      <div class="modal-actions confirm-actions">
+        <button class="button ghost" type="button" id="confirmCancelBtn" data-i18n="confirm.cancel">Cancel</button>
+        <button class="button danger" type="button" id="confirmOkBtn" data-i18n="confirm.delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="exportModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+    <div class="modal-overlay"></div>
+    <div class="modal-card export-card">
+      <button class="modal-close" type="button" id="exportClose" aria-label="Close"></button>
+      <h3 id="exportTitle" class="modal-title" data-i18n="export.title">Export Session</h3>
+
+      <div class="export-step-indicator" role="progressbar" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1">
+        <span class="export-step-pill is-active" data-step="1">
+          <span class="export-step-dot is-active">1</span>
+          <span class="export-step-label" data-i18n="export.stepper.label.1">Choose</span>
+        </span>
+        <span class="export-step-connector"></span>
+        <span class="export-step-pill" data-step="2">
+          <span class="export-step-dot">2</span>
+          <span class="export-step-label" data-i18n="export.stepper.label.2">Edit</span>
+        </span>
+        <span class="export-step-connector"></span>
+        <span class="export-step-pill" data-step="3">
+          <span class="export-step-dot">3</span>
+          <span class="export-step-label" data-i18n="export.stepper.label.3">Export</span>
+        </span>
+      </div>
+
+      <div class="modal-card-body">
+        <!-- Step 1 -->
+        <div class="export-step is-active" data-step="1">
+          <p class="export-step-helper" data-i18n="export.step1.helper">Choose which sections to include.</p>
+          <div id="exportStep1Rows"></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="export-step" data-step="2">
+          <p class="export-step-helper" data-i18n="export.step2.helper">Step 2 of 3 — Edit your document on the left; the live preview on the right shows how it will look. Formatting tips appear below if you need them.</p>
+          <div class="export-mobile-tabs is-hidden" role="tablist">
+            <button type="button" class="tab-btn is-active" data-tab="edit" data-i18n="export.tab.edit">Edit</button>
+            <button type="button" class="tab-btn" data-tab="preview" data-i18n="export.tab.preview">Preview</button>
+          </div>
+          <div class="export-edit-area">
+            <span class="export-pane-label" data-i18n="export.step2.label.edit">Edit</span>
+            <span class="export-pane-label" data-i18n="export.step2.label.preview">Preview</span>
+            <textarea id="exportEditor" class="textarea export-editor" data-snippets="true" dir="auto" spellcheck="true"></textarea>
+            <div id="exportPreview" class="export-preview"></div>
+          </div>
+          <!-- Translate-via-Google CTA REMOVED 2026-04-28 (REQ-16 dropped). Do NOT add this anchor element. -->
+          <details class="export-format-help">
+            <summary data-i18n="export.format.help.title">Formatting tips (click to expand)</summary>
+            <ul class="export-format-help-list">
+              <li><code>**bold**</code> &mdash; <span data-i18n="export.format.help.bold">surround text with two stars to make it bold</span></li>
+              <li><code>*italic*</code> &mdash; <span data-i18n="export.format.help.italic">surround text with one star to make it italic</span></li>
+              <li><code># Heading</code> &mdash; <span data-i18n="export.format.help.heading">start a line with # for a heading; ## for a smaller heading</span></li>
+              <li><code>- list item</code> &mdash; <span data-i18n="export.format.help.list">start a line with a dash and a space to create a bullet list</span></li>
+            </ul>
+          </details>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="export-step" data-step="3">
+          <p class="export-step-helper" data-i18n="export.step3.helper">Choose how to deliver the document.</p>
+          <button type="button" class="export-output-card" id="exportDownloadPdf">
+            <span class="output-card-icon" aria-hidden="true">&#128196;</span>
+            <span class="output-card-text">
+              <span class="output-card-title" data-i18n="export.download.pdf">Download PDF</span>
+              <span class="output-card-subtitle" id="exportPdfSubtitle"></span>
+            </span>
+          </button>
+          <button type="button" class="export-output-card" id="exportDownloadMd">
+            <!-- Renamed 2026-04-28: card label drops "Markdown" jargon. DOM id stays "exportDownloadMd" so the JS handler need not change. File extension on disk stays .md. -->
+            <span class="output-card-icon" aria-hidden="true">&#128221;</span>
+            <span class="output-card-text">
+              <span class="output-card-title" data-i18n="export.download.text">Download as text file</span>
+              <span class="output-card-subtitle" id="exportMdSubtitle"></span>
+            </span>
+          </button>
+          <button type="button" class="export-output-card is-hidden" id="exportShare">
+            <span class="output-card-icon" aria-hidden="true">&#8599;</span>
+            <span class="output-card-text">
+              <span class="output-card-title" data-i18n="export.share">Share via device</span>
+              <span class="output-card-subtitle" data-i18n="export.share.subtitle">Open share sheet (PDF attached)</span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-card-actions export-actions">
+        <button type="button" class="button ghost is-hidden" id="exportBackBtn" data-i18n="export.back">Back</button>
+        <button type="button" class="button" id="exportNextBtn" data-i18n="export.next1">Next: Edit document</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="editClientModal" class="modal is-hidden" role="dialog" aria-modal="true">
+    <div class="modal-overlay"></div>
+    <div class="modal-card edit-client-card">
+      <button class="modal-close" id="editClientClose" aria-label="Close"></button>
+      <h3 class="edit-client-title" data-i18n="session.editClient.title">Edit Client</h3>
+      <div class="edit-client-form">
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.firstName">First Name *</label>
+            <input class="input" id="editClientFirstName" type="text" required />
+          </div>
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.lastName">Last Name</label>
+            <input class="input" id="editClientLastName" type="text" />
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.birthDate">Date of Birth</label>
+            <div id="editBirthDatePicker" class="birth-date-picker"></div>
+            <input type="hidden" id="editClientBirthDate" />
+          </div>
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.email">Email</label>
+            <input class="input" id="editClientEmail" type="email" />
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.phone">Phone</label>
+            <input class="input" id="editClientPhone" type="tel" />
+          </div>
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.type">Client Type</label>
+            <div class="toggle-group toggle-group-sm" id="editClientTypeGroup">
+              <label class="toggle-card active"><input type="radio" name="editClientType" value="adult" checked /><span data-i18n="client.form.type.adult">Adult</span></label>
+              <label class="toggle-card"><input type="radio" name="editClientType" value="child" /><span data-i18n="client.form.type.child">Child</span></label>
+              <label class="toggle-card"><input type="radio" name="editClientType" value="animal" /><span data-i18n="client.form.type.animal">Animal</span></label>
+              <label class="toggle-card"><input type="radio" name="editClientType" value="other" /><span data-i18n="client.form.type.other">Other</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="label" data-i18n="client.form.photo">Client Photo (Optional)</label>
+          <input class="input" id="editClientPhoto" type="file" accept="image/*" capture="environment" />
+          <img id="editClientPhotoPreview" class="photo-preview is-hidden" alt="Client preview" />
+        </div>
+        <div class="form-field">
+          <label class="label" data-i18n="client.form.notes">Notes</label>
+          <textarea class="input" id="editClientNotes" rows="3"></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="label" data-i18n="client.form.referralSource">Referral Source</label>
+            <select class="select-field" id="editClientReferralSource">
+              <option value="" data-i18n="client.form.referral.placeholder">Select...</option>
+              <option value="wordOfMouth" data-i18n="client.form.referral.wordOfMouth">Word of mouth</option>
+              <option value="colleague" data-i18n="client.form.referral.colleague">Colleague/therapist referral</option>
+              <option value="internet" data-i18n="client.form.referral.internet">Internet search</option>
+              <option value="other" data-i18n="client.form.referral.other">Other</option>
+            </select>
+            <input class="input edit-client-referral-other" id="editClientReferralOther" type="text" style="display:none" data-i18n-placeholder="client.form.referral.otherPlaceholder" />
+          </div>
+        </div>
+        <div class="edit-client-actions">
+          <button type="button" class="button button-ghost" id="editClientCancelBtn" data-i18n="client.form.cancel">Cancel</button>
+          <button type="button" class="button button-primary" id="editClientSaveBtn" data-i18n="session.editClient.save">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="./assets/i18n-en.js"></script>
+  <script src="./assets/i18n-he.js"></script>
+  <script src="./assets/i18n-de.js"></script>
+  <script src="./assets/i18n-cs.js"></script>
+  <script src="./assets/i18n.js"></script>
+  <script src="./assets/snippets-seed.js"></script>
+    <script src="./assets/db.js"></script>
+  <script src="./assets/shared-chrome.js"></script>
+  <script src="./assets/app.js"></script>
+  <!-- Phase 25 round-5 (UAT-D2): JSZip + backup.js + backup-modal.js so the
+       header cloud icon opens the Backup & Restore modal IN-PLACE on
+       add-session.html (previously it bounced to index.html?openBackup=1). -->
+  <script src="./assets/jszip.min.js"></script>
+  <script src="./assets/backup.js"></script>
+  <script src="./assets/backup-modal.js"></script>
+  <script src="./assets/snippets.js"></script>
+  <script src="./assets/crop.js"></script>
+  <script src="./assets/md-render.js"></script>
+  <script src="./assets/pdf-export.js"></script>
+  <script src="./assets/add-session.js"></script>
+  <script>
+    if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
+  </script>
+</body>
+</html>
