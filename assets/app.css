@@ -1009,6 +1009,11 @@ html[data-theme="dark"] .missing-birth-banner-icon{
 .textarea {
   min-height: 140px;
   resize: vertical;
+  /* Quick 260516-rna: explicit guard so the JS auto-grow scrollHeight->height
+     assignment does not creep by border/padding (idempotent with the global
+     `* { box-sizing: border-box }` reset). No max-height / overflow:hidden on
+     the editable state — the user wants uncapped grow-to-fit. */
+  box-sizing: border-box;
 }
 
 .read-mode .textarea.session-textarea{

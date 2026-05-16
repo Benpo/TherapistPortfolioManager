@@ -5,6 +5,42 @@ let editingClientId = null;
 let formDirty = false;
 let formSaving = false;
 
+// Quick 260516-rna — single-sourced auto-grow for the long session textareas.
+// Used by the read-mode resize path, the live `input` path, and the
+// edit-load (populateSession) path so the scrollHeight math lives in ONE place.
+//
+// computeGrowHeight is a PURE function (no DOM mutation) so it can be unit-
+// tested via the __addSessionTestHooks convention. There is intentionally NO
+// upper clamp (no Math.min) — the user explicitly wants grow-to-fit.
+const SESSION_TEXTAREA_MIN_HEIGHT = 56;
+
+function computeGrowHeight(el) {
+  return Math.max(el.scrollHeight, SESSION_TEXTAREA_MIN_HEIGHT);
+}
+
+// Measure-only height application: reset to "auto" so scrollHeight reflects
+// the true content height, then set the computed height. NEVER mutates value,
+// never preventDefault/stopPropagation — safe to compose with the snippets
+// input listener and the form dirty-tracking input listener.
+function autoGrow(el) {
+  if (!el || !el.style) return;
+  el.style.height = "auto";
+  el.style.height = `${computeGrowHeight(el)}px`;
+}
+
+function growAllSessionTextareas() {
+  document.querySelectorAll(".session-textarea").forEach((el) => autoGrow(el));
+}
+
+// Expose the pure hook for falsifiable behavior testing (mirrors the g7p
+// __*TestHooks convention). Guarded so module eval is safe under a vm sandbox.
+if (typeof window !== "undefined") {
+  window.__addSessionTestHooks = Object.assign(
+    window.__addSessionTestHooks || {},
+    { computeGrowHeight }
+  );
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   await App.initCommon();
 
@@ -88,6 +124,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Unsaved changes protection
   if (sessionForm) {
+    // Quick 260516-rna: delegated auto-grow. Composes with the dirty-tracking
+    // listener below and the per-textarea snippets `input` listener — this
+    // handler only measures + sets height (no preventDefault / no .value
+    // mutation), so handler order is irrelevant.
+    sessionForm.addEventListener("input", (e) => {
+      const target = e.target;
+      if (
+        target &&
+        target.classList &&
+        target.classList.contains("session-textarea")
+      ) {
+        autoGrow(target);
+      }
+    });
     sessionForm.addEventListener("input", () => {
       formDirty = true;
       updateCancelButtonLabel(); // D-04: swap to "Discard changes" on first edit
@@ -144,12 +194,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function resizeReadModeTextareas() {
-    readModeTextareas.forEach((textarea) => {
-      textarea.style.height = "auto";
-      const minHeight = 56;
-      const nextHeight = Math.max(textarea.scrollHeight, minHeight);
-      textarea.style.height = `${nextHeight}px`;
-    });
+    // Quick 260516-rna: single-sourced through the top-level autoGrow helper
+    // so the scrollHeight math is not duplicated between read-mode and the
+    // live/edit-load grow paths.
+    readModeTextareas.forEach((textarea) => autoGrow(textarea));
   }
 
   function clearReadModeTextareas() {
@@ -1764,6 +1812,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     // New session — hide disabled sections from the form per REQ-3.
     applySectionVisibility(false);
     applySectionLabels();
+    // Quick 260516-rna: size the (empty) long textareas once after initial
+    // construction/i18n so they start consistent; subsequent typing grows them
+    // via the delegated input listener.
+    growAllSessionTextareas();
   }
 
   // Accordion toggle — mobile only
@@ -2101,4 +2153,10 @@ function populateSession(session, issues, createIssueBlock) {
   }
 
   App.applyTranslations();
+
+  // Quick 260516-rna: grow every .session-textarea to fit its just-assigned
+  // value so an existing session opened for EDIT shows full content on load
+  // (not trimmed/scrolled until the first keystroke). Covers the heart-shield
+  // emotions field too (it shares .session-textarea).
+  growAllSessionTextareas();
 }
