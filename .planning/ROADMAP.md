@@ -579,7 +579,12 @@ Plans:
 - Must not regress current overview screen UX (Phase 25 is consolidating it).
 
 **Depends on:** Phase 25 (overview screen is being restructured there — onboarding design needs to know the final overview shape).
-**Plans:** TBD after `/gsd-discuss-phase 26`.
+**Plans:** 3 plans in 2 waves (design-only — no production code, per D-08)
+
+Plans:
+- [ ] 26-01-PLAN.md — Author 26-UI-SPEC.md: help-system architecture, "?" entry point, full-screen welcome, and the D-11 graceful-degradation tour contract (Wave 1)
+- [ ] 26-02-PLAN.md — Author 26-CONTENT-OUTLINE-EN.md: workflow-spine + flagship personalization story + fully-folded PWA/user-manual technical track, i18n-key-mapped (Wave 1)
+- [ ] 26-03-PLAN.md — Build the clickable garden-coherent mockup (welcome + Help page + interactive tour) validating the UI-SPEC against the EN content (Wave 2, depends on 26-01 + 26-02)
 
 **Origin:** Bundled with Phase 25 backup rework in user request 2026-05-15; split into its own phase because tutorial/onboarding is a different domain (marketing-driven UX research) from backup architecture (bug fix + UI consolidation).
 
