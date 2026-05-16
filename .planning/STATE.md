@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: ready_to_plan
-stopped_at: Phase 26 context gathered
-last_updated: "2026-05-16T09:55:41.119Z"
-last_activity: "2026-05-15 - Completed quick task 260516-1f5: fix backup icon always grey on Sessions/Reporting (Phase 25 live bug — code fix on main, Task 3 human-verify pending)"
+stopped_at: Phase 26 UI-SPEC approved
+last_updated: "2026-05-16T12:47:08.408Z"
+last_activity: "2026-05-16 - Completed quick task 260516-rna: auto-grow long add-session textareas — 2 atomic commits on main (executor API-errored after commits, orchestrator-recovered)"
 progress:
   total_phases: 6
   completed_phases: 6
@@ -230,12 +230,13 @@ Recent decisions affecting current work:
 | 260324-oh5 | Rename browser storage key from emotion_code_portfolio to sessions_garden | 2026-03-24 | 6d78bd7 | [260324-oh5-rename-browser-storage-key-from-emotion-](./quick/260324-oh5-rename-browser-storage-key-from-emotion-/) |
 | 260516-1f5 | Fix backup icon always grey on Sessions/Reporting pages (missing backup.js trio) — code fix complete, human-verify pending | 2026-05-15 | bfe61b4 | [260516-1f5-fix-backup-icon-always-grey-on-sessions-](./quick/260516-1f5-fix-backup-icon-always-grey-on-sessions-/) |
 | 260516-g7p | Fix 4 small UI bugs: save→session reading mode, export-modal snippets, seed text word order, missing-birth-year client-table filter (4 atomic commits + behavior tests) | 2026-05-16 | db80356 | [260516-g7p-four-small-ui-bugs](./quick/260516-g7p-four-small-ui-bugs/) |
+| 260516-rna | Auto-grow long add-session textareas to fit content (typing + edit-load); manual resize kept. TDD; executor API-errored post-commits, orchestrator-recovered | 2026-05-16 | a3835df | [260516-rna-add-session-textarea-autogrow](./quick/260516-rna-add-session-textarea-autogrow/) |
 
 ## Session Continuity
 
-Last activity: 2026-05-16 - Completed quick task 260516-g7p: four small UI bugs (save-return, export snippets, seed text, missing-birth filter) — 4 atomic commits on main
-Stopped at: Phase 26 context gathered
-Resume file: .planning/phases/26-in-app-onboarding-overview-help-system/26-CONTEXT.md
+Last activity: 2026-05-16 - Completed quick task 260516-rna: auto-grow long add-session textareas — 2 atomic commits on main (executor API-errored after commits, orchestrator-recovered)
+Stopped at: Phase 26 UI-SPEC approved
+Resume file: .planning/phases/26-in-app-onboarding-overview-help-system/26-UI-SPEC.md
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
 
 **Planned Phase:** 22 (session-workflow-loop-pre-session-context-card-editable-sess) — 9 plans — 2026-05-06T18:41:19.496Z
