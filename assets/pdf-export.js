@@ -538,14 +538,28 @@ window.PDFExport = (function () {
       }
       // List: contiguous lines beginning with "- " or "* " or "1. " etc.
       if (/^\s*[-*]\s+/.test(line) || /^\s*\d+\.\s+/.test(line)) {
+        // Quick task 260522-iwr: decide ordered-vs-unordered from the FIRST
+        // list line. An ordered list ("1. ", "2. " ...) carries an ordinal;
+        // an unordered list ("- ", "* ") carries a bullet. Previously both
+        // collapsed into one block with no ordinal info, so the renderer
+        // unconditionally drew "- " bullets and every typed number was lost.
+        var listOrdered = /^\s*\d+\.\s+/.test(line);
         var items = [];
         while (i < lines.length && (/^\s*[-*]\s+/.test(lines[i]) || /^\s*\d+\.\s+/.test(lines[i]))) {
           // Phase 23 (23-12): keep raw markdown — the list-branch renderer
           // calls parseInlineBold(item) and emits Heebo Bold for **X** spans.
+          // Quick task 260522-iwr: still strip the leading marker (the
+          // renderer re-adds the prefix). For ordered lists the typed
+          // ordinal is intentionally discarded — the renderer assigns
+          // sequential ordinals 1..N from item index so numbering is always
+          // correct and unbroken even if the user mistyped (editor-1:1
+          // behaviour for a clean numbered list). Contiguity is unchanged:
+          // a marker-style switch mid-run does not split the list; the
+          // `ordered` flag is fixed by the first line.
           items.push(lines[i].replace(/^\s*(?:[-*]|\d+\.)\s+/, ""));
           i++;
         }
-        blocks.push({ type: 'list', items: items });
+        blocks.push({ type: 'list', items: items, ordered: listOrdered });
         continue;
       }
       // Paragraph: collect contiguous non-empty, non-heading, non-list lines.
@@ -964,10 +978,19 @@ window.PDFExport = (function () {
               var subLineL = wrapped[wi];
               var clippedL = clipSegmentsToRange(listSegments, listOff, listOff + subLineL.length);
               if (clippedL.length === 0) clippedL = [{ text: subLineL, bold: false }];
-              // Bullet prefix on the first wrapped line only.
+              // List prefix on the first wrapped line only.
+              // Quick task 260522-iwr: ordered lists get a sequential
+              // ordinal "N. " (N = item index + 1, always 1..N so numbering
+              // is unbroken); unordered lists keep the "- " bullet. The
+              // prefix is a regular-weight segment either way, so it
+              // participates in bidi paragraph-direction inference exactly
+              // like the bullet did — for an RTL Hebrew list the ordinal is
+              // an LTR digit run that drawSegmentedLine + shapeForJsPdf
+              // already handle (same path as the footer page number).
               var lineSegments;
               if (wi === 0) {
-                lineSegments = [{ text: '- ', bold: false }].concat(clippedL);
+                var listPrefix = block.ordered ? ((li + 1) + '. ') : '- ';
+                lineSegments = [{ text: listPrefix, bold: false }].concat(clippedL);
               } else {
                 lineSegments = clippedL;
               }
