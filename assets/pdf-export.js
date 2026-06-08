@@ -540,23 +540,38 @@ window.PDFExport = (function () {
       if (/^\s*[-*]\s+/.test(line) || /^\s*\d+\.\s+/.test(line)) {
         // Quick task 260522-iwr: decide ordered-vs-unordered from the FIRST
         // list line. An ordered list ("1. ", "2. " ...) carries an ordinal;
-        // an unordered list ("- ", "* ") carries a bullet. Previously both
-        // collapsed into one block with no ordinal info, so the renderer
-        // unconditionally drew "- " bullets and every typed number was lost.
+        // an unordered list ("- ", "* ") carries a bullet.
+        //
+        // Quick task 260608-c8x (Bug A fix): for ordered lists each item now
+        // carries its TYPED ordinal as { text, ordinal } (NOT the local-index
+        // value). Rationale: paragraph-separated numbered items
+        //   "1. X" / "" / "para" / "" / "2. Y" / "" / "para" / "" / "3. Z"
+        // each become their own single-item {type:'list',ordered:true} block
+        // (parseMarkdown only groups CONTIGUOUS list lines). Under the
+        // previous "renderer assigns 1..N from li+1" contract every block's
+        // sole item was numbered "1.", so the user saw three "1."s in the
+        // exported PDF. Carrying the typed ordinal preserves the user's
+        // numbering exactly -- editor-1:1 behaviour. For contiguous numbered
+        // runs (the common case) the typed ordinals are already 1..N, so
+        // there is no visible behaviour change vs. the previous contract.
+        // Unordered-list items remain bare strings.
         var listOrdered = /^\s*\d+\.\s+/.test(line);
         var items = [];
         while (i < lines.length && (/^\s*[-*]\s+/.test(lines[i]) || /^\s*\d+\.\s+/.test(lines[i]))) {
           // Phase 23 (23-12): keep raw markdown — the list-branch renderer
           // calls parseInlineBold(item) and emits Heebo Bold for **X** spans.
-          // Quick task 260522-iwr: still strip the leading marker (the
-          // renderer re-adds the prefix). For ordered lists the typed
-          // ordinal is intentionally discarded — the renderer assigns
-          // sequential ordinals 1..N from item index so numbering is always
-          // correct and unbroken even if the user mistyped (editor-1:1
-          // behaviour for a clean numbered list). Contiguity is unchanged:
-          // a marker-style switch mid-run does not split the list; the
-          // `ordered` flag is fixed by the first line.
-          items.push(lines[i].replace(/^\s*(?:[-*]|\d+\.)\s+/, ""));
+          // Quick task 260522-iwr + 260608-c8x: strip the leading marker (the
+          // renderer re-adds the prefix from item.ordinal for ordered lists).
+          if (listOrdered) {
+            var ordMatch = /^\s*(\d+)\.\s+/.exec(lines[i]);
+            var typedOrdinal = ordMatch ? parseInt(ordMatch[1], 10) : (items.length + 1);
+            items.push({
+              text: lines[i].replace(/^\s*\d+\.\s+/, ""),
+              ordinal: typedOrdinal
+            });
+          } else {
+            items.push(lines[i].replace(/^\s*[-*]\s+/, ""));
+          }
           i++;
         }
         blocks.push({ type: 'list', items: items, ordered: listOrdered });
@@ -959,16 +974,20 @@ window.PDFExport = (function () {
         if (block.type === 'list') {
           for (var li = 0; li < block.items.length; li++) {
             var item = block.items[li];
+            // Quick task 260608-c8x: ordered-list items now arrive as
+            // { text, ordinal } objects (Bug A fix in parseMarkdown);
+            // unordered-list items remain bare strings. The bold parser
+            // wants the raw text either way.
+            var itemText = (block.ordered && item && typeof item === 'object')
+              ? item.text
+              : item;
             doc.setFont("Heebo", "normal");
             doc.setFontSize(BODY_SIZE);
             // Phase 23 (23-12): inline-bold rendering for list items.
             // Parse the raw item (which retains `**X**` markers per
             // parseMarkdown 23-12 change), wrap on the STRIPPED text, then
-            // emit each wrapped sub-line via drawSegmentedLine. The "- "
-            // bullet prefix is prepended as a regular-weight segment on wi===0
-            // so it participates in bidi paragraph-direction inference (matches
-            // the prefix-then-shape behaviour of the pre-23-12 path).
-            var listSegments = parseInlineBold(item);
+            // emit each wrapped sub-line via drawSegmentedLine.
+            var listSegments = parseInlineBold(itemText);
             var listStripped = '';
             for (var lsi = 0; lsi < listSegments.length; lsi++) listStripped += listSegments[lsi].text;
             var wrapped = doc.splitTextToSize(listStripped, USABLE_W - 14);
@@ -978,36 +997,89 @@ window.PDFExport = (function () {
               var subLineL = wrapped[wi];
               var clippedL = clipSegmentsToRange(listSegments, listOff, listOff + subLineL.length);
               if (clippedL.length === 0) clippedL = [{ text: subLineL, bold: false }];
-              // List prefix on the first wrapped line only.
-              // Quick task 260522-iwr: ordered lists get a sequential
-              // ordinal "N. " (N = item index + 1, always 1..N so numbering
-              // is unbroken); unordered lists keep the "- " bullet. The
-              // prefix is a regular-weight segment either way, so it
-              // participates in bidi paragraph-direction inference exactly
-              // like the bullet did — for an RTL Hebrew list the ordinal is
-              // an LTR digit run that drawSegmentedLine + shapeForJsPdf
-              // already handle (same path as the footer page number).
-              var lineSegments;
-              if (wi === 0) {
-                var listPrefix = block.ordered ? ((li + 1) + '. ') : '- ';
-                lineSegments = [{ text: listPrefix, bold: false }].concat(clippedL);
+              // Quick task 260608-c8x (Bug A): the list prefix uses the
+              // TYPED ordinal (item.ordinal) for ordered lists, NOT the
+              // local index (li + 1). Paragraph-separated numbered items
+              // become single-item blocks each carrying its own typed
+              // ordinal, so the renderer must read it from the item, not
+              // derive it from position. Unordered lists keep "- ".
+              var listPrefix;
+              if (block.ordered) {
+                var typedOrdinal = (item && typeof item === 'object' && typeof item.ordinal === 'number')
+                  ? item.ordinal
+                  : (li + 1); // defensive fallback -- should not trigger post Bug-A fix
+                listPrefix = typedOrdinal + '. ';
               } else {
-                lineSegments = clippedL;
+                listPrefix = '- ';
               }
               // Phase 23 (23-10): list-item anchor follows docDir.
-              //   Hebrew document -> RTL list layout: bullet hugs the right
+              //   Hebrew document -> RTL list layout: prefix hugs the right
               //     margin (wi===0), continuation lines indent leftward (rightX
               //     = PAGE_W - MARGIN_X - 14 for wi>0).
-              //   Latin document  -> LTR list layout: bullet hugs the left
+              //   Latin document  -> LTR list layout: prefix hugs the left
               //     margin (wi===0 at MARGIN_X), continuation lines indent
               //     rightward (leftX = MARGIN_X + 14 for wi>0).
-              var drawOpts;
-              if (docDir === 'rtl') {
-                drawOpts = { rightX: (wi === 0) ? (PAGE_W - MARGIN_X) : (PAGE_W - MARGIN_X - 14) };
+              //
+              // Quick task 260608-c8x (Bug B): in an RTL doc, when the item
+              // content starts with an LTR-strong char (e.g. English), the
+              // single-row "prefix + content" shape resolves to an LTR
+              // paragraph -- the row is drawn starting at (rightX - totalW),
+              // which leaves the digits + period at the VISUAL LEFT of the
+              // row (= LEFT margin of the page). The user sees the "N. "
+              // dragged to the wrong margin, inconsistent with sibling
+              // Hebrew-content rows in the same list.
+              //
+              // Fix (Option 1 -- split-row, smaller surface than threading a
+              // baseDir option through drawSegmentedLine + shapeForJsPdf):
+              // for the FIRST wrapped sub-line of an ordered-list item in an
+              // RTL doc, draw the prefix as its OWN drawSegmentedLine call
+              // anchored at PAGE_W - MARGIN_X (right margin) and draw the
+              // content right-anchored at PAGE_W - MARGIN_X - prefixWidth.
+              // Each call shapes independently, so the prefix's first-strong
+              // is LTR-only (digits) -- correct -- and the content's
+              // first-strong reflects only the content (LTR or RTL on its
+              // own). The LTR-doc path and the wi>0 continuation-line path
+              // are unchanged.
+              if (docDir === 'rtl' && wi === 0 && block.ordered) {
+                // Measure prefix width at body font + size.
+                doc.setFont('Heebo', 'normal');
+                doc.setFontSize(BODY_SIZE);
+                var prefixW = doc.getStringUnitWidth(listPrefix) * BODY_SIZE;
+                // Prefix row-segment: right-anchored at the right margin.
+                drawSegmentedLine(
+                  [{ text: listPrefix, bold: false }],
+                  y, BODY_SIZE,
+                  { rightX: PAGE_W - MARGIN_X }
+                );
+                // Content row-segment: right-anchored just inside the prefix.
+                drawSegmentedLine(
+                  clippedL, y, BODY_SIZE,
+                  { rightX: PAGE_W - MARGIN_X - prefixW }
+                );
               } else {
-                drawOpts = { leftX: (wi === 0) ? MARGIN_X : (MARGIN_X + 14) };
+                // Unified-row path: LTR docs, unordered lists, and
+                // continuation lines (wi > 0). Prefix is prepended as a
+                // regular-weight segment so it participates in bidi
+                // paragraph-direction inference; the row anchors per docDir.
+                var lineSegments;
+                if (wi === 0) {
+                  lineSegments = [{ text: listPrefix, bold: false }].concat(clippedL);
+                } else {
+                  lineSegments = clippedL;
+                }
+                // Anchor follows docDir + wi: first line hugs the margin,
+                // continuation lines indent 14pt inward. Identical to the
+                // pre-260608-c8x path so this branch is byte-stable for
+                // every list shape it serves (LTR ordered + LTR unordered
+                // + RTL unordered + all wi>0 continuations).
+                var drawOpts;
+                if (docDir === 'rtl') {
+                  drawOpts = { rightX: (wi === 0) ? (PAGE_W - MARGIN_X) : (PAGE_W - MARGIN_X - 14) };
+                } else {
+                  drawOpts = { leftX: (wi === 0) ? MARGIN_X : (MARGIN_X + 14) };
+                }
+                drawSegmentedLine(lineSegments, y, BODY_SIZE, drawOpts);
               }
-              drawSegmentedLine(lineSegments, y, BODY_SIZE, drawOpts);
               listOff += subLineL.length + 1;
               y += LINE_HEIGHT_BODY;
             }
