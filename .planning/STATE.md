@@ -232,10 +232,11 @@ Recent decisions affecting current work:
 | 260516-g7p | Fix 4 small UI bugs: save→session reading mode, export-modal snippets, seed text word order, missing-birth-year client-table filter (4 atomic commits + behavior tests) | 2026-05-16 | db80356 | [260516-g7p-four-small-ui-bugs](./quick/260516-g7p-four-small-ui-bugs/) |
 | 260516-rna | Auto-grow long add-session textareas to fit content (typing + edit-load); manual resize kept. TDD; executor API-errored post-commits, orchestrator-recovered | 2026-05-16 | a3835df | [260516-rna-add-session-textarea-autogrow](./quick/260516-rna-add-session-textarea-autogrow/) |
 | 260522-iwr | Fix PDF export not matching editor: numbered/ordered list items lost their ordinals in exported PDF (parseMarkdown stripped the number, renderer hardcoded bullets). TDD RED→GREEN, no regressions | 2026-05-22 | c52eb09 | [260522-iwr-fix-pdf-export-not-matching-editor-numbe](./quick/260522-iwr-fix-pdf-export-not-matching-editor-numbe/) |
+| 260608-c8x | Fix PDF list rendering follow-ups: (a) preserve typed ordinal per item so paragraph-separated items don't all reset to "1." (b) right-anchor RTL list-item prefix even when item content starts with English chars. TDD RED→GREEN, 46/46 PDF tests pass | 2026-06-08 | 8ad2263 | [260608-c8x-fix-pdf-list-rendering-a-preserve-typed-](./quick/260608-c8x-fix-pdf-list-rendering-a-preserve-typed-/) |
 
 ## Session Continuity
 
-Last activity: 2026-05-22 - Completed quick task 260522-iwr: fix PDF export numbered-list ordinals — 2 atomic commits on main (TDD RED→GREEN, 26/26 regression tests pass)
+Last activity: 2026-06-08 - Completed quick task 260608-c8x: fix PDF list typed-ordinal preservation + RTL prefix anchor — 2 atomic commits on main (TDD RED→GREEN, 46/46 PDF tests pass across 5 suites)
 Stopped at: Phase 26 UI-SPEC approved
 Resume file: .planning/phases/26-in-app-onboarding-overview-help-system/26-UI-SPEC.md
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
