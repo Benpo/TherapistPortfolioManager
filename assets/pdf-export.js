@@ -1040,7 +1040,30 @@ window.PDFExport = (function () {
               // first-strong reflects only the content (LTR or RTL on its
               // own). The LTR-doc path and the wi>0 continuation-line path
               // are unchanged.
-              if (docDir === 'rtl' && wi === 0 && block.ordered) {
+              //
+              // Quick task 260608-cx5 (regression gate on c8x's split-row):
+              // the c8x branch above was originally fired for EVERY RTL +
+              // ordered + wi===0 row, including Hebrew-content rows that the
+              // previous unified-row path was rendering correctly. The
+              // unified row let UAX #9 shape the whole row (prefix + content)
+              // as one RTL paragraph, producing the correct visual layout.
+              // Splitting it shaped prefix and content as two independent
+              // paragraphs whose outputs do not compose like a single bidi
+              // paragraph would -- the user reported the digit + period
+              // mis-arranged relative to Hebrew content.
+              //
+              // Rule (added below): the split-row branch fires ONLY when the
+              // content's first-strong directional char is LTR (the c8x
+              // Bug B case -- English content in an RTL doc). For RTL
+              // content -- or content with no strong directional chars
+              // (digits / punct only -- which firstStrongDir defaults to
+              // 'ltr', so this falls under the LTR case and continues to
+              // split, which is harmless because there is no bidi resolution
+              // to break) -- we route through the unified-row else branch.
+              // The content argument is `listStripped` (the inline-bold-
+              // stripped item text) -- the user-visible, marker-free text
+              // that UAX #9 would consider for paragraph-direction inference.
+              if (docDir === 'rtl' && wi === 0 && block.ordered && firstStrongDir(listStripped) === 'ltr') {
                 // Measure prefix width at body font + size.
                 doc.setFont('Heebo', 'normal');
                 doc.setFontSize(BODY_SIZE);
