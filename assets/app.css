@@ -4,6 +4,7 @@
   --z-nav: 200;
   --z-modal: 300;
   --z-modal-top: 350; /* Phase 24 Plan 07 — stacked modal layer for crop popup that opens from inside another modal (edit-client → photo crop). */
+  --z-popover: 360; /* Snippet autocomplete + tag suggestions — must sit ABOVE modals so the popover is usable when its textarea lives inside a modal (e.g. the export editor, --z-modal 300). Below --z-toast so notifications still surface. */
   --z-toast: 400;
   --z-banner: 500;
 }
@@ -3191,7 +3192,7 @@ html[dir="rtl"] .export-format-help[open] summary::before {
 /* ─── Snippet autocomplete popover (Phase 24 Plan 04) ────────────── */
 .snippets-popover {
   position: fixed;
-  z-index: 200;
+  z-index: var(--z-popover, 360);
   min-width: 220px;
   max-width: 360px;
   max-height: 280px;
