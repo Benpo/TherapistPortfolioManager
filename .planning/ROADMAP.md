@@ -624,10 +624,10 @@ Each is individually defensible; together they have no shared rhythm.
 
 **Depends on:** Phase 25 (complete). Independent of Phase 26.
 
-**Plans:** 1 plan (1 wave)
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 27-01-PLAN.md — Visual-cohesion CSS pass on the Backup & Restore modal: drop the two tinted cards (plain sections + dividers), unify section headings to one size, recolour the Import warning from red danger to amber caution (one severity palette), and gate it all behind the full test suite + destructive-Import confirm-preservation check (ROADMAP 27 items 1-5).
+- [x] 27-01-PLAN.md — Visual-cohesion CSS pass on the Backup & Restore modal: drop the two tinted cards (plain sections + dividers), unify section headings to one size, recolour the Import warning from red danger to amber caution (one severity palette), and gate it all behind the full test suite + destructive-Import confirm-preservation check (ROADMAP 27 items 1-5).
 
 **Origin:** Phase 25 UAT item #1 (Ben, 2026-05-16) — explicitly agreed to defer the visual-cohesion redesign to a dedicated UI-SPEC phase while Phase 25 shipped the functional fixes. Cross-ref: `.planning/phases/25-backup-architectural-rework/25-FOLLOWUPS.md`.
 
@@ -785,4 +785,4 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 24. Pre-Launch Final Cleanup | v1.1 | 8/8 | Complete | 2026-05-14 |
 | 25. Backup Architectural Rework | v1.1 | 13/13 | Complete | 2026-05-16 |
 | 26. In-App Onboarding / Help | v1.1 | Design contract approved | In Progress (design) | - |
-| 27. Backup Modal Visual Cohesion | v1.1 | Not started | Pending | - |
+| 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete   | 2026-06-14 |

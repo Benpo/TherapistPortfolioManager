@@ -4,7 +4,7 @@ milestone: v1.1
 milestone_name: Final Polish & Launch
 status: ready_to_plan
 stopped_at: Phase 27 UI-SPEC approved
-last_updated: "2026-06-14T22:08:41.236Z"
+last_updated: "2026-06-14T22:18:55.278Z"
 last_activity: 2026-06-14
 progress:
   total_phases: 6
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 25 — backup-architectural-rework
+**Current focus:** Phase 27 — backup-restore-modal-visual-cohesion-ui-spec-pass
 
 ## Current Position
 
-Phase: 26
-Plan: Not started
+Phase: 27 (backup-restore-modal-visual-cohesion-ui-spec-pass) — EXECUTING
+Plan: 1 of 1
 
 ## Performance Metrics
 
@@ -90,6 +90,7 @@ Plan: Not started
 | Phase 21 P02 | 5min | 2 tasks | 8 files |
 | Phase 22 P22-09 | 3min | 3 tasks | 8 files |
 | Phase 22 P10 | 25min | 3 tasks | 8 files |
+| Phase 27 P01 | 5min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -182,6 +183,8 @@ Recent decisions affecting current work:
 - [Phase 22-09]: 5 App.initCommon() callers awaited; settings.js DOMContentLoaded handler converted from function to async function
 - Plan 22-10 D1: per-Save disable-confirm fires iff computeDisableTransitions() returns ≥1 net enabled→disabled transition vs. last-loaded DB; sessionStorage gate removed
 - Plan 22-10 D2: success-pill design spec locked at plan-time; new --color-success-bg/-text/-border tokens (light + dark); OLD .settings-sync-message DOM/CSS/JS show-path fully removed
+- [Phase ?]: [Phase 27-01]: Import warning demoted from red danger to shared amber --color-warning-* band (one severity palette); red reserved for the moment-of-action confirm dialog only
+- [Phase ?]: [Phase 27-01]: Added dark-mode --color-warning-bg:#3a2f00 / --color-warning-text:#ffd966 overrides (9.69:1 on #202828, WCAG AAA); every modal token now has a dark value; --color-danger-* stays light-only by design
 
 ### Pending Todos
 
@@ -239,7 +242,7 @@ Recent decisions affecting current work:
 
 Last activity: 2026-06-14
 Stopped at: Phase 27 UI-SPEC approved
-Resume file: .planning/phases/27-backup-restore-modal-visual-cohesion-ui-spec-pass/27-UI-SPEC.md
+Resume file: None
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
 
 **Planned Phase:** 22 (session-workflow-loop-pre-session-context-card-editable-sess) — 9 plans — 2026-05-06T18:41:19.496Z
