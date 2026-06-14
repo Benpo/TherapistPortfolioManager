@@ -485,6 +485,15 @@
       var m = document.getElementById('backupModal');
       if (m && !m.classList.contains('is-hidden')) closeBackupModal();
     });
+
+    // Re-localize the relative-time subtitle on language change. The subtitle
+    // is rendered as plain text with its data-i18n attribute stripped (the
+    // {relative} value is locale-formatted, not a static key), so a generic
+    // applyTranslations pass cannot re-render it — without this it stays frozen
+    // in whatever language was active when it was last rendered.
+    document.addEventListener('app:language', function () {
+      renderLastBackupSubtitle();
+    });
   }
 
   if (typeof document !== 'undefined') {
