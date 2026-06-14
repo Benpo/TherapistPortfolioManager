@@ -181,4 +181,12 @@
   --color-success-bg: #1f3a2a;
   --color-success-text: #b6e5c4;
   --color-success-border: #4caf50;
+  /* Warning palette (Phase 27) — the amber inline-message band shared by the
+   * Backup-modal Import warning and the test-password error result. Mirrors the
+   * success idiom above: a low-luminance amber bg + high-luminance amber text so
+   * the band stays WCAG-AA readable on the #202828 dark surface (the light
+   * #fff3cd / #856404 values previously inherited here were too low-contrast).
+   * --color-danger-* stays light-only by design — reserved for the confirm dialog. */
+  --color-warning-bg: #3a2f00;
+  --color-warning-text: #ffd966;
 }
