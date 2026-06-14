@@ -4,8 +4,8 @@ milestone: v1.1
 milestone_name: Final Polish & Launch
 status: ready_to_plan
 stopped_at: Phase 27 UI-SPEC approved
-last_updated: "2026-06-14T21:12:59.015Z"
-last_activity: "2026-06-08 - Completed quick task 260608-cx5: gate PDF split-row on content direction — 2 atomic commits on main (TDD RED→GREEN, 57/57 PDF tests pass across 6 suites)"
+last_updated: "2026-06-14T22:08:41.236Z"
+last_activity: 2026-06-14
 progress:
   total_phases: 6
   completed_phases: 6
@@ -237,7 +237,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last activity: 2026-06-08 - Completed quick task 260608-cx5: gate PDF split-row on content direction — 2 atomic commits on main (TDD RED→GREEN, 57/57 PDF tests pass across 6 suites)
+Last activity: 2026-06-14
 Stopped at: Phase 27 UI-SPEC approved
 Resume file: .planning/phases/27-backup-restore-modal-visual-cohesion-ui-spec-pass/27-UI-SPEC.md
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
