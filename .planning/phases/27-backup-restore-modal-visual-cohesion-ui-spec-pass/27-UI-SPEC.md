@@ -119,7 +119,9 @@ This contract unifies them into **ONE severity scale** mapped to existing tokens
 - The Test-password error band keeps amber but is now formally **the same** `--color-warning-*` band as the Import warning (same padding, radius, border treatment) — one inline-message component, not two ad-hoc ones.
 - The two tinted `--color-surface-alt` card backgrounds (Contents + Test-password) are **removed** — those sections sit on the plain modal surface like every other section.
 
-**No new colours. Dark mode auto-switches** through the existing `[data-theme="dark"]` block (`tokens.css:135-184`); every token referenced has a dark-mode value.
+**No new colours. Dark mode auto-switches** through the existing `[data-theme="dark"]` block (`tokens.css:135-184`).
+
+> **Phase 27 addendum (dark-mode warning tokens — checker Warning 2, user-confirmed 2026-06-14):** The dark block currently overrides only `--color-success-*`; `--color-warning-*` had **no** dark override, so the amber band rendered its light values (`#fff3cd`/`#856404`) on the `#202828` dark surface. Because this phase routes the Import warning onto `--color-warning-*`, Phase 27 **adds the previously-missing dark-mode `--color-warning-bg` + `--color-warning-text` overrides** (low-luminance amber bg + high-luminance amber text, WCAG-AA on `#202828`) to the `[data-theme="dark"]` block — fixing both the recoloured Import band and the pre-existing test-password error band in one place. With this addition, every token referenced by the modal now has a dark-mode value. (`--color-danger-*` stays light-only, by design — it is reserved for the confirm dialog, not a passive band.)
 
 ---
 
@@ -212,8 +214,8 @@ Every row is the live class today → the visual contract after Phase 27. **JS, 
 | `.backup-modal-section-heading` | **1.4rem / 700** | **→ 1.125rem / 700** (single heading size for all sections). |
 | `.backup-modal-section--import .backup-modal-section-heading` | **1.125rem override** | **DELETE this override** — redundant once the base heading is 1.125rem. |
 | `details.backup-reminders-explainer > summary.backup-modal-section-heading` | inherits 1.4rem | inherits the new 1.125rem automatically — summary now matches every other heading. Keep the disclosure caret/affordance. |
-| `.backup-modal-import-warning` | **RED danger band** (`--color-danger-bg/-text`, 4px `--color-danger`) | **→ AMBER caution band**: `--color-warning-bg`, `--color-warning-text`, 4px `--color-warning-text` border-inline-start. Same padding/radius. Keep `role="alert"` and the `⚠` glyph. |
-| `.backup-test-password-result.error` | amber band, 4px `--color-warning-text` | **Unchanged in colour** — now formally the SAME amber component as the import warning. Align padding/radius to match the import band exactly (8px/16px pad, 4px radius) so the two read as one component. |
+| `.backup-modal-import-warning` | **RED danger band** (`--color-danger-bg/-text`, 4px `--color-danger`) | **→ AMBER caution band**: `--color-warning-bg`, `--color-warning-text`, 4px `--color-warning-text` border-inline-start. Same padding/radius. Keep `role="alert"` and the `⚠` glyph. **Dark mode now legible** — Phase 27 adds the dark `--color-warning-*` overrides (see Color addendum). |
+| `.backup-test-password-result.error` | amber band, 4px `--color-warning-text` | **Unchanged in colour** — now formally the SAME amber component as the import warning. Align padding/radius to match the import band exactly (8px/16px pad, 4px radius) so the two read as one component. Also benefits from the new dark `--color-warning-*` overrides. |
 | `.backup-test-password-result.success` | green band | **Unchanged** (success severity). |
 | `.button` (`#backupModalExport`) | filled garden-green pill | **Unchanged** — the single primary. |
 | `.button.ghost` (`#backupModalShare`, Import `<label>`) | transparent + 1px ghost border pill | **Unchanged** — the single secondary language. (Share stays conditionally hidden by JS.) |
@@ -227,6 +229,7 @@ Every row is the live class today → the visual contract after Phase 27. **JS, 
 2. Change `.backup-modal-section-heading` font-size 1.4rem → 1.125rem; delete the Import-only override.
 3. Recolour `.backup-modal-import-warning` from danger tokens → warning tokens; align its box metrics with `.backup-test-password-result`.
 4. (Optional consistency) factor the two inline bands (import warning + tp result) onto a shared `.backup-inline-message` look so they cannot drift again — single source of truth.
+5. **(tokens.css, Phase 27 addendum)** Add the dark-mode `--color-warning-bg` + `--color-warning-text` overrides to the `[data-theme="dark"]` block so the amber inline-message component is legible in dark mode (fixes both the recoloured Import band and the pre-existing test-password error band).
 
 ---
 
@@ -258,7 +261,7 @@ The executor MUST NOT touch any of these — they are the Phase 25 behaviours th
 - All `data-i18n` / `data-i18n-placeholder` attributes and the `app:language` re-render listener.
 - Element IDs (`#backupModal`, `#backupModalExport`, `#backupModalShare`, `#backupModalImportInput`, `#backupTestPasswordFile/Input/Run/Result`, `#backupModalScheduleLink`, etc.) — tests assert on structure (`25-02-modal-structure.test.js`).
 
-**Test-suite contract:** the redesign is CSS + heading-size + colour-token only. It must not change DOM structure, IDs, classes-that-tests-assert-on, or JS. The 58/58 (now 132 test files present) suite and all Phase 25 UAT closures must stay green. If a heading-size or card-removal change requires editing a class name, prefer ADDING a treatment rather than renaming a hooked class.
+**Test-suite contract:** the redesign is CSS + heading-size + colour-token only (plus the two dark-mode `--color-warning-*` overrides in tokens.css). It must not change DOM structure, IDs, classes-that-tests-assert-on, or JS. The 58/58 (now 132 test files present) suite and all Phase 25 UAT closures must stay green. If a heading-size or card-removal change requires editing a class name, prefer ADDING a treatment rather than renaming a hooked class.
 
 ---
 
@@ -266,9 +269,9 @@ The executor MUST NOT touch any of these — they are the Phase 25 behaviours th
 
 - **RTL-safe:** every changed rule uses logical properties only — `border-inline-start` (not `border-left`), `padding-inline`, `margin-inline`, `inset-inline-*`. No physical left/right/`margin-left`. The amber recolour reuses the existing `border-inline-start: 4px` pattern. ✓
 - **i18n:** zero new strings; all existing `data-i18n` keys preserved across en/de/he/cs. No hardcoded English. ✓
-- **Tokens:** only `--color-*` and `--shadow-*` (defined in `tokens.css`) and the `var(--space-*, Npx)` fallback form already used in the file. **No new hex, no new palette/scale.** ✓
-- **Scope:** modal only. Do NOT touch overview/header surfaces, the cloud icon states (`.backup-cloud-btn--*`), the Settings → Backups/Photos tabs, or `.photos-usage-verdict` (that 3-tier blue/amber/green band lives in Settings, NOT the modal). ✓
-- **PWA:** vanilla CSS edit; pre-commit hook auto-bumps `sw.js` CACHE_NAME on asset commit — don't pre-bump. ✓
+- **Tokens:** only `--color-*` and `--shadow-*` (defined in `tokens.css`) and the `var(--space-*, Npx)` fallback form already used in the file. **No new hex outside the existing `var(--token, #fallback)` idiom, no new token NAMES, no new palette/scale.** The Phase 27 dark-mode addition overrides the *values* of the two existing `--color-warning-*` names inside `[data-theme="dark"]` — it adds no new token name. ✓
+- **Scope:** modal CSS + the two dark `--color-warning-*` token overrides only. Do NOT touch overview/header surfaces, the cloud icon states (`.backup-cloud-btn--*`), the Settings → Backups/Photos tabs, or `.photos-usage-verdict` (that 3-tier blue/amber/green band lives in Settings, NOT the modal). ✓
+- **PWA:** vanilla CSS/token edit; pre-commit hook auto-bumps `sw.js` CACHE_NAME on asset commit — don't pre-bump. ✓
 
 ---
 
@@ -294,8 +297,9 @@ The executor MUST NOT touch any of these — they are the Phase 25 behaviours th
 | A5 | Drop zone keeps its **dashed** treatment | ROADMAP item 2 explicitly allows the drop zone as the sole distinct affordance | None — explicit ROADMAP sanction. |
 | A6 | The two inline bands (import warning + tp result) are **unified into one component look** | Prevents future drift; satisfies "one severity palette" | Low. Cosmetic; if the executor prefers two separate rules with identical values, the visual result is the same. |
 | A7 | The `--space-*` ladder is treated as the **4/8/16/24/32 fallback** (tokens not actually defined) | Token reality check (grep-verified) — matches all surrounding code | None — this is the de-facto current behaviour; not changing it. |
+| A8 | Dark `--color-warning-*` values = low-luminance amber bg + high-luminance amber text (e.g. `#3a2f00` / `#ffd966`) | **✅ User-confirmed "Fix it now" 2026-06-14 (checker Warning 2).** Mirrors the existing dark `--color-success-*` low-bg/high-text idiom; AA on `#202828`. | Low. Cosmetic dark-mode contrast; values can be nudged if a visual check finds them off-hue, but must clear WCAG AA. |
 
-None of these contradict any Phase 25 locked decision or any Phase 27 ROADMAP constraint. Each is a single reversible CSS edit.
+None of these contradict any Phase 25 locked decision or any Phase 27 ROADMAP constraint. Each is a single reversible CSS/token edit.
 
 ---
 
@@ -303,7 +307,7 @@ None of these contradict any Phase 25 locked decision or any Phase 27 ROADMAP co
 
 - [ ] Dimension 1 Copywriting: PASS — zero copy change; every CTA/empty/error/destructive string maps to an existing 4-locale i18n key (verified `i18n-en.js:313-415`); primary CTA = "Export backup".
 - [ ] Dimension 2 Visuals: PASS — composition only of existing `app.css` primitives; redesign is removal (tinted cards) + recolour (warning band) + heading-size unification; no new icon library; inline glyph/SVG only; drop zone is the single ROADMAP-sanctioned distinct affordance.
-- [ ] Dimension 3 Color: PASS — 60/30/10 mapped to existing `tokens.css` tokens; ONE severity palette (warning/success + red reserved for confirm); accent reserved-for list explicit (4 items); destructive reserved-for list explicit (1 modal item); zero new colours.
+- [ ] Dimension 3 Color: PASS — 60/30/10 mapped to existing `tokens.css` tokens; ONE severity palette (warning/success + red reserved for confirm); accent reserved-for list explicit (4 items); destructive reserved-for list explicit (1 modal item); zero new colours; the previously-missing dark `--color-warning-*` overrides are added so every referenced token now has a dark-mode value.
 - [ ] Dimension 4 Typography: PASS — 3 type roles, 2 weights (400/700), 16px body @ 1.5, single 18px/700 section heading @ 1.2, 28px display title @ 1.2; four mixed heading treatments collapsed to one.
 - [ ] Dimension 5 Spacing: PASS — all values multiples of 4 from the de-facto 4/8/16/24/32 ladder; one documented exception (36px existing close button, untouched).
 - [ ] Dimension 6 Registry Safety: PASS — N/A (no shadcn, no third-party registries, no new dependencies).
