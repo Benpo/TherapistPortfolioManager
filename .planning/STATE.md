@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
 status: ready_to_plan
-stopped_at: Phase 26 UI-SPEC approved
-last_updated: "2026-05-16T12:47:08.408Z"
-last_activity: "2026-05-16 - Completed quick task 260516-rna: auto-grow long add-session textareas — 2 atomic commits on main (executor API-errored after commits, orchestrator-recovered)"
+stopped_at: Phase 27 UI-SPEC approved
+last_updated: "2026-06-14T21:12:59.015Z"
+last_activity: "2026-06-08 - Completed quick task 260608-cx5: gate PDF split-row on content direction — 2 atomic commits on main (TDD RED→GREEN, 57/57 PDF tests pass across 6 suites)"
 progress:
   total_phases: 6
   completed_phases: 6
@@ -238,8 +238,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last activity: 2026-06-08 - Completed quick task 260608-cx5: gate PDF split-row on content direction — 2 atomic commits on main (TDD RED→GREEN, 57/57 PDF tests pass across 6 suites)
-Stopped at: Phase 26 UI-SPEC approved
-Resume file: .planning/phases/26-in-app-onboarding-overview-help-system/26-UI-SPEC.md
+Stopped at: Phase 27 UI-SPEC approved
+Resume file: .planning/phases/27-backup-restore-modal-visual-cohesion-ui-spec-pass/27-UI-SPEC.md
 Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
 
 **Planned Phase:** 22 (session-workflow-loop-pre-session-context-card-editable-sess) — 9 plans — 2026-05-06T18:41:19.496Z
