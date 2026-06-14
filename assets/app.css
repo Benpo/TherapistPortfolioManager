@@ -5,6 +5,7 @@
   --z-modal: 300;
   --z-modal-top: 350; /* Phase 24 Plan 07 — stacked modal layer for crop popup that opens from inside another modal (edit-client → photo crop). */
   --z-popover: 360; /* Snippet autocomplete + tag suggestions — must sit ABOVE modals so the popover is usable when its textarea lives inside a modal (e.g. the export editor, --z-modal 300). Below --z-toast so notifications still surface. */
+  --z-modal-confirm: 370; /* Discard/confirm dialog — a blocking interrupt that can be summoned from inside any other modal (e.g. the export modal's "your changes won't be saved" prompt). Must sit ABOVE every other modal layer so it never renders behind the modal that triggered it. */
   --z-toast: 400;
   --z-banner: 500;
 }
@@ -1489,6 +1490,17 @@ html[dir="rtl"] .session-header{
    the user never needs to close edit-client to interact with crop. */
 #cropModal.modal{
   z-index: var(--z-modal-top);
+}
+
+/* The discard/confirm dialog can be opened from inside another modal — e.g.
+   editing text in the export modal's Step 2 then pressing X fires the "your
+   changes won't be saved" prompt. #confirmModal and #exportModal are both
+   plain .modal (--z-modal 300); equal z-index means the later-in-DOM
+   #exportModal painted ON TOP, hiding the confirm dialog behind it (the user
+   only saw the overlay dim). Pin confirm to the top modal layer so it always
+   renders above whatever modal summoned it. */
+#confirmModal.modal{
+  z-index: var(--z-modal-confirm);
 }
 
 .modal-overlay{
