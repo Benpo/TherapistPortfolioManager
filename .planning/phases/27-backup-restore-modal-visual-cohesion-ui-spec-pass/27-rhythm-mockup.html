@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Phase 27 — Backup &amp; Restore modal · section-rhythm mockup</title>
+<!--
+  THROWAWAY DECISION AID — not production code.
+  Renders the real Backup & Restore modal content in three section-rhythm
+  variants so Ben can eyeball them and pick one (UI-SPEC Phase 27, fork A1).
+  All tokens copied verbatim from assets/tokens.css. Only --color-* tokens used.
+  Locked decisions already applied:
+    - Typography: one 28px title + 18px section headings, weights 400/700.
+    - Severity (A2): amber inline caution on Import; NO always-on red band.
+  Toggle light/dark + LTR/RTL with the controls at the top.
+-->
+<style>
+/* ============================================================
+   PRIMITIVE TOKENS — copied verbatim from assets/tokens.css
+   ============================================================ */
+:root {
+  --color-green-700: #1e5c3a;
+  --color-green-600: #2d6a4f;
+  --color-green-500: #3a7d5f;
+  --color-green-400: #74b89a;
+  --color-green-200: #c8e6d4;
+  --color-green-100: #e8f5ee;
+  --color-green-50: #f2faf5;
+  --color-green-25: #f7fcf9;
+  --color-green-dark: #174a30;
+  --color-green-deeper: #0f3520;
+  --color-green-border: rgba(45, 106, 79, 0.2);
+  --color-green-border-soft: rgba(45, 106, 79, 0.1);
+  --color-green-border-faint: rgba(45, 106, 79, 0.08);
+  --color-green-border-subtle: rgba(45, 106, 79, 0.12);
+  --color-green-border-ghost: rgba(45, 106, 79, 0.25);
+  --color-cream-warm-50: #fdf8f0;
+  --color-cream-warm-100: #fefcf7;
+  --color-cream-warm-200: #fdf5e8;
+  --color-cream-warm-300: #fef8f0;
+  --color-cream-warm-400: #fefaf3;
+  --color-cream-warm-500: #fdf7ed;
+  --color-cream-warm-600: #fbf3e4;
+  --color-cream-warm-700: #f8eed9;
+  --color-cream-warm-800: #fefcf8;
+  --color-cream-warm-900: #f5e8c8;
+  --color-orange-500: #f97316;
+  --color-orange-400: #fb923c;
+  --color-orange-200: #fed7aa;
+  --color-orange-100: #ffedd5;
+  --color-white: #ffffff;
+  --color-dark-900: #2f2d38;
+  --color-dark-800: #2e2a38;
+  --color-dark-700: #1a1825;
+  --color-dark-600: #5f5c72;
+  --color-success-green: #2fb37d;
+  --color-red-500: #ea4b4b;
+  --color-heartwall: #e83d6d;
+  --color-primary-shadow: rgba(45, 106, 79, 0.35);
+  --color-primary-shadow-soft: rgba(45, 106, 79, 0.28);
+  --color-danger-shadow: rgba(234, 75, 75, 0.28);
+  --color-modal-overlay: rgba(26, 24, 35, 0.4);
+  --color-modal-shadow: rgba(36, 24, 72, 0.2);
+}
+
+/* ============================================================
+   SEMANTIC TOKENS (light) — copied verbatim from assets/tokens.css
+   ============================================================ */
+:root {
+  --color-primary: var(--color-green-600);
+  --color-primary-soft: var(--color-green-200);
+  --color-primary-dark: var(--color-green-dark);
+  --color-primary-deeper: var(--color-green-deeper);
+  --color-background: var(--color-cream-warm-50);
+  --color-surface: var(--color-white);
+  --color-surface-alt: var(--color-cream-warm-500);
+  --color-surface-hover: var(--color-cream-warm-400);
+  --color-surface-subtle: var(--color-cream-warm-300);
+  --color-text: var(--color-dark-900);
+  --color-text-muted: var(--color-dark-600);
+  --color-text-meta: var(--color-green-deeper);
+  --color-success: var(--color-success-green);
+  --color-danger: var(--color-red-500);
+  --color-danger-bg: #f8d7da;
+  --color-danger-text: #721c24;
+  --color-warning-bg: #fff3cd;
+  --color-warning-text: #856404;
+  --color-info-bg: #cce5ff;
+  --color-info-text: #004085;
+  --color-success-bg: #e6f4ea;
+  --color-success-text: #1e6b3a;
+  --color-success-border: #4caf50;
+  --color-text-inverse: #ffffff;
+  --color-border: var(--color-green-border);
+  --color-border-soft: var(--color-green-border-soft);
+  --color-border-ghost: var(--color-green-border-ghost);
+  --shadow-card: 0 12px 26px rgba(36, 24, 72, 0.1);
+  --shadow-button: 0 4px 12px var(--color-primary-shadow-soft);
+  --shadow-modal: 0 20px 40px var(--color-modal-shadow);
+}
+
+/* DARK MODE — copied verbatim from assets/tokens.css */
+[data-theme="dark"] {
+  --color-background: #1a2020;
+  --color-surface: #202828;
+  --color-surface-alt: #253030;
+  --color-surface-hover: #2a3535;
+  --color-surface-subtle: #253030;
+  --color-text: #e8eeed;
+  --color-text-muted: #7aa8a8;
+  --color-text-meta: #7aa8a8;
+  --color-text-inverse: #fff;
+  --color-primary: #5aacac;
+  --color-primary-soft: #253030;
+  --color-primary-dark: #9ec8c8;
+  --color-primary-deeper: #7aa8a8;
+  --color-border: rgba(90, 172, 172, 0.22);
+  --color-border-soft: rgba(90, 172, 172, 0.11);
+  --color-border-ghost: rgba(90, 172, 172, 0.28);
+  --shadow-card: 0 12px 26px rgba(0, 0, 0, 0.42);
+  --shadow-button: 0 4px 12px rgba(90, 172, 172, 0.25);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.55);
+  --color-success-bg: #1f3a2a;
+  --color-success-text: #b6e5c4;
+  --color-success-border: #4caf50;
+}
+
+/* ============================================================
+   PAGE CHROME (mockup-only — not part of the contract)
+   ============================================================ */
+* { box-sizing: border-box; }
+body {
+  font-family: 'Rubik', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+  padding: 32px 24px 80px;
+}
+.page-head {
+  max-width: 1180px;
+  margin: 0 auto 28px;
+}
+.page-head h1 { font-size: 1.4rem; font-weight: 700; margin: 0 0 6px; }
+.page-head p  { font-size: 0.95rem; color: var(--color-text-muted); margin: 0 0 16px; max-width: 760px; line-height: 1.5; }
+.controls { display: flex; gap: 12px; flex-wrap: wrap; }
+.controls button {
+  font: inherit; font-weight: 700; cursor: pointer;
+  border: 1px solid var(--color-border-ghost);
+  background: var(--color-surface); color: var(--color-text);
+  border-radius: 999px; padding: 8px 18px;
+}
+.controls button:hover { background: var(--color-surface-hover); }
+
+.variant-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  max-width: 1180px;
+  margin: 0 auto;
+  align-items: start;
+}
+@media (max-width: 1180px) { .variant-grid { grid-template-columns: 1fr; justify-items: center; } }
+
+.variant { width: 100%; max-width: 372px; }
+@media (max-width: 1180px) { .variant { max-width: 560px; } }
+.variant-label { font-size: 1.05rem; font-weight: 700; margin: 0 0 4px; }
+.variant-caption { font-size: 0.85rem; color: var(--color-text-muted); margin: 0 0 14px; line-height: 1.45; min-height: 2.6em; }
+
+/* When the screen is wide enough to show all three, render each modal card
+   at the HONEST 560px width inside a scaled wrapper so proportions are true
+   but they still fit 3-up. On narrow screens, show full 560px stacked. */
+.card-frame {
+  width: 560px;
+  transform-origin: top left;
+}
+@media (min-width: 1181px) {
+  .variant { overflow: hidden; }
+  .card-frame { transform: scale(0.664); height: 0; } /* 372/560 ≈ 0.664; height fixed by JS */
+}
+
+/* ============================================================
+   MODAL CARD — mirrors .backup-modal-card from assets/app.css
+   ============================================================ */
+.backup-modal-card {
+  position: relative;
+  background: var(--color-surface);
+  border-radius: 24px;
+  padding: 32px;                 /* --space-xl */
+  width: 560px;
+  box-shadow: var(--shadow-modal);
+  text-align: start;
+  color: var(--color-text);
+}
+.modal-close {
+  position: absolute; top: 16px; inset-inline-end: 16px;
+  width: 36px; height: 36px; border: 0; border-radius: 12px;
+  background: var(--color-surface-alt); cursor: pointer;
+}
+.modal-close::before, .modal-close::after {
+  content: ""; position: absolute; top: 50%; inset-inline-start: 50%;
+  width: 16px; height: 2px; background: var(--color-text);
+}
+.modal-close::before { transform: translate(-50%,-50%) rotate(45deg); }
+.modal-close::after  { transform: translate(-50%,-50%) rotate(-45deg); }
+
+/* Header */
+.backup-modal-header { margin-bottom: 24px; }       /* --space-lg */
+.backup-modal-title {
+  font-size: 1.75rem; font-weight: 700; line-height: 1.2; margin: 0 0 4px;
+}
+.backup-modal-subtitle {
+  font-size: 0.875rem; font-weight: 700; color: var(--color-text-muted); margin: 0;
+}
+
+/* Section — LOCKED typography: one 18px/700 heading for ALL sections */
+.bm-section { padding: 16px 0; }                     /* --space-md */
+.bm-heading {
+  font-size: 1.125rem; font-weight: 700; line-height: 1.2; margin: 0 0 8px;
+}
+.bm-helper {
+  font-size: 0.9rem; font-weight: 400; line-height: 1.5;
+  color: var(--color-text-muted); margin: 0 0 16px;
+}
+.bm-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* Contents checklist */
+.bm-contents-list { list-style: none; padding: 0; margin: 0; }
+.bm-contents-item {
+  display: flex; align-items: center; gap: 4px; padding: 4px 0; font-weight: 700; font-size: 0.9rem;
+}
+.bm-check { color: var(--color-success-text); font-weight: 700; }
+
+/* Buttons — mirror .button / .button.ghost */
+.btn {
+  border: 0; border-radius: 999px; padding: 0.6rem 1.3rem;
+  font: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+  background: var(--color-primary); color: var(--color-surface);
+  box-shadow: var(--shadow-button);
+}
+.btn.ghost {
+  background: transparent; border: 1px solid var(--color-border-ghost);
+  color: var(--color-text); box-shadow: none;
+}
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+/* UNIFIED severity palette — amber caution (locked A2) */
+.bm-inline-msg {
+  font-size: 0.9rem; font-weight: 700; line-height: 1.5;
+  padding: 8px 16px; border-radius: 4px;
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border-inline-start: 4px solid var(--color-warning-text);
+  margin: 0 0 16px;
+}
+.bm-success-msg {
+  font-size: 0.9rem; font-weight: 400; line-height: 1.5;
+  padding: 8px 16px; border-radius: 4px;
+  background: var(--color-success-bg); color: var(--color-success-text);
+  border-inline-start: 4px solid var(--color-success-border);
+}
+
+/* Drop zone — the single sanctioned distinct affordance (dashed) */
+.bm-dropzone {
+  display: flex; width: 100%; justify-content: center; text-align: center;
+  border: 2px dashed var(--color-border); border-radius: 8px;
+  background: var(--color-surface); padding: 16px;
+  color: var(--color-text-muted); font-size: 0.9rem; cursor: pointer;
+}
+.bm-input {
+  width: 100%; padding: 0.55rem 0.9rem; border-radius: 12px;
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  color: var(--color-text); font: inherit; font-size: 0.9rem;
+}
+.bm-test-stack { display: flex; flex-direction: column; gap: 16px; }
+
+/* Reminders details */
+.bm-details summary {
+  font-size: 1.125rem; font-weight: 700; line-height: 1.2; cursor: pointer; list-style: revert;
+}
+.bm-details .bm-helper { margin-top: 8px; margin-bottom: 0; }
+
+/* Footer link */
+.bm-footer { margin-top: 24px; padding-top: 16px; border-block-start: 1px solid var(--color-border-soft); }
+.bm-footer a {
+  color: var(--color-primary); text-decoration: underline; text-underline-offset: 2px;
+  font-size: 0.9rem; font-weight: 700;
+}
+
+/* ---- VARIANT-SPECIFIC RHYTHM ---- */
+
+/* Variant A — plain + dividers (the app's existing cadence) */
+.va .bm-section + .bm-section { border-block-start: 1px solid var(--color-border-soft); }
+
+/* Variant B — cards everywhere (uniform subtle tinted card per section) */
+.vb .bm-section {
+  background: var(--color-surface-alt);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.vb .bm-dropzone { background: var(--color-surface); } /* keep dropzone readable on tint */
+.vb .bm-input { background: var(--color-surface); }
+
+/* Variant C — hybrid: plain body + dividers, ONE card on the Import zone */
+.vc .bm-section + .bm-section { border-block-start: 1px solid var(--color-border-soft); }
+.vc .bm-section--import {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px;
+  border-block-start: 0;            /* the card replaces the divider for this one */
+}
+.vc .bm-section--import + .bm-section { border-block-start: 0; }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="page-head">
+  <h1>Phase 27 — Backup &amp; Restore modal · section-rhythm mockup</h1>
+  <p>
+    The real modal content (header line, "What's included" checklist, Export/Share, Import drop-zone,
+    Test-password, reminders explainer, footer link) rendered in three section-rhythm variants.
+    Typography and the amber-caution severity tone are already locked — only the <strong>rhythm</strong>
+    differs between columns. Each modal card is the honest 560px width. Pick the column that reads as
+    "one coherent thing," not "a stack of treatments."
+  </p>
+  <div class="controls">
+    <button id="themeToggle" type="button">Toggle dark mode</button>
+    <button id="dirToggle" type="button">Toggle Hebrew / RTL</button>
+  </div>
+</div>
+
+<div class="variant-grid" id="grid"></div>
+
+<script>
+/* The real modal content, authored once, stamped into each variant.
+   Strings mirror assets/backup-modal.js / i18n-en.js verbatim. */
+function modalHTML(variantClass, sectionImportClass) {
+  return `
+  <div class="backup-modal-card ${variantClass}">
+    <button class="modal-close" type="button" aria-label="Close"></button>
+    <div class="backup-modal-header">
+      <h2 class="backup-modal-title">Backup &amp; Restore</h2>
+      <p class="backup-modal-subtitle">Last backup: 3 days ago</p>
+    </div>
+
+    <section class="bm-section">
+      <h3 class="bm-heading">What's in your backup</h3>
+      <p class="bm-helper">Every export includes everything below. Restoring replaces all current data with this list.</p>
+      <ul class="bm-contents-list">
+        <li class="bm-contents-item"><span class="bm-check" aria-hidden="true">&#10003;</span> <span>Clients</span></li>
+        <li class="bm-contents-item"><span class="bm-check" aria-hidden="true">&#10003;</span> <span>Sessions</span></li>
+        <li class="bm-contents-item"><span class="bm-check" aria-hidden="true">&#10003;</span> <span>Snippets</span></li>
+        <li class="bm-contents-item"><span class="bm-check" aria-hidden="true">&#10003;</span> <span>Settings</span></li>
+        <li class="bm-contents-item"><span class="bm-check" aria-hidden="true">&#10003;</span> <span>Photos (cropped, optimized)</span></li>
+      </ul>
+    </section>
+
+    <section class="bm-section">
+      <h3 class="bm-heading">Export backup</h3>
+      <p class="bm-helper">Save a copy of all your data. Encrypt it with a password (recommended), or save it unprotected.</p>
+      <div class="bm-row">
+        <button type="button" class="btn">Export backup</button>
+        <button type="button" class="btn ghost">Share backup</button>
+      </div>
+    </section>
+
+    <section class="bm-section ${sectionImportClass}">
+      <h3 class="bm-heading">Import backup</h3>
+      <p class="bm-helper">Restoring replaces all current data with the contents of the backup file. This cannot be undone.</p>
+      <div class="bm-inline-msg" role="note">&#9888; Replaces all current data</div>
+      <div class="bm-row">
+        <label class="btn ghost">Choose backup file</label>
+      </div>
+    </section>
+
+    <section class="bm-section">
+      <h3 class="bm-heading">Test backup password</h3>
+      <p class="bm-helper">Check that you can decrypt a backup file with your password. Your current data is not touched.</p>
+      <div class="bm-test-stack">
+        <label class="bm-dropzone">Drop a backup file here, or click to choose one.</label>
+        <input class="bm-input" type="password" placeholder="Backup password" />
+        <div class="bm-row"><button type="button" class="btn" disabled>Test password</button></div>
+      </div>
+    </section>
+
+    <section class="bm-section">
+      <details class="bm-details">
+        <summary class="bm-heading">How reminders work</summary>
+        <div class="bm-helper">A gentle 7-day reminder banner appears on the overview if you haven't exported a backup in the last week. When you set up a schedule, Sessions Garden prompts you in-app at your chosen interval and the 7-day banner stays quiet so you only get one channel.</div>
+      </details>
+    </section>
+
+    <footer class="bm-footer">
+      <a href="#">Set up a schedule in Settings &rarr; Backups so you don't have to remember.</a>
+    </footer>
+  </div>`;
+}
+
+var variants = [
+  {
+    label: 'Variant A — Plain + dividers',
+    caption: 'No tinted cards. Sections separated by hairline dividers — the app’s existing cadence. Quietest; most consistent with the rest of Sessions Garden.',
+    cls: 'va', importCls: ''
+  },
+  {
+    label: 'Variant B — Cards everywhere',
+    caption: 'Every section in the same subtle tinted card, uniform. More contained / panel-y, but adds visual weight to an already tall modal.',
+    cls: 'vb', importCls: ''
+  },
+  {
+    label: 'Variant C — Hybrid',
+    caption: 'Plain body + dividers, with ONE subtle card reserved for the destructive Import/restore zone so it reads "handle with care" without the whole modal being cards.',
+    cls: 'vc', importCls: 'bm-section--import'
+  }
+];
+
+var grid = document.getElementById('grid');
+variants.forEach(function (v) {
+  var col = document.createElement('div');
+  col.className = 'variant';
+  col.innerHTML =
+    '<p class="variant-label">' + v.label + '</p>' +
+    '<p class="variant-caption">' + v.caption + '</p>' +
+    '<div class="card-frame">' + modalHTML(v.cls, v.importCls) + '</div>';
+  grid.appendChild(col);
+});
+
+/* On wide screens the card is scaled to 0.664 (372/560) so a true-proportion
+   560px card fits the 3-up column. transform doesn't reserve layout height,
+   so set each frame's height to scaled card height to avoid overlap. */
+function fixScaledHeights() {
+  var wide = window.matchMedia('(min-width: 1181px)').matches;
+  document.querySelectorAll('.card-frame').forEach(function (frame) {
+    var card = frame.querySelector('.backup-modal-card');
+    if (!card) return;
+    if (wide) { frame.style.height = (card.offsetHeight * 0.664) + 'px'; }
+    else { frame.style.height = ''; frame.style.transform = ''; }
+  });
+}
+window.addEventListener('load', fixScaledHeights);
+window.addEventListener('resize', fixScaledHeights);
+
+/* Controls */
+document.getElementById('themeToggle').addEventListener('click', function () {
+  var b = document.body;
+  b.setAttribute('data-theme', b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  fixScaledHeights();
+});
+document.getElementById('dirToggle').addEventListener('click', function () {
+  var html = document.documentElement;
+  var rtl = html.getAttribute('dir') === 'rtl';
+  html.setAttribute('dir', rtl ? 'ltr' : 'rtl');
+  html.setAttribute('lang', rtl ? 'en' : 'he');
+  fixScaledHeights();
+});
+</script>
+</body>
+</html>

@@ -123,11 +123,11 @@ This contract unifies them into **ONE severity scale** mapped to existing tokens
 
 ---
 
-## Decided Forks (load-bearing — autonomous decision, planner-overridable)
+## Decided Forks (load-bearing — ✅ USER-CONFIRMED 2026-06-14)
 
-> ROADMAP told me to ask the user only for truly load-bearing forks. AskUserQuestion is unavailable inside subagents, so both forks are decided here with rationale. Each is a reversible CSS-only choice; the planner may override either in a single plan task without re-running discuss-phase.
+> Both forks were proposed autonomously by the researcher (AskUserQuestion is unavailable inside subagents) and then **confirmed by Ben on 2026-06-14**: Fork 2 (danger tone) approved directly; Fork 1 (section rhythm) confirmed after reviewing a 3-variant clickable mockup (`27-rhythm-mockup.html` — Plain+dividers vs Cards-everywhere vs Hybrid). Ben chose **Variant A — Plain + dividers**. These are now locked decisions, not assumptions.
 
-### Fork 1 — Section rhythm → **PLAIN sections + dividers** (drop the tinted cards)
+### Fork 1 — Section rhythm → **PLAIN sections + dividers** (drop the tinted cards) ✅ CONFIRMED (Ben picked Variant A from the mockup, 2026-06-14)
 
 **Decision:** Remove both tinted `--color-surface-alt` cards (`.backup-modal-section--contents` and `.backup-test-password-card`). Every section becomes a plain block on the modal surface, separated by the existing thin `--color-border-soft` divider (`.backup-modal-section + .backup-modal-section`, app.css:3719) that ALREADY runs between sections.
 
@@ -140,7 +140,7 @@ This contract unifies them into **ONE severity scale** mapped to existing tokens
 **Why not "cards everywhere":** wrapping all 5 sections in tinted cards adds visual weight to a modal that is already tall (560px wide, scrolls on overflow) and doubles down on the device Ben flagged as noisy.
 **Why not "cards for read-only only":** it keeps two surface colours alive and still requires the reader to learn a card-means-X convention — more rules, not fewer.
 
-### Fork 2 — Danger tone → **AMBER inline** (demote the red Import band)
+### Fork 2 — Danger tone → **AMBER inline** (demote the red Import band) ✅ CONFIRMED (Ben, 2026-06-14)
 
 **Decision:** The Import "Replaces all current data" warning moves from the RED danger band to the shared AMBER caution band (`--color-warning-bg` / `--color-warning-text` / 4px `--color-warning-text` border-inline-start). Red is reserved exclusively for the destructive confirm dialog at the moment the user clicks Import.
 
@@ -287,8 +287,8 @@ The executor MUST NOT touch any of these — they are the Phase 25 behaviours th
 
 | # | Decision | Source / rationale | Risk if wrong |
 |---|----------|--------------------|----------------|
-| A1 | Section rhythm = **plain + dividers** (drop tinted cards) | Fork 1 above — matches the modal's own divider cadence + rest-of-app convention; quietest fix | Low. Reversible CSS. If Ben prefers contained panels, planner flips to "cards everywhere" by restoring the card rules on every section uniformly. |
-| A2 | Import warning tone = **amber** (demote from red) | Fork 2 above — ROADMAP item 4 verbatim + matches the existing amber test-password error | Low. Reversible token swap. Red still appears at the confirm dialog. |
+| A1 | Section rhythm = **plain + dividers** (drop tinted cards) | **✅ LOCKED — Ben picked Variant A in `27-rhythm-mockup.html`, 2026-06-14.** No longer an assumption. | n/a — confirmed. |
+| A2 | Import warning tone = **amber** (demote from red) | **✅ LOCKED — Ben confirmed 2026-06-14.** ROADMAP item 4 verbatim + matches the existing amber test-password error. | n/a — confirmed. Red still appears at the confirm dialog. |
 | A3 | Test-password **run** button stays `.button` (filled) but disabled-at-rest | It is gated until file+password present, so it isn't a competing primary at rest | Low. If a visual checkpoint flags "two primaries," demote it to `.button.ghost` in one line. |
 | A4 | Section headings unify at **1.125rem/700** | Typography cohesion — single heading size; 28→18→16 ladder reads as hierarchy without shouting | Low. Can nudge to 1.2rem if the checkpoint finds 18px too quiet against the 28px title. |
 | A5 | Drop zone keeps its **dashed** treatment | ROADMAP item 2 explicitly allows the drop zone as the sole distinct affordance | None — explicit ROADMAP sanction. |
