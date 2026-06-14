@@ -1,10 +1,11 @@
 ---
 phase: 27
 slug: backup-restore-modal-visual-cohesion-ui-spec-pass
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-14
+reviewed_at: 2026-06-14
 ---
 
 # Phase 27 — UI Design Contract

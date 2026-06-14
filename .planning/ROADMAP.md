@@ -7,7 +7,7 @@ Transform the existing functional vanilla JS prototype into a sellable product f
 ## Milestones
 
 - ✅ **v1.0 MVP** - Phases 1-7 (shipped 2026-03-18)
-- 🚧 **v1.1 Final Polish & Launch** - Phases 8-20 (in progress)
+- 🚧 **v1.1 Final Polish & Launch** - Phases 8-27 (in progress)
 
 ## Phases
 
@@ -390,7 +390,7 @@ Plans:
 - [x] 22-13-PLAN.md — Settings success-pill regression + revert-button affordance (UAT round-3 gaps N4, N5)
 - [x] 22-14-PLAN.md — Quick text & visual fixes batch (UAT round-3 gaps N1, N2, N3, N6, N9)
 - [x] 22-15-PLAN.md — Backup encryption UX pair (UAT round-3 gaps N11, N12)
-- [ ] 22-16-PLAN.md — Backup "send to myself" email + 3-buttons architecture (UAT round-3 gap N7) [deferred — after Phase 23]
+> ℹ️ **22-16 relocated to Phase 25** — never authored as a 22-16 plan. The "send to myself" + 3-button consolidation (UAT round-3 gap N7) was delivered in Phase 25: 25-01 (send-to-myself removal + Web Share API) and 25-02 (Backup & Restore modal consolidation), decisions D-01..D-08. **Phase 22 is complete at 15/15.**
 
 ---
 
@@ -410,7 +410,21 @@ Plans:
 **Constraints:** No new heavyweight dependencies; if a bidi library is needed, prefer something <20KB minified (e.g., `bidi-js`, `unicode-bidirectional`). Vendored locally per the same lazy-load pattern as 22-01.
 
 **Depends on:** Phase 22 (PDF module + vendored jsPDF + Hebrew font already in place via 22-01 + 22-05).
-**Plans:** TBD after research.
+**Plans:** ✅ Complete — research done 2026-05-11, `bidi-js` vendored, all work landed by 2026-05-12. Test suite 33/33 green (pdf-bidi 12, pdf-bold-rendering 9, pdf-latin-regression 5, pdf-glyph-coverage 3, pdf-digit-order 4).
+
+Plans:
+- [x] 23-01-PLAN.md — Vendor `bidi-js` (UAX #9) locally + lazy-load pattern
+- [x] 23-02-PLAN.md — Bidi pre-shape pipeline + `setR2L` removal
+- [x] 23-03-PLAN.md — Standard A4 margins (~25mm) + title-block centering
+- [x] 23-04-PLAN.md — Bidi test vectors + Latin-regression suite
+- [x] 23-05-PLAN.md — Footer-centering refactor
+- [x] 23-06 — RTL anchor fix (trickle, summary-only)
+- [x] 23-07 — Unified font (trickle, summary-only)
+- [x] 23-08 — `isInputVisual` + strip asterisks (trickle, summary-only)
+- [x] 23-09 — i18n bold headings (trickle, summary-only)
+- [x] 23-10 — uiLang anchor + sections (trickle, summary-only)
+- [x] 23-11 — Bracket-mirroring drop (inline, no artifact) — later superseded by 23-12
+- [x] 23-12-PLAN.md — Final polish: inline `**bold**` rendering, In-person i18n alignment, UAX-BD16 bracket-mirroring restore (+ latent G16 bug fix), mixed-HE fixture (SUMMARY backfilled 2026-06-14 from git)
 
 ---
 
@@ -464,14 +478,14 @@ Plans:
 - [x] 24-06-PLAN.md — Item 6 pre-session context card: extend populateSpotlight with Session-info subsection (last date + total count + customerSummary quote) (D-26..D-32)
 
 **Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 24-04-PLAN.md — Item 3a snippet engine: IDB v5 + 60-seed pack + caret-mirror autocomplete + 7 textareas wired + backup compat + sw.js precache (D-08..D-21, D-33..D-35, REQ-1, REQ-3, REQ-4, REQ-7, REQ-9)
+- [x] 24-04-PLAN.md — Item 3a snippet engine: IDB v5 + 60-seed pack + caret-mirror autocomplete + 7 textareas wired + backup compat + sw.js precache (D-08..D-21, D-33..D-35, REQ-1, REQ-3, REQ-4, REQ-7, REQ-9)
 
 **Wave 5** *(blocked on Wave 4 completion)*
-- [ ] 24-05-PLAN.md — Item 3b snippet Settings UI: prefix input + list/search/tag-filter + modal editor (single-lang default + Edit translations) + import/export with collision modal + reset-to-default (D-12, D-14..D-18, D-22, REQ-2, REQ-5, REQ-6, REQ-8)
+- [x] 24-05-PLAN.md — Item 3b snippet Settings UI: prefix input + list/search/tag-filter + modal editor (single-lang default + Edit translations) + import/export with collision modal + reset-to-default (D-12, D-14..D-18, D-22, REQ-2, REQ-5, REQ-6, REQ-8)
 
 **Wave 6** *(added 2026-05-14 from Plan 06 UAT — independent of Wave 4/5, can run in parallel with 04 if appetite)*
-- [ ] 24-07-PLAN.md — Modal stacking fix: Edit Client modal photo-crop popup renders behind the Edit Client modal when triggered from add-session.html; once Edit Client is closed to reveal the crop popup, confirming crop fails silently because the Edit Client save context is gone. Critical pre-launch — silent photo update loss. Requirements captured at `.planning/todos/pending/2026-05-14_critical-pre-launch-bugs.md`.
-- [ ] 24-08-PLAN.md — Nav-guard parity: add-session.html new-session flow has no unsaved-changes warning on back-to-home button + logo click — the same `App.installNavGuard` / `window.PortfolioFormDirty` guard that already protects edit-existing sessions must extend to new-session entries. Critical pre-launch — silent session-note loss. Requirements at the same todo file.
+- [x] 24-07-PLAN.md — Modal stacking fix: Edit Client modal photo-crop popup renders behind the Edit Client modal when triggered from add-session.html; once Edit Client is closed to reveal the crop popup, confirming crop fails silently because the Edit Client save context is gone. Critical pre-launch — silent photo update loss. Requirements captured at `.planning/todos/pending/2026-05-14_critical-pre-launch-bugs.md`.
+- [x] 24-08-PLAN.md — Nav-guard parity: add-session.html new-session flow has no unsaved-changes warning on back-to-home button + logo click — the same `App.installNavGuard` / `window.PortfolioFormDirty` guard that already protects edit-existing sessions must extend to new-session entries. Critical pre-launch — silent session-note loss. Requirements at the same todo file.
 
 **Recommended workflow:**
 1. `/gsd-spec-phase 24` — scope item 4 (emotions quick-paste) only. Lock WHAT: which fields, which UI pattern, snippet source, management surface.
@@ -579,7 +593,8 @@ Plans:
 - Must not regress current overview screen UX (Phase 25 is consolidating it).
 
 **Depends on:** Phase 25 (overview screen is being restructured there — onboarding design needs to know the final overview shape).
-**Plans:** TBD after `/gsd-discuss-phase 26`.
+**Status (2026-06-14): ⏸ PARKED — design contract done; everything else folded into the future build phase.** Discuss-phase ✓ · UI-phase ✓ (`26-UI-SPEC.md` approved, gsd-ui-checker 6/6 PASS) · Research ✓ · 4 exploratory sketches in `.planning/sketches/001–004`. **Deliberately not finishing the rest here:** the EN content outline (a D-08 deliverable, not yet authored) and sketch-winner selection move into the future implementation phase, because Ben has UI changes planned (incl. Phase 27) that would force a rework of the help/tour overlay if built against today's chrome. No production code per D-08.
+**Plans:** none authored. Implementation = a future phase, sequenced after Phase 27 (possibly post-v1.1).
 
 **Origin:** Bundled with Phase 25 backup rework in user request 2026-05-15; split into its own phase because tutorial/onboarding is a different domain (marketing-driven UX research) from backup architecture (bug fix + UI consolidation).
 
@@ -620,7 +635,7 @@ Each is individually defensible; together they have no shared rhythm.
 **Milestone Goal:** Polish the app for free trial users, fix UX pain points, update visual identity, and complete all launch prerequisites so the product can be sold.
 
 - [x] **Phase 8: Terminology and Quick UX Fixes** - Update מפגש/לקוח terminology across all 4 languages; replace text action buttons with icon buttons (completed 2026-03-19)
-- [ ] **Phase 9: Heart Shield Redesign** - Session-level Heart Shield toggle with removal tracking, client table indicators, and session type filter
+- [x] **Phase 9: Heart Shield Redesign** - Session-level Heart Shield toggle with removal tracking, client table indicators, and session type filter (completed; 2/2 plans)
 - [x] **Phase 10: UX Power Features** - Photo crop/reposition after upload; edit client directly from add-session screen (completed 2026-03-19)
 - [x] **Phase 11: Visual Identity Update** - Garden decorations in app UI; updated logo; final app icon (completed 2026-03-19)
 - [x] **Phase 12: Launch Prerequisites** - Real Impressum and Datenschutzerklarung; Lemon Squeezy product setup; DE/CS translation verification; cross-browser and mobile QA (completed 2026-03-19)
@@ -749,7 +764,7 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 6. Quality and Developer Experience | v1.0 | 2/2 | Complete | - |
 | 7. ZIP Backup Strategy | v1.0 | 2/2 | Complete | 2026-03-18 |
 | 8. Terminology and Quick UX Fixes | 2/2 | Complete   | 2026-03-19 | - |
-| 9. Heart Shield Redesign | 1/2 | In Progress|  | - |
+| 9. Heart Shield Redesign | 2/2 | Complete | - | - |
 | 10. UX Power Features | 2/2 | Complete    | 2026-03-19 | - |
 | 11. Visual Identity Update | 2/2 | Complete    | 2026-03-19 | - |
 | 12. Launch Prerequisites | 4/4 | Complete   | 2026-03-19 | - |
@@ -761,3 +776,10 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 18. Technical Debt | 0/3 | 3/3 | Complete    | 2026-03-24 |
 | 19. Go-Live Preparation | 8/8 | Complete | 2026-03-24 | - |
 | 20. Pre-Launch UI Polish | 0/3 | 3/3 | Complete    | 2026-03-25 |
+| 21. Mobile Responsiveness | v1.1 | 2/3 | In Progress (parked — iOS testing) | - |
+| 22. Session Workflow Loop | v1.1 | 15/15 | Complete | - |
+| 23. PDF Hebrew RTL Rewrite | v1.1 | 11/11 | Complete | 2026-05-12 |
+| 24. Pre-Launch Final Cleanup | v1.1 | 8/8 | Complete | 2026-05-14 |
+| 25. Backup Architectural Rework | v1.1 | 13/13 | Complete | 2026-05-16 |
+| 26. In-App Onboarding / Help | v1.1 | Design contract approved | In Progress (design) | - |
+| 27. Backup Modal Visual Cohesion | v1.1 | Not started | Pending | - |
