@@ -3719,16 +3719,18 @@ html[dir="rtl"] .export-format-help[open] summary::before {
 .backup-modal-section + .backup-modal-section {
   border-block-start: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
 }
-.backup-modal-section--contents {
-  background: var(--color-surface-alt, #fdf7ed);
-  border-radius: 12px;
-  padding: var(--space-md, 16px);
-}
+/* Phase 27 (Fork 1 = Variant A — plain + dividers): the Contents section is a
+ * plain block on the modal surface like every other section. The Phase 25
+ * tinted card (--color-surface-alt bg + 12px radius + card padding) is removed;
+ * it now inherits the universal .backup-modal-section padding (16px 0) and is
+ * separated from its neighbours by the existing hairline divider only. */
 .backup-modal-section--export { padding-top: var(--space-lg, 24px); }
-/* Import heading is smaller than Export (Export is the prominent action — D-07) */
-.backup-modal-section--import .backup-modal-section-heading { font-size: 1.125rem; }
+/* Phase 27 (typography cohesion): all modal section headings render at ONE size
+ * (1.125rem/700). The Phase 25 Import-only override (font-size:1.125rem, D-07)
+ * is deleted — Export's prominence is now carried by placement + the
+ * primary-vs-ghost button, not by a smaller Import heading. */
 .backup-modal-section-heading {
-  font-size: 1.4rem;
+  font-size: 1.125rem;
   font-weight: 700;
   line-height: 1.2;
   margin: 0 0 var(--space-sm, 8px) 0;
@@ -3739,10 +3741,20 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   gap: var(--space-sm, 8px);
   flex-wrap: wrap;
 }
+/* Phase 27 (Fork 2 — one severity palette): the Import "Replaces all current
+ * data" band is demoted from the RED danger family to the shared AMBER caution
+ * family — the SAME --color-warning-* tokens and identical box metrics
+ * (padding var(--space-sm,8px) var(--space-md,16px); border-radius:4px; 4px
+ * border-inline-start) as .backup-test-password-result, so the two inline bands
+ * read as ONE component. Red is reserved for the destructive confirm dialog at
+ * the moment of action (App.confirmDialog 'backup.confirmReplace', unchanged).
+ * Dark mode is now legible via the [data-theme="dark"] --color-warning-*
+ * overrides added in tokens.css (these tokens are shared with the
+ * .backup-test-password-result.error band, so both bands are fixed at once). */
 .backup-modal-import-warning {
-  background: var(--color-danger-bg, #f8d7da);
-  color: var(--color-danger-text, #721c24);
-  border-inline-start: 4px solid var(--color-danger, #ea4b4b);
+  background: var(--color-warning-bg, #fff3cd);
+  color: var(--color-warning-text, #856404);
+  border-inline-start: 4px solid var(--color-warning-text, #856404);
   padding: var(--space-sm, 8px) var(--space-md, 16px);
   margin-bottom: var(--space-md, 16px);
   border-radius: 4px;
@@ -3766,19 +3778,21 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   border-block-start: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
 }
 
-/* Phase 25 Plan 03 — Test-password sub-card inside #backupModalTestPasswordSection (D-12, D-26) */
+/* Phase 25 Plan 03 — Test-password section inside #backupModalTestPasswordSection (D-12, D-26).
+ * Phase 27 (Fork 1 = Variant A — plain + dividers): the tinted card device
+ * (--color-surface-alt bg + 12px radius + card padding) is removed so this
+ * section sits on the plain modal surface like every other section. The
+ * flex-column + 16px gap below is KEPT — that is the section's internal
+ * stacking rhythm for its stacked controls, not a card device. */
 .backup-test-password-card {
-  background: var(--color-surface-alt, #fdf7ed);
-  border-radius: 12px;
-  padding: var(--space-md, 16px);
-  /* Phase 25 round-5 (D6 + D7, 2026-05-15): the card stacks heading,
+  /* Phase 25 round-5 (D6 + D7, 2026-05-15): the section stacks heading,
    * helper, drop zone, password input, the Test-password button row and
    * the result line. Without a flex gap the password input sat flush
    * against the Check button below it (UAT-D6) and the controls read as
    * one undifferentiated block (UAT-D7 "no space between buttons"). A
    * flex column with a 16px gap gives every stacked control consistent
    * breathing room — drop zone → input → Check → result. This is the
-   * single spacing source for the sub-card (the drop zone's old
+   * single spacing source for the section (the drop zone's old
    * per-element margin-block-end is removed below). */
   display: flex;
   flex-direction: column;
