@@ -863,18 +863,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     // the literal asterisk leaking into the section title. stripRequired() is
     // a no-op on labels that don't end with "*", so it's safe to apply
     // defensively to every heading call site.
-    // Order: Trapped Emotions, Limiting Beliefs, Additional Techniques, Important Points, Insights, Comments, Next Session
+    // Quick 260615 (bug #2): order MUST mirror the add-session form DOM order
+    // (data-section-key in add-session.html): Trapped → Insights → Limiting
+    // Beliefs → Additional Techniques → Comments → Next Session. Insights was
+    // previously emitted last, so it sorted after Additional Techniques.
+    // Enforced by tests/quick-260615-export-section-order.test.js.
     if (trappedValue.length > 0) {
       lines.push("", `## ${stripRequired(App.getSectionLabel("trapped", "session.form.trapped"))}`, trappedValue);
+    }
+    if (insightsValue.length > 0) {
+      lines.push("", `## ${stripRequired(App.getSectionLabel("insights", "session.form.insights"))}`, insightsValue);
     }
     if (limitingBeliefsValue.length > 0) {
       lines.push("", `## ${stripRequired(App.getSectionLabel("limitingBeliefs", "session.form.limitingBeliefs"))}`, limitingBeliefsValue);
     }
     if (additionalTechValue.length > 0) {
       lines.push("", `## ${stripRequired(App.getSectionLabel("additionalTech", "session.form.additionalTech"))}`, additionalTechValue);
-    }
-    if (insightsValue.length > 0) {
-      lines.push("", `## ${stripRequired(App.getSectionLabel("insights", "session.form.insights"))}`, insightsValue);
     }
     if (commentsValue.length > 0) {
       lines.push("", `## ${stripRequired(App.getSectionLabel("comments", "session.form.comments"))}`, commentsValue);
@@ -1142,6 +1146,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (selected.has("trapped") && trappedValue.trim().length > 0) {
       lines.push("", `## ${stripRequired(App.getSectionLabel("trapped", "session.form.trapped"))}`, trappedValue.trim());
     }
+    // Quick 260615 (bug #2): section order MUST mirror the add-session form
+    // DOM order (data-section-key in add-session.html): trapped → insights →
+    // limitingBeliefs → additionalTech. Insights was previously emitted last,
+    // so it sorted after additionalTech. Enforced by
+    // tests/quick-260615-export-section-order.test.js.
+    const insightsValue = (insightsInput ? insightsInput.value : "").trim();
+    if (selected.has("insights") && insightsValue.length > 0) {
+      lines.push("", `## ${stripRequired(App.getSectionLabel("insights", "session.form.insights"))}`, insightsValue);
+    }
     const limitingBeliefsValue = (document.getElementById("limitingBeliefs") || {}).value || "";
     if (selected.has("limitingBeliefs") && limitingBeliefsValue.trim().length > 0) {
       lines.push("", `## ${stripRequired(App.getSectionLabel("limitingBeliefs", "session.form.limitingBeliefs"))}`, limitingBeliefsValue.trim());
@@ -1149,10 +1162,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const additionalTechValue = (document.getElementById("additionalTech") || {}).value || "";
     if (selected.has("additionalTech") && additionalTechValue.trim().length > 0) {
       lines.push("", `## ${stripRequired(App.getSectionLabel("additionalTech", "session.form.additionalTech"))}`, additionalTechValue.trim());
-    }
-    const insightsValue = (insightsInput ? insightsInput.value : "").trim();
-    if (selected.has("insights") && insightsValue.length > 0) {
-      lines.push("", `## ${stripRequired(App.getSectionLabel("insights", "session.form.insights"))}`, insightsValue);
     }
     const commentsValue = (document.getElementById("sessionComments") || {}).value || "";
     if (selected.has("comments") && commentsValue.trim().length > 0) {
@@ -1403,10 +1412,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         btn.classList.add("is-hidden");
         return;
       }
+      // Quick 260615 (bug #1): share the FILE ONLY. Including `text`/`title`
+      // here caused macOS Chrome's Web Share to leak the temp WebShare file
+      // path as a separate text message — and a duplicate attachment — into
+      // targets like WhatsApp. Files-only delivers a single clean PDF.
       await navigator.share({
-        files: [file],
-        title: data.clientName + " — " + data.sessionDateFormatted,
-        text: App.t("export.share.text")
+        files: [file]
       });
     } catch (err) {
       if (err && err.name === "AbortError") return; // user cancelled
