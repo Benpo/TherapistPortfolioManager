@@ -43,3 +43,9 @@ Add drag-and-drop reordering of the section rows on the Settings page. The new o
 ## Origin
 
 Spun out from Sapir's broader "editable session section titles" ask. The rename + remove parts are already done (Phase 22 Settings page). This is the missing piece for full control of the session form structure.
+
+## Related — export/copy order coupling (added 2026-06-15)
+
+Quick task **260615** fixed a bug where the session **export PDF** and **copy** output listed sections in a different order than the add-session form. The fix made `buildFilteredSessionMarkdown` and `buildSessionMarkdown` (`assets/add-session.js`) emit sections in a **hardcoded** order that matches the *static* form DOM.
+
+**When this drag-sort feature is built, those two builders MUST switch to the user's saved section order** (the `sectionOrder` persistence proposed above) instead of the hardcoded sequence — otherwise the export/copy order will diverge from the now-user-controlled form order and reintroduce the 260615 bug. The guard test `tests/quick-260615-export-section-order.test.js` currently asserts `export order == static form DOM order`; it will need updating to assert `export order == saved section order`.
