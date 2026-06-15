@@ -1,9 +1,10 @@
 ---
 phase: 27-backup-restore-modal-visual-cohesion-ui-spec-pass
-verified: 2026-06-15T00:00:00Z
-status: human_needed
+verified: 2026-06-15T00:41:49Z
+status: passed
 score: 7/7 must-haves verified
 overrides_applied: 0
+human_verification_result: "Approved by Ben 2026-06-15 — visual cohesion confirmed live in light + dark mode (modal served at localhost:8080). Two pre-existing global dark-mode defects surfaced during this UAT (white html canvas behind modals; unthemed form inputs) were fixed separately in commit fc7a83d — NOT part of Phase 27 scope."
 human_verification:
   - test: "Open the Backup & Restore modal in light mode and dark mode. Confirm that the modal reads as one coherent visual system (plain sections separated by hairline dividers — no tinted cards), all section headings are the same visual size, the Import 'Replaces all current data' band is clearly amber (not red), and the overall impression is 'thought through'."
     expected: "No tinted card backgrounds visible on Contents or Test-password sections. All section headings (Export, Import, Test-password, Contents, How reminders work) appear at the same size. The Import warning band is amber/golden-yellow, clearly distinct from a red alert. The modal feels calm and internally consistent."
