@@ -22,6 +22,14 @@ body.is-modal-open {
   box-sizing: border-box;
 }
 
+/* The page background lives on <body>. When a modal opens, the scroll lock
+   `body.is-modal-open { position: fixed }` lifts <body> out of flow, so give
+   <html> the same themed base colour — otherwise the browser-default white
+   canvas shows through behind the modal (a glaring flash in dark mode). */
+html {
+  background: var(--color-background);
+}
+
 body {
   margin: 0;
   background: radial-gradient(circle at top, var(--color-background-gradient-start) 0%, var(--color-background) 55%, var(--color-background-gradient-end) 100%);
@@ -1006,6 +1014,12 @@ html[data-theme="dark"] .missing-birth-banner-icon{
   padding: 0.7rem 0.9rem;
   font-size: 1rem;
   font-family: inherit;
+  /* Theme the control surface so inputs follow dark mode. Without these the
+     fields fall back to the UA default (white bg / black text) in every theme —
+     invisible in light mode (surface is white anyway), glaring white boxes in
+     dark mode. */
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .textarea {
