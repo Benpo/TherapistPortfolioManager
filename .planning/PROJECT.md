@@ -123,4 +123,4 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - Launch prerequisites (Impressum, Lemon Squeezy, translations, QA)
 
 ---
-*Last updated: 2026-03-25 after Phase 20 complete — pre-launch UI polish: birth date pickers, header redesign (globe popover), shared footer on all pages, license/legal page chrome, 4 UAT bugs fixed inline. Phase 20 is the LAST phase of v1.1 milestone.*
+*Last updated: 2026-06-15 after Phase 27 complete — Backup & Restore modal visual-cohesion pass (plain sections + dividers replacing tinted cards, unified heading size, red→amber Import warning sharing one severity palette, dark-mode amber tokens). Verified passed (Ben visual UAT, light + dark). A pre-existing global dark-mode pair (white html canvas behind modals; unthemed form inputs) was fixed alongside in commit fc7a83d. Phase 27 is the last numbered phase of v1.1; Phase 26 (in-app onboarding) remains PARKED — deferred to a post-v1.1 build phase per its own decision.*
