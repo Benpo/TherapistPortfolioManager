@@ -125,6 +125,11 @@
             <p class="helper-text" data-i18n="snippets.library.helper">Search snippets, manage tags, or add new ones. Type your trigger prefix followed by a tag name in any session note to filter by tag.</p>
 
             <div class="snippets-list-toolbar">
+              <div id="snippetOriginFilter" class="snippets-origin-filter" role="group" aria-label="Filter snippets by source">
+                <button type="button" class="snippets-origin-btn is-active" data-origin="all" aria-pressed="true" data-i18n="snippets.filter.origin.all">All</button>
+                <button type="button" class="snippets-origin-btn" data-origin="user" aria-pressed="false" data-i18n="snippets.filter.origin.mine">My snippets</button>
+                <button type="button" class="snippets-origin-btn" data-origin="seed" aria-pressed="false" data-i18n="snippets.filter.origin.defaults">Defaults</button>
+              </div>
               <input id="snippetSearchInput" class="input snippets-search-input" type="search" data-i18n-placeholder="snippets.search.placeholder" />
               <div id="snippetTagFilterRow" class="snippets-tag-filter-row" role="toolbar" aria-label="Tags"></div>
             </div>

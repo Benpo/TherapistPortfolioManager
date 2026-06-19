@@ -174,6 +174,71 @@ test('I. currentLang "cs" with empty cs expansion → snippet content does NOT m
   }
 });
 
+// ────────────────────────────────────────────────────────────────────
+// Quick task 260619-okw — origin (All / Mine / Defaults) filter, AND-combined
+// with search + tags. origin: 'all'|'user'|'seed' (absent → 'all').
+// ────────────────────────────────────────────────────────────────────
+
+function snipOrigin(id, trigger, expEn, origin, tags) {
+  return {
+    id,
+    trigger,
+    expansions: { he: '', en: expEn || '', cs: '', de: '' },
+    tags: tags || [],
+    origin,
+  };
+}
+
+function mixedFixture() {
+  return [
+    snipOrigin('s1', 'betrayal',    'Betrayal — a deep wound.', 'seed', ['ec.a1']),
+    snipOrigin('s2', 'heart-shock', 'Sudden trauma.',           'seed', ['ec.a2']),
+    snipOrigin('u1', 'my-note',     'A personal betrayal note.', 'user', ['ec.a1']),
+    snipOrigin('u2', 'follow-up',   'Follow-up reminder.',       'user', ['mine']),
+  ];
+}
+
+test('J. origin "user" → only user-origin snippets', () => {
+  const out = filterSnippetList(mixedFixture(), { searchText: '', activeTags: [], currentLang: 'en', origin: 'user' });
+  if (out.length !== 2) throw new Error('J: expected 2 user snippets, got ' + out.length);
+  for (const s of out) {
+    if (s.origin !== 'user') throw new Error('J: leaked non-user origin: ' + s.trigger);
+  }
+});
+
+test('K. origin "seed" → only seed-origin snippets', () => {
+  const out = filterSnippetList(mixedFixture(), { searchText: '', activeTags: [], currentLang: 'en', origin: 'seed' });
+  if (out.length !== 2) throw new Error('K: expected 2 seed snippets, got ' + out.length);
+  for (const s of out) {
+    if (s.origin !== 'seed') throw new Error('K: leaked non-seed origin: ' + s.trigger);
+  }
+});
+
+test('L. origin "all" → both origins', () => {
+  const out = filterSnippetList(mixedFixture(), { searchText: '', activeTags: [], currentLang: 'en', origin: 'all' });
+  if (out.length !== 4) throw new Error('L: expected 4 (all), got ' + out.length);
+});
+
+test('M. origin omitted → defaults to "all" (both origins)', () => {
+  const out = filterSnippetList(mixedFixture(), { searchText: '', activeTags: [], currentLang: 'en' });
+  if (out.length !== 4) throw new Error('M: expected 4 (omitted=all), got ' + out.length);
+});
+
+test('N. origin "user" AND searchText → AND-combine (only user rows matching search)', () => {
+  // "betrayal" appears in seed s1 (trigger+expansion) and user u1 (expansion).
+  // With origin=user, only u1 should survive.
+  const out = filterSnippetList(mixedFixture(), { searchText: 'betrayal', activeTags: [], currentLang: 'en', origin: 'user' });
+  if (out.length !== 1) throw new Error('N: expected 1 (user AND search), got ' + out.length);
+  if (out[0].trigger !== 'my-note') throw new Error('N: wrong row: ' + out[0].trigger);
+});
+
+test('O. origin "user" AND activeTags → AND-combine (only user rows with the tag)', () => {
+  // tag ec.a1 is on seed s1 and user u1. With origin=user, only u1 survives.
+  const out = filterSnippetList(mixedFixture(), { searchText: '', activeTags: ['ec.a1'], currentLang: 'en', origin: 'user' });
+  if (out.length !== 1) throw new Error('O: expected 1 (user AND tag), got ' + out.length);
+  if (out[0].trigger !== 'my-note') throw new Error('O: wrong row: ' + out[0].trigger);
+});
+
 console.log('');
 console.log(`Plan 05 filterSnippetList tests — ${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);

@@ -694,8 +694,12 @@ window.SettingsPage = (function () {
     var search = String(opts.searchText || "").toLowerCase().trim();
     var tags = Array.isArray(opts.activeTags) ? opts.activeTags : [];
     var lang = opts.currentLang || "en";
+    var origin = opts.origin || "all";
     var tagSet = new Set(tags);
     var filtered = cache.filter(function (s) {
+      // Origin (All / Mine / Defaults) gate — AND-combined with search + tags.
+      var matchOrigin = origin === "all" || s.origin === origin;
+      if (!matchOrigin) return false;
       var matchSearch = true;
       if (search) {
         var trig = String(s.trigger || "").toLowerCase();
@@ -811,6 +815,7 @@ window.SettingsPage = (function () {
   // ──────────────────────────────────────────────────────────────────────
 
   var activeTagFilters = new Set();
+  var activeOriginFilter = "all";     // 'all' | 'user' | 'seed' (source filter)
   var editingSnippet = null;          // null = add mode; otherwise the snippet object
   var translationsRevealed = false;
   var pendingImport = null;            // { rows, collisions, decisions: Map<trigger, 'replace'|'skip'> }
@@ -1013,6 +1018,10 @@ window.SettingsPage = (function () {
     });
     renderTagFilterChips(allTags);
 
+    // Category (tag) row is shown only when ≥1 category exists across the cache.
+    var tagRow = $("snippetTagFilterRow");
+    if (tagRow) tagRow.classList.toggle("is-hidden", allTags.size === 0);
+
     var searchInput = $("snippetSearchInput");
     var searchText = searchInput ? searchInput.value : "";
     var lang = getCurrentLang();
@@ -1020,6 +1029,7 @@ window.SettingsPage = (function () {
       searchText: searchText,
       activeTags: Array.from(activeTagFilters),
       currentLang: lang,
+      origin: activeOriginFilter,
     });
 
     while (listEl.firstChild) listEl.removeChild(listEl.firstChild);
@@ -1715,6 +1725,31 @@ window.SettingsPage = (function () {
   }
 
   // ──────────────────────────────────────────────────────────────────────
+  // Source filter (All / Mine / Defaults)
+  // ──────────────────────────────────────────────────────────────────────
+
+  function wireOriginFilter() {
+    var group = $("snippetOriginFilter");
+    if (!group) return;
+    var btns = group.querySelectorAll(".snippets-origin-btn");
+    for (var i = 0; i < btns.length; i++) {
+      (function (btn) {
+        btn.addEventListener("click", function () {
+          activeOriginFilter = btn.getAttribute("data-origin") || "all";
+          for (var j = 0; j < btns.length; j++) {
+            var on = btns[j] === btn;
+            btns[j].classList.toggle("is-active", on);
+            btns[j].setAttribute("aria-pressed", on ? "true" : "false");
+          }
+          renderSnippetList();
+        });
+      })(btns[i]);
+    }
+    var grpLabel = t("snippets.filter.origin.label");
+    if (grpLabel) group.setAttribute("aria-label", grpLabel);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
   // Boot
   // ──────────────────────────────────────────────────────────────────────
 
@@ -1724,6 +1759,7 @@ window.SettingsPage = (function () {
 
     wirePrefixInput();
     wireTagChipInput();
+    wireOriginFilter();
 
     // Search debounce
     var searchInput = $("snippetSearchInput");
