@@ -257,7 +257,8 @@ window.PortfolioDB = (() => {
     5: function snippetsStore(db /*, transaction */) {
       // Phase 24 D-08: additive migration — creates the snippets object store.
       // Schema: { id, trigger, expansions:{he,en,cs,de}, tags:[], origin, createdAt, updatedAt }
-      // Triggers must be lowercase a-z0-9- (enforced by validateSnippetShape), so a
+      // Triggers match /^[\p{L}\p{N}-]{2,32}$/u — any Unicode letter/digit + hyphen
+      // (enforced by validateSnippetShape); the editor lowercases before save, so the
       // direct unique index on trigger gives case-insensitive uniqueness for free.
       // Seed-pack populate is deferred to seedSnippetsIfNeeded(db) — see openDB success.
       if (!db.objectStoreNames.contains("snippets")) {
@@ -592,8 +593,8 @@ window.PortfolioDB = (() => {
     if (typeof snippet.id !== "string" || snippet.id.length === 0) {
       throw new Error("validateSnippetShape: id must be a non-empty string");
     }
-    if (typeof snippet.trigger !== "string" || !/^[a-z0-9-]{2,32}$/.test(snippet.trigger)) {
-      throw new Error("validateSnippetShape: trigger must match /^[a-z0-9-]{2,32}$/ (got \"" + snippet.trigger + "\")");
+    if (typeof snippet.trigger !== "string" || !/^[\p{L}\p{N}-]{2,32}$/u.test(snippet.trigger)) {
+      throw new Error("validateSnippetShape: trigger must match /^[\\p{L}\\p{N}-]{2,32}$/u (got \"" + snippet.trigger + "\")");
     }
     if (!snippet.expansions || typeof snippet.expansions !== "object" || Array.isArray(snippet.expansions)) {
       throw new Error("validateSnippetShape: expansions must be a non-array object");

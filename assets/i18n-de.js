@@ -495,7 +495,7 @@ window.I18N.de = {
   "snippets.editor.title.edit": "Baustein bearbeiten",
   "snippets.editor.trigger.label": "Ausl\u00F6ser",
   "snippets.editor.trigger.placeholder": "z. B. betrayal",
-  "snippets.editor.trigger.error.format": "Ausl\u00F6ser muss 2\u201332 Kleinbuchstaben, Ziffern oder Bindestriche enthalten.",
+  "snippets.editor.trigger.error.format": "Der Ausl\u00F6ser muss aus 2\u201332 Buchstaben, Ziffern oder Bindestrichen bestehen.",
   "snippets.editor.trigger.error.duplicate": "Ein anderer Baustein verwendet diesen Ausl\u00F6ser bereits.",
   "snippets.editor.expansion.lang.en": "Text (Englisch)",
   "snippets.editor.expansion.lang.he": "Text (Hebr\u00E4isch)",

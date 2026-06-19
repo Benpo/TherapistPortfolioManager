@@ -109,20 +109,30 @@ test('B. Missing id throws with message containing "id"', () => {
   expectThrow(() => validate(s), 'id', 'B');
 });
 
-// --- C. Bad trigger — 4 sub-cases ---
-test('C. Bad trigger (uppercase, spaces, length 1, length 33) all throw', () => {
-  // C1: uppercase
+// --- C. Trigger validation (Unicode-aware after quick-260619-okw) ---
+test('C. Trigger validation: spaces/length-1/length-33 throw; uppercase + Unicode pass', () => {
+  // C1: uppercase — now ACCEPTED (Unicode regex /^[\p{L}\p{N}-]{2,32}$/u; editor
+  //     lowercases before save, detection/uniqueness are case-insensitive).
   let s = valid(); s.trigger = 'Betrayal';
-  expectThrow(() => validate(s), 'trigger', 'C1 uppercase');
-  // C2: spaces
+  validate(s); // must NOT throw
+  // C2: spaces — still invalid
   s = valid(); s.trigger = 'be trayal';
   expectThrow(() => validate(s), 'trigger', 'C2 spaces');
-  // C3: length 1
+  // C3: length 1 — still invalid
   s = valid(); s.trigger = 'b';
   expectThrow(() => validate(s), 'trigger', 'C3 length 1');
-  // C4: length 33
+  // C4: length 33 — still invalid
   s = valid(); s.trigger = 'a'.repeat(33);
   expectThrow(() => validate(s), 'trigger', 'C4 length 33');
+  // C5: Hebrew trigger — now ACCEPTED
+  s = valid(); s.trigger = 'כעס';
+  validate(s); // must NOT throw
+  // C6: German trigger — now ACCEPTED
+  s = valid(); s.trigger = 'größe';
+  validate(s); // must NOT throw
+  // C7: Czech trigger — now ACCEPTED
+  s = valid(); s.trigger = 'přítel';
+  validate(s); // must NOT throw
 });
 
 // --- D. Non-object expansions ---

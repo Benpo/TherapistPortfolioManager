@@ -765,6 +765,7 @@ window.SettingsPage = (function () {
       detectImportCollisions: detectImportCollisions,
       filterSnippetList: filterSnippetList,
       isModifiedSeed: isModifiedSeed,
+      isValidTrigger: isValidTrigger,
     };
   }
 
@@ -772,8 +773,14 @@ window.SettingsPage = (function () {
   // Constants
   // ──────────────────────────────────────────────────────────────────────
 
-  var TRIGGER_REGEX = /^[a-z0-9-]{2,32}$/;
+  // Unicode-aware so Hebrew/German/Czech (any Unicode letter) triggers validate,
+  // aligned with the detection engine (snippets.js). \p{L}=any letter, \p{N}=any digit.
+  var TRIGGER_REGEX = /^[\p{L}\p{N}-]{2,32}$/u;
   var PREFIX_INVALID_CHAR_REGEX = /[a-zA-Z0-9\s"<>]/;
+
+  function isValidTrigger(trigger) {
+    return TRIGGER_REGEX.test(String(trigger));
+  }
   var LOCALES = ["he", "en", "cs", "de"];
   var SEARCH_DEBOUNCE_MS = 150;
   var BC_NAME = "sessions-garden-settings";
@@ -1331,7 +1338,7 @@ window.SettingsPage = (function () {
     triggerErr.classList.add("is-hidden");
     triggerErr.textContent = "";
 
-    if (!TRIGGER_REGEX.test(trigger)) {
+    if (!isValidTrigger(trigger)) {
       triggerErr.textContent = t("snippets.editor.trigger.error.format");
       triggerErr.classList.remove("is-hidden");
       return;
