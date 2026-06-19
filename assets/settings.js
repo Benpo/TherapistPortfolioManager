@@ -766,6 +766,7 @@ window.SettingsPage = (function () {
       filterSnippetList: filterSnippetList,
       isModifiedSeed: isModifiedSeed,
       isValidTrigger: isValidTrigger,
+      getCrossLangWarning: getCrossLangWarning,
     };
   }
 
@@ -780,6 +781,25 @@ window.SettingsPage = (function () {
 
   function isValidTrigger(trigger) {
     return TRIGGER_REGEX.test(String(trigger));
+  }
+
+  /**
+   * getCrossLangWarning — pure predicate for the editor's cross-language warning.
+   * show=true ONLY when the snippet's current-language expansion is empty/whitespace
+   * AND ≥1 OTHER locale has non-empty text. otherLangs lists those locales in
+   * LOCALES order (he,en,cs,de), excluding currentLang.
+   * @param {object|null} snippet
+   * @param {string} currentLang
+   * @returns {{show:boolean, otherLangs:string[]}}
+   */
+  function getCrossLangWarning(snippet, currentLang) {
+    if (!snippet || !snippet.expansions) return { show: false, otherLangs: [] };
+    var cur = String(snippet.expansions[currentLang] || "").trim();
+    var others = LOCALES.filter(function (loc) {
+      return loc !== currentLang &&
+        String((snippet.expansions || {})[loc] || "").trim() !== "";
+    });
+    return { show: cur === "" && others.length > 0, otherLangs: others };
   }
   var LOCALES = ["he", "en", "cs", "de"];
   var SEARCH_DEBOUNCE_MS = 150;
@@ -1197,6 +1217,30 @@ window.SettingsPage = (function () {
       wrapper.appendChild(ta);
       translationsBlock.appendChild(wrapper);
     });
+
+    // Cross-language warning — only in edit mode, only when the current-language
+    // expansion is empty but another language has text (see getCrossLangWarning).
+    var warnEl = $("snippetEditorLangWarning");
+    var w = editingSnippet
+      ? getCrossLangWarning(editingSnippet, lang)
+      : { show: false, otherLangs: [] };
+    if (warnEl) {
+      if (w.show) {
+        var names = w.otherLangs.map(function (loc) {
+          return t("snippets.lang.name." + loc);
+        }).join(", ");
+        // textContent (never innerHTML) — names come from i18n but keep the
+        // XSS-safe assignment pattern.
+        warnEl.textContent = String(t("snippets.editor.langWarning") || "")
+          .replace("{langs}", names);
+        warnEl.classList.remove("is-hidden");
+        translationsToggle.classList.add("is-attention");
+      } else {
+        warnEl.textContent = "";
+        warnEl.classList.add("is-hidden");
+        translationsToggle.classList.remove("is-attention");
+      }
+    }
 
     modal.classList.remove("is-hidden");
     triggerInput.focus();
@@ -1715,6 +1759,10 @@ window.SettingsPage = (function () {
         translationsRevealed = !translationsRevealed;
         translationsBlock.classList.toggle("is-hidden", !translationsRevealed);
         translationsToggle.setAttribute("aria-expanded", String(translationsRevealed));
+        if (translationsRevealed) {
+          // User acted on the guidance — clear the attention emphasis.
+          translationsToggle.classList.remove("is-attention");
+        }
       });
     }
 

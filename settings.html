@@ -250,7 +250,10 @@ Deleted photos cannot be recovered.</p>
         <textarea id="snippetEditorActiveExpansion" class="textarea" rows="6" data-i18n-placeholder="snippets.editor.expansion.placeholder"></textarea>
       </div>
 
-      <button id="snippetEditorTranslationsToggle" type="button" class="button ghost" aria-expanded="false">
+      <p id="snippetEditorLangWarning" class="snippets-editor-lang-warning is-hidden" role="status" aria-live="polite"></p>
+
+      <button id="snippetEditorTranslationsToggle" type="button" class="button secondary snippets-translations-toggle" aria-expanded="false">
+        <span class="snippets-translations-chevron" aria-hidden="true">▸</span>
         <span class="button-label" data-i18n="snippets.editor.translations.toggle">Edit translations</span>
       </button>
 
