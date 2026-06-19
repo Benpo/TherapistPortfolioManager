@@ -1633,15 +1633,16 @@ window.SettingsPage = (function () {
       .replace("{c}", String(pendingImport.collisions.length));
 
     while (list.firstChild) list.removeChild(list.firstChild);
-    var prefix = "";
-    try { prefix = window.Snippets.getPrefix(); } catch (e) { prefix = ";"; }
     pendingImport.collisions.forEach(function (c) {
       var row = document.createElement("div");
       row.className = "snippets-import-collision-row";
       row.setAttribute("data-trigger", c.trigger);
       var label = document.createElement("span");
       label.className = "snippets-import-collision-trigger";
-      label.textContent = prefix + c.trigger;
+      // Show the bare trigger (matches the main list at buildListRow ~settings.js:1058).
+      // The prefix char (e.g. ";") was being bidi-reordered to the end in RTL and
+      // looked like a phantom "?" on the trigger.
+      label.textContent = c.trigger;
       row.appendChild(label);
       var toggle = document.createElement("div");
       toggle.className = "snippets-import-collision-toggle";
