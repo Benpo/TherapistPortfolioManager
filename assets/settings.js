@@ -1008,9 +1008,9 @@ window.SettingsPage = (function () {
     });
     renderTagFilterChips(allTags);
 
-    // Category (tag) row is shown only when ≥1 category exists across the cache.
-    var tagRow = $("snippetTagFilterRow");
-    if (tagRow) tagRow.classList.toggle("is-hidden", allTags.size === 0);
+    // Category (tag) filter — title + chips shown only when ≥1 tag exists across the cache.
+    var tagFilter = $("snippetTagFilter");
+    if (tagFilter) tagFilter.classList.toggle("is-hidden", allTags.size === 0);
 
     var searchInput = $("snippetSearchInput");
     var searchText = searchInput ? searchInput.value : "";
