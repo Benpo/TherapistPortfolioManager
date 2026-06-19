@@ -1,25 +1,42 @@
 /**
  * Phase 24 Plan 05 — Behavior test for isModifiedSeed predicate.
+ * Revised by quick task 260619-okw PLAN-02 (timestamp semantics).
  *
  * Pure-function test: loads assets/settings.js in a vm sandbox, reads
  * isModifiedSeed from window.__SnippetEditorHelpers.
  *
  * Controls Reset-to-default button visibility AND export-filter inclusion.
- * Compare semantics: case-sensitive, byte-exact (trailing whitespace counts).
+ *
+ * SEMANTICS (timestamp, NOT byte-exact):
+ *   isModifiedSeed(snippet, seedPack) returns true IFF
+ *     snippet.origin === 'seed' AND a seedPack entry with the same id exists
+ *     AND snippet.updatedAt > snippet.createdAt.
+ *   It does NOT byte-compare the snippet against the live seed pack.
+ *
+ * WHY timestamps and not byte compare: seed-pack text can change between app
+ * versions while re-seeding is additive-only. An untouched seed whose pack text
+ * drifted (e.g. EN word order "Unreceived Effort" → "Effort Unreceived") keeps
+ * its old text in IndexedDB with updatedAt === createdAt — byte compare would
+ * flag it "modified" and wrongly export it / show Reset-to-default. Every real
+ * user edit bumps updatedAt past createdAt (see handleSave), so the timestamp
+ * is the airtight signal. See PLAN-02 critical_design_note.
  *
  * Run: node tests/24-05-modified-seed.test.js
  * Exits 0 on full pass, 1 on any failure.
  *
- * 8 scenarios per the Plan 05 Test Coverage Plan:
+ * Scenarios:
  *   A. origin='user' → false (not a seed).
  *   B. origin='seed', no matching seed entry → false (orphan, can't reset).
- *   C. seed, updatedAt > createdAt → true (timestamps differ).
+ *   C. seed, updatedAt > createdAt → true (user edited).
  *   D. seed, timestamps equal, content matches seedPack exactly → false (untouched).
- *   E. seed, timestamps match, ONE locale expansion differs by 1 char → true.
- *   F. seed, content matches but tags array differs → true.
- *   G. seed, content matches but trigger differs (user renamed) → true.
- *   H. seed, expansion has trailing whitespace in seedPack but not in user record → true
- *      (byte-exact compare).
+ *   E. seed, timestamps equal, ONE locale expansion differs (version drift) → false.
+ *   F. seed, timestamps equal, tags differ → false (drift, not an edit).
+ *   G. seed, timestamps equal, trigger differs → false (drift, not an edit).
+ *   H. seed, timestamps equal, trailing-whitespace diff → false (drift, not an edit).
+ *   I. Ben's case: seed, id matches pack, EN expansion drifted (word order),
+ *      updatedAt === createdAt → false (NOT modified, must not export).
+ *   J. seed whose content happens to match pack exactly BUT updatedAt > createdAt
+ *      → true (the user edited it back to the seed text — still a user edit).
  */
 
 'use strict';
@@ -115,7 +132,7 @@ test('B. origin="seed", id has no match in seedPack → false (orphan)', () => {
   assertFalse(isModifiedSeed(s, seedPack), 'B');
 });
 
-test('C. seed, updatedAt > createdAt → true', () => {
+test('C. seed, updatedAt > createdAt → true (user edited)', () => {
   const s = seedEntry({ updatedAt: '2026-05-15T10:00:00.000Z' });
   assertTrue(isModifiedSeed(s, seedPack), 'C');
 });
@@ -125,27 +142,25 @@ test('D. seed, timestamps equal, content matches exactly → false (untouched)',
   assertFalse(isModifiedSeed(s, seedPack), 'D');
 });
 
-test('E. seed, timestamps match but one locale expansion differs by 1 char → true', () => {
+test('E. seed, timestamps equal, one locale expansion differs (drift) → false', () => {
   const seed = seedEntry();
   const s = seedEntry({
     expansions: Object.assign({}, seed.expansions, { en: seed.expansions.en + '!' }),
   });
-  assertTrue(isModifiedSeed(s, seedPack), 'E');
+  assertFalse(isModifiedSeed(s, seedPack), 'E');
 });
 
-test('F. seed, content matches but user added a tag → true', () => {
-  // L3: seeds ship with empty tags; user can add their own via Settings editor.
-  // If the user adds any tag to a seed snippet, isModifiedSeed must return true.
+test('F. seed, timestamps equal, tags differ → false (drift, not a user edit)', () => {
   const s = seedEntry({ tags: ['user-added-tag'] });
-  assertTrue(isModifiedSeed(s, seedPack), 'F');
+  assertFalse(isModifiedSeed(s, seedPack), 'F');
 });
 
-test('G. seed, content matches but trigger renamed → true', () => {
+test('G. seed, timestamps equal, trigger differs → false (drift, not a user edit)', () => {
   const s = seedEntry({ trigger: 'betrayal-renamed' });
-  assertTrue(isModifiedSeed(s, seedPack), 'G');
+  assertFalse(isModifiedSeed(s, seedPack), 'G');
 });
 
-test('H. trailing whitespace in seed vs trimmed in user record → true (byte-exact compare)', () => {
+test('H. seed, timestamps equal, trailing-whitespace diff → false (drift, not a user edit)', () => {
   const seedWithTrailing = seedEntry({
     expansions: {
       he: 'בגידה — תחושה כואבת.',
@@ -156,9 +171,46 @@ test('H. trailing whitespace in seed vs trimmed in user record → true (byte-ex
   });
   const pack = [seedWithTrailing];
   const userTrimmed = seedEntry(); // matches everything EXCEPT en lacks the trailing space
-  assertTrue(isModifiedSeed(userTrimmed, pack), 'H');
+  assertFalse(isModifiedSeed(userTrimmed, pack), 'H');
+});
+
+test('I. Ben\'s drift case: EN word-order changed in pack, never edited → false', () => {
+  // Reproduces seed.unreceived-effort / seed.unreceived-love: the seed pack's EN
+  // title word order was changed in a later app version ("Unreceived Effort" →
+  // "Effort Unreceived"). The user's IndexedDB kept the OLD text; updatedAt ===
+  // createdAt (never edited). Must NOT be flagged modified → must NOT export.
+  const pack = [seedEntry({
+    id: 'seed.unreceived-effort',
+    trigger: 'unreceived-effort',
+    expansions: {
+      he: 'מאמץ שלא זכה להכרה.',
+      en: 'Effort Unreceived — work that went unseen.', // NEW pack word order
+      cs: 'Nepřijaté úsilí.',
+      de: 'Unerwiderte Mühe.',
+    },
+  })];
+  const userOld = seedEntry({
+    id: 'seed.unreceived-effort',
+    trigger: 'unreceived-effort',
+    expansions: {
+      he: 'מאמץ שלא זכה להכרה.',
+      en: 'Unreceived Effort — work that went unseen.', // OLD word order in IndexedDB
+      cs: 'Nepřijaté úsilí.',
+      de: 'Unerwiderte Mühe.',
+    },
+    createdAt: SEED_TS,
+    updatedAt: SEED_TS, // never edited
+  });
+  assertFalse(isModifiedSeed(userOld, pack), 'I');
+});
+
+test('J. edited seed whose content happens to match pack but updatedAt>createdAt → true', () => {
+  // The user opened and saved the seed (perhaps editing then reverting). Content
+  // equals the pack, but updatedAt was bumped — it is a genuine user edit.
+  const s = seedEntry({ updatedAt: '2026-05-16T08:30:00.000Z' });
+  assertTrue(isModifiedSeed(s, seedPack), 'J');
 });
 
 console.log('');
-console.log(`Plan 05 isModifiedSeed tests — ${passed} passed, ${failed} failed`);
+console.log(`Plan 05 isModifiedSeed tests (timestamp semantics) — ${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);

@@ -727,9 +727,11 @@ window.SettingsPage = (function () {
 
   /**
    * isModifiedSeed — predicate for Reset-to-default visibility AND export inclusion.
-   * Returns true ONLY for origin='seed' snippets that differ from the matching
-   * SNIPPETS_SEED entry. Compare is case-sensitive, byte-exact (trailing
-   * whitespace counts as a diff).
+   * Returns true ONLY for origin='seed' snippets that the user actually EDITED,
+   * detected by updatedAt > createdAt (the bump every real edit sets). It does
+   * NOT byte-compare against the live seed pack — pack text can drift between app
+   * versions while re-seeding is additive-only, so an untouched seed whose pack
+   * text changed would be a false positive. Timestamp is the airtight signal.
    * @param {object} snippet
    * @param {Array} seedPack - window.SNIPPETS_SEED
    * @returns {boolean}
@@ -741,24 +743,12 @@ window.SettingsPage = (function () {
       if (seedPack[i].id === snippet.id) { match = seedPack[i]; break; }
     }
     if (!match) return false;
-    if (snippet.updatedAt && snippet.createdAt && snippet.updatedAt > snippet.createdAt) {
-      return true;
-    }
-    if (String(snippet.trigger || "") !== String(match.trigger || "")) return true;
-    var locales = ["he", "en", "cs", "de"];
-    for (var k = 0; k < locales.length; k++) {
-      var loc = locales[k];
-      var seedExp = (match.expansions || {})[loc] || "";
-      var userExp = (snippet.expansions || {})[loc] || "";
-      if (seedExp !== userExp) return true;
-    }
-    var seedTags = Array.isArray(match.tags) ? match.tags : [];
-    var userTags = Array.isArray(snippet.tags) ? snippet.tags : [];
-    if (seedTags.length !== userTags.length) return true;
-    for (var t = 0; t < seedTags.length; t++) {
-      if (seedTags[t] !== userTags[t]) return true;
-    }
-    return false;
+    // "Modified" === the user actually edited this seed, which always bumps updatedAt past
+    // createdAt (see handleSave). We deliberately do NOT byte-compare against the live seed
+    // pack: pack text can change between app versions while re-seeding is additive-only, so an
+    // untouched seed whose pack text drifted would be a false positive (wrong export + wrong
+    // Reset-to-default). Timestamp is the airtight signal. See PLAN-02 critical_design_note.
+    return !!(snippet.updatedAt && snippet.createdAt && snippet.updatedAt > snippet.createdAt);
   }
 
   // Expose for unit tests (mirrors Snippets.__testExports at snippets.js:457).
@@ -1437,6 +1427,9 @@ window.SettingsPage = (function () {
         trigger: trigger,
         expansions: expansions,
         tags: tags,
+        // INVARIANT: every seed-EDIT path bumps updatedAt past createdAt. isModifiedSeed
+        // (export inclusion + Reset-to-default visibility) relies on this signal; do NOT
+        // remove the bump or move it to the DB layer (see PLAN-02 critical_design_note).
         updatedAt: now,
       });
     } else {
