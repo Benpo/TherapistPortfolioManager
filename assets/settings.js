@@ -1226,12 +1226,15 @@ window.SettingsPage = (function () {
       : { show: false, otherLangs: [] };
     if (warnEl) {
       if (w.show) {
+        var curName = t("snippets.lang.name." + lang);
         var names = w.otherLangs.map(function (loc) {
           return t("snippets.lang.name." + loc);
         }).join(", ");
         // textContent (never innerHTML) — names come from i18n but keep the
-        // XSS-safe assignment pattern.
+        // XSS-safe assignment pattern. {current} = current language name,
+        // {langs} = comma list of languages that have content.
         warnEl.textContent = String(t("snippets.editor.langWarning") || "")
+          .replace("{current}", curName)
           .replace("{langs}", names);
         warnEl.classList.remove("is-hidden");
         translationsToggle.classList.add("is-attention");

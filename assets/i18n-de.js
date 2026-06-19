@@ -507,7 +507,7 @@ window.I18N.de = {
   "snippets.editor.expansion.lang.cs": "Text (Tschechisch)",
   "snippets.editor.expansion.placeholder": "Der Text, der beim Tippen des Ausl\u00F6sers eingef\u00FCgt wird.",
   "snippets.editor.translations.toggle": "\u00DCbersetzungen bearbeiten",
-  "snippets.editor.langWarning": "Dieser Baustein hat keinen Text in der aktuellen Sprache. Vorhanden in: {langs}. Klicke unten auf \u201E\u00DCbersetzungen bearbeiten\u201C, um ihn anzuzeigen oder zu bearbeiten.",
+  "snippets.editor.langWarning": "Dieser Textbaustein hat keinen Text in der aktuellen Sprache ({current}). Sie k\u00F6nnen die vorhandenen \u00DCbersetzungen ({langs}) \u00FCber die Schaltfl\u00E4che \u201E\u00DCbersetzungen bearbeiten\u201C unten ansehen und bearbeiten.",
   "snippets.lang.name.en": "Englisch",
   "snippets.lang.name.he": "Hebr\u00E4isch",
   "snippets.lang.name.de": "Deutsch",

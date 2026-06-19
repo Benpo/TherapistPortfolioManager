@@ -507,7 +507,7 @@ window.I18N.cs = {
   "snippets.editor.expansion.lang.cs": "Text (\u010Cesky)",
   "snippets.editor.expansion.placeholder": "Text, kter\u00FD se vlo\u017E\u00ED po naps\u00E1n\u00ED spou\u0161t\u011B\u010De.",
   "snippets.editor.translations.toggle": "Upravit p\u0159eklady",
-  "snippets.editor.langWarning": "Tento \u00FAryvek nem\u00E1 text v aktu\u00E1ln\u00EDm jazyce. M\u00E1 text v: {langs}. Kliknut\u00EDm na tla\u010D\u00EDtko \u201EUpravit p\u0159eklady\u201C n\u00ED\u017Ee jej zobraz\u00EDte nebo uprav\u00EDte.",
+  "snippets.editor.langWarning": "Tento \u00FAryvek nem\u00E1 text v aktu\u00E1ln\u00EDm jazyce ({current}). St\u00E1vaj\u00EDc\u00ED p\u0159eklady ({langs}) m\u016F\u017Eete zobrazit a upravit kliknut\u00EDm na tla\u010D\u00EDtko \u201EUpravit p\u0159eklady\u201C n\u00ED\u017Ee.",
   "snippets.lang.name.en": "angli\u010Dtina",
   "snippets.lang.name.he": "hebrej\u0161tina",
   "snippets.lang.name.de": "n\u011Bm\u010Dina",

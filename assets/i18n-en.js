@@ -498,7 +498,7 @@ window.I18N.en = {
   "snippets.editor.expansion.lang.cs": "Expansion (Čeština)",
   "snippets.editor.expansion.placeholder": "The text that will be inserted when the trigger is typed.",
   "snippets.editor.translations.toggle": "Edit translations",
-  "snippets.editor.langWarning": "This snippet has no text in the current language. It has text in: {langs}. Click the “Edit translations” button below to view or edit it.",
+  "snippets.editor.langWarning": "This snippet has no text in the current language ({current}). You can view and edit its existing translations ({langs}) by clicking the “Edit translations” button below.",
   "snippets.lang.name.en": "English",
   "snippets.lang.name.he": "Hebrew",
   "snippets.lang.name.de": "German",
