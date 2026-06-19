@@ -3502,19 +3502,10 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   gap: 0.5rem;
   margin-block: var(--space-2, 8px);
 }
-.snippets-translations-chevron {
-  display: inline-block;
-  font-size: 0.8em;
-  transition: transform 0.2s ease;
-}
-.snippets-translations-toggle[aria-expanded="true"] .snippets-translations-chevron {
-  transform: rotate(90deg);
-}
-html[dir="rtl"] .snippets-translations-chevron {
-  transform: scaleX(-1);
-}
-html[dir="rtl"] .snippets-translations-toggle[aria-expanded="true"] .snippets-translations-chevron {
-  transform: scaleX(-1) rotate(90deg);
+.snippets-translations-icon {
+  inline-size: 1.1em;
+  block-size: 1.1em;
+  flex: 0 0 auto;
 }
 .snippets-translations-toggle.is-attention {
   box-shadow: 0 0 0 2px var(--color-primary, #b07a3c);
