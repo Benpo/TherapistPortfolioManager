@@ -592,7 +592,15 @@ window.PDFExport = (function () {
       }
       // Phase 23 (23-12): keep raw markdown — the para-branch renderer calls
       // parseInlineBold(text) and emits Heebo Bold for **X** spans.
-      blocks.push({ type: 'para', text: paraLines.join(" ") });
+      // Quick 260620-q8m: join contiguous paragraph source lines with "\n"
+      // (NOT " ") so single intra-paragraph hard line breaks survive into the
+      // PDF and the export matches the editor live-preview (md-render.js line 63
+      // converts single newlines to <br>). jsPDF's doc.splitTextToSize treats the
+      // embedded "\n" as a FORCED line break (in addition to width wrapping), so
+      // e.g. a line of dashes typed on its own line renders on its own row instead
+      // of being inline-joined with the surrounding text. (No <hr> handling — the
+      // literal dashes are preserved on their own line, exactly like the preview.)
+      blocks.push({ type: 'para', text: paraLines.join("\n") });
     }
     return blocks;
   }
