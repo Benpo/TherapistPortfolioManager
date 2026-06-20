@@ -761,6 +761,8 @@ window.SettingsPage = (function () {
       isModifiedSeed: isModifiedSeed,
       isValidTrigger: isValidTrigger,
       getCrossLangWarning: getCrossLangWarning,
+      pendingTagToCommit: pendingTagToCommit,
+      commitPendingTag: commitPendingTag,
     };
   }
 
@@ -1290,6 +1292,29 @@ window.SettingsPage = (function () {
     return li;
   }
 
+  // pendingTagToCommit — pure normalize + dedupe for the typed-but-uncommitted
+  // tag. Returns the tag to append (trimmed + lowercased), or null when blank
+  // or already present. Single source of truth for tag normalization, shared by
+  // addCurrent (Enter/comma/Tab commit) and commitPendingTag (Save flush).
+  function pendingTagToCommit(committedTags, pendingRaw) {
+    var raw = String(pendingRaw == null ? "" : pendingRaw).trim().toLowerCase();
+    if (!raw) return null;
+    var existing = Array.isArray(committedTags) ? committedTags : [];
+    return existing.indexOf(raw) >= 0 ? null : raw;
+  }
+
+  // commitPendingTag — flush whatever is typed in the tag input into a committed
+  // chip, then clear the input. Called on Save so a user who types a tag and
+  // clicks Save (without first pressing Enter) does not silently lose it.
+  function commitPendingTag() {
+    var input = $("snippetEditorTagsTextInput");
+    var list = $("snippetEditorTagsList");
+    if (!input || !list) return;
+    var toAdd = pendingTagToCommit(readEditorTags(), input.value);
+    if (toAdd) list.appendChild(buildTagChip(toAdd));
+    input.value = "";
+  }
+
   function wireTagChipInput() {
     var input = $("snippetEditorTagsTextInput");
     var list = $("snippetEditorTagsList");
@@ -1297,14 +1322,9 @@ window.SettingsPage = (function () {
     if (!input || !list || !suggestions) return;
 
     function addCurrent() {
-      var raw = input.value.trim().toLowerCase();
-      if (!raw) return false;
-      var existing = readEditorTags();
-      if (existing.indexOf(raw) >= 0) {
-        input.value = "";
-        return true;
-      }
-      list.appendChild(buildTagChip(raw));
+      if (!input.value.trim()) return false;
+      var toAdd = pendingTagToCommit(readEditorTags(), input.value);
+      if (toAdd) list.appendChild(buildTagChip(toAdd));
       input.value = "";
       hideSuggestions();
       return true;
@@ -1421,6 +1441,9 @@ window.SettingsPage = (function () {
       });
     }
 
+    // Flush a typed-but-uncommitted tag (user typed it and clicked Save without
+    // pressing Enter) so it is captured here instead of being silently dropped.
+    commitPendingTag();
     var tags = readEditorTags();
     var now = new Date().toISOString();
 
