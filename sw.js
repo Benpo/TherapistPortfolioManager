@@ -9,7 +9,7 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v209';
+const CACHE_NAME = 'sessions-garden-v210';
 
 /**
  * Static assets to precache on install (cache-first strategy).
@@ -126,9 +126,21 @@ function precacheHtml(cache, url) {
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
-      // Static assets: cache.add() is fine (no redirect issues for sub-resources)
+      // Static assets: fetch with { cache: 'reload' } so the precache BYPASSES the
+      // browser HTTP cache. A bare cache.add() uses the default cache mode and
+      // will happily reuse a stale HTTP-cached copy — that is exactly how an OLD
+      // pdf-export.js got promoted into a fresh CACHE_NAME on installed (Add to
+      // Dock) web apps after a deploy: caches.keys() reported the new version but
+      // the cached file was old. 'reload' forces a network fetch every install so
+      // a new CACHE_NAME always contains genuinely fresh code. (See the SW-cache
+      // staleness incident, 2026-06-21.)
       var staticPromises = PRECACHE_URLS.map(function (url) {
-        return cache.add(url).catch(function (err) {
+        return fetch(url, { cache: 'reload' }).then(function (response) {
+          if (response && response.status === 200) {
+            return cache.put(url, response);
+          }
+          console.warn('SW: precache non-200:', url, response && response.status);
+        }).catch(function (err) {
           console.warn('SW: Could not precache', url, err.message);
         });
       });
