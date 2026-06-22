@@ -42,22 +42,29 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - ✓ ZIP-based backup with photo support — v1.0
 - ✓ Backup reminder system — v1.0
 
+<!-- v1.1 — Final Polish & Launch (shipped 2026-06-22) -->
+
+- ✓ Terminology מפגש/לקוח (non-clinical energy-healing framing) across 4 languages — v1.1
+- ✓ Heart Shield session-level redesign — removal tracking, client-table icon, session-type filter — v1.1
+- ✓ Photo crop/reposition after upload; edit-client shortcut from add-session — v1.1
+- ✓ Garden decorations in app UI; final leaf logo + app icon — v1.1
+- ✓ Editable session section titles via Settings page — v1.1
+- ✓ Text-snippet / quick-paste engine with autocomplete + management UI — v1.1
+- ✓ Client-facing PDF export (RTL Hebrew via bidi) + Markdown + Web Share — v1.1
+- ✓ Consolidated Backup & Restore modal (scheduled backup, test-password, awareness signals) — v1.1
+- ✓ AES-256-GCM encrypted backup export/import — v1.1
+- ✓ Full legal content — Impressum + Datenschutz, 4 languages, German DDG §5 authoritative — v1.1
+- ✓ Lemon Squeezy product live + post-purchase activation/deactivation flow — v1.1
+- ✓ Cloudflare Pages deployment (live) — v1.1
+- ✓ In-app onboarding/help — design contract only (`26-UI-SPEC.md`); build deferred — v1.1
+
 ### Active
 
-<!-- Current scope: v1.1 — Final polish + launch readiness -->
+<!-- v1.1 shipped 2026-06-22. v1.2 scope to be defined collaboratively with Ben — do NOT pre-scope (see memory feedback-align-before-scoping). -->
 
-- [ ] Terminology update — "מפגש/לקוח" replacing "טיפול/מטופל" across all 4 languages
-- [ ] Garden elements in app UI — botanical decorations inspired by landing page
-- [ ] Actions column redesign — icon buttons (🕐, +) with tooltips replacing text buttons
-- [ ] Client photo crop/reposition after upload
-- [ ] "Edit client" shortcut from add-session screen
-- [ ] Heart Shield (מגננת הלב) redesign — session-level field, removal tracking, heart icon, session type filter
-- [ ] Logo update for app and landing page
-- [x] Standalone Impressum and Datenschutz pages — Validated in Phase 14 (placeholder content, awaiting Sapir's real business details)
-- [ ] Lemon Squeezy account and product setup
-- [ ] Landing page translation verification (DE/CS)
-- [ ] App icon (replacing placeholder)
-- [ ] Basic QA — cross-browser, RTL, mobile
+- [ ] **v1.2 — Codebase Health & Reliability** (theme agreed 2026-06-22; phase scope TBD with Ben). Candidate workstreams: PWA update reliability on installed Safari; test-coverage hardening; refactor `settings.js` / `add-session.js` god modules; README + maintainer/code documentation.
+
+**Deferred to backlog (v1.1 close):** mobile `21-03`; help/onboarding build (Phase 26 — design done); landing DE/CS translation verify (LNCH-04); codebase-map concerns (`.planning/codebase/CONCERNS.md`). See ROADMAP "Backlog".
 
 ### Out of Scope
 
@@ -110,17 +117,19 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 | Terminology: "session/client" not "treatment/patient" | Non-clinical framing for energy healing practitioners | ✓ Shipped Phase 8 |
 | Heart Shield at session level, not client level | Clients transition from Heart Shield to regular sessions without reopening files | ✓ Shipped Phase 9 |
 | Sold under Sapir's Gewerbe | Ben's employment contract requires HR approval for Nebentätigkeit; Sapir is co-creator, no employment blockers | ✓ Decided 2026-03-24 |
+| Close v1.1; defer mobile (P21) + help-build (P26) to backlog | App is live and sold; trailing nice-to-haves shouldn't hold the milestone open. Mobile not a launch blocker; help design is done and archived | ✓ Decided 2026-06-22 |
+| v1.2 = Codebase Health & Reliability (not features) | Maintainability is the burning constraint: 2.8k/2.2k-line god modules, thin docs, unreliable Safari PWA updates, test gaps | — Pending scope co-design with Ben |
 
-## Current Milestone: v1.1 Final Polish & Launch
+## Current Milestone: v1.2 Codebase Health & Reliability (planning)
 
-**Goal:** Polish the app for free trial users, fix UX pain points, and complete all launch prerequisites so the product can be sold.
+**Status:** v1.1 shipped and archived 2026-06-22 (Phases 8–27; see `milestones/v1.1-*`). v1.2 theme agreed with Ben — a deliberate shift from feature work to **maintainability and reliability**. Phase scope is being defined collaboratively, item by item, *before* any phase is created (see memory `feedback-align-before-scoping`).
 
-**Target features:**
-- Terminology cleanup (מפגש/לקוח)
-- Garden elements in app UI
-- Heart Shield redesign
-- UX improvements (photo crop, edit client shortcut, action icons)
-- Launch prerequisites (Impressum, Lemon Squeezy, translations, QA)
+**Candidate workstreams (not yet committed):**
+- PWA update reliability on installed Safari (end users' installed app not picking up new versions)
+- Test-coverage hardening (gaps let bugs through; fix the broken PDF test harness too)
+- Refactor the `settings.js` (~2.8k lines) / `add-session.js` (~2.2k lines) god modules
+- README + maintainer/code documentation pass
+- Triage of the 2026-06-22 codebase-map concerns (`.planning/codebase/CONCERNS.md`)
 
 ---
-*Last updated: 2026-06-15 after Phase 27 complete — Backup & Restore modal visual-cohesion pass (plain sections + dividers replacing tinted cards, unified heading size, red→amber Import warning sharing one severity palette, dark-mode amber tokens). Verified passed (Ben visual UAT, light + dark). A pre-existing global dark-mode pair (white html canvas behind modals; unthemed form inputs) was fixed alongside in commit fc7a83d. Phase 27 is the last numbered phase of v1.1; Phase 26 (in-app onboarding) remains PARKED — deferred to a post-v1.1 build phase per its own decision.*
+*Last updated: 2026-06-22 — v1.1 "Final Polish & Launch" completed and archived (20 phases, 90 plans; git tag v1.1). Phases 8–27 moved to `milestones/v1.1-phases/`; ROADMAP + REQUIREMENTS snapshotted to `milestones/v1.1-*`. P21 mobile (`21-03`) and Phase 26 help-build deferred to backlog. Next: co-design the v1.2 (Codebase Health & Reliability) scope with Ben.*

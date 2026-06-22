@@ -2,16 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Final Polish & Launch
-status: milestone_complete
-stopped_at: Milestone complete (Phase 27 was final phase)
-last_updated: 2026-06-15T00:42:25.214Z
-last_activity: 2026-06-14
+current_phase: 1
+status: Awaiting next milestone
+stopped_at: Phase 27 UI-SPEC approved
+last_updated: "2026-06-22T08:22:10.877Z"
+last_activity: 2026-06-22
+last_activity_desc: Milestone v1.1 completed and archived
 progress:
-  total_phases: 6
-  completed_phases: 2
-  total_plans: 6
-  completed_plans: 116
-  percent: 33
+  total_phases: 20
+  completed_phases: 18
+  total_plans: 90
+  completed_plans: 95
+  percent: 90
 ---
 
 # Project State
@@ -25,8 +27,10 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 27
-Plan: Not started
+Phase: Milestone v1.1 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-22 — Milestone v1.1 completed and archived
 
 ## Performance Metrics
 
@@ -245,9 +249,22 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last activity: 2026-06-20 - Completed quick task 260620-q8m: session PDF export now preserves single intra-paragraph line breaks (a dash separator line stays on its own line, matching the editor preview) — was collapsing inline
-Stopped at: Phase 27 UI-SPEC approved
+Last activity: 2026-06-22 — Milestone v1.1 completed and archived (Phases 8–27 → `milestones/v1.1-phases/`; ROADMAP/REQUIREMENTS snapshotted to `milestones/v1.1-*`).
+Stopped at: v1.1 closed. Next: co-design the **v1.2 — Codebase Health & Reliability** milestone with Ben, item by item (do NOT pre-scope phases or backlog unilaterally — see memory `feedback-align-before-scoping`).
 Resume file: None
-Next: v1.2 planning — see .planning/research/v1.2-feature-backlog.md
 
-**Planned Phase:** 22 (session-workflow-loop-pre-session-context-card-editable-sess) — 9 plans — 2026-05-06T18:41:19.496Z
+## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
+
+Full detail in `MILESTONES.md` → "Known deferred items at v1.1 close". Summary:
+
+| Category | Item | Status |
+|----------|------|--------|
+| phase | 21-03 mobile (crop fix, scroll lock, iPhone checkpoint) | Deferred → backlog |
+| phase | 26 help/onboarding build (design done, `26-UI-SPEC.md`) | Deferred → backlog |
+| requirement | LNCH-04 landing DE/CS translation verify | Deferred → backlog |
+| requirement | LNCH-06 mobile QA | Folded into 21-03 |
+| bookkeeping | ~11 UAT + 5 verification statuses, 9 quick-tasks | Acknowledged — work shipped/live, status fields only |
+
+## Operator Next Steps
+
+- v1.2 scope is defined WITH Ben before any phase/backlog is created (see memory `feedback-align-before-scoping`). Candidate theme: Codebase Health & Reliability.
