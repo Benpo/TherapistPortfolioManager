@@ -1,102 +1,76 @@
 # Technology Stack
 
-**Analysis Date:** 2026-02-01
+**Analysis Date:** 2026-06-22
 
 ## Languages
 
 **Primary:**
-- HTML5 - Page structure and markup
-- JavaScript (Vanilla ES6+) - Core application logic and interactivity
-- CSS3 - Styling and responsive design
-
-**Secondary:**
-- JSON - Data serialization for import/export functionality
+- JavaScript (ES2020+) — all application logic, no TypeScript
+- HTML5 — page structure (multi-page app, one `.html` per screen)
+- CSS — styling via custom properties (`assets/tokens.css`, `assets/app.css`)
 
 ## Runtime
 
 **Environment:**
-- Browser (client-side only) - Modern browsers with ES6 support, IndexedDB API
+- Browser (PWA) — no server-side runtime
+- Node.js — test runner only (`node tests/*.test.js`)
 
-**No Backend Runtime:**
-- This is a client-only single-page application (SPA)
-- No server-side processing required
+**Package Manager:**
+- None — no `package.json`. All JS dependencies are vendored as minified files in `assets/`.
 
 ## Frameworks
 
 **Core:**
-- Vanilla JavaScript (No framework) - All custom implementation
-- HTML5 Web APIs - Including IndexedDB for persistent storage
+- None — vanilla JavaScript, no framework (React, Vue, Angular, etc.)
+- Multi-page app (MPA) architecture: one HTML file per screen
 
-**Styling:**
-- Custom CSS3 - No CSS framework
+**PWA:**
+- Service Worker (`sw.js`) — cache-first strategy, cache name `sessions-garden-v210`
+- Web App Manifest (`manifest.json`) — standalone display mode, installable
 
-**Internationalization:**
-- Custom i18n system - Implemented in `assets/i18n.js` with English and Hebrew support
+**Testing:**
+- Node.js built-in `assert` + custom `test()` runner — no external test framework
+- Tests run with `node tests/<filename>.test.js`; exit 0 = pass, exit 1 = fail
+- VM sandbox (`node:vm`) used to load and isolate browser JS modules in Node
 
-## Key Dependencies
+## Key Dependencies (vendored)
 
-**Critical (Built-in APIs):**
-- IndexedDB - Browser database for persistent client and session storage
-  - Database: `emotion_code_portfolio` with two object stores: `clients` and `sessions`
-  - File: `assets/db.js`
-- Web Storage API - localStorage for language preference persistence
-  - Key: `portfolioLang`
-- File API - For client photo uploads and data export/import
-- Blob API - For JSON data export functionality
+All dependencies are bundled as static files — no npm install required.
 
-**Infrastructure:**
-- Google Fonts CDN - External font loading
-  - Fonts: Nunito (400, 600, 700, 800 weights) and Rubik (400, 600, 700 weights)
-  - Import: `https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Rubik:wght@400;600;700&display=swap`
+**Critical:**
+- `assets/jspdf.min.js` — jsPDF (2021+ build) — PDF export of session reports
+- `assets/jszip.min.js` — JSZip — backup archive creation/extraction (`.sgbackup` files)
+- `assets/bidi.min.js` — Unicode BiDi algorithm — RTL text rendering in PDF export
+
+**Storage:**
+- Browser IndexedDB (native) — all client/session data. Accessed via custom wrapper in `assets/db.js`
+
+**Fonts:**
+- Rubik (Regular, SemiBold, Bold) — self-hosted in `assets/fonts/` as `.woff2`
 
 ## Configuration
 
 **Environment:**
-- No environment variables required
-- Browser detection: Application assumes modern browser with ES6, IndexedDB, and File API support
+- `.env` file present — contains Lemon Squeezy API key and store credentials
+- Variable names visible via CSP `connect-src` in `index.html` header; API calls target `https://api.lemonsqueezy.com`
 
 **Build:**
-- No build process - Files served as-is (HTML, CSS, JS)
-- Static file delivery only
-
-## Data Storage
-
-**Local Storage:**
-- IndexedDB database: `emotion_code_portfolio` (version 1)
-  - Stores: `clients` (with index on `name`) and `sessions` (with indexes on `clientId` and `date`)
-  - All data persists locally in browser only - no server synchronization
-
-**No External Services:**
-- No cloud database
-- No API backend
-- No server-side persistence
+- No build step — static files served as-is
+- `_headers` — Cloudflare Pages HTTP headers config (CSP, cache-control)
+- `_redirects` — Cloudflare Pages routing config
+- `scripts/cf-purge-cache.sh` — manual Cloudflare cache purge script
 
 ## Platform Requirements
 
 **Development:**
-- Any modern browser with:
-  - ES6+ JavaScript support
-  - IndexedDB support
-  - Web Storage API (localStorage)
-  - File API for photo uploads
-  - HTML5 support
-- No build tools required
-- No package manager required
+- Any static file server (no build tooling needed)
+- Node.js (any modern version) for running tests
 
 **Production:**
-- Deployment: Static file hosting (any web server, GitHub Pages, etc.)
-- No server-side processing required
-- No database required beyond browser's IndexedDB
-
-## Browser Compatibility
-
-**Minimum Requirements:**
-- Chrome 24+
-- Firefox 16+
-- Safari 10+
-- Edge (all versions)
-- Not compatible with IE (uses modern ES6+ syntax)
+- Cloudflare Pages (static hosting)
+- Domain: `sessionsgarden.app`
+- CSP enforced via `_headers`: `connect-src` allows only `self` and `https://api.lemonsqueezy.com`
 
 ---
 
-*Stack analysis: 2026-02-01*
+*Stack analysis: 2026-06-22*

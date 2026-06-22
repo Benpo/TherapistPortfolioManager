@@ -1,170 +1,215 @@
+<!-- refreshed: 2026-06-22 -->
 # Architecture
 
-**Analysis Date:** 2026-02-01
+**Analysis Date:** 2026-06-22
+
+## System Overview
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                     HTML Pages (MPA)                            │
+│  index.html  sessions.html  add-session.html  add-client.html   │
+│  reporting.html  settings.html  landing.html  license.html      │
+│  demo.html   disclaimer-*.html  impressum-*.html  datenschutz-* │
+└───────┬────────────┬──────────────────┬──────────────────┬──────┘
+        │            │                  │                  │
+        ▼            ▼                  ▼                  ▼
+┌──────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────────┐
+│  app.js  │ │  Page module │ │  i18n.js +   │ │  shared-chrome.js│
+│ (shared  │ │  (per page): │ │  i18n-*.js   │ │  (nav/footer)    │
+│  utils,  │ │  overview.js │ │  (en/he/de/  │ │                  │
+│  modals, │ │  sessions.js │ │   cs)        │ │                  │
+│  i18n,   │ │  add-session │ └──────────────┘ └──────────────────┘
+│  guards) │ │  add-client  │
+└──────────┘ │  reporting   │
+             │  settings.js │
+             │  snippets.js │
+             └──────┬───────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  db.js (window.PortfolioDB)                     │
+│              IndexedDB abstraction layer                        │
+│   stores: clients, sessions, therapistSettings, snippets        │
+└─────────────────────────────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     IndexedDB (browser)                         │
+│  DB: "sessions_garden" (or "demo_portfolio" in demo mode)       │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│                   Service Worker (sw.js)                        │
+│   Manages HTTP asset cache only — never touches IndexedDB       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Component Responsibilities
+
+| Component | Responsibility | File |
+|-----------|----------------|------|
+| PortfolioDB | IndexedDB CRUD for all data stores | `assets/db.js` |
+| App | Shared utilities: i18n, modals, nav guards, theme, section labels, snippet cache | `assets/app.js` |
+| SharedChrome | Shared nav/footer rendering, license-aware back links | `assets/shared-chrome.js` |
+| I18N | Translation dictionaries per language | `assets/i18n.js`, `assets/i18n-en.js`, `assets/i18n-he.js`, `assets/i18n-de.js`, `assets/i18n-cs.js` |
+| overview.js | Client list, search/filter, missing-birth banner | `assets/overview.js` |
+| sessions.js | Session list for a client | `assets/sessions.js` |
+| add-session.js | Session create/edit form | `assets/add-session.js` |
+| add-client.js | Client create/edit form | `assets/add-client.js` |
+| reporting.js | Reporting/analytics view | `assets/reporting.js` |
+| settings.js | Therapist settings, section labels, snippets management | `assets/settings.js` |
+| snippets.js | Snippet picker UI component | `assets/snippets.js` |
+| pdf-export.js | PDF generation via jsPDF | `assets/pdf-export.js` |
+| backup.js + backup-modal.js | Export/import ZIP backup | `assets/backup.js`, `assets/backup-modal.js` |
+| landing.js | License purchase flow (Lemon Squeezy) | `assets/landing.js` |
+| license.js | License activation/validation | `assets/license.js` |
+| demo.js + demo-seed.js | Demo mode seeding and hint overlays | `assets/demo.js`, `assets/demo-seed.js` |
+| sw.js | Service worker: static asset precache, offline navigation | `sw.js` |
 
 ## Pattern Overview
 
-**Overall:** Multi-page SPA with modular namespace pattern and IndexedDB client-side persistence.
+**Overall:** Multi-Page Application (MPA) PWA — vanilla JavaScript, no framework, no build step.
 
 **Key Characteristics:**
-- Vanilla JavaScript with namespace-based modules (no framework)
-- Client-side only (no backend API)
-- IndexedDB for persistent local storage
-- Page-per-route navigation pattern
-- Shared utility modules loaded across all pages
-- Bilingual UI (English/Hebrew with RTL support)
+- Each HTML page is a standalone document; no SPA routing.
+- All JS modules are IIFEs exposed as `window.Globals` (e.g., `window.PortfolioDB`, `window.App`).
+- No npm, no bundler — all assets served directly as static files from Cloudflare Pages.
+- All data stored client-side in IndexedDB; no backend server.
+- Service worker handles offline capability via cache-first strategy for static assets.
 
 ## Layers
 
-**Presentation Layer:**
-- Purpose: Render UI and handle user interactions
-- Location: HTML pages in root (`index.html`, `add-client.html`, `sessions.html`, `add-session.html`, `reporting.html`)
-- Contains: Static HTML structure with data-i18n bindings for translations, modal dialogs, forms
-- Depends on: App module (`assets/app.js`), i18n module (`assets/i18n.js`), page-specific scripts
-- Used by: End users via browser navigation
+**HTML Pages:**
+- Purpose: Entry points and markup shells for each screen.
+- Location: root directory (`index.html`, `sessions.html`, `add-session.html`, `add-client.html`, `reporting.html`, `settings.html`, `landing.html`, `license.html`, `demo.html`, `disclaimer-*.html`, `impressum-*.html`, `datenschutz-*.html`)
+- Contains: Inline gate scripts (license/terms checks), layout HTML, `<script>` tags loading page modules.
+- Depends on: `assets/*.js`, `assets/*.css`
 
-**UI Module Layer:**
-- Purpose: Shared UI logic, components, and utilities
+**Shared Runtime (app.js):**
+- Purpose: Shared utilities used by all app pages.
 - Location: `assets/app.js`
-- Contains: Translation system, toast notifications, confirm dialogs, severity scale widget, formatting utilities
-- Depends on: i18n module, browser DOM APIs
-- Used by: All page-specific modules
+- Contains: i18n (`App.t`, `App.applyTranslations`), modal dialogs (`App.confirmDialog`, `App.showToast`), nav guards (`App.installNavGuard`), section-label cache, snippet cache, theme management.
+- Depends on: i18n dictionaries loaded before it.
+- Used by: all page-specific modules.
 
-**Data Access Layer:**
-- Purpose: Manage IndexedDB connection and query operations
-- Location: `assets/db.js` (window.PortfolioDB namespace)
-- Contains: Database initialization, CRUD operations for clients and sessions
-- Depends on: Browser IndexedDB API
-- Used by: All page-specific modules
+**Data Layer (db.js):**
+- Purpose: IndexedDB abstraction — all persistence.
+- Location: `assets/db.js`
+- Contains: `window.PortfolioDB` IIFE exposing async CRUD methods for clients, sessions, therapistSettings, snippets. Handles DB version migrations (current version: 5). Handles rebrand migration from old `emotion_code_portfolio` DB to `sessions_garden`.
+- Depends on: Nothing (pure IndexedDB).
+- Used by: All page modules, backup.js.
 
-**Internationalization Layer:**
-- Purpose: Store and manage translations
-- Location: `assets/i18n.js` (window.I18N)
-- Contains: Key-value translation dictionaries for English and Hebrew
-- Depends on: None (static data)
-- Used by: App module for dynamic translation lookup
+**Page Modules:**
+- Purpose: Page-specific UI logic, loaded only on relevant pages.
+- Location: `assets/overview.js`, `assets/sessions.js`, `assets/add-session.js`, `assets/add-client.js`, `assets/reporting.js`, `assets/settings.js`
+- Contains: DOM manipulation, event listeners, calls to `PortfolioDB`, calls to `App`.
+- Depends on: `app.js`, `db.js` (both loaded first via `<script>` ordering in HTML).
+- Used by: Their respective HTML page only.
 
-**Page Logic Layer:**
-- Purpose: Implement page-specific functionality and business logic
-- Location: `assets/overview.js`, `assets/add-client.js`, `assets/add-session.js`, `assets/sessions.js`, `assets/reporting.js`
-- Contains: Page initialization, form submission, data rendering, filtering/sorting
-- Depends on: App module, PortfolioDB module, i18n module, browser DOM APIs
-- Used by: Browser DOMContentLoaded event
+**Service Worker:**
+- Purpose: Offline support — caches static assets and HTML pages on install.
+- Location: `sw.js`
+- Contains: Precache lists for all JS/CSS/fonts/images and all HTML routes; cache-first strategy for static assets; redirect-safe pattern for HTML page caching (CF Pages pretty URLs).
+- Never touches IndexedDB.
 
 ## Data Flow
 
-**Client Creation Flow:**
+### Primary Request Path (e.g., opening Overview)
 
-1. User navigates to `add-client.html`
-2. `add-client.js` initializes, optionally loads existing client if `clientId` param present
-3. User fills form and submits
-4. Form handler calls `PortfolioDB.addClient()` or `PortfolioDB.updateClient()`
-5. IndexedDB transaction completes, client stored
-6. Redirect to `index.html` triggers `overview.js` to reload
-7. `overview.js` calls `PortfolioDB.getAllClients()` to fetch and render client table
+1. Browser navigates to `index.html` — inline gate scripts run: redirect to `landing.html` if unlicensed, `disclaimer-*.html` if terms not accepted (`index.html` lines 5–14).
+2. Page HTML loads `assets/tokens.css`, `assets/app.css`, `assets/app.js`, `assets/db.js`, `assets/i18n*.js`, `assets/overview.js`.
+3. `overview.js` calls `PortfolioDB.getAllClients()` → IndexedDB → returns client array.
+4. `App.applyTranslations()` populates all `data-i18n` elements.
+5. DOM is updated with client rows; event listeners attached.
 
-**Session Creation Flow:**
+### Session Create/Edit Flow
 
-1. User navigates to `add-session.html` (optionally with `clientId` URL param)
-2. `add-session.js` populates client dropdown from `PortfolioDB.getAllClients()`
-3. User fills form with client, date, session type, issues with before/after severity
-4. Form handler calls `PortfolioDB.addSession()` or `PortfolioDB.updateSession()`
-5. IndexedDB stores session with clientId reference
-6. Redirect to `index.html` triggers data reload
+1. User navigates to `add-session.html` (new) or `add-session.html?id=<uuid>` (edit).
+2. `add-session.js` calls `PortfolioDB.getSession(id)` if editing; populates form.
+3. On submit: `PortfolioDB.addSession()` or `PortfolioDB.updateSession()`.
+4. Navigation redirects back to `sessions.html?client=<id>`.
 
-**Data Read Flow:**
+### Demo Mode
 
-1. Page loads and DOMContentLoaded fires
-2. Specific page module calls `PortfolioDB.getAllClients()` and/or `PortfolioDB.getAllSessions()`
-3. IndexedDB transaction reads all records
-4. Page module processes data (filtering, aggregation, sorting)
-5. DOM elements populated with formatted data
-6. User interactions (filter, sort, delete) trigger re-renders
+1. `landing.html` opens `demo.html` in a named window (`window.name = "demo-mode"`).
+2. `db.js` detects `window.name === "demo-mode"` and opens `demo_portfolio` IndexedDB instead of `sessions_garden`.
+3. `demo-seed.js` populates synthetic client/session data on first load.
 
 **State Management:**
-
-- **Client state:** Stored in IndexedDB, no in-memory cache except page-local variables during editing
-- **Session state:** Stored in IndexedDB
-- **UI state:** DOM attributes (data-* attributes), CSS classes (is-hidden, is-active, is-visible)
-- **Language state:** Stored in localStorage (`portfolioLang`), reflected in document.documentElement.lang and body[dir]
-- **Form state:** Held in form inputs during editing; discarded on navigation
+- No in-memory global state store. Each page module holds page-local variables (e.g., `_allClients`, `_sessionsByClient` in `overview.js`).
+- Persistent state lives entirely in IndexedDB (clients, sessions, settings, snippets) and `localStorage` (license flags, language, theme, terms acceptance).
+- `App` holds two module-level caches populated once at page load: `_sectionLabelCache` (Map) and `_snippetCache` (Array), both read synchronously by page modules thereafter.
 
 ## Key Abstractions
 
-**Database Access (PortfolioDB):**
-- Purpose: Encapsulate IndexedDB complexity, provide consistent async API
+**window.PortfolioDB:**
+- Purpose: Single access point for all IndexedDB operations.
 - Examples: `assets/db.js`
-- Pattern: IIFE returning object of async functions; opens DB on each operation to ensure fresh connection
+- Pattern: IIFE returning named async functions — `addClient`, `updateClient`, `getAllClients`, `addSession`, `updateSession`, `deleteSession`, `getAllTherapistSettings`, `getAllSnippets`, etc.
 
-**App Utilities (App):**
-- Purpose: Centralized UI operations and translation helpers
+**window.App:**
+- Purpose: Shared page utilities.
 - Examples: `assets/app.js`
-- Pattern: IIFE with public methods for t() (translate), applyTranslations(), setLanguage(), showToast(), confirmDialog(), formatDate(), createSeverityScale()
+- Pattern: IIFE returning core namespace; additional methods attached as `App.fnName = function(){}` after the IIFE closes.
 
-**Page Modules:**
-- Purpose: Self-contained logic for each page/route
-- Examples: `assets/overview.js`, `assets/add-client.js`, `assets/add-session.js`, `assets/sessions.js`, `assets/reporting.js`
-- Pattern: IIFE or direct module code attached to DOMContentLoaded; no shared state between pages except via IndexedDB
-
-**i18n Dictionary:**
-- Purpose: Centralized translation storage
-- Examples: `assets/i18n.js`
-- Pattern: Static nested object on window.I18N with language code as first key, translation key as second key
+**data-i18n attributes:**
+- Purpose: Declarative i18n — `App.applyTranslations()` sets `.textContent` on all matching elements.
+- Pattern: `<span data-i18n="nav.clients"></span>` → resolved via current language dictionary.
 
 ## Entry Points
 
-**Overview Page:**
-- Location: `index.html` + `assets/overview.js`
-- Triggers: Browser loads index.html or navigation from other pages
-- Responsibilities: Fetch all clients and sessions, render client table with summary stats, handle client modal, setup import/export, setup navigation
+**index.html (Overview):**
+- Location: `index.html`
+- Triggers: Direct navigation; SW `start_url`.
+- Responsibilities: Gate checks → client list via `overview.js`.
 
-**Add Client Page:**
-- Location: `add-client.html` + `assets/add-client.js`
-- Triggers: User clicks "Add Client" button or navigates to add-client.html?clientId=X
-- Responsibilities: Render form with client fields (name, type, age, notes, photo), validate input, persist to DB, handle delete for existing clients
+**landing.html:**
+- Location: `landing.html`
+- Triggers: Redirect from gate scripts when no license.
+- Responsibilities: Marketing page, demo launch, license purchase via Lemon Squeezy.
 
-**Add Session Page:**
-- Location: `add-session.html` + `assets/add-session.js`
-- Triggers: User clicks "Add Session" or navigates with ?clientId=X or ?sessionId=X
-- Responsibilities: Load client list, render form with session fields (date, type, issues with severity), support issue bulk creation, handle inline client creation, copy prev session data
+**sw.js:**
+- Location: `sw.js`
+- Triggers: Registered from each app HTML page (not `landing.html`).
+- Responsibilities: Precache all static assets + HTML routes on install; serve cache-first for static assets. Cache version: `sessions-garden-v210`.
 
-**Sessions Page:**
-- Location: `sessions.html` + `assets/sessions.js`
-- Triggers: User clicks "Sessions" nav link
-- Responsibilities: Fetch all sessions, support filtering by client and date range, render table with client, date, session type, issues
+## Architectural Constraints
 
-**Reporting Page:**
-- Location: `reporting.html` + `assets/reporting.js`
-- Triggers: User clicks "Reporting" nav link
-- Responsibilities: Aggregate metrics across all sessions (total clients, sessions, avg issues, avg severity before/after, heart-wall clears)
+- **Threading:** Single-threaded browser JS. Service worker runs in a separate thread but only handles HTTP cache — no shared state with the main thread.
+- **Global state:** `window.PortfolioDB` and `window.App` are module-level singletons. `_sectionLabelCache` and `_snippetCache` in `app.js` are shared mutable state populated once at page init.
+- **Circular imports:** No module system — load order in `<script>` tags is the dependency graph. `db.js` must load before page modules; `app.js` and i18n files must load before page modules.
+- **No backend:** Zero server-side logic. All data is client-only. License validation calls Lemon Squeezy API (`https://api.lemonsqueezy.com`) directly from the browser.
+- **No build step:** No transpilation, no minification (except vendored libs). Changes go live on deploy immediately.
+
+## Anti-Patterns
+
+### Loading order as implicit dependency management
+
+**What happens:** Page modules depend on `app.js` and `db.js` being loaded first, enforced only by `<script>` tag ordering in HTML.
+**Why it's wrong:** Any page that loads scripts out of order silently fails at runtime with `window.App is not defined` — no build-time safety net.
+**Do this instead:** Maintain the existing `<script>` order in every HTML page: `tokens.css` → `app.css` → `app.js` → `db.js` → i18n files → page module last.
+
+### Inline gate scripts in `<head>`
+
+**What happens:** License/terms/redirect checks run as blocking inline scripts before any resources load (`index.html` lines 5–14).
+**Why it's wrong:** Any async or complex logic here blocks the page and can cause redirect loops if localStorage is unavailable.
+**Do this instead:** Keep gate scripts as simple, synchronous, single-purpose checks; never add async logic inside them.
 
 ## Error Handling
 
-**Strategy:** Try-catch blocks in async operations; fallback to toast notifications for user feedback
+**Strategy:** Defensive — most DB calls are wrapped in try/catch at the call site; failures surfaced via `App.showToast`.
 
 **Patterns:**
-- Import/export validation: `try { JSON.parse() } catch (err) { App.showToast("", "toast.importError") }`
-- Photo file reading: `try { photoData = await readFileAsDataURL(file) } catch (err) { handle }`
-- Form submission: Wrapped in try-catch with toast notification on error; form reset on success
-- IndexedDB errors: Rejected promises propagated to caller; no global error handler
+- IndexedDB errors bubble via rejected Promises; page modules catch and show toast notifications.
+- Gate scripts wrap in `try/catch` and fail silently (no redirect on localStorage error).
 
 ## Cross-Cutting Concerns
 
-**Logging:** None implemented. Errors logged to browser console implicitly via Promise rejection.
-
-**Validation:**
-- Client form: Required fields (name) enforced by HTML5 validation (required attribute)
-- Session form: Required fields (client, date, issues) enforced by required attribute and custom validation before submission
-- Photo upload: Validated by accept="image/*" input attribute and file size checks in some cases
-
-**Authentication:** None (client-side only, no user accounts)
-
-**Internationalization:**
-- All visible text bound via data-i18n attributes in HTML
-- Dynamic content translated via App.t(key) in JavaScript
-- Language switching via App.setLanguage(lang) updates DOM direction (RTL for Hebrew)
-- localStorage persists language selection
+**Logging:** `console.warn` in `sw.js` for precache failures; no structured logging elsewhere.
+**Validation:** Form validation in page modules; `PortfolioDB.validateSnippetShape` for snippet shape validation.
+**Authentication:** License-key based; checked via `localStorage.getItem('portfolioLicenseActivated')` in gate scripts and `shared-chrome.js`.
 
 ---
 
-*Architecture analysis: 2026-02-01*
+*Architecture analysis: 2026-06-22*

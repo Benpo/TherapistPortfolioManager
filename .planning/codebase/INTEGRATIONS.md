@@ -1,149 +1,86 @@
 # External Integrations
 
-**Analysis Date:** 2026-02-01
+**Analysis Date:** 2026-06-22
 
 ## APIs & External Services
 
-**None Detected**
-
-This is a fully client-side application with no external API integrations. All processing and data management occurs locally within the browser.
+**Payments / Licensing:**
+- Lemon Squeezy — one-time purchase licensing and checkout
+  - SDK/Client: Vanilla `fetch` (no SDK)
+  - Auth: API key in `.env` (name not printed here)
+  - Store ID: `324581` (Sessions Garden store — never use store `289135`)
+  - Checkout URL: `https://sessionsgarden.lemonsqueezy.com/checkout/buy/70849bde-8fcb-4b30-8525-435f4c7fec66` (hardcoded in `assets/landing.js`)
+  - License activate: `POST https://api.lemonsqueezy.com/v1/licenses/activate` (`assets/license.js:211`)
+  - License deactivate: `POST https://api.lemonsqueezy.com/v1/licenses/deactivate` (`assets/license.js:263`)
+  - CSP `connect-src` explicitly permits `https://api.lemonsqueezy.com` (enforced in `_headers`)
 
 ## Data Storage
 
 **Databases:**
-- IndexedDB (Browser Native)
-  - Database Name: `emotion_code_portfolio`
-  - Database Version: 1
-  - Stores:
-    - `clients` - Client profiles with auto-incremented IDs
-      - Index: `name` (non-unique)
-    - `sessions` - Session records with auto-incremented IDs
-      - Index: `clientId` (non-unique) - for querying sessions by client
-      - Index: `date` (non-unique) - for date-based queries
-  - Implementation: `assets/db.js`
-  - Scope: Browser origin only (same-origin policy)
-  - Persistence: Until browser data is cleared by user
+- Browser IndexedDB (native) — all client/session/snippets data stored on-device
+  - Connection: native `indexedDB` browser API
+  - Client: custom wrapper `assets/db.js` (no ORM, no idb library)
+  - Privacy design: zero server-side storage; all data stays on user's device
 
 **File Storage:**
-- Local filesystem only (user-initiated uploads via File API)
-  - Photo uploads: Stored as Base64 data URLs within IndexedDB
-  - File location: `assets/db.js` - `photoData` field in client records
+- Local only — backups exported as `.sgbackup` files (ZIP archive via JSZip)
+- No cloud file storage service
 
 **Caching:**
-- Browser native caching - Static assets cached by browser
-- No explicit cache layer implemented
+- Service Worker cache (`sw.js`) — static asset caching in browser
+- Cloudflare Pages CDN — edge caching for static assets (controlled via `_headers`)
 
 ## Authentication & Identity
 
 **Auth Provider:**
-- None (Not required)
-
-**Implementation:**
-- No authentication system
-- Single-user application running in user's browser
-- No login or user management
-- Data isolation via browser's same-origin policy
+- None (no user accounts, no OAuth)
+- License activation replaces auth: `portfolioLicenseActivated` and `portfolioLicenseInstance` stored in `localStorage`
+- Gate system in `index.html` redirects to `landing.html` → `disclaimer-*.html` → `license.html` based on localStorage state
 
 ## Monitoring & Observability
 
 **Error Tracking:**
-- None (Not implemented)
-- Silent error handling with user-facing toast notifications
-- Implementation: `assets/app.js` - `showToast()` function
+- None detected
 
 **Logs:**
-- Browser console only (development)
-- No persistent logging
-- No remote error reporting
-
-**Analytics:**
-- None (Not implemented)
-- No tracking or telemetry
+- Browser console only (`console.error` / `console.log` in source files)
 
 ## CI/CD & Deployment
 
 **Hosting:**
-- Any static file server
-- Suitable for: GitHub Pages, Netlify, Vercel, AWS S3, traditional web servers
-- No server-side processing required
+- Cloudflare Pages — static site hosting
+  - Cache purge script: `scripts/cf-purge-cache.sh`
+  - Header rules: `_headers`
+  - Redirect rules: `_redirects`
 
 **CI Pipeline:**
-- None configured
-- No build process to pipeline
-- Manual deployment of HTML, CSS, JS files
-
-**Live Status:**
-- Not applicable - no backend
+- None detected (no GitHub Actions, no CF Pages build pipeline config found)
+- Deployments appear to be manual pushes to CF Pages
 
 ## Environment Configuration
 
-**Required env vars:**
-- None (No environment variables used)
-
-**Configuration Methods:**
-- Language preference: Stored in localStorage as `portfolioLang`
-- Default language: `en` (English)
-- Supported languages: `en` (English), `he` (Hebrew)
+**Required env vars (names only — see `.env`):**
+- Lemon Squeezy API key — used by `assets/license.js` for license validation calls
+- Lemon Squeezy Store ID `324581` — hardcoded in `CLAUDE.md` as the Sessions Garden store
 
 **Secrets location:**
-- Not applicable - No authentication or secrets required
-- No API keys
-- No credentials
-
-## Import/Export
-
-**Data Import:**
-- JSON file upload via File API
-- Endpoint: None (browser-side processing)
-- File format: JSON with structure `{ version: number, clients: [], sessions: [] }`
-- Implementation: `assets/overview.js` - `importData()` function
-- Validation: Structure validation only
-
-**Data Export:**
-- JSON file download via Blob API
-- Triggered by user action
-- File naming: `emotion-code-portfolio-{YYYY-MM-DD}.json`
-- Implementation: `assets/overview.js` - `exportData()` and `downloadJSON()` functions
-- Includes: All clients and sessions with full data
+- `.env` file in project root — never read or commit contents
 
 ## Webhooks & Callbacks
 
 **Incoming:**
-- None (No backend service)
+- None detected — no server-side endpoint exists (pure static app)
 
 **Outgoing:**
-- None (No external service integration)
+- None — all Lemon Squeezy calls are client-initiated REST calls, not webhooks
 
-**Client-side Events:**
-- Custom DOM events for language changes: `app:language`
-- Implementation: `assets/app.js` - Event dispatcher and listener pattern
+## PWA / Offline
 
-## Third-party Resources
-
-**Content Delivery:**
-- Google Fonts CDN (Font files only)
-  - URL: `https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Rubik:wght@400;600;700&display=swap`
-  - Fonts: Nunito (Latin) and Rubik (Latin, Hebrew)
-  - Reference: `assets/app.css` line 1
-
-**No Other External Dependencies:**
-- No JavaScript libraries
-- No CSS frameworks
-- No analytics services
-- No advertising networks
-
-## Data Privacy
-
-**Data Location:**
-- All user data stored entirely in browser's IndexedDB
-- No data transmission to external servers
-- Compliant with offline-first, privacy-by-design principles
-
-**User Data:**
-- Client names and profile information
-- Session notes and therapy-related data
-- All stored locally only
+**Service Worker:**
+- `sw.js` — cache-first for static assets, network-first for HTML pages
+- Cache name versioned: `sessions-garden-v210` (must bump on deploy to bust caches)
+- Precache list covers all JS, CSS, fonts, illustrations, and JSON data files
 
 ---
 
-*Integration audit: 2026-02-01*
+*Integration audit: 2026-06-22*

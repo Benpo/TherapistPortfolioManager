@@ -1,193 +1,213 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-02-01
+**Analysis Date:** 2026-06-22
 
 ## Test Framework
 
-**Status:** Not detected
+**Runner:** Node.js built-in (`node tests/<file>.test.js`) — no Jest, no Vitest, no test runner framework.
 
-**Current State:**
-- No test framework configured (Jest, Vitest, Mocha, etc. not found)
-- No test files present in codebase (no .test.js, .spec.js, .test.ts, .spec.ts files)
-- No test configuration files: no jest.config.js, vitest.config.js, or similar
-- No test runners in package.json (no package.json found; vanilla HTML/JS project)
-- No testing dependencies detected
+**Assertion library:** Node.js built-in `assert` module (`require('assert')`).
 
-**Test Environment:**
-- Project is vanilla JavaScript running in browser environment
-- IndexedDB for data storage (would require mocking or special test setup)
-- DOM manipulation heavy (requires jsdom or similar for testing)
+**Sandbox execution:** `node:vm` — asset files are loaded into a controlled sandbox via `vm.runInContext()` to isolate browser globals from Node.
+
+**No package.json** — the project has no npm setup. There is no `npm test` command. Tests are run individually.
+
+**Run commands:**
+```bash
+node tests/<test-file>.test.js          # Run a single test file
+node tests/25-11-i18n-parity.test.js    # Example: i18n parity check
+node tests/24-04-trigger-regex.test.js  # Example: snippet trigger logic
+
+# Some PDF tests require jsdom installed at /tmp/node_modules/jsdom
+mkdir -p /tmp && cd /tmp && npm install jsdom
+node tests/quick-260620-q8m-pdf-paragraph-linebreaks.test.js
+# Or with custom jsdom path:
+JSDOM_PATH=/path/to/node_modules/jsdom node tests/<pdf-test>.test.js
+```
+
+All test files exit 0 on pass, 1 on any failure.
 
 ## Test File Organization
 
-**Current Pattern:**
-- No test files present
-- No established test directory structure
+**Location:** `tests/` directory at project root (not co-located with source).
 
-**Recommended Structure for Future Testing:**
-- Test files would typically follow co-located pattern: `assets/__tests__/` or adjacent to source
-- Suggested naming: `assets/app.test.js`, `assets/db.test.js`, `assets/add-client.test.js`
+**Total files:** 74 test files as of 2026-06-22.
 
-## Codebase Testability Assessment
+**Helper files:** `tests/_helpers/mock-navigator-share.js`, `tests/_helpers/mock-portfolio-db.js`
 
-**Easily Testable:**
-- Database abstraction layer in `assets/db.js` - could be unit tested with mocked IndexedDB
-- Pure functions: `formatDate()`, `severityColor()`, `formatSessionType()`, `getClientDisplayName()`
-- Utility functions: `readFileAsDataURL()`, `createSeverityScale()`, `getSeverityValue()`
-- Translation system: `App.t()`, `setLanguage()` - could test with mock I18N data
+**Naming conventions:**
+- Phase/plan tests: `{phase}-{plan}-{description}.test.js`
+  - e.g., `25-11-i18n-parity.test.js`, `24-04-trigger-regex.test.js`
+- Quick-task tests: `quick-{YYMMDD}-{task-id}-{description}.test.js`
+  - e.g., `quick-260620-q8m-pdf-paragraph-linebreaks.test.js`, `quick-260619-okw-trigger-unicode.test.js`
+- PDF-specific tests: `pdf-{description}.test.js`
+  - e.g., `pdf-bidi.test.js`, `pdf-bold-rendering.test.js`, `pdf-digit-order.test.js`
+- Service worker test: `sw-precache-cache-reload.test.js`
 
-**Difficult to Test (Currently):**
-- DOM-heavy page initialization scripts (`add-client.js`, `add-session.js`, `overview.js`, `reporting.js`)
-- Form submission handlers with mixed business logic and DOM updates
-- Modal dialog handling with event listeners and manual DOM state management
-- LocalStorage and IndexedDB interactions tightly coupled with UI logic
+## Test Structure
 
-## Current Testing Approach
+**Standard structure: vm sandbox + test runner loop**
 
-**De facto Testing Method:**
-- Manual testing via browser
-- User acceptance testing in production/staging
-- Visual regression (implicit - no automated checks)
+```js
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+const assert = require('assert');
 
-**Test Data:**
-- IndexedDB used for local persistence in browser
-- No test fixtures or seed data found
-- Import/export JSON feature allows manual test data setup: `assets/overview.js` has `exportData()` and `importData()` functions
-
-## Code Patterns That Would Need Testing
-
-**Async Database Operations:**
-- All database functions return Promises
-- Operations include: `addClient()`, `updateClient()`, `deleteClient()`, `addSession()`, `deleteSession()`, `getAllClients()`, `getAllSessions()`, `getSessionsByClient()`
-- Transaction handling: `withStore()` pattern would need test coverage
-
-**Event Handlers:**
-- Form submissions with validation
-- Language change detection via custom events: `document.dispatchEvent(new CustomEvent("app:language", { detail: { lang } }))`
-- Modal dialog confirmation: `App.confirmDialog({ titleKey, messageKey })`
-
-**State Management:**
-- Current language stored in module scope: `let currentLang`
-- Client cache in session script: `let clientCache`
-- Form state: `let editingClient`, `let isReadMode`, `let photoData`
-
-**Data Transformations:**
-- Client display name generation: `getClientDisplayName()`
-- Date formatting with locale support
-- Severity color calculation: `severityColor(value)`
-- Session aggregation and statistics
-
-## Manual Testing Observations
-
-**Implicit Test Cases (from code review):**
-
-1. **Client Management:**
-   - Add new client with validation (firstName required)
-   - Edit existing client
-   - Delete client (with confirmation dialog)
-   - Client type toggle between "human" and "animal"
-   - Heart wall checkbox handling
-   - Photo upload and preview
-
-2. **Session Management:**
-   - Create session for existing client
-   - Create inline client during session creation
-   - Edit existing session
-   - Delete session (with confirmation)
-   - Session issue list management
-   - Session type selection (in-person, proxy, surrogate)
-   - Severity scale 0-10 selection (before and after)
-
-3. **Data Persistence:**
-   - IndexedDB transactions complete successfully
-   - Data survives browser refresh
-   - Client-session relationships maintained
-
-4. **Internationalization:**
-   - Language toggle between English and Hebrew
-   - RTL/LTR layout switching
-   - All UI text translates correctly
-   - Date formatting respects locale
-
-5. **Import/Export:**
-   - Export data as JSON file
-   - Import valid JSON file
-   - Import error handling (invalid JSON)
-
-6. **UI State:**
-   - Read mode vs. edit mode toggle
-   - Modal dialogs show/hide correctly
-   - Toast notifications appear and disappear
-   - Empty state displays when no data
-
-## Testing Dependencies (If Implemented)
-
-**Recommended Stack for Testing:**
-- **Runner:** Jest or Vitest (for unit tests)
-- **Browser Simulation:** jsdom or happy-dom (for DOM tests)
-- **Mocking:** Jest's built-in mocks for IndexedDB, localStorage
-- **IndexedDB Mock:** fake-indexeddb or similar
-- **Assertion Library:** Jest built-in or Chai
-
-**Example Test Setup (Pseudo-code):**
-```javascript
-// jest.config.js would configure testEnvironment: "jsdom"
-// Mock IndexedDB
-jest.mock('indexedDB', () => ({...}));
-
-// Mock localStorage
-const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn()
+// 1. Build a minimal browser-globals sandbox
+const sandbox = {
+  window: { name: '' },
+  document: { addEventListener() {}, getElementById() { return null; }, ... },
+  navigator: { userAgent: '' },
+  setTimeout, clearTimeout, Promise, JSON, Math, ...,
+  console: { log() {}, warn() {}, error() {} },
 };
-global.localStorage = localStorageMock;
+vm.createContext(sandbox);
+
+// 2. Load the asset under test into the sandbox
+const src = fs.readFileSync(path.join(__dirname, '..', 'assets', 'snippets.js'), 'utf8');
+vm.runInContext(src, sandbox, { filename: 'assets/snippets.js' });
+
+// 3. Extract the module under test
+const { detectTrigger } = sandbox.window.Snippets.__testExports;
+
+// 4. Custom test runner (no framework)
+let passed = 0, failed = 0;
+function test(name, fn) {
+  try { fn(); console.log('  PASS  ' + name); passed++; }
+  catch (err) { console.log('  FAIL  ' + name + '\n        ' + err.message); failed++; }
+}
+
+// 5. Tests using assert
+test('description', () => {
+  assert.strictEqual(result.type, 'match');
+});
+
+// 6. Exit code
+process.exit(failed === 0 ? 0 : 1);
 ```
 
-## Critical Untested Areas
+**Async tests** use a top-level `async function main()` + `.catch(err => process.exit(1))`:
+```js
+async function main() {
+  // await calls...
+}
+main().catch(err => { console.error('FATAL:', err); process.exit(1); });
+```
 
-**High Risk (No Test Coverage):**
-- Database transaction integrity - could fail silently
-- Concurrent database operations - no testing of race conditions
-- File upload and data URL generation (`readFileAsDataURL()`)
-- Modal dialog event cleanup (listener removal might leak memory)
-- Language switching under high frequency
-- Large dataset handling (performance not tested)
+## PDF Tests (jsdom-based)
 
-**Medium Risk:**
-- Form validation edge cases
-- Missing element handling (null checks in 160 places)
-- Permission/accessibility scenarios
-- Keyboard navigation in modals
+PDF rendering tests (files matching `pdf-*.test.js` and PDF-related quick tests) require jsdom
+because jsPDF uses browser DOM APIs. Pattern:
 
-**Low Risk:**
-- Static translation keys (verified at runtime but not systematically)
-- Basic CSS styling (visual regression not tested)
+```js
+const { JSDOM } = require(process.env.JSDOM_PATH || '/tmp/node_modules/jsdom');
 
-## Recommended Testing Strategy
+function buildJsdomEnv() {
+  const dom = new JSDOM('<!doctype html>...', {
+    url: 'file://' + REPO_ROOT + '/test-harness.html',
+    runScripts: 'outside-only',
+  });
+  const win = dom.window;
+  win.HTMLCanvasElement.prototype.getContext = () => null; // jsdom stub
+  win.eval(fs.readFileSync('assets/jspdf.min.js', 'utf8'));
+  win.eval(fs.readFileSync('assets/bidi.min.js', 'utf8'));
+  win.eval(fs.readFileSync('assets/fonts/heebo-base64.js', 'utf8'));
+  win.eval(fs.readFileSync('assets/pdf-export.js', 'utf8'));
+  return dom;
+}
+```
 
-**Phase 1 - Foundation:**
-1. Set up Jest with jsdom
-2. Create tests for pure utilities: `formatDate()`, `severityColor()`, `formatSessionType()`
-3. Create tests for i18n: `App.t()`, `setLanguage()` with mock I18N
-4. Create tests for IndexedDB layer (`db.js`) with mocked IndexedDB
+Deterministic PDF output is achieved by pinning date and file ID on the jsPDF instance:
+```js
+doc.setCreationDate("D:20260101000000+00'00'");
+doc.setFileId('00000000000000000000000000000000');
+```
 
-**Phase 2 - Core Features:**
-1. Test client CRUD operations via database layer
-2. Test session CRUD operations via database layer
-3. Test data aggregation/statistics (reporting calculations)
-4. Test import/export JSON serialization
+## Mocking
 
-**Phase 3 - UI Integration:**
-1. Test form submission flows with DOM simulation
-2. Test modal dialog interactions
-3. Test language switching UI updates
-4. Test navigation between pages (localStorage and URL params)
+**What is mocked:**
+- `window.localStorage` — stubbed inline in each sandbox (`{ getItem() { return 'he'; }, setItem() {} }`)
+- `document.*` — minimal stubs (getElementById returns null, querySelectorAll returns [])
+- `navigator.userAgent` — set to empty string
+- `HTMLCanvasElement.prototype.getContext` — returns `null` (jsPDF PDF tests only)
+- jsPDF `doc.text` — wrapped to record all draw calls into `win.__textCalls` (behavior spy for paragraph layout tests)
 
-**Phase 4 - E2E:**
-1. Browser-based E2E tests (Playwright, Cypress)
-2. Full user workflows: add client → add session → report → export
+**What is NOT mocked:**
+- `assert` — uses real Node.js assert
+- `vm` sandbox itself — real Node.js vm module
+- File system reads — real `fs.readFileSync` against the actual repo files
+
+**Helper files:**
+- `tests/_helpers/mock-navigator-share.js` — stubs `navigator.share`
+- `tests/_helpers/mock-portfolio-db.js` — stubs IndexedDB calls
+
+## Key Test Patterns
+
+### Behavior Tests (mandatory for runtime-behavior fixes)
+
+Per project memory (`feedback-behavior-verification.md`): runtime-behavior bugs MUST have a
+falsifiable behavior test that FAILS on the old code and PASSES after the fix. Grep/shape checks
+are not sufficient.
+
+Pattern: spy on a low-level rendering call and assert on observable output:
+- `tests/quick-260620-q8m-pdf-paragraph-linebreaks.test.js` wraps `doc.text` to record baseline Y
+  coordinates and asserts that 3 separate lines render on 3 distinct Y values.
+
+### i18n Parity Tests
+
+`tests/25-11-i18n-parity.test.js` — loads all 4 locale files in a vm sandbox and asserts:
+1. Specific new keys exist in all 4 locales
+2. Every key in `i18n-en.js` exists in all other locale files (parity invariant)
+
+### Shape / Structure Tests
+
+Tests that assert module structure without runtime behavior:
+- `tests/25-01-sendToMyself-removed.test.js` — grep-style: asserts a removed function is absent
+- `tests/25-13-css-audit.test.js` — reads CSS source and checks class/variable presence
+
+### ReDoS Safety Tests
+
+`tests/24-04-trigger-regex.test.js` scenario H: runs an adversarial 10,000-char input 5 times
+and asserts total elapsed time < 50ms.
+
+### Test Documentation Pattern
+
+Each test file opens with a block comment that:
+1. Names the phase/plan and what is being tested
+2. Lists the numbered scenarios (A, B, C... or Test 1, 2, 3...)
+3. States the `Run:` command
+4. States the exit code contract
+5. For behavior tests: explains the bug root cause, the fix, and why the test is falsifiable
+
+## What Is Tested
+
+- Snippet trigger detection regex and locale fallback chain (`assets/snippets.js`)
+- PDF paragraph rendering, bold text, BiDi, digit order, RTL ordered lists, glyph coverage
+- i18n key parity across all 4 locales
+- IndexedDB migration shape
+- Photo crop, resize, delete, bytes estimator
+- Schedule/reminder debounce, interval, password enforcement
+- Backup import/export structure
+- Service worker precache configuration
+- Cloud sync state machine
+- CSS structure audits
+
+## What Is NOT Tested
+
+- Full end-to-end user flows (no Playwright/Cypress)
+- IndexedDB read/write at runtime (tests mock the DB layer)
+- UI rendering correctness in a browser (no visual regression tests)
+- Authentication / Lemon Squeezy payment flows
+- Settings save/load round-trips in a real browser context
+
+## Coverage Status
+
+No coverage tooling configured. No enforced coverage threshold. Coverage is informal — each
+phase/quick task adds targeted tests for the specific behavior changed, rather than
+maintaining aggregate line coverage.
 
 ---
 
-*Testing analysis: 2026-02-01*
+*Testing analysis: 2026-06-22*

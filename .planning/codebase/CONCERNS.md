@@ -1,273 +1,230 @@
 # Codebase Concerns
 
-**Analysis Date:** 2026-02-01
-
-## Tech Debt
-
-**Database Transaction Pattern Redundancy:**
-- Issue: Multiple async functions wrap database operations differently, creating inconsistent patterns
-- Files: `assets/db.js` (lines 25-34, 36-45, 56-63, 67-74)
-- Impact: Code duplication makes maintenance harder and increases bug surface area. Each operation has slight variations in error handling.
-- Fix approach: Extract a reusable `withDB()` helper that standardizes all IndexedDB transaction patterns. The `withStore()` function (line 25) exists but isn't used consistently by all operations.
-
-**Closure-Based Module Pattern Without State Isolation:**
-- Issue: Module-level closures store state without clear initialization or reset mechanisms
-- Files: `assets/add-session.js` (lines 1-3, 141-142), `assets/overview.js` (line 77), `assets/sessions.js` (line 10)
-- Impact: Global module state (`clientCache`, `issues`, `inlinePhotoData`) can cause unexpected behavior if pages are revisited or if multiple instances exist
-- Fix approach: Implement explicit initialization function that clears state at page load rather than relying on closure initialization
-
-**Hardcoded Constants Scattered Across Files:**
-- Issue: Magic numbers and strings appear in multiple places without centralization
-- Files: `assets/add-session.js` (line 143 MAX_ISSUES=3), `assets/db.js` (lines 2-3 DB_NAME, DB_VERSION)
-- Impact: Changes to constraints require updating multiple files; no single source of truth
-- Fix approach: Create a `config.js` file with all constants and import from there
-
-## Security Considerations
-
-**Data Storage Without Encryption:**
-- Risk: Client photos and session data stored as base64 in IndexedDB without encryption
-- Files: `assets/db.js` (store creation lines 10-18), `assets/add-session.js` (line 438 photoData = await readFileAsDataURL)
-- Current mitigation: None - relies on browser's localStorage security model
-- Recommendations:
-  - Document that IndexedDB is not encrypted and data is accessible via browser DevTools
-  - Consider warning users about sensitive data
-  - Implement client-side encryption if handling protected health information
-
-**No Input Validation on Form Data:**
-- Risk: User input (names, emails, notes) stored directly without sanitization
-- Files: `assets/add-client.js` (lines 117-128), `assets/add-session.js` (lines 516-532)
-- Current mitigation: HTML form type attributes provide basic browser validation
-- Recommendations:
-  - Add email format validation beyond HTML input type
-  - Validate age as positive integer
-  - Trim whitespace (already done with .trim()) but validate maximum lengths
-  - Sanitize text fields that are later displayed as innerHTML or textContent
-
-**Photo Upload Without Size Limits:**
-- Risk: Large image files converted to base64 could bloat IndexedDB
-- Files: `assets/add-session.js` (lines 434-444), `assets/add-client.js` (lines 46-56)
-- Current mitigation: None
-- Recommendations:
-  - Add file size check before readFileAsDataURL()
-  - Add file type validation (check MIME type, not just extension)
-  - Compress image before storing or limit resolution
-
-**Export Contains Unencrypted Sensitive Data:**
-- Risk: JSON export includes all client info and photos as base64
-- Files: `assets/overview.js` (lines 362-371, 373-383)
-- Current mitigation: No password protection on export
-- Recommendations:
-  - Add optional password encryption to export
-  - Warn users that export files contain sensitive data
-  - Consider excluding photo data from exports by default
-
-**No Rate Limiting on Database Operations:**
-- Risk: Rapid API-like usage could cause performance issues
-- Files: `assets/overview.js` (renderSessions calls getAllSessions() on every filter change)
-- Impact: Every filter change triggers full table scan and re-render
-- Fix approach: Implement debouncing on filter change events
-
-## Performance Bottlenecks
-
-**Full Table Scans on Every Filter:**
-- Problem: Sessions table filters require loading all sessions into memory
-- Files: `assets/sessions.js` (lines 58-72)
-- Cause: IndexedDB doesn't support complex multi-field queries with date ranges; client-side filtering is necessary
-- Improvement path:
-  - Implement result pagination to limit DOM nodes
-  - Cache filtered results and only update changed rows
-  - Consider adding session count indicators
-
-**DOM Reconstruction on Language Change:**
-- Problem: All translations re-applied to entire page on language switch
-- Files: `assets/app.js` (lines 9-18, applyTranslations called everywhere), `assets/overview.js` (line 296)
-- Cause: querySelectorAll searches entire document for [data-i18n] attributes
-- Improvement path:
-  - Maintain reference map of translated elements
-  - Only update changed elements
-  - Consider using translation tokens in a data structure instead of DOM attributes
-
-**Repeated Client Lookups:**
-- Problem: Same client fetched multiple times during session operations
-- Files: `assets/add-session.js` (lines 288-294, 507, 685)
-- Cause: No memoization of getSelectedClient() or client cache invalidation
-- Improvement path: Use client cache consistently throughout page lifecycle
-
-**Large File Size - add-session.js:**
-- Problem: 847 lines in single file handling UI, form logic, and database operations
-- Files: `assets/add-session.js`
-- Cause: Multiple concerns bundled (issue management, form submission, inline client creation, client spotlight, heart wall logic)
-- Improvement path: Split into:
-  - `issue-block-manager.js` - Issue CRUD operations
-  - `client-spotlight.js` - Client display widget
-  - `session-form-submission.js` - Form validation and DB operations
-  - `inline-client-form.js` - Inline client creation
-
-## Fragile Areas
-
-**Copy-to-Clipboard Fallback Logic:**
-- Files: `assets/add-session.js` (lines 296-321)
-- Why fragile: Uses deprecated `document.execCommand("copy")` as fallback for modern clipboard API
-- Safe modification:
-  - Check navigator.clipboard support at page load
-  - Gracefully disable copy buttons if neither API available
-  - Test in different browsers (execCommand removed in some modern browsers)
-- Test coverage: No test for fallback path exists
-
-**Toggle Group State Management:**
-- Files: `assets/add-session.js` (lines 648-660), `assets/add-client.js` (lines 29-38)
-- Why fragile: Duplicate toggle logic in multiple files; state tracked via class names and input.checked
-- Safe modification:
-  - Extract to reusable `setupToggleGroup()` helper
-  - Ensure both class state and input state stay synchronized
-  - Add validation that at least one option is selected
-- Risk of breaking: Easy to miss updating both class and input state
-
-**Modal Event Listener Cleanup:**
-- Files: `assets/app.js` (lines 77-102)
-- Why fragile: Event listeners added but not removed until modal closes; multiple simultaneous modals could cause listener stacking
-- Safe modification:
-  - Add cleanup function that explicitly removes all listeners
-  - Prevent listener duplication with try-finally block
-  - Test with rapid open-close cycles
-- Test coverage: No test for edge cases like rapid clicks
-
-**Read Mode Textarea Resizing:**
-- Files: `assets/add-session.js` (lines 65-78, 102-108)
-- Why fragile: Manual height calculation based on scrollHeight; may break with CSS changes
-- Safe modification:
-  - Extract to separate function with clear contract
-  - Document that CSS padding/border affects calculation
-  - Test with different font sizes and long content
-- Test coverage: No test for edge cases
-
-## Known Bugs
-
-**Heart-Wall Logic Inconsistency:**
-- Symptoms: Heart wall section visibility and selection state can become out of sync with client selection
-- Files: `assets/add-session.js` (lines 675-697, 754-761)
-- Trigger:
-  1. Select heart-wall client
-  2. Make heart-wall selection
-  3. Change to non-heart-wall client
-  4. Change back to heart-wall client
-  5. Heart-wall section shows but may not reflect previous selection
-- Workaround: Manually re-select heart-wall choice
-
-**Inline Client Form Reset Incomplete:**
-- Symptoms: Type toggle card state may not match radio button state after cancel
-- Files: `assets/add-session.js` (lines 763-789)
-- Trigger: Add inline client, select "Animal" type, click cancel, add inline client again
-- Workaround: Refresh page
-
-**Issue Counter Not Reset on Page Reload:**
-- Symptoms: Issue IDs can get very high if session edited multiple times
-- Files: `assets/add-session.js` (line 142 issueCounter)
-- Impact: Issue IDs become unpredictable; not a functional bug but indicates poor state management
-- Trigger: Edit same session multiple times on same page
-
-**Date String Comparison Issues:**
-- Symptoms: Date range filtering may have off-by-one errors or timezone issues
-- Files: `assets/sessions.js` (lines 46-51)
-- Cause: String comparison of ISO dates works but is fragile with different date formats
-- Trigger: Sessions created in different timezones
-- Fix: Parse dates before comparing
-
-## Scaling Limits
-
-**IndexedDB Size Limits:**
-- Current capacity: Browser-dependent (typically 50MB+)
-- Limit: Large photo collections or many clients will hit storage quota
-- Scaling path:
-  - Implement lazy loading of photos
-  - Store photos separately with size limits
-  - Consider cloud sync with Supabase/Firebase
-
-**All-in-Memory Session Processing:**
-- Current capacity: Works fine under ~1000 sessions
-- Limit: Beyond 5000 sessions, UI becomes sluggish as entire table is loaded and filtered
-- Scaling path:
-  - Implement pagination (show 50 sessions per page)
-  - Add server-side filtering if moving to cloud backend
-  - Use virtual scrolling for large lists
-
-**No Pagination in Overview:**
-- Current capacity: 100+ clients still renders quickly
-- Limit: 1000+ clients would create thousands of DOM nodes
-- Scaling path: Add client pagination or search/filter by name
-
-## Dependencies at Risk
-
-**No Validation Library:**
-- Risk: Manual validation scattered across form submission handlers
-- Impact: Easy to miss validation cases; form constraints not DRY
-- Migration plan: Add tiny validation library (e.g., `joi-browser` or `zod`) or create validation module
-
-**No Testing Framework:**
-- Risk: No tests to catch refactoring regressions
-- Impact: Tech debt compounds - harder to refactor with confidence
-- Migration plan:
-  - Set up Jest with jsdom for DOM testing
-  - Start with critical path tests (DB operations, form submission)
-  - Aim for 70%+ coverage on core logic
-
-**No Build Process:**
-- Risk: All files served directly without minification or bundling
-- Impact: Slightly worse performance and no tree-shaking of unused code
-- Migration plan:
-  - Minimal: Add gulp or npm scripts to minify JavaScript
-  - Recommended: Set up Vite or esbuild for modern development
-
-## Missing Critical Features
-
-**No Data Backup Mechanism:**
-- Problem: Only manual export/import; no automatic backups
-- Blocks: Can't recover from accidental data deletion
-
-**No Search Functionality:**
-- Problem: Must scroll through clients or sessions manually
-- Blocks: Finding specific client/session by name difficult with large datasets
-
-**No Multi-Device Sync:**
-- Problem: Data stored locally only; no cloud sync
-- Blocks: Users can't access data on different devices
-
-**No Conflict Resolution:**
-- Problem: If importing data while local data exists, entire local DB cleared
-- Blocks: Merging data from multiple exports impossible
-
-## Test Coverage Gaps
-
-**Database Operations:**
-- What's not tested: Transaction error handling, concurrent access, recovery from failed transactions
-- Files: `assets/db.js`
-- Risk: Corruption or data loss on edge cases
-- Priority: High
-
-**Form Validation:**
-- What's not tested: Boundary conditions (age >150, empty names after trim, very long notes)
-- Files: `assets/add-client.js`, `assets/add-session.js`
-- Risk: Invalid data stored or form acceptance of invalid input
-- Priority: Medium
-
-**Date Handling:**
-- What's not tested: Leap years, timezone conversions, invalid date strings
-- Files: `assets/app.js` (formatDate), `assets/sessions.js` (matchesDateRange)
-- Risk: Incorrect date filtering or display
-- Priority: Medium
-
-**Internationalization:**
-- What's not tested: Missing translation keys, RTL layout in Hebrew mode, special characters
-- Files: `assets/app.js` (applyTranslations), `assets/i18n.js`
-- Risk: Broken UI in Hebrew or with missing translations
-- Priority: Medium
-
-**Modal Dialog Edge Cases:**
-- What's not tested: Rapid open-close, keyboard navigation, accessibility
-- Files: `assets/app.js` (confirmDialog)
-- Risk: Modal can be stuck open or listener accumulation
-- Priority: Low
+**Analysis Date:** 2026-06-22
 
 ---
 
-*Concerns audit: 2026-02-01*
+## Security Concerns
+
+### CSP Uses `unsafe-inline` for Both `script-src` and `style-src`
+
+- **Risk:** `script-src 'unsafe-inline'` nullifies the XSS protection CSP provides. Any successful injection of a `<script>` tag or inline event handler executes freely.
+- **Files:** All `*.html` pages set CSP via `<meta http-equiv>` — `index.html:23`, `add-session.html`, `add-client.html`, `reporting.html`, `settings.html`, and all legal/disclaimer pages.
+- **Current mitigation:** The app avoids inserting user-controlled data via `innerHTML` in most places (textContent is used for names, notes, etc.). `md-render.js` HTML-escapes before re-injecting markdown.
+- **Recommendation:** Move to nonce-based or hash-based CSP to eliminate `unsafe-inline` from `script-src`. This is a medium-effort refactor but high security value given the app handles sensitive clinical data.
+
+### CSP Delivered as `<meta>` Tag, Not HTTP Header
+
+- **Risk:** `<meta>` CSP does not protect navigations or `<base>` injection. HTTP `Content-Security-Policy` headers are stronger.
+- **Files:** `_headers` (Cloudflare Pages headers) has no CSP entry; all pages define CSP inline.
+- **Fix approach:** Add `Content-Security-Policy` to `_headers` and remove per-page `<meta>` tags.
+
+### License Validation Is Entirely Client-Side
+
+- **Risk:** `isLicensed()` in `assets/license.js:179` checks only whether `portfolioLicenseActivated === '1'` and a non-empty instance ID exist in `localStorage`. Any user who sets these two keys in DevTools bypasses the paywall permanently.
+- **Files:** `assets/license.js:179–185`
+- **Current mitigation:** Base64 encoding of keys is noted as "cosmetic obfuscation only" (`license.js:148`).
+- **Impact:** Revenue loss. The app is a PWA with no server-side data — there is no server to verify against at runtime. The Lemon Squeezy API is only called at initial activation and deactivation (`license.js:211`, `263`).
+- **Scaling risk:** As the user base grows, trivially-bypassed licensing becomes a meaningful revenue leak. A periodic re-validation (e.g., weekly re-ping to LS API with graceful offline fallback) would raise the bar significantly.
+
+### License Key Stored in `localStorage` (Base64 Only)
+
+- **Risk:** `localStorage` is readable by any script on the same origin. If an XSS vector is ever introduced, the license key and instance ID are immediately exposed.
+- **Files:** `assets/license.js:250–251`
+- **Recommendation:** Acceptable risk for current scale, but worth noting alongside the CSP concern above.
+
+### `innerHTML` Used with i18n Translation Strings in `overview.js` and `sessions.js`
+
+- **Risk:** Translated strings are injected via `innerHTML` in `overview.js:456` and `sessions.js:147`. While translation strings are developer-controlled today, this pattern would become an XSS vector if translation strings were ever loaded from a remote source or user-editable.
+- **Files:** `assets/overview.js:456`, `assets/sessions.js:147`
+- **Fix approach:** Replace with `textContent` for the text node and build SVG icons separately, or use `createElement` + attribute setting.
+
+### `innerHTML` Used for `pricingLegalText` (Landing Page)
+
+- **Risk:** `assets/landing.js:477` injects `t.pricingLegalText` via `innerHTML`. This string contains raw `<a>` tags and is developer-controlled. The pattern is safe today but fragile — if a non-developer ever edits translation content, HTML injection is trivial.
+- **Files:** `assets/landing.js:477`, `assets/i18n-en.js`, `assets/i18n-he.js`, `assets/i18n-de.js`, `assets/i18n-cs.js`
+
+---
+
+## i18n / l10n Gaps
+
+### German (`de`) and Czech (`cs`) Translations Incomplete — 13 Keys Each
+
+- **Issue:** 13 translation keys in `assets/i18n-de.js` and `assets/i18n-cs.js` have English fallback values with `// TODO i18n: translate to German/Czech` comments.
+- **Affected keys (both files):** `settings.saved.notice`, `settings.saved.dismiss`, export modal stepper labels (`export.stepper.label.1/2/3`), export step helpers (`export.step1.helper`, `export.step2.helper`, `export.step3.helper`), and markdown formatting tips (`export.format.help.*`).
+- **Files:** `assets/i18n-de.js:419–447`, `assets/i18n-cs.js:419–447`
+- **Impact:** DE and CS users see English strings in the export modal flow — a core workflow.
+- **Priority:** High — export is a key feature, not a settings edge case.
+
+### No RTL Regression Guard for Non-Hebrew Locales
+
+- **Issue:** The app has explicit RTL support for Hebrew (via `dir="rtl"` on `<html>`). No automated test guards against accidentally applying RTL to DE/CS/EN locales.
+
+---
+
+## Technical Debt
+
+### `settings.js` Is a 2,827-Line God Module
+
+- **Issue:** `assets/settings.js` contains 182 named functions covering section settings, snippet management, photo optimization, storage usage display, and more.
+- **Files:** `assets/settings.js`
+- **Impact:** High coupling, slow to navigate, difficult to unit-test in isolation. Adding any new settings feature requires reading the entire file.
+- **Fix approach:** Extract `SnippetEditor`, `PhotoManager`, and `StorageUsage` into separate JS modules. The IIFE pattern already used in other files (`assets/backup.js`, `assets/md-render.js`) supports this without a bundler.
+
+### `add-session.js` Is a 2,173-Line Monolith
+
+- **Issue:** Session form, issue management, export modal (3-step stepper), markdown preview, and tag/trigger logic all live in one file.
+- **Files:** `assets/add-session.js`
+- **Fix approach:** The export modal (approximately lines 1200–1500) is a clear extraction candidate into `assets/export-modal.js`.
+
+### No Build Step — All JS Served Raw
+
+- **Issue:** Every JS file is served as-is with no bundling, minification, or tree-shaking. The total uncompressed JS payload is ~18,000 lines across 20+ files.
+- **Files:** All `assets/*.js` except `assets/jspdf.min.js` and `assets/bidi.min.js`
+- **Impact:** Slower first load on slow connections. No dead-code elimination. No module system — all globals.
+- **Scaling risk:** Adding more features worsens load time linearly. Introducing a bundler would enable code-splitting, proper modules, and minification.
+
+### Global Namespace Pollution — All Modules Are Browser Globals
+
+- **Issue:** `App`, `PortfolioDB`, `BackupManager`, `MdRender`, `LicenseManager`, `CropModule`, `SnippetsModule` are all `window.*` globals. There is no import/export system.
+- **Files:** All `assets/*.js`
+- **Impact:** Risk of naming collisions; hard to test in isolation without careful mock setup; order of `<script>` tags in HTML is load-order-sensitive.
+
+### Service Worker Cache Version Requires Manual Bump
+
+- **Issue:** `sw.js:12` hardcodes `CACHE_NAME = 'sessions-garden-v210'`. A manual bump is required on every deploy that changes a precached asset.
+- **Files:** `sw.js:12`
+- **Current mitigation:** A pre-commit hook is documented to skip the bump when `sw.js` is already in the diff (see `memory/reference-pre-commit-sw-bump.md`), meaning edits to precached assets without touching `sw.js` can silently serve stale files to installed PWA users.
+- **Fix approach:** Generate `CACHE_NAME` from a content hash at deploy time using a simple build script.
+
+### Backup Import Has No Maximum File-Size Guard
+
+- **Issue:** `assets/backup.js` reads the entire imported ZIP into memory via `FileReader` with no size cap. A maliciously crafted or accidentally huge file would exhaust browser memory.
+- **Files:** `assets/backup.js`
+- **Fix approach:** Add a `file.size > MAX_BYTES` check before `readAsArrayBuffer`.
+
+### `openDB()` Called on Every DB Operation — No Connection Pooling
+
+- **Issue:** `assets/db.js:272` opens a new `indexedDB.open()` call on every invocation (64+ call sites across the codebase). Although IDB internally reuses the connection, the promise overhead and migration checks run on every call.
+- **Files:** `assets/db.js:272`
+- **Fix approach:** Cache the resolved `IDBDatabase` instance in a module-level variable and return it on subsequent calls.
+
+### `var` Used Throughout Older Modules
+
+- **Issue:** `assets/backup.js`, `assets/disclaimer.js`, `assets/license.js`, `assets/overview.js`, `assets/sessions.js` use `var` throughout. Newer modules (`assets/app.js`, `assets/add-session.js`) use `const`/`let`.
+- **Impact:** Not a bug today, but `var` hoisting makes accidental variable reuse invisible and refactoring harder.
+
+### `jspdf.min.js` Is a Vendored Bundle Without a Recorded Version
+
+- **Issue:** `assets/jspdf.min.js` is a local copy with no `package.json` entry and no version comment other than the copyright year. No automated dependency-update path exists.
+- **Files:** `assets/jspdf.min.js`
+- **Impact:** Security patches and bug fixes in jsPDF are not tracked or applied.
+
+---
+
+## Performance Risks
+
+### No Pagination on Sessions or Clients Tables
+
+- **Issue:** `assets/sessions.js` and `assets/overview.js` render all records into a DOM table on every load. No virtual scrolling or pagination exists.
+- **Files:** `assets/sessions.js:79`, `assets/overview.js:355`
+- **Scaling risk:** A therapist with 5+ years of weekly sessions (~260 clients, ~2,600 sessions) will see noticeable render lag. At 10,000 rows the table becomes unusable.
+- **Fix approach:** Add client-side pagination (25 rows/page) or a virtual scroll implementation.
+
+### PDF Export Runs on the Main Thread
+
+- **Issue:** `assets/pdf-export.js` (1,198 lines) uses jsPDF synchronously on the main UI thread. Large exports with RTL bidi processing will block the UI for seconds.
+- **Files:** `assets/pdf-export.js`, `assets/jspdf.min.js`
+- **Fix approach:** Move PDF generation to a Web Worker.
+
+### Photo Optimization Loop Is Sequential
+
+- **Issue:** `assets/settings.js:2370` (`_optimizeAllPhotosLoop`) iterates all client photos sequentially with `await` per photo. For 50+ clients with photos, this can take tens of seconds and holds the settings page in a "loading" state.
+- **Files:** `assets/settings.js:2370`
+- **Fix approach:** Process photos in bounded parallel batches (e.g., 4 concurrent).
+
+### `_headers` Cache TTL for JS/CSS Is Only 1 Hour
+
+- **Issue:** `assets/*.js` and `assets/*.css` are served with `Cache-Control: public, max-age=3600`. For a PWA that handles its own cache invalidation via the SW, this is unnecessarily short — it causes redundant CDN revalidation every hour.
+- **Files:** `_headers`
+- **Fix approach:** Increase to `max-age=86400` or longer with the SW still owning freshness for installed users.
+
+---
+
+## Accessibility Gaps
+
+### Dynamic Table Rows Have No `aria-rowindex` or Row Count
+
+- **Issue:** Sessions and overview tables are rendered entirely in JS with no `aria-rowcount` on `<table>` and no `aria-rowindex` on rows. Screen readers cannot announce "row 5 of 47".
+- **Files:** `assets/sessions.js:79`, `assets/overview.js:355`
+
+### Export Modal Stepper Has No `aria-current="step"` Indicator
+
+- **Issue:** The 3-step export stepper has no ARIA step indicator. Screen reader users cannot determine which step is active.
+- **Files:** `add-session.html`, `assets/add-session.js` (stepper rendering section)
+
+### Toast Notifications in Demo Mode Untested with Assistive Technology
+
+- **Issue:** Demo mode suppresses certain toast behaviors. No audit has verified that `aria-live="polite"` announcements function correctly in demo mode.
+- **Files:** `assets/app.js:272`, `assets/demo-hints.js`
+
+---
+
+## Error Handling Gaps
+
+### ~53 Silent `catch` Blocks Swallow Errors Without Logging
+
+- **Issue:** Across all JS files there are approximately 53 `catch (_)` or `catch (e) { /* ignore */ }` blocks. While most wrap localStorage or optional UI operations, failures in these paths are invisible in production — there is no error telemetry.
+- **Files:** `assets/app.js:109,442,461,527,547,674,977`, `assets/backup-modal.js`, `assets/license.js`, and others.
+- **Fix approach:** For non-trivial catch paths, add at minimum `console.warn` with a tag prefix so support can diagnose issues from user-shared console screenshots.
+
+### No Error Telemetry / Crash Reporting
+
+- **Issue:** No Sentry, Rollbar, or equivalent is integrated. Uncaught exceptions and IDB failures are invisible after deployment.
+- **Impact:** Production bugs affecting a small percentage of users (e.g., specific browser IDB quirks, Safari PWA storage eviction) go undetected until a user reports them.
+- **Fix approach:** Add a lightweight `window.addEventListener('unhandledrejection', ...)` + `window.onerror` handler that persists the last N errors to IDB for a "report a problem" copy-to-clipboard flow — no external service required.
+
+### IDB Migration Failure Has No Recovery Escape Hatch
+
+- **Issue:** `assets/db.js:149` catches migration failures and shows a "please refresh" banner. If the migration genuinely fails (e.g., corrupted old DB), refreshing will loop indefinitely. There is no "reset and start fresh" escape hatch from this state.
+- **Files:** `assets/db.js:149`, `assets/db.js:409–420`
+
+---
+
+## Known TODOs in Code
+
+| File | Lines | Description |
+|---|---|---|
+| `assets/i18n-de.js` | 419–447 | 13 strings not yet translated to German |
+| `assets/i18n-cs.js` | 419–447 | 13 strings not yet translated to Czech |
+| `assets/overview.js` | 463 | Severity render D-25 verification noted as reported 2026-05-13 (informational comment) |
+
+---
+
+## Scaling Limits
+
+### No Multi-Device Sync
+
+- **Current state:** Data lives exclusively in IndexedDB on the device where the app is installed. Backup/restore is the only data-transfer mechanism.
+- **Limit:** Therapists who switch devices or use multiple devices cannot access their data across devices.
+- **Scaling path:** A cloud sync layer with end-to-end encryption using the existing AES-GCM key infrastructure would require significant architecture addition (backend + auth).
+
+### IndexedDB Has No Record Count Caps
+
+- **Current capacity:** Unlimited clients and sessions.
+- **Limit:** UI tables degrade severely beyond ~500 sessions (no pagination). PDF export of large histories may hit browser memory limits.
+- **Scaling path:** Add table pagination; implement export chunking.
+
+---
+
+## Hard-Coded Values That Should Be Config
+
+| Value | Location | Status |
+|---|---|---|
+| `'sessions-garden-v210'` (SW cache name) | `sw.js:12` | Should be auto-generated from deploy hash |
+| Checkout URL (Lemon Squeezy) | `assets/landing.js:4` | Named constant, acceptable; undocumented if changed |
+| `max-age=3600` for JS/CSS | `_headers` | Too short; should be `86400`+ |
+
+---
+
+*Concerns audit: 2026-06-22*

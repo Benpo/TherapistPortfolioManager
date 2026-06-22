@@ -1,160 +1,186 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-02-01
+**Analysis Date:** 2026-06-22
+
+## Project Architecture
+
+This is a vanilla JS + HTML SPA (no bundler, no TypeScript). All JS runs in the browser as IIFE modules assigned to `window.*`. There is no `src/` directory — all application code lives in `assets/`.
 
 ## Naming Patterns
 
 **Files:**
-- Kebab-case for HTML files: `index.html`, `add-client.html`, `add-session.html`, `sessions.html`, `reporting.html`
-- Kebab-case for JavaScript files: `add-client.js`, `add-session.js`, `reporting.js`, `overview.js`, `sessions.js`, `db.js`, `i18n.js`, `app.js`
-- CSS file: `app.css`
-- Internationalization strings use dot notation: `"app.title"`, `"nav.overview"`, `"client.form.save"`
+- Kebab-case for all asset files: `pdf-export.js`, `globe-lang.js`, `md-render.js`
+- Feature pages match their HTML file name: `sessions.html` / `assets/sessions.js`
+- i18n locale files: `i18n-{locale}.js` (e.g., `i18n-en.js`, `i18n-he.js`, `i18n-de.js`, `i18n-cs.js`)
+- CSS design token file: `assets/tokens.css` (loaded before `app.css`)
+- Phase/plan naming in tests: `{phase}-{plan}-{description}.test.js` (e.g., `25-11-i18n-parity.test.js`)
+- Quick-task tests: `quick-{YYMMDD}-{task-id}-{description}.test.js` (e.g., `quick-260620-q8m-pdf-paragraph-linebreaks.test.js`)
 
-**Functions:**
-- camelCase for function names: `openDB()`, `withStore()`, `addRecord()`, `addClient()`, `formatDate()`, `createSeverityScale()`, `applyTranslations()`, `getClientDisplayName()`, `loadOverview()`
-- Prefix for helper functions that appear at module scope: `format`, `get`, `create`, `is`, `set`
-- Event handlers follow `on[EventName]` pattern: `onConfirm()`, `onCancel()`, `onKey()`, `onupgradeneeded`, `onsuccess`, `onerror`
+**JavaScript identifiers:**
+- camelCase for functions and variables: `applyTranslations`, `getSectionLabel`, `isSectionEnabled`
+- PascalCase for module namespace objects exposed on `window`: `window.App`, `window.PortfolioDB`, `window.PDFExport`, `window.Snippets`
+- Private module-level variables prefixed with `_`: `_sectionLabelCache`, `_snippetCache`, `_migrationDone`
+- Constants in UPPER_SNAKE_CASE: `DB_NAME`, `DB_VERSION`, `DELETED_SEEDS_KEY`
 
-**Variables:**
-- camelCase for all variables: `currentLang`, `clientCache`, `inlinePhotoData`, `editingClient`, `isReadMode`, `NEW_CLIENT_VALUE`
-- Constants use UPPER_SNAKE_CASE: `DB_NAME`, `DB_VERSION`, `I18N_DEFAULT`
-- Boolean variables often use `is` prefix: `isReadMode`, `isInteger()`
-- Private/internal module state prefixed with underscore when stored on functions: `showToast._timer`
+**CSS classes:**
+- BEM-like kebab-case: `.app-shell`, `.app-header`, `.is-modal-open`
+- State classes use `is-` prefix: `body.is-modal-open`
+- Data attributes for behavior hooks: `data-i18n`, `data-i18n-placeholder`
 
-**Types and Data Objects:**
-- No explicit TypeScript interfaces; objects are duck-typed
-- Object keys follow camelCase: `photoData`, `clientId`, `heartWall`, `lastInitial`, `firstName`, `createdAt`, `updatedAt`
-- Map-like objects use descriptive names: `sessionsByClient`, `map[type]`
+**HTML files:**
+- Kebab-case: `add-client.html`, `add-session.html`, `datenschutz-en.html`
+- Legal pages duplicated per locale suffix: `impressum-en.html`, `impressum-he.html`, `impressum-de.html`, `impressum-cs.html`
 
-**DOM Element IDs and Data Attributes:**
-- camelCase for element IDs: `clientForm`, `clientSelect`, `sessionDate`, `clientPhoto`, `deleteClientBtn`, `saveAndSessionBtn`
-- data attributes use kebab-case: `data-i18n`, `data-i18n-placeholder`, `data-nav`, `data-value`
+## Module Pattern
 
-**CSS Class Names:**
-- kebab-case for CSS classes: `app-header`, `app-nav`, `client-row`, `severity-button`, `is-hidden`, `is-visible`, `is-active`, `read-mode`, `modal-overlay`, `button-label`, `helper-text`, `card-bg`
-- State classes prefixed with `is-`: `is-hidden`, `is-visible`, `is-active`
-- Utility patterns use descriptive names: `icon-swap`, `secondary`, `ghost`, `inline-actions`
+Every JS file exports its public API by assigning an IIFE-returned object to a `window.*` namespace:
 
-**Internationalization Keys:**
-- Use dot notation for hierarchical structure: `app.title`, `nav.overview`, `client.form.firstName`
-- Grouping: `overview.*`, `client.*`, `session.*`, `confirm.*`, `toast.*`, `common.*`
-- Descriptive keys: `confirm.deleteClient.title`, `toast.errorRequired`, `session.copyField`
+```js
+window.App = (() => {
+  // private vars
+  let _private = ...;
 
-## Code Style
+  function publicFn() { ... }
 
-**Formatting:**
-- No formatter configured; code follows implicit conventions
-- 2-space indentation (shown in all sample files)
-- Semicolons present at end of statements
-- Consistent spacing around operators
+  return { publicFn, ... };
+})();
+```
 
-**Linting:**
-- No ESLint or code quality tools detected
-- Manual code review conventions only
+Callers reference other modules via `window.App.getSectionLabel(...)`, never via ES module imports.
 
-**Module Pattern:**
-- Immediately-invoked function expression (IIFE) with object return for public API
-- `window.App = (() => { ... return { t, applyTranslations, ... }; })()`
-- `window.PortfolioDB = (() => { ... return { addClient, ... }; })()`
-- `window.I18N = { en: { ... }, he: { ... } }`
-- Exposes modules on `window` object for global accessibility
+Modules that expose private functions for testing attach them as:
+```js
+window.Snippets.__testExports = { detectTrigger, resolveExpansion };
+```
+Production code never reads `__testExports`.
 
-**Promise Handling:**
-- async/await preferred over `.then()` chains: `await PortfolioDB.getAllClients()`
-- Promise constructor used for callback-based APIs: `new Promise((resolve, reject) => { ... })`
-- Error handling via `try/catch` blocks for import/parse operations
+## i18n / Localization Patterns
 
-## Import Organization
+**Supported locales:** `en`, `he`, `de`, `cs`
 
-Not applicable - no module imports. Global scope via:
-- HTML script tags (order: i18n.js, db.js, app.js, page-specific js)
-- Global variable references: `window.App`, `window.PortfolioDB`, `window.I18N`, `App.t()`, `PortfolioDB.addClient()`
+**Key structure:** Dot-namespaced strings matching feature area:
+- `'nav.overview'`, `'session.form.trapped'`, `'photos.usage.body'`
+
+**Translation lookup via `App.t(key)`** (falls back: current lang → English → key itself):
+```js
+function t(key) {
+  const dict = window.I18N || {};
+  return (dict[currentLang] && dict[currentLang][key])
+      || (dict.en && dict.en[key])
+      || key;
+}
+```
+
+**HTML wiring:** `data-i18n="key"` on elements; `data-i18n-placeholder="key"` on inputs.
+`App.applyTranslations()` scans the DOM and fills them.
+
+**Locale files:** `assets/i18n-{locale}.js` each populate `window.I18N.{locale}` as a flat key→string map.
+`assets/i18n.js` is a loader stub (sets `window.I18N_DEFAULT = "en"`) — no content.
+
+**RTL support:** `html[dir="rtl"]` toggled at runtime for Hebrew. CSS uses logical properties
+(`inset-inline`, `margin-inline-start`) where directional.
+
+**Parity invariant (enforced):** Every key in `i18n-en.js` must exist in all other locale files.
+Enforced by `tests/25-11-i18n-parity.test.js`. Czech (`assets/i18n-cs.js`) has known
+untranslated stub values marked `// TODO i18n: translate to Czech`.
+
+**Section label overrides:** `App.getSectionLabel(sectionKey, defaultI18nKey)` reads a therapist-
+customised label from `_sectionLabelCache` or falls back to `t(defaultI18nKey)`. Custom labels
+MUST be rendered via `.textContent` (never `innerHTML`) — stated in JSDoc.
+
+**Snippet locale fallback chain:** `active → en → he → de → cs`, first non-empty value wins.
+Implemented in `assets/snippets.js`, tested in `tests/24-04-trigger-regex.test.js`.
+
+## CSS / Design Token Conventions
+
+**Two-layer token architecture in `assets/tokens.css`:**
+
+**Layer 1 — Primitive tokens** (raw values, never used directly in component CSS):
+```css
+--color-green-600: #2d6a4f;
+--color-cream-warm-50: #fdf8f0;
+--color-dark-900: #2f2d38;
+```
+
+**Layer 2 — Semantic tokens** (reference primitives, used everywhere else):
+```css
+--color-primary: var(--color-green-600);
+--color-background: var(--color-cream-warm-50);
+--color-text: var(--color-dark-900);
+--shadow-soft: 0 18px 40px rgba(36, 24, 72, 0.08);
+```
+
+**Z-index token scale** (defined in `assets/app.css`):
+```css
+--z-dropdown: 100;
+--z-nav: 200;
+--z-modal: 300;
+--z-modal-top: 350;   /* crop popup inside modal */
+--z-popover: 360;     /* snippet autocomplete */
+--z-modal-confirm: 370; /* blocking confirm dialog */
+--z-toast: 400;
+--z-banner: 500;
+```
+
+**Dark mode:** `[data-theme="dark"]` on the root element overrides all semantic tokens.
+Primitive tokens never change. Dark palette is teal-grey (not dark green).
+
+**Rule:** Never reference a primitive token directly in component CSS — always use a semantic token.
 
 ## Error Handling
 
-**Patterns:**
-- Promise rejections handled in `catch` blocks in try/catch statements
-- IndexedDB errors captured via callbacks: `request.onerror = () => reject(request.error)`
-- Transaction errors: `tx.onerror = () => reject(tx.error)`
-- Graceful degradation for missing DOM elements: `if (!element) return;`
-- User feedback via toast messages instead of throwing errors to user interface: `App.showToast("", "toast.importError")`
-- No centralized error logging; errors caught and handled locally
+**Async/await with try/catch** used throughout `assets/db.js`:
+```js
+try {
+  const dbs = await indexedDB.databases();
+  ...
+} catch (e) {
+  // silent fail or fallback
+}
+```
 
-**Error Messages:**
-- Internationalized via i18n keys: `"toast.importError"`, `"toast.errorRequired"`
-- User-facing errors displayed as toast notifications with translations
+Functions return `null`/`false` on failure rather than re-throwing. No global error handler.
 
-## Logging
+Re-entry guards on async init functions:
+```js
+if (_migrationDone || DB_NAME !== "sessions_garden") {
+  _migrationDone = true;
+  return;
+}
+_migrationDone = true;
+```
 
-**Framework:** No logging framework; uses `console` implicitly (no explicit console calls visible)
+## Comment Style
 
-**Patterns:**
-- Events dispatched for state changes: `document.dispatchEvent(new CustomEvent("app:language", { detail: { lang: currentLang } }))`
-- Event listeners for state-driven UI updates: `document.addEventListener("app:language", () => { ... })`
-- Minimal logging; primary mechanism is reactive UI updates via event system
+**Section dividers** for logical blocks within a file:
+```js
+// ---------------------------------------------------------------------------
+// i18n — translation and language management
+// ---------------------------------------------------------------------------
+```
 
-## Comments
+**Phase/plan references** inline: `// Phase 22`, `// Phase 24 Plan 04:`, `// Phase 27`
 
-**When to Comment:**
-- Minimal comments in codebase
-- Comments not extensively used; code is relatively self-documenting
-- Complex logic (like severity color calculation) lacks explanatory comments
+**Z-index and stacking rationale** comments in CSS explain WHY each layer value is what it is.
 
-**JSDoc/TSDoc:**
-- No JSDoc documentation found
-- Function purposes inferred from names and context
+**JSDoc** on all public functions: `@param`, `@returns`, and caller safety constraints.
+Example from `assets/app.js`:
+```js
+/**
+ * Callers MUST render the result via .textContent or .value (never innerHTML)
+ * because customLabel is stored verbatim.
+ * @param {string} sectionKey
+ * @param {string} defaultI18nKey
+ * @returns {string} Resolved label
+ */
+```
 
-## Function Design
+## Code Safety Rules
 
-**Size:** Functions are generally compact (5-30 lines)
-
-**Parameters:**
-- Single responsibility; functions accept minimal parameters
-- Complex operations passed as configuration objects: `{ titleKey, messageKey, confirmKey, cancelKey }`
-- Callback-based APIs for event handlers and database operations
-
-**Return Values:**
-- Async functions return Promises: `async function addClient(client) { return addRecord(...) }`
-- Database operations return Promises
-- IIFE modules return object literals with public methods
-- Modal/dialog functions return Promises resolving to user action result
-
-## Module Design
-
-**Exports:**
-- Public API exposed via object literal return in IIFE pattern
-- Named exports in object: `{ t, applyTranslations, setLanguage, initCommon, ... }`
-- Global namespace pollution intentional (window.App, window.PortfolioDB)
-
-**Module Initialization:**
-- App initialization occurs on `DOMContentLoaded` event in page-specific scripts
-- `App.initCommon()` called first in each page script to set up language and common UI
-- Database accessed via synchronous function calls that return Promises
-
-## Special Patterns
-
-**Internationalization:**
-- Key-based translation system with `App.t(key)`
-- Language selection via `App.setLanguage(lang)`
-- DOM translation via attributes: `data-i18n="key"` and `data-i18n-placeholder="key"`
-- `App.applyTranslations(root)` re-renders all translations in given element
-
-**DOM Manipulation:**
-- Direct `document.getElementById()` for element access
-- `querySelectorAll()` for batch selections
-- `classList.add/remove/toggle()` for state classes
-- Event delegation via `closest()` for nested click handlers
-- Element creation via `document.createElement()` for dynamic content
-
-**Storage:**
-- IndexedDB for persistent data (clients and sessions)
-- LocalStorage for user preferences: `localStorage.setItem("portfolioLang", currentLang)`
-
-**Form Handling:**
-- Form submission prevents default: `event.preventDefault()`
-- Submitter button detection: `event.submitter` to distinguish save vs. save-and-continue actions
-- File input for image upload with FileReader API: `readFileAsDataURL(file)`
+- Custom label values must never be injected as `innerHTML` (XSS risk)
+- Demo mode isolated via `window.name === "demo-mode"` → uses `"demo_portfolio"` IndexedDB, not `"sessions_garden"`
+- Module singletons guard re-entry with boolean flags (`_migrationDone`, `_seedingDone`)
 
 ---
 
-*Convention analysis: 2026-02-01*
+*Convention analysis: 2026-06-22*
