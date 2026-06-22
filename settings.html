@@ -51,8 +51,8 @@
           <p class="page-helper" data-i18n="settings.page.helper">Customize the app to your workflow. Changes are saved on this device.</p>
         </header>
 
-        <!-- Phase 24 Plan 05 — Tab navigation between the settings topics.
-             Phase 25 Plan 05 adds the "Backups" and "Photos" tabs. -->
+        <!-- Tab navigation between the settings topics.
+             Includes the "Backups" and "Photos" tabs. -->
         <div class="settings-tabs" role="tablist" aria-label="Settings sections">
           <button type="button" role="tab" id="settingsTabFieldsBtn" class="settings-tab is-active" aria-selected="true" aria-controls="settingsTabFields" data-tab="fields" data-i18n="settings.tab.fields">Custom field names</button>
           <button type="button" role="tab" id="settingsTabSnippetsBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabSnippets" data-tab="snippets" tabindex="-1" data-i18n="settings.tab.snippets">Text Snippets</button>
@@ -153,7 +153,7 @@
           </section>
         </div>
 
-        <!-- Phase 25 Plan 05 — Backups tab (frequency selector, password-mandatory gate, folder picker, ON→OFF confirm). -->
+        <!-- Backups tab (frequency selector, password-mandatory gate, folder picker, ON→OFF confirm). -->
         <div id="settingsTabBackups" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabBackupsBtn" hidden>
           <header class="page-header">
             <h3 class="section-title" data-i18n="schedule.heading">Scheduled backups</h3>
@@ -179,10 +179,9 @@
 
           <div class="backup-reminder-banner schedule-password-callout" id="schedulePasswordCallout" role="note">
             <p data-i18n="schedule.password.callout">Please note: Scheduled backups require a backup password. You'll be asked for it each time the prompt appears. Save this password somewhere safe — it cannot be recovered.</p>
-            <!-- Phase 25 Plan 12 (round-2 post-UAT, 2026-05-15) Change A:
-                 password-ack redesigned to a single horizontal flex row.
-                 The long verification text moved out (Plan 05's ackedLabel
-                 <p> previously sat ABOVE the checkbox); the round-2 layout
+            <!-- password-ack is a single horizontal flex row.
+                 The long verification text moved out (the ackedLabel
+                 <p> previously sat ABOVE the checkbox); the layout
                  keeps only the checkbox + label inline. The label is
                  styled bolder + slightly larger than the callout paragraph
                  above (CSS .schedule-password-acked-row__control). -->
@@ -192,13 +191,13 @@
             </label>
           </div>
 
-          <!-- Phase 25 Plan 12 UAT-D1: folder picker UI removed.
-               Phase 25 uses browser download / Web Share API / mailto;
+          <!-- folder picker UI removed.
+               Backup uses browser download / Web Share API / mailto;
                the folder picker is dead UI. The BackupManager.pickBackupFolder
                primitive stays in backup.js for any future caller. -->
         </div>
 
-        <!-- Phase 25 Plan 07 — Photos tab body (D-24 optimize, D-25 delete-all). -->
+        <!-- Photos tab body (optimize, delete-all). -->
         <div id="settingsTabPhotos" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabPhotosBtn" hidden>
           <header class="page-header">
             <h3 class="section-title" data-i18n="photos.heading">Photos</h3>
@@ -239,7 +238,7 @@ Deleted photos cannot be recovered.</p>
     </div>
   </div>
 
-  <!-- Phase 24 Plan 05 — Snippet editor modal -->
+  <!-- Snippet editor modal -->
   <div id="snippetEditorModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="snippetEditorTitle">
     <div class="modal-overlay"></div>
     <div class="modal-card snippets-editor-card">
@@ -285,7 +284,7 @@ Deleted photos cannot be recovered.</p>
     </div>
   </div>
 
-  <!-- Phase 24 Plan 05 — Import collision modal -->
+  <!-- Import collision modal -->
   <div id="snippetImportModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="snippetImportTitle">
     <div class="modal-overlay"></div>
     <div class="modal-card snippets-import-card">
@@ -311,18 +310,18 @@ Deleted photos cannot be recovered.</p>
     <script src="./assets/db.js"></script>
   <script src="./assets/shared-chrome.js"></script>
   <script src="./assets/app.js"></script>
-  <!-- Phase 25 Plan 07 — Photos tab needs CropModule.resizeToMaxDimension for optimize-all. -->
+  <!-- Photos tab needs CropModule.resizeToMaxDimension for optimize-all. -->
   <script src="./assets/crop.js"></script>
   <!--
-    Phase 25 Plan 08 fix-up: load backup.js on settings.html so the Plan 05
+    Load backup.js on settings.html so the
     Backups-tab handlers (BackupManager.canEnableSchedule + checkBackupSchedule
     + schedule-disable confirm + password-mandatory enforcement) are actually
-    active. Plan 05 wrote `typeof BackupManager !== 'undefined'` guards that
+    active. The earlier `typeof BackupManager !== 'undefined'` guards
     silently no-op'd because no script tag here exposed BackupManager. The
     Backups tab is unusable without this — adding the script restores the
     intended behavior.
   -->
-  <!-- Phase 25 round-5 (UAT-D2): JSZip + backup-modal.js so the header
+  <!-- JSZip + backup-modal.js so the header
        cloud icon opens the Backup & Restore modal IN-PLACE on settings.html
        (previously it bounced to index.html?openBackup=1). JSZip is required
        by BackupManager.exportBackup / importBackup invoked from the modal. -->

@@ -111,7 +111,7 @@ window.BackupManager = (function () {
       'backup.passphrase.encryptAndSave': 'Encrypt and save',
       'backup.passphrase.decrypt': 'Decrypt',
       'backup.passphrase.cancel': 'Cancel',
-      // Phase 22-15 (Gap N11 + N12) — fallbacks for the 9 new keys:
+      // Fallbacks for the 9 new keys:
       'backup.passphrase.skipConfirm.heading': 'Export without encryption?',
       'backup.passphrase.skipConfirm.body': 'The backup file will contain all your client data unprotected. Anyone with access to the file can read it.',
       'backup.passphrase.skipConfirm.goBack': 'Go back',
@@ -121,16 +121,15 @@ window.BackupManager = (function () {
       'backup.passphrase.rules.minLength': 'Be at least 6 characters',
       'backup.passphrase.rules.notRepeated': 'Not be the same character repeated',
       'backup.passphrase.rules.notOnlyDigits': 'Not be only numbers',
-      // Phase 25 Plan 01 — Share affordance (D-02, D-03)
+      // Share affordance
       'backup.action.share': 'Share backup',
       'backup.share.title': 'Sessions Garden backup',
       'backup.share.fallback.body': 'Backup downloaded to your Downloads folder. Please attach {filename} to this email manually.',
-      // Phase 25 Plan 03 — Test-backup-password dry-run (D-12).
+      // Test-backup-password dry-run.
       // ALL 10 keys live in this fallbacks map so testBackupPassword resolves
       // its reject messages BEFORE App is initialized. The 6 reject-path keys
       // (run / success / wrongPassphrase / notEncrypted / invalid / heading)
-      // plus the 4 UI keys (action + helper + filePlaceholder + passwordPlaceholder)
-      // are listed in <interfaces> in 25-03-PLAN.md.
+      // plus the 4 UI keys (action + helper + filePlaceholder + passwordPlaceholder).
       'backup.action.testPassword': 'Test backup password',
       'backup.testPassword.heading': 'Test backup password',
       'backup.testPassword.helper': 'Check that you can decrypt a backup file with your password. Your current data is not touched.',
@@ -167,8 +166,8 @@ window.BackupManager = (function () {
     });
     modal.appendChild(closeBtn);
 
-    // Phase 22-15 (Gap N11 / D1) — wrap entry-pane children in a single container so the
-    // in-modal Skip-Encryption confirmation pane (D1) can detach + re-attach the entry pane
+    // Wrap entry-pane children in a single container so the
+    // in-modal Skip-Encryption confirmation pane can detach + re-attach the entry pane
     // as a unit without destroying typed input values. The X close button stays as a direct
     // child of `modal` so it persists across pane swaps.
     var entryPaneWrapper = document.createElement('div');
@@ -198,7 +197,7 @@ window.BackupManager = (function () {
       irreversible.textContent = _t('backup.passphrase.irreversible');
       entryPaneWrapper.appendChild(irreversible);
 
-      // Phase 22-15 (Gap N12 / D3) — static complexity-rules hint block.
+      // Static complexity-rules hint block.
       // Encrypt mode only (decrypt has no rules — user is entering an existing password).
       // The three list items mirror isWeakPassphrase() one-to-one:
       //   - p.length < 6                   → rules.minLength
@@ -289,7 +288,7 @@ window.BackupManager = (function () {
 
     setTimeout(function() { input1.focus(); }, 50);
 
-    // Phase 22-15 (Gap N11 / D1) — activePane state + lazy-built skip-confirm pane.
+    // activePane state + lazy-built skip-confirm pane.
     // Used by the rewired cancelBtn handler and the Escape-key branch below.
     // 'entry' is the default; 'confirm' is the destructive skip-confirm pane.
     var activePane = 'entry';
@@ -372,7 +371,7 @@ window.BackupManager = (function () {
           confirmBtn.disabled = true;
           return;
         }
-        // Phase 22-15 (Gap N12 / D2) — mismatch hint after weakness passes.
+        // Mismatch hint after weakness passes.
         // Weakness errors take precedence (handled above). If v1 is strong AND
         // both inputs have content AND they differ, show the lighter mismatch hint
         // and keep confirmBtn disabled. The defensive louder mismatch error inside
@@ -412,7 +411,7 @@ window.BackupManager = (function () {
 
     cancelBtn.addEventListener('click', function() {
       if (isEncrypt) {
-        // Phase 22-15 (Gap N11 / D1) — Skip Encryption now opens an in-modal confirm pane.
+        // Skip Encryption now opens an in-modal confirm pane.
         // Reaching opts.onSkip() now requires a two-step gesture (this button → destructive primary on the confirm pane).
         swapToSkipConfirmPane();
         return;
@@ -426,7 +425,7 @@ window.BackupManager = (function () {
       if (e.key === 'Enter' && !confirmBtn.disabled && activePane === 'entry') confirmBtn.click();
       if (e.key === 'Escape') {
         if (activePane === 'confirm') {
-          // Phase 22-15 (Gap N11 / D1) — Escape on the destructive confirm pane returns to the entry pane (no resolve).
+          // Escape on the destructive confirm pane returns to the entry pane (no resolve).
           // X close button still aborts (calls opts.onCancel) — Escape and X have different semantics on the confirm pane.
           swapToEntryPane();
           return;
@@ -493,13 +492,13 @@ window.BackupManager = (function () {
     if (!manifest || typeof manifest !== "object") {
       throw new Error("Invalid backup manifest");
     }
-    // Phase 22: ensure therapistSettings exists and is an array. Per-row schema
+    // Ensure therapistSettings exists and is an array. Per-row schema
     // is validated lazily inside the restore loop (importBackup) so a single
     // malformed row cannot abort the whole restore.
     if (!Array.isArray(manifest.therapistSettings)) {
       manifest.therapistSettings = [];
     }
-    // Phase 25 Plan 10 (CR-02) — older backups that pre-date the sentinel
+    // Older backups that pre-date the sentinel
     // export may carry a snippetsDeletedSeeds row with no deletedIds field
     // (or null). Default missing deletedIds to [] so the import sentinel
     // branch does not throw on rec.deletedIds access. This keeps the restore
@@ -512,7 +511,7 @@ window.BackupManager = (function () {
         _row.deletedIds = [];
       }
     }
-    // Phase 24 Plan 04: pre-v1.1 backups have no snippets key. Default to empty
+    // Pre-v1.1 backups have no snippets key. Default to empty
     // array so the restore loop is a no-op AND the v5 migration's seed populate
     // repopulates the seed pack on the destination DB (D-35).
     if (!Array.isArray(manifest.snippets)) {
@@ -553,7 +552,7 @@ window.BackupManager = (function () {
     var allClients = await db.getAllClients();
     var allSessions = await db.getAllSessions();
 
-    // Phase 22: include therapist customisations (custom section labels +
+    // Include therapist customisations (custom section labels +
     // disabled flags). Wrapped in try/catch so a missing function (transitional
     // builds) does not abort the backup.
     var allTherapistSettings = [];
@@ -566,7 +565,7 @@ window.BackupManager = (function () {
       allTherapistSettings = [];
     }
 
-    // Phase 24 Plan 04: include snippets. Same defensive try/catch pattern.
+    // Include snippets. Same defensive try/catch pattern.
     var allSnippets = [];
     try {
       if (typeof db.getAllSnippets === "function") {
@@ -719,7 +718,7 @@ window.BackupManager = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // Web Share API — shareBackup + isShareSupported (Phase 25 Plan 01, D-02..D-04)
+  // Web Share API — shareBackup + isShareSupported
   // ---------------------------------------------------------------------------
 
   /**
@@ -749,8 +748,8 @@ window.BackupManager = (function () {
    * CRITICAL CONTRACT (D-04, T-25-01-01): this function MUST NOT rebuild the
    * blob via exportBackup() or exportEncryptedBackup(). The blob passed in
    * already reflects the user's encryption choice. Re-deriving the blob
-   * here would silently undo that choice (this was the original Phase 22-era
-   * security regression that Plan 25-01 closes).
+   * here would silently undo that choice (this was the original
+   * security regression that the share refactor closes).
    *
    * Honesty contract (D-02, T-25-01-03): the mailto fallback body MUST NOT
    * claim a file is attached. It directs the user to attach the downloaded
@@ -805,7 +804,7 @@ window.BackupManager = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // Phase 25 Plan 03 — testBackupPassword: dry-run safety net (D-12, T-25-03-01)
+  // testBackupPassword: dry-run safety net
   //
   // Verifies a backup file decrypts with the given passphrase WITHOUT touching
   // IndexedDB or localStorage. The user's current data is NEVER mutated.
@@ -998,14 +997,14 @@ window.BackupManager = (function () {
       await db.addSession(manifest.sessions[j]);
     }
 
-    // Phase 22: restore therapist settings (custom labels + disabled flags).
+    // Restore therapist settings (custom labels + disabled flags).
     // Whitelist sectionKey to prevent storing arbitrary keys from a crafted
     // backup (T-22-07-01). Type-coerce customLabel/enabled (T-22-07-03). A row
     // that fails to write is logged and skipped — the restore continues
     // (T-22-07-07: clients/sessions already restored, partial therapistSettings
     // restoration is preferable to a thrown error).
     //
-    // Phase 25 Plan 10 (CR-02) — therapistSettings carries two row shapes:
+    // therapistSettings carries two row shapes:
     //   1) section rows  → {sectionKey, customLabel, enabled}
     //   2) sentinel rows → {sectionKey:'snippetsDeletedSeeds', deletedIds:[...]}
     // The sentinel records the user's deleted-seed preferences. It was being
@@ -1070,7 +1069,7 @@ window.BackupManager = (function () {
       }
     }
 
-    // Phase 24 Plan 04: restore snippets. Each row passes through
+    // Restore snippets. Each row passes through
     // validateSnippetShape so malformed entries from crafted backups are
     // skipped (logged) rather than aborting the whole restore — matches the
     // partial-restore preference established for therapistSettings.
@@ -1199,7 +1198,7 @@ window.BackupManager = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // Phase 25 Plan 02 — Backup contents source-of-truth + recency-state helper
+  // Backup contents source-of-truth + recency-state helper
   // ---------------------------------------------------------------------------
 
   /**
@@ -1219,7 +1218,7 @@ window.BackupManager = (function () {
   var BACKUP_CONTENTS_KEYS = ['clients', 'sessions', 'snippets', 'therapistSettings', 'photos'];
 
   // -------------------------------------------------------------------------
-  // Phase 25 Plan 04 — schedule-interval map + chip-state derivation (D-14/D-30)
+  // schedule-interval map + chip-state derivation
   // -------------------------------------------------------------------------
 
   /**
@@ -1326,7 +1325,7 @@ window.BackupManager = (function () {
   }
 
   // -------------------------------------------------------------------------
-  // Phase 25 Plan 05 — Foreground schedule check + password-mandatory gate
+  // Foreground schedule check + password-mandatory gate
   // -------------------------------------------------------------------------
 
   /**

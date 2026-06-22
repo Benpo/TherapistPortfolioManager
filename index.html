@@ -176,10 +176,10 @@
     </div>
   </div>
 
-  <!-- Phase 25 Plan 02 — Backup & Restore modal (D-05/D-06/D-07/D-09/D-10/D-26).
+  <!-- Backup & Restore modal.
        Opened from the cloud icon in #headerActions (mounted by App.mountBackupCloudButton).
        Hosts: Export (prominent) → Import (secondary, with destructive warning) → Test password sub-card
-       (Plan 03 fills it in) → Settings footer link to scheduled-backup tab (Plan 05). -->
+       → Settings footer link to scheduled-backup tab. -->
   <div id="backupModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="backupModalTitle">
     <div class="modal-overlay"></div>
     <div class="modal-card backup-modal-card">
@@ -225,7 +225,7 @@
         </div>
       </section>
 
-      <!-- Phase 25 Plan 03 — Test-password sub-card (D-12, D-26).
+      <!-- Test-password sub-card.
            Decrypts a .sgbackup file to memory + validates the manifest header.
            No PortfolioDB write, no localStorage write — see assets/backup.js
            testBackupPassword + tests/25-03-testpassword-no-mutation.test.js. -->
@@ -249,8 +249,7 @@
         </div>
       </section>
 
-      <!-- Phase 25 Plan 12 round-2 post-UAT (Change C, 2026-05-15) —
-           "How reminders work" explainer card. Centralizes the three
+      <!-- "How reminders work" explainer card. Centralizes the three
            reminder modes (no schedule / schedule active / switching off)
            that were previously scattered across schedule.frequency.helperOn
            and schedule.disableConfirm.body. Native <details> for
