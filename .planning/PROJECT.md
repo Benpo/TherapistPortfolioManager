@@ -60,11 +60,17 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 
 ### Active
 
-<!-- v1.1 shipped 2026-06-22. v1.2 scope to be defined collaboratively with Ben — do NOT pre-scope (see memory feedback-align-before-scoping). -->
+<!-- v1.1 shipped 2026-06-22. v1.2 scope co-designed & locked with Ben 2026-06-22 (Phases 28–33). -->
 
-- [ ] **v1.2 — Codebase Health & Reliability** (theme agreed 2026-06-22; phase scope TBD with Ben). Candidate workstreams: PWA update reliability on installed Safari; test-coverage hardening; refactor `settings.js` / `add-session.js` god modules; README + maintainer/code documentation.
+- [ ] **v1.2 — Codebase Health & Reliability** (scope locked 2026-06-22 — Phases 28–33, dependency order):
+  - [ ] P28 Update Reliability & Versioning — verified Safari PWA update fix; single version source → footer + SW cache + runtime integrity self-check; CSP→header; cache TTL
+  - [ ] P29 Reliability & Observability — local crash log + "Report a problem" copy flow (zero network); IDB migration escape hatch
+  - [ ] P30 Test Harness & Coverage — fix 7 PDF tests; RTL guard; behavior tests on god modules pre-refactor
+  - [ ] P31 Refactor God Modules — extract from `settings.js` / `add-session.js`; opportunistic cleanups behind the test net
+  - [ ] P32 README + Code Comments — maintainer README + comments on the refactored code
+  - [ ] P33 DE/CS i18n completion — 13 export-modal keys (needs Sapir's strings; independent)
 
-**Deferred to backlog (v1.1 close):** mobile `21-03`; help/onboarding build (Phase 26 — design done); landing DE/CS translation verify (LNCH-04); codebase-map concerns (`.planning/codebase/CONCERNS.md`). See ROADMAP "Backlog".
+**Deferred to backlog (v1.1 close + 2026-06-22 concerns triage):** mobile `21-03`; help/onboarding build (Phase 26 — design done); landing DE/CS verify (LNCH-04); license re-validation; pagination; PDF→Web Worker; and other triaged concerns — see ROADMAP "Backlog" for the full list.
 
 ### Out of Scope
 
@@ -118,18 +124,22 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 | Heart Shield at session level, not client level | Clients transition from Heart Shield to regular sessions without reopening files | ✓ Shipped Phase 9 |
 | Sold under Sapir's Gewerbe | Ben's employment contract requires HR approval for Nebentätigkeit; Sapir is co-creator, no employment blockers | ✓ Decided 2026-03-24 |
 | Close v1.1; defer mobile (P21) + help-build (P26) to backlog | App is live and sold; trailing nice-to-haves shouldn't hold the milestone open. Mobile not a launch blocker; help design is done and archived | ✓ Decided 2026-06-22 |
-| v1.2 = Codebase Health & Reliability (not features) | Maintainability is the burning constraint: 2.8k/2.2k-line god modules, thin docs, unreliable Safari PWA updates, test gaps | — Pending scope co-design with Ben |
+| v1.2 = Codebase Health & Reliability (not features) | Maintainability is the burning constraint: 2.8k/2.2k-line god modules, thin docs, unreliable Safari PWA updates, test gaps | ✓ Scope locked 2026-06-22 — Phases 28–33 |
+| v1.2 runs in dependency order, not stated-priority order | Tests must precede the refactor (safety net); PWA update delivery must work first or no fix reaches installed users; docs describe the *refactored* code | ✓ Order P28→P33, agreed 2026-06-22 |
+| Real footer version + runtime integrity check (reverses 2026-06-14 "leave placeholder") | A version label is only useful if it can't lie; the v209 cache incident proved the bare label lies. One source drives footer + cache + a loaded-code self-check. Offline-safe (no phone-home) | — To build in P28 |
+| License re-validation → backlog (not v1.2) | Would harden the trivially-bypassed paywall but adds a phone-home to an offline-first app; revisit only if piracy is observed | ✓ Deferred 2026-06-22 |
 
-## Current Milestone: v1.2 Codebase Health & Reliability (planning)
+## Current Milestone: v1.2 Codebase Health & Reliability (scope locked — planning per phase)
 
-**Status:** v1.1 shipped and archived 2026-06-22 (Phases 8–27; see `milestones/v1.1-*`). v1.2 theme agreed with Ben — a deliberate shift from feature work to **maintainability and reliability**. Phase scope is being defined collaboratively, item by item, *before* any phase is created (see memory `feedback-align-before-scoping`).
+**Status:** v1.1 shipped and archived 2026-06-22 (Phases 8–27; see `milestones/v1.1-*`). v1.2 scope was **co-designed and locked with Ben on 2026-06-22** — a deliberate shift from feature work to **maintainability and reliability**. The concerns triage (`.planning/codebase/CONCERNS.md`) is complete; outcomes folded into phases / backlog / won't-do (see ROADMAP). Next: `/gsd-plan-phase` per phase, in dependency order.
 
-**Candidate workstreams (not yet committed):**
-- PWA update reliability on installed Safari (end users' installed app not picking up new versions)
-- Test-coverage hardening (gaps let bugs through; fix the broken PDF test harness too)
-- Refactor the `settings.js` (~2.8k lines) / `add-session.js` (~2.2k lines) god modules
-- README + maintainer/code documentation pass
-- Triage of the 2026-06-22 codebase-map concerns (`.planning/codebase/CONCERNS.md`)
+**Committed scope (Phases 28–33, dependency order):**
+- **P28 Update Reliability & Versioning** — verified Safari PWA update fix; single version source → footer + SW `CACHE_NAME` + runtime integrity self-check; CSP→header; cache TTL
+- **P29 Reliability & Observability** — local crash log + "Report a problem" copy flow (zero network); IDB migration escape hatch
+- **P30 Test Harness & Coverage** — fix the 7 PDF tests; RTL guard; behavior tests on god modules before the refactor
+- **P31 Refactor God Modules** — `settings.js` (~2.8k) / `add-session.js` (~2.2k) extraction, behind the test net
+- **P32 README + Code Comments** — maintainer docs describing the refactored structure
+- **P33 DE/CS i18n completion** — 13 export-modal keys (needs Sapir's strings; independent)
 
 ---
-*Last updated: 2026-06-22 — v1.1 "Final Polish & Launch" completed and archived (20 phases, 90 plans; git tag v1.1). Phases 8–27 moved to `milestones/v1.1-phases/`; ROADMAP + REQUIREMENTS snapshotted to `milestones/v1.1-*`. P21 mobile (`21-03`) and Phase 26 help-build deferred to backlog. Next: co-design the v1.2 (Codebase Health & Reliability) scope with Ben.*
+*Last updated: 2026-06-22 — v1.2 (Codebase Health & Reliability) scope co-designed and locked with Ben: Phases 28–33 in dependency order, concerns triage complete, footer-versioning decision reversed (real version + integrity check in P28), license re-validation deferred. Next: `/gsd-plan-phase` per phase in fresh sessions.*

@@ -8,7 +8,7 @@ Transform the existing functional vanilla JS prototype into a sellable product f
 
 - ✅ **v1.0 MVP** — Phases 1–7 (shipped 2026-03-18)
 - ✅ **v1.1 Final Polish & Launch** — Phases 8–27 (shipped 2026-06-22) — full phase detail archived in `milestones/v1.1-ROADMAP.md`
-- 📋 **v1.2 Codebase Health & Reliability** — *theme agreed 2026-06-22; phase scope to be defined collaboratively with Ben (do not pre-scope)*
+- 📋 **v1.2 Codebase Health & Reliability** — Phases 28–33 (scope co-designed & locked with Ben 2026-06-22; per-phase planning not yet started)
 
 ## Phases
 
@@ -55,19 +55,29 @@ Full goals, success criteria, and per-plan detail are archived in `milestones/v1
 
 </details>
 
-### 📋 v1.2 — Codebase Health & Reliability (Planned)
+### 📋 v1.2 — Codebase Health & Reliability (Planned — Phases 28–33)
 
-Theme agreed with Ben on 2026-06-22: shift from feature work to maintainability and reliability. **Phase scope is intentionally not yet defined** — it will be designed item-by-item with Ben before any phase is created. Candidate workstreams discussed (not yet committed): PWA update reliability on installed Safari, test-coverage hardening, refactoring the `settings.js` / `add-session.js` god modules, and a README + maintainer/code documentation pass.
+Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisions). A deliberate shift from feature work to maintainability and reliability. Phases run in **dependency order**: get updates reliably delivered + observable, build a test safety net, *then* refactor behind it, *then* document the result. No PLAN files yet — `/gsd-plan-phase` per phase in upcoming sessions.
+
+- [ ] **Phase 28: Update Reliability & Versioning** — field-verified fix for installed-Safari PWA updates; one source-of-truth version constant driving the footer + SW `CACHE_NAME` + a runtime **integrity self-check** (so the displayed version can't lie, as v209 did); CSP `<meta>`→HTTP header; `_headers` cache TTL. Fully offline-compatible (no phone-home). Footer source today: `assets/shared-chrome.js:~8`.
+- [ ] **Phase 29: Reliability & Observability** — local crash log persisted to IndexedDB + a Settings "Report a problem" copy-to-clipboard flow (zero network, GDPR-safe); IDB migration "reset & recover" escape hatch so a failed migration can't trap a user in an infinite refresh loop.
+- [ ] **Phase 30: Test Harness & Coverage** — fix the 7 PDF tests that can't run in Node (`jsdom` lacks `HTMLCanvasElement.getContext`; old-Node `blob.arrayBuffer`); add an RTL regression guard; add **behavior tests on the god modules before the refactor** (per `feedback-behavior-verification`). May introduce the project's first `package.json` + dev-dependency (decide at plan time).
+- [ ] **Phase 31: Refactor God Modules** — behavior-preserving extraction from `settings.js` (~2,827 lines) and `add-session.js` (~2,173 lines) using the existing IIFE pattern; guarded by the green suite from Phase 30. Opportunistic in touched code: `var`→`const`, `innerHTML`-i18n hardening, `openDB()` connection pooling, logging in silent catches.
+- [ ] **Phase 32: README + Code Comments** — project README (run/deploy/architecture) for Sapir as ongoing maintainer; code-level comments describing the *refactored* structure.
+- [ ] **Phase 33: DE/CS i18n completion** — translate the 13 export-modal keys currently showing English to German/Czech users (needs Sapir's strings). Independent of the others — slot in whenever ready.
 
 ## Backlog
 
-Deferred items carried out of v1.1. **Not yet scoped into phases** — to be triaged with Ben.
+Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage (2026-06-22) is complete.
 
 - **Mobile — `21-03`** — crop bug fix (shared module), overlay-close, body scroll lock, iPhone device checkpoint. Archived: `milestones/v1.1-phases/21-comprehensive-mobile-responsiveness-audit-and-fix-all-app-screens-for-iphone-mobile-viewport/`.
 - **Help / onboarding build (Phase 26)** — design complete (`26-UI-SPEC.md`), build deferred. Start from the archived UI-SPEC. Todo: `todos/pending/2026-05-15-in-app-onboarding-overview-help.md`.
 - **LNCH-04** — landing page DE/CS translation verification. Todo: `todos/pending/2026-03-18-verify-landing-page-translations.md`.
 - **LNCH-06 (mobile QA)** — folded into the mobile backlog item above.
-- **Codebase-map concerns (2026-06-22)** — security / perf / a11y / error-telemetry items catalogued in `.planning/codebase/CONCERNS.md`; to be triaged and folded into v1.2 phases with Ben.
+- **Codebase-map concerns — triaged with Ben 2026-06-22** (`.planning/codebase/CONCERNS.md`):
+  - *Folded into v1.2:* error telemetry (P29), IDB escape hatch (P29), CSP→header + cache TTL (P28), RTL guard (P30), `openDB`/`innerHTML`/`var` cleanup (P31), DE/CS i18n (P33).
+  - *Deferred to backlog:* license re-validation (adds a phone-home — revisit only if piracy is observed), table pagination, PDF→Web Worker, sequential photo-optimize loop, backup import size cap, jsPDF version pin, a11y (table `aria-rowindex`, export-stepper `aria-current`, toast/demo), landing-page `innerHTML`, license-key-in-localStorage note, IDB record caps.
+  - *Won't-do for v1.2:* build step / bundler, full ES-module system, multi-device sync, removing `unsafe-inline` from `script-src` — all conflict with the zero-build / local-only constraints; revisit only if forced.
 - **Other pending todos** — see `.planning/todos/pending/` (10 items, incl. deactivation data-loss warning, PWA install guidance, v12 IDB encryption, drag-sort settings, modality templates).
 
 ## Progress
@@ -103,3 +113,9 @@ Deferred items carried out of v1.1. **Not yet scoped into phases** — to be tri
 | 25. Backup Architectural Rework | v1.1 | 13/13 | Complete | 2026-05-16 |
 | 26. In-App Onboarding / Help | v1.1 | Design-only | Deferred — build in backlog | - |
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
+| 28. Update Reliability & Versioning | v1.2 | 0/– | Planned | - |
+| 29. Reliability & Observability | v1.2 | 0/– | Planned | - |
+| 30. Test Harness & Coverage | v1.2 | 0/– | Planned | - |
+| 31. Refactor God Modules | v1.2 | 0/– | Planned | - |
+| 32. README + Code Comments | v1.2 | 0/– | Planned | - |
+| 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
