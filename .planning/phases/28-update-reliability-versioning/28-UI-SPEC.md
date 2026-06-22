@@ -1,7 +1,7 @@
 ---
 phase: 28
 slug: update-reliability-versioning
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-22
@@ -133,7 +133,7 @@ Declared values (project scale — multiples of 4; values are the inline fallbac
 
 Banner-specific inline gap: **12px** (text↔button), reused verbatim from `.db-error-banner`.
 
-Exceptions: the `12px` banner gap and the `var(--space-md, 12px)` banner padding fallback are not 8-point-pure but are **inherited verbatim from the existing `.db-error-banner`** — matching the established sibling banners is the correct call over imposing a fresh scale on one new variant. No new exceptions introduced by this phase.
+> **Banner-family fallback exception (executor MUST honor — this is the one place the canonical scale above does NOT apply).** The table above is the codebase-wide dominant scale (`var(--space-md, 16px)` and `var(--space-sm, 8px)` are each used ~13× across `assets/`). The `.db-error-banner` / `.db-error-btn` family — which this nudge inherits from verbatim — is a deliberate **tighter-fallback outlier**: it uses `var(--space-md, **12px**)`, `var(--space-xs, **2px**)`, `var(--space-sm, **4px**)`, and a hardcoded `gap: 12px` (see `assets/app.css:2132–2178`). Because none of the `--space-*` scale tokens are defined in `:root`, the *fallback literal you write is the value that actually renders*. The nudge MUST copy the banner family's fallbacks exactly so it sits flush with its sibling banners — do **not** "normalize" the banner's `12px` md-padding up to the canonical `16px`, and do **not** change `2px`/`4px` to `4px`/`8px`. The Surface 1 "Spacing (reuse db-error-banner values verbatim)" block is the binding source for these two surfaces; the canonical table is reference context only.
 
 ---
 
@@ -244,11 +244,13 @@ The executor authors HE/DE/CS for each EN string above in a colocated inline obj
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+Verified by gsd-ui-checker (2026-06-22).
 
-**Approval:** pending
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: FLAG → reconciled (banner-family fallback exception now made explicit in the Spacing Scale section; the `--space-md` canonical-vs-banner 16px/12px discrepancy is documented, not a defect)
+- [x] Dimension 6 Registry Safety: PASS
+
+**Approval:** approved (5 PASS, 1 FLAG resolved; no blocking issues)
