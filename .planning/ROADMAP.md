@@ -80,6 +80,12 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   5. Static JS/CSS in `_headers` is served with a longer cache TTL (`max-age=86400`+), with the service worker still owning freshness for installed users
   6. No update-reliability or versioning behavior introduces a network call — the app remains fully functional offline
 
+**Plans:** 4 plans
+- [ ] 28-01-PLAN.md — Versioning foundation: version.js single source of truth, SW CACHE_NAME auto-derived, deploy-time stamp
+- [ ] 28-02-PLAN.md — CSP HTTP header migration (verbatim-equivalent) + raise JS/CSS cache TTL to 86400
+- [ ] 28-03-PLAN.md — HTML convergence: delete the 21 CSP `<meta>` tags + wire version.js into the 20 app pages
+- [ ] 28-04-PLAN.md — Integrity self-check + honest nudge + footer `⚠` marker + apply-on-next-navigation update delivery
+
 ### Phase 29: Reliability & Observability
 
 **Goal**: Production problems on a user's device are diagnosable — errors are captured locally, the user can hand over a diagnostic log without any data leaving the device, and a failed database migration can no longer trap the user in an unrecoverable refresh loop.
