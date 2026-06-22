@@ -80,7 +80,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   5. Static JS/CSS in `_headers` is served with a longer cache TTL (`max-age=86400`+), with the service worker still owning freshness for installed users
   6. No update-reliability or versioning behavior introduces a network call — the app remains fully functional offline
 
-**Plans:** 2/4 plans executed
+**Plans:** 3/4 plans executed
 **Wave 1**
 
 - [x] 28-01-PLAN.md — Versioning foundation: version.js single source of truth, SW CACHE_NAME auto-derived, deploy-time stamp
@@ -88,7 +88,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 28-03-PLAN.md — HTML convergence: delete the 21 CSP `<meta>` tags + wire version.js into the 20 app pages
+- [x] 28-03-PLAN.md — HTML convergence: delete the 21 CSP `<meta>` tags + wire version.js into the 20 app pages
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -196,7 +196,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 25. Backup Architectural Rework | v1.1 | 13/13 | Complete | 2026-05-16 |
 | 26. In-App Onboarding / Help | v1.1 | Design-only | Deferred — build in backlog | - |
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
-| 28. Update Reliability & Versioning | v1.2 | 2/4 | In Progress|  |
+| 28. Update Reliability & Versioning | v1.2 | 3/4 | In Progress|  |
 | 29. Reliability & Observability | v1.2 | 0/– | Planned | - |
 | 30. Test Harness & Coverage | v1.2 | 0/– | Planned | - |
 | 31. Refactor God Modules | v1.2 | 0/– | Planned | - |
