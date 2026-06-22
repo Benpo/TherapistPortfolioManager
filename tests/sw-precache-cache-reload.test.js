@@ -51,5 +51,17 @@ check('CACHE_NAME derived from AppVersion.INTEGRITY_TOKEN (no hardcoded vNNN)',
   /CACHE_NAME\s*=\s*['"]sessions-garden-['"]\s*\+\s*self\.AppVersion\.INTEGRITY_TOKEN/.test(sw)
   && !/CACHE_NAME\s*=\s*['"]sessions-garden-v\d+['"]/.test(sw));
 
+// The SW imports version.js (above) to derive CACHE_NAME. importScripts() runs
+// during SW evaluation, so an unresolvable path throws and the SW NEVER installs
+// — a silent, total failure of the whole update mechanism. (Phase 28 field
+// verification caught this: importScripts('/version.js') fetched Cloudflare's
+// HTML fallback because the file actually ships at '/assets/version.js'; the
+// deploy creates no root /version.js.) Guard that the imported path maps to a
+// real on-disk file so it can never drift from where version.js is shipped.
+var importMatch = /importScripts\(\s*['"]([^'"]+)['"]\s*\)/.exec(sw);
+var importPath = importMatch ? importMatch[1].replace(/^\//, '') : null;
+check('importScripts() path resolves to a real deployed file (not a 404 fallback)',
+  !!importPath && fs.existsSync(path.join(__dirname, '..', importPath)));
+
 console.log('\n' + (failed === 0 ? 'ALL PASS' : (failed + ' FAILED')));
 process.exit(failed === 0 ? 0 : 1);

@@ -12,7 +12,10 @@
 // Single source of truth: derive the cache name from the deploy-stamped token
 // in version.js. Bumping a deploy never requires editing a cache number again
 // (kills the v209 stale-cache failure class — D-02).
-importScripts('/version.js');
+// Path MUST match where version.js is actually deployed (assets/, mirrored in
+// PRECACHE_URLS below) — the deploy ships no root /version.js, so importing
+// '/version.js' would fetch Cloudflare's HTML fallback and throw on install.
+importScripts('/assets/version.js');
 const CACHE_NAME = 'sessions-garden-' + self.AppVersion.INTEGRITY_TOKEN;
 
 /**
