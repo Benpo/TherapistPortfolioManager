@@ -9,10 +9,10 @@
   Cache-Control: no-cache
 
 /*.js
-  Cache-Control: public, max-age=3600
+  Cache-Control: public, max-age=86400
 
 /*.css
-  Cache-Control: public, max-age=3600
+  Cache-Control: public, max-age=86400
 
 /sw.js
   Cache-Control: no-cache
