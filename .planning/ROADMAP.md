@@ -43,11 +43,6 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [x] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
-- [x] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
-- [x] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
-
-Plans:
 - [x] 01-01-PLAN.md — CSS design token system (tokens.css) + Rubik self-hosted fonts (FOUND-01, FOUND-02)
 - [x] 01-02-PLAN.md — IndexedDB sequential migration infrastructure (FOUND-03)
 - [x] 01-03-PLAN.md — Backup reminder banner + navigator.storage.persist() (FOUND-04)
@@ -62,11 +57,6 @@ Plans:
   3. All directional CSS uses logical properties (inline-start/inline-end) -- switching to Hebrew RTL requires zero CSS overrides
   4. Navigation is rendered from a single JS component -- changing a nav item updates all 5 pages automatically
 **Plans**: 3 plans
-
-Plans:
-- [x] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
-- [x] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
-- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
 
 Plans:
 - [x] 02-01-PLAN.md — Garden palette (tokens.css) + brand area + nav component extraction + no-flash scripts (DSGN-01, DSGN-04)
@@ -86,11 +76,6 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [x] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
-- [x] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
-- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
-
-Plans:
 - [x] 03-01-PLAN.md — DB migration v2 + client type expansion (Adult/Child/Animal/Other) + referral source dropdown (DATA-02, DATA-03)
 - [x] 03-02-PLAN.md — Session field consolidation: Important Points, form reorder, severity delta, markdown export (DATA-01, DATA-04)
 - [x] 03-03-PLAN.md — Client search, daily quotes with attribution, brand mark homepage link (FEAT-01, FEAT-02)
@@ -105,11 +90,6 @@ Plans:
   3. i18n translations live in separate per-language files (not one monolithic file), and adding a new language requires only adding a new file
   4. A documented decision exists for hosting platform (with rationale) and payment solution (with EU VAT handling confirmed)
 **Plans**: 3 plans
-
-Plans:
-- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
-- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
-- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
 
 Plans:
 - [x] 04-01-PLAN.md — i18n file split + Heart Shield/Practice/Sessions Garden renames + subtitle wiring (I18N-01, I18N-02, I18N-03)
@@ -127,11 +107,6 @@ Plans:
   4. The app works offline after first load -- service worker caches all assets, and the app is installable via "Add to Home Screen"
   5. A working access-gating mechanism (license key, hash check, or equivalent) controls access for paid users
 **Plans**: 3 plans
-
-Plans:
-- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
-- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
-- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
 
 Plans:
 - [x] 05-01-PLAN.md — Disclaimer/T&C gate with 4-language legal content, Widerrufsrecht checkbox, acceptance receipt (LEGL-01, LEGL-02, LEGL-03)
@@ -196,6 +171,91 @@ Plans:
 - [x] 07-02-PLAN.md — Wire BackupManager into UI, add send-to-self and auto-save buttons, i18n, service worker update (BKUP-03)
 
 </details>
+
+### v1.1 Final Polish & Launch (In Progress)
+
+**Milestone Goal:** Polish the app for free trial users, fix UX pain points, update visual identity, and complete all launch prerequisites so the product can be sold.
+
+- [x] **Phase 8: Terminology and Quick UX Fixes** - Update מפגש/לקוח terminology across all 4 languages; replace text action buttons with icon buttons (completed 2026-03-19)
+- [x] **Phase 9: Heart Shield Redesign** - Session-level Heart Shield toggle with removal tracking, client table indicators, and session type filter (completed; 2/2 plans)
+- [x] **Phase 10: UX Power Features** - Photo crop/reposition after upload; edit client directly from add-session screen (completed 2026-03-19)
+- [x] **Phase 11: Visual Identity Update** - Garden decorations in app UI; updated logo; final app icon (completed 2026-03-19)
+- [x] **Phase 12: Launch Prerequisites** - Real Impressum and Datenschutzerklarung; Lemon Squeezy product setup; DE/CS translation verification; cross-browser and mobile QA (completed 2026-03-19)
+
+### Phase 8: Terminology and Quick UX Fixes
+**Goal**: The app uses practitioner-appropriate terminology in all 4 languages and the clients table actions are compact and intuitive
+**Depends on**: Phase 7 (v1.0 complete)
+**Requirements**: UX-01, UX-02
+**Success Criteria** (what must be TRUE):
+  1. Every visible string that previously said "treatment" or "patient" (or equivalents in DE/CS/HE) now reads "session" or "client" across all 4 languages
+  2. The clients table shows a history icon and a plus icon instead of text buttons; hovering either shows a tooltip naming the action
+  3. Switching the app language and re-checking the clients table still shows icon buttons with correct tooltip text in the selected language
+**Plans**: 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Terminology sweep: update i18n files for EN/HE/DE/CS (UX-01)
+- [ ] 08-02-PLAN.md — Icon buttons with tooltips in clients table actions column (UX-02)
+
+### Phase 9: Heart Shield Redesign
+**Goal**: Heart Shield tracking works at the session level with visual indicators and filtering, replacing the old client-level approach
+**Depends on**: Phase 8
+**Requirements**: HSHLD-01, HSHLD-02, HSHLD-03
+**Success Criteria** (what must be TRUE):
+  1. When adding or editing a session, user can toggle "Heart Shield session" on or off; toggling it on reveals a required "Shield removed?" yes/no field
+  2. A client who has had a Heart Shield session and has not yet had it removed shows a heart icon next to their name in the clients table; after removal, the icon changes to a checkmark
+  3. The sessions list has a "session type" dropdown that filters to show all sessions, only Heart Shield sessions, or only regular sessions
+  4. Saving a Heart Shield session without answering "Shield removed?" is blocked with a visible validation message
+**Plans**: 2 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — DB migration for Heart Shield session fields + form toggle and validation (HSHLD-01)
+- [ ] 09-02-PLAN.md — Heart icon in clients table + session type filter dropdown (HSHLD-02, HSHLD-03)
+
+### Phase 10: UX Power Features
+**Goal**: Users can adjust client photos after upload and edit client details without leaving the add-session flow
+**Depends on**: Phase 8
+**Requirements**: UX-03, UX-04
+**Success Criteria** (what must be TRUE):
+  1. After uploading a photo, user can drag to reposition it within the circular crop area and confirm the result before saving
+  2. The cropped/repositioned photo is what appears in the client card and throughout the app (not the raw uploaded image)
+  3. From the add-session screen, user can open an edit-client panel or modal without navigating away; changes saved there immediately reflect in the session form
+**Plans**: 2 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Photo crop/reposition UI: drag-to-position within circular canvas crop (UX-03)
+- [ ] 10-02-PLAN.md — Edit client shortcut from add-session screen (UX-04)
+
+### Phase 11: Visual Identity Update
+**Goal**: The app interior has botanical character matching the landing page, the logo is refreshed, and the app icon is final
+**Depends on**: Phase 8 (stable UI before decorating)
+**Requirements**: DSGN-05, DSGN-06, LNCH-05
+**Success Criteria** (what must be TRUE):
+  1. At least the home/overview page and one secondary page display botanical decorative elements (leaves, flowers, or garden motifs) that match the landing page aesthetic
+  2. The same updated logo appears in both the app header and the landing page header
+  3. The app icon (home screen / PWA install icon) is a final branded image, not a placeholder
+**Plans**: 2 plans
+
+Plans:
+- [ ] 11-01-PLAN.md — Botanical decorations added to app pages (DSGN-05)
+- [ ] 11-02-PLAN.md — Updated logo for app and landing page + final app icon (DSGN-06, LNCH-05)
+
+### Phase 12: Launch Prerequisites
+**Goal**: All legal content is real, the payment product is live, translations are verified, and the app passes a manual QA pass
+**Depends on**: Phases 9, 10, 11 (app must be feature-complete before QA)
+**Requirements**: LNCH-01, LNCH-02, LNCH-03, LNCH-04, LNCH-06
+**Success Criteria** (what must be TRUE):
+  1. The Impressum page shows Sapir's real business name, address, and contact details (not placeholder text)
+  2. The Datenschutzerklarung is a complete, generated privacy policy applicable to a local-only app sold in Germany
+  3. The Lemon Squeezy product is configured with real pricing; the landing page buy button links to the live checkout
+  4. A native DE or CS speaker (or Sapir) has reviewed and corrected the landing page German and Czech translations
+  5. The app opens and functions correctly in Chrome, Firefox, Safari, and Edge; Hebrew RTL layout has no breakage; the layout is usable on mobile viewport
+**Plans**: 4 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Comprehensive Datenschutzerklarung in German and English (LNCH-02)
+- [ ] 12-02-PLAN.md — DE/CS translation deep review and corrections (LNCH-04)
+- [ ] 12-03-PLAN.md — Impressum real content + Lemon Squeezy product setup (LNCH-01, LNCH-03)
+- [ ] 12-04-PLAN.md — Manual QA pass: cross-browser, RTL, mobile (LNCH-06)
 
 ### Phase 13: Review and fix greeting quotes
 
@@ -341,6 +401,36 @@ Plans:
 - [x] 19-08-PLAN.md — E2E verification + LIVE-07 confirmation + innovator research (LIVE-04, LIVE-07, LIVE-09)
 
 **Post-deployment fixes (2026-03-24/25):** CF Pages "pretty URLs" caused two cascading issues: (1) SW cached redirected `.html` responses, browsers rejected them for navigation; (2) `_redirects` rule `/ /landing.html 302` intercepted all `./index.html` navigations because CF treats `index.html` as root document. Fixed by: SW skips all navigations + HTML removed from precache; `_redirects` replaced with JS Gate 0 in `index.html <head>`. See 19-RESEARCH.md addendum.
+
+### Phase 20: Pre-Launch UI Polish & Legal Compliance
+
+**Goal:** Fix UX pain points, add missing UI chrome, and ensure visual consistency across all app pages
+**Requirements**: POLISH-01, POLISH-02, POLISH-03, POLISH-04, POLISH-05, POLISH-06
+**Depends on:** Phase 19
+**Success Criteria** (what must be TRUE):
+  1. Birth date picker allows fast year selection without scrolling month-by-month through distant years
+  2. App footer shows contact email, legal links (Impressum, Datenschutz, Terms), copyright, and version on all app pages including license page
+  3. Backup dialog has a Cancel/X button allowing users to dismiss without completing backup
+  4. Dark mode state is properly cleared when a user's license is deactivated and they return to the landing page
+  5. License page has language selector and dark mode toggle matching other app pages, plus the shared footer
+  6. App header uses full width with consistent language selector (matching landing page popover style) and dark/light toggle at equal sizing — no two-row wrapping
+**Plans**: 3 plans
+
+Plans:
+- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
+- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
+- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
+
+**Source todos:**
+- Birth date picker improvement (2026-03-19)
+- App footer with contact email and legal links (2026-03-24)
+- Backup dialog cancel button (2026-03-24)
+- Dark mode persistence after deactivation (2026-03-24)
+- License page UI polish (2026-03-24)
+- App header redesign (2026-03-24)
+
+**Deferred to Phase 21+:**
+- Terms acceptance business notification — restructured into LS activation flow (too big for polish phase)
 
 ### Phase 21: Comprehensive mobile responsiveness — audit and fix all app screens for iPhone/mobile viewport
 
@@ -631,125 +721,6 @@ Plans:
 
 **Origin:** Phase 25 UAT item #1 (Ben, 2026-05-16) — explicitly agreed to defer the visual-cohesion redesign to a dedicated UI-SPEC phase while Phase 25 shipped the functional fixes. Cross-ref: `.planning/phases/25-backup-architectural-rework/25-FOLLOWUPS.md`.
 
----
-
-### v1.1 Final Polish & Launch (In Progress)
-
-**Milestone Goal:** Polish the app for free trial users, fix UX pain points, update visual identity, and complete all launch prerequisites so the product can be sold.
-
-- [x] **Phase 8: Terminology and Quick UX Fixes** - Update מפגש/לקוח terminology across all 4 languages; replace text action buttons with icon buttons (completed 2026-03-19)
-- [x] **Phase 9: Heart Shield Redesign** - Session-level Heart Shield toggle with removal tracking, client table indicators, and session type filter (completed; 2/2 plans)
-- [x] **Phase 10: UX Power Features** - Photo crop/reposition after upload; edit client directly from add-session screen (completed 2026-03-19)
-- [x] **Phase 11: Visual Identity Update** - Garden decorations in app UI; updated logo; final app icon (completed 2026-03-19)
-- [x] **Phase 12: Launch Prerequisites** - Real Impressum and Datenschutzerklarung; Lemon Squeezy product setup; DE/CS translation verification; cross-browser and mobile QA (completed 2026-03-19)
-
-## Phase Details
-
-### Phase 8: Terminology and Quick UX Fixes
-**Goal**: The app uses practitioner-appropriate terminology in all 4 languages and the clients table actions are compact and intuitive
-**Depends on**: Phase 7 (v1.0 complete)
-**Requirements**: UX-01, UX-02
-**Success Criteria** (what must be TRUE):
-  1. Every visible string that previously said "treatment" or "patient" (or equivalents in DE/CS/HE) now reads "session" or "client" across all 4 languages
-  2. The clients table shows a history icon and a plus icon instead of text buttons; hovering either shows a tooltip naming the action
-  3. Switching the app language and re-checking the clients table still shows icon buttons with correct tooltip text in the selected language
-**Plans**: 2 plans
-
-Plans:
-- [ ] 08-01-PLAN.md — Terminology sweep: update i18n files for EN/HE/DE/CS (UX-01)
-- [ ] 08-02-PLAN.md — Icon buttons with tooltips in clients table actions column (UX-02)
-
-### Phase 9: Heart Shield Redesign
-**Goal**: Heart Shield tracking works at the session level with visual indicators and filtering, replacing the old client-level approach
-**Depends on**: Phase 8
-**Requirements**: HSHLD-01, HSHLD-02, HSHLD-03
-**Success Criteria** (what must be TRUE):
-  1. When adding or editing a session, user can toggle "Heart Shield session" on or off; toggling it on reveals a required "Shield removed?" yes/no field
-  2. A client who has had a Heart Shield session and has not yet had it removed shows a heart icon next to their name in the clients table; after removal, the icon changes to a checkmark
-  3. The sessions list has a "session type" dropdown that filters to show all sessions, only Heart Shield sessions, or only regular sessions
-  4. Saving a Heart Shield session without answering "Shield removed?" is blocked with a visible validation message
-**Plans**: 2 plans
-
-Plans:
-- [ ] 09-01-PLAN.md — DB migration for Heart Shield session fields + form toggle and validation (HSHLD-01)
-- [ ] 09-02-PLAN.md — Heart icon in clients table + session type filter dropdown (HSHLD-02, HSHLD-03)
-
-### Phase 10: UX Power Features
-**Goal**: Users can adjust client photos after upload and edit client details without leaving the add-session flow
-**Depends on**: Phase 8
-**Requirements**: UX-03, UX-04
-**Success Criteria** (what must be TRUE):
-  1. After uploading a photo, user can drag to reposition it within the circular crop area and confirm the result before saving
-  2. The cropped/repositioned photo is what appears in the client card and throughout the app (not the raw uploaded image)
-  3. From the add-session screen, user can open an edit-client panel or modal without navigating away; changes saved there immediately reflect in the session form
-**Plans**: 2 plans
-
-Plans:
-- [ ] 10-01-PLAN.md — Photo crop/reposition UI: drag-to-position within circular canvas crop (UX-03)
-- [ ] 10-02-PLAN.md — Edit client shortcut from add-session screen (UX-04)
-
-### Phase 11: Visual Identity Update
-**Goal**: The app interior has botanical character matching the landing page, the logo is refreshed, and the app icon is final
-**Depends on**: Phase 8 (stable UI before decorating)
-**Requirements**: DSGN-05, DSGN-06, LNCH-05
-**Success Criteria** (what must be TRUE):
-  1. At least the home/overview page and one secondary page display botanical decorative elements (leaves, flowers, or garden motifs) that match the landing page aesthetic
-  2. The same updated logo appears in both the app header and the landing page header
-  3. The app icon (home screen / PWA install icon) is a final branded image, not a placeholder
-**Plans**: 2 plans
-
-Plans:
-- [ ] 11-01-PLAN.md — Botanical decorations added to app pages (DSGN-05)
-- [ ] 11-02-PLAN.md — Updated logo for app and landing page + final app icon (DSGN-06, LNCH-05)
-
-### Phase 12: Launch Prerequisites
-**Goal**: All legal content is real, the payment product is live, translations are verified, and the app passes a manual QA pass
-**Depends on**: Phases 9, 10, 11 (app must be feature-complete before QA)
-**Requirements**: LNCH-01, LNCH-02, LNCH-03, LNCH-04, LNCH-06
-**Success Criteria** (what must be TRUE):
-  1. The Impressum page shows Sapir's real business name, address, and contact details (not placeholder text)
-  2. The Datenschutzerklarung is a complete, generated privacy policy applicable to a local-only app sold in Germany
-  3. The Lemon Squeezy product is configured with real pricing; the landing page buy button links to the live checkout
-  4. A native DE or CS speaker (or Sapir) has reviewed and corrected the landing page German and Czech translations
-  5. The app opens and functions correctly in Chrome, Firefox, Safari, and Edge; Hebrew RTL layout has no breakage; the layout is usable on mobile viewport
-**Plans**: 4 plans
-
-Plans:
-- [ ] 12-01-PLAN.md — Comprehensive Datenschutzerklarung in German and English (LNCH-02)
-- [ ] 12-02-PLAN.md — DE/CS translation deep review and corrections (LNCH-04)
-- [ ] 12-03-PLAN.md — Impressum real content + Lemon Squeezy product setup (LNCH-01, LNCH-03)
-- [ ] 12-04-PLAN.md — Manual QA pass: cross-browser, RTL, mobile (LNCH-06)
-
-### Phase 20: Pre-Launch UI Polish & Legal Compliance
-
-**Goal:** Fix UX pain points, add missing UI chrome, and ensure visual consistency across all app pages
-**Requirements**: POLISH-01, POLISH-02, POLISH-03, POLISH-04, POLISH-05, POLISH-06
-**Depends on:** Phase 19
-**Success Criteria** (what must be TRUE):
-  1. Birth date picker allows fast year selection without scrolling month-by-month through distant years
-  2. App footer shows contact email, legal links (Impressum, Datenschutz, Terms), copyright, and version on all app pages including license page
-  3. Backup dialog has a Cancel/X button allowing users to dismiss without completing backup
-  4. Dark mode state is properly cleared when a user's license is deactivated and they return to the landing page
-  5. License page has language selector and dark mode toggle matching other app pages, plus the shared footer
-  6. App header uses full width with consistent language selector (matching landing page popover style) and dark/light toggle at equal sizing — no two-row wrapping
-**Plans**: 3 plans
-
-Plans:
-- [ ] 20-01-PLAN.md — Backup dialog cancel/X, dark mode deactivation fix, birth date picker (POLISH-01, POLISH-03, POLISH-04)
-- [ ] 20-02-PLAN.md — App header popover redesign + shared footer on app pages (POLISH-02, POLISH-06)
-- [ ] 20-03-PLAN.md — License page chrome + footer on legal pages + visual checkpoint (POLISH-05)
-
-**Source todos:**
-- Birth date picker improvement (2026-03-19)
-- App footer with contact email and legal links (2026-03-24)
-- Backup dialog cancel button (2026-03-24)
-- Dark mode persistence after deactivation (2026-03-24)
-- License page UI polish (2026-03-24)
-- App header redesign (2026-03-24)
-
-**Deferred to Phase 21+:**
-- Terms acceptance business notification — restructured into LS activation flow (too big for polish phase)
-
 ## Progress
 
 **Execution Order:**
@@ -766,19 +737,19 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 5.2 Landing Page Polish | v1.0 | 3/3 | Complete | - |
 | 6. Quality and Developer Experience | v1.0 | 2/2 | Complete | - |
 | 7. ZIP Backup Strategy | v1.0 | 2/2 | Complete | 2026-03-18 |
-| 8. Terminology and Quick UX Fixes | 2/2 | Complete   | 2026-03-19 | - |
-| 9. Heart Shield Redesign | 2/2 | Complete | - | - |
-| 10. UX Power Features | 2/2 | Complete    | 2026-03-19 | - |
-| 11. Visual Identity Update | 2/2 | Complete    | 2026-03-19 | - |
-| 12. Launch Prerequisites | 4/4 | Complete   | 2026-03-19 | - |
-| 13. Greeting Quotes | 1/1 | Complete | - | - |
-| 14. i18n/Footer/Email | 6/6 | Complete | - | - |
-| 15. Architecture/UI Audit | 3/3 | Complete | 2026-03-23 | - |
-| 16. Audit Fix: Code | 5/5 | Complete    | 2026-03-23 | - |
-| 17. Audit Fix: Business | 3/3 | Complete    | 2026-03-24 | - |
-| 18. Technical Debt | 0/3 | 3/3 | Complete    | 2026-03-24 |
-| 19. Go-Live Preparation | 8/8 | Complete | 2026-03-24 | - |
-| 20. Pre-Launch UI Polish | 0/3 | 3/3 | Complete    | 2026-03-25 |
+| 8. Terminology and Quick UX Fixes | v1.1 | 2/2 | Complete | 2026-03-19 |
+| 9. Heart Shield Redesign | v1.1 | 2/2 | Complete | - |
+| 10. UX Power Features | v1.1 | 2/2 | Complete | 2026-03-19 |
+| 11. Visual Identity Update | v1.1 | 2/2 | Complete | 2026-03-19 |
+| 12. Launch Prerequisites | v1.1 | 4/4 | Complete | 2026-03-19 |
+| 13. Greeting Quotes | v1.1 | 1/1 | Complete | - |
+| 14. i18n/Footer/Email | v1.1 | 6/6 | Complete | - |
+| 15. Architecture/UI Audit | v1.1 | 3/3 | Complete | 2026-03-23 |
+| 16. Audit Fix: Code | v1.1 | 5/5 | Complete | 2026-03-23 |
+| 17. Audit Fix: Business | v1.1 | 3/3 | Complete | 2026-03-24 |
+| 18. Technical Debt | v1.1 | 3/3 | Complete | 2026-03-24 |
+| 19. Go-Live Preparation | v1.1 | 8/8 | Complete | 2026-03-24 |
+| 20. Pre-Launch UI Polish | v1.1 | 3/3 | Complete | 2026-03-25 |
 | 21. Mobile Responsiveness | v1.1 | 2/3 | In Progress (parked — iOS testing) | - |
 | 22. Session Workflow Loop | v1.1 | 15/15 | Complete | - |
 | 23. PDF Hebrew RTL Rewrite | v1.1 | 11/11 | Complete | 2026-05-12 |
