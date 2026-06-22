@@ -105,6 +105,17 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   2. Settings exposes a "Report a problem" action that copies the persisted error log plus basic diagnostic context to the clipboard for the user to paste into a support email — nothing is transmitted automatically
   3. When an IndexedDB migration fails, the user is offered a "reset & recover" escape hatch instead of an endless "please refresh" loop, and using it returns the app to a usable state
 
+**Plans:** 3 plans
+
+**Wave 1** *(parallel — no file overlap)*
+
+- [ ] 29-01-PLAN.md — OBS-01 crash-log foundation: `crashlog.js` capture module (window.onerror + unhandledrejection), dual IDB+localStorage storage, 30-day/50-entry prune, `CrashLog.logError()` seam, wired early onto all 20 app pages
+- [ ] 29-02-PLAN.md — OBS-03 reset & recover escape hatch: read-only export-around-failure open + gated reset (affirmation checkbox + double-confirm) replacing the dead-end migration-error refresh loop
+
+**Wave 2** *(blocked on 29-01)*
+
+- [ ] 29-03-PLAN.md — OBS-02 report-a-problem screen (`report.html` + `report.js`): redacted editable preview, Copy report, mailto handoff; Settings entry row; wires Phase 28 integrity-mismatch persistence + version.js wedged stubs
+
 ### Phase 30: Test Harness & Coverage
 
 **Goal**: A green automated test suite runs from a single documented command and captures the current behavior of the god modules, establishing the safety net that the Phase 31 refactor will be guarded by.
@@ -197,7 +208,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 26. In-App Onboarding / Help | v1.1 | Design-only | Deferred — build in backlog | - |
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
-| 29. Reliability & Observability | v1.2 | 0/– | Planned | - |
+| 29. Reliability & Observability | v1.2 | 0/3 | Planned | - |
 | 30. Test Harness & Coverage | v1.2 | 0/– | Planned | - |
 | 31. Refactor God Modules | v1.2 | 0/– | Planned | - |
 | 32. README + Code Comments | v1.2 | 0/– | Planned | - |
