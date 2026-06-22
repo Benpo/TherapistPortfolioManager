@@ -6,14 +6,14 @@ current_phase: 28
 current_phase_name: update-reliability-versioning
 status: executing
 stopped_at: Phase 28 UI-SPEC approved
-last_updated: "2026-06-22T11:57:49.299Z"
+last_updated: "2026-06-22T12:00:44.612Z"
 last_activity: 2026-06-22
 last_activity_desc: Phase 28 execution started
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 28 (update-reliability-versioning) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-06-22 — Phase 28 execution started
 
@@ -98,6 +98,7 @@ Last activity: 2026-06-22 — Phase 28 execution started
 | Phase 22 P10 | 25min | 3 tasks | 8 files |
 | Phase 27 P01 | 5min | 3 tasks | 2 files |
 | Phase 28 P01 | 9min | 3 tasks | 3 files |
+| Phase 28 P02 | 4min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -192,6 +193,7 @@ Recent decisions affecting current work:
 - Plan 22-10 D2: success-pill design spec locked at plan-time; new --color-success-bg/-text/-border tokens (light + dark); OLD .settings-sync-message DOM/CSS/JS show-path fully removed
 - [Phase ?]: [Phase 27-01]: Import warning demoted from red danger to shared amber --color-warning-* band (one severity palette); red reserved for the moment-of-action confirm dialog only
 - [Phase ?]: [Phase 27-01]: Added dark-mode --color-warning-bg:#3a2f00 / --color-warning-text:#ffd966 overrides (9.69:1 on #202828, WCAG AAA); every modal token now has a dark value; --color-danger-* stays light-only by design
+- [Phase ?]: [Phase 28-02]: CSP migrated to HTTP header in _headers, byte-equivalent to meta (unsafe-inline kept); no landing block needed (default-src self + SAMEORIGIN cover same-origin demo iframe); JS/CSS TTL raised to 86400, HTML+sw.js stay no-cache
 
 ### Pending Todos
 
@@ -251,7 +253,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-22T11:57:28.662Z
+**Last session:** 2026-06-22T12:00:33.663Z
 
 Last activity: 2026-06-22 — v1.2 milestone formalized: REQUIREMENTS.md (20 reqs — VER/OBS/TEST/RFCT/DOCS/I18N) + `### Phase 28–33` ROADMAP detail sections written and committed (1a014d0). Done via *targeted formalization* (NOT `/gsd-new-milestone`) to avoid re-deriving the already-locked 28–33 scope.
 Stopped at: Phase 28 UI-SPEC approved
