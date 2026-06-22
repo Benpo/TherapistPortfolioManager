@@ -81,9 +81,17 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   6. No update-reliability or versioning behavior introduces a network call — the app remains fully functional offline
 
 **Plans:** 4 plans
+**Wave 1**
+
 - [ ] 28-01-PLAN.md — Versioning foundation: version.js single source of truth, SW CACHE_NAME auto-derived, deploy-time stamp
 - [ ] 28-02-PLAN.md — CSP HTTP header migration (verbatim-equivalent) + raise JS/CSS cache TTL to 86400
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 28-03-PLAN.md — HTML convergence: delete the 21 CSP `<meta>` tags + wire version.js into the 20 app pages
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 28-04-PLAN.md — Integrity self-check + honest nudge + footer `⚠` marker + apply-on-next-navigation update delivery
 
 ### Phase 29: Reliability & Observability
