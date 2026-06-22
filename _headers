@@ -14,5 +14,13 @@
 /*.css
   Cache-Control: public, max-age=86400
 
+# version.js carries INTEGRITY_TOKEN, the value that drives cache-busting. It must
+# never be HTTP-cached, or the service worker's update check (which re-imports it)
+# would read a stale token for up to /*.js max-age and miss a new deploy. no-cache
+# forces revalidation, so every deploy is detected immediately. (sw.js below is
+# byte-identical across deploys — version.js is what actually changes.)
+/assets/version.js
+  Cache-Control: no-cache
+
 /sw.js
   Cache-Control: no-cache
