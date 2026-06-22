@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 28
-current_phase_name: Update Reliability & Versioning
+current_phase_name: update-reliability-versioning
 status: executing
 stopped_at: Phase 28 UI-SPEC approved
-last_updated: "2026-06-22T11:36:59.777Z"
+last_updated: "2026-06-22T11:57:49.299Z"
 last_activity: 2026-06-22
-last_activity_desc: v1.2 scope co-designed and locked (Phases 28–33)
+last_activity_desc: Phase 28 execution started
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 4
+  completed_plans: 1
   percent: 0
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** v1.2 Codebase Health & Reliability — scope locked, per-phase planning not yet started
+**Current focus:** Phase 28 — update-reliability-versioning
 
 ## Current Position
 
-Phase: 28 of 33 (Update Reliability & Versioning) — not yet planned
-Plan: —
+Phase: 28 (update-reliability-versioning) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-06-22 — v1.2 scope co-designed and locked (Phases 28–33)
+Last activity: 2026-06-22 — Phase 28 execution started
 
 ## Performance Metrics
 
@@ -97,6 +97,7 @@ Last activity: 2026-06-22 — v1.2 scope co-designed and locked (Phases 28–33)
 | Phase 22 P22-09 | 3min | 3 tasks | 8 files |
 | Phase 22 P10 | 25min | 3 tasks | 8 files |
 | Phase 27 P01 | 5min | 3 tasks | 2 files |
+| Phase 28 P01 | 9min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -250,7 +251,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-22T11:10:59.047Z
+**Last session:** 2026-06-22T11:57:28.662Z
 
 Last activity: 2026-06-22 — v1.2 milestone formalized: REQUIREMENTS.md (20 reqs — VER/OBS/TEST/RFCT/DOCS/I18N) + `### Phase 28–33` ROADMAP detail sections written and committed (1a014d0). Done via *targeted formalization* (NOT `/gsd-new-milestone`) to avoid re-deriving the already-locked 28–33 scope.
 Stopped at: Phase 28 UI-SPEC approved
