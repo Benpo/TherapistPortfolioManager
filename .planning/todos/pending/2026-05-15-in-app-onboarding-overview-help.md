@@ -50,3 +50,14 @@ User's stated intent: "not only as 'Welcome' screen but also as something user c
 ## Origin
 
 Ben request 2026-05-15. Initially bundled with Phase 25 backup rework; split into Phase 26 during discuss-phase scope-guard check (different domain: marketing-driven UX research vs backup bug fix + UI consolidation).
+
+## Build breadcrumb (v1.1 close, 2026-06-22)
+
+**The DESIGN is already done — do not re-design from scratch.** Phase 26 produced an approved design contract (gsd-ui-checker 6/6 PASS) but no implementation; the build was deliberately deferred to a post-v1.1 phase. At the v1.1 milestone close (2026-06-22) Phase 26 was archived. The future build phase MUST start from these archived artifacts:
+
+- **`.planning/milestones/v1.1-phases/26-in-app-onboarding-overview-help-system/26-UI-SPEC.md`** ← the approved design contract (primary input)
+- `.planning/milestones/v1.1-phases/26-in-app-onboarding-overview-help-system/26-RESEARCH.md` — comparable-app onboarding pattern research
+- `.planning/milestones/v1.1-phases/26-in-app-onboarding-overview-help-system/26-DISCUSSION-LOG.md` — locked decisions
+- `.planning/sketches/001–004` — 4 exploratory mockups (winner not yet selected — a D-08 deliverable)
+
+Still-open design deliverables noted in the Phase 26 status: the EN content outline (D-08) was never authored, and the sketch winner was not selected — both move into the build phase. No production code exists.

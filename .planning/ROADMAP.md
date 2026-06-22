@@ -437,12 +437,13 @@ Plans:
 **Goal:** Every app screen is usable on iPhone mobile viewport (375px) — consolidated breakpoints, 44px touch targets, scrollable modals, collapsible accordion sections, body scroll lock, and photo crop bug fix
 **Requirements**: MOB-01, MOB-02, MOB-03, MOB-04, MOB-05, MOB-06, MOB-07, MOB-08, MOB-09, MOB-10, MOB-11, MOB-12, MOB-13, MOB-14
 **Depends on:** Phase 20
-**Plans:** 3 plans
+**Plans:** 2/3 plans complete
+**Status (2026-06-22): ⏸ PARTIAL — deferred to backlog.** 21-01 + 21-02 shipped (CSS infrastructure, breakpoint consolidation, touch targets, form/nav responsive, accordion, date picker). 21-03 (crop bug fix in shared module, overlay-close, body scroll lock, iPhone device checkpoint) was never executed — parked on physical iOS testing. Mobile is not a launch blocker (decided 2026-06-22 at v1.1 close); the remaining 21-03 scope moves to the post-v1.1 backlog. Phase archived at `.planning/milestones/v1.1-phases/21-comprehensive-mobile-responsiveness-audit-and-fix-all-app-screens-for-iphone-mobile-viewport/`.
 
 Plans:
-- [ ] 21-01-PLAN.md — CSS infrastructure: z-index tokens, breakpoint consolidation (768/480), touch targets, modal overflow (MOB-01 through MOB-05)
-- [ ] 21-02-PLAN.md — Form/nav responsive: stacking, severity wrap, nav scroll, accordion, date picker, crop resize (MOB-06 through MOB-11)
-- [ ] 21-03-PLAN.md — Crop bug fix (shared module), overlay-close, body scroll lock, iPhone checkpoint (MOB-12 through MOB-14)
+- [x] 21-01-PLAN.md — CSS infrastructure: z-index tokens, breakpoint consolidation (768/480), touch targets, modal overflow (MOB-01 through MOB-05)
+- [x] 21-02-PLAN.md — Form/nav responsive: stacking, severity wrap, nav scroll, accordion, date picker, crop resize (MOB-06 through MOB-11)
+- [ ] 21-03-PLAN.md — Crop bug fix (shared module), overlay-close, body scroll lock, iPhone checkpoint (MOB-12 through MOB-14) — **DEFERRED to backlog**
 ### Phase 22: Session Workflow Loop
 
 **Goal:** Therapists can (a) tailor the session form to their own modality by renaming and disabling section titles via a Settings page, and (b) turn a finished session into an editable, client-facing document downloadable as PDF or Markdown and shareable via the device's native share sheet.
@@ -684,7 +685,9 @@ Plans:
 
 **Depends on:** Phase 25 (overview screen is being restructured there — onboarding design needs to know the final overview shape).
 **Status (2026-06-14): ⏸ PARKED — design contract done; everything else folded into the future build phase.** Discuss-phase ✓ · UI-phase ✓ (`26-UI-SPEC.md` approved, gsd-ui-checker 6/6 PASS) · Research ✓ · 4 exploratory sketches in `.planning/sketches/001–004`. **Deliberately not finishing the rest here:** the EN content outline (a D-08 deliverable, not yet authored) and sketch-winner selection move into the future implementation phase, because Ben has UI changes planned (incl. Phase 27) that would force a rework of the help/tour overlay if built against today's chrome. No production code per D-08.
-**Plans:** none authored. Implementation = a future phase, sequenced after Phase 27 (possibly post-v1.1).
+**Plans:** none authored. Implementation = a future phase, sequenced after Phase 27 (post-v1.1).
+
+**▶ Build breadcrumb (2026-06-22, v1.1 close):** the approved design contract and supporting research are archived at `.planning/milestones/v1.1-phases/26-in-app-onboarding-overview-help-system/` — specifically `26-UI-SPEC.md` (gsd-ui-checker 6/6 PASS), plus `26-RESEARCH.md`, `26-DISCUSSION-LOG.md`, `26-CONTEXT.md`, and the 4 sketches in `.planning/sketches/001–004`. **The future help/onboarding build phase MUST start from that `26-UI-SPEC.md`** — do not re-design from scratch. Tracked in backlog todo `.planning/todos/pending/2026-05-15-in-app-onboarding-overview-help.md`.
 
 **Origin:** Bundled with Phase 25 backup rework in user request 2026-05-15; split into its own phase because tutorial/onboarding is a different domain (marketing-driven UX research) from backup architecture (bug fix + UI consolidation).
 
@@ -750,10 +753,10 @@ Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 | 18. Technical Debt | v1.1 | 3/3 | Complete | 2026-03-24 |
 | 19. Go-Live Preparation | v1.1 | 8/8 | Complete | 2026-03-24 |
 | 20. Pre-Launch UI Polish | v1.1 | 3/3 | Complete | 2026-03-25 |
-| 21. Mobile Responsiveness | v1.1 | 2/3 | In Progress (parked — iOS testing) | - |
+| 21. Mobile Responsiveness | v1.1 | 2/3 | Partial — 21-03 deferred to backlog | - |
 | 22. Session Workflow Loop | v1.1 | 15/15 | Complete | - |
 | 23. PDF Hebrew RTL Rewrite | v1.1 | 11/11 | Complete | 2026-05-12 |
 | 24. Pre-Launch Final Cleanup | v1.1 | 8/8 | Complete | 2026-05-14 |
 | 25. Backup Architectural Rework | v1.1 | 13/13 | Complete | 2026-05-16 |
-| 26. In-App Onboarding / Help | v1.1 | Design contract approved | In Progress (design) | - |
+| 26. In-App Onboarding / Help | v1.1 | Design-only | Deferred — build in backlog | - |
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete    | 2026-06-15 |
