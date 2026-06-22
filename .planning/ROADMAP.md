@@ -66,6 +66,75 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 - [ ] **Phase 32: README + Code Comments** — project README (run/deploy/architecture) for Sapir as ongoing maintainer; code-level comments describing the *refactored* structure.
 - [ ] **Phase 33: DE/CS i18n completion** — translate the 13 export-modal keys currently showing English to German/Czech users (needs Sapir's strings). Independent of the others — slot in whenever ready.
 
+### Phase 28: Update Reliability & Versioning
+
+**Goal**: Installed PWA users (including iOS Safari) reliably receive app updates, and the displayed version is a single source of truth that a runtime self-check guarantees cannot silently lie.
+**Depends on**: Nothing (first v1.2 phase; reliable update delivery must work before any later fix can reach installed users)
+**Requirements**: VER-01, VER-02, VER-03, VER-04, VER-05, VER-06
+**Success Criteria** (what must be TRUE):
+
+  1. A code change pushed to production is received and applied by an already-installed PWA on a real iOS Safari device, field-verified (not just asserted in theory)
+  2. The footer version, the service-worker `CACHE_NAME`, and the value the integrity check validates against all derive from one version constant — changing the version in one place updates all three
+  3. When the running or cached code diverges from the source-of-truth version, the runtime integrity self-check detects it and surfaces the mismatch, so a stale build cannot display a version it is not actually running (the v209 failure mode)
+  4. CSP is served via an HTTP `Content-Security-Policy` header in `_headers`, and the per-page `<meta http-equiv>` CSP tags are removed or reconciled to match
+  5. Static JS/CSS in `_headers` is served with a longer cache TTL (`max-age=86400`+), with the service worker still owning freshness for installed users
+  6. No update-reliability or versioning behavior introduces a network call — the app remains fully functional offline
+
+### Phase 29: Reliability & Observability
+
+**Goal**: Production problems on a user's device are diagnosable — errors are captured locally, the user can hand over a diagnostic log without any data leaving the device, and a failed database migration can no longer trap the user in an unrecoverable refresh loop.
+**Depends on**: Phase 28 (observability code must actually reach installed users via the now-reliable update path)
+**Requirements**: OBS-01, OBS-02, OBS-03
+**Success Criteria** (what must be TRUE):
+
+  1. An uncaught error or unhandled promise rejection is captured and the most recent N entries are persisted to IndexedDB, with zero network calls made
+  2. Settings exposes a "Report a problem" action that copies the persisted error log plus basic diagnostic context to the clipboard for the user to paste into a support email — nothing is transmitted automatically
+  3. When an IndexedDB migration fails, the user is offered a "reset & recover" escape hatch instead of an endless "please refresh" loop, and using it returns the app to a usable state
+
+### Phase 30: Test Harness & Coverage
+
+**Goal**: A green automated test suite runs from a single documented command and captures the current behavior of the god modules, establishing the safety net that the Phase 31 refactor will be guarded by.
+**Depends on**: Nothing (independent, but MUST complete before Phase 31 — its green suite guards the refactor)
+**Requirements**: TEST-01, TEST-02, TEST-03, TEST-04
+**Success Criteria** (what must be TRUE):
+
+  1. The 7 previously-unrunnable PDF tests run green in Node, with the `jsdom` `HTMLCanvasElement.getContext` gap and the old-Node `blob.arrayBuffer` issue resolved
+  2. An automated RTL regression guard fails if `dir="rtl"` is applied to a non-Hebrew locale (EN/DE/CS)
+  3. Behavior tests capture the current observable behavior of `settings.js` and `add-session.js`, and they pass against the unrefactored code (the pre-refactor green baseline)
+  4. The full test suite runs via a single documented command
+
+### Phase 31: Refactor God Modules
+
+**Goal**: The two largest modules are decomposed into cohesive single-responsibility IIFE modules with no observable behavior change, verified by the Phase 30 suite staying green throughout.
+**Depends on**: Phase 30 (behavior-preserving refactor requires the green test suite as a safety net)
+**Requirements**: RFCT-01, RFCT-02, RFCT-03
+**Success Criteria** (what must be TRUE):
+
+  1. Cohesive units (e.g. SnippetEditor, PhotoManager, StorageUsage) are extracted from `settings.js` into separate IIFE modules, and the Phase 30 suite stays green
+  2. The export-modal logic is extracted from `add-session.js` into its own IIFE module, with behavior preserved and the suite green
+  3. Within code touched by the refactor only, opportunistic cleanups are applied: `var`→`const`/`let`, `innerHTML`+i18n hardening in `overview.js`/`sessions.js`, `openDB()` connection pooling (caching the resolved `IDBDatabase`), and tagged logging added to non-trivial silent `catch` blocks
+
+### Phase 32: README + Code Comments
+
+**Goal**: Sapir can run, deploy, and understand the app's architecture from a project README, and the refactored modules carry comments describing their structure and responsibilities.
+**Depends on**: Phase 31 (documentation and code comments describe the *refactored* structure)
+**Requirements**: DOCS-01, DOCS-02
+**Success Criteria** (what must be TRUE):
+
+  1. A project README documents how to run the app locally, how to deploy it, and how its architecture is organized, written for Sapir as the ongoing maintainer
+  2. The modules extracted in Phase 31 carry code-level comments describing their structure and responsibilities
+
+### Phase 33: DE/CS i18n completion
+
+**Goal**: German and Czech users see fully translated export-modal strings — no English fallbacks and no `// TODO i18n` markers remain in the DE/CS translation files.
+**Depends on**: Nothing (fully independent — slot in whenever Sapir's translation strings are ready)
+**Requirements**: I18N-01, I18N-02
+**Success Criteria** (what must be TRUE):
+
+  1. The 13 English-fallback keys in `assets/i18n-de.js` (lines ~419–447) are translated to German, and no `// TODO i18n` markers remain
+  2. The 13 English-fallback keys in `assets/i18n-cs.js` (lines ~419–447) are translated to Czech, and no `// TODO i18n` markers remain
+  3. A DE or CS user opening the export modal sees the stepper labels, step helpers, and markdown formatting tips in their own language rather than English
+
 ## Backlog
 
 Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage (2026-06-22) is complete.

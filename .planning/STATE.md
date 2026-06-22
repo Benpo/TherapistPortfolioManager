@@ -1,19 +1,19 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Final Polish & Launch
-current_phase: 1
-status: Awaiting next milestone
-stopped_at: Phase 27 UI-SPEC approved
+milestone: v1.2
+milestone_name: Codebase Health & Reliability
+current_phase: 28
+status: Ready to plan
+stopped_at: v1.2 scope locked (Phases 28–33)
 last_updated: "2026-06-22T08:22:10.877Z"
 last_activity: 2026-06-22
-last_activity_desc: Milestone v1.1 completed and archived
+last_activity_desc: v1.2 scope co-designed and locked (Phases 28–33); per-phase planning not yet started
 progress:
-  total_phases: 20
-  completed_phases: 18
-  total_plans: 90
-  completed_plans: 95
-  percent: 90
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Milestone complete
+**Current focus:** v1.2 Codebase Health & Reliability — scope locked, per-phase planning not yet started
 
 ## Current Position
 
-Phase: Milestone v1.1 complete
+Phase: 28 of 33 (Update Reliability & Versioning) — not yet planned
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-06-22 — Milestone v1.1 completed and archived
+Status: Ready to plan
+Last activity: 2026-06-22 — v1.2 scope co-designed and locked (Phases 28–33)
 
 ## Performance Metrics
 
