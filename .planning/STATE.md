@@ -4,9 +4,9 @@ milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 29
 current_phase_name: Reliability & Observability
-status: verifying
-stopped_at: Phase 29 context gathered
-last_updated: "2026-06-22T19:57:13.251Z"
+status: executing
+stopped_at: Phase 29 UI-SPEC approved
+last_updated: "2026-06-22T21:01:59.806Z"
 last_activity: 2026-06-22
 last_activity_desc: Phase 28 complete, transitioned to Phase 29
 progress:
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 Phase: 29 — Reliability & Observability
 Plan: Not started
-Status: Phase complete — ready for verification
+Status: Ready to execute
 Last activity: 2026-06-22 — Phase 28 complete, transitioned to Phase 29
 
 ## Performance Metrics
@@ -261,11 +261,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-22T19:57:13.241Z
+**Last session:** 2026-06-22T20:12:59.359Z
 
 Last activity: 2026-06-22 — v1.2 milestone formalized: REQUIREMENTS.md (20 reqs — VER/OBS/TEST/RFCT/DOCS/I18N) + `### Phase 28–33` ROADMAP detail sections written and committed (1a014d0). Done via *targeted formalization* (NOT `/gsd-new-milestone`) to avoid re-deriving the already-locked 28–33 scope.
-Stopped at: Phase 29 context gathered
-Resume file: .planning/phases/29-reliability-observability/29-CONTEXT.md
+Stopped at: Phase 29 UI-SPEC approved
+Resume file: .planning/phases/29-reliability-observability/29-UI-SPEC.md
 Next: `/gsd-discuss-phase 28` in a fresh window (captures HOW decisions → CONTEXT.md), then `/gsd-plan-phase 28`.
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
