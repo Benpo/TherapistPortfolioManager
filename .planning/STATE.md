@@ -249,9 +249,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last activity: 2026-06-22 — Milestone v1.1 completed and archived (Phases 8–27 → `milestones/v1.1-phases/`; ROADMAP/REQUIREMENTS snapshotted to `milestones/v1.1-*`).
-Stopped at: v1.1 closed. Next: co-design the **v1.2 — Codebase Health & Reliability** milestone with Ben, item by item (do NOT pre-scope phases or backlog unilaterally — see memory `feedback-align-before-scoping`).
+Last activity: 2026-06-22 — v1.2 milestone formalized: REQUIREMENTS.md (20 reqs — VER/OBS/TEST/RFCT/DOCS/I18N) + `### Phase 28–33` ROADMAP detail sections written and committed (1a014d0). Done via *targeted formalization* (NOT `/gsd-new-milestone`) to avoid re-deriving the already-locked 28–33 scope.
+Stopped at: v1.2 docs complete; Phase 28 not yet discussed or planned.
 Resume file: None
+Next: `/gsd-discuss-phase 28` in a fresh window (captures HOW decisions → CONTEXT.md), then `/gsd-plan-phase 28`.
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
 
@@ -267,4 +268,6 @@ Full detail in `MILESTONES.md` → "Known deferred items at v1.1 close". Summary
 
 ## Operator Next Steps
 
-- v1.2 scope is defined WITH Ben before any phase/backlog is created (see memory `feedback-align-before-scoping`). Candidate theme: Codebase Health & Reliability.
+- v1.2 scope is locked AND formalized (REQUIREMENTS.md + roadmap detail sections committed 2026-06-22, 1a014d0). Per-phase flow now: `/gsd-discuss-phase N` → `/gsd-plan-phase N`, in dependency order 28 → 33.
+- **Next: Phase 28 (Update Reliability & Versioning)** — run `/gsd-discuss-phase 28` to capture HOW decisions (Safari field-verification, integrity-check design, cache TTL) before planning.
+- Heads-up for plan-phase: research is disabled project-wide, so the plan-checker may raise a false VALIDATION.md/Nyquist blocker — dismiss it (see memory `feedback-checker-nyquist-false-positive`).
