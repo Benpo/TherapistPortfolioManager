@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
-current_phase: 28
-current_phase_name: update-reliability-versioning
+current_phase: 29
+current_phase_name: Reliability & Observability
 status: verifying
 stopped_at: Phase 28 UI-SPEC approved
-last_updated: "2026-06-22T14:01:19.964Z"
+last_updated: "2026-06-22T14:08:24.770Z"
 last_activity: 2026-06-22
-last_activity_desc: Phase 28 complete (4/4) — 28-04 integrity self-check + reliable update delivery, field-verified live as v1.2.1
+last_activity_desc: Phase 28 complete, transitioned to Phase 29
 progress:
   total_phases: 6
   completed_phases: 1
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 28 (update-reliability-versioning) — COMPLETE (4/4)
-Plan: 4 of 4 complete
+Phase: 29 — Reliability & Observability
+Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-06-22 — Phase 28 complete; 28-04 finalized after field verification (live as v1.2.1)
+Last activity: 2026-06-22 — Phase 28 complete, transitioned to Phase 29
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Last activity: 2026-06-22 — Phase 28 complete; 28-04 finalized after field ver
 |-------|-------|-------|----------|
 | 25 | 13 | - | - |
 | 27 | 1 | - | - |
+| 28 | 4 | - | - |
 
 **Recent Trend:**
 

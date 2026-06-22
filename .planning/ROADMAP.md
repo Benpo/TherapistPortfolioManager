@@ -196,7 +196,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 25. Backup Architectural Rework | v1.1 | 13/13 | Complete | 2026-05-16 |
 | 26. In-App Onboarding / Help | v1.1 | Design-only | Deferred — build in backlog | - |
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
-| 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete   | 2026-06-22 |
+| 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
 | 29. Reliability & Observability | v1.2 | 0/– | Planned | - |
 | 30. Test Harness & Coverage | v1.2 | 0/– | Planned | - |
 | 31. Refactor God Modules | v1.2 | 0/– | Planned | - |
