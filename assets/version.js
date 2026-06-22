@@ -132,12 +132,196 @@ var AppVersion = (function() {
     });
   }
 
+  // ──────────────────────────────────────────────────────────────────────
+  // Early-lifecycle inline 4-language strings (VER-03, UI-SPEC Copywriting
+  // Contract). The integrity check may run BEFORE i18n.js loads, so these
+  // strings live HERE (colocated, never routed through i18n.js/t()), mirroring
+  // db.js's DB_STRINGS + dbStr. HE is gender-neutral (Phase 18). Tone for
+  // "your data is safe" / "refresh" reuses DB_STRINGS.migrationFailed /
+  // DB_STRINGS.refresh for consistency.
+  // ──────────────────────────────────────────────────────────────────────
+  var INTEGRITY_STRINGS = {
+    en: {
+      onlineBody: "This app didn't update cleanly. Refresh to finish updating.",
+      onlineCta: "Refresh to complete",
+      offlineBody: "Update pending — reconnect to finish updating.",
+      wedgedBody: "Couldn't finish updating automatically. Your data is safe.",
+      wedgedCta: "Recover the app",
+      wedgedReport: "Report a problem",
+      dismiss: "Dismiss",
+      footerWarn: "Version may not be running correctly — see the update notice above."
+    },
+    he: {
+      onlineBody: "האפליקציה לא התעדכנה במלואה. רענון ישלים את העדכון.",
+      onlineCta: "רענון להשלמה",
+      offlineBody: "העדכון ממתין — יש להתחבר מחדש כדי להשלים את העדכון.",
+      wedgedBody: "לא ניתן היה להשלים את העדכון אוטומטית. הנתונים שלך בטוחים.",
+      wedgedCta: "שחזור האפליקציה",
+      wedgedReport: "דיווח על תקלה",
+      dismiss: "סגירה",
+      footerWarn: "ייתכן שהגרסה אינה פועלת כראוי — ראו את הודעת העדכון למעלה."
+    },
+    de: {
+      onlineBody: "Die App wurde nicht vollständig aktualisiert. Aktualisieren, um das Update abzuschliessen.",
+      onlineCta: "Aktualisieren zum Abschliessen",
+      offlineBody: "Update ausstehend — neu verbinden, um das Update abzuschliessen.",
+      wedgedBody: "Update konnte nicht automatisch abgeschlossen werden. Deine Daten sind sicher.",
+      wedgedCta: "App wiederherstellen",
+      wedgedReport: "Problem melden",
+      dismiss: "Schliessen",
+      footerWarn: "Version läuft möglicherweise nicht korrekt — siehe Update-Hinweis oben."
+    },
+    cs: {
+      onlineBody: "Aplikace se plně neaktualizovala. Obnovením dokončíte aktualizaci.",
+      onlineCta: "Obnovit pro dokončení",
+      offlineBody: "Aktualizace čeká — pro dokončení se znovu připojte.",
+      wedgedBody: "Aktualizaci se nepodařilo dokončit automaticky. Tvoje data jsou v bezpeci.",
+      wedgedCta: "Obnovit aplikaci",
+      wedgedReport: "Nahlásit problém",
+      dismiss: "Zavřít",
+      footerWarn: "Verze nemusí běžet správně — viz oznámení o aktualizaci výše."
+    }
+  };
+
+  function integStr(key) {
+    var lang = 'en';
+    try { lang = (typeof localStorage !== 'undefined' && localStorage.getItem('portfolioLang')) || 'en'; } catch (e) {}
+    var strings = INTEGRITY_STRINGS[lang] || INTEGRITY_STRINGS.en;
+    return strings[key] || INTEGRITY_STRINGS.en[key] || key;
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // The genuine recovery (D-10). NOT a cosmetic location.reload() — a plain
+  // reload just re-serves the stale cache. This: registration.update() →
+  // delete stale HTTP/asset caches (reusing the sw.js activate-handler idiom)
+  // → reload to pick up the fresh SW. IndexedDB is NEVER touched (only HTTP
+  // caches). Flips the module-level recovery-attempted flag so a persistent
+  // mismatch escalates to 'wedged' on the next check (D-12). No new network
+  // call beyond the SW's own update mechanism (VER-06).
+  // ──────────────────────────────────────────────────────────────────────
+  function runGenuineRecovery() {
+    _recoveryAttempted = true;
+    var swReady = (typeof navigator !== 'undefined' && navigator.serviceWorker && navigator.serviceWorker.ready)
+      ? navigator.serviceWorker.ready : Promise.resolve(null);
+    return swReady
+      .then(function (reg) {
+        return (reg && reg.update) ? reg.update() : null;
+      })
+      .then(function () {
+        if (typeof caches === 'undefined' || !caches.keys) return null;
+        return caches.keys().then(function (names) {
+          var prefix = 'sessions-garden-';
+          var sourceName = prefix + INTEGRITY_TOKEN;
+          // Delete every app cache that is NOT the source-of-truth deploy's
+          // cache — i.e. the stale 'Frankenstein' caches.
+          return Promise.all(names
+            .filter(function (n) { return n.indexOf(prefix) === 0 && n !== sourceName; })
+            .map(function (n) { return caches.delete(n); }));
+        });
+      })
+      .catch(function (err) {
+        try { console.warn('[integrity] genuine recovery failed:', err && err.message); } catch (e) {}
+      })
+      .then(function () {
+        try { if (typeof location !== 'undefined' && location.reload) location.reload(); } catch (e) {}
+      });
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Nudge DOM builder (D-10/D-11/D-12) — a severity variant of the
+  // .db-error-banner family (createElement + textContent, NEVER innerHTML;
+  // role="alert"; document.body.prepend; getElementById duplicate guard).
+  // The body copy + button set are BOUND to the resolved state so the words
+  // can never disagree with what the button does:
+  //   online  → info band, genuine-recovery CTA, completion promise
+  //   offline → warning band, NO CTA, reconnect-only copy (D-11)
+  //   wedged  → danger band, recover + report CTAs (no false "refresh", D-12)
+  // ──────────────────────────────────────────────────────────────────────
+  function buildNudge(state) {
+    if (typeof document === 'undefined') return null;
+    var existing = document.getElementById('integrityNudge');
+    if (existing) return existing; // duplicate-render guard (db.js:409-410)
+
+    var nudge = document.createElement('div');
+    nudge.id = 'integrityNudge';
+    nudge.setAttribute('role', 'alert');
+    nudge.className = 'integrity-nudge integrity-nudge--' + state;
+    // Set dir defensively from portfolioLang (banner may render before page dir).
+    try {
+      var lang = (typeof localStorage !== 'undefined' && localStorage.getItem('portfolioLang')) || 'en';
+      nudge.dir = (lang === 'he') ? 'rtl' : 'ltr';
+    } catch (e) {}
+
+    var bodyKey = state === 'offline' ? 'offlineBody'
+      : state === 'wedged' ? 'wedgedBody'
+      : 'onlineBody';
+    var msg = document.createElement('span');
+    msg.className = 'integrity-nudge-body';
+    msg.textContent = integStr(bodyKey);
+    nudge.append(msg);
+
+    if (state === 'online') {
+      var cta = document.createElement('button');
+      cta.className = 'integrity-nudge-btn';
+      cta.setAttribute('data-role', 'cta');
+      cta.textContent = integStr('onlineCta');
+      cta.onclick = function () { return runGenuineRecovery(); };
+      nudge.append(cta);
+    } else if (state === 'wedged') {
+      var recover = document.createElement('button');
+      recover.className = 'integrity-nudge-btn';
+      recover.setAttribute('data-role', 'cta');
+      recover.textContent = integStr('wedgedCta');
+      // Phase 28 degrades to honest guidance; the real reset & recover hatch
+      // ships in Phase 29 (OBS-03). Stub the handoff via the genuine recovery
+      // for now — it never makes the false "refresh to complete" promise.
+      recover.onclick = function () { return runGenuineRecovery(); };
+      var report = document.createElement('button');
+      report.className = 'integrity-nudge-btn integrity-nudge-btn--secondary';
+      report.setAttribute('data-role', 'report');
+      report.textContent = integStr('wedgedReport');
+      // Report flow ships in Phase 29 (OBS-02); stub for now.
+      report.onclick = function () {};
+      nudge.append(recover, report);
+    }
+    // offline: NO action button (D-11) — reconnect copy only.
+
+    // Dismiss affordance (real <button>, RTL-safe inset-inline-end via CSS).
+    var close = document.createElement('button');
+    close.className = 'integrity-nudge-close';
+    close.setAttribute('data-role', 'close');
+    close.setAttribute('aria-label', integStr('dismiss'));
+    close.textContent = '✕'; // ✕
+    close.onclick = function () {
+      var el = document.getElementById('integrityNudge');
+      if (el && el.parentNode && el.parentNode.removeChild) el.parentNode.removeChild(el);
+    };
+    nudge.append(close);
+
+    document.body.prepend(nudge);
+    return nudge;
+  }
+
+  // One-directional footer marker (D-09): once a mismatch is detected the
+  // footer ⚠ may NOT downgrade back to clean within the same load. Given the
+  // previous marked state and a freshly-resolved state, returns whether the
+  // footer should show the ⚠ marker.
+  function footerMarkerForState(prevMarked, state) {
+    if (prevMarked) return true;                 // never downgrade within a load
+    return state !== 'clean';                    // upgrade on any non-clean state
+  }
+
   var exported = {
     APP_VERSION: APP_VERSION,
     INTEGRITY_TOKEN: INTEGRITY_TOKEN,
     resolveIntegrityState: resolveIntegrityState,
     readLoadedToken: readLoadedToken,
     checkIntegrity: checkIntegrity,
+    INTEGRITY_STRINGS: INTEGRITY_STRINGS,
+    integStr: integStr,
+    buildNudge: buildNudge,
+    runGenuineRecovery: runGenuineRecovery,
+    footerMarkerForState: footerMarkerForState,
     // Recovery-attempted flag accessors (the recovery action sets it; the
     // entrypoint reads it). Exposed so the page-side nudge code can flip it.
     _markRecoveryAttempted: function () { _recoveryAttempted = true; },

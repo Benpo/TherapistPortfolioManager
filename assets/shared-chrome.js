@@ -5,7 +5,17 @@
 var SharedChrome = (function() {
   'use strict';
 
-  var APP_VERSION = '1.1.0';
+  // Single source of truth (VER-02): read the semver from version.js, loaded
+  // before this file on every app page (Plan 03). The literal fallback only
+  // applies if version.js somehow failed to load (defensive — never blocks the
+  // footer from rendering).
+  var APP_VERSION = (typeof window !== 'undefined' && window.AppVersion && window.AppVersion.APP_VERSION)
+    ? window.AppVersion.APP_VERSION
+    : '1.2.0';
+
+  // Tracks whether the footer ⚠ marker has been shown this load. Once set, the
+  // footer never downgrades back to clean within the load (D-09).
+  var _footerMarked = false;
 
   function getNavigationContext() {
     var isActivated = false;
@@ -85,11 +95,45 @@ var SharedChrome = (function() {
         '<a href="./license.html">' + strings.license + '</a>' +
       '</nav>' +
       '<p class="app-footer-contact"><a href="mailto:contact@sessionsgarden.app">contact@sessionsgarden.app</a></p>' +
-      '<p class="app-footer-copy">&copy; 2026 Sessions Garden &middot; v' + APP_VERSION + '</p>' +
+      // Render clean OPTIMISTICALLY (D-09): show v{APP_VERSION} with no marker.
+      // The integrity check below may UPGRADE it to v{APP_VERSION} ⚠ — it never
+      // downgrades. The marker span is created empty here so the check can fill
+      // it without touching the rest of the line.
+      '<p class="app-footer-copy">&copy; 2026 Sessions Garden &middot; v' + APP_VERSION +
+        '<span class="app-footer-version-warn" aria-hidden="true"></span></p>' +
       '<p class="app-footer-tagline">' + strings.madeWith + '</p>';
 
     var target = targetEl || document.querySelector('.container') || document.body;
     target.appendChild(footer);
+
+    // Honest footer (D-09 / VER-03): run the fully-local integrity self-check
+    // and, ONLY on a detected mismatch, upgrade the footer to the ⚠ marker and
+    // surface the state-bound nudge. Never the reverse. version.js owns the
+    // resolver, the strings, and the nudge; this just drives them.
+    maybeUpgradeFooterAndNudge();
+  }
+
+  function maybeUpgradeFooterAndNudge() {
+    if (typeof window === 'undefined' || !window.AppVersion || !window.AppVersion.checkIntegrity) return;
+    try {
+      window.AppVersion.checkIntegrity().then(function (state) {
+        var marked = window.AppVersion.footerMarkerForState(_footerMarked, state);
+        if (marked && !_footerMarked) {
+          _footerMarked = true;
+          var warn = document.querySelector('.app-footer-version-warn');
+          if (warn) {
+            warn.textContent = ' ⚠'; // space + ⚠ (U+26A0)
+            warn.setAttribute('title', window.AppVersion.integStr('footerWarn'));
+            warn.setAttribute('aria-label', window.AppVersion.integStr('footerWarn'));
+            warn.removeAttribute('aria-hidden');
+          }
+        }
+        // Surface the nudge for any non-clean state (online/offline/wedged).
+        if (state && state !== 'clean' && window.AppVersion.buildNudge) {
+          window.AppVersion.buildNudge(state);
+        }
+      }).catch(function () { /* check is best-effort; never block the footer */ });
+    } catch (e) { /* defensive: a missing API must never break footer render */ }
   }
 
   return {
