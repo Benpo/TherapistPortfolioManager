@@ -9,7 +9,11 @@
  * updates, or deletions. Only static asset HTTP caches are managed here.
  */
 
-const CACHE_NAME = 'sessions-garden-v213';
+// Single source of truth: derive the cache name from the deploy-stamped token
+// in version.js. Bumping a deploy never requires editing a cache number again
+// (kills the v209 stale-cache failure class — D-02).
+importScripts('/version.js');
+const CACHE_NAME = 'sessions-garden-' + self.AppVersion.INTEGRITY_TOKEN;
 
 /**
  * Static assets to precache on install (cache-first strategy).
@@ -18,6 +22,7 @@ const CACHE_NAME = 'sessions-garden-v213';
  */
 const PRECACHE_URLS = [
   '/manifest.json',
+  '/assets/version.js',
   '/assets/tokens.css',
   '/assets/app.css',
   '/assets/jszip.min.js',
