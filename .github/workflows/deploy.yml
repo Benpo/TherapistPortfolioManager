@@ -30,6 +30,13 @@ jobs:
           cp -r assets deploy-staging/
           cp manifest.json deploy-staging/
           cp sw.js deploy-staging/
+          # Stamp the deploy token (D-02/D-04): replace the __BUILD_TOKEN__
+          # placeholder in the STAGING copy of version.js with the git short-hash.
+          # This makes INTEGRITY_TOKEN the commit short-hash in production, and
+          # CACHE_NAME auto-derives from it. Single deliberate transform on the
+          # staging copy only — NOT a bundler/build step. The committed
+          # assets/version.js keeps its placeholder ('dev' fallback for file://).
+          sed -i "s/'__BUILD_TOKEN__'/'${GITHUB_SHA::7}'/" deploy-staging/assets/version.js
 
       - name: Verify no sensitive files
         run: |
