@@ -2177,6 +2177,84 @@ body.read-mode .heart-shield-section input {
   opacity: 0.9;
 }
 
+/* === Integrity-Mismatch Nudge (Phase 28, VER-03) ===
+   A severity variant of the .db-error-banner family. Reuses the banner's
+   TIGHTER fallback literals VERBATIM (UI-SPEC Spacing FLAG exception): none of
+   the --space-* scale tokens are defined in :root, so the fallback literal is
+   what renders. Do NOT normalize 12px up to 16px or 2px/4px up. */
+.integrity-nudge {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  padding: var(--space-md, 12px) var(--space-lg, 16px);
+  text-align: center;
+  z-index: var(--z-banner);
+  font-family: var(--font-family, Rubik, system-ui, sans-serif);
+  font-size: var(--text-base, 14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* online → info band; offline → warning band; wedged → danger band
+   (danger reserved for the wedged escalation ONLY — Phase 27 red-discipline). */
+.integrity-nudge--online {
+  background: var(--color-info-bg, #cce5ff);
+  color: var(--color-info-text, #004085);
+}
+
+.integrity-nudge--offline {
+  background: var(--color-warning-bg, #fff3cd);
+  color: var(--color-warning-text, #856404);
+}
+
+.integrity-nudge--wedged {
+  background: var(--color-danger-bg, #f8d7da);
+  color: var(--color-danger-text, #721c24);
+}
+
+/* CTA button copies .db-error-btn verbatim (tighter fallbacks). */
+.integrity-nudge-btn {
+  margin-top: var(--space-sm, 4px);
+  padding: var(--space-xs, 2px) var(--space-md, 12px);
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  font-family: var(--font-family, Rubik, system-ui, sans-serif);
+  font-size: var(--text-sm, 13px);
+  font-weight: 600;
+  background: var(--color-primary, #2d6a4f);
+  color: var(--color-text-inverse, #fff);
+}
+
+.integrity-nudge-btn:hover {
+  opacity: 0.9;
+}
+
+/* Secondary (wedged "Report a problem") — quieter, link-like. */
+.integrity-nudge-btn--secondary {
+  background: transparent;
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* Dismiss affordance — RTL-safe via logical inset-inline-end (no physical
+   left/right), so it lands correctly in both LTR and RTL (Phase 18). */
+.integrity-nudge-close {
+  position: absolute;
+  inset-inline-end: var(--space-md, 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: var(--text-base, 14px);
+  line-height: 1;
+  color: inherit;
+  padding: var(--space-xs, 2px);
+}
+
 /* ── Backup Reminder Banner ──────────────────────────────────────── */
 
 .backup-reminder-banner {

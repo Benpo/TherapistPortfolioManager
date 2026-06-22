@@ -690,11 +690,46 @@ window.App = (() => {
       SharedChrome.renderFooter();
     }
 
-    // Auto-reload when a new service worker takes control (ensures fresh assets)
+    // Phase 28 (D-05/D-06) — reliable, non-disruptive update delivery.
+    //
+    // D-05 apply-on-next-navigation: the forced mid-page
+    // `window.location.reload()` on `controllerchange` is REMOVED. This app is
+    // multi-page, so a new SW (skipWaiting + clients.claim, owned by sw.js)
+    // takes effect on the next navigation or app reopen — it never yanks a
+    // therapist out of an in-progress typing session. SW takeover itself is
+    // preserved in sw.js; only the page-side forced reload is gone.
+    //
+    // D-06 general SW-update delivery: the unreliable-update behavior is a
+    // general SW-lifecycle issue (reproduces on the macOS installed web app,
+    // not just iOS), so we proactively poll for a new SW on launch and whenever
+    // the app returns to the foreground. registration.update() is the SW's own
+    // throttled mechanism — no new network call beyond it (VER-06).
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.addEventListener("controllerchange", () => {
-        window.location.reload();
-      });
+      var pokeServiceWorkerUpdate = function () {
+        try {
+          navigator.serviceWorker.ready
+            .then(function (reg) { if (reg && reg.update) return reg.update(); })
+            .catch(function (err) {
+              console.warn("[sw-update] registration.update() failed:", err && err.message);
+            });
+        } catch (err) {
+          console.warn("[sw-update] could not request a SW update:", err && err.message);
+        }
+      };
+
+      // Launch check.
+      pokeServiceWorkerUpdate();
+
+      // Foreground check — idempotent listener-install guard mirrors the
+      // backup-schedule idiom above (_backupScheduleListenerInstalled).
+      if (!initCommon._swUpdateListenerInstalled) {
+        document.addEventListener("visibilitychange", function () {
+          if (document.visibilityState === "visible") {
+            pokeServiceWorkerUpdate();
+          }
+        });
+        initCommon._swUpdateListenerInstalled = true;
+      }
     }
 
     // Load demo hints when inside an iframe (demo context)
