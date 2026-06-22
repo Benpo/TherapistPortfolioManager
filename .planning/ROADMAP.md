@@ -59,7 +59,7 @@ Full goals, success criteria, and per-plan detail are archived in `milestones/v1
 
 Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisions). A deliberate shift from feature work to maintainability and reliability. Phases run in **dependency order**: get updates reliably delivered + observable, build a test safety net, *then* refactor behind it, *then* document the result. No PLAN files yet — `/gsd-plan-phase` per phase in upcoming sessions.
 
-- [ ] **Phase 28: Update Reliability & Versioning** — field-verified fix for installed-Safari PWA updates; one source-of-truth version constant driving the footer + SW `CACHE_NAME` + a runtime **integrity self-check** (so the displayed version can't lie, as v209 did); CSP `<meta>`→HTTP header; `_headers` cache TTL. Fully offline-compatible (no phone-home). Footer source today: `assets/shared-chrome.js:~8`.
+- [x] **Phase 28: Update Reliability & Versioning** — field-verified fix for installed-Safari PWA updates; one source-of-truth version constant driving the footer + SW `CACHE_NAME` + a runtime **integrity self-check** (so the displayed version can't lie, as v209 did); CSP `<meta>`→HTTP header; `_headers` cache TTL. Fully offline-compatible (no phone-home). Footer source today: `assets/shared-chrome.js:~8`. (completed 2026-06-22)
 - [ ] **Phase 29: Reliability & Observability** — local crash log persisted to IndexedDB + a Settings "Report a problem" copy-to-clipboard flow (zero network, GDPR-safe); IDB migration "reset & recover" escape hatch so a failed migration can't trap a user in an infinite refresh loop.
 - [ ] **Phase 30: Test Harness & Coverage** — fix the 7 PDF tests that can't run in Node (`jsdom` lacks `HTMLCanvasElement.getContext`; old-Node `blob.arrayBuffer`); add an RTL regression guard; add **behavior tests on the god modules before the refactor** (per `feedback-behavior-verification`). May introduce the project's first `package.json` + dev-dependency (decide at plan time).
 - [ ] **Phase 31: Refactor God Modules** — behavior-preserving extraction from `settings.js` (~2,827 lines) and `add-session.js` (~2,173 lines) using the existing IIFE pattern; guarded by the green suite from Phase 30. Opportunistic in touched code: `var`→`const`, `innerHTML`-i18n hardening, `openDB()` connection pooling, logging in silent catches.
@@ -80,7 +80,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   5. Static JS/CSS in `_headers` is served with a longer cache TTL (`max-age=86400`+), with the service worker still owning freshness for installed users
   6. No update-reliability or versioning behavior introduces a network call — the app remains fully functional offline
 
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 **Wave 1**
 
 - [x] 28-01-PLAN.md — Versioning foundation: version.js single source of truth, SW CACHE_NAME auto-derived, deploy-time stamp
@@ -92,7 +92,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 28-04-PLAN.md — Integrity self-check + honest nudge + footer `⚠` marker + apply-on-next-navigation update delivery
+- [x] 28-04-PLAN.md — Integrity self-check + honest nudge + footer `⚠` marker + apply-on-next-navigation update delivery
 
 ### Phase 29: Reliability & Observability
 
@@ -196,7 +196,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 25. Backup Architectural Rework | v1.1 | 13/13 | Complete | 2026-05-16 |
 | 26. In-App Onboarding / Help | v1.1 | Design-only | Deferred — build in backlog | - |
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
-| 28. Update Reliability & Versioning | v1.2 | 3/4 | In Progress|  |
+| 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete   | 2026-06-22 |
 | 29. Reliability & Observability | v1.2 | 0/– | Planned | - |
 | 30. Test Harness & Coverage | v1.2 | 0/– | Planned | - |
 | 31. Refactor God Modules | v1.2 | 0/– | Planned | - |

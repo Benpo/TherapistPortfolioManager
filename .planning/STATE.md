@@ -4,17 +4,17 @@ milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 28
 current_phase_name: update-reliability-versioning
-status: executing
+status: verifying
 stopped_at: Phase 28 UI-SPEC approved
-last_updated: "2026-06-22T12:08:53.369Z"
+last_updated: "2026-06-22T14:01:19.964Z"
 last_activity: 2026-06-22
-last_activity_desc: Phase 28 execution started
+last_activity_desc: Phase 28 complete (4/4) — 28-04 integrity self-check + reliable update delivery, field-verified live as v1.2.1
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
-  percent: 0
+  completed_plans: 4
+  percent: 17
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 28 (update-reliability-versioning) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute
-Last activity: 2026-06-22 — Phase 28 execution started
+Phase: 28 (update-reliability-versioning) — COMPLETE (4/4)
+Plan: 4 of 4 complete
+Status: Phase complete — ready for verification
+Last activity: 2026-06-22 — Phase 28 complete; 28-04 finalized after field verification (live as v1.2.1)
 
 ## Performance Metrics
 
@@ -100,6 +100,7 @@ Last activity: 2026-06-22 — Phase 28 execution started
 | Phase 28 P01 | 9min | 3 tasks | 3 files |
 | Phase 28 P02 | 4min | 2 tasks | 1 files |
 | Phase 28 P03 | 6min | 2 tasks | 21 files |
+| Phase 28 P04 | 95min | 4 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -197,6 +198,9 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 28-02]: CSP migrated to HTTP header in _headers, byte-equivalent to meta (unsafe-inline kept); no landing block needed (default-src self + SAMEORIGIN cover same-origin demo iframe); JS/CSS TTL raised to 86400, HTML+sw.js stay no-cache
 - [Phase ?]: Phase 28: CSP sourced solely from _headers HTTP header — all 21 per-page meta CSP tags deleted (single source, no drift)
 - [Phase ?]: Phase 28: version.js loads before shared-chrome.js on all 20 SW-registered app pages; landing.html excluded (no SW, own footer)
+- [Phase 28-04]: version.js must be no-cache — the SW re-imports it on every update check, so under /*.js max-age=86400 a stale token could hide a new deploy for up to 24h (fix 32b02f4)
+- [Phase 28-04]: SW importScripts path must match the deployed/precached path — sw.js imported root /version.js which the deploy never ships, so importScripts threw and the Phase 28 SW never installed in production; corrected to /assets/version.js (fix c702c53)
+- [Phase 28-04]: Phase 28 shipped as v1.2.1 (bumped from 1.2.0 during the auto-delivery field verification); integrity loaded-token derived locally from the SW cache name, zero network (VER-06)
 
 ### Pending Todos
 
@@ -256,7 +260,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-22T12:08:53.365Z
+**Last session:** 2026-06-22T14:01:12.691Z
 
 Last activity: 2026-06-22 — v1.2 milestone formalized: REQUIREMENTS.md (20 reqs — VER/OBS/TEST/RFCT/DOCS/I18N) + `### Phase 28–33` ROADMAP detail sections written and committed (1a014d0). Done via *targeted formalization* (NOT `/gsd-new-milestone`) to avoid re-deriving the already-locked 28–33 scope.
 Stopped at: Phase 28 UI-SPEC approved

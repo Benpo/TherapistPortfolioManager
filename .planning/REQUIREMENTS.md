@@ -13,7 +13,7 @@ Requirements for the Codebase Health & Reliability milestone. Each maps to exact
 
 - [x] **VER-01**: Installed PWA (including iOS Safari) reliably receives and applies app updates — field-verified on a real installed device, not just in theory _(manual verification component — needs a real iOS device)_
 - [x] **VER-02**: A single source-of-truth version constant drives the footer version, the service-worker `CACHE_NAME`, and the value the integrity check validates against (today the footer is a static placeholder in `assets/shared-chrome.js:~8`)
-- [ ] **VER-03**: A runtime integrity self-check detects when the running/cached version diverges from the source-of-truth version and surfaces it — so the displayed version can't silently lie (as v209 did)
+- [x] **VER-03**: A runtime integrity self-check detects when the running/cached version diverges from the source-of-truth version and surfaces it — so the displayed version can't silently lie (as v209 did)
 - [x] **VER-04**: CSP is delivered via HTTP header in `_headers`, and the per-page `<meta http-equiv>` CSP tags are removed/reconciled
 - [x] **VER-05**: `_headers` cache TTL for static JS/CSS is lengthened (e.g. `max-age=86400`+) with the service worker still owning freshness for installed users
 - [x] **VER-06**: All update-reliability and versioning behavior remains fully offline — no phone-home / network dependency introduced _(cross-cutting constraint)_
@@ -91,7 +91,7 @@ Which phases cover which requirements. Status filled during execution.
 |-------------|-------|--------|
 | VER-01 | Phase 28 | Complete |
 | VER-02 | Phase 28 | Complete |
-| VER-03 | Phase 28 | Pending |
+| VER-03 | Phase 28 | Complete |
 | VER-04 | Phase 28 | Complete |
 | VER-05 | Phase 28 | Complete |
 | VER-06 | Phase 28 | Complete |
