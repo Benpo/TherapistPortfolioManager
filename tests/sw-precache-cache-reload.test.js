@@ -40,10 +40,16 @@ check("static precache uses fetch(url, { cache: 'reload' })",
 check("does not precache static assets via bare cache.add(url)",
   !/cache\.add\(\s*url\s*\)/.test(sw));
 
-// CACHE_NAME must be bumped past the incident version so installed web apps
-// re-precache cleanly (with the new reload-mode fetch) on their next launch.
-var m = /CACHE_NAME\s*=\s*['"]sessions-garden-v(\d+)['"]/.exec(sw);
-check('CACHE_NAME present and >= v210', !!m && parseInt(m[1], 10) >= 210);
+// CACHE_NAME must change on every deploy so installed web apps re-precache
+// cleanly (with the reload-mode fetch) on their next launch. As of VER-02
+// (Phase 28) it is no longer a hand-bumped 'sessions-garden-vNNN' literal — it
+// derives from the deploy-stamped AppVersion.INTEGRITY_TOKEN (single source of
+// truth in assets/version.js), which is unique per deploy automatically. Guard
+// that the derivation is present AND the stale-prone hardcoded 'vNNN' literal
+// has not crept back (re-adding it would reinstate the manual-bump failure class).
+check('CACHE_NAME derived from AppVersion.INTEGRITY_TOKEN (no hardcoded vNNN)',
+  /CACHE_NAME\s*=\s*['"]sessions-garden-['"]\s*\+\s*self\.AppVersion\.INTEGRITY_TOKEN/.test(sw)
+  && !/CACHE_NAME\s*=\s*['"]sessions-garden-v\d+['"]/.test(sw));
 
 console.log('\n' + (failed === 0 ? 'ALL PASS' : (failed + ' FAILED')));
 process.exit(failed === 0 ? 0 : 1);
