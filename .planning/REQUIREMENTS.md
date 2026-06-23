@@ -21,7 +21,7 @@ Requirements for the Codebase Health & Reliability milestone. Each maps to exact
 ### Reliability & Observability (Phase 29)
 
 - [x] **OBS-01**: Uncaught errors and unhandled promise rejections are captured and the last N persisted to IndexedDB (`window.onerror` + `unhandledrejection`), with zero network calls
-- [ ] **OBS-02**: Settings has a "Report a problem" action that copies the persisted error log plus basic diagnostic context to the clipboard for the user to paste into a support email — nothing leaves the device automatically (GDPR-safe)
+- [x] **OBS-02**: Settings has a "Report a problem" action that copies the persisted error log plus basic diagnostic context to the clipboard for the user to paste into a support email — nothing leaves the device automatically (GDPR-safe)
 - [x] **OBS-03**: A failed IndexedDB migration offers a "reset & recover" escape hatch so a user cannot be trapped in an infinite "please refresh" loop
 
 ### Test Harness & Coverage (Phase 30)
@@ -96,7 +96,7 @@ Which phases cover which requirements. Status filled during execution.
 | VER-05 | Phase 28 | Complete |
 | VER-06 | Phase 28 | Complete |
 | OBS-01 | Phase 29 | Complete |
-| OBS-02 | Phase 29 | Pending |
+| OBS-02 | Phase 29 | Complete |
 | OBS-03 | Phase 29 | Complete |
 | TEST-01 | Phase 30 | Pending |
 | TEST-02 | Phase 30 | Pending |

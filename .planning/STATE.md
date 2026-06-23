@@ -4,17 +4,17 @@ milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 29
 current_phase_name: reliability-observability
-status: executing
+status: verifying
 stopped_at: Completed 29-01-PLAN.md (OBS-01 crash-log foundation)
-last_updated: "2026-06-23T10:24:36.481Z"
+last_updated: "2026-06-23T10:41:34.316Z"
 last_activity: 2026-06-23
 last_activity_desc: Phase 29 execution started
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
-  percent: 17
+  completed_plans: 7
+  percent: 33
 ---
 
 # Project State
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 Phase: 29 (reliability-observability) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-23 — Phase 29 execution started
 
 ## Performance Metrics
@@ -104,6 +104,7 @@ Last activity: 2026-06-23 — Phase 29 execution started
 | Phase 28 P04 | 95min | 4 tasks | 9 files |
 | Phase 29 P01 | 22min | 2 tasks | 23 files |
 | Phase 29 P02 | 9min | 2 tasks | 7 files |
+| Phase 29 P03 | 40min | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -205,6 +206,9 @@ Recent decisions affecting current work:
 - [Phase 28-04]: SW importScripts path must match the deployed/precached path — sw.js imported root /version.js which the deploy never ships, so importScripts threw and the Phase 28 SW never installed in production; corrected to /assets/version.js (fix c702c53)
 - [Phase 28-04]: Phase 28 shipped as v1.2.1 (bumped from 1.2.0 during the auto-delivery field verification); integrity loaded-token derived locally from the SW cache name, zero network (VER-06)
 - [Phase 29]: Phase 29-01: OBS-01 crash log uses dual storage (IDB primary + localStorage crashlogBuffer mirror written directly, bypassing openDB so it survives an IDB-open failure); prune-on-write enforces <=30 days AND <=50 entries; CrashLog.logError/getEntries/clear is the stable seam for the Phase 28 integrity check and Wave 2 report screen; tests use the repo's zero-npm handwritten IDB shim, not jsdom/fake-indexeddb
+- [Phase ?]: Phase 29-03: OBS-02 report screen uses redact-then-editable-preview (D-04); Copy carries the full log, mailto carries a short paste-below body (D-06)
+- [Phase ?]: Phase 29-03: Settings 'Report a problem' row kept self-contained (buildReportRow + #settingsReportSection) for Phase 31 extraction safety
+- [Phase ?]: Phase 29-03: wedged recover stub routes to the existing OBS-03 hatch (PortfolioDB._showDBMigrationError), no second reset path
 
 ### Pending Todos
 
@@ -264,7 +268,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-23T10:24:30.222Z
+**Last session:** 2026-06-23T10:40:59.516Z
 
 Last activity: 2026-06-22 — v1.2 milestone formalized: REQUIREMENTS.md (20 reqs — VER/OBS/TEST/RFCT/DOCS/I18N) + `### Phase 28–33` ROADMAP detail sections written and committed (1a014d0). Done via *targeted formalization* (NOT `/gsd-new-milestone`) to avoid re-deriving the already-locked 28–33 scope.
 Stopped at: Completed 29-01-PLAN.md (OBS-01 crash-log foundation)

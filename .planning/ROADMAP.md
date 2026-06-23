@@ -60,7 +60,7 @@ Full goals, success criteria, and per-plan detail are archived in `milestones/v1
 Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisions). A deliberate shift from feature work to maintainability and reliability. Phases run in **dependency order**: get updates reliably delivered + observable, build a test safety net, *then* refactor behind it, *then* document the result. No PLAN files yet — `/gsd-plan-phase` per phase in upcoming sessions.
 
 - [x] **Phase 28: Update Reliability & Versioning** — field-verified fix for installed-Safari PWA updates; one source-of-truth version constant driving the footer + SW `CACHE_NAME` + a runtime **integrity self-check** (so the displayed version can't lie, as v209 did); CSP `<meta>`→HTTP header; `_headers` cache TTL. Fully offline-compatible (no phone-home). Footer source today: `assets/shared-chrome.js:~8`. (completed 2026-06-22)
-- [ ] **Phase 29: Reliability & Observability** — local crash log persisted to IndexedDB + a Settings "Report a problem" copy-to-clipboard flow (zero network, GDPR-safe); IDB migration "reset & recover" escape hatch so a failed migration can't trap a user in an infinite refresh loop.
+- [x] **Phase 29: Reliability & Observability** — local crash log persisted to IndexedDB + a Settings "Report a problem" copy-to-clipboard flow (zero network, GDPR-safe); IDB migration "reset & recover" escape hatch so a failed migration can't trap a user in an infinite refresh loop. (completed 2026-06-23)
 - [ ] **Phase 30: Test Harness & Coverage** — fix the 7 PDF tests that can't run in Node (`jsdom` lacks `HTMLCanvasElement.getContext`; old-Node `blob.arrayBuffer`); add an RTL regression guard; add **behavior tests on the god modules before the refactor** (per `feedback-behavior-verification`). May introduce the project's first `package.json` + dev-dependency (decide at plan time).
 - [ ] **Phase 31: Refactor God Modules** — behavior-preserving extraction from `settings.js` (~2,827 lines) and `add-session.js` (~2,173 lines) using the existing IIFE pattern; guarded by the green suite from Phase 30. Opportunistic in touched code: `var`→`const`, `innerHTML`-i18n hardening, `openDB()` connection pooling, logging in silent catches.
 - [ ] **Phase 32: README + Code Comments** — project README (run/deploy/architecture) for Sapir as ongoing maintainer; code-level comments describing the *refactored* structure.
@@ -105,7 +105,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   2. Settings exposes a "Report a problem" action that copies the persisted error log plus basic diagnostic context to the clipboard for the user to paste into a support email — nothing is transmitted automatically
   3. When an IndexedDB migration fails, the user is offered a "reset & recover" escape hatch instead of an endless "please refresh" loop, and using it returns the app to a usable state
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 **Wave 1** *(parallel — no file overlap)*
 
@@ -114,7 +114,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 
 **Wave 2** *(blocked on 29-01)*
 
-- [ ] 29-03-PLAN.md — OBS-02 report-a-problem screen (`report.html` + `report.js`): redacted editable preview, Copy report, mailto handoff; Settings entry row; wires Phase 28 integrity-mismatch persistence + version.js wedged stubs
+- [x] 29-03-PLAN.md — OBS-02 report-a-problem screen (`report.html` + `report.js`): redacted editable preview, Copy report, mailto handoff; Settings entry row; wires Phase 28 integrity-mismatch persistence + version.js wedged stubs
 
 ### Phase 30: Test Harness & Coverage
 
@@ -208,7 +208,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 26. In-App Onboarding / Help | v1.1 | Design-only | Deferred — build in backlog | - |
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
-| 29. Reliability & Observability | v1.2 | 2/3 | In Progress|  |
+| 29. Reliability & Observability | v1.2 | 3/3 | Complete   | 2026-06-23 |
 | 30. Test Harness & Coverage | v1.2 | 0/– | Planned | - |
 | 31. Refactor God Modules | v1.2 | 0/– | Planned | - |
 | 32. README + Code Comments | v1.2 | 0/– | Planned | - |
