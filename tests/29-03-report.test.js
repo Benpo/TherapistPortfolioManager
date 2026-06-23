@@ -140,6 +140,55 @@ function makeClipboard() {
 let fetchCalls = 0;
 let xhrCalls = 0;
 
+// ────────────────────────────────────────────────────────────────────
+// WR-01 — exercise the REAL db.js DB_VERSION export instead of a stub.
+//
+// `readDeclaredDbVersion` parses the `const DB_VERSION = N` literal at the top
+// of assets/db.js (the source of truth). `assertDbExportsVersion` loads db.js
+// in a throwaway sandbox and confirms the RETURNED PortfolioDB object actually
+// EXPOSES DB_VERSION equal to that literal — this is the assertion that fails
+// if the export is dropped again. `makeRealPortfolioDB` then hands report.js a
+// PortfolioDB whose DB_VERSION is the verified-real value.
+// ────────────────────────────────────────────────────────────────────
+function readDeclaredDbVersion() {
+  const dbSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'db.js'), 'utf8');
+  const m = dbSrc.match(/const\s+DB_VERSION\s*=\s*(\d+)/);
+  assert.ok(m, 'could not find `const DB_VERSION = N` in assets/db.js');
+  return Number(m[1]);
+}
+
+function assertDbExportsVersion(declared) {
+  // Load db.js in a minimal sandbox and read the EXPORTED value. This is the
+  // real WR-01 regression guard: if db.js returns an object without
+  // DB_VERSION, this throws and the test fails.
+  const dbSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'db.js'), 'utf8');
+  const sb = {
+    window: { name: 'demo-mode' },
+    indexedDB: { open() { return {}; }, databases() { return Promise.resolve([]); } },
+    localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} },
+    document: { getElementById() { return null; }, createElement() { return { style: {}, setAttribute() {}, append() {}, appendChild() {} }; }, body: { appendChild() {}, prepend() {} }, addEventListener() {} },
+    navigator: { userAgent: 'test' },
+    console: { error() {}, warn() {}, log() {} },
+    setTimeout, clearTimeout, queueMicrotask,
+    Promise, JSON, Math, Date, Array, Object, Set, Map, String, Number, Boolean, Error,
+  };
+  sb.self = sb; sb.globalThis = sb;
+  vm.createContext(sb);
+  vm.runInContext(dbSrc, sb, { filename: 'assets/db.js' });
+  const exported = sb.window.PortfolioDB;
+  assert.ok(exported && typeof exported === 'object', 'db.js must expose window.PortfolioDB');
+  assert.ok(exported.DB_VERSION != null,
+    'WR-01: db.js must EXPORT DB_VERSION on its PortfolioDB object (report.js reads it for the diagnostic header)');
+  assert.strictEqual(Number(exported.DB_VERSION), declared,
+    `WR-01: exported DB_VERSION (${exported.DB_VERSION}) must equal the declared const (${declared})`);
+  return Number(exported.DB_VERSION);
+}
+
+function makeRealPortfolioDB(version) {
+  // Hand report.js a PortfolioDB carrying the verified-real DB_VERSION.
+  return { DB_VERSION: version };
+}
+
 function boot(entries) {
   fetchCalls = 0;
   xhrCalls = 0;
@@ -162,6 +211,14 @@ function boot(entries) {
 
   const location = { href: '' };
 
+  // WR-01: exercise the REAL db.js export, not a hardcoded stub. The previous
+  // `PortfolioDB: { DB_VERSION: 6 }` stub made the diagnostic-header DB-version
+  // assertion pass regardless of whether db.js actually exposed DB_VERSION —
+  // a false-confidence test. We now read the version db.js declares at the top
+  // of the file and assert the header reflects THAT, so the test fails if the
+  // export is dropped again.
+  const REAL_DB_VERSION = readDeclaredDbVersion();
+
   const win = {
     isSecureContext: true,
     location,
@@ -169,7 +226,11 @@ function boot(entries) {
     _ready: null,
     CrashLog: crashLog,
     AppVersion: { APP_VERSION: '1.2.1' },
-    PortfolioDB: { DB_VERSION: 6 },
+    // Mirror the export contract of db.js: report.js reads
+    // window.PortfolioDB.DB_VERSION. We populate it from the REAL exported
+    // value (see assertExportsDbVersion below) so the test breaks if db.js
+    // stops exporting it.
+    PortfolioDB: makeRealPortfolioDB(REAL_DB_VERSION),
     App: { t() { return ''; }, showToast() {} },
   };
 
@@ -234,6 +295,17 @@ function check(name, cond) {
 }
 
 async function run() {
+  // ── WR-01 regression guard (runs first): db.js must EXPORT DB_VERSION ──────
+  const declaredDbVersion = readDeclaredDbVersion();
+  let exportedDbVersion;
+  try {
+    exportedDbVersion = assertDbExportsVersion(declaredDbVersion);
+    check('WR-01: db.js exports a real DB_VERSION matching its declared const', true);
+  } catch (e) {
+    check('WR-01: db.js exports a real DB_VERSION matching its declared const (' + e.message + ')', false);
+    exportedDbVersion = declaredDbVersion; // continue so other cases still report
+  }
+
   // ── Case 1 + 2 + 6: entries present → assembled, redacted preview; no network
   {
     const entries = [
@@ -248,7 +320,13 @@ async function run() {
 
     // 1: diagnostic-context header present
     check('1: preview contains app version diagnostic context', text.indexOf('1.2.1') !== -1);
-    check('1: preview contains a DB version field', /DB|database/i.test(text) && text.indexOf('6') !== -1);
+    // WR-01: the header must show the REAL exported DB version, not "unknown"
+    // and not a test stub. We assert the actual exported value is in the header
+    // and that the literal "unknown" does not appear on the DB version line.
+    check('1: preview contains a DB version field with the real exported version',
+      /DB version:\s*/i.test(text) && text.indexOf('DB version: ' + exportedDbVersion) !== -1);
+    check('1: DB version is not reported as "unknown"',
+      text.indexOf('DB version: unknown') === -1);
     // 1: the entries are present
     check('1: preview contains the first entry message', text.indexOf('boom') !== -1);
     check('1: preview contains the second entry marker', text.indexOf('second distinct failure marker ZZZ') !== -1);

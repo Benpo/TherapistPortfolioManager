@@ -1065,6 +1065,10 @@ window.PortfolioDB = (() => {
   }
 
   return {
+    // WR-01: expose the schema version so report.js dbVersion() reports the
+    // real value in the diagnostic header instead of falling through to
+    // "unknown".
+    DB_VERSION,
     addClient,
     updateClient,
     getClient,
