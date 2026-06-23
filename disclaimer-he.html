@@ -2,6 +2,9 @@
 <html lang="he" dir="rtl">
 <head>
   <script>
+    (function(){try{var B='crashlogBuffer';function P(m,s,u){try{var a=JSON.parse(localStorage.getItem(B)||'[]');if(!Array.isArray(a))a=[];a.push({timestamp:Date.now(),message:String(m||''),stack:s?String(s):'',url:u||location.href,source:'early'});while(a.length>5)a.shift();localStorage.setItem(B,JSON.stringify(a));}catch(e){}}window.onerror=function(m,src,l,c,err){P(m,err&&err.stack,location.href);return false;};window.addEventListener('unhandledrejection',function(ev){try{var r=ev&&ev.reason;P(r&&(r.message||String(r)),r&&r.stack,location.href);}catch(e){}});}catch(e){}})();
+  </script>
+  <script>
     (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
   </script>
   <meta charset="utf-8" />
@@ -270,6 +273,7 @@
 })();
 </script>
 <script src="./assets/version.js"></script>
+<script src="./assets/crashlog.js"></script>
 <script src="./assets/shared-chrome.js"></script>
 <script>
   if (typeof SharedChrome !== 'undefined' && SharedChrome.renderFooter) {

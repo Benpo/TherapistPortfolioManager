@@ -26,6 +26,7 @@ const CACHE_NAME = 'sessions-garden-' + self.AppVersion.INTEGRITY_TOKEN;
 const PRECACHE_URLS = [
   '/manifest.json',
   '/assets/version.js',
+  '/assets/crashlog.js',
   '/assets/tokens.css',
   '/assets/app.css',
   '/assets/jszip.min.js',
