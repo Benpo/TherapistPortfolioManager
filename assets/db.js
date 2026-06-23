@@ -155,29 +155,39 @@ window.PortfolioDB = (() => {
       blocked: "Please close other tabs of this app to continue.",
       versionChanged: "A newer version of this app is open. Please refresh to continue.",
       refresh: "Refresh",
-      migrationFailed: "Database update failed. Your data is safe. Please refresh the page to try again.",
-      refreshPage: "Refresh page"
+      // OBS-03 (Phase 29): reworded so the banner no longer implies a dead-end
+      // "refresh" is the only way out — the recover actions below are the path.
+      migrationFailed: "Database update failed. Your data is safe.",
+      exportBackupNow: "Export backup now",
+      affirmBackupSaved: "I have saved a backup I can restore from",
+      resetAndRecover: "Reset & recover"
     },
     he: {
       blocked: "נא לסגור כרטיסיות אחרות של האפליקציה כדי להמשיך.",
       versionChanged: "גרסה חדשה יותר של האפליקציה פתוחה. נא לרענן כדי להמשיך.",
       refresh: "רענון",
-      migrationFailed: "עדכון מסד הנתונים נכשל. הנתונים שלך בטוחים. נא לרענן את הדף ולנסות שוב.",
-      refreshPage: "רענון דף"
+      migrationFailed: "עדכון מסד הנתונים נכשל. הנתונים שלך בטוחים.",
+      exportBackupNow: "ייצוא גיבוי עכשיו",
+      affirmBackupSaved: "שמרתי גיבוי שאפשר לשחזר ממנו",
+      resetAndRecover: "איפוס ושחזור"
     },
     de: {
       blocked: "Bitte schliesse andere Tabs dieser App, um fortzufahren.",
       versionChanged: "Eine neuere Version dieser App ist geoeffnet. Bitte aktualisiere, um fortzufahren.",
       refresh: "Aktualisieren",
-      migrationFailed: "Datenbankaktualisierung fehlgeschlagen. Deine Daten sind sicher. Bitte lade die Seite neu und versuche es erneut.",
-      refreshPage: "Seite aktualisieren"
+      migrationFailed: "Datenbankaktualisierung fehlgeschlagen. Deine Daten sind sicher.",
+      exportBackupNow: "Backup jetzt exportieren",
+      affirmBackupSaved: "Ich habe ein Backup gespeichert, das ich wiederherstellen kann",
+      resetAndRecover: "Zuruecksetzen & wiederherstellen"
     },
     cs: {
       blocked: "Pro pokracovani prosim zavri ostatni karty teto aplikace.",
       versionChanged: "Je otevrena novejsi verze teto aplikace. Pro pokracovani prosim obnov stranku.",
       refresh: "Obnovit",
-      migrationFailed: "Aktualizace databaze se nezdarila. Tvoje data jsou v bezpeci. Prosim obnov stranku a zkus to znovu.",
-      refreshPage: "Obnovit stranku"
+      migrationFailed: "Aktualizace databaze se nezdarila. Tvoje data jsou v bezpeci.",
+      exportBackupNow: "Exportovat zalohu nyni",
+      affirmBackupSaved: "Mam ulozenou zalohu, ze ktere mohu obnovit",
+      resetAndRecover: "Resetovat a obnovit"
     }
   };
 
@@ -436,6 +446,32 @@ window.PortfolioDB = (() => {
     document.body.prepend(banner);
   }
 
+  // Phase 29 OBS-03: in-session flag — true once an escape-hatch export has
+  // succeeded this page load. Drives the extra-emphatic destructive-confirm
+  // variant (D-08): a user who clicked straight to Reset without exporting
+  // gets the stronger "you haven't exported a backup yet" wording.
+  let _exportedThisSession = false;
+
+  /**
+   * showDBMigrationError(err) — OBS-03 escape hatch (replaces the old dead-end
+   * "Refresh page → location.reload()" which re-ran the failing migration
+   * forever). Renders the migration-failure danger band with:
+   *   1. "Export backup now" (primary green, NOT red) → BackupManager
+   *      .exportRecoveryBackup() (reads AROUND the failure, D-09). Sets the
+   *      in-session flag on success.
+   *   2. an affirmation checkbox ("I have saved a backup I can restore from")
+   *      that gates (3).
+   *   3. "Reset & recover" — disabled until the checkbox is checked; on click
+   *      runs App.confirmDialog({tone:'danger'}) with an extra-emphatic copy
+   *      variant when no export happened this session; only on confirm does
+   *      indexedDB.deleteDatabase(DB_NAME) + location.reload() run.
+   *
+   * Built with createElement + textContent (never innerHTML), role="alert",
+   * duplicate-render guard, dir set defensively from portfolioLang (RTL-safe).
+   * Renders before i18n.js using the inline DB_STRINGS 4-language strings; the
+   * destructive confirm uses App.confirmDialog (Surface A, data-i18n) which is
+   * acceptable because it fires AFTER the user chose to act.
+   */
   function showDBMigrationError(err) {
     console.error("IndexedDB migration failed:", err);
 
@@ -445,17 +481,104 @@ window.PortfolioDB = (() => {
     const banner = document.createElement("div");
     banner.id = "dbMigrationErrorBanner";
     banner.setAttribute("role", "alert");
-    banner.className = "db-error-banner db-error-banner--migration";
+    banner.className = "db-error-banner db-error-banner--migration db-error-banner--escape";
+    // Defensive dir from portfolioLang (banner may render before page dir set).
+    try {
+      var lang = (typeof localStorage !== "undefined" && localStorage.getItem("portfolioLang")) || "en";
+      banner.dir = (lang === "he") ? "rtl" : "ltr";
+    } catch (e) {}
 
     const msg = document.createElement("span");
-    msg.textContent = dbStr('migrationFailed');
+    msg.className = "db-error-banner-msg";
+    msg.textContent = dbStr("migrationFailed");
 
-    const btn = document.createElement("button");
-    btn.textContent = dbStr('refreshPage');
-    btn.className = "db-error-btn";
-    btn.onclick = () => location.reload();
+    // (1) Export backup now — primary/safe action (green, NOT red).
+    const exportBtn = document.createElement("button");
+    exportBtn.className = "db-error-btn";
+    exportBtn.setAttribute("data-role", "export");
+    exportBtn.textContent = dbStr("exportBackupNow");
+    exportBtn.onclick = function () {
+      try {
+        var BM = (typeof window !== "undefined" && window.BackupManager) || null;
+        if (!BM || typeof BM.exportRecoveryBackup !== "function") return;
+        Promise.resolve(BM.exportRecoveryBackup())
+          .then(function (res) {
+            // A successful export (encrypt OR skip-encryption) flips the flag;
+            // a cancel does not.
+            if (res && res.ok && !res.cancelled) _exportedThisSession = true;
+          })
+          .catch(function (e) { try { console.error("Recovery export failed:", e); } catch (_) {} });
+      } catch (e) { try { console.error(e); } catch (_) {} }
+    };
 
-    banner.append(msg, btn);
+    // (2) Affirmation checkbox gating the reset.
+    const affirmLabel = document.createElement("label");
+    affirmLabel.className = "db-error-affirm";
+    const affirmBox = document.createElement("input");
+    affirmBox.setAttribute("type", "checkbox");
+    affirmBox.className = "db-error-affirm-box";
+    const affirmText = document.createElement("span");
+    affirmText.textContent = dbStr("affirmBackupSaved");
+    affirmLabel.append(affirmBox, affirmText);
+
+    // (3) Reset & recover — disabled until the checkbox is checked.
+    const resetBtn = document.createElement("button");
+    resetBtn.className = "db-error-btn db-error-btn--danger";
+    resetBtn.setAttribute("data-role", "reset");
+    resetBtn.textContent = dbStr("resetAndRecover");
+    resetBtn.disabled = true;
+
+    affirmBox.onchange = function () {
+      resetBtn.disabled = !affirmBox.checked;
+    };
+
+    resetBtn.onclick = function () {
+      // Hard gate: never proceed while disabled / unchecked (defence in depth
+      // beyond the disabled attribute).
+      if (resetBtn.disabled || !affirmBox.checked) return;
+
+      var App = (typeof window !== "undefined" && window.App) || null;
+      // Choose the confirm copy variant by whether an export happened this
+      // session (D-08 double-confirm, extra-emphatic when no session export).
+      var variant = _exportedThisSession
+        ? {
+            titleKey: "confirm.resetApp.title",
+            messageKey: "confirm.resetApp.body",
+            confirmKey: "confirm.resetApp.yes",
+            cancelKey: "confirm.cancel",
+          }
+        : {
+            titleKey: "confirm.resetAppNoBackup.title",
+            messageKey: "confirm.resetAppNoBackup.body",
+            confirmKey: "confirm.resetAppNoBackup.yes",
+            cancelKey: "confirm.resetAppNoBackup.cancel",
+          };
+
+      if (!App || typeof App.confirmDialog !== "function") return;
+
+      Promise.resolve(
+        App.confirmDialog({
+          titleKey: variant.titleKey,
+          messageKey: variant.messageKey,
+          confirmKey: variant.confirmKey,
+          cancelKey: variant.cancelKey,
+          tone: "danger",
+        })
+      ).then(function (confirmed) {
+        if (!confirmed) return; // no silent wipe — cancel aborts entirely
+        // Only here — after BOTH the checkbox AND the double-confirm — wipe.
+        var req = indexedDB.deleteDatabase(DB_NAME);
+        var reload = function () {
+          try { location.reload(); } catch (e) {}
+        };
+        req.onsuccess = reload;
+        // Even if delete errors/blocks, reload so the user is not trapped.
+        req.onerror = reload;
+        req.onblocked = reload;
+      });
+    };
+
+    banner.append(msg, exportBtn, affirmLabel, resetBtn);
     document.body.prepend(banner);
   }
 
@@ -976,5 +1099,9 @@ window.PortfolioDB = (() => {
     replaceAllCrashlog,
     // Phase 29 OBS-03 (D-09) — export-around-failure read-only no-version open
     getAllForRecoveryExport,
+    // Phase 29 OBS-03 — test seam for the migration-failure escape-hatch banner
+    // (reached in production via openDB() onupgradeneeded catch; exposed so the
+    // behavior test can render + drive it without a real upgrade abort).
+    _showDBMigrationError: showDBMigrationError,
   };
 })();
