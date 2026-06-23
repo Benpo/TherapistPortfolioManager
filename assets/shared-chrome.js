@@ -11,7 +11,7 @@ var SharedChrome = (function() {
   // footer from rendering).
   var APP_VERSION = (typeof window !== 'undefined' && window.AppVersion && window.AppVersion.APP_VERSION)
     ? window.AppVersion.APP_VERSION
-    : '1.2.0';
+    : '1.2.1';
 
   // Tracks whether the footer ⚠ marker has been shown this load. Once set, the
   // footer never downgrades back to clean within the load (D-09).
