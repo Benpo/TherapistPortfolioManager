@@ -117,6 +117,20 @@ var SharedChrome = (function() {
     if (typeof window === 'undefined' || !window.AppVersion || !window.AppVersion.checkIntegrity) return;
     try {
       window.AppVersion.checkIntegrity().then(function (state) {
+        // Phase 28 → 29 seam (D-01 / 28-CONTEXT D-12): persist a non-clean
+        // integrity state into the OBS-01 crash log so the v209-class mismatch
+        // becomes reportable through the OBS-02 report screen. Feature-gated —
+        // CrashLog may not be loaded on every page (legal/landing pages omit
+        // it) — and fully guarded so a logging failure never breaks the footer.
+        if (state && state !== 'clean' && window.CrashLog && typeof window.CrashLog.logError === 'function') {
+          try {
+            window.CrashLog.logError({
+              source: 'integrity',
+              message: 'version integrity mismatch: ' + state,
+              url: (typeof location !== 'undefined' ? location.href : ''),
+            });
+          } catch (e) { /* never let logging break the footer */ }
+        }
         var marked = window.AppVersion.footerMarkerForState(_footerMarked, state);
         if (marked && !_footerMarked) {
           _footerMarked = true;
@@ -141,6 +155,7 @@ var SharedChrome = (function() {
     getLang: getLang,
     getLocalizedLegalLink: getLocalizedLegalLink,
     renderFooter: renderFooter,
+    maybeUpgradeFooterAndNudge: maybeUpgradeFooterAndNudge,
     updateBackLinks: updateBackLinks,
     FOOTER_STRINGS: FOOTER_STRINGS,
     BACK_LINK_STRINGS: BACK_LINK_STRINGS,

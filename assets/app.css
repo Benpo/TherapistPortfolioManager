@@ -2922,6 +2922,46 @@ html[dir="rtl"] .settings-locked-info::after {
   justify-content: flex-end;
   z-index: 1;
 }
+/* OBS-01 surfacing (Phase 29): "Report a problem" Settings entry row.
+   Reuses the .settings-row layout; only the controls cluster needs alignment
+   tweaks (logical properties only, RTL-safe). */
+.settings-report-section {
+  margin-block-start: 16px;
+  padding-block-start: 16px;
+  border-block-start: 1px solid var(--color-border-soft);
+}
+.settings-report-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.settings-report-open { text-decoration: none; }
+
+/* OBS-02 report screen (Phase 29, Surface A — full app tokens). */
+.report-preview-field { margin-block: 1.3rem; }
+.report-preview {
+  inline-size: 100%;
+  min-block-size: 12rem;
+  font-family: var(--font-family);
+  background: var(--color-surface-alt);
+}
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+.report-empty {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 1.8rem;
+  margin-block: 1.3rem;
+  text-align: start;
+}
+.report-support-fallback { margin-block-start: 16px; }
+
 @media (min-width: 769px) {
   .settings-row {
     flex-direction: row;

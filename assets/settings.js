@@ -541,6 +541,100 @@ window.SettingsPage = (function () {
   // Init
   // ---------------------------------------------------------------------------
 
+  // ──────────────────────────────────────────────────────────────────────
+  // OBS-01 surfacing (Phase 29 Plan 03): the "Report a problem" entry row +
+  // an optional crash-log "clear" affordance. Built with createElement +
+  // textContent only (NEVER innerHTML — same security contract as renderRow,
+  // settings.js:112). Kept self-contained inside this section so it survives
+  // the Phase 31 settings.js extraction (CONTEXT code_context).
+  // ──────────────────────────────────────────────────────────────────────
+  function buildReportRow() {
+    var tt = (window.App && App.t) ? App.t : function (k) { return k; };
+
+    var row = document.createElement("div");
+    row.className = "settings-row settings-report-row";
+    row.setAttribute("data-section-key", "reportProblem");
+
+    var meta = document.createElement("div");
+    meta.className = "settings-row-meta";
+
+    var labelLine = document.createElement("div");
+    labelLine.className = "settings-row-label-line";
+    var labelEl = document.createElement("span");
+    labelEl.className = "settings-row-label label";
+    // SECURITY: textContent — never innerHTML.
+    labelEl.textContent = tt("settings.report.label");
+    labelLine.appendChild(labelEl);
+    meta.appendChild(labelLine);
+
+    var descEl = document.createElement("span");
+    descEl.className = "settings-row-desc microcopy";
+    descEl.textContent = tt("settings.report.desc");
+    meta.appendChild(descEl);
+
+    row.appendChild(meta);
+
+    var controls = document.createElement("div");
+    controls.className = "settings-row-controls settings-report-controls";
+
+    // Primary affordance: navigate to the dedicated report screen.
+    var openLink = document.createElement("a");
+    openLink.className = "button settings-report-open";
+    openLink.setAttribute("data-role", "report-open");
+    openLink.setAttribute("href", "./report.html");
+    openLink.textContent = tt("settings.report.label");
+    controls.appendChild(openLink);
+
+    // Optional crash-log "clear" affordance (CONTEXT Claude's Discretion):
+    // a ghost button gated behind a neutral-tone confirm dialog.
+    var clearBtn = document.createElement("button");
+    clearBtn.type = "button";
+    clearBtn.className = "button ghost settings-report-clear";
+    clearBtn.setAttribute("data-role", "report-clear");
+    clearBtn.textContent = tt("settings.report.clear.label");
+    clearBtn.onclick = function () {
+      var App = window.App;
+      if (!App || typeof App.confirmDialog !== "function") {
+        // Defensive fallback: clear directly if the dialog is unavailable.
+        if (window.CrashLog && typeof CrashLog.clear === "function") CrashLog.clear();
+        return;
+      }
+      Promise.resolve(
+        App.confirmDialog({
+          titleKey: "settings.report.clear.confirm.title",
+          messageKey: "settings.report.clear.confirm.body",
+          confirmKey: "settings.report.clear.confirm.yes",
+          cancelKey: "confirm.cancel",
+          tone: "neutral",
+        })
+      ).then(function (confirmed) {
+        if (!confirmed) return;
+        if (window.CrashLog && typeof CrashLog.clear === "function") {
+          Promise.resolve(CrashLog.clear()).then(function () {
+            if (typeof App.showToast === "function") {
+              App.showToast(tt("settings.report.cleared.toast"));
+            }
+          });
+        }
+      });
+    };
+    controls.appendChild(clearBtn);
+
+    row.appendChild(controls);
+    return row;
+  }
+
+  function mountReportRow() {
+    try {
+      var host = document.getElementById("settingsReportSection");
+      if (!host) return;
+      host.textContent = ""; // safe clear (idempotent re-mount on re-render)
+      host.appendChild(buildReportRow());
+    } catch (e) {
+      try { console.warn("settings: mountReportRow failed", e); } catch (_) {}
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", async function () {
     if (window.App && typeof App.initCommon === "function") {
       await App.initCommon();
@@ -561,8 +655,11 @@ window.SettingsPage = (function () {
     if (refs.saveBtn) refs.saveBtn.addEventListener("click", onSave);
     if (refs.discardBtn) refs.discardBtn.addEventListener("click", onDiscard);
 
+    // OBS-01 surfacing: mount the "Report a problem" entry row.
+    mountReportRow();
+
     // Re-translate + re-render on language change.
-    document.addEventListener("app:language", function () { loadAndRender(); });
+    document.addEventListener("app:language", function () { loadAndRender(); mountReportRow(); });
     // External tab updated settings — refresh.
     document.addEventListener("app:settings-changed", function () { loadAndRender(); });
 
@@ -577,7 +674,12 @@ window.SettingsPage = (function () {
     loadAndRender();
   });
 
-  return {};
+  // Export the report-row builder so it is unit-testable and so the Phase 31
+  // extraction has a stable seam to relocate.
+  return {
+    buildReportRow: buildReportRow,
+    mountReportRow: mountReportRow,
+  };
 })();
 
 // ────────────────────────────────────────────────────────────────────────

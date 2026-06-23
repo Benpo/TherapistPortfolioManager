@@ -272,16 +272,32 @@ var AppVersion = (function() {
       recover.className = 'integrity-nudge-btn';
       recover.setAttribute('data-role', 'cta');
       recover.textContent = integStr('wedgedCta');
-      // Phase 28 degrades to honest guidance; the real reset & recover hatch
-      // ships in Phase 29 (OBS-03). Stub the handoff via the genuine recovery
-      // for now — it never makes the false "refresh to complete" promise.
-      recover.onclick = function () { return runGenuineRecovery(); };
+      // Phase 29 OBS-03: route the wedged "couldn't finish automatically" path
+      // to the real reset & recover escape hatch (db.js showDBMigrationError,
+      // Plan 02) — a surface that lets the user export-around-failure and then
+      // wipe+reload, instead of the cosmetic reload that re-runs the failing
+      // migration forever. Fall back to the genuine recovery if the hatch is
+      // unavailable (e.g. PortfolioDB not loaded), never making the false
+      // "refresh to complete" promise.
+      recover.onclick = function () {
+        try {
+          var DB = (typeof window !== 'undefined' && window.PortfolioDB) || null;
+          if (DB && typeof DB._showDBMigrationError === 'function') {
+            DB._showDBMigrationError(new Error('integrity wedged: manual recovery requested'));
+            return;
+          }
+        } catch (e) { /* fall through to genuine recovery */ }
+        return runGenuineRecovery();
+      };
       var report = document.createElement('button');
       report.className = 'integrity-nudge-btn integrity-nudge-btn--secondary';
       report.setAttribute('data-role', 'report');
       report.textContent = integStr('wedgedReport');
-      // Report flow ships in Phase 29 (OBS-02); stub for now.
-      report.onclick = function () {};
+      // Phase 29 OBS-02: route the wedged report stub to the dedicated report
+      // screen so the user can hand a diagnostic log to support.
+      report.onclick = function () {
+        try { window.location.href = './report.html'; } catch (e) {}
+      };
       nudge.append(recover, report);
     }
     // offline: NO action button (D-11) — reconnect copy only.
