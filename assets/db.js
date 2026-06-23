@@ -1,7 +1,7 @@
 window.PortfolioDB = (() => {
   const DB_NAME = window.name === "demo-mode" ? "demo_portfolio" : "sessions_garden";
   const OLD_DB_NAME = "emotion_code_portfolio";
-  const DB_VERSION = 5;
+  const DB_VERSION = 6;
   const DELETED_SEEDS_KEY = "snippetsDeletedSeeds";
 
   let _migrationDone = false;
@@ -265,6 +265,16 @@ window.PortfolioDB = (() => {
         const store = db.createObjectStore("snippets", { keyPath: "id" });
         store.createIndex("trigger", "trigger", { unique: true });
         store.createIndex("origin", "origin", { unique: false });
+      }
+    },
+    6: function crashlogStore(db /*, transaction */) {
+      // Phase 29 OBS-01 (D-02): additive migration — creates the crashlog
+      // object store. Schema: { id (auto), timestamp, message, stack, url, source }.
+      // No data mutation on existing stores. The crash logger writes here as its
+      // primary log; a localStorage mirror (crashlogBuffer) survives an IDB-open
+      // failure independently of this store.
+      if (!db.objectStoreNames.contains("crashlog")) {
+        db.createObjectStore("crashlog", { keyPath: "id", autoIncrement: true });
       }
     },
   };
@@ -568,6 +578,9 @@ window.PortfolioDB = (() => {
     if ((await openDB()).objectStoreNames.contains("snippets")) {
       await clearStore("snippets");
     }
+    if ((await openDB()).objectStoreNames.contains("crashlog")) {
+      await clearStore("crashlog");
+    }
     // Allow the next openDB() to repopulate the seed pack (debug-wipe flow).
     _seedingDone = false;
     _seedingPromise = null;
@@ -829,6 +842,49 @@ window.PortfolioDB = (() => {
     });
   }
 
+  // ──────────────────────────────────────────────────────────────────────
+  // Phase 29 OBS-01 — crashlog store accessors (v6).
+  // The crash logger (assets/crashlog.js) owns the prune-on-write policy; these
+  // are thin storage primitives. `replaceAllCrashlog` lets the logger rewrite
+  // the store after pruning (clear + bulk add) in a single readwrite tx so the
+  // ≤50/≤30-day ceiling holds atomically.
+  // ──────────────────────────────────────────────────────────────────────
+  async function addCrashlog(entry) {
+    return addRecord("crashlog", entry);
+  }
+
+  async function getAllCrashlog() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("crashlog", "readonly");
+      const store = tx.objectStore("crashlog");
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function clearCrashlog() {
+    return clearStore("crashlog");
+  }
+
+  async function replaceAllCrashlog(entries) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("crashlog", "readwrite");
+      const store = tx.objectStore("crashlog");
+      store.clear();
+      for (const e of entries) {
+        // Strip any prior auto-key so the store re-assigns fresh ids; keeps the
+        // keyPath/autoIncrement contract intact after a prune+rewrite.
+        const { id, ...rest } = e || {};
+        store.add(rest);
+      }
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
   return {
     addClient,
     updateClient,
@@ -857,5 +913,10 @@ window.PortfolioDB = (() => {
     updateSnippet,
     deleteSnippet,
     resetSeedSnippet,
+    // Phase 29 OBS-01 — crashlog store accessors (v6)
+    addCrashlog,
+    getAllCrashlog,
+    clearCrashlog,
+    replaceAllCrashlog,
   };
 })();

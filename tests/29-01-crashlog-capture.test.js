@@ -115,6 +115,34 @@ function makeIDBShim() {
         snap.indexes.set(name, { keyPath, unique: !!(options && options.unique) });
         return { name };
       },
+      // The v0→v6 upgrade path runs migrations 2 & 3 which iterate clients/
+      // sessions via openCursor. On the demo DB those stores are freshly
+      // created and empty, so a cursor that immediately resolves null is
+      // sufficient (and correct) here.
+      openCursor() {
+        const req = {};
+        queueMicrotask(() => {
+          const entries = Array.from(snap.records.entries());
+          let i = 0;
+          function step() {
+            if (i >= entries.length) {
+              req.result = null;
+              if (req.onsuccess) req.onsuccess({ target: req });
+              return;
+            }
+            const [k, v] = entries[i++];
+            req.result = {
+              value: clone(v),
+              update(updated) { snap.records.set(k, clone(updated)); },
+              delete() { snap.records.delete(k); },
+              continue() { queueMicrotask(step); },
+            };
+            if (req.onsuccess) req.onsuccess({ target: req });
+          }
+          step();
+        });
+        return req;
+      },
     };
   }
 
