@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketch 003 — Tour + the D-11 fallback</title>
+
+<link rel="stylesheet" href="../themes/default.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ---------------------------------------------------------------------
+     ZERO ad-hoc color below except the fixed sketch toolbar (the one
+     place hardcoded color is allowed — it must stay theme-independent).
+     Everything else = garden tokens from ../themes/default.css only.
+     Logical properties only (padding-inline-*, inset-inline-*) so the
+     tooltip tether + arrow flip correctly under RTL.
+     --------------------------------------------------------------------- */
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--lh-body);
+    font-weight: var(--weight-regular);
+    color: var(--color-text);
+    background: var(--color-background);
+    background-image:
+      radial-gradient(120% 90% at 50% 0%,
+        var(--color-background-gradient-start) 0%,
+        var(--color-background-gradient-end) 55%,
+        var(--color-background) 100%);
+    -webkit-font-smoothing: antialiased;
+    padding-top: 52px; /* clear fixed variant tab bar */
+    transition: all 0.15s ease;
+  }
+
+  /* ============================ TYPE ROLES ============================ */
+  .t-heading {
+    font-size: var(--text-heading);
+    line-height: var(--lh-heading);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin: 0;
+  }
+  .t-body {
+    font-size: var(--text-body);
+    line-height: var(--lh-body);
+    font-weight: var(--weight-regular);
+    color: var(--color-text);
+    margin: 0;
+  }
+  .t-label {
+    font-size: var(--text-label);
+    line-height: var(--lh-label);
+    font-weight: var(--weight-bold);
+  }
+
+  /* ===================== VARIANT TAB BAR (scaffold) ===================== */
+  .variant-bar {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 9998;
+    display: flex;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-surface);
+    border-block-end: 1px solid var(--color-border);
+    box-shadow: var(--shadow-nav);
+  }
+  .variant-bar button {
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    line-height: var(--lh-label);
+    color: var(--color-text-muted);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    padding: var(--space-xs) var(--space-md);
+    min-height: 36px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .variant-bar button:hover { background: var(--color-surface-hover); }
+  .variant-bar button.active {
+    color: var(--color-primary-dark);
+    background: var(--color-primary-soft);
+  }
+  .variant-bar button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* ===================== SKETCH TOOLBAR (scaffold) ===================== */
+  /* The ONLY place hardcoded color is allowed — must not theme-shift. */
+  .sketch-toolbar {
+    position: fixed;
+    inset-block-end: 16px;
+    inset-inline-end: 16px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+    background: #1c1c22;
+    color: #ffffff;
+    border-radius: 12px;
+    opacity: 0.4;
+    transition: opacity 0.15s ease;
+    font-size: 12px;
+  }
+  .sketch-toolbar:hover { opacity: 1; }
+  .sketch-toolbar .row { display: flex; gap: 6px; align-items: center; }
+  .sketch-toolbar .lbl { width: 56px; opacity: 0.7; }
+  .sketch-toolbar button {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: #fff;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 7px;
+    padding: 5px 9px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .sketch-toolbar button:hover { background: rgba(255,255,255,0.26); }
+  .sketch-toolbar button.on { background: #5aacac; border-color: #5aacac; }
+
+  /* ===================== VIEWPORT FRAME ===================== */
+  .stage { padding: var(--space-lg); }
+  .frame {
+    width: 100%;
+    max-width: var(--frame-max, 100%);
+    margin-inline: auto;
+    transition: max-width 0.25s ease;
+    position: relative;
+  }
+  .variant { display: none; }
+  .variant.active { display: block; }
+
+  .v-intro {
+    max-width: 44rem;
+    margin-block: 0 var(--space-md);
+    margin-inline: auto;
+    text-align: center;
+    color: var(--color-text-muted);
+  }
+  .v-intro .t-label { color: var(--color-primary-dark); display: block; margin-block-end: var(--space-xs); }
+
+  /* ===================== FAKE APP SCREEN BACKDROP ===================== */
+  .app-screen {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    min-height: 30rem;
+  }
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    border-block-end: 1px solid var(--color-border-soft);
+    background: var(--color-surface-alt);
+  }
+  .app-brand {
+    display: flex; align-items: center; gap: var(--space-sm);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-heading);
+    line-height: var(--lh-heading);
+  }
+  .app-brand .leaf {
+    width: 26px; height: 26px; border-radius: var(--radius-full);
+    background: var(--color-primary-soft);
+    display: grid; place-items: center;
+  }
+  .app-brand .leaf svg { width: 15px; height: 15px; }
+  .app-nav { display: flex; gap: var(--space-xs); }
+  .app-nav span {
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    color: var(--color-text-muted);
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-full);
+  }
+  .app-nav span.cur { color: var(--color-primary-dark); background: var(--color-primary-soft); }
+  .app-icons { display: flex; gap: var(--space-sm); }
+  .app-icons .ic {
+    width: 36px; height: 36px; border-radius: var(--radius-full);
+    display: grid; place-items: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-soft);
+    color: var(--color-text-muted);
+  }
+  .app-icons .ic svg { width: 17px; height: 17px; }
+
+  .app-body { padding: var(--space-lg); }
+  .app-body-top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-md); margin-block-end: var(--space-md);
+  }
+  .app-body-top h2 { font-size: var(--text-heading); line-height: var(--lh-heading); font-weight: var(--weight-bold); margin: 0; }
+
+  .btn {
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    line-height: var(--lh-label);
+    min-height: var(--tap-target-min);
+    display: inline-flex; align-items: center; gap: var(--space-xs);
+    padding-block: var(--space-sm);
+    padding-inline: var(--space-md);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+  }
+  .btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  .btn-primary { background: var(--color-primary); color: var(--color-text-inverse); box-shadow: var(--shadow-button); }
+  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-neutral {
+    background: var(--color-surface-secondary-btn);
+    color: var(--color-text);
+    border-color: var(--color-border-soft);
+  }
+  .btn-neutral:hover { background: var(--color-surface-hover); }
+
+  .client-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+  .client-row {
+    display: flex; align-items: center; gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border-soft);
+    border-radius: var(--radius-md);
+  }
+  .client-row .avatar {
+    width: 38px; height: 38px; border-radius: var(--radius-full);
+    background: var(--color-primary-soft);
+    color: var(--color-primary-dark);
+    display: grid; place-items: center;
+    font-weight: var(--weight-bold);
+    font-size: var(--text-label);
+    flex-shrink: 0;
+  }
+  .client-row .meta { display: flex; flex-direction: column; gap: 2px; }
+  .client-row .meta .nm { font-weight: var(--weight-bold); }
+  .client-row .meta .sub { font-size: var(--text-label); color: var(--color-text-muted); font-weight: var(--weight-regular); }
+  .client-row .sev {
+    margin-inline-start: auto;
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    color: var(--color-primary-dark);
+    background: var(--color-primary-soft);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-full);
+  }
+
+  .session-card {
+    margin-block-start: var(--space-md);
+    padding: var(--space-lg);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border-soft);
+    border-radius: var(--radius-md);
+  }
+  .session-card h3 { margin: 0 0 var(--space-sm); font-size: var(--text-heading); line-height: var(--lh-heading); font-weight: var(--weight-bold); }
+  .session-card p { margin: 0 0 var(--space-md); color: var(--color-text-muted); }
+  .session-card .actions { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+  .pill-row { display: flex; gap: var(--space-sm); flex-wrap: wrap; margin-block-start: var(--space-md); }
+  .pill {
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-soft);
+    color: var(--color-text-muted);
+  }
+  .pill.heart { color: var(--color-primary-dark); background: var(--color-primary-soft); border-color: transparent; }
+
+  /* ===================== TOUR LAYER ===================== */
+  /* Spotlight: a transparent hole with a primary ring + dim everywhere
+     else. Implemented via a giant box-shadow so the cut-out is precise
+     and animatable between anchors. */
+  .tour-spotlight {
+    position: fixed;
+    border-radius: var(--radius-md);
+    pointer-events: none;
+    z-index: 9000;
+    box-shadow:
+      0 0 0 4px var(--color-primary),
+      0 0 0 9999px var(--color-modal-overlay-bg);
+    transition: all 0.32s cubic-bezier(.4,0,.2,1);
+    opacity: 0;
+  }
+  .tour-spotlight.show { opacity: 1; }
+
+  /* Tooltip — modeled on demo-hints.js .demo-tooltip render pattern:
+     rounded surface card, small arrow, soft shadow, fade-in. */
+  .tour-tooltip {
+    position: fixed;
+    z-index: 9100;
+    min-width: 16rem;
+    max-width: 22rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-modal);
+    padding-block: var(--space-md);
+    padding-inline: var(--space-md);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.2s ease, transform 0.2s ease, inset-block-start 0.32s cubic-bezier(.4,0,.2,1), inset-inline-start 0.32s cubic-bezier(.4,0,.2,1);
+  }
+  .tour-tooltip.show { opacity: 1; transform: translateY(0); }
+
+  /* Directional arrow — a rotated square, positioned with logical
+     props so it flips with the tether under RTL. */
+  .tour-arrow {
+    position: absolute;
+    width: 14px; height: 14px;
+    background: var(--color-surface);
+    border-inline-start: 1px solid var(--color-border);
+    border-block-start: 1px solid var(--color-border);
+    transform: rotate(45deg);
+  }
+  .tour-tooltip[data-arrow="top"] .tour-arrow {
+    inset-block-start: -7px;
+    inset-inline-start: var(--arrow-x, 24px);
+  }
+  .tour-tooltip[data-arrow="bottom"] .tour-arrow {
+    inset-block-end: -7px;
+    inset-inline-start: var(--arrow-x, 24px);
+    transform: rotate(225deg);
+  }
+  .tour-tooltip[data-arrow="none"] .tour-arrow { display: none; }
+
+  /* Connector line (chrome option 2) */
+  .tour-connector {
+    position: fixed;
+    z-index: 9050;
+    border-inline-start: 2px dashed var(--color-primary);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .tour-connector.show { opacity: 0.7; }
+
+  .tt-counter {
+    font-size: var(--text-label);
+    line-height: var(--lh-label);
+    font-weight: var(--weight-bold);
+    color: var(--color-text-muted);
+    margin-block-end: var(--space-xs);
+  }
+  .tt-title {
+    font-size: var(--text-heading);
+    line-height: var(--lh-heading);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    margin: 0 0 var(--space-sm);
+  }
+  .tt-body {
+    font-size: var(--text-body);
+    line-height: var(--lh-body);
+    font-weight: var(--weight-regular);
+    color: var(--color-text);
+    margin: 0;
+  }
+  .tt-fallback-loc {
+    margin-block: var(--space-sm) var(--space-md);
+    color: var(--color-text-muted);
+  }
+  .tt-row {
+    display: flex; align-items: center; gap: var(--space-sm);
+    margin-block-start: var(--space-md);
+  }
+  .tt-row .spacer { margin-inline-start: auto; }
+
+  .tt-btn {
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    line-height: var(--lh-label);
+    font-weight: var(--weight-bold);
+    min-height: var(--tap-target-min);
+    min-width: var(--tap-target-min);
+    display: inline-flex; align-items: center; justify-content: center;
+    padding-block: var(--space-sm);
+    padding-inline: var(--space-md);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+  }
+  .tt-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  /* Forward action — the ONLY accent-colored control per step */
+  .tt-btn-fwd { background: var(--color-primary); color: var(--color-text-inverse); box-shadow: var(--shadow-button); }
+  .tt-btn-fwd:hover { filter: brightness(1.06); }
+  /* Back / close — strictly neutral, never accent */
+  .tt-btn-neutral {
+    background: var(--color-surface-secondary-btn);
+    color: var(--color-text);
+    border-color: var(--color-border-soft);
+  }
+  .tt-btn-neutral:hover { background: var(--color-surface-hover); }
+  .tt-btn-close {
+    background: transparent;
+    color: var(--color-text-muted);
+    padding-inline: var(--space-sm);
+  }
+  .tt-btn-close:hover { background: var(--color-surface-hover); }
+
+  /* "Take me there" — a working link, neutral tone (never accent) */
+  .tt-link {
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    background: var(--color-surface-secondary-btn);
+    border: 1px solid var(--color-border-soft);
+    border-radius: var(--radius-full);
+    min-height: var(--tap-target-min);
+    display: inline-flex; align-items: center;
+    padding-block: var(--space-sm);
+    padding-inline: var(--space-md);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tt-link:hover { background: var(--color-surface-hover); }
+  .tt-link:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+  /* Fallback modal — centered, NOT tethered. Uses modal overlay token. */
+  .tour-modal-scrim {
+    position: fixed; inset: 0;
+    z-index: 9000;
+    background: var(--color-modal-overlay-bg);
+    display: grid; place-items: center;
+    padding: var(--space-lg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .tour-modal-scrim.show { opacity: 1; pointer-events: auto; }
+  .tour-modal-scrim .tour-tooltip {
+    position: relative;
+    inset: auto;
+    opacity: 1;
+    transform: none;
+  }
+  .tour-modal-scrim .tour-arrow { display: none; }
+
+  /* In-screen control panel for variant A — the D-11 toggle lives here */
+  .ctl-panel {
+    margin-block-start: var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-surface);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap;
+  }
+  .ctl-panel .desc { font-size: var(--text-label); color: var(--color-text-muted); font-weight: var(--weight-regular); }
+  .ctl-toggle {
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    min-height: var(--tap-target-min);
+    display: inline-flex; align-items: center; gap: var(--space-sm);
+    padding-block: var(--space-sm);
+    padding-inline: var(--space-md);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    background: var(--color-surface-secondary-btn);
+    color: var(--color-text);
+    border: 1px solid var(--color-border-soft);
+    transition: all 0.15s ease;
+  }
+  .ctl-toggle:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  .ctl-toggle.broken { background: var(--color-primary-soft); color: var(--color-primary-dark); border-color: transparent; }
+  .ctl-toggle .dot {
+    width: 9px; height: 9px; border-radius: var(--radius-full);
+    background: var(--color-success);
+  }
+  .ctl-toggle.broken .dot { background: var(--color-danger); }
+
+  /* Anchor visual marker so reviewers see what is being targeted */
+  [data-tour-hidden] { visibility: hidden; }
+
+  /* Variant B: chrome options side by side */
+  .chrome-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--space-lg);
+    margin-block-start: var(--space-lg);
+  }
+  .chrome-cell {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    position: relative;
+    min-height: 18rem;
+    display: flex; flex-direction: column;
+  }
+  .chrome-cell h4 {
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    color: var(--color-primary-dark);
+    margin: 0 0 var(--space-md);
+  }
+  .chrome-anchor {
+    align-self: flex-start;
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    background: var(--color-primary-soft);
+    color: var(--color-primary-dark);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-full);
+    margin-block-start: auto;
+  }
+  /* static tooltip used for chrome demos (not fixed-positioned) */
+  .static-tip {
+    position: relative;
+    min-width: 14rem;
+    max-width: 22rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-modal);
+    padding-block: var(--space-md);
+    padding-inline: var(--space-md);
+    margin-block-end: var(--space-lg);
+  }
+  .static-tip.sheet {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: var(--shadow-soft);
+    margin-block: auto 0;
+    border-block-end: none;
+  }
+  .static-arrow {
+    position: absolute;
+    inset-block-end: -7px;
+    inset-inline-start: 28px;
+    width: 14px; height: 14px;
+    background: var(--color-surface);
+    border-inline-end: 1px solid var(--color-border);
+    border-block-end: 1px solid var(--color-border);
+    transform: rotate(45deg);
+  }
+  .static-connector {
+    height: 2.5rem;
+    border-inline-start: 2px dashed var(--color-primary);
+    margin-inline-start: 28px;
+  }
+
+  .v-controls {
+    display: flex; gap: var(--space-sm); flex-wrap: wrap;
+    margin-block: var(--space-md);
+    justify-content: center;
+  }
+  .v-controls button {
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    min-height: var(--tap-target-min);
+    padding-block: var(--space-sm);
+    padding-inline: var(--space-md);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    transition: all 0.15s ease;
+  }
+  .v-controls button:hover { background: var(--color-surface-hover); }
+  .v-controls button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  .v-controls button.primary { background: var(--color-primary); color: var(--color-text-inverse); border-color: transparent; }
+</style>
+</head>
+<body>
+
+<!-- ===================== VARIANT TAB BAR ===================== -->
+<nav class="variant-bar" aria-label="Sketch variants">
+  <button id="tab-A" class="active" onclick="showVariant('A')">A: Anchored &harr; Fallback</button>
+  <button id="tab-B" onclick="showVariant('B')">B: Tooltip chrome</button>
+  <button id="tab-C" onclick="showVariant('C')">C: Long-content + i18n</button>
+</nav>
+
+<div class="stage">
+  <div class="frame" id="frame">
+
+  <!-- ============================================================= -->
+  <!-- VARIANT A — Anchored <-> Fallback (the core one)               -->
+  <!-- ============================================================= -->
+  <section class="variant active" id="variant-A">
+    <div class="v-intro">
+      <span class="t-label">A: Anchored &harr; Fallback (D-11)</span>
+      The running tour over a real screen. Step through all 6 steps; then
+      toggle <strong>Break anchor</strong> on any step to feel it degrade to a
+      reassuring centered card with a working link &mdash; never blank, never skipped.
+    </div>
+
+    <div class="app-screen" id="appA">
+      <header class="app-header">
+        <div class="app-brand">
+          <span class="leaf" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 21c5-2 8-6 8-12 0-2-1-4-3-5-3 4-9 4-9 11 0 3 2 5 4 6z" fill="var(--color-primary)"/></svg>
+          </span>
+          Sessions Garden
+        </div>
+        <nav class="app-nav" aria-label="App sections">
+          <span class="cur" data-tour="nav-clients">Clients</span>
+          <span>Reports</span>
+          <span>Snippets</span>
+        </nav>
+        <div class="app-icons">
+          <span class="ic" data-tour="help-entry" title="Help &amp; guided tour" aria-label="Help and guided tour">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.4 2.3c-.8.4-1.4 1-1.4 1.9"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>
+          </span>
+          <span class="ic" aria-label="Backup">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.4A3.5 3.5 0 0 1 17 18z"/></svg>
+          </span>
+          <span class="ic" aria-label="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>
+          </span>
+        </div>
+      </header>
+
+      <div class="app-body">
+        <div class="app-body-top">
+          <h2>Your clients</h2>
+          <button class="btn btn-primary" data-tour="add-client">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+            Add a client
+          </button>
+        </div>
+
+        <div class="client-list">
+          <div class="client-row" data-tour="client-row">
+            <span class="avatar">MR</span>
+            <span class="meta"><span class="nm">Maya R.</span><span class="sub">Weekly &middot; last session 4 days ago</span></span>
+            <span class="sev" data-tour="severity">Severity 3</span>
+          </div>
+          <div class="client-row">
+            <span class="avatar">JL</span>
+            <span class="meta"><span class="nm">Jonah L.</span><span class="sub">Fortnightly &middot; last session 2 weeks ago</span></span>
+            <span class="sev">Severity 5</span>
+          </div>
+        </div>
+
+        <div class="session-card" data-tour="session-card">
+          <h3>Maya R. &mdash; session in progress</h3>
+          <p>Notes you capture here stay on this device. Nothing is uploaded.</p>
+          <div class="pill-row">
+            <span class="pill" data-tour="emotions">Calm</span>
+            <span class="pill">Hopeful</span>
+            <span class="pill heart" data-tour="heart-shield">Heart Shield</span>
+          </div>
+          <div class="actions" style="margin-block-start: var(--space-md);">
+            <button class="btn btn-neutral" data-tour="finish-export">Finish &amp; export</button>
+          </div>
+        </div>
+
+        <div class="ctl-panel">
+          <button class="ctl-toggle" id="breakToggle" onclick="toggleBreak()" aria-pressed="false">
+            <span class="dot" aria-hidden="true"></span>
+            <span id="breakLabel">Break anchor (simulate missing element)</span>
+          </button>
+          <span class="desc" id="breakDesc">Anchor present &mdash; this step renders as a tethered spotlight tooltip.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- VARIANT B — Tooltip chrome treatments                          -->
+  <!-- ============================================================= -->
+  <section class="variant" id="variant-B">
+    <div class="v-intro">
+      <span class="t-label">B: Tooltip chrome</span>
+      Same anchored step, same tokens and copy, three chrome treatments.
+      Which reads as calmest and clearest for a non-technical therapist?
+    </div>
+    <div class="chrome-grid">
+
+      <!-- 1: tethered + directional arrow (demo-hints style) -->
+      <div class="chrome-cell">
+        <h4>1 &mdash; Tethered, directional arrow</h4>
+        <div class="static-tip" data-arrow="bottom" style="align-self:flex-start;">
+          <p class="tt-counter">Step 3 of 6</p>
+          <h3 class="tt-title">Capturing emotions</h3>
+          <p class="tt-body">Tap the feelings that came up for the client. They are saved with the session, privately on this device.</p>
+          <div class="tt-row">
+            <button class="tt-btn tt-btn-close">Close tour</button>
+            <button class="tt-btn tt-btn-neutral spacer">Previous step</button>
+            <button class="tt-btn tt-btn-fwd">Next</button>
+          </div>
+          <span class="static-arrow" aria-hidden="true"></span>
+        </div>
+        <span class="chrome-anchor">emotion pills (anchor)</span>
+      </div>
+
+      <!-- 2: floating card, no arrow + connector line -->
+      <div class="chrome-cell">
+        <h4>2 &mdash; Floating card, connector line</h4>
+        <div class="static-tip" style="align-self:flex-start;">
+          <p class="tt-counter">Step 3 of 6</p>
+          <h3 class="tt-title">Capturing emotions</h3>
+          <p class="tt-body">Tap the feelings that came up for the client. They are saved with the session, privately on this device.</p>
+          <div class="tt-row">
+            <button class="tt-btn tt-btn-close">Close tour</button>
+            <button class="tt-btn tt-btn-neutral spacer">Previous step</button>
+            <button class="tt-btn tt-btn-fwd">Next</button>
+          </div>
+        </div>
+        <div class="static-connector" aria-hidden="true"></div>
+        <span class="chrome-anchor">emotion pills (anchor)</span>
+      </div>
+
+      <!-- 3: bottom-sheet style for small screens -->
+      <div class="chrome-cell" style="padding-block-end:0;">
+        <h4>3 &mdash; Bottom-sheet (small screens)</h4>
+        <span class="chrome-anchor" style="margin-block-start:0;">emotion pills (anchor)</span>
+        <div class="static-tip sheet">
+          <p class="tt-counter">Step 3 of 6</p>
+          <h3 class="tt-title">Capturing emotions</h3>
+          <p class="tt-body">Tap the feelings that came up for the client. They are saved with the session, privately on this device.</p>
+          <div class="tt-row">
+            <button class="tt-btn tt-btn-close">Close tour</button>
+            <button class="tt-btn tt-btn-neutral spacer">Previous step</button>
+            <button class="tt-btn tt-btn-fwd">Next</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- VARIANT C — Long-content + language-switch resilience          -->
+  <!-- ============================================================= -->
+  <section class="variant" id="variant-C">
+    <div class="v-intro">
+      <span class="t-label">C: Long-content + i18n</span>
+      A deliberately long step description (Hebrew/German length proxy) to
+      prove <code>max-width</code>, wrapping and flexible height hold. Use the
+      button to re-render the step in another language in place.
+    </div>
+    <div class="v-controls">
+      <button id="langBtn" onclick="cycleLang()">Switch language (re-render)</button>
+      <span class="t-label" id="langState" style="align-self:center;color:var(--color-text-muted);">Current: English</span>
+    </div>
+    <div class="app-screen" style="min-height:22rem;">
+      <div class="app-body" style="display:grid;place-items:center;min-height:22rem;">
+        <div class="tour-tooltip show" id="longTip" data-arrow="none" style="position:relative;inset:auto;">
+          <p class="tt-counter" id="cCounter">Step 4 of 6</p>
+          <h3 class="tt-title" id="cTitle">The Heart Shield workflow</h3>
+          <p class="tt-body" id="cBody"></p>
+          <div class="tt-row">
+            <button class="tt-btn tt-btn-close">Close tour</button>
+            <button class="tt-btn tt-btn-neutral spacer">Previous step</button>
+            <button class="tt-btn tt-btn-fwd">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  </div><!-- /frame -->
+</div><!-- /stage -->
+
+<!-- Tour layer elements (variant A) live at body level so they overlay -->
+<div class="tour-spotlight" id="spotlight" aria-hidden="true"></div>
+<div class="tour-connector" id="connector" aria-hidden="true"></div>
+<div class="tour-tooltip" id="tooltip" role="dialog" aria-modal="false" aria-labelledby="ttTitle" data-arrow="bottom">
+  <span class="tour-arrow" aria-hidden="true"></span>
+  <p class="tt-counter" id="ttCounter"></p>
+  <h3 class="tt-title" id="ttTitle"></h3>
+  <p class="tt-body" id="ttBody"></p>
+  <p class="tt-fallback-loc" id="ttFallbackLoc" hidden></p>
+  <div class="tt-row" id="ttRow"></div>
+</div>
+
+<div class="tour-modal-scrim" id="modalScrim" aria-hidden="true"></div>
+
+<!-- ===================== SKETCH TOOLBAR ===================== -->
+<div class="sketch-toolbar" aria-label="Sketch controls">
+  <div class="row"><span class="lbl">Theme</span>
+    <button id="btnLight" class="on" onclick="setTheme('light')">Light</button>
+    <button id="btnDark" onclick="setTheme('dark')">Dark</button>
+  </div>
+  <div class="row"><span class="lbl">Dir</span>
+    <button id="btnLTR" class="on" onclick="setDir('ltr')">LTR</button>
+    <button id="btnRTL" onclick="setDir('rtl')">RTL</button>
+  </div>
+  <div class="row"><span class="lbl">Viewport</span>
+    <button onclick="setVP('375px')">375</button>
+    <button onclick="setVP('768px')">768</button>
+    <button class="on" id="btnFull" onclick="setVP('100%')">Full</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Tour engine — bespoke, modeled on demo-hints.js render pattern.
+   Step schema mirrors the UI-SPEC Interaction Contract row:
+   { id, anchor:'[data-tour="…"]', screen, takeMeThereHref, i18nKey }
+   Resolution rule (D-11):
+     anchor present & visible  -> spotlight + tethered tooltip
+     anchor missing / hidden   -> centered MODAL + i18n text +
+                                  working "Take me there" link
+                                  (NEVER a silent skip — Pitfall 6)
+   Re-renders on language change: cleanup-then-replace.
+   ============================================================ */
+
+var STEPS = [
+  { id: 'add-client', anchor: '[data-tour="add-client"]', screen: 'Clients',
+    title: 'Adding a client',
+    body: 'Start a new client file here. Their name and notes are kept privately on this device.',
+    href: 'Clients' },
+  { id: 'session-card', anchor: '[data-tour="session-card"]', screen: 'Clients',
+    title: 'Starting a session',
+    body: 'Open a client and begin a session. Everything you write is saved as you go, no upload.',
+    href: 'Clients' },
+  { id: 'emotions', anchor: '[data-tour="emotions"]', screen: 'Session',
+    title: 'Capturing emotions',
+    body: 'Tap the feelings that came up for the client. They are saved with the session.',
+    href: 'the session' },
+  { id: 'heart-shield', anchor: '[data-tour="heart-shield"]', screen: 'Session',
+    title: 'The Heart Shield workflow',
+    body: 'A guided step for protective, heart-centred work. It walks the client through one calm round at a time.',
+    href: 'the session' },
+  { id: 'severity', anchor: '[data-tour="severity"]', screen: 'Clients',
+    title: 'Tracking severity',
+    body: 'A simple 0 to 10 marker for how the client is doing, session over session.',
+    href: 'Clients' },
+  { id: 'finish-export', anchor: '[data-tour="finish-export"]', screen: 'Session',
+    title: 'Finishing & exporting',
+    body: 'Close the session and, when you want, export a clean copy to keep or print.',
+    href: 'the session' }
+];
+
+var I18N = {
+  next: 'Next', done: 'Done',
+  back: 'Previous step', close: 'Close tour',
+  counter: function(n, t){ return 'Step ' + n + ' of ' + t; },
+  fallbackBody: function(screen){ return 'This is on the ' + screen + ' screen.'; },
+  takeMeThere: 'Take me there'
+};
+
+var stepIndex = 0;
+var anchorBroken = false;
+
+var spotlight = document.getElementById('spotlight');
+var tooltip   = document.getElementById('tooltip');
+var connector = document.getElementById('connector');
+var modalScrim = document.getElementById('modalScrim');
+var ttCounter = document.getElementById('ttCounter');
+var ttTitle   = document.getElementById('ttTitle');
+var ttBody    = document.getElementById('ttBody');
+var ttFallbackLoc = document.getElementById('ttFallbackLoc');
+var ttRow     = document.getElementById('ttRow');
+
+function buildRow(step, isFinal, container){
+  container.innerHTML = '';
+  var closeBtn = document.createElement('button');
+  closeBtn.className = 'tt-btn tt-btn-close';
+  closeBtn.textContent = I18N.close;
+  closeBtn.onclick = endTour;
+
+  var backBtn = document.createElement('button');
+  backBtn.className = 'tt-btn tt-btn-neutral spacer';
+  backBtn.textContent = I18N.back;
+  backBtn.disabled = stepIndex === 0;
+  backBtn.style.opacity = stepIndex === 0 ? '0.45' : '1';
+  backBtn.onclick = function(){ if (stepIndex > 0){ stepIndex--; render(); } };
+
+  var fwdBtn = document.createElement('button');
+  fwdBtn.className = 'tt-btn tt-btn-fwd';
+  fwdBtn.textContent = isFinal ? I18N.done : I18N.next;
+  fwdBtn.onclick = function(){
+    if (isFinal){ endTour(); }
+    else { stepIndex++; render(); }
+  };
+
+  container.appendChild(closeBtn);
+  container.appendChild(backBtn);
+  container.appendChild(fwdBtn);
+}
+
+function clearTourChrome(){
+  spotlight.classList.remove('show');
+  tooltip.classList.remove('show');
+  connector.classList.remove('show');
+  modalScrim.classList.remove('show');
+  modalScrim.innerHTML = '';
+}
+
+function render(){
+  // cleanup-then-replace (demo-hints.js pattern)
+  clearTourChrome();
+
+  var step = STEPS[stepIndex];
+  var isFinal = stepIndex === STEPS.length - 1;
+  var total = STEPS.length;
+
+  // Resolve anchor. Honour the simulated break.
+  var el = anchorBroken ? null : document.querySelector('#variant-A ' + step.anchor);
+  var visible = el && el.offsetParent !== null;
+
+  if (visible){
+    // ---- ANCHORED: spotlight + tethered tooltip ----
+    var r = el.getBoundingClientRect();
+    var pad = 8;
+    spotlight.style.insetBlockStart = (r.top - pad) + 'px';
+    spotlight.style.insetInlineStart = (r.left - pad) + 'px';
+    spotlight.style.width  = (r.width + pad * 2) + 'px';
+    spotlight.style.height = (r.height + pad * 2) + 'px';
+    spotlight.classList.add('show');
+
+    ttFallbackLoc.hidden = true;
+    ttCounter.textContent = I18N.counter(stepIndex + 1, total);
+    ttTitle.textContent = step.title;
+    ttBody.textContent = step.body;
+    buildRow(step, isFinal, ttRow);
+
+    // place tooltip: prefer below the anchor; flip above near viewport end
+    tooltip.classList.add('show');
+    var below = (window.innerHeight - r.bottom) > 220;
+    tooltip.setAttribute('data-arrow', below ? 'top' : 'bottom');
+    var tw = tooltip.offsetWidth;
+    var th = tooltip.offsetHeight;
+    var top = below ? (r.bottom + 14) : (r.top - th - 14);
+    var anchorCenter = r.left + r.width / 2;
+    var left = anchorCenter - tw / 2;
+    left = Math.max(12, Math.min(left, window.innerWidth - tw - 12));
+    tooltip.style.insetBlockStart = top + 'px';
+    tooltip.style.insetInlineStart = left + 'px';
+    // arrow x relative to tooltip, points back at the anchor center
+    var ax = Math.max(14, Math.min(anchorCenter - left - 7, tw - 28));
+    tooltip.style.setProperty('--arrow-x', ax + 'px');
+  } else {
+    // ---- FALLBACK (D-11): centered modal, NEVER blank, NEVER skipped ----
+    var card = document.createElement('div');
+    card.className = 'tour-tooltip show';
+    card.setAttribute('data-arrow', 'none');
+    card.setAttribute('role', 'dialog');
+
+    var c = document.createElement('p');
+    c.className = 'tt-counter';
+    c.textContent = I18N.counter(stepIndex + 1, total);
+
+    var h = document.createElement('h3');
+    h.className = 'tt-title';
+    h.textContent = step.title;
+
+    var b = document.createElement('p');
+    b.className = 'tt-body';
+    b.textContent = step.body;
+
+    var loc = document.createElement('p');
+    loc.className = 'tt-fallback-loc';
+    loc.textContent = I18N.fallbackBody(step.screen);
+
+    var row = document.createElement('div');
+    row.className = 'tt-row';
+
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'tt-btn tt-btn-close';
+    closeBtn.textContent = I18N.close;
+    closeBtn.onclick = endTour;
+
+    var takeMe = document.createElement('a');
+    takeMe.className = 'tt-link spacer';
+    takeMe.href = '#' + step.id;
+    takeMe.textContent = I18N.takeMeThere;
+    takeMe.onclick = function(e){
+      // working link: un-break the anchor, jump back to the spotlight
+      e.preventDefault();
+      anchorBroken = false;
+      syncBreakUI();
+      render();
+    };
+
+    var backBtn = document.createElement('button');
+    backBtn.className = 'tt-btn tt-btn-neutral';
+    backBtn.textContent = I18N.back;
+    backBtn.disabled = stepIndex === 0;
+    backBtn.style.opacity = stepIndex === 0 ? '0.45' : '1';
+    backBtn.onclick = function(){ if (stepIndex > 0){ stepIndex--; render(); } };
+
+    var fwdBtn = document.createElement('button');
+    fwdBtn.className = 'tt-btn tt-btn-fwd';
+    fwdBtn.textContent = isFinal ? I18N.done : I18N.next;
+    fwdBtn.onclick = function(){ if (isFinal){ endTour(); } else { stepIndex++; render(); } };
+
+    row.appendChild(closeBtn);
+    row.appendChild(backBtn);
+    row.appendChild(fwdBtn);
+
+    card.appendChild(c);
+    card.appendChild(h);
+    card.appendChild(b);
+    card.appendChild(loc);
+    card.appendChild(takeMe);
+    card.appendChild(row);
+
+    modalScrim.appendChild(card);
+    modalScrim.classList.add('show');
+  }
+}
+
+function endTour(){
+  clearTourChrome();
+  stepIndex = 0;
+}
+
+/* --- Break-anchor toggle (the star control) --- */
+function toggleBreak(){
+  anchorBroken = !anchorBroken;
+  syncBreakUI();
+  render();
+}
+function syncBreakUI(){
+  var t = document.getElementById('breakToggle');
+  var lbl = document.getElementById('breakLabel');
+  var desc = document.getElementById('breakDesc');
+  if (anchorBroken){
+    t.classList.add('broken');
+    t.setAttribute('aria-pressed', 'true');
+    lbl.textContent = 'Restore anchor';
+    desc.textContent = 'Anchor missing — step degrades to a centered card with a working "Take me there" link. Never blank.';
+  } else {
+    t.classList.remove('broken');
+    t.setAttribute('aria-pressed', 'false');
+    lbl.textContent = 'Break anchor (simulate missing element)';
+    desc.textContent = 'Anchor present — this step renders as a tethered spotlight tooltip.';
+  }
+}
+
+/* --- Variant C: long content + language re-render --- */
+var C_CONTENT = [
+  { lang: 'English',
+    counter: 'Step 4 of 6', title: 'The Heart Shield workflow',
+    body: 'A guided step for protective, heart-centred work. It walks the client through one calm round at a time, holding a steady pace so nothing feels rushed, and it keeps every note private on this device until you choose to export it.' },
+  { lang: 'עברית',
+    counter: 'שלב 4 מתוך 6', title: 'תהליך מגן הלב',
+    body: 'שלב מודרך לעבודה מגוננת וממוקדת לב. הוא מלווה את המטופל סבב רגוע אחד בכל פעם, שומר על קצב יציב כך ששום דבר לא מרגיש נחפז, וכל רשומה נשמרת באופן פרטי במכשיר הזה עד שתבחרי לייצא אותה.' },
+  { lang: 'Deutsch',
+    counter: 'Schritt 4 von 6', title: 'Der Herzschild-Ablauf',
+    body: 'Ein geführter Schritt für schützende, herzzentrierte Arbeit. Er begleitet die Klientin in jeweils einer ruhigen Runde, hält ein gleichmäßiges Tempo, sodass nichts überstürzt wirkt, und jede Notiz bleibt privat auf diesem Gerät, bis Sie sie exportieren möchten.' }
+];
+var cIdx = 0;
+function renderLong(){
+  var c = C_CONTENT[cIdx];
+  // cleanup-then-replace: clear, then write fresh (proves re-render path)
+  var tip = document.getElementById('longTip');
+  tip.style.opacity = '0';
+  setTimeout(function(){
+    document.getElementById('cCounter').textContent = c.counter;
+    document.getElementById('cTitle').textContent = c.title;
+    document.getElementById('cBody').textContent = c.body;
+    document.getElementById('langState').textContent = 'Current: ' + c.lang;
+    tip.style.opacity = '1';
+  }, 150);
+}
+function cycleLang(){
+  cIdx = (cIdx + 1) % C_CONTENT.length;
+  renderLong();
+}
+
+/* ===================== SKETCH SCAFFOLD ===================== */
+function showVariant(v){
+  ['A','B','C'].forEach(function(x){
+    document.getElementById('variant-' + x).classList.toggle('active', x === v);
+    document.getElementById('tab-' + x).classList.toggle('active', x === v);
+  });
+  clearTourChrome();
+  if (v === 'A'){ stepIndex = 0; setTimeout(render, 60); }
+  if (v === 'C'){ renderLong(); }
+}
+
+function setTheme(mode){
+  document.documentElement.setAttribute('data-theme', mode);
+  document.getElementById('btnLight').classList.toggle('on', mode === 'light');
+  document.getElementById('btnDark').classList.toggle('on', mode === 'dark');
+  if (document.getElementById('variant-A').classList.contains('active')) render();
+}
+function setDir(d){
+  document.documentElement.setAttribute('dir', d);
+  document.getElementById('btnLTR').classList.toggle('on', d === 'ltr');
+  document.getElementById('btnRTL').classList.toggle('on', d === 'rtl');
+  if (document.getElementById('variant-A').classList.contains('active')) setTimeout(render, 60);
+}
+function setVP(w){
+  document.getElementById('frame').style.setProperty('--frame-max', w);
+  ['375px','768px','100%'].forEach(function(){});
+  var ids = { '375px': null, '768px': null, '100%': 'btnFull' };
+  document.querySelectorAll('.sketch-toolbar .row:last-child button').forEach(function(b){ b.classList.remove('on'); });
+  event.target.classList.add('on');
+  if (document.getElementById('variant-A').classList.contains('active')) setTimeout(render, 280);
+}
+
+window.addEventListener('resize', function(){
+  if (document.getElementById('variant-A').classList.contains('active')) render();
+});
+window.addEventListener('scroll', function(){
+  if (document.getElementById('variant-A').classList.contains('active') && !anchorBroken) render();
+}, true);
+
+// boot
+syncBreakUI();
+renderLong();
+setTimeout(render, 200);
+</script>
+</body>
+</html>

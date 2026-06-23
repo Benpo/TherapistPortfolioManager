@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketch 002 — Help Page IA — Sessions Garden</title>
+
+<!-- Shared garden design system (faithful port of assets/tokens.css + UI-SPEC contract scale) -->
+<link rel="stylesheet" href="../themes/default.css">
+
+<!-- Rubik (theme uses var(--font-sans) → Rubik) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ------------------------------------------------------------------
+     Sketch-only layout CSS. Every color / space / type value below
+     resolves to a theme token. The ONLY hardcoded colors are the fixed
+     sketch toolbar + variant bar (allowed sketch chrome).
+     ------------------------------------------------------------------ */
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    font-weight: var(--weight-regular);
+    line-height: var(--lh-body);
+    color: var(--color-text);
+    background: var(--color-background);
+    /* clear the fixed variant bar */
+    padding-block-start: 52px;
+    transition: all 0.15s ease;
+  }
+
+  /* ===== Fixed variant tab bar (sketch chrome) ===== */
+  .variant-bar {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 9998;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 6px 10px;
+    background: #16241c;
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+  }
+  .variant-bar .vb-label {
+    font-weight: 700;
+    opacity: 0.55;
+    margin-inline-end: 6px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+  }
+  .variant-bar button {
+    font-family: inherit;
+    font-size: 0.8rem;
+    color: #fff;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 7px;
+    padding: 7px 12px;
+    min-height: 34px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .variant-bar button:hover { background: rgba(255,255,255,0.2); }
+  .variant-bar button.active {
+    background: #fff;
+    color: #16241c;
+    font-weight: 700;
+  }
+
+  /* ===== Fixed sketch toolbar (sketch chrome) ===== */
+  .sketch-toolbar {
+    position: fixed;
+    inset-block-end: 16px;
+    inset-inline-end: 16px;
+    z-index: 9999;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 10px;
+    background: #16241c;
+    color: #fff;
+    border-radius: 12px;
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    opacity: 0.4;
+    transition: opacity 0.15s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+  .sketch-toolbar:hover { opacity: 1; }
+  .sketch-toolbar .st-group {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding-inline-end: 8px;
+    border-inline-end: 1px solid rgba(255,255,255,0.2);
+  }
+  .sketch-toolbar .st-group:last-child { border-inline-end: none; padding-inline-end: 0; }
+  .sketch-toolbar .st-cap { opacity: 0.55; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .sketch-toolbar button {
+    font-family: inherit;
+    font-size: 0.78rem;
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 6px 9px;
+    min-height: 30px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .sketch-toolbar button:hover { background: rgba(255,255,255,0.25); }
+  .sketch-toolbar button.on { background: #fff; color: #16241c; font-weight: 700; }
+
+  /* ===== App chrome: light top nav strip (context, not the focus) ===== */
+  .app-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding-block: var(--space-sm);
+    padding-inline: var(--space-lg);
+    background: var(--color-surface);
+    border-block-end: 1px solid var(--color-border);
+    box-shadow: var(--shadow-nav);
+  }
+  .app-nav .brand {
+    font-weight: var(--weight-bold);
+    font-size: var(--text-label);
+    color: var(--color-primary-dark);
+    margin-inline-end: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  .app-nav .brand .leaf {
+    width: 22px; height: 22px;
+    border-radius: var(--radius-full);
+    background: var(--color-placeholder-gradient, linear-gradient(135deg, var(--color-green-500), var(--color-green-400)));
+    display: inline-block;
+  }
+  .app-nav a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: var(--text-label);
+    font-weight: var(--weight-regular);
+    padding: 10px 12px;
+    min-height: var(--tap-target-min);
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s ease;
+  }
+  .app-nav a:hover { background: var(--color-surface-hover); color: var(--color-text); }
+  .app-nav a[aria-current="page"] {
+    color: var(--color-primary);
+    font-weight: var(--weight-bold);
+    background: var(--color-primary-soft);
+  }
+  .app-nav .help-q {
+    margin-inline-start: var(--space-sm);
+    width: 38px; height: 38px;
+    min-height: var(--tap-target-min);
+    min-width: var(--tap-target-min);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-secondary-btn);
+    color: var(--color-primary-dark);
+    font-weight: var(--weight-bold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .app-nav .help-q:hover { background: var(--color-primary-soft); }
+
+  /* ===== Shared content primitives ===== */
+  .wrap {
+    max-width: 1100px;
+    margin-inline: auto;
+    transition: max-width 0.15s ease;
+  }
+  .wrap.vp-375 { max-width: 375px; }
+  .wrap.vp-768 { max-width: 768px; }
+
+  .page-head {
+    padding-block: var(--space-xl) var(--space-lg);
+    padding-inline: var(--space-lg);
+  }
+  .page-head h1 {
+    font-size: var(--text-heading);
+    font-weight: var(--weight-bold);
+    line-height: var(--lh-heading);
+    margin: 0 0 var(--space-sm);
+    color: var(--color-text);
+  }
+  .page-head .intro {
+    margin: 0;
+    max-width: 60ch;
+    color: var(--color-text-muted);
+    line-height: var(--lh-body);
+  }
+  .tour-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-lg);
+    padding: 12px 18px;
+    min-height: var(--tap-target-min);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border: none;
+    border-radius: var(--radius-full);
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    cursor: pointer;
+    box-shadow: var(--shadow-button);
+    transition: all 0.15s ease;
+  }
+  .tour-cta:hover { background: var(--color-primary-dark); }
+  .tour-cta .dot {
+    width: 9px; height: 9px;
+    border-radius: var(--radius-full);
+    background: var(--color-text-inverse);
+    display: inline-block;
+  }
+
+  /* section card body copy */
+  .sec-body { color: var(--color-text); line-height: var(--lh-body); }
+  .sec-body p { margin: 0 0 var(--space-md); }
+  .sec-body p:last-child { margin-bottom: 0; }
+
+  .sec-eyebrow {
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    color: var(--color-text-meta);
+    letter-spacing: 0.02em;
+  }
+  .sec-h {
+    font-size: var(--text-heading);
+    font-weight: var(--weight-bold);
+    line-height: var(--lh-heading);
+    color: var(--color-text);
+    margin: var(--space-xs) 0 var(--space-md);
+  }
+  .micro {
+    margin-block-start: var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border-soft);
+    border-radius: var(--radius-md);
+    font-size: var(--text-label);
+    color: var(--color-text-muted);
+    line-height: var(--lh-body);
+  }
+  .micro strong { color: var(--color-text); font-weight: var(--weight-bold); }
+
+  /* Personalization flagship treatment (shared) */
+  .flagship {
+    background: var(--color-surface);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+  .flagship .sec-eyebrow { color: var(--color-primary); }
+
+  /* Technical track band (shared visual identity — surface-alt, distinctly separated) */
+  .tech-band {
+    background: var(--color-surface-alt);
+    border-block-start: 1px solid var(--color-border);
+  }
+  .tech-band .tech-inner {
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-block: var(--space-xl);
+    padding-inline: var(--space-lg);
+  }
+  .tech-band .tech-h {
+    font-size: var(--text-heading);
+    font-weight: var(--weight-bold);
+    line-height: var(--lh-heading);
+    margin: 0 0 var(--space-xs);
+  }
+  .tech-band .tech-sub {
+    margin: 0 0 var(--space-lg);
+    color: var(--color-text-muted);
+  }
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-md);
+  }
+  .tech-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+  }
+  .tech-card h3 {
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    margin: 0 0 var(--space-sm);
+    color: var(--color-text);
+  }
+  .tech-card p { margin: 0; font-size: var(--text-label); color: var(--color-text-muted); line-height: var(--lh-body); }
+  .anchor-card {
+    grid-column: 1 / -1;
+    background: var(--color-primary-soft);
+    border: 1px solid var(--color-border);
+  }
+  .anchor-card h3 { color: var(--color-primary-dark); }
+  .anchor-card p { color: var(--color-text); }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* ============================================================
+     VARIANT A — Single-column scroll + sticky spine rail
+     ============================================================ */
+  #variant-a .a-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: var(--space-xl);
+    padding-inline: var(--space-lg);
+    padding-block-end: var(--space-2xl);
+  }
+  #variant-a .a-rail {
+    position: sticky;
+    inset-block-start: 70px;
+    align-self: start;
+    height: max-content;
+  }
+  #variant-a .a-rail .rail-title {
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-md);
+  }
+  #variant-a .a-rail ol {
+    list-style: none;
+    margin: 0; padding: 0;
+    position: relative;
+  }
+  #variant-a .a-rail ol::before {
+    content: "";
+    position: absolute;
+    inset-block: 14px;
+    inset-inline-start: 13px;
+    width: 2px;
+    background: var(--color-border);
+  }
+  #variant-a .a-rail li { margin-block-end: var(--space-xs); }
+  #variant-a .a-rail a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 8px 8px;
+    min-height: var(--tap-target-min);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--color-text-muted);
+    font-size: var(--text-label);
+    line-height: 1.3;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+  #variant-a .a-rail a:hover { background: var(--color-surface-hover); color: var(--color-text); }
+  #variant-a .a-rail a .dot {
+    flex: none;
+    width: 28px; height: 28px;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: var(--weight-bold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    transition: all 0.15s ease;
+  }
+  #variant-a .a-rail a.active { color: var(--color-primary); font-weight: var(--weight-bold); }
+  #variant-a .a-rail a.active .dot {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text-inverse);
+  }
+  #variant-a .a-rail a.tech-link .dot {
+    border-style: dashed;
+  }
+  #variant-a .a-rail a.flag-link .flag-dot {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+  }
+  #variant-a .a-rail a.flag-link { color: var(--color-primary); font-weight: var(--weight-bold); }
+  #variant-a .a-col { min-width: 0; }
+  #variant-a section.spine {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    margin-block-end: var(--space-xl);
+    scroll-margin-block-start: 64px;
+  }
+  #variant-a section.spine.flagship { padding: var(--space-xl); }
+  #variant-a .a-tech { scroll-margin-block-start: 64px; }
+
+  /* ============================================================
+     VARIANT B — Two-column: stepper nav + content pane
+     ============================================================ */
+  #variant-b .b-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 70vh;
+  }
+  #variant-b .b-stepper {
+    border-inline-end: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding-block: var(--space-lg);
+    padding-inline: var(--space-md);
+  }
+  #variant-b .b-group-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: var(--weight-bold);
+    color: var(--color-text-muted);
+    padding-inline: var(--space-sm);
+    margin-block: var(--space-md) var(--space-sm);
+  }
+  #variant-b .b-group-label:first-child { margin-block-start: 0; }
+  #variant-b .b-stepper button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    text-align: start;
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 10px;
+    min-height: var(--tap-target-min);
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-block-end: 2px;
+  }
+  #variant-b .b-stepper button:hover { background: var(--color-surface-hover); color: var(--color-text); }
+  #variant-b .b-stepper button.active {
+    background: var(--color-primary-soft);
+    color: var(--color-primary-dark);
+    font-weight: var(--weight-bold);
+  }
+  #variant-b .b-stepper button .num {
+    flex: none;
+    width: 26px; height: 26px;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--color-border);
+    font-size: 0.75rem;
+    font-weight: var(--weight-bold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+  #variant-b .b-stepper button.active .num {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text-inverse);
+  }
+  #variant-b .b-stepper button.tech-step {
+    background: var(--color-surface-alt);
+  }
+  #variant-b .b-stepper button.tech-step .num { border-style: dashed; }
+  #variant-b .b-stepper button.tech-step.active { background: var(--color-primary-soft); }
+  #variant-b .b-stepper button.flag-step .flag-num {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+  }
+  #variant-b .b-stepper button.flag-step {
+    color: var(--color-primary-dark);
+    font-weight: var(--weight-bold);
+  }
+  #variant-b .b-pane {
+    padding-block: var(--space-xl);
+    padding-inline: var(--space-xl);
+    min-width: 0;
+  }
+  #variant-b .b-panel { display: none; }
+  #variant-b .b-panel.shown { display: block; }
+  #variant-b .b-panel.flagship {
+    padding: var(--space-xl);
+    border-radius: var(--radius-lg);
+  }
+  #variant-b .b-progress {
+    font-size: var(--text-label);
+    color: var(--color-text-muted);
+    margin-block-end: var(--space-md);
+  }
+  #variant-b .b-pager {
+    display: flex;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-xl);
+    padding-block-start: var(--space-lg);
+    border-block-start: 1px solid var(--color-border);
+  }
+  #variant-b .b-pager button {
+    padding: 10px 16px;
+    min-height: var(--tap-target-min);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    font-weight: var(--weight-bold);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  #variant-b .b-pager button:hover { background: var(--color-surface-hover); }
+  #variant-b .b-pager button.next {
+    margin-inline-start: auto;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border-color: var(--color-primary);
+  }
+  #variant-b .b-pager button.next:hover { background: var(--color-primary-dark); }
+
+  /* ============================================================
+     VARIANT C — Accordion spine + elevated featured card
+     ============================================================ */
+  #variant-c .c-wrap { padding-inline: var(--space-lg); padding-block-end: var(--space-2xl); }
+  #variant-c .c-feature {
+    margin-block-end: var(--space-xl);
+    padding: var(--space-xl);
+  }
+  #variant-c .c-accordion { display: flex; flex-direction: column; gap: var(--space-sm); }
+  #variant-c .c-item {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  #variant-c .c-item.open { box-shadow: var(--shadow-card); }
+  #variant-c .c-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    width: 100%;
+    text-align: start;
+    background: none;
+    border: none;
+    padding: var(--space-lg);
+    min-height: var(--tap-target-min);
+    font-family: var(--font-sans);
+    cursor: pointer;
+    color: var(--color-text);
+    transition: all 0.15s ease;
+  }
+  #variant-c .c-trigger:hover { background: var(--color-surface-hover); }
+  #variant-c .c-trigger .num {
+    flex: none;
+    width: 30px; height: 30px;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--color-border);
+    font-size: 0.8rem;
+    font-weight: var(--weight-bold);
+    color: var(--color-text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+  #variant-c .c-item.open .c-trigger .num {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text-inverse);
+  }
+  #variant-c .c-trigger .c-title {
+    flex: 1;
+    font-size: var(--text-heading);
+    font-weight: var(--weight-bold);
+    line-height: var(--lh-heading);
+  }
+  #variant-c .c-trigger .chev {
+    flex: none;
+    color: var(--color-text-muted);
+    transition: transform 0.15s ease;
+    font-size: 1.1rem;
+  }
+  #variant-c .c-item.open .c-trigger .chev { transform: rotate(180deg); }
+  #variant-c .c-content {
+    display: none;
+    padding-block: 0 var(--space-xl);
+    padding-inline: var(--space-xl);
+  }
+  #variant-c .c-item.open .c-content { display: block; }
+  #variant-c .c-content .indent { padding-inline-start: 46px; }
+
+  #variant-c .c-tech {
+    margin-block-start: var(--space-xl);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  #variant-c .c-tech .c-trigger .num { border-style: dashed; }
+  #variant-c .c-tech .c-tech-body { display: none; padding: 0 var(--space-xl) var(--space-xl); }
+  #variant-c .c-tech.open .c-tech-body { display: block; }
+  #variant-c .c-tech.open .c-trigger .chev { transform: rotate(180deg); }
+
+  .variant { display: none; }
+  .variant.active { display: block; }
+
+  /* responsive: collapse two-column layouts on narrow viewport */
+  @media (max-width: 720px) {
+    #variant-a .a-layout { grid-template-columns: 1fr; }
+    #variant-a .a-rail {
+      position: static;
+      overflow-x: auto;
+    }
+    #variant-a .a-rail ol { display: flex; gap: var(--space-xs); }
+    #variant-a .a-rail ol::before { display: none; }
+    #variant-b .b-layout { grid-template-columns: 1fr; }
+    #variant-b .b-stepper {
+      border-inline-end: none;
+      border-block-end: 1px solid var(--color-border);
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Fixed variant tab bar ===== -->
+<div class="variant-bar" role="tablist" aria-label="IA variants">
+  <span class="vb-label">Sketch 002 · Help IA</span>
+  <button class="active" data-v="a" onclick="showVariant('a')">A: Single-column + rail</button>
+  <button data-v="b" onclick="showVariant('b')">B: Two-column</button>
+  <button data-v="c" onclick="showVariant('c')">C: Accordion</button>
+</div>
+
+<!-- ============================================================
+     VARIANT A — Single-column scroll + sticky spine rail
+     ============================================================ -->
+<div class="variant active" id="variant-a">
+  <nav class="app-nav" aria-label="App navigation">
+    <span class="brand"><span class="leaf" aria-hidden="true"></span>Sessions Garden</span>
+    <a href="#">Overview</a>
+    <a href="#">Sessions</a>
+    <a href="#">Reporting</a>
+    <a href="#" aria-current="page">Help</a>
+    <button class="help-q" aria-label="Help" title="Help">?</button>
+  </nav>
+
+  <div class="wrap" id="wrapA">
+    <header class="page-head">
+      <h1 data-i18n="help.page.title">Help &amp; guided tour</h1>
+      <p class="intro" data-i18n="help.page.intro">A walk through running a session in Sessions Garden, end to end — and the technical bits, in plain language.</p>
+      <button class="tour-cta" type="button"><span class="dot" aria-hidden="true"></span>Take the guided tour</button>
+    </header>
+
+    <div class="a-layout">
+      <aside class="a-rail" aria-label="Workflow steps">
+        <p class="rail-title">The session, step by step</p>
+        <ol id="railList">
+          <li><a href="#a-add" data-target="a-add"><span class="dot">1</span><span>Adding a client</span></a></li>
+          <li><a href="#a-personalize" data-target="a-personalize" class="flag-link"><span class="dot flag-dot" aria-hidden="true"></span><span>Making it yours</span></a></li>
+          <li><a href="#a-start" data-target="a-start"><span class="dot">2</span><span>Starting a session</span></a></li>
+          <li><a href="#a-emotions" data-target="a-emotions"><span class="dot">3</span><span>Capturing emotions</span></a></li>
+          <li><a href="#a-shield" data-target="a-shield"><span class="dot">4</span><span>The Heart Shield workflow</span></a></li>
+          <li><a href="#a-severity" data-target="a-severity"><span class="dot">5</span><span>Tracking severity</span></a></li>
+          <li><a href="#a-finish" data-target="a-finish"><span class="dot">6</span><span>Finishing &amp; exporting</span></a></li>
+          <li><a href="#a-overview" data-target="a-overview"><span class="dot">7</span><span>Back to the overview</span></a></li>
+          <li><a href="#a-tech" data-target="a-tech" class="tech-link"><span class="dot">·</span><span>The technical bits</span></a></li>
+        </ol>
+      </aside>
+
+      <div class="a-col">
+        <section class="spine" id="a-add">
+          <p class="sec-eyebrow">Step 1</p>
+          <h2 class="sec-h" data-i18n="help.spine.addClient.title">Adding a client</h2>
+          <div class="sec-body">
+            <p>Every session belongs to a client. From the overview you open the new-client form and enter as little or as much as you like — a name is enough to begin. Anything else can be filled in later, in your own time.</p>
+            <p>Your client list stays on this device and is sorted so the people you are working with right now are easy to find. Search and filters help when the list grows.</p>
+          </div>
+        </section>
+
+        <!-- Flagship personalization — led EARLY (D-04), right after step 1 -->
+        <section class="spine flagship" id="a-personalize">
+          <p class="sec-eyebrow">Make it yours</p>
+          <h2 class="sec-h" data-i18n="help.spine.customSections.title">Making Sessions Garden yours</h2>
+          <div class="sec-body">
+            <p>No two practitioners work the same way, so the session page bends to fit you rather than the other way around. Each section — context notes, emotions, the Heart Shield, severity, your own free-text boxes — can be switched on or off.</p>
+            <p>Turn off what you never use and the page becomes shorter and quieter. Turn a section back on whenever your practice changes. Your layout is remembered for every future session, so the app keeps feeling like the way you already work.</p>
+          </div>
+          <div class="micro"><strong>Why this is here so early:</strong> shaping the page to your own method makes everything that follows feel like yours, not a form to fill in.</div>
+        </section>
+
+        <section class="spine" id="a-start">
+          <p class="sec-eyebrow">Step 2</p>
+          <h2 class="sec-h" data-i18n="help.spine.startSession.title">Starting a session</h2>
+          <div class="sec-body">
+            <p>Opening a session for a client brings up a fresh page dated for today, with a short summary of where you left off last time so you can pick up the thread.</p>
+            <p>You can write as you go or after the session ends — everything is saved on this device as you type, with nothing to submit and nothing to lose.</p>
+          </div>
+        </section>
+
+        <section class="spine" id="a-emotions">
+          <p class="sec-eyebrow">Step 3</p>
+          <h2 class="sec-h" data-i18n="help.spine.emotions.title">Capturing emotions</h2>
+          <div class="sec-body">
+            <p>When you identify a trapped emotion, you can paste or type it straight into the session — including a whole list at once. Each one becomes its own entry you can revisit and track.</p>
+            <p>This keeps the rhythm of the session intact: you stay with your client and the notes keep up with you, rather than the other way around.</p>
+          </div>
+        </section>
+
+        <section class="spine" id="a-shield">
+          <p class="sec-eyebrow">Step 4</p>
+          <h2 class="sec-h" data-i18n="help.spine.heartShield.title">The Heart Shield workflow</h2>
+          <div class="sec-body">
+            <p>The Heart Shield has its own dedicated space in the session, kept distinct from ordinary trapped emotions so the work around the heart stays clearly marked.</p>
+            <p>You record each layer as you uncover it, and the running picture stays visible across sessions so progress with the heart is never lost between visits.</p>
+          </div>
+        </section>
+
+        <section class="spine" id="a-severity">
+          <p class="sec-eyebrow">Step 5</p>
+          <h2 class="sec-h" data-i18n="help.spine.severity.title">Tracking severity, before and after</h2>
+          <div class="sec-body">
+            <p>For an issue you are following, you can note its intensity before the work and again afterwards, so the shift within a single session is plain to see.</p>
+            <p>If a number moves the wrong way, that reversal is kept as part of the record rather than smoothed over — the honest picture is the useful one, and it is there next time you open this client.</p>
+          </div>
+        </section>
+
+        <section class="spine" id="a-finish">
+          <p class="sec-eyebrow">Step 6</p>
+          <h2 class="sec-h" data-i18n="help.spine.finish.title">Finishing, reviewing and exporting</h2>
+          <div class="sec-body">
+            <p>At the end you read the session back, make any final notes, and close it. A single session can be exported on its own — one to send to your client, and one to file in your own records.</p>
+            <p>Each export is a self-contained document. Nothing is uploaded; the file is created here and goes only where you choose to send it.</p>
+          </div>
+        </section>
+
+        <section class="spine" id="a-overview">
+          <p class="sec-eyebrow">Step 7</p>
+          <h2 class="sec-h" data-i18n="help.spine.overview.title">Back to the overview</h2>
+          <div class="sec-body">
+            <p>Closing a session returns you to the overview, where recent clients and their progress are gathered in one calm place ready for the next time.</p>
+            <p>From here the loop begins again — and you can reopen this guide, or the guided tour, whenever you would like a refresher.</p>
+          </div>
+        </section>
+
+        <section class="a-tech" id="a-tech"></section>
+      </div>
+    </div>
+
+    <!-- Technical track — clearly separated parallel band -->
+    <div class="tech-band" id="a-tech-band">
+      <div class="tech-inner">
+        <h2 class="tech-h" data-i18n="help.tech.title">The technical bits, in plain language</h2>
+        <p class="tech-sub">No jargon — just what keeps your notes safe and reachable.</p>
+        <div class="tech-grid" id="techGridA"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     VARIANT B — Two-column: stepper nav + content pane
+     ============================================================ -->
+<div class="variant" id="variant-b">
+  <nav class="app-nav" aria-label="App navigation">
+    <span class="brand"><span class="leaf" aria-hidden="true"></span>Sessions Garden</span>
+    <a href="#">Overview</a>
+    <a href="#">Sessions</a>
+    <a href="#">Reporting</a>
+    <a href="#" aria-current="page">Help</a>
+    <button class="help-q" aria-label="Help" title="Help">?</button>
+  </nav>
+
+  <div class="wrap" id="wrapB">
+    <header class="page-head">
+      <h1>Help &amp; guided tour</h1>
+      <p class="intro">A walk through running a session in Sessions Garden, end to end — and the technical bits, in plain language.</p>
+      <button class="tour-cta" type="button"><span class="dot" aria-hidden="true"></span>Take the guided tour</button>
+    </header>
+
+    <div class="b-layout">
+      <nav class="b-stepper" aria-label="Help sections">
+        <div class="b-group-label">The session, step by step</div>
+        <button class="active" data-panel="b-add"><span class="num">1</span>Adding a client</button>
+        <button class="flag-step" data-panel="b-personalize"><span class="num flag-num" aria-hidden="true"></span>Making it yours</button>
+        <button data-panel="b-start"><span class="num">2</span>Starting a session</button>
+        <button data-panel="b-emotions"><span class="num">3</span>Capturing emotions</button>
+        <button data-panel="b-shield"><span class="num">4</span>The Heart Shield workflow</button>
+        <button data-panel="b-severity"><span class="num">5</span>Tracking severity</button>
+        <button data-panel="b-finish"><span class="num">6</span>Finishing &amp; exporting</button>
+        <button data-panel="b-overview"><span class="num">7</span>Back to the overview</button>
+        <div class="b-group-label">Plain-language technical track</div>
+        <button class="tech-step" data-panel="b-tech"><span class="num">·</span>The technical bits</button>
+      </nav>
+
+      <div class="b-pane">
+        <div class="b-panel shown" id="b-add">
+          <p class="b-progress">Step 1 of 7</p>
+          <p class="sec-eyebrow">Step 1</p>
+          <h2 class="sec-h">Adding a client</h2>
+          <div class="sec-body">
+            <p>Every session belongs to a client. From the overview you open the new-client form and enter as little or as much as you like — a name is enough to begin. Anything else can be filled in later, in your own time.</p>
+            <p>Your client list stays on this device and is sorted so the people you are working with right now are easy to find. Search and filters help when the list grows.</p>
+          </div>
+          <div class="b-pager"><button class="next" data-goto="b-personalize">Next: Making it yours</button></div>
+        </div>
+
+        <div class="b-panel flagship" id="b-personalize">
+          <p class="b-progress">Personalization · featured</p>
+          <p class="sec-eyebrow" style="color:var(--color-primary)">Make it yours</p>
+          <h2 class="sec-h">Making Sessions Garden yours</h2>
+          <div class="sec-body">
+            <p>No two practitioners work the same way, so the session page bends to fit you rather than the other way around. Each section — context notes, emotions, the Heart Shield, severity, your own free-text boxes — can be switched on or off.</p>
+            <p>Turn off what you never use and the page becomes shorter and quieter. Turn a section back on whenever your practice changes. Your layout is remembered for every future session, so the app keeps feeling like the way you already work.</p>
+          </div>
+          <div class="micro"><strong>Why this is featured:</strong> shaping the page to your own method makes everything that follows feel like yours, not a form to fill in.</div>
+          <div class="b-pager"><button data-goto="b-add">Back</button><button class="next" data-goto="b-start">Next: Starting a session</button></div>
+        </div>
+
+        <div class="b-panel" id="b-start">
+          <p class="b-progress">Step 2 of 7</p>
+          <p class="sec-eyebrow">Step 2</p>
+          <h2 class="sec-h">Starting a session</h2>
+          <div class="sec-body">
+            <p>Opening a session for a client brings up a fresh page dated for today, with a short summary of where you left off last time so you can pick up the thread.</p>
+            <p>You can write as you go or after the session ends — everything is saved on this device as you type, with nothing to submit and nothing to lose.</p>
+          </div>
+          <div class="b-pager"><button data-goto="b-personalize">Back</button><button class="next" data-goto="b-emotions">Next: Capturing emotions</button></div>
+        </div>
+
+        <div class="b-panel" id="b-emotions">
+          <p class="b-progress">Step 3 of 7</p>
+          <p class="sec-eyebrow">Step 3</p>
+          <h2 class="sec-h">Capturing emotions</h2>
+          <div class="sec-body">
+            <p>When you identify a trapped emotion, you can paste or type it straight into the session — including a whole list at once. Each one becomes its own entry you can revisit and track.</p>
+            <p>This keeps the rhythm of the session intact: you stay with your client and the notes keep up with you, rather than the other way around.</p>
+          </div>
+          <div class="b-pager"><button data-goto="b-start">Back</button><button class="next" data-goto="b-shield">Next: The Heart Shield workflow</button></div>
+        </div>
+
+        <div class="b-panel" id="b-shield">
+          <p class="b-progress">Step 4 of 7</p>
+          <p class="sec-eyebrow">Step 4</p>
+          <h2 class="sec-h">The Heart Shield workflow</h2>
+          <div class="sec-body">
+            <p>The Heart Shield has its own dedicated space in the session, kept distinct from ordinary trapped emotions so the work around the heart stays clearly marked.</p>
+            <p>You record each layer as you uncover it, and the running picture stays visible across sessions so progress with the heart is never lost between visits.</p>
+          </div>
+          <div class="b-pager"><button data-goto="b-emotions">Back</button><button class="next" data-goto="b-severity">Next: Tracking severity</button></div>
+        </div>
+
+        <div class="b-panel" id="b-severity">
+          <p class="b-progress">Step 5 of 7</p>
+          <p class="sec-eyebrow">Step 5</p>
+          <h2 class="sec-h">Tracking severity, before and after</h2>
+          <div class="sec-body">
+            <p>For an issue you are following, you can note its intensity before the work and again afterwards, so the shift within a single session is plain to see.</p>
+            <p>If a number moves the wrong way, that reversal is kept as part of the record rather than smoothed over — the honest picture is the useful one, and it is there next time you open this client.</p>
+          </div>
+          <div class="b-pager"><button data-goto="b-shield">Back</button><button class="next" data-goto="b-finish">Next: Finishing &amp; exporting</button></div>
+        </div>
+
+        <div class="b-panel" id="b-finish">
+          <p class="b-progress">Step 6 of 7</p>
+          <p class="sec-eyebrow">Step 6</p>
+          <h2 class="sec-h">Finishing, reviewing and exporting</h2>
+          <div class="sec-body">
+            <p>At the end you read the session back, make any final notes, and close it. A single session can be exported on its own — one to send to your client, and one to file in your own records.</p>
+            <p>Each export is a self-contained document. Nothing is uploaded; the file is created here and goes only where you choose to send it.</p>
+          </div>
+          <div class="b-pager"><button data-goto="b-severity">Back</button><button class="next" data-goto="b-overview">Next: Back to the overview</button></div>
+        </div>
+
+        <div class="b-panel" id="b-overview">
+          <p class="b-progress">Step 7 of 7</p>
+          <p class="sec-eyebrow">Step 7</p>
+          <h2 class="sec-h">Back to the overview</h2>
+          <div class="sec-body">
+            <p>Closing a session returns you to the overview, where recent clients and their progress are gathered in one calm place ready for the next time.</p>
+            <p>From here the loop begins again — and you can reopen this guide, or the guided tour, whenever you would like a refresher.</p>
+          </div>
+          <div class="b-pager"><button data-goto="b-finish">Back</button><button class="next" data-goto="b-tech">Next: The technical bits</button></div>
+        </div>
+
+        <div class="b-panel" id="b-tech">
+          <p class="b-progress">Plain-language technical track</p>
+          <h2 class="sec-h">The technical bits, in plain language</h2>
+          <div class="sec-body"><p>No jargon — just what keeps your notes safe and reachable.</p></div>
+          <div class="tech-grid" id="techGridB" style="margin-top:var(--space-md)"></div>
+          <div class="b-pager"><button data-goto="b-overview">Back</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     VARIANT C — Accordion spine + elevated featured card
+     ============================================================ -->
+<div class="variant" id="variant-c">
+  <nav class="app-nav" aria-label="App navigation">
+    <span class="brand"><span class="leaf" aria-hidden="true"></span>Sessions Garden</span>
+    <a href="#">Overview</a>
+    <a href="#">Sessions</a>
+    <a href="#">Reporting</a>
+    <a href="#" aria-current="page">Help</a>
+    <button class="help-q" aria-label="Help" title="Help">?</button>
+  </nav>
+
+  <div class="wrap" id="wrapC">
+    <header class="page-head">
+      <h1>Help &amp; guided tour</h1>
+      <p class="intro">A walk through running a session in Sessions Garden, end to end — and the technical bits, in plain language.</p>
+      <button class="tour-cta" type="button"><span class="dot" aria-hidden="true"></span>Take the guided tour</button>
+    </header>
+
+    <div class="c-wrap">
+      <!-- Elevated featured card near the top -->
+      <section class="flagship c-feature">
+        <p class="sec-eyebrow">Make it yours · featured</p>
+        <h2 class="sec-h">Making Sessions Garden yours</h2>
+        <div class="sec-body">
+          <p>No two practitioners work the same way, so the session page bends to fit you rather than the other way around. Each section — context notes, emotions, the Heart Shield, severity, your own free-text boxes — can be switched on or off.</p>
+          <p>Turn off what you never use and the page becomes shorter and quieter. Turn a section back on whenever your practice changes. Your layout is remembered for every future session, so the app keeps feeling like the way you already work.</p>
+        </div>
+        <div class="micro"><strong>Why this is at the top:</strong> shaping the page to your own method makes everything that follows feel like yours, not a form to fill in.</div>
+      </section>
+
+      <div class="c-accordion" id="cAccordion">
+        <div class="c-item open">
+          <button class="c-trigger" aria-expanded="true"><span class="num">1</span><span class="c-title">Adding a client</span><span class="chev" aria-hidden="true">▾</span></button>
+          <div class="c-content"><div class="indent sec-body">
+            <p>Every session belongs to a client. From the overview you open the new-client form and enter as little or as much as you like — a name is enough to begin. Anything else can be filled in later, in your own time.</p>
+            <p>Your client list stays on this device and is sorted so the people you are working with right now are easy to find. Search and filters help when the list grows.</p>
+          </div></div>
+        </div>
+
+        <div class="c-item">
+          <button class="c-trigger" aria-expanded="false"><span class="num">2</span><span class="c-title">Starting a session</span><span class="chev" aria-hidden="true">▾</span></button>
+          <div class="c-content"><div class="indent sec-body">
+            <p>Opening a session for a client brings up a fresh page dated for today, with a short summary of where you left off last time so you can pick up the thread.</p>
+            <p>You can write as you go or after the session ends — everything is saved on this device as you type, with nothing to submit and nothing to lose.</p>
+          </div></div>
+        </div>
+
+        <div class="c-item">
+          <button class="c-trigger" aria-expanded="false"><span class="num">3</span><span class="c-title">Capturing emotions</span><span class="chev" aria-hidden="true">▾</span></button>
+          <div class="c-content"><div class="indent sec-body">
+            <p>When you identify a trapped emotion, you can paste or type it straight into the session — including a whole list at once. Each one becomes its own entry you can revisit and track.</p>
+            <p>This keeps the rhythm of the session intact: you stay with your client and the notes keep up with you, rather than the other way around.</p>
+          </div></div>
+        </div>
+
+        <div class="c-item">
+          <button class="c-trigger" aria-expanded="false"><span class="num">4</span><span class="c-title">The Heart Shield workflow</span><span class="chev" aria-hidden="true">▾</span></button>
+          <div class="c-content"><div class="indent sec-body">
+            <p>The Heart Shield has its own dedicated space in the session, kept distinct from ordinary trapped emotions so the work around the heart stays clearly marked.</p>
+            <p>You record each layer as you uncover it, and the running picture stays visible across sessions so progress with the heart is never lost between visits.</p>
+          </div></div>
+        </div>
+
+        <div class="c-item">
+          <button class="c-trigger" aria-expanded="false"><span class="num">5</span><span class="c-title">Tracking severity, before and after</span><span class="chev" aria-hidden="true">▾</span></button>
+          <div class="c-content"><div class="indent sec-body">
+            <p>For an issue you are following, you can note its intensity before the work and again afterwards, so the shift within a single session is plain to see.</p>
+            <p>If a number moves the wrong way, that reversal is kept as part of the record rather than smoothed over — the honest picture is the useful one, and it is there next time you open this client.</p>
+          </div></div>
+        </div>
+
+        <div class="c-item">
+          <button class="c-trigger" aria-expanded="false"><span class="num">6</span><span class="c-title">Finishing, reviewing and exporting</span><span class="chev" aria-hidden="true">▾</span></button>
+          <div class="c-content"><div class="indent sec-body">
+            <p>At the end you read the session back, make any final notes, and close it. A single session can be exported on its own — one to send to your client, and one to file in your own records.</p>
+            <p>Each export is a self-contained document. Nothing is uploaded; the file is created here and goes only where you choose to send it.</p>
+          </div></div>
+        </div>
+
+        <div class="c-item">
+          <button class="c-trigger" aria-expanded="false"><span class="num">7</span><span class="c-title">Back to the overview</span><span class="chev" aria-hidden="true">▾</span></button>
+          <div class="c-content"><div class="indent sec-body">
+            <p>Closing a session returns you to the overview, where recent clients and their progress are gathered in one calm place ready for the next time.</p>
+            <p>From here the loop begins again — and you can reopen this guide, or the guided tour, whenever you would like a refresher.</p>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- Technical track — separate collapsed band, distinct treatment -->
+      <div class="c-tech" id="cTech">
+        <button class="c-trigger" aria-expanded="false"><span class="num">·</span><span class="c-title">The technical bits, in plain language</span><span class="chev" aria-hidden="true">▾</span></button>
+        <div class="c-tech-body">
+          <p class="sec-body" style="margin:0 0 var(--space-md);color:var(--color-text-muted)">No jargon — just what keeps your notes safe and reachable.</p>
+          <div class="tech-grid" id="techGridC"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Fixed sketch toolbar ===== -->
+<div class="sketch-toolbar" aria-label="Sketch controls">
+  <div class="st-group">
+    <span class="st-cap">Theme</span>
+    <button id="btnLight" class="on" onclick="setTheme('light')">Light</button>
+    <button id="btnDark" onclick="setTheme('dark')">Dark</button>
+  </div>
+  <div class="st-group">
+    <span class="st-cap">Dir</span>
+    <button id="btnLtr" class="on" onclick="setDir('ltr')">LTR</button>
+    <button id="btnRtl" onclick="setDir('rtl')">RTL</button>
+  </div>
+  <div class="st-group">
+    <span class="st-cap">View</span>
+    <button onclick="setVp('375')">375</button>
+    <button onclick="setVp('768')">768</button>
+    <button class="on" id="btnVpFull" onclick="setVp('full')">Full</button>
+  </div>
+</div>
+
+<script>
+  /* ---- Shared technical-track content (rendered into each variant) ---- */
+  var TECH = [
+    { t: 'Backups &amp; restore', b: 'A backup is a single file you can save anywhere — a folder, a USB key, your own cloud. Restoring it on a new device or browser brings every client and session back exactly as they were.' },
+    { t: 'PDF export', b: 'Any session can become a tidy PDF — one to share with your client, one for your own records. It is generated on this device; nothing is sent anywhere.' },
+    { t: 'Installing on your device', b: 'You can add Sessions Garden to your home screen so it opens like a normal app, with no browser bar. The steps differ slightly per browser; the help shows the one you are using.' },
+    { t: 'The two-device limit', b: 'Your licence runs on up to two devices at once — for example a laptop and a tablet. You can deactivate one to free a slot, then activate another, at any time.' },
+    { t: 'Moving to a new device', b: 'To move, you deactivate the old device, make a backup, then activate and restore on the new one. Your notes travel with the backup file, not over the internet.' },
+    { t: 'Your data never leaves your browser', b: 'Everything you write lives only in this browser, on this device — never on a server, never with us. That privacy is the whole point, and it is exactly why backups matter: a backup is the only copy that can outlive this browser.', anchor: true },
+    { t: 'Don’t see your clients?', b: 'Your data is stored in this browser. Clearing site data or switching browsers hides it — it is not lost, just out of view. Open the same browser you used before, or restore from your most recent backup, and it returns.', notFound: true }
+  ];
+
+  function techHTML() {
+    var anchor = '', notFound = '', cards = '';
+    TECH.forEach(function (c) {
+      if (c.anchor) {
+        anchor = '<div class="tech-card anchor-card"><h3>' + c.t + '</h3><p>' + c.b + '</p></div>';
+      } else if (c.notFound) {
+        notFound = '<div class="tech-card anchor-card" data-i18n="help.tech.troubleshoot.notFound"><h3>' + c.t + '</h3><p>' + c.b + '</p></div>';
+      } else {
+        cards += '<div class="tech-card"><h3>' + c.t + '</h3><p>' + c.b + '</p></div>';
+      }
+    });
+    /* emotional anchor placed FIRST, prominent — paired with "that's why backups matter" */
+    return anchor + cards + notFound;
+  }
+  ['techGridA', 'techGridB', 'techGridC'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = techHTML();
+  });
+
+  /* ---- Variant switching ---- */
+  function showVariant(v) {
+    ['a', 'b', 'c'].forEach(function (k) {
+      document.getElementById('variant-' + k).classList.toggle('active', k === v);
+    });
+    document.querySelectorAll('.variant-bar button[data-v]').forEach(function (btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-v') === v);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  /* ---- Sketch toolbar: theme / dir / viewport ---- */
+  function setTheme(mode) {
+    document.documentElement.setAttribute('data-theme', mode);
+    document.getElementById('btnLight').classList.toggle('on', mode === 'light');
+    document.getElementById('btnDark').classList.toggle('on', mode === 'dark');
+  }
+  function setDir(dir) {
+    document.documentElement.setAttribute('dir', dir);
+    document.getElementById('btnLtr').classList.toggle('on', dir === 'ltr');
+    document.getElementById('btnRtl').classList.toggle('on', dir === 'rtl');
+  }
+  function setVp(w) {
+    ['wrapA', 'wrapB', 'wrapC'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('vp-375', 'vp-768');
+      if (w === '375') el.classList.add('vp-375');
+      if (w === '768') el.classList.add('vp-768');
+    });
+    document.querySelectorAll('.sketch-toolbar .st-group:last-child button').forEach(function (b) { b.classList.remove('on'); });
+    if (w === 'full') document.getElementById('btnVpFull').classList.add('on');
+    else event.target.classList.add('on');
+  }
+
+  /* ---- Variant A: rail jump + scroll-spy ---- */
+  (function () {
+    var rail = document.getElementById('railList');
+    rail.addEventListener('click', function (e) {
+      var a = e.target.closest('a');
+      if (!a) return;
+      e.preventDefault();
+      var id = a.getAttribute('data-target');
+      var target = id === 'a-tech' ? document.getElementById('a-tech-band') : document.getElementById(id);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    var spyIds = ['a-add', 'a-personalize', 'a-start', 'a-emotions', 'a-shield', 'a-severity', 'a-finish', 'a-overview', 'a-tech-band'];
+    var links = {};
+    rail.querySelectorAll('a').forEach(function (a) {
+      var t = a.getAttribute('data-target');
+      links[t === 'a-tech' ? 'a-tech-band' : t] = a;
+    });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          Object.values(links).forEach(function (l) { l.classList.remove('active'); });
+          var active = links[en.target.id];
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+    spyIds.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+  })();
+
+  /* ---- Variant B: stepper + pager ---- */
+  (function () {
+    var stepper = document.querySelector('#variant-b .b-stepper');
+    function goto(panelId) {
+      document.querySelectorAll('#variant-b .b-panel').forEach(function (p) {
+        p.classList.toggle('shown', p.id === panelId);
+      });
+      document.querySelectorAll('#variant-b .b-stepper button').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-panel') === panelId);
+      });
+      document.querySelector('#variant-b .b-pane').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    stepper.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-panel]');
+      if (btn) goto(btn.getAttribute('data-panel'));
+    });
+    document.querySelectorAll('#variant-b .b-pager button').forEach(function (b) {
+      b.addEventListener('click', function () { goto(b.getAttribute('data-goto')); });
+    });
+  })();
+
+  /* ---- Variant C: accordion (one open at a time for spine) + tech band ---- */
+  (function () {
+    var acc = document.getElementById('cAccordion');
+    acc.addEventListener('click', function (e) {
+      var trig = e.target.closest('.c-trigger');
+      if (!trig) return;
+      var item = trig.closest('.c-item');
+      var isOpen = item.classList.contains('open');
+      acc.querySelectorAll('.c-item').forEach(function (it) {
+        it.classList.remove('open');
+        it.querySelector('.c-trigger').setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        trig.setAttribute('aria-expanded', 'true');
+      }
+    });
+    var tech = document.getElementById('cTech');
+    tech.querySelector('.c-trigger').addEventListener('click', function () {
+      var open = tech.classList.toggle('open');
+      this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+</script>
+</body>
+</html>

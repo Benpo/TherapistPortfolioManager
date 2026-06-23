@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sketch 004 — "?" Help entry point</title>
+  <link rel="stylesheet" href="../themes/default.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding-top: 52px; /* clear the fixed variant tab bar */
+      font-family: var(--font-sans);
+      font-weight: var(--weight-regular);
+      color: var(--color-text);
+      background: radial-gradient(circle at top,
+        var(--color-background-gradient-start) 0%,
+        var(--color-background) 55%,
+        var(--color-background-gradient-end) 100%);
+      min-height: 100vh;
+      transition: all 0.15s ease;
+    }
+
+    /* ---------- Fixed variant tab bar ---------- */
+    .variant-bar {
+      position: fixed;
+      inset-block-start: 0;
+      inset-inline: 0;
+      z-index: 9998;
+      display: flex;
+      gap: var(--space-2xs);
+      align-items: center;
+      padding: var(--space-xs) var(--space-md);
+      background: var(--color-surface);
+      border-block-end: 1px solid var(--color-border);
+      box-shadow: var(--shadow-nav);
+    }
+    .variant-bar .vb-label {
+      font-size: var(--text-meta);
+      color: var(--color-text-muted);
+      margin-inline-end: var(--space-sm);
+      font-weight: var(--weight-bold);
+    }
+    .variant-tab {
+      font-family: var(--font-sans);
+      font-size: var(--text-meta);
+      font-weight: var(--weight-regular);
+      color: var(--color-text-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-pill);
+      padding: var(--space-2xs) var(--space-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .variant-tab:hover { background: var(--color-surface-hover); color: var(--color-text); }
+    .variant-tab.active {
+      background: var(--color-primary-soft);
+      color: var(--color-primary-dark);
+      font-weight: var(--weight-bold);
+    }
+    .variant-tab:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ---------- App canvas ---------- */
+    .canvas {
+      max-width: 1120px;
+      margin-inline: auto;
+      padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+      transition: max-width 0.15s ease;
+    }
+    .canvas[data-viewport="375"] { max-width: 375px; }
+    .canvas[data-viewport="768"] { max-width: 768px; }
+
+    /* ---------- App header (calm, realistic) ---------- */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      margin-block-end: var(--space-xl);
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      min-width: 0;
+    }
+    .brand-mark {
+      inline-size: 40px;
+      block-size: 40px;
+      border-radius: var(--radius-md);
+      background: var(--color-primary-soft);
+      color: var(--color-primary-dark);
+      display: grid;
+      place-items: center;
+      font-weight: var(--weight-bold);
+      box-shadow: var(--shadow-brand);
+      flex-shrink: 0;
+    }
+    .brand-title {
+      font-size: var(--text-title);
+      font-weight: var(--weight-bold);
+      line-height: 1.2;
+    }
+    .brand-subtitle {
+      font-size: var(--text-meta);
+      color: var(--color-text-muted);
+      font-weight: var(--weight-regular);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2xs);
+    }
+
+    /* Shared header icon button — cloud / gear / "?" siblings.
+       44x44 tap target, 36x36 visual box. */
+    .header-icon-btn {
+      display: inline-grid;
+      place-items: center;
+      min-inline-size: var(--tap-target-min);
+      min-block-size: var(--tap-target-min);
+      inline-size: var(--tap-target-min);
+      block-size: var(--tap-target-min);
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: var(--color-text-muted);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .header-icon-btn .icon-box {
+      display: grid;
+      place-items: center;
+      inline-size: var(--icon-visual-box);
+      block-size: var(--icon-visual-box);
+      border-radius: var(--radius-sm);
+      transition: all 0.15s ease;
+    }
+    .header-icon-btn svg { display: block; }
+    .header-icon-btn:hover { color: var(--color-primary-dark); }
+    .header-icon-btn:hover .icon-box { background: var(--color-surface-hover); }
+    .header-icon-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+    /* Active/selected state mirrors the gear */
+    .header-icon-btn.is-active { color: var(--color-primary-dark); }
+    .header-icon-btn.is-active .icon-box {
+      background: var(--color-primary-soft);
+      color: var(--color-primary-dark);
+    }
+
+    /* ---------- App screen slice ---------- */
+    .page-title {
+      font-size: var(--text-title);
+      font-weight: var(--weight-bold);
+      margin: 0 0 var(--space-2xs);
+    }
+    .page-lede {
+      font-size: var(--text-body);
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-lg);
+      max-inline-size: 56ch;
+    }
+
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: var(--space-lg);
+    }
+    .card + .card { margin-block-start: var(--space-lg); }
+    .section-title {
+      font-size: var(--text-heading);
+      font-weight: var(--weight-bold);
+      margin: 0 0 var(--space-md);
+    }
+
+    .client-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-2xs);
+      border-block-end: 1px solid var(--color-border-faint);
+    }
+    .client-row:last-child { border-block-end: none; }
+    .client-avatar {
+      inline-size: 40px;
+      block-size: 40px;
+      border-radius: var(--radius-pill);
+      background: var(--color-surface-avatar);
+      color: var(--color-primary-dark);
+      display: grid;
+      place-items: center;
+      font-weight: var(--weight-bold);
+      font-size: var(--text-meta);
+      flex-shrink: 0;
+    }
+    .client-name {
+      font-size: var(--text-body);
+      font-weight: var(--weight-bold);
+      margin: 0;
+    }
+    .client-meta {
+      font-size: var(--text-meta);
+      color: var(--color-text-muted);
+      margin: 2px 0 0;
+    }
+    .client-tail {
+      margin-inline-start: auto;
+      font-size: var(--text-meta);
+      color: var(--color-text-meta);
+      white-space: nowrap;
+    }
+
+    /* ---------- Variant B: floating "?" button ---------- */
+    .help-fab {
+      position: absolute;
+      inset-block-end: var(--space-lg);
+      inset-inline-end: var(--space-lg);
+      inline-size: 56px;
+      block-size: 56px;
+      min-inline-size: var(--tap-target-min);
+      min-block-size: var(--tap-target-min);
+      display: grid;
+      place-items: center;
+      border: none;
+      border-radius: var(--radius-pill);
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+      box-shadow: var(--shadow-button), 0 6px 18px var(--color-primary-shadow-soft);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      z-index: 40;
+    }
+    .help-fab:hover {
+      background: var(--color-primary-dark);
+      transform: translateY(-1px);
+    }
+    .help-fab:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+    .help-fab svg { display: block; }
+
+    /* The screen area that the FAB floats over (position context) */
+    .screen-shell { position: relative; }
+
+    /* ---------- Variant C: side-by-side ---------- */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
+    }
+    @media (min-width: 900px) {
+      .compare-grid.is-wide { grid-template-columns: 1fr 1fr; }
+    }
+    .compare-pane {
+      background: var(--color-surface-muted);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      position: relative;
+    }
+    .compare-label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2xs);
+      font-size: var(--text-meta);
+      font-weight: var(--weight-bold);
+      color: var(--color-primary-dark);
+      background: var(--color-primary-soft);
+      border-radius: var(--radius-pill);
+      padding: var(--space-3xs) var(--space-sm);
+      margin-block-end: var(--space-md);
+    }
+    .compare-mini-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      padding-block-end: var(--space-sm);
+      margin-block-end: var(--space-md);
+      border-block-end: 1px solid var(--color-border-faint);
+    }
+    .compare-mini-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+    }
+    .compare-note {
+      font-size: var(--text-meta);
+      color: var(--color-text-muted);
+      margin: var(--space-md) 0 0;
+      line-height: 1.5;
+    }
+    .compare-note strong { font-weight: var(--weight-bold); color: var(--color-text); }
+    .verdict {
+      margin-block-start: var(--space-lg);
+      padding: var(--space-md) var(--space-lg);
+      background: var(--color-surface-toggle);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      font-size: var(--text-body);
+      line-height: 1.55;
+    }
+    .verdict strong { font-weight: var(--weight-bold); }
+
+    /* ---------- Faked Help sheet ---------- */
+    .help-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--color-modal-overlay-bg);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 9000;
+    }
+    .help-overlay.open { display: flex; }
+    @media (min-width: 700px) {
+      .help-overlay { align-items: center; }
+    }
+    .help-sheet {
+      inline-size: min(440px, 92vw);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      box-shadow: var(--shadow-modal);
+      padding: var(--space-xl) var(--space-lg) var(--space-lg);
+      margin-block-end: 0;
+    }
+    @media (min-width: 700px) {
+      .help-sheet { border-radius: var(--radius-lg); margin-block-end: 0; }
+    }
+    .help-sheet-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-md);
+      margin-block-end: var(--space-md);
+    }
+    .help-sheet-title {
+      font-size: var(--text-heading);
+      font-weight: var(--weight-bold);
+      margin: 0;
+    }
+    .help-close {
+      min-inline-size: var(--tap-target-min);
+      min-block-size: var(--tap-target-min);
+      display: grid;
+      place-items: center;
+      border: none;
+      background: var(--color-surface-modal-close);
+      color: var(--color-primary-dark);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .help-close:hover { background: var(--color-primary-soft); }
+    .help-close:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+    .help-list { list-style: none; margin: 0; padding: 0; }
+    .help-list li {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) 0;
+      border-block-end: 1px solid var(--color-border-faint);
+      font-size: var(--text-body);
+    }
+    .help-list li:last-child { border-block-end: none; }
+    .help-bullet {
+      inline-size: 28px;
+      block-size: 28px;
+      border-radius: var(--radius-sm);
+      background: var(--color-primary-soft);
+      color: var(--color-primary-dark);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .help-cta {
+      margin-block-start: var(--space-lg);
+      inline-size: 100%;
+      min-block-size: var(--tap-target-min);
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+      font-family: var(--font-sans);
+      font-size: var(--text-body);
+      font-weight: var(--weight-bold);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .help-cta:hover { background: var(--color-primary-dark); }
+    .help-cta:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+    .hidden { display: none !important; }
+
+    /* ---------- Sketch toolbar (only allowed hardcoded colors) ---------- */
+    .sketch-toolbar {
+      position: fixed;
+      inset-block-end: 16px;
+      inset-inline-end: 16px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #1a1825;
+      color: #ffffff;
+      border-radius: 999px;
+      opacity: 0.4;
+      transition: opacity 0.15s ease;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      font-size: 12px;
+    }
+    .sketch-toolbar:hover { opacity: 1; }
+    .sketch-toolbar .st-tag {
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-inline-end: 4px;
+    }
+    .sketch-toolbar button {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      padding: 4px 9px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .sketch-toolbar button:hover { background: rgba(255, 255, 255, 0.28); }
+    .sketch-toolbar button.on { background: #ffffff; color: #1a1825; }
+    .sketch-toolbar .st-sep {
+      inline-size: 1px;
+      block-size: 18px;
+      background: rgba(255, 255, 255, 0.2);
+      margin-inline: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Fixed variant tab bar ===== -->
+  <nav class="variant-bar" aria-label="Sketch variants">
+    <span class="vb-label">Sketch 004</span>
+    <button class="variant-tab active" id="tab-a" onclick="showVariant('a')">A: Header icon (default)</button>
+    <button class="variant-tab" id="tab-b" onclick="showVariant('b')">B: Floating button</button>
+    <button class="variant-tab" id="tab-c" onclick="showVariant('c')">C: Side-by-side</button>
+  </nav>
+
+  <!-- =====================================================
+       VARIANT A — Header icon (LOCKED default)
+       ===================================================== -->
+  <main class="canvas" id="variant-a" data-viewport="full">
+    <header class="app-header">
+      <a class="brand" href="#" onclick="return false;">
+        <span class="brand-mark">SG</span>
+        <span>
+          <span class="brand-title">Sessions Garden</span><br />
+          <span class="brand-subtitle">Documentation and tracking of therapeutic sessions</span>
+        </span>
+      </a>
+      <div class="header-actions" id="headerActions-a">
+        <!-- Cloud (backup) sibling -->
+        <button class="header-icon-btn" type="button" aria-label="Backup" title="Backup">
+          <span class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+            </svg>
+          </span>
+        </button>
+        <!-- Gear (settings) sibling -->
+        <button class="header-icon-btn" type="button" aria-label="Settings" title="Settings">
+          <span class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </span>
+        </button>
+        <!-- "?" Help & guided tour — third header action, mirrors gear .is-active -->
+        <button class="header-icon-btn is-active" type="button"
+                aria-label="Help & guided tour" title="Help & guided tour"
+                data-i18n="help.entry.label"
+                onclick="openHelp()">
+          <span class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <h1 class="page-title">Overview</h1>
+    <p class="page-lede">A quiet place to keep your client work. Everything stays on this device.</p>
+
+    <section class="card">
+      <h2 class="section-title">Clients</h2>
+      <div class="client-row">
+        <span class="client-avatar">RA</span>
+        <span>
+          <p class="client-name">Rina Adler</p>
+          <p class="client-meta">Last session 12 May · 8 sessions total</p>
+        </span>
+        <span class="client-tail">Open</span>
+      </div>
+      <div class="client-row">
+        <span class="client-avatar">TM</span>
+        <span>
+          <p class="client-name">Tomas Meier</p>
+          <p class="client-meta">Last session 9 May · 3 sessions total</p>
+        </span>
+        <span class="client-tail">Open</span>
+      </div>
+      <div class="client-row">
+        <span class="client-avatar">YK</span>
+        <span>
+          <p class="client-name">Yael Kohn</p>
+          <p class="client-meta">Last session 2 May · 14 sessions total</p>
+        </span>
+        <span class="client-tail">Open</span>
+      </div>
+    </section>
+
+    <p class="verdict">
+      <strong>Locked default (UI-SPEC).</strong> The "?" is the third icon in the
+      consolidated header, beside the cloud (backup) and gear (settings) icons.
+      Resting and hover states are shown on the cloud and gear; the "?" is shown
+      in its <strong>.is-active</strong> state (soft-primary box, primary-dark glyph) so the
+      gear-mirrored selected appearance is judged in real chrome. Try the toolbar
+      to switch dark / RTL — the actions flip to the inline-start under RTL while
+      the "?" keeps its place beside cloud + gear.
+    </p>
+  </main>
+
+  <!-- =====================================================
+       VARIANT B — Bottom-corner floating button
+       ===================================================== -->
+  <main class="canvas hidden" id="variant-b" data-viewport="full">
+    <div class="screen-shell">
+      <header class="app-header">
+        <a class="brand" href="#" onclick="return false;">
+          <span class="brand-mark">SG</span>
+          <span>
+            <span class="brand-title">Sessions Garden</span><br />
+            <span class="brand-subtitle">Documentation and tracking of therapeutic sessions</span>
+          </span>
+        </a>
+        <div class="header-actions">
+          <button class="header-icon-btn" type="button" aria-label="Backup" title="Backup">
+            <span class="icon-box">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+              </svg>
+            </span>
+          </button>
+          <button class="header-icon-btn" type="button" aria-label="Settings" title="Settings">
+            <span class="icon-box">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </span>
+          </button>
+        </div>
+      </header>
+
+      <h1 class="page-title">Overview</h1>
+      <p class="page-lede">A quiet place to keep your client work. Everything stays on this device.</p>
+
+      <section class="card">
+        <h2 class="section-title">Clients</h2>
+        <div class="client-row">
+          <span class="client-avatar">RA</span>
+          <span>
+            <p class="client-name">Rina Adler</p>
+            <p class="client-meta">Last session 12 May · 8 sessions total</p>
+          </span>
+          <span class="client-tail">Open</span>
+        </div>
+        <div class="client-row">
+          <span class="client-avatar">TM</span>
+          <span>
+            <p class="client-name">Tomas Meier</p>
+            <p class="client-meta">Last session 9 May · 3 sessions total</p>
+          </span>
+          <span class="client-tail">Open</span>
+        </div>
+        <div class="client-row">
+          <span class="client-avatar">YK</span>
+          <span>
+            <p class="client-name">Yael Kohn</p>
+            <p class="client-meta">Last session 2 May · 14 sessions total</p>
+          </span>
+          <span class="client-tail">Open</span>
+        </div>
+      </section>
+
+      <!-- Floating "?" — logical inset so it flips under RTL -->
+      <button class="help-fab" type="button"
+              aria-label="Help & guided tour" title="Help & guided tour"
+              data-i18n="help.entry.label"
+              onclick="openHelp()">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
+    </div>
+
+    <p class="verdict">
+      <strong>Floating alternative (honest view).</strong> The header drops to two
+      icons; the "?" lives as a circular button pinned to the inline-end bottom
+      corner. It is highly visible but hovers over the client card — note how it
+      crowds the lowest row and competes with content. Toggle RTL: the inset flips
+      to the inline-start corner. Compare against the sketch toolbar (lower corner,
+      dark, labelled "sketch tools") so the two are not confused.
+    </p>
+  </main>
+
+  <!-- =====================================================
+       VARIANT C — Both, honest comparison
+       ===================================================== -->
+  <main class="canvas hidden" id="variant-c" data-viewport="full">
+    <h1 class="page-title">Side-by-side: header icon vs. floating button</h1>
+    <p class="page-lede">Same screen, same tokens, same copy — only the "?" entry-point treatment differs.</p>
+
+    <div class="compare-grid is-wide">
+
+      <!-- Pane: header icon -->
+      <div class="compare-pane">
+        <span class="compare-label">Header icon — Phase-25 chrome</span>
+        <div class="compare-mini-card">
+          <div class="compare-mini-header">
+            <span class="brand">
+              <span class="brand-mark">SG</span>
+              <span class="brand-title" style="font-size: var(--text-heading);">Sessions Garden</span>
+            </span>
+            <span class="header-actions">
+              <button class="header-icon-btn" type="button" aria-label="Backup" title="Backup">
+                <span class="icon-box">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                  </svg>
+                </span>
+              </button>
+              <button class="header-icon-btn" type="button" aria-label="Settings" title="Settings">
+                <span class="icon-box">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                </span>
+              </button>
+              <button class="header-icon-btn is-active" type="button"
+                      aria-label="Help & guided tour" title="Help & guided tour"
+                      data-i18n="help.entry.label" onclick="openHelp()">
+                <span class="icon-box">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                </span>
+              </button>
+            </span>
+          </div>
+          <div class="client-row" style="border:none; padding-block-end:0;">
+            <span class="client-avatar">RA</span>
+            <span>
+              <p class="client-name">Rina Adler</p>
+              <p class="client-meta">Last session 12 May · 8 sessions total</p>
+            </span>
+            <span class="client-tail">Open</span>
+          </div>
+        </div>
+        <p class="compare-note">
+          <strong>Discoverability:</strong> moderate — sits with two icons users
+          already learned in Phase 25, so the pattern is "all the tools live up
+          here." <strong>Intrusion:</strong> none — it is chrome, never over content.
+          <strong>Consistency:</strong> preserves the consolidated single-header shape.
+        </p>
+      </div>
+
+      <!-- Pane: floating -->
+      <div class="compare-pane">
+        <span class="compare-label">Floating button — pinned corner</span>
+        <div class="compare-mini-card" style="position: relative; min-block-size: 150px;">
+          <div class="compare-mini-header">
+            <span class="brand">
+              <span class="brand-mark">SG</span>
+              <span class="brand-title" style="font-size: var(--text-heading);">Sessions Garden</span>
+            </span>
+            <span class="header-actions">
+              <button class="header-icon-btn" type="button" aria-label="Backup" title="Backup">
+                <span class="icon-box">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                  </svg>
+                </span>
+              </button>
+              <button class="header-icon-btn" type="button" aria-label="Settings" title="Settings">
+                <span class="icon-box">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                </span>
+              </button>
+            </span>
+          </div>
+          <div class="client-row" style="border:none; padding-block-end:0;">
+            <span class="client-avatar">RA</span>
+            <span>
+              <p class="client-name">Rina Adler</p>
+              <p class="client-meta">Last session 12 May · 8 sessions total</p>
+            </span>
+            <span class="client-tail">Open</span>
+          </div>
+          <button class="help-fab" style="inset-block-end: var(--space-sm); inset-inline-end: var(--space-sm); inline-size: 48px; block-size: 48px;"
+                  type="button" aria-label="Help & guided tour" title="Help & guided tour"
+                  data-i18n="help.entry.label" onclick="openHelp()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </button>
+        </div>
+        <p class="compare-note">
+          <strong>Discoverability:</strong> high raw visibility — a coloured circle
+          draws the eye. <strong>Intrusion:</strong> real — overlaps the last client
+          row and visually competes with content. <strong>Consistency:</strong>
+          breaks the Phase-25 consolidated-header convention (a second, separate
+          control surface).
+        </p>
+      </div>
+    </div>
+
+    <p class="verdict">
+      <strong>The trade-off, plainly.</strong> Floating wins on raw "I can see it"
+      visibility, but at the cost of covering content and introducing a second
+      control region the rest of the app does not have. Header-icon trades a little
+      first-glance salience for living exactly where Sessions Garden already taught
+      users to find tools (cloud + gear), with zero content occlusion. For a calm,
+      offline notes app used repeatedly by the same therapist, learned location
+      beats one-time salience.
+    </p>
+  </main>
+
+  <!-- ===== Faked Help sheet ===== -->
+  <div class="help-overlay" id="helpOverlay" onclick="if(event.target===this) closeHelp()">
+    <div class="help-sheet" role="dialog" aria-modal="true" aria-labelledby="helpSheetTitle">
+      <div class="help-sheet-head">
+        <h2 class="help-sheet-title" id="helpSheetTitle">Help &amp; guided tour</h2>
+        <button class="help-close" type="button" aria-label="Close" onclick="closeHelp()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <ul class="help-list">
+        <li>
+          <span class="help-bullet">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          Take the guided tour
+        </li>
+        <li>
+          <span class="help-bullet">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          How session notes stay on this device
+        </li>
+        <li>
+          <span class="help-bullet">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          Backups and restoring your data
+        </li>
+      </ul>
+      <button class="help-cta" type="button" onclick="closeHelp()">Got it</button>
+    </div>
+  </div>
+
+  <!-- ===== Sketch toolbar ===== -->
+  <div class="sketch-toolbar" id="sketchToolbar">
+    <span class="st-tag">sketch tools</span>
+    <button id="btn-theme" type="button" onclick="toggleTheme()">Dark</button>
+    <button id="btn-rtl" type="button" onclick="toggleRtl()">RTL</button>
+    <span class="st-sep"></span>
+    <button id="vp-375" type="button" onclick="setViewport('375')">375</button>
+    <button id="vp-768" type="button" onclick="setViewport('768')">768</button>
+    <button id="vp-full" class="on" type="button" onclick="setViewport('full')">Full</button>
+  </div>
+
+  <script>
+    var currentVariant = 'a';
+
+    function showVariant(v) {
+      currentVariant = v;
+      ['a','b','c'].forEach(function(k){
+        document.getElementById('variant-' + k).classList.toggle('hidden', k !== v);
+        document.getElementById('tab-' + k).classList.toggle('active', k === v);
+      });
+      // re-apply viewport width to the now-visible variant
+      setViewport(currentViewport, true);
+    }
+
+    function openHelp() {
+      document.getElementById('helpOverlay').classList.add('open');
+    }
+    function closeHelp() {
+      document.getElementById('helpOverlay').classList.remove('open');
+    }
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') closeHelp();
+    });
+
+    function toggleTheme() {
+      var el = document.documentElement;
+      var dark = el.getAttribute('data-theme') === 'dark';
+      if (dark) { el.removeAttribute('data-theme'); }
+      else { el.setAttribute('data-theme', 'dark'); }
+      document.getElementById('btn-theme').classList.toggle('on', !dark);
+      document.getElementById('btn-theme').textContent = dark ? 'Dark' : 'Light';
+    }
+
+    function toggleRtl() {
+      var el = document.documentElement;
+      var rtl = el.getAttribute('dir') === 'rtl';
+      el.setAttribute('dir', rtl ? 'ltr' : 'rtl');
+      document.getElementById('btn-rtl').classList.toggle('on', !rtl);
+      document.getElementById('btn-rtl').textContent = rtl ? 'RTL' : 'LTR';
+    }
+
+    var currentViewport = 'full';
+    function setViewport(vp, silent) {
+      currentViewport = vp;
+      ['a','b','c'].forEach(function(k){
+        document.getElementById('variant-' + k).setAttribute('data-viewport', vp);
+      });
+      ['375','768','full'].forEach(function(id){
+        document.getElementById('vp-' + id).classList.toggle('on', id === vp);
+      });
+    }
+  </script>
+</body>
+</html>

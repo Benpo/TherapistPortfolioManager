@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketch 001 — Welcome Overlay</title>
+
+<link rel="stylesheet" href="../themes/default.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ---------------------------------------------------------------------
+     ZERO ad-hoc color below except the sketch toolbar (intentionally
+     theme-independent dark, the one place hardcoded color is allowed).
+     Everything else = tokens only.
+     --------------------------------------------------------------------- */
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--lh-body);
+    font-weight: 400;
+    color: var(--color-text);
+    background: var(--color-background);
+    -webkit-font-smoothing: antialiased;
+    padding-top: 52px; /* clear the fixed variant tab bar */
+  }
+
+  /* ============================ TYPE ROLES ============================ */
+  .t-display {
+    font-size: var(--text-display);
+    line-height: var(--lh-display);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .t-body {
+    font-size: var(--text-body);
+    line-height: var(--lh-body);
+    font-weight: 400;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+  .t-label {
+    font-size: var(--text-label);
+    line-height: var(--lh-label);
+    font-weight: 700;
+  }
+
+  /* ====================== STAGE / OVERLAY SHELL ====================== */
+  .stage {
+    min-height: calc(100vh - 52px);
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    padding: var(--space-lg);
+  }
+
+  /* viewport constraint wrapper (driven by toolbar) */
+  .frame {
+    width: 100%;
+    max-width: var(--frame-max, 100%);
+    margin-inline: auto;
+    transition: max-width 0.25s ease;
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  /* The welcome overlay itself — full-bleed within the frame */
+  .welcome {
+    position: relative;
+    min-height: calc(100vh - 52px - (var(--space-lg) * 2));
+    display: flex;
+    background: var(--color-background);
+    /* soft radial garden glow built ONLY from gradient tokens */
+    background-image:
+      radial-gradient(120% 90% at 50% 0%,
+        var(--color-background-gradient-start) 0%,
+        var(--color-background-gradient-end) 55%,
+        var(--color-background) 100%);
+    transition: opacity 0.45s ease;
+  }
+
+  .welcome[hidden] { display: none; }
+
+  /* dismissed resting state */
+  .welcome.is-dismissed {
+    opacity: 0.32;
+    filter: saturate(0.85);
+    pointer-events: none;
+  }
+
+  /* content panel — surface tokens (secondary in the 60/30/10 split) */
+  .panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-soft);
+    box-shadow: var(--shadow-soft);
+    border-radius: var(--radius-lg);
+  }
+
+  /* ============================ CTAs ============================ */
+  .cta {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--text-label);
+    line-height: var(--lh-label);
+    font-weight: 700;
+    min-height: var(--tap-target-min);
+    padding-block: var(--space-md);
+    padding-inline: var(--space-xl);
+    border-radius: var(--radius-pill);
+    transition: all 0.15s ease;
+    text-align: center;
+  }
+
+  /* Primary — the ONLY place garden-green accent appears */
+  .cta--primary {
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    box-shadow: var(--shadow-button);
+  }
+  .cta--primary:hover {
+    background: var(--color-primary-dark);
+    box-shadow: var(--shadow-brand);
+    transform: translateY(-1px);
+  }
+  .cta--primary:active { transform: translateY(0); }
+
+  /* Secondary — first-class but NEUTRAL (therapist autonomy, non-forced) */
+  .cta--secondary {
+    background: var(--color-surface-secondary-btn);
+    color: var(--color-text);
+    border: 1px solid var(--color-border-subtle);
+  }
+  .cta--secondary:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-border);
+  }
+
+  .cta:focus-visible,
+  .reopen:focus-visible,
+  .variant-tab:focus-visible,
+  .tool-btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* ====================== BOTANICAL MOTIF ====================== */
+  /* Inline SVG placeholder for the real watering-can / garden hero.
+     Garden-green tones pulled from semantic tokens via currentColor. */
+  .botanical { color: var(--color-primary); display: block; }
+  .botanical .leaf-soft { color: var(--color-primary-soft); }
+
+  .botanical-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* soft organic halo behind the motif */
+  .botanical-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 8%;
+    border-radius: 50%;
+    background: var(--color-primary-soft);
+    opacity: 0.45;
+    filter: blur(28px);
+    z-index: 0;
+  }
+  .botanical-wrap svg { position: relative; z-index: 1; }
+
+  .placeholder-note {
+    font-size: var(--text-label);
+    font-weight: 400;
+    color: var(--color-text-muted);
+    opacity: 0.55;
+    text-align: center;
+    margin-top: var(--space-sm);
+  }
+
+  /* ===================================================================
+     VARIANT A — Centered hero
+     =================================================================== */
+  #variant-a .welcome {
+    align-items: center;
+    justify-content: center;
+  }
+  #variant-a .panel {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-xl);
+    padding-block: var(--space-3xl);
+    padding-inline: var(--space-2xl);
+    margin: var(--space-lg);
+  }
+  #variant-a .copy { display: flex; flex-direction: column; gap: var(--space-lg); }
+  #variant-a .actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    width: 100%;
+    max-width: 340px;
+  }
+  #variant-a .actions .cta { width: 100%; }
+
+  /* ===================================================================
+     VARIANT B — Split (logical layout, flips under RTL)
+     =================================================================== */
+  #variant-b .welcome { align-items: center; }
+  #variant-b .panel {
+    width: 100%;
+    max-width: 960px;
+    margin-inline: auto;
+    margin-block: var(--space-lg);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+  #variant-b .art-side {
+    background: var(--color-surface-alt);
+    border-inline-end: 1px solid var(--color-border-soft);
+    padding: var(--space-2xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+  }
+  #variant-b .copy-side {
+    padding-block: var(--space-3xl);
+    padding-inline: var(--space-2xl);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-xl);
+    text-align: start;
+  }
+  #variant-b .copy { display: flex; flex-direction: column; gap: var(--space-md); }
+  #variant-b .actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: stretch;
+    max-width: 320px;
+  }
+
+  /* ===================================================================
+     VARIANT C — Minimal (small motif, calm whitespace, CTAs low)
+     =================================================================== */
+  #variant-c .welcome { align-items: stretch; }
+  #variant-c .panel {
+    width: 100%;
+    max-width: 620px;
+    margin-inline: auto;
+    margin-block: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    padding-block: var(--space-3xl);
+    padding-inline: var(--space-2xl);
+  }
+  #variant-c .top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-lg);
+    text-align: start;
+  }
+  #variant-c .mini-motif { margin-bottom: var(--space-sm); }
+  #variant-c .spacer { flex: 1 1 auto; min-height: var(--space-3xl); }
+  #variant-c .actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: stretch;
+    max-width: 360px;
+  }
+
+  /* ===================================================================
+     Reopen control (resting-state replay)
+     =================================================================== */
+  .reopen-bar {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    display: none;
+    justify-content: center;
+    padding-top: var(--space-2xl);
+    z-index: 5;
+  }
+  .welcome.is-dismissed ~ .reopen-bar { display: flex; }
+  .reopen {
+    pointer-events: auto;
+    appearance: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--text-label);
+    font-weight: 700;
+    min-height: var(--tap-target-min);
+    padding-block: var(--space-sm);
+    padding-inline: var(--space-lg);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    transition: all 0.15s ease;
+  }
+  .reopen:hover { background: var(--color-surface-hover); }
+  .reopen-hint {
+    display: block;
+    font-weight: 400;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+    text-align: center;
+  }
+
+  /* ===================================================================
+     Variant tab bar — top, fixed
+     =================================================================== */
+  .variant-bar {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 9998;
+    display: flex;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border-soft);
+    box-shadow: var(--shadow-nav);
+  }
+  .variant-tab {
+    appearance: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--text-label);
+    font-weight: 700;
+    min-height: var(--tap-target-min);
+    padding-block: var(--space-sm);
+    padding-inline: var(--space-md);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+  }
+  .variant-tab:hover { color: var(--color-text); background: var(--color-surface-hover); }
+  .variant-tab.active {
+    color: var(--color-primary);
+    background: var(--color-surface-secondary-btn);
+    border-color: var(--color-border-subtle);
+  }
+
+  .variant { display: none; }
+  .variant.active { display: block; }
+
+  /* ===================================================================
+     Sketch toolbar — the ONLY hardcoded color allowed
+     (intentionally theme-independent dark)
+     =================================================================== */
+  .sketch-toolbar {
+    position: fixed;
+    inset-block-end: 16px;
+    inset-inline-end: 16px;
+    z-index: 9999;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    opacity: 0.4;
+    transition: opacity 0.15s ease;
+  }
+  .sketch-toolbar:hover { opacity: 1; }
+  .sketch-toolbar .group { display: flex; gap: 4px; align-items: center; }
+  .sketch-toolbar .sep { width: 1px; height: 20px; background: rgba(255,255,255,0.25); margin: 0 4px; }
+  .tool-btn {
+    appearance: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    color: #fff;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 7px;
+    padding: 6px 9px;
+    transition: all 0.15s ease;
+  }
+  .tool-btn:hover { background: rgba(255,255,255,0.26); }
+  .tool-btn.active { background: #fff; color: #000; }
+  .tool-label { opacity: 0.6; padding-inline-end: 2px; }
+
+  /* responsive: stack the split panel on phone widths */
+  @media (max-width: 720px) {
+    #variant-b .panel { grid-template-columns: 1fr; }
+    #variant-b .art-side { border-inline-end: 0; border-block-end: 1px solid var(--color-border-soft); }
+    .t-display { font-size: calc(var(--text-display) * 0.82); }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===================== VARIANT TAB BAR ===================== -->
+  <nav class="variant-bar" aria-label="Sketch variants">
+    <button class="variant-tab active" data-tab="a" onclick="showVariant('a')">A: Centered hero</button>
+    <button class="variant-tab" data-tab="b" onclick="showVariant('b')">B: Split</button>
+    <button class="variant-tab" data-tab="c" onclick="showVariant('c')">C: Minimal</button>
+  </nav>
+
+  <!-- ============================================================
+       VARIANT A — Centered hero
+       ============================================================ -->
+  <section class="variant active" id="variant-a">
+    <div class="stage">
+      <div class="frame" data-frame>
+        <div class="welcome" data-welcome role="dialog" aria-modal="true"
+             aria-labelledby="a-title" aria-describedby="a-sub">
+          <div class="panel">
+            <div class="botanical-wrap" aria-hidden="true">
+              <!-- botanical hero placeholder (real app: watering-can.png / garden.png) -->
+              <svg class="botanical" width="148" height="148" viewBox="0 0 148 148" fill="none">
+                <path d="M74 132V70" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+                <path d="M74 92C74 70 56 52 30 50C30 74 48 94 74 92Z" fill="currentColor" opacity="0.85"/>
+                <path d="M74 78C74 56 92 38 118 36C118 60 100 80 74 78Z" class="leaf-soft" fill="currentColor"/>
+                <path d="M74 110C74 94 62 80 44 78C44 96 56 112 74 110Z" fill="currentColor" opacity="0.6"/>
+                <circle cx="74" cy="50" r="11" fill="currentColor"/>
+                <path d="M50 132H98" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity="0.4"/>
+              </svg>
+            </div>
+            <p class="placeholder-note" aria-hidden="true">botanical hero placeholder</p>
+            <div class="copy">
+              <h1 class="t-display" id="a-title" data-i18n="help.welcome.title">Welcome to your garden</h1>
+              <p class="t-body" id="a-sub" data-i18n="help.welcome.subtitle">Sessions Garden keeps your client work private, on this device, and organized around how you actually run a session.</p>
+            </div>
+            <div class="actions">
+              <button class="cta cta--primary" data-dismiss data-i18n="help.welcome.ctaTour">Take the guided tour</button>
+              <button class="cta cta--secondary" data-dismiss data-i18n="help.welcome.ctaExplore">I'll explore myself</button>
+            </div>
+          </div>
+        </div>
+        <div class="reopen-bar">
+          <div>
+            <span class="reopen-hint t-body">Dismissed — reopen via the “?” affordance</span>
+            <button class="reopen" data-reopen>? &nbsp;Replay welcome</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       VARIANT B — Split
+       ============================================================ -->
+  <section class="variant" id="variant-b">
+    <div class="stage">
+      <div class="frame" data-frame>
+        <div class="welcome" data-welcome role="dialog" aria-modal="true"
+             aria-labelledby="b-title" aria-describedby="b-sub">
+          <div class="panel">
+            <div class="art-side" aria-hidden="true">
+              <div class="botanical-wrap">
+                <svg class="botanical" width="170" height="200" viewBox="0 0 170 200" fill="none">
+                  <path d="M85 188V64" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+                  <path d="M85 150C85 124 64 102 34 100C34 130 56 154 85 150Z" fill="currentColor" opacity="0.85"/>
+                  <path d="M85 124C85 98 106 76 136 74C136 104 114 128 85 124Z" class="leaf-soft" fill="currentColor"/>
+                  <path d="M85 96C85 76 70 60 50 58C50 78 64 96 85 96Z" fill="currentColor" opacity="0.55"/>
+                  <circle cx="85" cy="50" r="14" fill="currentColor"/>
+                  <path d="M58 188H112" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity="0.4"/>
+                </svg>
+              </div>
+              <p class="placeholder-note">botanical hero placeholder</p>
+            </div>
+            <div class="copy-side">
+              <div class="copy">
+                <h1 class="t-display" id="b-title" data-i18n="help.welcome.title">Welcome to your garden</h1>
+                <p class="t-body" id="b-sub" data-i18n="help.welcome.subtitle">Sessions Garden keeps your client work private, on this device, and organized around how you actually run a session.</p>
+              </div>
+              <div class="actions">
+                <button class="cta cta--primary" data-dismiss data-i18n="help.welcome.ctaTour">Take the guided tour</button>
+                <button class="cta cta--secondary" data-dismiss data-i18n="help.welcome.ctaExplore">I'll explore myself</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="reopen-bar">
+          <div>
+            <span class="reopen-hint t-body">Dismissed — reopen via the “?” affordance</span>
+            <button class="reopen" data-reopen>? &nbsp;Replay welcome</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       VARIANT C — Minimal
+       ============================================================ -->
+  <section class="variant" id="variant-c">
+    <div class="stage">
+      <div class="frame" data-frame>
+        <div class="welcome" data-welcome role="dialog" aria-modal="true"
+             aria-labelledby="c-title" aria-describedby="c-sub">
+          <div class="panel">
+            <div class="top">
+              <div class="botanical-wrap mini-motif" aria-hidden="true">
+                <svg class="botanical" width="64" height="64" viewBox="0 0 64 64" fill="none">
+                  <path d="M32 58V30" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                  <path d="M32 42C32 30 23 21 10 20C10 33 19 43 32 42Z" fill="currentColor" opacity="0.85"/>
+                  <path d="M32 34C32 22 41 13 54 12C54 25 45 35 32 34Z" class="leaf-soft" fill="currentColor"/>
+                  <circle cx="32" cy="18" r="7" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="copy">
+                <h1 class="t-display" id="c-title" data-i18n="help.welcome.title">Welcome to your garden</h1>
+              </div>
+              <p class="t-body" id="c-sub" data-i18n="help.welcome.subtitle">Sessions Garden keeps your client work private, on this device, and organized around how you actually run a session.</p>
+            </div>
+            <div class="spacer"></div>
+            <div class="actions">
+              <button class="cta cta--primary" data-dismiss data-i18n="help.welcome.ctaTour">Take the guided tour</button>
+              <button class="cta cta--secondary" data-dismiss data-i18n="help.welcome.ctaExplore">I'll explore myself</button>
+            </div>
+          </div>
+        </div>
+        <div class="reopen-bar">
+          <div>
+            <span class="reopen-hint t-body">Dismissed — reopen via the “?” affordance</span>
+            <button class="reopen" data-reopen>? &nbsp;Replay welcome</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SKETCH TOOLBAR ===================== -->
+  <div class="sketch-toolbar" role="toolbar" aria-label="Sketch controls">
+    <div class="group">
+      <span class="tool-label">Theme</span>
+      <button class="tool-btn" id="btn-theme" onclick="toggleTheme()">Light</button>
+    </div>
+    <span class="sep"></span>
+    <div class="group">
+      <span class="tool-label">Dir</span>
+      <button class="tool-btn" id="btn-dir" onclick="toggleDir()">LTR</button>
+    </div>
+    <span class="sep"></span>
+    <div class="group">
+      <span class="tool-label">Size</span>
+      <button class="tool-btn active" data-vp="full" onclick="setViewport('full')">Desktop</button>
+      <button class="tool-btn" data-vp="768" onclick="setViewport('768')">Tablet 768</button>
+      <button class="tool-btn" data-vp="375" onclick="setViewport('375')">Phone 375</button>
+    </div>
+  </div>
+
+<script>
+  /* ---------- Variant switching ---------- */
+  function showVariant(id) {
+    document.querySelectorAll('.variant').forEach(function (v) {
+      v.classList.toggle('active', v.id === 'variant-' + id);
+    });
+    document.querySelectorAll('.variant-tab').forEach(function (t) {
+      t.classList.toggle('active', t.dataset.tab === id);
+    });
+  }
+
+  /* ---------- Theme toggle ---------- */
+  function toggleTheme() {
+    var root = document.documentElement;
+    var dark = root.getAttribute('data-theme') === 'dark';
+    if (dark) { root.removeAttribute('data-theme'); }
+    else { root.setAttribute('data-theme', 'dark'); }
+    document.getElementById('btn-theme').textContent = dark ? 'Light' : 'Dark';
+  }
+
+  /* ---------- Direction toggle ---------- */
+  function toggleDir() {
+    var root = document.documentElement;
+    var rtl = root.getAttribute('dir') === 'rtl';
+    root.setAttribute('dir', rtl ? 'ltr' : 'rtl');
+    document.getElementById('btn-dir').textContent = rtl ? 'LTR' : 'RTL';
+  }
+
+  /* ---------- Viewport constraint ---------- */
+  function setViewport(size) {
+    var max = size === 'full' ? '100%' : (size + 'px');
+    document.querySelectorAll('[data-frame]').forEach(function (f) {
+      f.style.setProperty('--frame-max', max);
+    });
+    document.querySelectorAll('.sketch-toolbar [data-vp]').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.vp === size);
+    });
+  }
+
+  /* ---------- Dismissal + replay loop ---------- */
+  function dismissAll() {
+    document.querySelectorAll('[data-welcome]').forEach(function (w) {
+      w.classList.add('is-dismissed');
+    });
+  }
+  function reopenAll() {
+    document.querySelectorAll('[data-welcome]').forEach(function (w) {
+      w.classList.remove('is-dismissed');
+    });
+  }
+
+  document.querySelectorAll('[data-dismiss]').forEach(function (btn) {
+    btn.addEventListener('click', dismissAll);
+  });
+  document.querySelectorAll('[data-reopen]').forEach(function (btn) {
+    btn.addEventListener('click', reopenAll);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      var anyActive = document.querySelector('.variant.active [data-welcome]:not(.is-dismissed)');
+      if (anyActive) { dismissAll(); }
+      else { reopenAll(); }
+    }
+  });
+</script>
+</body>
+</html>
