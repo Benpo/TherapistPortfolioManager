@@ -868,6 +868,62 @@ window.PortfolioDB = (() => {
     return clearStore("crashlog");
   }
 
+  // ──────────────────────────────────────────────────────────────────────
+  // Phase 29 OBS-03 (D-09) — export-AROUND-failure read-only open.
+  //
+  // When a migration throws, openDB() re-opens at DB_VERSION, re-fires the
+  // failing upgrade and aborts (db.js onupgradeneeded → transaction.abort).
+  // That bricks every read accessor (getAllClients etc.) on a device that has
+  // data. getAllForRecoveryExport() escapes the brick: it opens DB_NAME with
+  // NO version argument, so onupgradeneeded never fires (the DB is returned at
+  // its existing un-upgraded version), and reads whatever stores exist. Each
+  // store read is guarded by objectStoreNames.contains — the un-upgraded DB may
+  // LACK a store the failing migration would have created (returns [] instead
+  // of crashing). This composes the existing read-only old-DB open shape
+  // (db.js:86-96) with the four backup stores. It MUST NEVER call openDB() and
+  // MUST NEVER specify a version. Zero network.
+  // ──────────────────────────────────────────────────────────────────────
+  function _openReadOnlyNoVersion() {
+    return new Promise((resolve, reject) => {
+      // No version arg → no upgradeneeded → the failing migration cannot re-fire.
+      const req = indexedDB.open(DB_NAME);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+      req.onupgradeneeded = () => {
+        // Defensive: must not fire on an existing DB. Abort so we never run the
+        // throwing migration on the recovery path.
+        if (req.transaction && typeof req.transaction.abort === "function") {
+          req.transaction.abort();
+        }
+        reject(new Error("Unexpected upgradeneeded on recovery-export open"));
+      };
+    });
+  }
+
+  function _readStoreReadOnly(db, name) {
+    return new Promise((resolve, reject) => {
+      // The un-upgraded DB may not have this store yet — skip without crashing.
+      if (!db.objectStoreNames.contains(name)) return resolve([]);
+      const tx = db.transaction(name, "readonly");
+      const req = tx.objectStore(name).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function getAllForRecoveryExport() {
+    const db = await _openReadOnlyNoVersion();
+    try {
+      const clients = await _readStoreReadOnly(db, "clients");
+      const sessions = await _readStoreReadOnly(db, "sessions");
+      const therapistSettings = await _readStoreReadOnly(db, "therapistSettings");
+      const snippets = await _readStoreReadOnly(db, "snippets");
+      return { clients, sessions, therapistSettings, snippets };
+    } finally {
+      try { db.close(); } catch (e) {}
+    }
+  }
+
   async function replaceAllCrashlog(entries) {
     const db = await openDB();
     return new Promise((resolve, reject) => {
@@ -918,5 +974,7 @@ window.PortfolioDB = (() => {
     getAllCrashlog,
     clearCrashlog,
     replaceAllCrashlog,
+    // Phase 29 OBS-03 (D-09) — export-around-failure read-only no-version open
+    getAllForRecoveryExport,
   };
 })();

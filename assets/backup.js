@@ -547,34 +547,20 @@ window.BackupManager = (function () {
    *   backup.json          — manifest (text, DEFLATE compressed)
    *   photos/client-{id}.png  — one file per client with a photo (STORE)
    */
-  async function exportBackup() {
-    var db = window.PortfolioDB;
-    var allClients = await db.getAllClients();
-    var allSessions = await db.getAllSessions();
-
-    // Include therapist customisations (custom section labels +
-    // disabled flags). Wrapped in try/catch so a missing function (transitional
-    // builds) does not abort the backup.
-    var allTherapistSettings = [];
-    try {
-      if (typeof db.getAllTherapistSettings === "function") {
-        allTherapistSettings = await db.getAllTherapistSettings();
-      }
-    } catch (e) {
-      console.warn("Backup: therapistSettings read failed; exporting empty:", e);
-      allTherapistSettings = [];
-    }
-
-    // Include snippets. Same defensive try/catch pattern.
-    var allSnippets = [];
-    try {
-      if (typeof db.getAllSnippets === "function") {
-        allSnippets = await db.getAllSnippets();
-      }
-    } catch (e) {
-      console.warn("Backup: snippets read failed; exporting empty:", e);
-      allSnippets = [];
-    }
+  /**
+   * _assembleBackupZip — THE single ZIP builder. Takes already-read records
+   * ({ clients, sessions, therapistSettings, snippets }) and produces
+   * { blob, filename }. Both exportBackup() (normal openDB-routed reads) and
+   * exportRecoveryBackup() (read-around-failure reads) feed this so there is
+   * exactly ONE manifest/ZIP assembly and zero drift between the two paths.
+   *
+   * Zero network — pure in-memory ZIP construction.
+   */
+  async function _assembleBackupZip(data) {
+    var allClients = (data && data.clients) || [];
+    var allSessions = (data && data.sessions) || [];
+    var allTherapistSettings = (data && data.therapistSettings) || [];
+    var allSnippets = (data && data.snippets) || [];
 
     var zip = new JSZip();
     var photosFolder = zip.folder("photos");
@@ -635,6 +621,43 @@ window.BackupManager = (function () {
     var filename = "Sessions-Garden-" + yyyy + "-" + mm + "-" + dd + "-" + hh + min + ".zip";
 
     return { blob: blob, filename: filename };
+  }
+
+  async function exportBackup() {
+    var db = window.PortfolioDB;
+    var allClients = await db.getAllClients();
+    var allSessions = await db.getAllSessions();
+
+    // Include therapist customisations (custom section labels +
+    // disabled flags). Wrapped in try/catch so a missing function (transitional
+    // builds) does not abort the backup.
+    var allTherapistSettings = [];
+    try {
+      if (typeof db.getAllTherapistSettings === "function") {
+        allTherapistSettings = await db.getAllTherapistSettings();
+      }
+    } catch (e) {
+      console.warn("Backup: therapistSettings read failed; exporting empty:", e);
+      allTherapistSettings = [];
+    }
+
+    // Include snippets. Same defensive try/catch pattern.
+    var allSnippets = [];
+    try {
+      if (typeof db.getAllSnippets === "function") {
+        allSnippets = await db.getAllSnippets();
+      }
+    } catch (e) {
+      console.warn("Backup: snippets read failed; exporting empty:", e);
+      allSnippets = [];
+    }
+
+    return _assembleBackupZip({
+      clients: allClients,
+      sessions: allSessions,
+      therapistSettings: allTherapistSettings,
+      snippets: allSnippets,
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -715,6 +738,88 @@ window.BackupManager = (function () {
         onCancel: function() { resolve({ ok: false, skip: false, cancelled: true, blob: null, filename: null }); }  // user pressed Cancel / X / Escape — abort
       });
     });
+  }
+
+  // ---------------------------------------------------------------------------
+  // exportRecoveryBackup — OBS-03 export-AROUND-failure (Phase 29, D-09)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * _defaultRecoveryPassphraseFlow — the production passphrase decision for the
+   * recovery export. Reuses the SAME interactive passphrase modal as
+   * exportEncryptedBackup (D-07: no silent export — the user must explicitly
+   * choose a passphrase OR explicitly skip encryption). Resolves to a normalized
+   * decision object:
+   *   { confirmed: true,  skip: false, cancelled: false, passphrase }  — encrypt
+   *   { confirmed: false, skip: true,  cancelled: false, passphrase: null } — skip
+   *   { confirmed: false, skip: false, cancelled: true,  passphrase: null } — abort
+   */
+  function _defaultRecoveryPassphraseFlow() {
+    return new Promise(function (resolve) {
+      _showPassphraseModal({
+        mode: 'encrypt',
+        onConfirm: function (passphrase) {
+          resolve({ confirmed: true, skip: false, cancelled: false, passphrase: passphrase });
+        },
+        onSkip: function () {
+          resolve({ confirmed: false, skip: true, cancelled: false, passphrase: null });
+        },
+        onCancel: function () {
+          resolve({ confirmed: false, skip: false, cancelled: true, passphrase: null });
+        },
+      });
+    });
+  }
+
+  /**
+   * exportRecoveryBackup(passphraseFlow?) — the escape-hatch export used when a
+   * failed IndexedDB migration has bricked the normal openDB-routed export path.
+   *
+   * It sources records via PortfolioDB.getAllForRecoveryExport() — a read-only,
+   * NO-VERSION open that reads AROUND the failure (the D-09 wrinkle) — then feeds
+   * them into the SAME ZIP builder (_assembleBackupZip) as exportBackup, so there
+   * is no drift. It is passphrase-gated through the SAME interactive flow as
+   * exportEncryptedBackup (D-07: never a silent export).
+   *
+   * @param {Function} [passphraseFlow] OPTIONAL dependency-injection seam (tests)
+   *        returning a Promise<{confirmed,skip,cancelled,passphrase}>. Production
+   *        callers pass nothing and get the real DOM passphrase modal.
+   *
+   * @returns {Promise<Object>} one of:
+   *   { ok: true,  skip: false, cancelled: false, blob, filename }  — encrypted .sgbackup downloaded
+   *   { ok: true,  skip: true,  cancelled: false, blob, filename }  — plain .zip downloaded (skip-encryption)
+   *   { ok: false, skip: false, cancelled: true,  blob: null, filename: null } — user aborted (no export)
+   *
+   * Zero network throughout.
+   */
+  async function exportRecoveryBackup(passphraseFlow) {
+    var flow = (typeof passphraseFlow === 'function')
+      ? passphraseFlow
+      : _defaultRecoveryPassphraseFlow;
+
+    // Interactive gate FIRST (no silent export). The user explicitly chooses to
+    // encrypt, to skip encryption, or to cancel.
+    var decision = await flow();
+    if (!decision || decision.cancelled) {
+      return { ok: false, skip: false, cancelled: true, blob: null, filename: null };
+    }
+
+    // Read AROUND the failure — never openDB(), never a version arg.
+    var data = await window.PortfolioDB.getAllForRecoveryExport();
+    var zipResult = await _assembleBackupZip(data);
+
+    if (decision.skip) {
+      // Plain, unencrypted ZIP — download it.
+      triggerDownload(zipResult.blob, zipResult.filename);
+      return { ok: true, skip: true, cancelled: false, blob: zipResult.blob, filename: zipResult.filename };
+    }
+
+    // Encrypted path — mirror exportEncryptedBackup's encrypt+download.
+    var encBlob = await _encryptBlob(zipResult.blob, decision.passphrase);
+    var dateStr = new Date().toISOString().slice(0, 10);
+    var encFilename = 'sessions-garden-' + dateStr + '.sgbackup';
+    triggerDownload(encBlob, encFilename);
+    return { ok: true, skip: false, cancelled: false, blob: encBlob, filename: encFilename };
   }
 
   // ---------------------------------------------------------------------------
@@ -1428,6 +1533,7 @@ window.BackupManager = (function () {
   return {
     exportBackup: exportBackup,
     exportEncryptedBackup: exportEncryptedBackup,
+    exportRecoveryBackup: exportRecoveryBackup,
     triggerDownload: triggerDownload,
     importBackup: importBackup,
     shareBackup: shareBackup,
