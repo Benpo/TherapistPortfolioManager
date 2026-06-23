@@ -26,7 +26,23 @@ findings:
   warning: 5
   info: 3
   total: 9
-status: issues_found
+resolved:
+  critical: 1
+  warning: 3
+  total: 4
+open:
+  warning: 2
+  info: 3
+  total: 5
+status: partially_resolved
+resolution_pass: 2026-06-23T00:00:00Z
+resolutions:
+  CR-01: { status: resolved, commit: 04b1073, test: tests/29-04-crashlog-ingest-merge.test.js }
+  WR-01: { status: resolved, commit: 9c4f3e8 }
+  WR-02: { status: resolved, commit: b77c463 }
+  WR-03: { status: resolved, commit: adca9ee }
+  WR-04: { status: open }
+  WR-05: { status: open }
 ---
 
 # Phase 29: Code Review Report
@@ -34,7 +50,25 @@ status: issues_found
 **Reviewed:** 2026-06-23
 **Depth:** standard
 **Files Reviewed:** 17 (app.css and i18n-*.js scanned, not individually narrated)
-**Status:** issues_found
+**Status:** partially_resolved (4 of 9 fixed in the 2026-06-23 resolution pass; WR-04, WR-05, IN-01..03 remain open)
+
+## Resolution Pass — 2026-06-23
+
+A sequential fix pass resolved the BLOCKER and the three confirmed warnings. Each
+fix is an atomic commit; CR-01 followed the project's RED→GREEN convention.
+
+| Finding | Status | Commit | Notes |
+| ------- | ------ | ------ | ----- |
+| CR-01 | ✅ resolved | `04b1073` | `ingestEarlyBuffer` now merges IDB+mirror, dedupes on a stable content key, prunes, persists the full set; idempotent across reloads; mirror-only fallback on IDB failure. RED test `tests/29-04-crashlog-ingest-merge.test.js` (`4fd51de`) seeded 40 IDB entries + 5-entry mirror → wiped to 5 before fix, all 40 survive + no duplication after. |
+| WR-01 | ✅ resolved | `9c4f3e8` | `db.js` now exports `DB_VERSION`; report header shows the real version. False-stub in `29-03-report.test.js` corrected to load real db.js and assert the exported value (fails if the export is dropped). |
+| WR-02 | ✅ resolved | `b77c463` | `redactReport` extracts the `User agent:` line before the name/email/number heuristics and re-stitches it verbatim (the "re-stitch" the comment claimed but did not implement). Behavior assertion added with a realistic multi-word UA. |
+| WR-03 | ✅ resolved | `adca9ee` | `shared-chrome.js` footer fallback aligned to `1.2.1`. |
+| WR-04 | ⬜ open | — | Out of scope for this pass (innerHTML footer build). |
+| WR-05 | ⬜ open | — | Out of scope for this pass (decrypt error on truncated backup). |
+| IN-01..03 | ⬜ open | — | Info-level; not addressed. |
+
+All listed regression suites pass after the fixes (29-01..29-04, 28-04-integrity,
+28-04-nudge, 25-11-i18n-parity).
 
 ## Summary
 
@@ -46,7 +80,7 @@ Secondary concerns: `report.js` `dbVersion()` is dead — it reads `PortfolioDB.
 
 ## Critical Issues
 
-### CR-01: `ingestEarlyBuffer` wipes the IndexedDB crash log down to the 5-entry mirror on every page load
+### CR-01: `ingestEarlyBuffer` wipes the IndexedDB crash log down to the 5-entry mirror on every page load — ✅ RESOLVED (`04b1073`)
 
 **File:** `assets/crashlog.js:345-354` (and init at `:356-362`, `persistToIDB:177-191`, `db.js replaceAllCrashlog:1050-1065`)
 
@@ -98,7 +132,7 @@ Add a dedup key (e.g. on `timestamp+message+source`) before persisting so re-ing
 
 ## Warnings
 
-### WR-01: `report.js` diagnostic header always reports `DB version: unknown` (dead read + misleading test)
+### WR-01: `report.js` diagnostic header always reports `DB version: unknown` (dead read + misleading test) — ✅ RESOLVED (`9c4f3e8`)
 
 **File:** `assets/report.js:117-124`; corroborated by `db.js:1067-1106` (export list) and `tests/29-03-report.test.js:172`
 
@@ -124,7 +158,7 @@ return {
 
 and change the test stub to load real `db.js` (or at minimum assert against the real export), so the test would fail if the field were missing.
 
-### WR-02: `redactReport` corrupts the `User agent:` line; comment claims a re-stitch that does not exist
+### WR-02: `redactReport` corrupts the `User agent:` line; comment claims a re-stitch that does not exist — ✅ RESOLVED (`b77c463`)
 
 **File:** `assets/report.js:196-232` (esp. the comment at `:193-194` and the name regex at `:212-226`)
 
@@ -139,7 +173,7 @@ A real UA string (`Mozilla/5.0 ... Firefox/...`, `... Mobile Safari`) contains m
 
 **Fix:** Either exclude the `User agent:` line from name-redaction (split the assembled text, redact only the entries body, then re-join the untouched header — i.e. actually implement the "re-stitch" the comment describes), or add common UA tokens (`Mozilla`, `Safari`, `Chrome`, `Firefox`, `Mobile`, `Gecko`, `Version`, etc.) to the `keep` allowlist. At minimum, correct the comment so it does not claim behavior the code lacks.
 
-### WR-03: APP_VERSION drift between `version.js` (1.2.1) and `shared-chrome.js` fallback (1.2.0)
+### WR-03: APP_VERSION drift between `version.js` (1.2.1) and `shared-chrome.js` fallback (1.2.0) — ✅ RESOLVED (`adca9ee`)
 
 **File:** `assets/shared-chrome.js:12-14` vs `assets/version.js:25`
 
