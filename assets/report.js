@@ -190,13 +190,25 @@ var Report = (function () {
   //   - capitalised two-word names embedded in messages/stacks (e.g. a client
   //     name that leaked into an error string)
   // The diagnostic header (app/DB version, language, UA) is preserved — those
-  // are non-identifying device facts. Redaction runs over the WHOLE assembled
-  // text; we deliberately keep the userAgent line readable by re-stitching it.
+  // are non-identifying device facts. The UA string in particular contains
+  // capitalised multi-word tokens (e.g. "Intel Mac OS X") that the name
+  // heuristic below would otherwise destroy. So we EXTRACT the "User agent:"
+  // line before redacting and re-stitch its original value afterward (WR-02).
   // ──────────────────────────────────────────────────────────────────────
+  var UA_LINE_RE = /^(User agent:\s?).*$/m;
+
   function redactReport(text) {
     if (!text) return text;
     var out = text;
     try {
+      // WR-02: pull the User-agent line out before redaction so the heuristics
+      // can't clobber its (non-identifying) value, then put it back verbatim.
+      var uaLine = null;
+      var uaMatch = out.match(UA_LINE_RE);
+      if (uaMatch) {
+        uaLine = uaMatch[0];
+        out = out.replace(UA_LINE_RE, ' UA_PLACEHOLDER ');
+      }
       // Emails.
       out = out.replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, '[redacted-email]');
       // Long digit runs (phone / id-like), 7+ digits.
@@ -224,6 +236,10 @@ var Report = (function () {
           return '[redacted-name]';
         }
       );
+      // WR-02: re-stitch the original User-agent line so its value survives.
+      if (uaLine != null) {
+        out = out.replace(/ ?UA_PLACEHOLDER ?/, uaLine);
+      }
     } catch (e) {
       warn('redactReport failed; returning unredacted (preview is still the gate)', e);
       return text;

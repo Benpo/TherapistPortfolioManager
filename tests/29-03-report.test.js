@@ -189,7 +189,14 @@ function makeRealPortfolioDB(version) {
   return { DB_VERSION: version };
 }
 
-function boot(entries) {
+// A realistic UA that contains capitalised multi-word tokens ("Intel Mac OS X",
+// "Mac OS") — exactly the shape the name-redaction heuristic would clobber if
+// the User-agent line were not preserved (WR-02).
+const REALISTIC_UA =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ' +
+  '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+
+function boot(entries, userAgentOverride) {
   fetchCalls = 0;
   xhrCalls = 0;
 
@@ -241,7 +248,7 @@ function boot(entries) {
     document: doc,
     location,
     navigator: {
-      userAgent: 'test-agent/1.0',
+      userAgent: userAgentOverride || REALISTIC_UA,
       clipboard,
     },
     localStorage: {
@@ -330,6 +337,13 @@ async function run() {
     // 1: the entries are present
     check('1: preview contains the first entry message', text.indexOf('boom') !== -1);
     check('1: preview contains the second entry marker', text.indexOf('second distinct failure marker ZZZ') !== -1);
+
+    // WR-02: the User-agent diagnostic line must retain its REAL value after
+    // redaction — the name heuristic must not clobber "Intel Mac OS X" etc.
+    check('WR-02: User-agent line retains the real UA value (not [redacted-name])',
+      /User agent: Mozilla\/5\.0 \(Macintosh; Intel Mac OS X/.test(text));
+    check('WR-02: User-agent value is not redacted away',
+      text.indexOf('User agent: [redacted-name]') === -1);
 
     // 2: redaction scrubbed an obvious client-identifying token. We seed a
     //    high-signal token and require it NOT to survive verbatim into the
