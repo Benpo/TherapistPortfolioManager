@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 29
-current_phase_name: Reliability & Observability
+current_phase_name: reliability-observability
 status: executing
-stopped_at: Phase 29 UI-SPEC approved
-last_updated: "2026-06-22T21:01:59.806Z"
-last_activity: 2026-06-22
-last_activity_desc: Phase 28 complete, transitioned to Phase 29
+stopped_at: Completed 29-01-PLAN.md (OBS-01 crash-log foundation)
+last_updated: "2026-06-23T10:10:52.383Z"
+last_activity: 2026-06-23
+last_activity_desc: Phase 29 execution started
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 7
+  completed_plans: 5
   percent: 17
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 28 — update-reliability-versioning
+**Current focus:** Phase 29 — reliability-observability
 
 ## Current Position
 
-Phase: 29 — Reliability & Observability
-Plan: Not started
+Phase: 29 (reliability-observability) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-06-22 — Phase 28 complete, transitioned to Phase 29
+Last activity: 2026-06-23 — Phase 29 execution started
 
 ## Performance Metrics
 
@@ -102,6 +102,7 @@ Last activity: 2026-06-22 — Phase 28 complete, transitioned to Phase 29
 | Phase 28 P02 | 4min | 2 tasks | 1 files |
 | Phase 28 P03 | 6min | 2 tasks | 21 files |
 | Phase 28 P04 | 95min | 4 tasks | 9 files |
+| Phase 29 P01 | 22min | 2 tasks | 23 files |
 
 ## Accumulated Context
 
@@ -202,6 +203,7 @@ Recent decisions affecting current work:
 - [Phase 28-04]: version.js must be no-cache — the SW re-imports it on every update check, so under /*.js max-age=86400 a stale token could hide a new deploy for up to 24h (fix 32b02f4)
 - [Phase 28-04]: SW importScripts path must match the deployed/precached path — sw.js imported root /version.js which the deploy never ships, so importScripts threw and the Phase 28 SW never installed in production; corrected to /assets/version.js (fix c702c53)
 - [Phase 28-04]: Phase 28 shipped as v1.2.1 (bumped from 1.2.0 during the auto-delivery field verification); integrity loaded-token derived locally from the SW cache name, zero network (VER-06)
+- [Phase 29]: Phase 29-01: OBS-01 crash log uses dual storage (IDB primary + localStorage crashlogBuffer mirror written directly, bypassing openDB so it survives an IDB-open failure); prune-on-write enforces <=30 days AND <=50 entries; CrashLog.logError/getEntries/clear is the stable seam for the Phase 28 integrity check and Wave 2 report screen; tests use the repo's zero-npm handwritten IDB shim, not jsdom/fake-indexeddb
 
 ### Pending Todos
 
@@ -261,10 +263,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-22T20:12:59.359Z
+**Last session:** 2026-06-23T10:10:52.378Z
 
 Last activity: 2026-06-22 — v1.2 milestone formalized: REQUIREMENTS.md (20 reqs — VER/OBS/TEST/RFCT/DOCS/I18N) + `### Phase 28–33` ROADMAP detail sections written and committed (1a014d0). Done via *targeted formalization* (NOT `/gsd-new-milestone`) to avoid re-deriving the already-locked 28–33 scope.
-Stopped at: Phase 29 UI-SPEC approved
+Stopped at: Completed 29-01-PLAN.md (OBS-01 crash-log foundation)
 Resume file: .planning/phases/29-reliability-observability/29-UI-SPEC.md
 Next: `/gsd-discuss-phase 28` in a fresh window (captures HOW decisions → CONTEXT.md), then `/gsd-plan-phase 28`.
 
