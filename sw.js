@@ -72,7 +72,8 @@ const PRECACHE_URLS = [
   '/assets/fonts/heebo-base64.js',
   '/assets/fonts/heebo-bold-base64.js',
   '/assets/snippets-seed.js',
-  '/assets/snippets.js'
+  '/assets/snippets.js',
+  '/assets/report.js'
 ];
 
 /**
@@ -110,7 +111,8 @@ const PRECACHE_HTML = [
   '/impressum-en',
   '/impressum-he',
   '/impressum-cs',
-  '/settings'
+  '/settings',
+  '/report'
 ];
 
 /**
