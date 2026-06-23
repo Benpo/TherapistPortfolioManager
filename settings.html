@@ -107,6 +107,12 @@
               </button>
             </div>
           </div>
+
+          <!-- OBS-01 surfacing (Phase 29): self-contained "Report a problem"
+               entry point. Kept isolated so it survives the Phase 31 settings.js
+               extraction. The row + optional clear affordance are populated by
+               SettingsPage.buildReportRow() at init. -->
+          <div id="settingsReportSection" class="settings-report-section"></div>
         </div>
 
         <div id="settingsTabSnippets" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabSnippetsBtn" hidden>
