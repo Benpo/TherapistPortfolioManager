@@ -105,7 +105,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   2. Settings exposes a "Report a problem" action that copies the persisted error log plus basic diagnostic context to the clipboard for the user to paste into a support email — nothing is transmitted automatically
   3. When an IndexedDB migration fails, the user is offered a "reset & recover" escape hatch instead of an endless "please refresh" loop, and using it returns the app to a usable state
 
-**Plans:** 3/3 plans complete
+**Plans:** 3/3 plans complete + 1 gap-closure plan
 
 **Wave 1** *(parallel — no file overlap)*
 
@@ -115,6 +115,10 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 **Wave 2** *(blocked on 29-01)*
 
 - [x] 29-03-PLAN.md — OBS-02 report-a-problem screen (`report.html` + `report.js`): redacted editable preview, Copy report, mailto handoff; Settings entry row; wires Phase 28 integrity-mismatch persistence + version.js wedged stubs
+
+**Gap closure** *(UAT-diagnosed OBS-01 fixes, 2026-06-25)*
+
+- [ ] 29-04-PLAN.md — OBS-01 crash-log gap closure: serialize `append()` (tail-promise queue) to fix the lost-update race in concurrent appends (case 7 RED→GREEN), and guard the inline early-buffer handler across all 21 pages so a post-load error is logged exactly once (no 'early' duplicate)
 
 ### Phase 30: Test Harness & Coverage
 
