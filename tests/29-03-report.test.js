@@ -419,6 +419,51 @@ async function run() {
     check('5: the error preview textarea is hidden / not populated with errors', preview.hidden === true || preview.value === '');
   }
 
+  // ── Case 7 (UAT 2026-06-26): the redacted preview must be CLIPBOARD-SAFE —
+  //    no NUL or other C0 control characters. A NUL silently truncates the
+  //    paste on NUL-terminated native clipboards (Safari): "Copy report"
+  //    delivered only the header up to the first NUL, dropping the User-agent
+  //    line, the count, and every entry. Root cause: redactReport's UA
+  //    placeholder was wrapped in NUL bytes ('\0UA_PLACEHOLDER\0') while the
+  //    re-stitch regex matched spaces (/ ?UA_PLACEHOLDER ?/), so the NULs
+  //    straddling the "User agent:" line survived. Guards full-report copy.
+  {
+    const entries = [
+      { timestamp: Date.now(), message: 'cascade A', stack: '', url: 'https://app/a', source: 'direct-seam' },
+      { timestamp: Date.now(), message: 'cascade B', stack: '@', url: 'https://app/b', source: 'unhandledrejection' },
+      { timestamp: Date.now(), message: 'cascade C tail-token-zzz9', stack: '@', url: 'https://app/c', source: 'onerror' },
+    ];
+    const ctx = boot(entries);
+    await init(ctx);
+    const text = ctx.registry.reportPreview.value;
+    const NUL = String.fromCharCode(0);
+
+    // No NUL anywhere in the copied text.
+    check('7: redacted preview contains no NUL byte (clipboard-safe)', text.indexOf(NUL) === -1);
+
+    // No other C0 control / line-separator chars (allow \n and \t).
+    let badCtrl = -1;
+    for (let i = 0; i < text.length; i++) {
+      const c = text.charCodeAt(i);
+      if ((c < 32 && c !== 10 && c !== 9) || c === 0x2028 || c === 0x2029) { badCtrl = c; break; }
+    }
+    check('7: redacted preview contains no C0/line-separator control chars', badCtrl === -1);
+
+    // The "User agent:" line starts cleanly right after a newline — no stray
+    // delimiter (NUL/space) wedged in by the placeholder re-stitch.
+    check('7: "User agent:" line starts cleanly after a newline (no stray delimiter)',
+      /\nUser agent: Mozilla\/5\.0/.test(text));
+
+    // Faithful model of the Safari clipboard: a NUL-terminated native clipboard
+    // cuts at the FIRST NUL. Whatever survives that cut must still contain the
+    // whole report (last entry + the problem count).
+    const firstNul = text.indexOf(NUL);
+    const clipboardSurvives = firstNul === -1 ? text : text.slice(0, firstNul);
+    check('7: a NUL-terminated copy still carries the last entry and the count',
+      clipboardSurvives.indexOf('cascade C tail-token-zzz9') !== -1 &&
+      clipboardSurvives.indexOf('Logged problems: 3') !== -1);
+  }
+
   console.log('');
   if (failures > 0) {
     console.error('FAILED: ' + failures + ' assertion(s) failed.');

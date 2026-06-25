@@ -207,7 +207,7 @@ var Report = (function () {
       var uaMatch = out.match(UA_LINE_RE);
       if (uaMatch) {
         uaLine = uaMatch[0];
-        out = out.replace(UA_LINE_RE, ' UA_PLACEHOLDER ');
+        out = out.replace(UA_LINE_RE, 'UA_PLACEHOLDER');
       }
       // Emails.
       out = out.replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, '[redacted-email]');
