@@ -4,11 +4,11 @@ milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 29
 current_phase_name: reliability-observability
-status: executing
-stopped_at: Completed 29-01-PLAN.md (OBS-01 crash-log foundation)
-last_updated: "2026-06-25T18:48:09.841Z"
+status: verifying
+stopped_at: 29-04 gap-closure executed + verified (4/4 must-haves, no regressions); 29-UAT tests 2&3 need on-device re-confirmation
+last_updated: "2026-06-25T18:59:18.638Z"
 last_activity: 2026-06-25
-last_activity_desc: Phase 29 execution started
+last_activity_desc: 29-04 gap closure complete (lost-update race + post-load double-log fixed; all crashlog tests GREEN); awaiting on-device UAT re-confirm via /gsd-verify-work 29
 progress:
   total_phases: 6
   completed_phases: 2
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 29 (reliability-observability) — EXECUTING
-Plan: 2 of 4
-Status: Ready to execute
-Last activity: 2026-06-25 — Phase 29 execution started
+Phase: 29 (reliability-observability) — gap closure done, awaiting on-device UAT
+Plan: 4 of 4 (all complete; 29-04 closed the 2 UAT-diagnosed OBS-01 gaps)
+Status: verifying — code fixes proven by tests; field re-confirm pending
+Last activity: 2026-06-25 — 29-04 gap closure complete (race + double-log); re-verified 4/4 must-haves
 
 ## Performance Metrics
 
