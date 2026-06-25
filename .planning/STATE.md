@@ -4,16 +4,16 @@ milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 29
 current_phase_name: reliability-observability
-status: verifying
+status: executing
 stopped_at: Completed 29-01-PLAN.md (OBS-01 crash-log foundation)
-last_updated: "2026-06-23T10:41:34.316Z"
-last_activity: 2026-06-23
+last_updated: "2026-06-25T18:48:09.841Z"
+last_activity: 2026-06-25
 last_activity_desc: Phase 29 execution started
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 8
+  completed_plans: 8
   percent: 33
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 29 (reliability-observability) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
-Last activity: 2026-06-23 — Phase 29 execution started
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-06-25 — Phase 29 execution started
 
 ## Performance Metrics
 
@@ -105,6 +105,7 @@ Last activity: 2026-06-23 — Phase 29 execution started
 | Phase 29 P01 | 22min | 2 tasks | 23 files |
 | Phase 29 P02 | 9min | 2 tasks | 7 files |
 | Phase 29 P03 | 40min | 2 tasks | 15 files |
+| Phase 29 P04 | 5min | 3 tasks | 23 files |
 
 ## Accumulated Context
 
@@ -209,6 +210,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 29-03: OBS-02 report screen uses redact-then-editable-preview (D-04); Copy carries the full log, mailto carries a short paste-below body (D-06)
 - [Phase ?]: Phase 29-03: Settings 'Report a problem' row kept self-contained (buildReportRow + #settingsReportSection) for Phase 31 extraction safety
 - [Phase ?]: Phase 29-03: wedged recover stub routes to the existing OBS-03 hatch (PortfolioDB._showDBMigrationError), no second reset path
+- [Phase ?]: Phase 29-04: crashlog append() serialized behind a module-level tail-promise queue (never-rejecting links) — closes the cascade lost-update race; 5 concurrent logError calls now all persist
+- [Phase ?]: Phase 29-04: inline early-buffer P() neutralized post-load via if(self.CrashLog)return; across all 21 SW-registered pages — single-log guarantee; pre-load buffering + onerror chaining untouched
 
 ### Pending Todos
 
@@ -268,7 +271,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-23T10:40:59.516Z
+**Last session:** 2026-06-25T18:47:41.603Z
 
 Last activity: 2026-06-22 — v1.2 milestone formalized: REQUIREMENTS.md (20 reqs — VER/OBS/TEST/RFCT/DOCS/I18N) + `### Phase 28–33` ROADMAP detail sections written and committed (1a014d0). Done via *targeted formalization* (NOT `/gsd-new-milestone`) to avoid re-deriving the already-locked 28–33 scope.
 Stopped at: Completed 29-01-PLAN.md (OBS-01 crash-log foundation)

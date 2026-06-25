@@ -105,7 +105,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   2. Settings exposes a "Report a problem" action that copies the persisted error log plus basic diagnostic context to the clipboard for the user to paste into a support email — nothing is transmitted automatically
   3. When an IndexedDB migration fails, the user is offered a "reset & recover" escape hatch instead of an endless "please refresh" loop, and using it returns the app to a usable state
 
-**Plans:** 3/3 plans complete + 1 gap-closure plan
+**Plans:** 4/4 plans complete
 
 **Wave 1** *(parallel — no file overlap)*
 
@@ -118,7 +118,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 
 **Gap closure** *(UAT-diagnosed OBS-01 fixes, 2026-06-25)*
 
-- [ ] 29-04-PLAN.md — OBS-01 crash-log gap closure: serialize `append()` (tail-promise queue) to fix the lost-update race in concurrent appends (case 7 RED→GREEN), and guard the inline early-buffer handler across all 21 pages so a post-load error is logged exactly once (no 'early' duplicate)
+- [x] 29-04-PLAN.md — OBS-01 crash-log gap closure: serialize `append()` (tail-promise queue) to fix the lost-update race in concurrent appends (case 7 RED→GREEN), and guard the inline early-buffer handler across all 21 pages so a post-load error is logged exactly once (no 'early' duplicate)
 
 ### Phase 30: Test Harness & Coverage
 
@@ -212,7 +212,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 26. In-App Onboarding / Help | v1.1 | Design-only | Deferred — build in backlog | - |
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
-| 29. Reliability & Observability | v1.2 | 3/3 | Complete   | 2026-06-23 |
+| 29. Reliability & Observability | v1.2 | 4/4 | Complete   | 2026-06-23 |
 | 30. Test Harness & Coverage | v1.2 | 0/– | Planned | - |
 | 31. Refactor God Modules | v1.2 | 0/– | Planned | - |
 | 32. README + Code Comments | v1.2 | 0/– | Planned | - |
