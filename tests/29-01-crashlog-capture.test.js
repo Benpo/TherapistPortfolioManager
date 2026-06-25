@@ -449,6 +449,35 @@ const DAY = 24 * 60 * 60 * 1000;
     assert.strictEqual(xhrCalls, 0, 'XMLHttpRequest must never be constructed by the capture path');
   });
 
+  // ─── 7. concurrent appends must not lose entries (lost-update race) ──
+  // REGRESSION (Phase 29 /gsd-verify-work, on-device repro 2026-06-25): real
+  // crashes arrive in cascades — several errors in the SAME tick. append() does
+  // an async read-all (getEntries) → replaceAllCrashlog() full-replace. When
+  // appends interleave, each reads the pre-write set and clobbers the others, so
+  // only the last writer survives. A direct CrashLog.logError() seam entry (the
+  // exact seam Phase 28's integrity self-check uses) was dropped every time on
+  // device. The log MUST NOT under-count when it matters most.
+  await test('7. five concurrent logError calls all survive (no lost-update race)', async () => {
+    await CrashLog.clear();
+    const N = 5;
+    const base = Date.now();
+    // Fire N appends WITHOUT awaiting between them (the cascade case).
+    const ps = [];
+    for (let i = 0; i < N; i++) {
+      ps.push(CrashLog.logError({ message: 'concurrent ' + i, stack: '', url: 'x', timestamp: base + i }));
+    }
+    await Promise.all(ps);
+    await new Promise((r) => setTimeout(r, 30)); // let any trailing IDB writes settle
+    const entries = await CrashLog.getEntries();
+    const missing = [];
+    for (let i = 0; i < N; i++) {
+      if (!entries.find((e) => e.message === 'concurrent ' + i)) missing.push(i);
+    }
+    assert.strictEqual(missing.length, 0,
+      `all ${N} concurrent entries must persist; lost indices [${missing.join(', ')}] ` +
+      `(only ${entries.length}/${N} survived — lost-update race)`);
+  });
+
   console.log(`\n${passed} passed, ${failed} failed`);
   process.exit(failed > 0 ? 1 : 0);
 })();
