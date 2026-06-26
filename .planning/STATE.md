@@ -243,7 +243,7 @@ Recent decisions affecting current work:
 
 **Bugs (found during UAT):**
 
-- backup-not-preserving-snippet-prefix (BUG, 2026-06-26 — CONFIRMED; custom quick-paste prefix `?` lost on cross-browser backup→restore. Root cause: `portfolioSnippetPrefix` localStorage key not in backup manifest — `manifest.settings` only carries language+theme. Fix incl. wider localStorage-settings scope)
+- _(none open)_ — backup-not-preserving-snippet-prefix FIXED 2026-06-26 (snippetPrefix added to backup manifest + restore; falsifiable round-trip test). Phase 29 code-review INFO items IN-01/02/03 also closed 2026-06-26.
 
 ### Roadmap Evolution
 

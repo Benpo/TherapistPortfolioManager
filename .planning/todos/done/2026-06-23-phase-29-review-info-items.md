@@ -86,3 +86,12 @@ in `assets/i18n-cs.js`. A FULLER review of the Phase-29 Czech/German report keys
 - **IN-03 + IN-02**: one small behavior-tested commit each — fold into the Phase 29
   close-out fixing pass, or Phase 31's opportunistic-in-touched-code cleanup.
 - **IN-01**: the one string is ready to drop in now; broader CS/DE report-key review → Phase 33.
+
+---
+
+## RESOLUTION — 2026-06-26 (all three fixed & committed)
+
+- **IN-03** (commit `2948b39`): `getEntries()` now unions IDB ∪ mirror, dedupes, prunes. Test `tests/29-in03-getentries-merge.test.js` (2 cases).
+- **IN-02** (commit `f68e6df`): `clearAll()` no longer wipes `crashlog` (restore preserves the diagnostic trail) + cached `openDB()`. Test `tests/29-in02-restore-preserves-crashlog.test.js`.
+- **IN-01** (rode in with `2948b39`): cs.emptyBody → `Na tomto zařízení se nic nepokazilo. Není co hlásit.`
+- All 9 Phase-29 tests green. Broader CS/DE report-key review → Phase 33.

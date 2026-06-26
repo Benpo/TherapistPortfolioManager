@@ -59,3 +59,12 @@ installs). At minimum, add the snippet prefix.
 
 Found by Ben during on-device UAT of quick-task 260626-h5j (snippet trigger space handling):
 backed up and restored the whole app between browsers; the custom `?` prefix did not travel.
+
+---
+
+## RESOLUTION — 2026-06-26 (fixed)
+
+- Export: `_assembleBackupZip()` adds `manifest.settings.snippetPrefix` (single builder → covers normal + recovery export).
+- Restore: `importBackup()` writes the prefix back via `window.Snippets.setPrefix()` (live pickup) with localStorage fallback; validated to the 1–2 char rule; backward-compatible (old backups without the key leave the existing prefix untouched).
+- Scope decision: ONLY the snippet prefix added now. License keys (`portfolioLicenseKey/Instance`), terms-acceptance, and UX-dismissal flags deliberately NOT exported (per-install / legal / device-local) — documented inline in backup.js.
+- Test: `tests/snippet-prefix-backup-roundtrip.test.js` (3 cases — export carries prefix + no license, restore into clean install, old-backup backward-compat). Falsifiable: 2/3 fail on pre-fix code.
