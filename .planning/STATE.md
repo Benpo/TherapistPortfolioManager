@@ -216,7 +216,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-17 pending todos in .planning/todos/pending/:
+18 pending todos in .planning/todos/pending/:
 
 **Pre-existing:**
 
@@ -240,6 +240,10 @@ Recent decisions affecting current work:
 - dark-mode-persists-on-landing-after-deactivation
 - deactivation-data-loss-warning (stronger confirmation when client data exists)
 - terms-acceptance-business-notification (webhook to n8n)
+
+**Bugs (found during UAT):**
+
+- backup-not-preserving-snippet-trigger (BUG, 2026-06-26 — pre-existing; static read suggests trigger IS serialized in all 3 paths, so needs live repro; clarify which backup type)
 
 ### Roadmap Evolution
 
