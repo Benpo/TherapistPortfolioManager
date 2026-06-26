@@ -108,14 +108,43 @@ window.Snippets = (function () {
 
     if (hasBoundary) {
       const snippet = snippetsByTrigger.get(triggerText);
-      if (!snippet) return null;
-      return {
-        type: "match",
-        start: matchStart,
-        end: matchEnd - m[3].length, // exclude boundary
-        boundary: m[3],
-        snippet: snippet,
-      };
+      if (snippet) {
+        return {
+          type: "match",
+          start: matchStart,
+          end: matchEnd - m[3].length, // exclude boundary
+          boundary: m[3],
+          snippet: snippet,
+        };
+      }
+      // No exact trigger. Smart-commit ONLY when exactly one trigger
+      // prefix-matches the partial (e.g. `;physical ` → physical-trauma).
+      // TRIGGER prefix-matches ONLY — tag matches never auto-expand (they are
+      // not an unambiguous trigger; tag-fallback stays popover-only). Single
+      // pass over the map (same startsWith test as the partial branch) keeps
+      // the ReDoS budget; `startsWith` on lowercased triggers is Unicode-safe.
+      let sole = null;
+      let soleCount = 0;
+      for (const [trigger, candidate] of snippetsByTrigger) {
+        if (trigger.startsWith(triggerText)) {
+          soleCount++;
+          if (soleCount > 1) break; // ambiguous — bail early, stay popover/no-op
+          sole = candidate;
+        }
+      }
+      if (soleCount === 1) {
+        // Same shape as the exact-match path: boundary excluded from the
+        // replaced range so insertExpansion leaves the typed boundary in place.
+        return {
+          type: "match",
+          start: matchStart,
+          end: matchEnd - m[3].length, // exclude boundary
+          boundary: m[3],
+          snippet: sole,
+        };
+      }
+      // 0 or 2+ trigger prefix-matches — today's behavior (no-op / popover).
+      return null;
     }
 
     const candidates = [];
