@@ -128,6 +128,7 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 | v1.2 runs in dependency order, not stated-priority order | Tests must precede the refactor (safety net); PWA update delivery must work first or no fix reaches installed users; docs describe the *refactored* code | ✓ Order P28→P33, agreed 2026-06-22 |
 | Real footer version + runtime integrity check (reverses 2026-06-14 "leave placeholder") | A version label is only useful if it can't lie; the v209 cache incident proved the bare label lies. One source drives footer + cache + a loaded-code self-check. Offline-safe (no phone-home) | — To build in P28 |
 | License re-validation → backlog (not v1.2) | Would harden the trivially-bypassed paywall but adds a phone-home to an offline-first app; revisit only if piracy is observed | ✓ Deferred 2026-06-22 |
+| Zero-dependency rule applies to PRODUCTION code only; dev/test tooling may use npm freely | Cloudflare ships static `/assets/*`, never `node_modules` — dev deps (e.g. jsdom for PDF tests) never reach customers, so they don't compromise the ~50KB zero-runtime-dep production bundle | ✓ Decided 2026-06-26 (Phase 30 discuss) — first `package.json` (devDeps-only) lands in P30 |
 
 ## Current Milestone: v1.2 Codebase Health & Reliability (scope locked — planning per phase)
 
