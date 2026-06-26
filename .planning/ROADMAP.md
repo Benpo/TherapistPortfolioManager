@@ -132,7 +132,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   3. Behavior tests capture the current observable behavior of `settings.js` and `add-session.js`, and they pass against the unrefactored code (the pre-refactor green baseline)
   4. The full test suite runs via a single documented command
 
-**Plans:** 2/6 plans executed
+**Plans:** 3/6 plans executed
 
 **Wave 1** *(foundation)*
 
@@ -144,7 +144,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 
 **Wave 3** *(tests — parallel, no file overlap — blocked on 30-02)*
 
-- [ ] 30-03-PLAN.md — TEST-01 + TEST-02: migrate the 7 PDF tests onto the shared helper (getContext stubbed, no `/tmp` jsdom) + `tests/30-rtl-guard.test.js` (real `App.setLanguage` dir path, he→rtl / en·de·cs→ltr, fails on non-Hebrew rtl)
+- [x] 30-03-PLAN.md — TEST-01 + TEST-02: migrate the 7 PDF tests onto the shared helper (getContext stubbed, no `/tmp` jsdom) + `tests/30-rtl-guard.test.js` (real `App.setLanguage` dir path, he→rtl / en·de·cs→ltr, fails on non-Hebrew rtl)
 - [ ] 30-04-PLAN.md — TEST-03 settings.js: `30-settings-section-roundtrip.test.js` (jsdom real-page save→reload round-trip, closes the documented gap) + `30-settings-tabnav.test.js` (?tab= select / URL write / invalid fallback)
 - [ ] 30-05-PLAN.md — TEST-03 add-session export modal: `30-export-markdown.test.js` (executing markdown-builder characterization via the real export preview/copy — replaces source-slicing) + `30-export-stepper.test.js` (stepper 1→2→3 + preview + files-only share)
 - [ ] 30-06-PLAN.md — TEST-03 add-session issues: `30-issue-delta.test.js` (severity before→after delta + `getIssuesPayload` shape + empty-row validation, executing observable-behavior)
@@ -231,7 +231,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
 | 29. Reliability & Observability | v1.2 | 4/4 | Complete    | 2026-06-23 |
-| 30. Test Harness & Coverage | v1.2 | 2/6 | In Progress|  |
+| 30. Test Harness & Coverage | v1.2 | 3/6 | In Progress|  |
 | 31. Refactor God Modules | v1.2 | 0/– | Planned | - |
 | 32. README + Code Comments | v1.2 | 0/– | Planned | - |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
