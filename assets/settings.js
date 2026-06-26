@@ -578,6 +578,11 @@ window.SettingsPage = (function () {
     controls.className = "settings-row-controls settings-report-controls";
 
     // Primary affordance: navigate to the dedicated report screen.
+    // "Report a problem" affordance (UAT 2026-06-26): styled as a soft AMBER
+    // "alert" (warning palette) — signals "something's wrong" without the loud
+    // green primary or the solid-red Delete style, and stays visually distinct
+    // from the quiet outlined "Clear problem log" beside it. Amber styling lives
+    // on .settings-report-open in app.css (themed for light + dark).
     var openLink = document.createElement("a");
     openLink.className = "button settings-report-open";
     openLink.setAttribute("data-role", "report-open");

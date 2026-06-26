@@ -2936,7 +2936,18 @@ html[dir="rtl"] .settings-locked-info::after {
   gap: 8px;
   align-items: center;
 }
-.settings-report-open { text-decoration: none; }
+.settings-report-open {
+  text-decoration: none;
+  /* Soft amber "alert" tone (UAT 2026-06-26): "Report a problem" reads as an
+     attention/alert affordance — NOT the green primary (.button default) and
+     NOT the solid-red Delete style (.button.danger). Overrides .button's green
+     fill; stays distinct from the quiet outlined "Clear problem log". Warning
+     tokens are themed for light + dark. */
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border: 1px solid var(--color-warning-text);
+  box-shadow: none;
+}
 
 /* OBS-02 report screen (Phase 29, Surface A — full app tokens). */
 .report-preview-field { margin-block: 1.3rem; }
