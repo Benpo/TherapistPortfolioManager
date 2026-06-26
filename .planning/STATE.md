@@ -243,7 +243,7 @@ Recent decisions affecting current work:
 
 **Bugs (found during UAT):**
 
-- backup-not-preserving-snippet-trigger (BUG, 2026-06-26 — pre-existing; static read suggests trigger IS serialized in all 3 paths, so needs live repro; clarify which backup type)
+- backup-not-preserving-snippet-prefix (BUG, 2026-06-26 — CONFIRMED; custom quick-paste prefix `?` lost on cross-browser backup→restore. Root cause: `portfolioSnippetPrefix` localStorage key not in backup manifest — `manifest.settings` only carries language+theme. Fix incl. wider localStorage-settings scope)
 
 ### Roadmap Evolution
 
