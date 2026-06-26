@@ -61,7 +61,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 
 - [x] **Phase 28: Update Reliability & Versioning** — field-verified fix for installed-Safari PWA updates; one source-of-truth version constant driving the footer + SW `CACHE_NAME` + a runtime **integrity self-check** (so the displayed version can't lie, as v209 did); CSP `<meta>`→HTTP header; `_headers` cache TTL. Fully offline-compatible (no phone-home). Footer source today: `assets/shared-chrome.js:~8`. (completed 2026-06-22)
 - [x] **Phase 29: Reliability & Observability** — local crash log persisted to IndexedDB + a Settings "Report a problem" copy-to-clipboard flow (zero network, GDPR-safe); IDB migration "reset & recover" escape hatch so a failed migration can't trap a user in an infinite refresh loop. (completed 2026-06-23)
-- [ ] **Phase 30: Test Harness & Coverage** — fix the 7 PDF tests that can't run in Node (`jsdom` lacks `HTMLCanvasElement.getContext`; old-Node `blob.arrayBuffer`); add an RTL regression guard; add **behavior tests on the god modules before the refactor** (per `feedback-behavior-verification`). May introduce the project's first `package.json` + dev-dependency (decide at plan time).
+- [x] **Phase 30: Test Harness & Coverage** — fix the 7 PDF tests that can't run in Node (`jsdom` lacks `HTMLCanvasElement.getContext`; old-Node `blob.arrayBuffer`); add an RTL regression guard; add **behavior tests on the god modules before the refactor** (per `feedback-behavior-verification`). May introduce the project's first `package.json` + dev-dependency (decide at plan time). (completed 2026-06-26)
 - [ ] **Phase 31: Refactor God Modules** — behavior-preserving extraction from `settings.js` (~2,827 lines) and `add-session.js` (~2,173 lines) using the existing IIFE pattern; guarded by the green suite from Phase 30. Opportunistic in touched code: `var`→`const`, `innerHTML`-i18n hardening, `openDB()` connection pooling, logging in silent catches.
 - [ ] **Phase 32: README + Code Comments** — project README (run/deploy/architecture) for Sapir as ongoing maintainer; code-level comments describing the *refactored* structure.
 - [ ] **Phase 33: DE/CS i18n completion** — translate the 13 export-modal keys currently showing English to German/Czech users (needs Sapir's strings). Independent of the others — slot in whenever ready.
@@ -132,7 +132,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   3. Behavior tests capture the current observable behavior of `settings.js` and `add-session.js`, and they pass against the unrefactored code (the pre-refactor green baseline)
   4. The full test suite runs via a single documented command
 
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans complete
 
 **Wave 1** *(foundation)*
 
@@ -147,7 +147,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 - [x] 30-03-PLAN.md — TEST-01 + TEST-02: migrate the 7 PDF tests onto the shared helper (getContext stubbed, no `/tmp` jsdom) + `tests/30-rtl-guard.test.js` (real `App.setLanguage` dir path, he→rtl / en·de·cs→ltr, fails on non-Hebrew rtl)
 - [x] 30-04-PLAN.md — TEST-03 settings.js: `30-settings-section-roundtrip.test.js` (jsdom real-page save→reload round-trip, closes the documented gap) + `30-settings-tabnav.test.js` (?tab= select / URL write / invalid fallback)
 - [x] 30-05-PLAN.md — TEST-03 add-session export modal: `30-export-markdown.test.js` (executing markdown-builder characterization via the real export preview/copy — replaces source-slicing) + `30-export-stepper.test.js` (stepper 1→2→3 + preview + files-only share)
-- [ ] 30-06-PLAN.md — TEST-03 add-session issues: `30-issue-delta.test.js` (severity before→after delta + `getIssuesPayload` shape + empty-row validation, executing observable-behavior)
+- [x] 30-06-PLAN.md — TEST-03 add-session issues: `30-issue-delta.test.js` (severity before→after delta + `getIssuesPayload` shape + empty-row validation, executing observable-behavior)
 
 ### Phase 31: Refactor God Modules
 
@@ -231,7 +231,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
 | 29. Reliability & Observability | v1.2 | 4/4 | Complete    | 2026-06-23 |
-| 30. Test Harness & Coverage | v1.2 | 5/6 | In Progress|  |
+| 30. Test Harness & Coverage | v1.2 | 6/6 | Complete   | 2026-06-26 |
 | 31. Refactor God Modules | v1.2 | 0/– | Planned | - |
 | 32. README + Code Comments | v1.2 | 0/– | Planned | - |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
