@@ -26,10 +26,10 @@ Requirements for the Codebase Health & Reliability milestone. Each maps to exact
 
 ### Test Harness & Coverage (Phase 30)
 
-- [ ] **TEST-01**: The 7 currently-unrunnable PDF tests run green in Node (resolve the `jsdom` `HTMLCanvasElement.getContext` gap and the old-Node `blob.arrayBuffer` issue)
+- [x] **TEST-01**: The 7 currently-unrunnable PDF tests run green in Node (resolve the `jsdom` `HTMLCanvasElement.getContext` gap and the old-Node `blob.arrayBuffer` issue)
 - [ ] **TEST-02**: An automated RTL regression guard fails if `dir="rtl"` is wrongly applied to non-Hebrew locales (EN/DE/CS)
 - [ ] **TEST-03**: Behavior tests capture the current observable behavior of the god modules (`settings.js`, `add-session.js`) before any refactor, establishing a green safety net (per `feedback-behavior-verification`)
-- [ ] **TEST-04**: The full test suite runs via a single documented command (whether to introduce the project's first `package.json` + dev-dependencies is a plan-time decision)
+- [x] **TEST-04**: The full test suite runs via a single documented command (whether to introduce the project's first `package.json` + dev-dependencies is a plan-time decision)
 
 ### Refactor God Modules (Phase 31)
 
@@ -98,10 +98,10 @@ Which phases cover which requirements. Status filled during execution.
 | OBS-01 | Phase 29 | Complete |
 | OBS-02 | Phase 29 | Complete |
 | OBS-03 | Phase 29 | Complete |
-| TEST-01 | Phase 30 | Pending |
+| TEST-01 | Phase 30 | Complete |
 | TEST-02 | Phase 30 | Pending |
 | TEST-03 | Phase 30 | Pending |
-| TEST-04 | Phase 30 | Pending |
+| TEST-04 | Phase 30 | Complete |
 | RFCT-01 | Phase 31 | Pending |
 | RFCT-02 | Phase 31 | Pending |
 | RFCT-03 | Phase 31 | Pending |

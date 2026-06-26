@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 30
-current_phase_name: Test Harness & Coverage
+current_phase_name: test-harness-coverage
 status: executing
 stopped_at: Phase 30 context gathered
-last_updated: "2026-06-26T20:18:16.607Z"
+last_updated: "2026-06-26T21:39:24.498Z"
 last_activity: 2026-06-26
-last_activity_desc: Phase 29 complete (UAT 5/5 pass, verified), transitioned to Phase 30
+last_activity_desc: Phase 30 execution started
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 14
+  completed_plans: 9
   percent: 33
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 30 — Test Harness & Coverage
+**Current focus:** Phase 30 — test-harness-coverage
 
 ## Current Position
 
-Phase: 30 — Test Harness & Coverage
-Plan: Not started
+Phase: 30 (test-harness-coverage) — EXECUTING
+Plan: 2 of 6
 Status: Ready to execute
-Last activity: 2026-06-26 — Phase 29 complete (UAT 5/5 pass, verified), transitioned to Phase 30
+Last activity: 2026-06-26 — Phase 30 execution started
 
 ## Performance Metrics
 
@@ -107,6 +107,7 @@ Last activity: 2026-06-26 — Phase 29 complete (UAT 5/5 pass, verified), transi
 | Phase 29 P02 | 9min | 2 tasks | 7 files |
 | Phase 29 P03 | 40min | 2 tasks | 15 files |
 | Phase 29 P04 | 5min | 3 tasks | 23 files |
+| Phase 30 P01 | 2min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -213,6 +214,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 29-03: wedged recover stub routes to the existing OBS-03 hatch (PortfolioDB._showDBMigrationError), no second reset path
 - [Phase ?]: Phase 29-04: crashlog append() serialized behind a module-level tail-promise queue (never-rejecting links) — closes the cascade lost-update race; 5 concurrent logError calls now all persist
 - [Phase ?]: Phase 29-04: inline early-buffer P() neutralized post-load via if(self.CrashLog)return; across all 21 SW-registered pages — single-log guarantee; pre-load buffering + onerror chaining untouched
+- [Phase ?]: Phase 30-01: engines.node floor >=18.0.0 (native Blob.prototype.arrayBuffer); not higher per Pitfall 3
+- [Phase ?]: Phase 30-01: JSDOM_PATH set unconditionally to repo node_modules/jsdom, overriding stale legacy /tmp exports (F-G)
 
 ### Pending Todos
 
@@ -277,7 +280,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-26T16:46:04.565Z
+**Last session:** 2026-06-26T21:39:01.785Z
 
 Last activity: 2026-06-26 — Quick task 260626-h5j: snippet trigger space handling (recall smart-commit + editor space→hyphen auto-convert + reworded format error in 4 langs). Investigation of a "quick-paste not working in Czech" report proved NO Czech bug — root cause was a typed space in the trigger. TDD RED→GREEN (11+6 new tests), 24-04 + 260619-okw regressions green, commits `d284ee6` + `92dbef4`. Earlier today: Phase 29 re-verification complete (5/5 UAT pass, on-device confirmed; OBS-02 NUL copy-truncation fixed `2f27feb`; amber report button `ab97211`); Phase 29 → complete.
 Stopped at: Phase 30 context gathered

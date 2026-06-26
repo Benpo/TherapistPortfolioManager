@@ -132,11 +132,11 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   3. Behavior tests capture the current observable behavior of `settings.js` and `add-session.js`, and they pass against the unrefactored code (the pre-refactor green baseline)
   4. The full test suite runs via a single documented command
 
-**Plans:** 6 plans
+**Plans:** 1/6 plans executed
 
 **Wave 1** *(foundation)*
 
-- [ ] 30-01-PLAN.md — TEST-04 runner foundation: first-ever root `package.json` (private, devDeps={jsdom ^29.1.1}, engines `>=18`) + `tests/run-all.js` (single `npm test`, JSDOM_PATH bridge to the installed jsdom); engines floor fixes the `blob.arrayBuffer` root cause (TEST-01)
+- [x] 30-01-PLAN.md — TEST-04 runner foundation: first-ever root `package.json` (private, devDeps={jsdom ^29.1.1}, engines `>=18`) + `tests/run-all.js` (single `npm test`, JSDOM_PATH bridge to the installed jsdom); engines floor fixes the `blob.arrayBuffer` root cause (TEST-01)
 
 **Wave 2** *(shared helpers — blocked on 30-01)*
 
@@ -231,7 +231,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
 | 29. Reliability & Observability | v1.2 | 4/4 | Complete    | 2026-06-23 |
-| 30. Test Harness & Coverage | v1.2 | 0/– | Planned | - |
+| 30. Test Harness & Coverage | v1.2 | 1/6 | In Progress|  |
 | 31. Refactor God Modules | v1.2 | 0/– | Planned | - |
 | 32. README + Code Comments | v1.2 | 0/– | Planned | - |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
