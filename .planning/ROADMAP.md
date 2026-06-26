@@ -132,6 +132,23 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   3. Behavior tests capture the current observable behavior of `settings.js` and `add-session.js`, and they pass against the unrefactored code (the pre-refactor green baseline)
   4. The full test suite runs via a single documented command
 
+**Plans:** 6 plans
+
+**Wave 1** *(foundation)*
+
+- [ ] 30-01-PLAN.md — TEST-04 runner foundation: first-ever root `package.json` (private, devDeps={jsdom ^29.1.1}, engines `>=18`) + `tests/run-all.js` (single `npm test`, JSDOM_PATH bridge to the installed jsdom); engines floor fixes the `blob.arrayBuffer` root cause (TEST-01)
+
+**Wave 2** *(shared helpers — blocked on 30-01)*
+
+- [ ] 30-02-PLAN.md — Shared test helpers: `tests/_helpers/jsdom-pdf-env.js` (`buildJsdomEnv`, getContext→null stub, deterministic jsPDF pinning) + `tests/_helpers/app-stub.js` (`createAppStub` App.* surface with `__calls` spy, resolving `initCommon`)
+
+**Wave 3** *(tests — parallel, no file overlap — blocked on 30-02)*
+
+- [ ] 30-03-PLAN.md — TEST-01 + TEST-02: migrate the 7 PDF tests onto the shared helper (getContext stubbed, no `/tmp` jsdom) + `tests/30-rtl-guard.test.js` (real `App.setLanguage` dir path, he→rtl / en·de·cs→ltr, fails on non-Hebrew rtl)
+- [ ] 30-04-PLAN.md — TEST-03 settings.js: `30-settings-section-roundtrip.test.js` (jsdom real-page save→reload round-trip, closes the documented gap) + `30-settings-tabnav.test.js` (?tab= select / URL write / invalid fallback)
+- [ ] 30-05-PLAN.md — TEST-03 add-session export modal: `30-export-markdown.test.js` (executing markdown-builder characterization via the real export preview/copy — replaces source-slicing) + `30-export-stepper.test.js` (stepper 1→2→3 + preview + files-only share)
+- [ ] 30-06-PLAN.md — TEST-03 add-session issues: `30-issue-delta.test.js` (severity before→after delta + `getIssuesPayload` shape + empty-row validation, executing observable-behavior)
+
 ### Phase 31: Refactor God Modules
 
 **Goal**: The two largest modules are decomposed into cohesive single-responsibility IIFE modules with no observable behavior change, verified by the Phase 30 suite staying green throughout.
