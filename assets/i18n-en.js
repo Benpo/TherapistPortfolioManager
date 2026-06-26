@@ -516,7 +516,7 @@ window.I18N.en = {
   "snippets.editor.title.edit": "Edit snippet",
   "snippets.editor.trigger.label": "Trigger",
   "snippets.editor.trigger.placeholder": "e.g. betrayal",
-  "snippets.editor.trigger.error.format": "Trigger must be 2–32 letters, digits, or hyphens.",
+  "snippets.editor.trigger.error.format": "Triggers can't contain spaces. Use a hyphen instead, e.g. physical-trauma.",
   "snippets.editor.trigger.error.duplicate": "Another snippet already uses this trigger.",
   "snippets.editor.expansion.lang.en": "Expansion (English)",
   "snippets.editor.expansion.lang.he": "Expansion (עברית)",

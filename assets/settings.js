@@ -867,6 +867,7 @@ window.SettingsPage = (function () {
       filterSnippetList: filterSnippetList,
       isModifiedSeed: isModifiedSeed,
       isValidTrigger: isValidTrigger,
+      hyphenateSpaces: hyphenateSpaces,
       getCrossLangWarning: getCrossLangWarning,
       pendingTagToCommit: pendingTagToCommit,
       commitPendingTag: commitPendingTag,
@@ -884,6 +885,17 @@ window.SettingsPage = (function () {
 
   function isValidTrigger(trigger) {
     return TRIGGER_REGEX.test(String(trigger));
+  }
+
+  /**
+   * hyphenateSpaces — pure helper that replaces any run of whitespace with a
+   * single regular hyphen-minus `-` (U+002D), the ONLY dash TRIGGER_REGEX
+   * accepts. NEVER emits an em-dash (U+2014) or en-dash (U+2013). Lets a user
+   * who instinctively types `physical trauma` get a valid `physical-trauma`
+   * trigger. Unicode-safe: non-space letters (Hebrew/German/Czech) pass through.
+   */
+  function hyphenateSpaces(value) {
+    return String(value).replace(/\s+/g, "-");
   }
 
   /**
@@ -1508,7 +1520,10 @@ window.SettingsPage = (function () {
     var activeExpansion = $("snippetEditorActiveExpansion");
     var translationsBlock = $("snippetEditorTranslationsBlock");
 
-    var trigger = String(triggerInput.value || "").trim().toLowerCase();
+    // Defensive: convert any space that survived paste / programmatic-set into a
+    // hyphen-minus BEFORE validation, so a typed space never dead-ends at the
+    // format error (the reworded error stays the fallback for other bad input).
+    var trigger = hyphenateSpaces(String(triggerInput.value || "")).trim().toLowerCase();
     triggerErr.classList.add("is-hidden");
     triggerErr.textContent = "";
 
@@ -1904,6 +1919,26 @@ window.SettingsPage = (function () {
     // Editor modal controls
     var saveBtn = $("snippetEditorSave");
     if (saveBtn) saveBtn.addEventListener("click", handleSave);
+
+    // Live space->hyphen self-correction on the trigger input. The field self-
+    // corrects `physical trauma` -> `physical-trauma` as the user types, so a
+    // space never reaches the format error. Caret is preserved across the
+    // rewrite. Bound once here; the element persists across openEditor calls.
+    // Assign to element.value ONLY (never innerHTML) — preserves the no-innerHTML
+    // grep gate (settings.js header SECURITY note).
+    var triggerInputLive = $("snippetEditorTrigger");
+    if (triggerInputLive) {
+      triggerInputLive.addEventListener("input", function () {
+        var raw = triggerInputLive.value;
+        if (!/\s/.test(raw)) return;
+        var caret = triggerInputLive.selectionStart;
+        var converted = hyphenateSpaces(raw);
+        if (converted === raw) return;
+        triggerInputLive.value = converted;
+        var pos = Math.min(typeof caret === "number" ? caret : converted.length, converted.length);
+        try { triggerInputLive.setSelectionRange(pos, pos); } catch (e) { /* unsupported — ignore */ }
+      });
+    }
     var cancelBtn = $("snippetEditorCancel");
     if (cancelBtn) cancelBtn.addEventListener("click", closeEditor);
     var closeBtn = $("snippetEditorClose");

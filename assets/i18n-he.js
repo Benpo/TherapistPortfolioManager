@@ -512,7 +512,7 @@ window.I18N.he = {
   "snippets.editor.title.edit": "עריכת השלמה",
   "snippets.editor.trigger.label": "מילת הפעלה",
   "snippets.editor.trigger.placeholder": "למשל betrayal",
-  "snippets.editor.trigger.error.format": "הטריגר חייב להכיל 2–32 אותיות, ספרות או מקפים.",
+  "snippets.editor.trigger.error.format": "הטריגר לא יכול להכיל רווחים. יש להשתמש במקף, למשל physical-trauma.",
   "snippets.editor.trigger.error.duplicate": "השלמה אחרת כבר משתמשת במילת הפעלה זו.",
   "snippets.editor.expansion.lang.en": "טקסט (English)",
   "snippets.editor.expansion.lang.he": "טקסט (עברית)",

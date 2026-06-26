@@ -525,7 +525,7 @@ window.I18N.cs = {
   "snippets.editor.title.edit": "Upravit \u00FAryvek",
   "snippets.editor.trigger.label": "Spou\u0161t\u011B\u010D",
   "snippets.editor.trigger.placeholder": "nap\u0159. betrayal",
-  "snippets.editor.trigger.error.format": "Spou\u0161t\u011B\u010D mus\u00ED m\u00EDt 2\u201332 p\u00EDsmen, \u010D\u00EDslic nebo poml\u010Dek.",
+  "snippets.editor.trigger.error.format": "Spou\u0161t\u011B\u010D nesm\u00ED obsahovat mezery. Pou\u017Eijte poml\u010Dku, nap\u0159. physical-trauma.",
   "snippets.editor.trigger.error.duplicate": "Tento spou\u0161t\u011B\u010D ji\u017E pou\u017E\u00EDv\u00E1 jin\u00FD \u00FAryvek.",
   "snippets.editor.expansion.lang.en": "Text (Anglicky)",
   "snippets.editor.expansion.lang.he": "Text (Hebrejsky)",
