@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
-current_phase: 29
-current_phase_name: reliability-observability
-status: verifying
-stopped_at: 29-04 gap-closure executed + verified (4/4 must-haves, no regressions); 29-UAT tests 2&3 need on-device re-confirmation
-last_updated: "2026-06-25T18:59:18.638Z"
-last_activity: 2026-06-25
-last_activity_desc: 29-04 gap closure complete (lost-update race + post-load double-log fixed; all crashlog tests GREEN); awaiting on-device UAT re-confirm via /gsd-verify-work 29
+current_phase: 30
+current_phase_name: Test Harness & Coverage
+status: ready
+stopped_at: Phase 29 complete — UAT 5/5 pass (verified, on-device confirmed); ready to plan Phase 30
+last_updated: "2026-06-26T08:07:20.106Z"
+last_activity: 2026-06-26
+last_activity_desc: Phase 29 complete, transitioned to Phase 30
 progress:
   total_phases: 6
   completed_phases: 2
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 29 — reliability-observability
+**Current focus:** Phase 30 — Test Harness & Coverage
 
 ## Current Position
 
-Phase: 29 (reliability-observability) — gap closure done, awaiting on-device UAT
-Plan: 4 of 4 (all complete; 29-04 closed the 2 UAT-diagnosed OBS-01 gaps)
-Status: verifying — code fixes proven by tests; field re-confirm pending
-Last activity: 2026-06-25 — 29-04 gap closure complete (race + double-log); re-verified 4/4 must-haves
+Phase: 30 — Test Harness & Coverage
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-06-26 — Phase 29 complete (UAT 5/5 pass, verified), transitioned to Phase 30
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Last activity: 2026-06-25 — 29-04 gap closure complete (race + double-log); re
 | 25 | 13 | - | - |
 | 27 | 1 | - | - |
 | 28 | 4 | - | - |
+| 29 | 4 | - | - |
 
 **Recent Trend:**
 
@@ -271,12 +272,12 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-25T18:47:41.603Z
+**Last session:** 2026-06-26
 
-Last activity: 2026-06-22 — v1.2 milestone formalized: REQUIREMENTS.md (20 reqs — VER/OBS/TEST/RFCT/DOCS/I18N) + `### Phase 28–33` ROADMAP detail sections written and committed (1a014d0). Done via *targeted formalization* (NOT `/gsd-new-milestone`) to avoid re-deriving the already-locked 28–33 scope.
-Stopped at: Completed 29-01-PLAN.md (OBS-01 crash-log foundation)
-Resume file: .planning/phases/29-reliability-observability/29-UI-SPEC.md
-Next: `/gsd-discuss-phase 28` in a fresh window (captures HOW decisions → CONTEXT.md), then `/gsd-plan-phase 28`.
+Last activity: 2026-06-26 — Phase 29 re-verification (`/gsd-verify-work 29`) complete: 5/5 UAT pass, all on-device confirmed. The 29-04 race + double-log fixes held; a new OBS-02 copy-truncation bug (NUL bytes in `redactReport` → Safari clipboard cut) was found, fixed (`2f27feb`, Case 7 test RED→GREEN), and confirmed; Settings "Report a problem" button restyled green→amber (`ab97211`). VERIFICATION → passed; Phase 29 → complete.
+Stopped at: Phase 29 complete, ready to plan Phase 30 (Test Harness & Coverage).
+Resume file: None.
+Next: `/gsd-plan-phase 30` (or `/gsd-discuss-phase 30` first). NOTE: 42 commits were pushed to origin/main this session → Cloudflare deploy of Phase 28 + 29 to production.
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
 

@@ -1,7 +1,7 @@
 ---
 phase: 29-reliability-observability
 verified: 2026-06-25T21:00:00Z
-status: human_needed
+status: passed
 score: 4/4 must-haves verified (29-04 gap-closure truths)
 behavior_unverified: 0
 overrides_applied: 0
@@ -9,15 +9,18 @@ re_verification:
   previous_status: human_needed
   previous_score: 3/3
   gaps_closed:
+
     - "GAP 1 (race): Five concurrent CrashLog.logError() calls now all persist — the lost-update race in append() is closed via the _appendTail tail-promise queue. Test 29-01 case 7: was 1/5 survive (RED), now 5/5 (GREEN)."
     - "GAP 2 (double-log): A post-load error yields exactly one persisted entry — the inline P() guard `if(self.CrashLog)return;` neutralizes the early-buffer handler once the full module is present. Test 29-05: 2/2 GREEN."
     - "D-06 (mailto reliability): cleared in on-device UAT (29-UAT.md test 1 — result: pass). No longer a pending human item."
   gaps_remaining: []
   regressions: []
 human_verification:
+
   - test: "Install the updated Sessions Garden PWA (post-29-04 deploy). Tap 'Generate 3 test problems'. Open the crash log (Settings → Report a problem) and count the entries: expect 3 distinct entries, one for each error source (direct logError seam, unhandled rejection, uncaught error) — not 1 out of 3 (the pre-fix race result)."
     expected: "All three errors from the cascade are persisted. No entry is dropped. The cascade race is confirmed closed on a real installed PWA."
     why_human: "The race was discovered only on an installed PWA during Phase 29 UAT (2026-06-25). The unit test (case 7 — 5 concurrent logError calls, all survive) fully exercises the serialized append path and is GREEN. However, field-verification on a real installed device is the project's established sign-off for on-device correctness (Phase 28 pattern). The test proves the fix; on-device confirms it survives the full PWA boot chain."
+
   - test: "On the updated installed PWA, open any page (e.g. report.html). In the browser console or via 'Generate test problems', trigger a single uncaught error. Open the crash log. Confirm the error appears exactly once — not twice as source:'early' and source:'onerror'."
     expected: "Exactly one entry per error. No 'early' duplicate. The real-source entry survives."
     why_human: "The double-logging was observed on-device in Phase 29 UAT (2026-06-25). The falsifiable test (29-05 cases A+B) exercises the full page-load order (inline P() installed before crashlog.js, then crashlog.js loaded, then post-load error fired) and is GREEN. On-device confirmation closes the field-verification loop."
@@ -26,9 +29,21 @@ human_verification:
 # Phase 29: Reliability & Observability — Re-Verification Report (29-04 Gap Closure)
 
 **Phase Goal:** Production problems on a user's device are diagnosable — errors are captured locally, the user can hand over a diagnostic log without any data leaving the device, and a failed database migration can no longer trap the user in an unrecoverable refresh loop.
-**Verified:** 2026-06-25
-**Status:** human_needed
+**Verified:** 2026-06-25 (closed 2026-06-26)
+**Status:** passed
 **Re-verification:** Yes — after 29-04 gap closure (two OBS-01 UAT gaps diagnosed 2026-06-25, fixed same day)
+
+> **Re-verification close (2026-06-26).** Both human-verification items below were
+> confirmed on-device (local build, Safari): the cascade race fix (GAP 1) — a
+> 3-source cascade now persists all 3 entries; and the double-log fix (GAP 2) —
+> one post-load error yields exactly one entry, no `early` duplicate. During the
+> same on-device UAT a separate OBS-02 bug surfaced and was fixed: **Copy report
+> truncated to the header** because `redactReport()` left NUL bytes around the
+> `User agent:` line and Safari's NUL-terminated clipboard cut the paste — fixed
+> in commit `2f27feb` (plain placeholder token; 0 NUL bytes) with a falsifiable
+> guard (`tests/29-03-report.test.js` Case 7, RED→GREEN). A cosmetic Settings
+> "Report a problem" button restyle (green→soft amber) shipped in `ab97211`. All
+> 5 UAT items pass (29-UAT.md). Status → passed.
 
 ---
 
