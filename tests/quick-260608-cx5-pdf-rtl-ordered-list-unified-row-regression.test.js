@@ -82,21 +82,14 @@ var MEASURE_MODE = process.env.MEASURE_MODE === '1';
 var PINNED_DATE = "D:20260101000000+00'00'";
 var PINNED_FILE_ID = '00000000000000000000000000000000';
 
-var JSDOM_PATH = process.env.JSDOM_PATH || '/tmp/node_modules/jsdom';
-var JSDOM;
-try {
-  JSDOM = require(JSDOM_PATH).JSDOM;
-} catch (err) {
-  console.error('FATAL: could not load jsdom from ' + JSDOM_PATH);
-  console.error('  Install with: mkdir -p /tmp && cd /tmp && npm install jsdom');
-  console.error('  Or set JSDOM_PATH=/path/to/node_modules/jsdom and re-run.');
-  console.error('  Underlying error: ' + err.message);
-  process.exit(1);
-}
-
-function readAsset(rel) {
-  return fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
-}
+// --- jsdom + jsPDF env (shared helper, built in 30-02) ---
+// tests/_helpers/jsdom-pdf-env.js resolves jsdom via require('jsdom') from
+// node_modules, bakes in the getContext->null stub this file previously lacked
+// (the fix the broken PDF tests were missing), evals jspdf/bidi/heebo/pdf-export
+// and pins setCreationDate/setFileId per jsPDF instance. It returns { dom, win }
+// and accepts an onJsPDF(doc) hook used below for the doc.text() capture this
+// test relies on. Replaces the old inline buildJsdomEnv + env-fallback resolution.
+var buildJsdomEnv = require('./_helpers/jsdom-pdf-env').buildJsdomEnv;
 
 // Geometry constants -- mirror pdf-export.js buildSessionPDF scope.
 var PAGE_W = 595;
@@ -104,62 +97,9 @@ var MARGIN_X = 71;
 var RIGHT_X = PAGE_W - MARGIN_X; // 524
 var LEFT_X = MARGIN_X;           // 71
 
-// ---------------------------------------------------------------------------
-// jsdom env -- mirrors quick-260608-c8x's buildJsdomEnv.
-// ---------------------------------------------------------------------------
-function buildJsdomEnv(opts) {
-  opts = opts || {};
-  var dom = new JSDOM('<!doctype html><html><head></head><body></body></html>', {
-    url: 'file://' + REPO_ROOT + '/test-harness.html',
-    runScripts: 'outside-only',
-    pretendToBeVisual: false,
-  });
-  var win = dom.window;
-
-  win.eval(readAsset('assets/jspdf.min.js'));
-  win.eval(readAsset('assets/bidi.min.js'));
-  win.eval(readAsset('assets/fonts/heebo-base64.js'));
-  win.eval(readAsset('assets/fonts/heebo-bold-base64.js'));
-
-  var OriginalJsPDF = win.jspdf.jsPDF;
-  var captureText = (typeof opts.captureText === 'function') ? opts.captureText : null;
-
-  function WrappedJsPDF(args) {
-    var doc = new OriginalJsPDF(args);
-    doc.setCreationDate(PINNED_DATE);
-    doc.setFileId(PINNED_FILE_ID);
-    if (captureText) {
-      var origText = doc.text.bind(doc);
-      doc.text = function (txt, x, y, textOpts) {
-        try { captureText({ text: txt, x: x, y: y, opts: textOpts }); }
-        catch (_) { /* never break the PDF build */ }
-        return origText.apply(null, arguments);
-      };
-    }
-    return doc;
-  }
-  WrappedJsPDF.prototype = OriginalJsPDF.prototype;
-  Object.keys(OriginalJsPDF).forEach(function (k) { WrappedJsPDF[k] = OriginalJsPDF[k]; });
-  win.jspdf.jsPDF = WrappedJsPDF;
-
-  var preload = [
-    './assets/jspdf.min.js',
-    './assets/bidi.min.js',
-    './assets/fonts/heebo-base64.js',
-    './assets/fonts/heebo-bold-base64.js',
-  ];
-  preload.forEach(function (src) {
-    var s = win.document.createElement('script');
-    s.src = src;
-    win.document.body.appendChild(s);
-  });
-
-  win.eval(readAsset('assets/pdf-export.js'));
-  if (!win.PDFExport || typeof win.PDFExport.buildSessionPDF !== 'function') {
-    throw new Error('pdf-export.js did not expose window.PDFExport.buildSessionPDF after eval');
-  }
-  return dom;
-}
+// jsdom env now comes from the shared helper required above. The per-instance
+// doc.text() capture this regression relies on is wired via the helper's
+// onJsPDF(doc) hook inside buildWithTextCapture below.
 
 async function buildBlob(win, sessionData, opts) {
   return win.PDFExport.buildSessionPDF(sessionData, opts);
@@ -169,7 +109,16 @@ async function blobToBuffer(blob) {
   return Buffer.from(ab);
 }
 async function buildWithTextCapture(sessionData, opts, captureBuf) {
-  var dom = buildJsdomEnv({ captureText: function (rec) { captureBuf.push(rec); } });
+  var dom = buildJsdomEnv({
+    onJsPDF: function (doc) {
+      var origText = doc.text.bind(doc);
+      doc.text = function (txt, x, y, textOpts) {
+        try { captureBuf.push({ text: txt, x: x, y: y, opts: textOpts }); }
+        catch (_) { /* never break the PDF build */ }
+        return origText.apply(null, arguments);
+      };
+    },
+  }).dom;
   var blob = await buildBlob(dom.window, sessionData, opts);
   await blobToBuffer(blob); // ensure full render path completes
   dom.window.close();

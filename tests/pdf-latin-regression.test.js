@@ -30,16 +30,10 @@
  * Mitigation A (byte-mask /CreationDate + /ID before hashing) is NOT used —
  * Mitigation B was confirmed working in Step A so we kept the simpler path.
  *
- * --- JSDOM resolution path ---
+ * --- JSDOM resolution ---
  *
- * jsdom is not installed inside the project tree. The harness resolves jsdom
- * from /tmp/node_modules/jsdom (Option 1 from the task brief). To set up
- * outside this project, run:
- *
- *   mkdir -p /tmp && cd /tmp && npm install jsdom
- *
- * If the resolved jsdom path differs in your environment, override it via
- * env var: JSDOM_PATH=/path/to/node_modules/jsdom node tests/...
+ * jsdom comes from the shared helper tests/_helpers/jsdom-pdf-env.js, which
+ * resolves it via require('jsdom') from the installed devDependency (30-01).
  *
  * --- Run modes ---
  *
@@ -74,96 +68,16 @@ var PINNED_FILE_ID = '00000000000000000000000000000000';
 var deterministicDate = PINNED_DATE;
 
 // ---------------------------------------------------------------------------
-// JSDOM availability + load
+// jsdom + jsPDF env (shared helper, built in 30-02)
 // ---------------------------------------------------------------------------
-var JSDOM_PATH = process.env.JSDOM_PATH || '/tmp/node_modules/jsdom';
-var JSDOM;
-try {
-  JSDOM = require(JSDOM_PATH).JSDOM;
-} catch (err) {
-  console.error('FATAL: could not load jsdom from ' + JSDOM_PATH);
-  console.error('  Install with: mkdir -p /tmp && cd /tmp && npm install jsdom');
-  console.error('  Or set JSDOM_PATH=/path/to/node_modules/jsdom and re-run.');
-  console.error('  Underlying error: ' + err.message);
-  process.exit(1);
-}
-
-// ---------------------------------------------------------------------------
-// Helper: read a script source from the repo
-// ---------------------------------------------------------------------------
-function readAsset(rel) {
-  return fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
-}
-
-// ---------------------------------------------------------------------------
-// Helper: build a fresh JSDOM environment with all 4 vendored scripts +
-// pdf-export.js pre-loaded, and the jsPDF constructor monkey-patched so every
-// doc receives the deterministic-pin properties immediately on construction.
-// ---------------------------------------------------------------------------
-function buildJsdomEnv() {
-  // Use file:// URL inside the repo so loadScriptOnce's relative paths
-  // (./assets/...) resolve against the right base when document.querySelector
-  // checks for existing <script src> tags.
-  var dom = new JSDOM('<!doctype html><html><head></head><body></body></html>', {
-    url: 'file://' + REPO_ROOT + '/test-harness.html',
-    runScripts: 'outside-only',
-    pretendToBeVisual: false,
-  });
-  var win = dom.window;
-
-  // Load all vendored scripts directly into the window context (bypassing
-  // loadScriptOnce's actual <script> append, which JSDOM does not execute
-  // for file:// URLs without the heavier runScripts: 'dangerously' mode).
-  // Plan 23-07: single heebo-base64.js replaced the 2 prior noto-sans scripts.
-  // Plan 23-09: heebo-bold-base64.js added (bold rendering for headings + title).
-  win.eval(readAsset('assets/jspdf.min.js'));
-  win.eval(readAsset('assets/bidi.min.js'));
-  win.eval(readAsset('assets/fonts/heebo-base64.js'));
-  win.eval(readAsset('assets/fonts/heebo-bold-base64.js'));
-
-  // Monkey-patch the jsPDF constructor BEFORE pdf-export.js loads, so that
-  // pdf-export.js's `var jsPDF = window.jspdf && window.jspdf.jsPDF;` line
-  // (L322 in pdf-export.js) picks up the wrapped version on every invocation.
-  // The wrapper invokes setCreationDate + setFileId immediately so the pins
-  // are in place before any text is added.
-  var OriginalJsPDF = win.jspdf.jsPDF;
-  function WrappedJsPDF(args) {
-    var doc = new OriginalJsPDF(args);
-    doc.setCreationDate(PINNED_DATE);
-    doc.setFileId(PINNED_FILE_ID);
-    return doc;
-  }
-  // Preserve prototype + statics so any `instanceof` or static-method use keeps working.
-  WrappedJsPDF.prototype = OriginalJsPDF.prototype;
-  Object.keys(OriginalJsPDF).forEach(function (k) { WrappedJsPDF[k] = OriginalJsPDF[k]; });
-  win.jspdf.jsPDF = WrappedJsPDF;
-
-  // Pre-create <script> tags in the document body for each asset, so that
-  // pdf-export.js's loadScriptOnce -> document.querySelector('script[src=...]')
-  // check returns "already loaded" and resolves immediately. This avoids the
-  // need for runScripts:'dangerously' (which would try to fetch via http).
-  var preload = [
-    './assets/jspdf.min.js',
-    './assets/bidi.min.js',
-    './assets/fonts/heebo-base64.js',
-    './assets/fonts/heebo-bold-base64.js',  // Plan 23-09
-  ];
-  preload.forEach(function (src) {
-    var s = win.document.createElement('script');
-    s.src = src;
-    win.document.body.appendChild(s);
-  });
-
-  // Now load pdf-export.js — its IIFE will see all globals already present
-  // and (when ensureDeps is called) resolve immediately because the script
-  // tags are pre-installed.
-  win.eval(readAsset('assets/pdf-export.js'));
-
-  if (!win.PDFExport || typeof win.PDFExport.buildSessionPDF !== 'function') {
-    throw new Error('pdf-export.js did not expose window.PDFExport.buildSessionPDF after eval');
-  }
-  return dom;
-}
+// tests/_helpers/jsdom-pdf-env.js resolves jsdom via require('jsdom') from
+// node_modules, bakes in the getContext->null stub this file previously lacked
+// (the fix the broken PDF tests were missing), evals jspdf/bidi/heebo/pdf-export
+// and pins setCreationDate/setFileId per jsPDF instance (the same PINNED_DATE /
+// PINNED_FILE_ID values this file references for its content-stream assertions).
+// It returns { dom, win }; call sites read `.dom`. Replaces the old inline
+// buildJsdomEnv + the env-fallback jsdom resolution this file used to carry.
+var buildJsdomEnv = require('./_helpers/jsdom-pdf-env').buildJsdomEnv;
 
 // ---------------------------------------------------------------------------
 // Generate a PDF buffer for one fixture
@@ -171,7 +85,7 @@ function buildJsdomEnv() {
 async function pdfForFixture(fixtureName) {
   var fixturePath = path.join(FIXTURES_DIR, fixtureName + '.json');
   var fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
-  var dom = buildJsdomEnv();
+  var dom = buildJsdomEnv().dom;
   var win = dom.window;
   var blob = await win.PDFExport.buildSessionPDF(fixture.sessionData, fixture.opts);
   var ab = await blob.arrayBuffer();

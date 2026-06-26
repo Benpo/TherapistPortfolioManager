@@ -58,65 +58,14 @@ var MEASURE_MODE = process.env.MEASURE_MODE === '1';
 var PINNED_DATE = "D:20260101000000+00'00'";
 var PINNED_FILE_ID = '00000000000000000000000000000000';
 
-// JSDOM availability + load
-var JSDOM_PATH = process.env.JSDOM_PATH || '/tmp/node_modules/jsdom';
-var JSDOM;
-try {
-  JSDOM = require(JSDOM_PATH).JSDOM;
-} catch (err) {
-  console.error('FATAL: could not load jsdom from ' + JSDOM_PATH);
-  console.error('  Install with: mkdir -p /tmp && cd /tmp && npm install jsdom');
-  console.error('  Or set JSDOM_PATH=/path/to/node_modules/jsdom and re-run.');
-  console.error('  Underlying error: ' + err.message);
-  process.exit(1);
-}
-
-function readAsset(rel) {
-  return fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
-}
-
-function buildJsdomEnv() {
-  var dom = new JSDOM('<!doctype html><html><head></head><body></body></html>', {
-    url: 'file://' + REPO_ROOT + '/test-harness.html',
-    runScripts: 'outside-only',
-    pretendToBeVisual: false,
-  });
-  var win = dom.window;
-
-  win.eval(readAsset('assets/jspdf.min.js'));
-  win.eval(readAsset('assets/bidi.min.js'));
-  win.eval(readAsset('assets/fonts/heebo-base64.js'));
-  win.eval(readAsset('assets/fonts/heebo-bold-base64.js'));
-
-  var OriginalJsPDF = win.jspdf.jsPDF;
-  function WrappedJsPDF(args) {
-    var doc = new OriginalJsPDF(args);
-    doc.setCreationDate(PINNED_DATE);
-    doc.setFileId(PINNED_FILE_ID);
-    return doc;
-  }
-  WrappedJsPDF.prototype = OriginalJsPDF.prototype;
-  Object.keys(OriginalJsPDF).forEach(function (k) { WrappedJsPDF[k] = OriginalJsPDF[k]; });
-  win.jspdf.jsPDF = WrappedJsPDF;
-
-  var preload = [
-    './assets/jspdf.min.js',
-    './assets/bidi.min.js',
-    './assets/fonts/heebo-base64.js',
-    './assets/fonts/heebo-bold-base64.js',
-  ];
-  preload.forEach(function (src) {
-    var s = win.document.createElement('script');
-    s.src = src;
-    win.document.body.appendChild(s);
-  });
-
-  win.eval(readAsset('assets/pdf-export.js'));
-  if (!win.PDFExport || typeof win.PDFExport.buildSessionPDF !== 'function') {
-    throw new Error('pdf-export.js did not expose window.PDFExport.buildSessionPDF after eval');
-  }
-  return dom;
-}
+// --- jsdom + jsPDF env (shared helper, built in 30-02) ---
+// tests/_helpers/jsdom-pdf-env.js resolves jsdom via require('jsdom') from
+// node_modules, bakes in the getContext->null stub this file previously lacked
+// (the fix the broken PDF tests were missing), evals jspdf/bidi/heebo/pdf-export
+// and pins setCreationDate/setFileId per jsPDF instance. It returns { dom, win };
+// call sites read `.dom`. Replaces the old inline buildJsdomEnv + the env-fallback
+// jsdom resolution this file used to carry.
+var buildJsdomEnv = require('./_helpers/jsdom-pdf-env').buildJsdomEnv;
 
 // ---------------------------------------------------------------------------
 // Page-1 content stream walker -- collects every drawn CID in document order,
@@ -222,7 +171,7 @@ async function measureGlyphGids() {
     sessionType: 'Online',
     markdown: '',
   };
-  var domC = buildJsdomEnv();
+  var domC = buildJsdomEnv().dom;
   var ctrlWalk = await buildWalk(domC.window, headerData, { uiLang: 'en' });
   domC.window.close();
   var ctrlCounts = {};
@@ -246,7 +195,7 @@ async function measureGlyphGids() {
   var gids = {};
   for (var name in PROBES) {
     if (!PROBES.hasOwnProperty(name)) continue;
-    var domP = buildJsdomEnv();
+    var domP = buildJsdomEnv().dom;
     var probeWalk = await buildWalk(domP.window, {
       clientName: 'ZZZ',
       sessionDate: '2026-05-08',
@@ -315,14 +264,14 @@ function diffCount(fixtureWalk, baselineWalk, gid) {
 }
 
 async function buildFixtureAndBaseline(markdown, baselineBody, opts) {
-  var domF = buildJsdomEnv();
+  var domF = buildJsdomEnv().dom;
   var fixture = await buildWalk(domF.window, {
     clientName: 'ZZZ', sessionDate: '2026-05-08', sessionType: 'Online',
     markdown: markdown,
   }, opts);
   domF.window.close();
 
-  var domB = buildJsdomEnv();
+  var domB = buildJsdomEnv().dom;
   var baseline = await buildWalk(domB.window, {
     clientName: 'ZZZ', sessionDate: '2026-05-08', sessionType: 'Online',
     markdown: baselineBody,
