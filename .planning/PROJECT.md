@@ -65,7 +65,7 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - [ ] **v1.2 — Codebase Health & Reliability** (scope locked 2026-06-22 — Phases 28–33, dependency order):
   - [ ] P28 Update Reliability & Versioning — verified Safari PWA update fix; single version source → footer + SW cache + runtime integrity self-check; CSP→header; cache TTL
   - [ ] P29 Reliability & Observability — local crash log + "Report a problem" copy flow (zero network); IDB migration escape hatch
-  - [ ] P30 Test Harness & Coverage — fix 7 PDF tests; RTL guard; behavior tests on god modules pre-refactor
+  - [x] P30 Test Harness & Coverage — fix 7 PDF tests; RTL guard; behavior tests on god modules pre-refactor ✓ complete 2026-06-26 (first `package.json` + `npm test` runner; 94 test files green; god-module characterization in place)
   - [ ] P31 Refactor God Modules — extract from `settings.js` / `add-session.js`; opportunistic cleanups behind the test net
   - [ ] P32 README + Code Comments — maintainer README + comments on the refactored code
   - [ ] P33 DE/CS i18n completion — 13 export-modal keys (needs Sapir's strings; independent)
@@ -143,4 +143,4 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - **P33 DE/CS i18n completion** — 13 export-modal keys (needs Sapir's strings; independent)
 
 ---
-*Last updated: 2026-06-22 — v1.2 (Codebase Health & Reliability) scope co-designed and locked with Ben: Phases 28–33 in dependency order, concerns triage complete, footer-versioning decision reversed (real version + integrity check in P28), license re-validation deferred. Next: `/gsd-plan-phase` per phase in fresh sessions.*
+*Last updated: 2026-06-27 — Phase 30 (Test Harness & Coverage) complete: first `package.json` + `npm test` runner, the 7 PDF tests fixed, an RTL regression guard, and god-module characterization tests — a green safety net (94 test files) now guards the Phase 31 refactor. Next: `/gsd-discuss-phase 31` → `/gsd-plan-phase 31`.*
