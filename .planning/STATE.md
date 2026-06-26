@@ -6,14 +6,14 @@ current_phase: 30
 current_phase_name: test-harness-coverage
 status: executing
 stopped_at: Phase 30 context gathered
-last_updated: "2026-06-26T21:58:33.435Z"
+last_updated: "2026-06-26T22:10:10.114Z"
 last_activity: 2026-06-26
 last_activity_desc: Phase 30 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 14
-  completed_plans: 11
+  completed_plans: 12
   percent: 33
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 30 (test-harness-coverage) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-06-26 — Phase 30 execution started
 
@@ -110,6 +110,7 @@ Last activity: 2026-06-26 — Phase 30 execution started
 | Phase 30 P01 | 2min | 2 tasks | 3 files |
 | Phase 30 P02 | 2min | 2 tasks | 2 files |
 | Phase 30 P03 | 13min | 2 tasks | 8 files |
+| Phase 30 P04 | 9min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -220,6 +221,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 30-01: JSDOM_PATH set unconditionally to repo node_modules/jsdom, overriding stale legacy /tmp exports (F-G)
 - [Phase ?]: 30-03: 7 broken PDF tests migrated onto the shared jsdom-pdf-env helper (getContext stub acquired, /tmp jsdom convention retired); c8x/cx5 capture rewired via the onJsPDF(doc) hook
 - [Phase ?]: 30-03: RTL guard executes the real App.setLanguage across 4 locales asserting document dir; uses a non-opaque https jsdom origin so localStorage works
+- [Phase ?]: 30-04: settings characterization (round-trip IIFE-1 + tab-nav IIFE-3) jsdom-EXECUTES the real settings.js and asserts observable output only (D-08); verified falsifiable on an observable change, survives an internal rename (D-08/D-12)
+- [Phase ?]: 30-04: target-handler selection by registration index (IIFE-1=0, tab-nav=2) guarded by a captured.length===5 assertion — invoke exactly one of five anonymous DOMContentLoaded boot handlers without booting the others (F-F)
+- [Phase ?]: 30-04: round-trip mock mirrors setTherapistSetting writes into the read store so save reload re-renders the saved value as a genuine round-trip, while preserving the __calls spy + assertNoWrites
 
 ### Pending Todos
 
@@ -284,7 +288,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-26T21:58:09.905Z
+**Last session:** 2026-06-26T22:09:43.440Z
 
 Last activity: 2026-06-26 — Quick task 260626-h5j: snippet trigger space handling (recall smart-commit + editor space→hyphen auto-convert + reworded format error in 4 langs). Investigation of a "quick-paste not working in Czech" report proved NO Czech bug — root cause was a typed space in the trigger. TDD RED→GREEN (11+6 new tests), 24-04 + 260619-okw regressions green, commits `d284ee6` + `92dbef4`. Earlier today: Phase 29 re-verification complete (5/5 UAT pass, on-device confirmed; OBS-02 NUL copy-truncation fixed `2f27feb`; amber report button `ab97211`); Phase 29 → complete.
 Stopped at: Phase 30 context gathered
