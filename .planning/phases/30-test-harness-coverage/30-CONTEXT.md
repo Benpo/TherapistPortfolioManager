@@ -37,6 +37,9 @@ Build a green, runnable **test safety net BEFORE the Phase 31 god-module refacto
 ### RTL regression guard (TEST-02) — not discussed, planner default
 - **D-11:** Ben did not select this area for discussion. **Default:** the guard tests the actual `dir`-applying code path (the function in shared chrome / i18n that sets `dir="rtl"`/`document.dir`) across **all 4 locales**, asserting HE → `rtl` and EN/DE/CS → `ltr`, and FAILS if `rtl` is ever applied to a non-Hebrew locale. Reference the existing pattern in `tests/29-02-migration-escape-hatch.test.js` (case 5: "the banner sets dir=rtl when portfolioLang=he"). Planner may refine; this is the intended shape.
 
+### Plan verification gate (process — MANDATORY)
+- **D-12:** The PLAN.md for this phase must pass an **architect-soundness verification round BEFORE it reaches Ben** — separate from and in addition to the built-in `gsd-plan-checker`. The plan-checker verifies *completeness* (does the plan achieve the goal?); the architect pass verifies *soundness* (right approach? right sequencing? will the broad characterization net actually protect the Phase 31 refactor, or give false confidence? where's the risk?). Order: research → planner → plan-checker → **architect verifier** → resolve material findings → Ben. Per `feedback-architect-plan-verifier-gate` (auto-memory). Ben stated this explicitly during discuss (2026-06-26).
+
 ### Claude's Discretion
 - Exact name/location of the shared PDF helper, the precise Node version floor, the `npm test` runner implementation (a small `tests/run-all.js` vs a shell glob), and the specific list of behaviors in the god-module inventory are all left to research + planning, constrained by the decisions above.
 </decisions>
