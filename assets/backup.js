@@ -602,6 +602,14 @@ window.BackupManager = (function () {
       settings: {
         language: localStorage.getItem("portfolioLang"),
         theme: localStorage.getItem("portfolioTheme"),
+        // The custom snippet quick-paste prefix lives in localStorage (not IDB),
+        // so it was silently dropped on backup→restore. It is a portable user
+        // preference and belongs in the backup. Other localStorage keys were
+        // considered and deliberately left OUT: license keys
+        // (portfolioLicenseKey/Instance) are bound to an install, and terms
+        // acceptance / UX-dismissal flags are per-install acts — none should
+        // travel between devices via a backup.
+        snippetPrefix: localStorage.getItem("portfolioSnippetPrefix"),
       },
     };
 
@@ -1205,6 +1213,19 @@ window.BackupManager = (function () {
       }
       if (manifest.settings.theme) {
         localStorage.setItem("portfolioTheme", manifest.settings.theme);
+      }
+      // Restore the custom snippet prefix. Older backups have no snippetPrefix —
+      // in that case leave the existing prefix untouched (backward-compat).
+      // Validate to the same 1–2 char rule setPrefix enforces, and prefer the
+      // live engine so the running editor + cross-tab broadcast pick it up now.
+      var sp = manifest.settings.snippetPrefix;
+      if (typeof sp === "string" && sp.length >= 1 && sp.length <= 2) {
+        if (window.Snippets && typeof window.Snippets.setPrefix === "function") {
+          try { window.Snippets.setPrefix(sp); }
+          catch (e) { localStorage.setItem("portfolioSnippetPrefix", sp); }
+        } else {
+          localStorage.setItem("portfolioSnippetPrefix", sp);
+        }
       }
     }
 
