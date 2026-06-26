@@ -1,0 +1,15 @@
+{
+  "name": "sessions-garden",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Dev/test workbench only. Production ships static /assets/* with zero runtime dependencies; this package.json and node_modules exist solely to install jsdom and run the test suite (npm test).",
+  "scripts": {
+    "test": "node tests/run-all.js"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
