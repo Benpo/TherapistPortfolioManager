@@ -698,12 +698,17 @@ window.PortfolioDB = (() => {
     await clearStore("sessions");
     await clearStore("clients");
     await clearStore("therapistSettings");
-    if ((await openDB()).objectStoreNames.contains("snippets")) {
+    // IN-02: cache one connection instead of re-opening per store check.
+    const db = await openDB();
+    if (db.objectStoreNames.contains("snippets")) {
       await clearStore("snippets");
     }
-    if ((await openDB()).objectStoreNames.contains("crashlog")) {
-      await clearStore("crashlog");
-    }
+    // IN-02: do NOT clear "crashlog" here. clearAll()'s sole caller is the
+    // backup RESTORE path (backup.js). The crash log is device-local diagnostic
+    // data, is not part of the backup file, and is most valuable exactly when a
+    // user restores — often because something broke. Wiping it destroys the
+    // diagnostic trail with nothing to replace it. A true clean slate is still
+    // available via the OBS-03 reset path (indexedDB.deleteDatabase).
     // Allow the next openDB() to repopulate the seed pack (debug-wipe flow).
     _seedingDone = false;
     _seedingPromise = null;
