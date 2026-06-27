@@ -6,14 +6,14 @@ current_phase: 30
 current_phase_name: test-harness-coverage
 status: executing
 stopped_at: Phase 30 context gathered
-last_updated: "2026-06-27T13:38:16.101Z"
+last_updated: "2026-06-27T13:55:31.957Z"
 last_activity: 2026-06-27
 last_activity_desc: Phase 30 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 21
-  completed_plans: 19
+  completed_plans: 20
   percent: 33
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 30 (test-harness-coverage) — EXECUTING
-Plan: 6 of 13
+Plan: 7 of 13
 Status: Ready to execute
 Last activity: 2026-06-27 — Phase 30 execution started
 
@@ -119,6 +119,7 @@ Last activity: 2026-06-27 — Phase 30 execution started
 | Phase 30 P09 | 17min | 2 tasks | 2 files |
 | Phase 30 P10 | 20min | 3 tasks | 3 files |
 | Phase 30 P11 | 10min | 2 tasks | 2 files |
+| Phase 30 P12 | 11min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -237,6 +238,7 @@ Recent decisions affecting current work:
 - [Phase 30]: 30-10: GAP-11 B4 cross-module section-label landed as option (a) — real app.js getSectionLabel + real initCommon cache load render the custom title end-to-end (no stubbed-reader downgrade)
 - [Phase ?]: [Phase 30-11]: GAP-12 autogrow guarded by WIRING-only jsdom test (R12 — jsdom no-layout so scrollHeight 0 → 56 floor; grow-to-fit math stays on the untouched rna leaf test); input listener isolated from boot growAll by clearing height before dispatching a real input event
 - [Phase ?]: [Phase 30-11]: GAP-13 per-field copy pinned by exact field-scoped clipboard payload equality + negative whole-session checks (kills both whole-session and empty-string mutations)
+- [Phase ?]: [Phase 30-12]: GAP-05/06/15/16 fakes removed; 30-save-redirect captures the real post-save destination via vm.runInContext over jsdom (jsdom-29 locks window.location); 30-settings-save-failed-toast pins the real onSave catch with a rejecting DB; npm test 102/0 green
 
 ### Pending Todos
 
@@ -301,7 +303,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-27T13:38:04.005Z
+**Last session:** 2026-06-27T13:54:59.123Z
 
 Last activity: 2026-06-26 — Quick task 260626-h5j: snippet trigger space handling (recall smart-commit + editor space→hyphen auto-convert + reworded format error in 4 langs). Investigation of a "quick-paste not working in Czech" report proved NO Czech bug — root cause was a typed space in the trigger. TDD RED→GREEN (11+6 new tests), 24-04 + 260619-okw regressions green, commits `d284ee6` + `92dbef4`. Earlier today: Phase 29 re-verification complete (5/5 UAT pass, on-device confirmed; OBS-02 NUL copy-truncation fixed `2f27feb`; amber report button `ab97211`); Phase 29 → complete.
 Stopped at: Phase 30 context gathered
