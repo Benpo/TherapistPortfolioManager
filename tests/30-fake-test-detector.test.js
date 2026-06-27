@@ -1,64 +1,77 @@
 /**
  * Phase 30 Plan 13 — Prevention #1: permanent fake-test detector gate (B).
+ * Hardened 2026-06-27 (Phase 30 code-review WR-01 / WR-02).
  *
  * THE FAILURE CLASS THIS GATE PREVENTS (recorded in 30-VERIFICATION.md):
- *   A "behavior test" that `fs.readFileSync`s an `assets/*.js` production module
- *   AS TEXT and asserts over its SOURCE STRING (e.g. `SRC.indexOf('function ' +
- *   name + '(')` + `SRC.slice(...)` then regex-counts call order) WITHOUT ever
- *   executing the module (`vm`/`eval`/`jsdom`/`runInContext`). Such a test pins
- *   *shape*, not *behavior*: it stays GREEN through a Phase-31 refactor that
- *   breaks the real behavior, and false-FAILs on a pure internal rename. Two
- *   such fakes (`quick-260615-export-section-order`,
- *   `quick-260516-g7p-save-returns-to-session`) were removed in 30-12; this gate
- *   makes the class non-recurring by failing on every `npm test`.
+ *   A "behavior test" that reads an `assets/*.js` production module AS TEXT and
+ *   asserts over its SOURCE STRING (e.g. `SRC.indexOf('function ' + name)` +
+ *   `SRC.slice(...)` then regex-counts call order) WITHOUT ever executing the
+ *   module. Such a test pins *shape*, not *behavior*: it stays GREEN through a
+ *   Phase-31 refactor that breaks the real behavior, and false-FAILs on a pure
+ *   internal rename. Two such fakes were removed in 30-12.
  *
  * SCOPE — EXECUTABLE ASSETS ONLY (`assets/*.js`):
- *   A test file is a CANDIDATE only if it reads an `assets/*.js` file as text.
- *   Reading `.css` / `.html` as text is NEVER a candidate (the CSS/HTML audits
- *   such as 25-12-password-ack-* and 25-13-css-audit are legitimately static).
- *   Both read forms are recognised: the `path.join(ROOT,'assets','x.js')` form
- *   AND a literal `'assets/x.js'` string handed to a read helper. The bare
- *   `assets/` substring is deliberately NOT matched (it false-trips the .css
- *   readers) — the `.js` extension is required.
+ *   A test file is a CANDIDATE when it reads an `assets/*.js` file as text into a
+ *   variable, BY ANY READER. Both forms are recognised regardless of helper name:
+ *   `var X = fs.readFileSync(path.join(ROOT,'assets','x.js'))` AND
+ *   `var X = readAsset('assets/x.js')` (the read hidden behind a `_helpers/`
+ *   module). The two-step `const p='assets/x.js'; readFileSync(p)` shape is also
+ *   caught (legacy union). Reading `.css` / `.html` as text is NEVER a candidate
+ *   (the `.js` extension is required) so the static CSS/HTML audits stay green.
+ *
+ *   [WR-01 hardening] Candidacy no longer requires a literal `readFileSync`
+ *   TOKEN in the test file. The previous gate could be dodged by moving the
+ *   `fs.readFileSync` into a helper module; candidacy is now also keyed on the
+ *   asset-source ASSIGNMENT (`var X = <anyReader>('assets/x.js')`), which a
+ *   helper-hidden read still produces.
  *
  * FLAGGING — a candidate is flagged when EITHER:
- *   (a) after comments AND string/template literals are STRIPPED, the file has
- *       NO execution marker `vm|eval|jsdom|runInContext` — so a "jsdom" written
- *       only in a comment (25-13-css-audit:17) or inside a string cannot
- *       masquerade as execution; OR
- *   (b) an asset-source variable that IS executed nonetheless feeds a value
- *       DERIVED FROM ITS SOURCE TEXT (`.slice`/`.substring`/`.match`/regex
- *       `.exec`) into an EQUALITY assertion (deepStrictEqual / strictEqual /
- *       deepEqual / equal / notStrictEqual) — the subtle fake that eval's the
- *       module yet asserts on its source string as if it were behaviour. This is
- *       flagged EVEN WHEN an execution marker is present.
+ *   (a) it EXECUTES NOTHING — no variable is passed to an execution sink
+ *       (`vm.runInContext(v)` / `win.eval(v)` / `vm.Script(v)` / `new Script(v)`).
+ *       Reading the module source and never running it IS the source-slicer; OR
+ *   (b) it DOES execute an asset-source var, yet feeds a value DERIVED FROM THAT
+ *       SOURCE TEXT (`.slice`/`.substring`/`.match`/regex `.exec`) into an
+ *       EQUALITY assertion (deepStrictEqual / strictEqual / equal / ...) — the
+ *       subtle fake that eval's the module yet asserts on its source string as if
+ *       it were behaviour. Flagged EVEN WHEN execution is present.
+ *
+ *   [WR-02 hardening] (a) now requires a variable to actually be PASSED TO an
+ *   execution sink, not the mere PRESENCE of an execution-marker word. The
+ *   previous gate accepted any `vm|eval|jsdom|runInContext` token, so a dead
+ *   `var jsdom = null` (or an unused `require('vm')`) masqueraded as execution.
+ *   A bare identifier executes nothing and no longer exonerates a source-slicer.
+ *   (`executedVars` is matched on raw source so it does not depend on a fragile
+ *   comment/string stripper that mis-handles regex literals — that fragility is
+ *   exactly what produced false positives on real `vm.runInContext` tests during
+ *   development of this hardening.)
  *
  *   Why (b) is scoped to EQUALITY-on-source-derived (not any `.indexOf`/`.slice`
  *   over source): this codebase's REAL, executing characterization tests
  *   routinely carve a function region out of source for an auxiliary *presence*
  *   sanity check (`assert.ok(slice.indexOf(token) !== -1)`) alongside genuine
- *   runtime assertions — e.g. 25-02-modal-structure, 25-12-custom-days-visibility,
- *   25-12-photos-usage-language-rerender, quick-260516-rna. A blanket "source is
- *   inspected" rule would flag all of those green tests and is therefore
- *   incompatible with the green-tree + 4-entry-allowlist contract. Asserting a
- *   source-derived value EQUALS an expected sequence (what the removed fakes did:
- *   `assert.deepStrictEqual(orderExtractedFromSource, expected)`) is the precise
- *   tell of "source-as-behaviour" and is absent from every current real test.
+ *   runtime assertions. A blanket "source is inspected" rule would flag those
+ *   green tests. Asserting a source-derived value EQUALS an expected sequence
+ *   (what the removed fakes did) is the precise tell of "source-as-behaviour".
  *
- * ALLOWLIST — exactly four basenames are exempt (each a deliberate static
- * removal/audit guard that reads assets/*.js as text by design, or this file):
+ * HONEST LIMITATION: static fake-detection is heuristic, not a proof. This gate
+ * closes the two reported evasions (helper-hidden read; dead execution-marker
+ * word) and proves it via the SELF_TESTS below. A determined author who passes a
+ * dummy variable to a live execution sink, or hides an execution call in a
+ * comment, AND avoids equality on source, could still slip past (a)+(b); that
+ * residual is covered by human code review, not by this gate alone. Do not
+ * over-claim this makes fakes impossible — it makes the two *known accidental*
+ * patterns fail loudly on every `npm test`.
+ *
+ * ALLOWLIST — basenames exempt (each a deliberate static removal/audit guard
+ * that reads assets/*.js as text by design, or this file):
  *   - 25-08-single-source-audit         (D-30 single-source-of-truth audit)
  *   - 25-11-hardcoded-english-removed    (i18n hardcoded-string removal guard)
  *   - 25-12-folder-picker-removed        (folder-picker removal guard)
  *   - 30-fake-test-detector              (this gate; self-allowlisted defensively)
  *
- * The gate exits 0 on the post-30-12 tree (the only remaining read-without-
- * execute files are the three allowlisted guards). Run inside `npm test` via
- * run-all.js discovery (matches `30-*.test.js`).
- *
  * Run: node tests/30-fake-test-detector.test.js
  *   (set FAKE_DETECTOR_REPORT=1 to print every flagged file + reason and exit 0)
- * Exits 0 on full pass, 1 on any non-allowlisted flagged file.
+ * Exits 0 on full pass, 1 on any non-allowlisted flagged file OR a SELF_TEST miss.
  */
 
 'use strict';
@@ -78,64 +91,23 @@ var ALLOWLIST = {
 };
 
 // ---------------------------------------------------------------------------
-// Source hygiene: strip block + line comments and string/template literals via
-// a small char-state machine so an execution marker word inside a comment or
-// string ("jsdom", "retrieval"...) cannot satisfy the marker scan.
-// ---------------------------------------------------------------------------
-function stripCommentsAndStrings(text) {
-  var out = '';
-  var i = 0;
-  var n = text.length;
-  var state = 'code'; // code | line | block | sq | dq | tpl
-  while (i < n) {
-    var c = text[i];
-    var c2 = i + 1 < n ? text[i + 1] : '';
-    if (state === 'code') {
-      if (c === '/' && c2 === '/') { state = 'line'; i += 2; continue; }
-      if (c === '/' && c2 === '*') { state = 'block'; i += 2; continue; }
-      if (c === "'") { state = 'sq'; i += 1; out += ' '; continue; }
-      if (c === '"') { state = 'dq'; i += 1; out += ' '; continue; }
-      if (c === '`') { state = 'tpl'; i += 1; out += ' '; continue; }
-      out += c; i += 1; continue;
-    }
-    if (state === 'line') {
-      if (c === '\n') { state = 'code'; out += '\n'; }
-      i += 1; continue;
-    }
-    if (state === 'block') {
-      if (c === '*' && c2 === '/') { state = 'code'; i += 2; continue; }
-      if (c === '\n') out += '\n';
-      i += 1; continue;
-    }
-    // string / template states: skip content, honour backslash escapes
-    if (c === '\\') { i += 2; continue; }
-    if (state === 'sq' && c === "'") { state = 'code'; i += 1; continue; }
-    if (state === 'dq' && c === '"') { state = 'code'; i += 1; continue; }
-    if (state === 'tpl' && c === '`') { state = 'code'; i += 1; continue; }
-    if (c === '\n') out += '\n';
-    i += 1;
-  }
-  return out;
-}
-
-// ---------------------------------------------------------------------------
-// Candidate detection: does the RAW file text read an assets/*.js as text?
-//   - literal string form:  '...assets/x.js' / "assets/fonts/y.js"
-//   - path.join form:        path.join(ROOT, 'assets', ..., 'x.js')
-// .css / .html are NOT matched (the `.js` extension is required).
+// Candidate detection.
+// Legacy union form: a literal `readFileSync` token plus an assets/*.js path —
+// catches the two-step `const p='assets/x.js'; readFileSync(p)` shape that the
+// assignment-based detector below would miss.
 // ---------------------------------------------------------------------------
 var RE_LITERAL_ASSET_JS = /['"`]assets\/[^'"`]+\.js['"`]/;
 var RE_JOIN_ASSET_JS = /path\.join\([^)]*['"`]assets['"`][^)]*['"`][^'"`]*\.js['"`][^)]*\)/;
 
-function readsAssetJs(raw) {
+function readsAssetJsLegacy(raw) {
   return /readFileSync/.test(raw) && (RE_LITERAL_ASSET_JS.test(raw) || RE_JOIN_ASSET_JS.test(raw));
 }
 
 // Identify the variables assigned from a read of an assets/*.js file. Matches
-// any reader fn (readFileSync / readSrc / readAsset / readSource / ...).
+// any reader fn (readFileSync / readSrc / readAsset / readSource / ...), so a
+// helper-hidden read still registers as an asset-source var (WR-01).
 function assetSourceVars(raw) {
   var vars = {};
-  // var X = <reader>( ... assets/*.js ... )   (literal or join form)
   var re = /(?:var|const|let)\s+([A-Za-z_$][\w$]*)\s*=\s*[A-Za-z_$.][\w$.]*\(([^;]*?)\)/g;
   var m;
   while ((m = re.exec(raw)) !== null) {
@@ -149,10 +121,14 @@ function assetSourceVars(raw) {
   return vars;
 }
 
-// Variables that are EXECUTED (passed to an execution sink as first arg).
+// Variables that are EXECUTED (passed as first arg to an execution sink). Matched
+// on raw source: a bare `var jsdom = null` or unused `require('vm')` is NOT a
+// sink call, so it produces no executed var (the WR-02 fix). The first arg must
+// be an identifier — a string literal arg (e.g. runInContext('1+1')) captures
+// nothing, matching the intent "a read source variable is executed".
 function executedVars(raw) {
   var ex = {};
-  var re = /(?:runInContext|new\s+vm\.Script|vm\.Script|new\s+Script|\.eval|\beval)\s*\(\s*([A-Za-z_$][\w$]*)/g;
+  var re = /(?:runInContext|runInNewContext|runInThisContext|new\s+vm\.Script|vm\.Script|new\s+Script|\.eval|\beval)\s*\(\s*([A-Za-z_$][\w$]*)/g;
   var m;
   while ((m = re.exec(raw)) !== null) ex[m[1]] = true;
   return ex;
@@ -175,14 +151,12 @@ function sourceDerivedVars(raw, seedVars) {
       Object.keys(derived).forEach(function (sv) {
         var reSlice = new RegExp('\\b' + sv + '\\.(?:slice|substring|substr|match)\\s*\\(');
         var reExec = new RegExp('\\.exec\\s*\\(\\s*' + sv + '\\b');
-        var reMatchArg = new RegExp('\\.match\\s*\\(\\s*[^)]*\\)\\s*'); // defensive
         if (reSlice.test(rhs) || reExec.test(rhs)) hit = true;
       });
       if (hit) { derived[name] = true; added = true; }
     }
     if (!added) break;
   }
-  // Remove the seed asset-source vars themselves so callers can distinguish.
   return derived;
 }
 
@@ -199,7 +173,6 @@ function callArgs(text, openIdx) {
 // (b): an executed asset-source var whose SOURCE-DERIVED value is fed into an
 // EQUALITY assertion. Returns the offending detail string or null.
 function equalityOnSourceDerived(raw, srcVars, execSet, derivedSet) {
-  // Only meaningful if at least one asset-source var is actually executed.
   var anyExecutedSource = Object.keys(srcVars).some(function (v) { return execSet[v]; });
   if (!anyExecutedSource) return null;
 
@@ -207,14 +180,12 @@ function equalityOnSourceDerived(raw, srcVars, execSet, derivedSet) {
   var m;
   while ((m = re.exec(raw)) !== null) {
     var args = callArgs(raw, re.lastIndex - 1);
-    // inline source op on an executed asset-source var, e.g. SRC.slice(...)
     var inlineHit = Object.keys(srcVars).some(function (v) {
       if (!execSet[v]) return false;
       var reInline = new RegExp('\\b' + v + '\\.(?:slice|substring|substr|match|indexOf)\\s*\\(');
       var reExecArg = new RegExp('\\.(?:exec|test)\\s*\\(\\s*' + v + '\\b');
       return reInline.test(args) || reExecArg.test(args);
     });
-    // a source-derived identifier passed as an arg
     var derivedHit = Object.keys(derivedSet).some(function (d) {
       if (srcVars[d]) return false; // skip the raw source vars (handled inline)
       return new RegExp('\\b' + d + '\\b').test(args);
@@ -228,10 +199,139 @@ function equalityOnSourceDerived(raw, srcVars, execSet, derivedSet) {
 }
 
 // ---------------------------------------------------------------------------
+// Pure classifier — the single source of truth for both the live scan and the
+// SELF_TESTS. Returns { candidate, flagged, reason }.
+// ---------------------------------------------------------------------------
+function classify(raw) {
+  var srcVars = assetSourceVars(raw);
+  var isCandidate = Object.keys(srcVars).length > 0 || readsAssetJsLegacy(raw);
+  if (!isCandidate) return { candidate: false, flagged: false, reason: null };
+
+  var execSet = executedVars(raw);
+  if (Object.keys(execSet).length === 0) {
+    return {
+      candidate: true, flagged: true,
+      reason: 'reads assets/*.js as text but EXECUTES nothing — no variable is passed to an ' +
+        'execution sink (runInContext/eval/vm.Script) — source-slicer'
+    };
+  }
+
+  var executedSrcVars = {};
+  Object.keys(srcVars).forEach(function (v) { if (execSet[v]) executedSrcVars[v] = true; });
+  var derivedSet = sourceDerivedVars(raw, executedSrcVars);
+  var bDetail = equalityOnSourceDerived(raw, executedSrcVars, execSet, derivedSet);
+  if (bDetail) {
+    return {
+      candidate: true, flagged: true,
+      reason: 'executes the module, but asserts on its EXECUTED SOURCE TEXT — ' + bDetail
+    };
+  }
+  return { candidate: true, flagged: false, reason: null };
+}
+
+// ---------------------------------------------------------------------------
+// SELF_TESTS — prove the classifier catches each evasion and spares each real
+// pattern. These run on every `npm test`; a miss fails the gate. They make the
+// detector's discrimination falsifiable instead of asserted.
+// ---------------------------------------------------------------------------
+var SELF_TESTS = [
+  {
+    name: 'WR-01: helper-hidden read + source-slice, never executes -> FLAGGED',
+    expectFlagged: true,
+    src: [
+      "const { readAsset } = require('./_helpers/read-asset.js');",
+      "const SRC = readAsset('assets/add-session.js');",
+      "assert.ok(SRC.indexOf('function buildA') < SRC.indexOf('function buildB'));"
+    ].join('\n')
+  },
+  {
+    name: 'WR-02: source-slice with a DEAD var jsdom marker -> FLAGGED',
+    expectFlagged: true,
+    src: [
+      "const fs = require('fs');",
+      "const path = require('path');",
+      "var jsdom = null;",
+      "const SRC = fs.readFileSync(path.join(ROOT, 'assets', 'settings.js'), 'utf8');",
+      "assert.ok(SRC.indexOf('save') < SRC.indexOf('toast'));"
+    ].join('\n')
+  },
+  {
+    name: 'WR-02b: source-slice with an unused require(vm) marker -> FLAGGED',
+    expectFlagged: true,
+    src: [
+      "const fs = require('fs');",
+      "const vm = require('vm');",
+      "const SRC = fs.readFileSync(path.join(ROOT, 'assets', 'app.js'), 'utf8');",
+      "assert.ok(/function mount/.test(SRC));"
+    ].join('\n')
+  },
+  {
+    name: 'REAL: executes module, asserts on runtime output -> not flagged',
+    expectFlagged: false,
+    src: [
+      "const fs = require('fs');",
+      "const vm = require('vm');",
+      "const SRC = fs.readFileSync(path.join(ROOT, 'assets', 'settings.js'), 'utf8');",
+      "const sandbox = { window: {} };",
+      "vm.createContext(sandbox);",
+      "vm.runInContext(SRC, sandbox);",
+      "assert.strictEqual(sandbox.window.SettingsPage.compute(), 42);"
+    ].join('\n')
+  },
+  {
+    name: 'REAL: executes module AND aux-slices source for a presence check -> not flagged',
+    expectFlagged: false,
+    src: [
+      "const SRC = fs.readFileSync(path.join(ROOT, 'assets', 'add-session.js'), 'utf8');",
+      "vm.runInContext(SRC, sandbox);",
+      "const region = SRC.slice(SRC.indexOf('function autoGrow'), SRC.indexOf('function next'));",
+      "assert.ok(region.indexOf('scrollHeight') !== -1);",
+      "assert.strictEqual(sandbox.window.result, 7);"
+    ].join('\n')
+  },
+  {
+    name: 'REAL (win.eval helper-read): executes via win.eval, asserts DOM -> not flagged',
+    expectFlagged: false,
+    src: [
+      "const SRC = readAsset('assets/add-session.js');",
+      "win.eval(SRC);",
+      "assert.strictEqual(win.document.getElementById('title').textContent, 'Hello');"
+    ].join('\n')
+  },
+  {
+    name: 'REAL (two-step readFileSync): reads via a path var then runInContext -> not flagged',
+    expectFlagged: false,
+    src: [
+      "const p = path.join(ROOT, 'assets', 'backup-modal.js');",
+      "const src = fs.readFileSync(p, 'utf8');",
+      "vm.runInContext(src, sandbox);",
+      "assert.strictEqual(typeof sandbox.win.openBackupModal, 'function');"
+    ].join('\n')
+  },
+  {
+    name: 'CONTROL: reads only index.html (no assets/*.js) -> not a candidate',
+    expectFlagged: false,
+    src: [
+      "const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');",
+      "assert.ok(html.indexOf('id=\"backupModal\"') !== -1);"
+    ].join('\n')
+  }
+];
+
+function runSelfTests() {
+  var failures = [];
+  SELF_TESTS.forEach(function (t) {
+    var got = classify(t.src).flagged;
+    if (got !== t.expectFlagged) {
+      failures.push('  - ' + t.name + '\n      expected flagged=' + t.expectFlagged + ', got ' + got);
+    }
+  });
+  return failures;
+}
+
+// ---------------------------------------------------------------------------
 // Run the detector over every top-level tests/*.test.js
 // ---------------------------------------------------------------------------
-var MARKER = /\b(?:vm|eval|jsdom|runInContext)\b/i;
-
 var files = fs.readdirSync(TESTS_DIR)
   .filter(function (f) { return f.endsWith('.test.js'); })
   .sort();
@@ -243,48 +343,25 @@ files.forEach(function (file) {
   var base = file.replace(/\.test\.js$/, '');
   var raw = fs.readFileSync(path.join(TESTS_DIR, file), 'utf8');
 
-  if (!readsAssetJs(raw)) return; // not a candidate (no assets/*.js text read)
+  var result = classify(raw);
+  if (!result.candidate) return;
   inspected++;
 
-  var stripped = stripCommentsAndStrings(raw);
-  var hasMarker = MARKER.test(stripped);
-
-  var reason = null;
-  if (!hasMarker) {
-    reason = 'reads assets/*.js as text but has NO execution marker ' +
-      '(vm|eval|jsdom|runInContext) after comments+strings stripped — source-slicer';
-  } else {
-    var srcVars = assetSourceVars(raw);
-    var execSet = executedVars(raw);
-    // (b) is the SAME-MODULE subtle fake: "eval's a module AND feeds ITS source
-    // text into an assertion". Only consider source-derived chains rooted at an
-    // asset-source var that is ITSELF executed — so a removal/audit guard that
-    // equality-checks the source of a DIFFERENT, non-executed module (e.g.
-    // 25-08-encrypt-then-share counting removed overview.js branches) is NOT a
-    // false positive.
-    var executedSrcVars = {};
-    Object.keys(srcVars).forEach(function (v) { if (execSet[v]) executedSrcVars[v] = true; });
-    var derivedSet = sourceDerivedVars(raw, executedSrcVars);
-    var bDetail = equalityOnSourceDerived(raw, executedSrcVars, execSet, derivedSet);
-    if (bDetail) {
-      reason = 'eval/exec present, but asserts on the EXECUTED module SOURCE TEXT — ' + bDetail;
-    }
-  }
-
-  if (reason) {
-    if (ALLOWLIST[base]) {
-      // allowlisted: a deliberate static guard — not a fake
-    } else {
-      flagged.push({ file: file, reason: reason });
-    }
+  if (result.flagged) {
+    if (!ALLOWLIST[base]) flagged.push({ file: file, reason: result.reason });
   }
 });
+
+// ---------------------------------------------------------------------------
+// Self-test gate (always runs — even in REPORT mode the miss is surfaced)
+// ---------------------------------------------------------------------------
+var selfTestFailures = runSelfTests();
 
 // ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
 console.log('30-fake-test-detector — scanned ' + files.length + ' test files, ' +
-  inspected + ' read an assets/*.js (candidates)');
+  inspected + ' read an assets/*.js (candidates); ' + SELF_TESTS.length + ' self-tests');
 console.log('  allowlist (legit static guards + self): ' + Object.keys(ALLOWLIST).join(', '));
 
 if (REPORT_ONLY) {
@@ -294,7 +371,19 @@ if (REPORT_ONLY) {
     console.log('\nREPORT: ' + flagged.length + ' flagged file(s):');
     flagged.forEach(function (f) { console.log('  - ' + f.file + '\n      ' + f.reason); });
   }
+  if (selfTestFailures.length > 0) {
+    console.log('\nREPORT: ' + selfTestFailures.length + ' SELF_TEST miss(es):');
+    console.log(selfTestFailures.join('\n'));
+  }
   process.exit(0);
+}
+
+if (selfTestFailures.length > 0) {
+  console.error('\nFAIL  ' + selfTestFailures.length + ' detector SELF_TEST(s) misclassified — the gate itself is broken:');
+  console.error(selfTestFailures.join('\n'));
+  console.error('\nThe classifier no longer catches a known evasion (or now false-flags a real');
+  console.error('pattern). Fix classify() before relying on this gate.');
+  process.exit(1);
 }
 
 if (flagged.length > 0) {
@@ -310,5 +399,6 @@ if (flagged.length > 0) {
 }
 
 console.log('\nPASS  no fake (source-slicing) tests detected; ' +
-  inspected + ' assets/*.js reader(s) all execute the module (or are allowlisted guards).');
+  inspected + ' assets/*.js reader(s) all execute the module (or are allowlisted guards); ' +
+  SELF_TESTS.length + ' self-tests green.');
 process.exit(0);
