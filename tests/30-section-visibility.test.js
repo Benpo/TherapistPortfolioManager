@@ -68,11 +68,20 @@ async function settle() { for (var i = 0; i < 6; i++) { await flush(); } }
 /**
  * @param {object} appOverrides - per-test App.* overrides (isSectionEnabled,
  *        getSectionLabel) that drive the two cases.
+ * @param {object} [envOpts] - env-level config.
+ * @param {number} [envOpts.sessionId] - when set, the page boots in the
+ *        past-session / editing path (?sessionId=N → editingSession truthy →
+ *        applySectionVisibility(true)), exercising sectionHasData + the
+ *        past-session branch (GAP-11 / region B4).
+ * @param {Array}  [envOpts.sessions] - seeded session store for PortfolioDB.getSession.
  */
-function buildEnv(appOverrides) {
+function buildEnv(appOverrides, envOpts) {
+  envOpts = envOpts || {};
   var html = readAsset('add-session.html');
+  var url = 'https://localhost/add-session.html';
+  if (envOpts.sessionId != null) url += '?sessionId=' + envOpts.sessionId;
   var dom = new JSDOM(html, {
-    url: 'https://localhost/add-session.html',
+    url: url,
     runScripts: 'outside-only',
     pretendToBeVisual: false,
   });
@@ -100,7 +109,7 @@ function buildEnv(appOverrides) {
   };
   Object.keys(appOverrides || {}).forEach(function (k) { baseOverrides[k] = appOverrides[k]; });
   win.App = createAppStub(baseOverrides);
-  win.PortfolioDB = createMockPortfolioDB({ clients: [], sessions: [] });
+  win.PortfolioDB = createMockPortfolioDB({ clients: [], sessions: envOpts.sessions || [] });
   win.matchMedia = function () {
     return {
       matches: false,
@@ -132,6 +141,82 @@ function labelText(win, key) {
   var w = wrapper(win, key);
   var el = w && w.querySelector('.label[data-i18n]');
   return el ? el.textContent : null;
+}
+function badge(win, key) {
+  var w = wrapper(win, key);
+  return w && w.querySelector('.disabled-indicator-badge');
+}
+
+/**
+ * Cross-module env (GAP-11 / R11): boot add-session against the REAL
+ * assets/app.js getSectionLabel reader — NOT createAppStub's id-returning stub.
+ * We eval the real app.js, seed PortfolioDB.therapistSettings with a custom
+ * label, then run the REAL App.initCommon() so it populates the real (private)
+ * _sectionLabelCache via the real cross-module read path. add-session then boots
+ * on the safe stub for every OTHER App.* method, but its getSectionLabel
+ * DELEGATES to realApp.getSectionLabel — so the rendered therapist-visible title
+ * is produced end-to-end by the real reader reading the real cache. This guards
+ * the Phase-31 D-13c glue cleanup from silently regressing the visible title.
+ *
+ * @param {Array} therapistSettings - seeded rows, e.g.
+ *        [{ sectionKey:'trapped', customLabel:'My Title' }]
+ */
+async function buildRealReaderEnv(therapistSettings) {
+  var html = readAsset('add-session.html');
+  var dom = new JSDOM(html, {
+    url: 'https://localhost/add-session.html',
+    runScripts: 'outside-only',
+    pretendToBeVisual: false,
+  });
+  var win = dom.window;
+  win.I18N_DEFAULT = 'en';
+  win.BroadcastChannel = function () {
+    return { postMessage: function () {}, close: function () {}, addEventListener: function () {} };
+  };
+  win.matchMedia = function () {
+    return {
+      matches: false,
+      addEventListener: function () {}, removeEventListener: function () {},
+      addListener: function () {}, removeListener: function () {},
+    };
+  };
+
+  // Seed the custom therapist label, then eval the REAL app.js and run the REAL
+  // initCommon so getSectionLabel reads a cache populated from the seed.
+  win.PortfolioDB = createMockPortfolioDB({ clients: [], sessions: [], therapistSettings: therapistSettings });
+  win.eval(readAsset('assets/app.js'));
+  var realApp = win.App;
+  if (typeof realApp.getSectionLabel !== 'function' || typeof realApp.initCommon !== 'function') {
+    throw new Error('assets/app.js did not expose getSectionLabel/initCommon');
+  }
+  await realApp.initCommon(); // populates the real private _sectionLabelCache from the seed
+
+  // Capture add-session.js's DOMContentLoaded handler (installed AFTER initCommon
+  // so the real init's own listeners are not swallowed — mirrors 30-issue-delta).
+  var docHandlers = {};
+  var realAdd = win.document.addEventListener.bind(win.document);
+  win.document.addEventListener = function (type, fn, o) {
+    if (!docHandlers[type]) docHandlers[type] = [];
+    docHandlers[type].push(fn);
+    if (type === 'DOMContentLoaded') return;
+    return realAdd(type, fn, o);
+  };
+
+  // Stub the add-session boot surface, but DELEGATE getSectionLabel to the real
+  // reader so the rendered title is real end-to-end.
+  win.App = createAppStub({
+    createSeverityScale: function () { return win.document.createElement('div'); },
+    getSeverityValue: function () { return null; },
+    getSectionLabel: function (sectionKey, defaultI18nKey) {
+      return realApp.getSectionLabel(sectionKey, defaultI18nKey);
+    },
+  });
+
+  win.eval(readAsset('assets/add-session.js'));
+  if (!docHandlers['DOMContentLoaded'] || docHandlers['DOMContentLoaded'].length !== 1) {
+    throw new Error('expected add-session.js to register exactly 1 DOMContentLoaded handler');
+  }
+  return { dom: dom, win: win, docHandlers: docHandlers, realApp: realApp };
 }
 
 var passed = 0;
@@ -194,8 +279,75 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── Case 3: past-session branch — disabled WITH data visible+badged; disabled
+  // NO data hidden (GAP-11 / region B4 — sectionHasData + the :960-969 branch).
+  await test('on a PAST session a disabled section WITH data renders visible + badged while a disabled section with NO data is is-hidden (applySectionVisibility(true) + sectionHasData)', async function () {
+    var env = buildEnv({
+      // Both trapped and comments are DISABLED in settings; the past-session +
+      // has-data rule decides their visibility, not the enabled flag.
+      isSectionEnabled: function (sectionKey) {
+        return sectionKey !== 'trapped' && sectionKey !== 'comments';
+      },
+    }, {
+      sessionId: 1,
+      // trapped HAS data, comments has NONE → past-session branch must split them.
+      sessions: [{ id: 1, clientId: 1, date: '2026-06-01', trappedEmotions: 'HAS_TRAP_DATA', comments: '' }],
+    });
+    var win = env.win;
+    // Booting with ?sessionId=1 drives the editing path → applySectionVisibility(true).
+    await env.docHandlers['DOMContentLoaded'][0]();
+    await settle();
+
+    var withData = wrapper(win, 'trapped');
+    var noData = wrapper(win, 'comments');
+    assert.ok(withData, 'the trapped section wrapper must exist');
+    assert.ok(noData, 'the comments section wrapper must exist');
+
+    // Disabled + past-session + HAS data → visible + badge shown.
+    assert.strictEqual(withData.classList.contains('is-hidden'), false,
+      'a disabled past-session section WITH data must stay visible (REQ-5 amendment)');
+    var withBadge = badge(win, 'trapped');
+    assert.ok(withBadge, 'the trapped section must carry a disabled-indicator badge element');
+    assert.strictEqual(withBadge.classList.contains('is-hidden'), false,
+      'a disabled past-session section WITH data must SHOW its disabled badge');
+
+    // Disabled + past-session + NO data → hidden.
+    assert.strictEqual(noData.classList.contains('is-hidden'), true,
+      'a disabled past-session section with NO data must be hidden (is-hidden)');
+
+    env.dom.window.close();
+  });
+
+  // ─── Case 4: cross-module section-label via the REAL app.js getSectionLabel
+  // (GAP-11 / R11). Real reader + real cache populated by real initCommon from a
+  // seeded therapistSetting → the therapist-visible CUSTOM title renders
+  // end-to-end (guards the Phase-31 D-13c glue cleanup). NOT the stubbed reader.
+  await test('the REAL app.js getSectionLabel (cache populated by the real initCommon from a seeded custom therapistSetting) renders the therapist-visible CUSTOM title end-to-end', async function () {
+    var CUSTOM = 'My Renamed Trapped Section (real)';
+    var env = await buildRealReaderEnv([{ sectionKey: 'trapped', customLabel: CUSTOM }]);
+    var win = env.win;
+    await env.docHandlers['DOMContentLoaded'][0]();
+    await settle();
+
+    fireSettingsChanged(env);
+    await settle();
+
+    // Sanity: the reader in play is the REAL one (resolves the seeded custom label).
+    assert.strictEqual(env.realApp.getSectionLabel('trapped', 'session.form.trapped'), CUSTOM,
+      'precondition: the REAL app.js reader must resolve the seeded custom label');
+
+    assert.strictEqual(labelText(win, 'trapped'), CUSTOM,
+      'add-session must render the therapist-visible CUSTOM title produced by the REAL app.js getSectionLabel (end-to-end, not a stubbed id)');
+    // Control: a section with no custom row keeps its default i18n label — proves
+    // the custom value is per-section, sourced from the real cache, not blanket.
+    assert.strictEqual(labelText(win, 'comments'), 'session.form.comments',
+      'a section without a seeded custom label must keep its default i18n key (real reader fallthrough)');
+
+    env.dom.window.close();
+  });
+
   // ─── F-A end-of-file count guard ─────────────────────────────────────────────
-  var EXPECTED_COUNT = 2;
+  var EXPECTED_COUNT = 4;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
