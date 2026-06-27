@@ -1,121 +1,150 @@
 ---
 phase: 30-test-harness-coverage
-reviewed: 2026-06-26T22:40:53Z
+reviewed: 2026-06-27T00:00:00Z
 depth: standard
-files_reviewed: 18
+files_reviewed: 22
 files_reviewed_list:
-  - package.json
   - tests/_helpers/app-stub.js
+  - tests/_helpers/base64-codec.js
   - tests/_helpers/jsdom-pdf-env.js
-  - tests/30-export-markdown.test.js
+  - tests/_helpers/mock-portfolio-db.js
+  - tests/25-11-toast-behavior.test.js
+  - tests/30-autogrow-wiring.test.js
+  - tests/30-backups-helper-gate.test.js
+  - tests/30-client-spotlight.test.js
   - tests/30-export-stepper.test.js
+  - tests/30-fake-test-detector.test.js
+  - tests/30-field-copy.test.js
+  - tests/30-form-dirty-revert.test.js
   - tests/30-issue-delta.test.js
-  - tests/30-rtl-guard.test.js
+  - tests/30-photos-optimize-loop.test.js
+  - tests/30-read-mode.test.js
+  - tests/30-save-redirect.test.js
   - tests/30-section-visibility.test.js
-  - tests/30-settings-section-roundtrip.test.js
-  - tests/30-settings-tabnav.test.js
-  - tests/pdf-bold-rendering.test.js
-  - tests/pdf-digit-order.test.js
-  - tests/pdf-glyph-coverage.test.js
-  - tests/pdf-latin-regression.test.js
-  - tests/quick-260522-iwr-ordered-list-export.test.js
-  - tests/quick-260608-c8x-pdf-list-typed-ordinal-and-rtl-prefix.test.js
-  - tests/quick-260608-cx5-pdf-rtl-ordered-list-unified-row-regression.test.js
+  - tests/30-settings-save-failed-toast.test.js
+  - tests/30-settings-saved-notice.test.js
+  - tests/30-snippet-import-merge.test.js
+  - tests/30-snippet-wiring.test.js
   - tests/run-all.js
 findings:
   critical: 0
-  warning: 2
-  info: 3
-  total: 5
+  warning: 6
+  info: 4
+  total: 10
 status: issues_found
 ---
 
 # Phase 30: Code Review Report
 
-**Reviewed:** 2026-06-26T22:40:53Z
+**Reviewed:** 2026-06-27
 **Depth:** standard
-**Files Reviewed:** 18
+**Files Reviewed:** 22
 **Status:** issues_found
 
 ## Summary
 
-This is a test-harness phase: a new `package.json` manifest (jsdom devDependency
-+ `npm test` script), a `tests/run-all.js` suite runner, two shared helpers
-(`app-stub.js`, `jsdom-pdf-env.js`), seven new `30-*` characterization tests that
-drive the REAL `add-session.js` / `settings.js` / `app.js` under jsdom, and seven
-pre-existing PDF/quick tests refactored to consume the new shared jsdom env. No
-production source was modified.
+This is a test-harness phase whose explicit goal is a *trustworthy* safety net for the Phase 31 god-module refactor: replace source-slicing "fake" tests with tests that EXECUTE the real `assets/*.js` modules and assert observable behavior, plus a permanent gate that prevents fakes from recurring.
 
-Overall the test code is unusually disciplined: every async `30-*` test guards
-against the vacuous-green trap with a capture-and-await of the specific
-DOMContentLoaded handler plus an end-of-file `EXPECTED_COUNT` count guard, and the
-falsifiability rationale (mutation → FAIL, internal-rename → GREEN) is documented
-and credible in each file. I traced the assertion paths for the delta math,
-section ordering, stepper transitions, share-payload shape, tab-nav fallback, and
-RTL dir sweep — they exercise real observable behavior, not symbol existence. I
-could not substantiate any always-true / vacuous assertion, any masked-behavior
-stub, or any injection/secret/path-traversal issue (the `win.eval` calls load
-trusted local assets, and `run-all.js` spawns with an arg array and no shell).
+The characterization tests themselves are strong. I traced each one for the failure modes that matter in this domain (vacuous/tautological assertions, wrong-target assertions, silent no-ops, leaked state, swallowed rejections) and they hold up well: every test genuinely evals/vm-runs the real module, drives observable DOM/persistence side effects, gates against vacuous-green with a hard `EXPECTED_COUNT` guard, and the documented mutation-kills are real (each can fail on the regression it claims to guard). The shared codec (`base64-codec.js`) is a faithful mirror of the real `dataURLToBlob`/`blobToDataURL` adapters in `assets/settings.js` (verified: `readAsDataURL`+`onload`, `atob`, base64 byte math all match), so the photos-optimize byte assertions are sound. `run-all.js`'s new spawn timeout handling is correct: a timed-out child is SIGKILL'd, `result.signal` is set, and the `status === 0 && signal == null` check classifies it as FAIL (it does not silently pass or hang the gate).
 
-No blockers. Two robustness defects in the shared harness and three quality items
-follow.
+The defects cluster in two places: (1) **the fake-test-detector gate is narrower than its own claim** — its doc asserts it "makes the class non-recurring," but its candidate/marker heuristics are evadable by a deliberately-written fake; and (2) **two helper fidelity gaps** in `mock-portfolio-db.js` plus **one missing vacuous-green guard** in the older `25-11` test that breaks the consistency the rest of the suite relies on. None are security or data-loss issues; all are correctness/robustness of the safety net itself, which is exactly what this phase ships.
 
-## Narrative Findings (AI reviewer)
+## Warnings
 
-### Warnings
+### WR-01: Fake-test-detector candidate gate is evaded by moving `readFileSync` into a helper
 
-#### WR-01: `run-all.js` spawns each test child with no timeout — one hung test stalls the entire green gate forever
-
-**File:** `tests/run-all.js:64-67`
-**Issue:** The runner uses `spawnSync(process.execPath, [file], { stdio: 'inherit', env: childEnv })` with no `timeout`. The new `30-*` tests drive ASYNC page handlers, and the helpers' own doc blocks repeatedly warn that a mis-wired async handler "hangs forever and the test never sees the page's side effects" (`app-stub.js` landmine 1) or that `buildSessionPDF` "would hang forever" if a dep-load never resolves (`30-export-stepper.test.js:76-81`). If any single child enters that state, `spawnSync` blocks indefinitely, the per-file `PASS`/`FAIL` loop never advances, and CI produces no summary and no exit code — the opposite of what a "green gate that will guard the Phase 31 refactor" needs. This is a realistic failure mode precisely because Phase 31 will be editing the very modules these tests load.
-**Fix:** Pass a bounded timeout and treat a timeout kill as a failure (the existing `result.signal != null` branch already classifies signal termination as FAIL, so the timeout integrates cleanly):
+**File:** `tests/30-fake-test-detector.test.js:130-132`
+**Issue:** A test is only treated as a *candidate* when its own raw text contains the literal token `readFileSync` AND an `assets/*.js` path literal:
 ```js
-var result = spawnSync(process.execPath, [path.join(TESTS_DIR, file)], {
-  stdio: 'inherit',
-  env: childEnv,
-  timeout: 120000,       // ms; tune to the slowest legitimate PDF test
-  killSignal: 'SIGKILL',
-});
-// result.signal === 'SIGTERM'/'SIGKILL' on timeout → already counted as FAIL below
-```
-
-#### WR-02: `WrappedJsPDF` forwards only the first constructor argument — silently drops any additional positional args
-
-**File:** `tests/_helpers/jsdom-pdf-env.js:99-101`
-**Issue:** `function WrappedJsPDF(args) { var doc = new OriginalJsPDF(args); ... }` accepts and forwards exactly one parameter. jsPDF also supports the positional signature `new jsPDF(orientation, unit, format)`. Today this is safe — `assets/pdf-export.js:670` constructs with a single options object `new jsPDF({ unit:'pt', format:'a4', orientation:'portrait' })` — so all PDF tests pass. But this helper is declared "THE ONE shared jsdom env for the PDF tests," i.e. the contract every current and future PDF test depends on. If pdf-export ever switches to (or adds a code path using) positional construction, the wrapper would silently drop `unit`/`format`, the PDF would render at the wrong size, and the deterministic-hash and geometry assertions would fail with a confusing, hard-to-localize signal rather than at the obvious call site.
-**Fix:** Forward all arguments through the wrapper:
-```js
-function WrappedJsPDF() {
-  var doc = new (Function.prototype.bind.apply(OriginalJsPDF, [null].concat([].slice.call(arguments))))();
-  doc.setCreationDate(PINNED_DATE);
-  doc.setFileId(PINNED_FILE_ID);
-  ...
+function readsAssetJs(raw) {
+  return /readFileSync/.test(raw) && (RE_LITERAL_ASSET_JS.test(raw) || RE_JOIN_ASSET_JS.test(raw));
 }
 ```
-(or, on the Node version in use, `Reflect.construct(OriginalJsPDF, [].slice.call(arguments))`).
+A source-slicing fake can read the asset text through a `_helpers/` module (helpers are never scanned — they aren't `.test.js`) and assert on the returned source string. The test file then contains the `'assets/x.js'` literal but NOT `readFileSync`, so `readsAssetJs` returns false and the file is never inspected. This is the exact "pin shape, not behavior" class the gate exists to stop, so the doc-block claim that the gate "makes the class non-recurring" is overstated.
+**Fix:** Trigger candidacy on any asset-source acquisition, not just inline `readFileSync`:
+```js
+function readsAssetJs(raw) {
+  var readsText = /readFileSync|readFile\b|fs\.promises|readAsset|readSrc|readSource/.test(raw);
+  return readsText && (RE_LITERAL_ASSET_JS.test(raw) || RE_JOIN_ASSET_JS.test(raw));
+}
+```
 
-### Info
+### WR-02: Fake-test-detector marker check is satisfied by a dummy token; `.indexOf`-based slicers slip through
 
-#### IN-01: Dead variables left behind by the env-extraction refactor in 6 modified test files
+**File:** `tests/30-fake-test-detector.test.js:233, 199-228`
+**Issue:** Flagging path (a) only fires when NO execution marker (`vm|eval|jsdom|runInContext`) survives comment/string stripping. A fake can defeat this by placing an unused marker token in *code* — e.g. `var jsdom = null;` — which makes `hasMarker` true. Path (b) then only catches the narrow case of an *equality* assertion over a source-derived value; it deliberately does NOT flag `assert.ok(SRC.indexOf('function name(') !== -1)`-style slicers (documented at :36-46 as a false-positive tradeoff). So a new fake that (i) declares a stray `jsdom`/`vm` variable and (ii) asserts via `.indexOf`/`.ok` instead of equality passes the gate untouched. The two removed fakes happened to use equality; the broader source-slicing class is not actually closed.
+**Fix:** Require the marker to be associated with EXECUTING an asset-source var rather than merely present anywhere in code — reuse the existing `assetSourceVars`/`executedVars` machinery so a bare `var jsdom = null` no longer counts as execution.
 
-**File:** `tests/pdf-bold-rendering.test.js:58,62,70,71`; `tests/pdf-digit-order.test.js:47,51,61,62`; `tests/pdf-glyph-coverage.test.js:58,62,107,108`; `tests/quick-260522-iwr-ordered-list-export.test.js:50,54,58,59`; `tests/quick-260608-c8x-pdf-list-typed-ordinal-and-rtl-prefix.test.js:69,73,77,78`; `tests/quick-260608-cx5-pdf-rtl-ordered-list-unified-row-regression.test.js:74,78,82,83`
-**Issue:** When the inline `buildJsdomEnv` (which read assets via `fs`/`REPO_ROOT` and applied the pins via `PINNED_DATE`/`PINNED_FILE_ID`) was extracted into `jsdom-pdf-env.js`, the now-unused declarations `var fs = require('fs')`, `var REPO_ROOT = path.resolve(...)`, `var PINNED_DATE`, and `var PINNED_FILE_ID` were left in each of these six files. `path` survives only to compute the otherwise-unused `REPO_ROOT`. They are harmless under `'use strict'` but are confusing residue that implies the pins/asset-reads still happen locally when they no longer do. (`pdf-latin-regression.test.js` legitimately still uses all four, so it is correctly excluded.)
-**Fix:** Remove the unused `fs`, `path`/`REPO_ROOT`, `PINNED_DATE`, and `PINNED_FILE_ID` declarations from the six files above; import `PINNED_DATE`/`PINNED_FILE_ID` from the helper only where actually referenced.
+### WR-03: `mock-portfolio-db.getAllTherapistSettings` returns a SHARED mutable reference, unlike every other read
 
-#### IN-02: `run-all.js` doc block overstates the JSDOM_PATH bridge scope ("8 legacy jsdom tests")
+**File:** `tests/_helpers/mock-portfolio-db.js:112-117, 169`
+**Issue:** `getAllClients`/`getAllSessions`/`getAllSnippets` return `store.map(deepCopy)` (fresh copies per call), but `getAllTherapistSettings` uses `makeReadSpy`, which resolves the SAME array instance every call:
+```js
+function makeReadSpy(name, defaultValue) {
+  return function () { calls.get(name).push([]); return Promise.resolve(defaultValue); };
+}
+getAllTherapistSettings: makeReadSpy('getAllTherapistSettings', opts.therapistSettings || []),
+```
+The real IndexedDB-backed `getAllTherapistSettings` returns fresh objects each call. If code under test (e.g. `app.js initCommon` building `_sectionLabelCache`, exercised by `30-section-visibility` Case 4) mutates a returned row, the mutation persists into the seed and contaminates later reads — masking or manufacturing an order-dependent result on the very read path that test depends on.
+**Fix:** Make it store-backed like the others:
+```js
+const therapistStore = (opts.therapistSettings || []).map(deepCopy);
+getAllTherapistSettings: makeStoreReadSpy('getAllTherapistSettings', therapistStore),
+```
 
-**File:** `tests/run-all.js:15-22`
-**Issue:** The header states the bridge exists for "the 8 legacy jsdom tests [that] resolve jsdom via `process.env.JSDOM_PATH || '/tmp/node_modules/jsdom'`." After this phase migrated the seven PDF/quick tests to the shared `require('jsdom')` helper, only ONE file (`tests/quick-260620-q8m-pdf-paragraph-linebreaks.test.js`) still consumes `JSDOM_PATH`. The bridge remains load-bearing for that one file, but the comment now misrepresents the count and could mislead a future maintainer into thinking the bridge is more broadly depended-upon than it is.
-**Fix:** Update the comment to reflect that exactly one legacy test (`q8m`) now relies on the `JSDOM_PATH` fallback, and that the migrated PDF tests resolve jsdom directly via the shared helper.
+### WR-04: `mock-portfolio-db.getSession`/`getClient` coerce ids to strings — more lenient than the real numeric-keyed store
 
-#### IN-03: New `30-*` async test IIFEs have no top-level rejection handler
+**File:** `tests/_helpers/mock-portfolio-db.js:93, 121-127`
+**Issue:** Id matching uses `sameId(a,b) { return String(a) === String(b); }`, so `getSession('51')` matches a seeded `{id: 51}` and vice versa. Production gates on `Number.isInteger(sessionId)` and the real IndexedDB key lookup is type-sensitive (a string key would NOT hit a numeric record). The mock accepts id-type mismatches the real store rejects, hiding a Phase-31 regression that passes a stringified id into `getSession`. The read-mode / form-dirty / client-spotlight tests all rely on `getSession`/`getClient` resolving the seeded record, so the leniency is load-bearing.
+**Fix:** Match the real store's key semantics — compare without coercion (`a === b`) so a type mismatch resolves to `null` exactly as IndexedDB would, or add a strict-id companion assertion documenting the intent.
 
-**File:** `tests/30-export-markdown.test.js:154,304`; `tests/30-export-stepper.test.js:169,274`; `tests/30-issue-delta.test.js:189,348`; `tests/30-section-visibility.test.js:144,210`; `tests/30-settings-section-roundtrip.test.js:167,261`; `tests/30-settings-tabnav.test.js:121,209`
-**Issue:** Each file runs `(async function () { ... })();` with no trailing `.catch(...)`. The per-case `test()` wrapper catches case-level errors, but a throw OUTSIDE a case — e.g. in `buildEnv()` invoked at the top of a case before its first `await`, or in the `EXPECTED_COUNT` guard block — would escape as an unhandled rejection. On Node 22 that still exits non-zero (so `run-all.js` records a FAIL), but it prints an `UnhandledPromiseRejection` stack instead of the clean `F-A GUARD FAILED` / per-case diagnostic the files otherwise produce. The PDF tests already do this correctly via `main().catch(...)`; the `30-*` files are inconsistent.
-**Fix:** Append `.catch(function (e) { console.error(e); process.exit(1); });` to each top-level async IIFE for a clean, attributable failure.
+### WR-05: `25-11-toast-behavior.test.js` lacks the `EXPECTED_COUNT` vacuous-green guard every sibling test enforces
+
+**File:** `tests/25-11-toast-behavior.test.js:387-595`
+**Issue:** This file is in Phase 30 scope (Scenario 5 was removed here for GAP-15). Every 30-* test ends with `assert.strictEqual(passed + failed, EXPECTED_COUNT)` so a silently-dropped `await test(...)` cannot pass green; this file has none (confirmed: 0 occurrences of `EXPECTED_COUNT`). Its `test()` runner swallows all errors into `.catch` and never rejects, so deleting or commenting out an `await test(...)` line still exits 0 with fewer scenarios run — the exact vacuous-green trap hardened everywhere else, and the failure class recorded in `feedback-test-coverage-count-not-real.md`.
+**Fix:** Add the standard guard before the report:
+```js
+var EXPECTED_COUNT = 5; // scenarios 1,2,3,4,6
+if (passed + failed !== EXPECTED_COUNT) {
+  console.error('count guard: expected ' + EXPECTED_COUNT + ', ran ' + (passed + failed));
+  process.exit(1);
+}
+```
+
+### WR-06: `app-stub.refreshSnippetCache` and the snippet tests rely on mutable `global.PortfolioDB`, cleared only on the success/guard paths
+
+**File:** `tests/_helpers/app-stub.js:185-199`, `tests/30-snippet-wiring.test.js:113,278`, `tests/30-snippet-import-merge.test.js:101,206`
+**Issue:** `refreshSnippetCache` reaches into process-wide state: `(typeof window !== 'undefined' && window.PortfolioDB) || (typeof global !== 'undefined' && global.PortfolioDB)`. Because the stub runs in Node module scope (not the jsdom window), the snippet tests must set `global.PortfolioDB = mockDb` and `delete` it afterward. The cleanup runs only on normal-completion and F-A-guard paths; a throw between the assignment and the `delete` leaves the global set, and within a single file each `buildEnv` silently re-points it. It is mitigated (one process per file) but is shared mutable global state inside a helper that unrelated tests also instantiate.
+**Fix:** Pass the DB into `refreshSnippetCache` explicitly (e.g. a `dbResolver` override) instead of reaching into `global`, or wrap each snippet test body in `try { ... } finally { delete global.PortfolioDB; }`.
+
+## Info
+
+### IN-01: Inconsistent top-level error handling across the test IIFEs
+
+**File:** `tests/30-export-stepper.test.js:409`, `tests/30-issue-delta.test.js:415`, `tests/30-section-visibility.test.js:362`, `tests/30-settings-saved-notice.test.js:242`, `tests/30-snippet-wiring.test.js:282`, `tests/30-snippet-import-merge.test.js:210`
+**Issue:** Some suite IIFEs end with `})().catch(... process.exit(1))` (client-spotlight, form-dirty, read-mode, save-redirect, settings-save-failed) while others end with a bare `})();` and lean on Node's "unhandled rejection exits non-zero" default to surface a top-level (non-`test()`) failure. The per-test try/catch + count guard mostly cover it, but the inconsistency is a latent footgun.
+**Fix:** Standardize every suite IIFE to the explicit `.catch(... process.exit(1))` tail.
+
+### IN-02: `base64-codec.partToBuffer` comment says "copy" but returns a shared view
+
+**File:** `tests/_helpers/base64-codec.js:45-48`
+**Issue:** `Buffer.from(part.buffer, part.byteOffset, part.byteLength)` for a typed-array view returns a Buffer that SHARES the underlying ArrayBuffer; the comment claims it copies "the exact view window." Harmless today because the next step (`Buffer.concat`) copies, but the comment misleads future maintainers who might rely on isolation.
+**Fix:** Copy explicitly (`Buffer.from(part.buffer.slice(part.byteOffset, part.byteOffset + part.byteLength))`) or correct the comment.
+
+### IN-03: Fake-test-detector ALLOWLIST keyed by exact basenames is silently fragile
+
+**File:** `tests/30-fake-test-detector.test.js:73-78`
+**Issue:** The allowlist matches stripped basenames (e.g. `25-08-single-source-audit`). If an allowlisted guard file is renamed, it silently drops off the allowlist and either trips the gate (red) or falls out of coverage with no signal.
+**Fix:** Add a startup assertion that every allowlisted basename resolves to an existing `tests/<base>.test.js`, failing loudly otherwise.
+
+### IN-04: `base64-codec.FileReader` only implements `readAsDataURL` — a future adapter change would hang, not fail clearly
+
+**File:** `tests/_helpers/base64-codec.js:69-99`
+**Issue:** The fake `FileReader` supports `readAsDataURL` + `onload`/`onerror` only. Current `assets/settings.js blobToDataURL` uses exactly that path (verified), so fidelity is correct today. But if Phase 31 reworks the adapter to `readAsArrayBuffer`/`onloadend`, the promise never resolves and `30-photos-optimize-loop` would HANG (now bounded by run-all's 120s SIGKILL → FAIL) rather than fail with a clear message.
+**Fix:** Add `readAsArrayBuffer`/`onloadend` stubs that throw `new Error('base64-codec FileReader: unsupported read method')` synchronously, so a contract drift surfaces as an immediate, legible failure instead of a timeout.
 
 ---
 
-_Reviewed: 2026-06-26T22:40:53Z_
+_Reviewed: 2026-06-27_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
