@@ -132,7 +132,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   3. Behavior tests capture the current observable behavior of `settings.js` and `add-session.js`, and they pass against the unrefactored code (the pre-refactor green baseline)
   4. The full test suite runs via a single documented command
 
-**Plans:** 7/13 plans executed
+**Plans:** 9/13 plans executed
 
 **Wave 1** *(foundation)*
 
@@ -154,8 +154,8 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 **Wave 1** *(parallel — distinct files, no overlap)*
 
 - [x] 30-07-PLAN.md — add-session high-risk write-new: form dirty/revert (GAP-01/B6), read-mode + edit-client modal (GAP-02/B7), client dropdown/spotlight/title wiring (GAP-04/B8)
-- [ ] 30-08-PLAN.md — settings high-risk: snippet-settings screen wiring (GAP-03/A2) + saved-notice & disable-confirm (GAP-07/A1)
-- [ ] 30-09-PLAN.md — settings strengthen: backups helper-text & password-gate rejection (GAP-08/A4) + photos optimize-loop body & dataURL adapters & success path (GAP-09/A5)
+- [x] 30-08-PLAN.md — settings high-risk: snippet-settings screen wiring (GAP-03/A2) + saved-notice & disable-confirm (GAP-07/A1)
+- [x] 30-09-PLAN.md — settings strengthen: backups helper-text & password-gate rejection (GAP-08/A4) + photos optimize-loop body & dataURL adapters & success path (GAP-09/A5)
 - [ ] 30-10-PLAN.md — add-session strengthen existing 30-* tests: export-stepper residuals (GAP-10/B3), past-session sectionHasData (GAP-11/B4), issue cap & remove-toggle (GAP-14/B5)
 - [ ] 30-11-PLAN.md — add-session small new tests: autogrow wiring (GAP-12/B1) + per-field copy (GAP-13/B2)
 - [ ] 30-12-PLAN.md — fake-test cleanup: delete 2 fakes + 2 redundant structural guards (GAP-05/06/16), replace with real post-save-redirect + settings save-failed-toast tests, remove 25-11 fake Scenario 5 (GAP-15)
@@ -246,7 +246,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
 | 29. Reliability & Observability | v1.2 | 4/4 | Complete    | 2026-06-23 |
-| 30. Test Harness & Coverage | v1.2 | 7/13 | In Progress|  |
+| 30. Test Harness & Coverage | v1.2 | 9/13 | In Progress|  |
 | 31. Refactor God Modules | v1.2 | 0/– | Planned | - |
 | 32. README + Code Comments | v1.2 | 0/– | Planned | - |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
