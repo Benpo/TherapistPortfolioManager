@@ -64,6 +64,13 @@ for (var i = 0; i < testFiles.length; i++) {
   var result = spawnSync(process.execPath, [path.join(TESTS_DIR, file)], {
     stdio: 'inherit',
     env: childEnv,
+    // WR-01: bound each child so one hung async test (a realistic Phase-31
+    // failure mode — a mis-wired handler that never resolves) cannot stall the
+    // whole green gate forever. 120s is comfortably above the slowest legitimate
+    // PDF test; on timeout spawnSync kills the child with killSignal, which sets
+    // result.signal and is classified as a FAIL by the existing branch below.
+    timeout: 120000,
+    killSignal: 'SIGKILL',
   });
 
   // A non-zero exit OR a terminating signal counts as a failure.

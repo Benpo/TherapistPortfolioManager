@@ -96,8 +96,13 @@ function buildJsdomEnv(options) {
   // INSTANCE (jsPDF installs `text` etc. as own props per instance in its
   // constructor — pinning on the prototype would not take effect).
   var OriginalJsPDF = win.jspdf.jsPDF;
-  function WrappedJsPDF(args) {
-    var doc = new OriginalJsPDF(args);
+  function WrappedJsPDF() {
+    // WR-02: forward ALL constructor arguments to OriginalJsPDF, not just the
+    // first. jsPDF supports both the single-options-object form and the legacy
+    // positional `new jsPDF(orientation, unit, format)` form; forwarding only
+    // `args[0]` silently dropped the latter (a latent trap for any consumer of
+    // the shared helper). Reflect.construct passes the full arguments list.
+    var doc = Reflect.construct(OriginalJsPDF, arguments);
     doc.setCreationDate(PINNED_DATE);
     doc.setFileId(PINNED_FILE_ID);
     if (typeof options.onJsPDF === 'function') {
