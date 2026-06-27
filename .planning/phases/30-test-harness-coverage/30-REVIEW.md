@@ -148,3 +148,22 @@ if (passed + failed !== EXPECTED_COUNT) {
 _Reviewed: 2026-06-27_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
+
+---
+
+## Resolution Log (2026-06-27, post-review)
+
+Worked test-first; each fix verified by a falsifying test (mutation-kill) before commit.
+
+| Finding | Status | Commit | Notes |
+|---|---|---|---|
+| **WR-05** (25-11 lacks `EXPECTED_COUNT` guard) | ✅ Resolved | `184075a` | Added count guard; mutation-kill proven (dropping a scenario → exit 1). |
+| **WR-01** (detector candidacy dodged by helper-read) | ✅ Resolved | `f0b935b` | Candidacy now keyed on asset-source assignment (any reader), union'd with legacy. Falsifying self-test fixture. |
+| **WR-02** (dead execution-marker word exonerates) | ✅ Resolved | `f0b935b` | Flagging (a) now requires a var actually passed to an execution sink (`executedVars`), not a bare word. Self-test fixtures + mutation-kills. |
+| **25-02** (latent source-slicer surfaced by hardening) | ✅ Cleaned | `ac5192e` | Removed its two `assets/app.js` source-pins (+ dead `require('vm')`); kept the 6 static index.html structural checks; added a count guard. |
+| **WR-03 / WR-04** (`mock-portfolio-db` fidelity gaps) | ⏳ Open | — | Shared mutable ref in `getAllTherapistSettings`; lenient `String()` id coercion. Verifier judged low Phase-31 risk. |
+| **WR-06 + IN-01..04** (global state, catch tails, comment, allowlist fragility, FileReader contract) | ⏳ Open | — | Quality/robustness; no current incorrectness. |
+
+**Known residual (documented in the detector header):** static fake-detection is heuristic — a deliberately-crafted fake (dummy var passed to a live sink, or an execution call hidden in a comment) can still evade. Covered by human code review, not the gate alone. The two *reported, accidental* evasions are now closed and self-verified.
+
+**Out-of-scope follow-up noted:** `assets/app.js`'s cloud-button mount (`mountBackupCloudButton` from `initCommon`) has no EXECUTING test — formerly only shape-pinned by 25-02. Low priority (app.js is not refactored in Phase 31); belongs to the future app.js coverage work.
