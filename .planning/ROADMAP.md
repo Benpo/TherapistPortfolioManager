@@ -132,7 +132,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   3. Behavior tests capture the current observable behavior of `settings.js` and `add-session.js`, and they pass against the unrefactored code (the pre-refactor green baseline)
   4. The full test suite runs via a single documented command
 
-**Plans:** 6/6 plans complete
+**Plans:** 6/6 complete + 7 gap-closure plans (30-07..30-13) added 2026-06-27 — the re-audit (30-VERIFICATION.md) found the Phase-31 safety net incomplete (4 high-risk + 6 med-risk god-module holes, 2 confirmed fake tests); these close all 16 gaps + a permanent fake-test gate + runner/helper hardening + research-doc corrections
 
 **Wave 1** *(foundation)*
 
@@ -148,6 +148,21 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 - [x] 30-04-PLAN.md — TEST-03 settings.js: `30-settings-section-roundtrip.test.js` (jsdom real-page save→reload round-trip, closes the documented gap) + `30-settings-tabnav.test.js` (?tab= select / URL write / invalid fallback)
 - [x] 30-05-PLAN.md — TEST-03 add-session export modal: `30-export-markdown.test.js` (executing markdown-builder characterization via the real export preview/copy — replaces source-slicing) + `30-export-stepper.test.js` (stepper 1→2→3 + preview + files-only share)
 - [x] 30-06-PLAN.md — TEST-03 add-session issues: `30-issue-delta.test.js` (severity before→after delta + `getIssuesPayload` shape + empty-row validation, executing observable-behavior)
+
+**Gap closure** *(re-audit gaps GAP-01..16 + Prevention#1 + WR-01/WR-02 + research corrections; planned 2026-06-27 — every new/strengthened test EXECUTES the real module under jsdom/vm and asserts observable behavior, no source-slicing)*
+
+**Wave 1** *(parallel — distinct files, no overlap)*
+
+- [ ] 30-07-PLAN.md — add-session high-risk write-new: form dirty/revert (GAP-01/B6), read-mode + edit-client modal (GAP-02/B7), client dropdown/spotlight/title wiring (GAP-04/B8)
+- [ ] 30-08-PLAN.md — settings high-risk: snippet-settings screen wiring (GAP-03/A2) + saved-notice & disable-confirm (GAP-07/A1)
+- [ ] 30-09-PLAN.md — settings strengthen: backups helper-text & password-gate rejection (GAP-08/A4) + photos optimize-loop body & dataURL adapters & success path (GAP-09/A5)
+- [ ] 30-10-PLAN.md — add-session strengthen existing 30-* tests: export-stepper residuals (GAP-10/B3), past-session sectionHasData (GAP-11/B4), issue cap & remove-toggle (GAP-14/B5)
+- [ ] 30-11-PLAN.md — add-session small new tests: autogrow wiring (GAP-12/B1) + per-field copy (GAP-13/B2)
+- [ ] 30-12-PLAN.md — fake-test cleanup: delete 2 fakes + 2 redundant structural guards (GAP-05/06/16), replace with real post-save-redirect + settings save-failed-toast tests, remove 25-11 fake Scenario 5 (GAP-15)
+
+**Wave 2** *(blocked on Wave 1 — the gate validates the cleaned, extended tree)*
+
+- [ ] 30-13-PLAN.md — Prevention#1 permanent fake-test detector gate (allowlisting the 3 legit static guards) + run-all.js timeout/killSignal (WR-01) + WrappedJsPDF forward-all-args (WR-02) + 30-RESEARCH.md behavior-inventory corrections
 
 ### Phase 31: Refactor God Modules
 
@@ -231,7 +246,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
 | 29. Reliability & Observability | v1.2 | 4/4 | Complete    | 2026-06-23 |
-| 30. Test Harness & Coverage | v1.2 | 6/6 | Complete    | 2026-06-26 |
+| 30. Test Harness & Coverage | v1.2 | 6/6 + 7 gap-closure | Gap closure planned | 2026-06-26 |
 | 31. Refactor God Modules | v1.2 | 0/– | Planned | - |
 | 32. README + Code Comments | v1.2 | 0/– | Planned | - |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
