@@ -1,10 +1,11 @@
 ---
 phase: 31
 slug: refactor-god-modules
-status: draft
-nyquist_compliant: false
+status: planned
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-06-27
+planned: 2026-06-27
 ---
 
 # Phase 31 — Validation Strategy
@@ -41,19 +42,22 @@ created: 2026-06-27
 
 > Extraction-level map from RESEARCH.md §Validation Architecture. The planner refines these into per-task rows ({N}-PP-TT) during planning; every extraction task must point at the protective test(s) below, and every test that evals the origin file must gain a companion `win.eval` of the new file.
 
-| Extraction / Cleanup | Wave | Requirement | Protective test(s) (real, executing) | Net verdict | Status |
+| Extraction / Cleanup | Plan / Wave | Requirement | Protective test(s) (real, executing) | Net verdict | Status |
 |----------------------|------|-------------|----------------------------------------|-------------|--------|
-| SnippetsUI → `settings-snippets.js` | move | RFCT-01 | `30-snippet-wiring`, `30-snippet-import-merge`, `24-04-trigger-regex`, `24-05-*` (via `Snippets.__testExports` + `window.__SnippetEditorHelpers` @settings.js:863) | STRONG / LOW | ⬜ pending |
-| Photos/StorageUsage (2 IIFEs) → `settings-photos.js` | move | RFCT-01 | `30-photos-optimize-loop`, `25-07-delete-all-photos`, `25-12-optimize-*`, `25-12-photos-usage-language-rerender` (hooks `__PhotosTabHelpers` @2545, `__photosOptimizeResultTimer`) | STRONG / LOW-MED | ⬜ pending |
-| Export-modal + md builders → `export-modal.js` | move | RFCT-02 | `30-export-markdown`, `30-export-stepper`, `30-field-copy`, `30-issue-delta`, `quick-260522-iwr-ordered-list-export` (full real DOM `.click()` wiring) | STRONG / MED (closure mechanics) | ⬜ pending |
-| `openDB()` connection pooling | 0 | RFCT-03 | **NEW** `31-openDB-pooling` (cached-connection lifecycle — 4 asserts) | net thin → Wave 0 | ⬜ pending |
-| `overview.js` innerHTML+i18n hardening | 0 | RFCT-03 | **NEW** `31-overview-render-hardening` (view-button + empty-state render) | net thin → Wave 0 | ⬜ pending |
-| `sessions.js` innerHTML+i18n hardening | 0 | RFCT-03 | **NEW** `31-sessions-render-hardening` (file has 0 tests today) | net absent → Wave 0 | ⬜ pending |
-| `var`→`const`/`let` (settings.js 403, db.js 10) | with move | RFCT-03 | existing suite (convert only inside moved regions; `npm test` after each batch) | covered | ⬜ pending |
-| Tagged `catch` logging (touched silent catches) | with move | RFCT-03 | existing suite (additive; assert nothing thrown) | covered | ⬜ pending |
-| Glue dedupe (`t`/`showToast`/`getCurrentLang`→`App.*`, settings.js ~937–978) | with move | RFCT-03 | existing suite, net-verified (D-04); keep wrapper + note on divergence | covered | ⬜ pending |
+| SnippetsUI → `settings-snippets.js` | 31-03 / W2 | RFCT-01 | `30-snippet-wiring`, `30-snippet-import-merge`, `24-04-trigger-regex`, `24-05-*` (via `Snippets.__testExports` + `window.__SnippetEditorHelpers` @settings.js:863) | STRONG / LOW | ⬜ planned |
+| Photos/StorageUsage (2 IIFEs) → `settings-photos.js` | 31-04 / W3 | RFCT-01 | `30-photos-optimize-loop`, `25-07-delete-all-photos`, `25-12-optimize-*`, `25-12-photos-usage-language-rerender` (hooks `__PhotosTabHelpers` @2545, `__photosOptimizeResultTimer`) | STRONG / LOW-MED | ⬜ planned |
+| Export-modal + md builders → `export-modal.js` | 31-05 / W4 | RFCT-02 | `30-export-markdown`, `30-export-stepper`, `30-field-copy`, `30-issue-delta`, `quick-260522-iwr-ordered-list-export` (full real DOM `.click()` wiring) | STRONG / MED (closure mechanics) | ⬜ planned |
+| `openDB()` connection pooling | 31-01 / W1 | RFCT-03 | **NEW** `31-openDB-pooling` (cached-connection lifecycle — 4 asserts; deadlock-safe ordering) | net thin → Wave 0 | ⬜ planned |
+| `overview.js` innerHTML+i18n hardening | 31-02 / W1 | RFCT-03 | **NEW** `31-overview-render-hardening` (view-button + empty-state render) | net thin → Wave 0 | ⬜ planned |
+| `sessions.js` innerHTML+i18n hardening | 31-02 / W1 | RFCT-03 | **NEW** `31-sessions-render-hardening` (file has 0 tests today) | net absent → Wave 0 | ⬜ planned |
+| `var`→`const`/`let` (settings.js 403, db.js 10) | 31-01/03/04 | RFCT-03 | existing suite (convert only inside moved/touched regions; `npm test` after each batch) | covered | ⬜ planned |
+| Tagged `catch` logging (touched silent catches) | 31-01/03/04/05 | RFCT-03 | existing suite (additive; assert nothing thrown) | covered | ⬜ planned |
+| Glue dedupe (`t`/`showToast`/`getCurrentLang`→`App.*`, settings.js ~937–967, inside snippets region) | 31-03 | RFCT-03/D-04 | existing suite, net-verified (D-04); keep wrapper + note on divergence | covered | ⬜ planned |
+| `:2071` phase-number log-string fix (D-05) | 31-05 | RFCT-03/D-05 | existing suite (string-only; behavior unchanged) | covered | ⬜ planned |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: ⬜ planned · ✅ green · ❌ red · ⚠️ flaky*
+
+> **Plan→test Nyquist mapping complete (planner, 2026-06-27).** Every extraction/cleanup task in plans 31-01..31-06 points at a named protective test above; every test that loads an origin file gains a companion loader of the new file. `nyquist_compliant: true` set in frontmatter.
 
 ---
 
@@ -64,8 +68,8 @@ Tests/fixtures to create or fix **BEFORE** the moves (characterization-test-befo
 - [ ] `tests/31-openDB-pooling.test.js` — characterize the cached-connection lifecycle. **Highest priority; RFCT-03's only runtime-lifecycle change.** Assert (observable only, never internal `_dbPromise`): (a) repeated `openDB()` returns a working handle (a `getAll` succeeds); (b) after `onversionchange`→close, next `openDB()` yields a **fresh working** handle (cache invalidated); (c) concurrent `openDB()` calls don't double-open/double-seed; (d) `migrateOldDB` side-effect runs once.
 - [ ] `tests/31-overview-render-hardening.test.js` — characterize `overview.js` view-button (line ~510) + empty-state (`overview.sessions.none`, ~456) render **before** the innerHTML→textContent/DOM swap.
 - [ ] `tests/31-sessions-render-hardening.test.js` — characterize `sessions.js` view-button render (~line 147) **before** change; file has 0 tests today.
-- [ ] **Fix** `tests/25-11-toast-behavior.test.js` — add `EXPECTED_COUNT = 5` (close WR-05 vacuous-green hole) **before** the Photos extraction.
-- [ ] **Per-extraction test-loader updates (mechanical, not new files):** add `win.eval(readAsset('assets/<new-file>'))` to every test that evals the origin file. Enumerate with `grep -rl "assets/settings.js" tests/*.test.js` (~30) and `grep -rl "assets/add-session.js" tests/*.test.js` (~14); only the `win.eval(readAsset(...))` lines need editing. **Without this, every move goes false-red or false-green.**
+- [x] **`tests/25-11-toast-behavior.test.js` `EXPECTED_COUNT = 5` — ALREADY PRESENT** (live-source verified at :355 + guard at :604; the WR-05 fix landed already). Plan 31-04 Task 3 only VERIFIES it (no duplicate add).
+- [ ] **Per-extraction test-loader updates (mechanical, not new files):** add a load of `assets/<new-file>` to every test that LOADS the origin file. **Corrected enumeration (live-source, the research's ~30/~14 counted comment mentions):** exactly **7** test files `win.eval` settings.js (`30-backups-helper-gate`, `30-settings-save-failed-toast`, `30-settings-tabnav`, `30-snippet-import-merge`, `30-settings-saved-notice`, `30-settings-section-roundtrip`, `30-snippet-wiring`) and the photos tests load it via **`vm.runInContext`** (`30-photos-optimize-loop`); exactly **9** test files `win.eval` add-session.js. Only the tests that EXERCISE the moved code need the new-file load (plans 31-03/04/05 add it where `npm test` goes red, never blindly to all). **Note the `captured.length===5`/`captured[1]` guard** in `30-snippet-wiring` + `30-snippet-import-merge`: plan 31-03 replaces it with an extraction-robust delta-capture so the later Photos move needs no re-edit. **Without these loader updates, every move goes false-red or false-green.**
 
 ---
 
@@ -83,11 +87,11 @@ Per D-08 — a short human smoke-test of the 3 extracted features is a phase gat
 
 ## Validation Sign-Off
 
-- [ ] All extraction tasks point at a named protective test; all RFCT-03 cleanups have a Wave 0 characterization test or are suite-covered
-- [ ] Sampling continuity: `npm test` green after every atomic per-unit commit (D-06)
-- [ ] Wave 0 covers all net-thin references (openDB pooling, overview/sessions hardening, toast EXPECTED_COUNT, test-loader updates)
-- [ ] No watch-mode flags
-- [ ] Feedback latency = one full `npm test` per move
-- [ ] `nyquist_compliant: true` set in frontmatter (after planner maps every task)
+- [x] All extraction tasks point at a named protective test; all RFCT-03 cleanups have a Wave 0 characterization test (31-01, 31-02) or are suite-covered
+- [x] Sampling continuity: `npm test` green after every atomic per-unit commit (D-06) — encoded in each extraction plan's Task-3 verify + done
+- [x] Wave 0 covers all net-thin references (openDB pooling → 31-01; overview/sessions hardening → 31-02; toast EXPECTED_COUNT already present → verified in 31-04; test-loader updates → per-extraction Task 3)
+- [x] No watch-mode flags
+- [x] Feedback latency = one full `npm test` per move
+- [x] `nyquist_compliant: true` set in frontmatter (planner mapped every task → protective test)
 
-**Approval:** pending
+**Approval:** planner-complete 2026-06-27 (pending plan-checker → D-09 architect sub-agent → Ben)

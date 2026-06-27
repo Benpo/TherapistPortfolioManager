@@ -175,6 +175,16 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   2. The export-modal logic is extracted from `add-session.js` into its own IIFE module, with behavior preserved and the suite green
   3. Within code touched by the refactor only, opportunistic cleanups are applied: `var`→`const`/`let`, `innerHTML`+i18n hardening in `overview.js`/`sessions.js`, `openDB()` connection pooling (caching the resolved `IDBDatabase`), and tagged logging added to non-trivial silent `catch` blocks
 
+**Plans:** 6 plans (5 waves)
+
+Plans:
+- [ ] 31-01-PLAN.md — Wave 1 · RFCT-03 openDB() connection pooling, test-first (deadlock-safe; new `31-openDB-pooling` characterization test)
+- [ ] 31-02-PLAN.md — Wave 1 · RFCT-03 overview.js + sessions.js innerHTML→textContent/DOM hardening, test-first (2 new characterization tests)
+- [ ] 31-03-PLAN.md — Wave 2 · RFCT-01 extract SnippetsUI IIFE → `settings-snippets.js` (+ wiring + extraction-robust snippet test loaders + D-04 glue dedup)
+- [ ] 31-04-PLAN.md — Wave 3 · RFCT-01 extract Photos/StorageUsage (2 coupled IIFEs) → `settings-photos.js` (+ wiring + photos test loaders, vm + win.eval)
+- [ ] 31-05-PLAN.md — Wave 4 · RFCT-02 extract export-modal + md builders → `export-modal.js` via init(ctx) context-injection (+ wiring + :2071 log fix + export test loaders)
+- [ ] 31-06-PLAN.md — Wave 5 · finalize: APP_VERSION bump (cache roll) + PRECACHE audit + D-08 manual UAT smoke-test phase gate
+
 ### Phase 32: README + Code Comments
 
 **Goal**: Sapir can run, deploy, and understand the app's architecture from a project README, and the refactored modules carry comments describing their structure and responsibilities.
