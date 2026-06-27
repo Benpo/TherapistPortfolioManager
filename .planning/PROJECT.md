@@ -65,7 +65,7 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - [ ] **v1.2 — Codebase Health & Reliability** (scope locked 2026-06-22 — Phases 28–33, dependency order):
   - [ ] P28 Update Reliability & Versioning — verified Safari PWA update fix; single version source → footer + SW cache + runtime integrity self-check; CSP→header; cache TTL
   - [ ] P29 Reliability & Observability — local crash log + "Report a problem" copy flow (zero network); IDB migration escape hatch
-  - [x] P30 Test Harness & Coverage — fix 7 PDF tests; RTL guard; behavior tests on god modules pre-refactor ✓ complete 2026-06-26 (first `package.json` + `npm test` runner; 94 test files green; god-module characterization in place)
+  - [x] P30 Test Harness & Coverage — fix 7 PDF tests; RTL guard; behavior tests on god modules pre-refactor ✓ complete 2026-06-26, safety-net hardened 2026-06-27 (first `package.json` + `npm test` runner; 103 test files green; source-slicing fakes removed → executing jsdom characterization with recorded mutation-kills; permanent fake-test-detector gate)
   - [ ] P31 Refactor God Modules — extract from `settings.js` / `add-session.js`; opportunistic cleanups behind the test net
   - [ ] P32 README + Code Comments — maintainer README + comments on the refactored code
   - [ ] P33 DE/CS i18n completion — 13 export-modal keys (needs Sapir's strings; independent)
@@ -143,4 +143,4 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - **P33 DE/CS i18n completion** — 13 export-modal keys (needs Sapir's strings; independent)
 
 ---
-*Last updated: 2026-06-27 — Phase 30 (Test Harness & Coverage) complete: first `package.json` + `npm test` runner, the 7 PDF tests fixed, an RTL regression guard, and god-module characterization tests — a green safety net (94 test files) now guards the Phase 31 refactor. Next: `/gsd-discuss-phase 31` → `/gsd-plan-phase 31`.*
+*Last updated: 2026-06-27 — Phase 30 (Test Harness & Coverage) complete, incl. gap-closure round (30-07..13): first `package.json` + `npm test` runner, the 7 PDF tests fixed, an RTL regression guard, and god-module characterization tests. Gap-closure replaced source-slicing fakes with executing jsdom tests (recorded mutation-kills) and added a permanent fake-test-detector gate — a green safety net (103 test files) now guards the Phase 31 refactor. Open follow-ups (non-blocking, in 30-REVIEW.md): detector evadability WR-01/02, 25-11 vacuous-green guard WR-05. Next: `/gsd-discuss-phase 31` → `/gsd-plan-phase 31`.*
