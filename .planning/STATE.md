@@ -6,14 +6,14 @@ current_phase: 30
 current_phase_name: test-harness-coverage
 status: executing
 stopped_at: Phase 30 context gathered
-last_updated: "2026-06-27T13:18:51.596Z"
+last_updated: "2026-06-27T13:30:17.365Z"
 last_activity: 2026-06-27
 last_activity_desc: Phase 30 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 21
-  completed_plans: 17
+  completed_plans: 18
   percent: 33
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 30 (test-harness-coverage) — EXECUTING
-Plan: 4 of 13
+Plan: 5 of 13
 Status: Ready to execute
 Last activity: 2026-06-27 — Phase 30 execution started
 
@@ -117,6 +117,7 @@ Last activity: 2026-06-27 — Phase 30 execution started
 | Phase 30 P07 | 5min | 4 tasks | 4 files |
 | Phase 30 P08 | 20m | 3 tasks | 3 files |
 | Phase 30 P09 | 17min | 2 tasks | 2 files |
+| Phase 30 P10 | 20min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -232,6 +233,7 @@ Recent decisions affecting current work:
 - [Phase ?]: 30-04: round-trip mock mirrors setTherapistSetting writes into the read store so save reload re-renders the saved value as a genuine round-trip, while preserving the __calls spy + assertNoWrites
 - [Phase 30]: Phase 30-08: snippet screen-wiring tests inject global.PortfolioDB so app-stub.refreshSnippetCache (Node scope) resolves the mock; import-merge drives the real file-input->FileReader->applyImport path, never the leaf detectImportCollisions
 - [Phase ?]: Phase 30-09: GAP-08 forces the REAL D-18 gate via canEnableSchedule->false (not the dead :2201 fallback); GAP-09 runs the REAL _optimizeAllPhotosLoop with the 30-07 faithful base64 codec so savedBytes is EXACT (no monkey-patch, no 25-11 constant-output fakes)
+- [Phase 30]: 30-10: GAP-11 B4 cross-module section-label landed as option (a) — real app.js getSectionLabel + real initCommon cache load render the custom title end-to-end (no stubbed-reader downgrade)
 
 ### Pending Todos
 
