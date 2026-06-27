@@ -332,8 +332,75 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── Task 3: issue-cap + remove-button toggle (GAP-14 / region B5) ──────────
+
+  // F. MAX_ISSUES cap: growing rows to 3 disables #addIssueBtn and blocks a 4th.
+  await test('adding issue rows up to the MAX_ISSUES=3 cap disables #addIssueBtn and prevents a 4th row', async function () {
+    var env = buildEnv();
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    var addBtn = win.document.getElementById('addIssueBtn');
+    assert.ok(addBtn, '#addIssueBtn must exist');
+    function rowCount() { return win.document.querySelectorAll('#issueList .issue-block').length; }
+
+    assert.strictEqual(rowCount(), 1, 'init must render exactly one issue row');
+    assert.strictEqual(addBtn.disabled, false, 'at 1 row #addIssueBtn must be enabled');
+
+    addBtn.click();
+    await settle();
+    assert.strictEqual(rowCount(), 2, 'first add must yield 2 rows');
+    assert.strictEqual(addBtn.disabled, false, 'at 2 rows #addIssueBtn must still be enabled');
+
+    addBtn.click();
+    await settle();
+    assert.strictEqual(rowCount(), 3, 'second add must yield 3 rows (the cap)');
+    assert.strictEqual(addBtn.disabled, true,
+      'at the MAX_ISSUES=3 cap #addIssueBtn must be disabled');
+
+    // A further click at the cap must NOT add a 4th row (the handler guards it).
+    addBtn.click();
+    await settle();
+    assert.strictEqual(rowCount(), 3, 'clicking at the cap must not add a 4th row');
+
+    env.dom.window.close();
+  });
+
+  // G. updateRemoveButtons toggle: hidden+disabled at 1 row, enabled+visible at 2.
+  await test('the issue remove button is hidden+disabled at a single row and becomes enabled+visible once a second row exists (updateRemoveButtons)', async function () {
+    var env = buildEnv();
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    // At 1 row the lone remove button must be hidden (can't remove the last row).
+    var row0 = getRow(win, 0);
+    assert.strictEqual(row0.removeBtn.classList.contains('is-hidden'), true,
+      'at 1 row the remove button must be is-hidden');
+    assert.strictEqual(row0.removeBtn.disabled, true,
+      'at 1 row the remove button must be disabled');
+
+    // Add a second row → both remove buttons become enabled + visible.
+    win.document.getElementById('addIssueBtn').click();
+    await settle();
+
+    row0 = getRow(win, 0);
+    var row1 = getRow(win, 1);
+    assert.strictEqual(row0.removeBtn.classList.contains('is-hidden'), false,
+      'at 2 rows row 0 remove button must be visible (not is-hidden)');
+    assert.strictEqual(row0.removeBtn.disabled, false,
+      'at 2 rows row 0 remove button must be enabled');
+    assert.strictEqual(row1.removeBtn.classList.contains('is-hidden'), false,
+      'at 2 rows row 1 remove button must be visible (not is-hidden)');
+    assert.strictEqual(row1.removeBtn.disabled, false,
+      'at 2 rows row 1 remove button must be enabled');
+
+    env.dom.window.close();
+  });
+
   // ─── F-A end-of-file count guard ─────────────────────────────────────────────
-  var EXPECTED_COUNT = 5;
+  var EXPECTED_COUNT = 7;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
