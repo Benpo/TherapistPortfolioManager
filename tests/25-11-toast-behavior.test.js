@@ -10,16 +10,16 @@
  * args.
  *
  * Coverage:
- *   1. Save failed path (settings.js:521) — onSave catch fires →
- *      App.showToast('', 'settings.save.failed')
- *   2. Optimize unavailable path (settings.js:2385) — CropModule absent →
+ *   1. Optimize unavailable path (settings.js:2385) — CropModule absent →
  *      App.showToast('', 'photos.optimize.unavailable')
- *   3. Optimize failed path (settings.js:2413) — _optimizeAllPhotosLoop throws →
+ *   2. Optimize failed path (settings.js:2413) — _optimizeAllPhotosLoop throws →
  *      App.showToast('', 'photos.optimize.failed')
- *   4. Delete-all failed path (settings.js:2458) — _deleteAllPhotosLoop throws →
+ *   3. Delete-all failed path (settings.js:2458) — _deleteAllPhotosLoop throws →
  *      App.showToast('', 'photos.deleteAll.failed')
- *   5. UAT-C3 storage line — refreshPhotosTab renders DOM via the
+ *   4. UAT-C3 storage line — refreshPhotosTab renders DOM via the
  *      `photos.usage.body` i18n key, NOT the inline English literal.
+ *   (The former save-failed scenario was a non-executing source replay; it now
+ *    lives as the executing tests/30-settings-save-failed-toast.test.js — GAP-15.)
  *
  * For every recorded call, the test asserts:
  *   - first arg is the empty string `''` (NOT an English literal)
@@ -548,56 +548,13 @@ await test('Scenario 4: UAT-C3 — storage line renders via an i18n verdict key 
   }
 });
 
-// ────────────────────────────────────────────────────────────────────
-// SCENARIO 5 — Save failed path (settings.js:521)
-//
-// The Save handler is gated behind `refs.rowsContainer` (an internal
-// closure), 9 SECTION_DEFS lookups, and a SettingsPage IIFE that boots
-// via DOMContentLoaded. To exercise the catch branch we mount the rows
-// container with synthetic rename + toggle elements and force
-// PortfolioDB.setTherapistSetting to throw inside the loop.
-//
-// This is the most invasive scenario — we follow the production boot path
-// faithfully so the regression test exercises the same code path users hit.
-// ────────────────────────────────────────────────────────────────────
-
-await test('Scenario 5: Save failed path → showToast("", "settings.save.failed")', async function () {
-  // Settings page boots on a different code path that uses
-  // window.SettingsPage. Rather than try to fully scaffold the rows
-  // container with 9 synthetic rows + run the full Save flow, we drive
-  // the public SettingsPage API. But SettingsPage is wrapped in an IIFE
-  // returning undefined — there is no public save() entrypoint.
-  //
-  // Fallback strategy: extract the exact try/catch block from settings.js
-  // source text and execute it directly. This proves the BEHAVIOR of the
-  // catch branch — the only thing being tested for WR-01 line 521.
-
-  // Verify the source contains the post-fix line (defensive — if the source
-  // changed since Task 4, the test should fail loudly).
-  if (settingsSrc.indexOf('App.showToast("", "settings.save.failed")') === -1) {
-    throw new Error('settings.js no longer contains App.showToast("", "settings.save.failed") at the Save catch site');
-  }
-
-  // Replay the catch branch verbatim against fresh spies.
-  const showToastCalls = [];
-  const App = { showToast: function (a, b) { showToastCalls.push([a, b]); } };
-  // Verbatim code from settings.js lines 518-522 (the catch block):
-  const err = new Error('synthetic save failure');
-  // Note: `formSaving` is closure-local in production; we omit the assignment
-  // since it does not affect the toast behavior under test.
-  try {
-    throw err;
-  } catch (e) {
-    if (App && App.showToast) App.showToast("", "settings.save.failed");
-  }
-
-  if (showToastCalls.length !== 1) {
-    throw new Error('expected exactly 1 showToast call from save-failed catch; got ' + showToastCalls.length);
-  }
-  if (showToastCalls[0][0] !== '' || showToastCalls[0][1] !== 'settings.save.failed') {
-    throw new Error('save-failed toast args: expected ["", "settings.save.failed"]; got ' + JSON.stringify(showToastCalls[0]));
-  }
-});
+// NOTE (Plan 30-12, GAP-15): the former "Scenario 5: Save failed path" was a
+// hand-rewritten try/catch replayed against the settings.js text — it never
+// executed the real onSave catch, so it could not detect a regression there.
+// It has been removed and replaced by the executing test
+// tests/30-settings-save-failed-toast.test.js, which forces
+// PortfolioDB.setTherapistSetting to throw and asserts the REAL onSave catch
+// fires settings.save.failed. Scenarios 1-4 and 6 below are unchanged.
 
 // ────────────────────────────────────────────────────────────────────
 // SCENARIO 6 — Global negative invariant: across all toast calls observed
