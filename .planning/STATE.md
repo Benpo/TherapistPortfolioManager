@@ -6,14 +6,14 @@ current_phase: 30
 current_phase_name: test-harness-coverage
 status: executing
 stopped_at: Phase 30 context gathered
-last_updated: "2026-06-27T12:51:19.075Z"
+last_updated: "2026-06-27T13:06:32.747Z"
 last_activity: 2026-06-27
 last_activity_desc: Phase 30 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 21
-  completed_plans: 14
+  completed_plans: 15
   percent: 33
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 30 (test-harness-coverage) — EXECUTING
-Plan: 2 of 13
+Plan: 3 of 13
 Status: Ready to execute
 Last activity: 2026-06-27 — Phase 30 execution started
 
@@ -115,6 +115,7 @@ Last activity: 2026-06-27 — Phase 30 execution started
 | Phase 30 P05 | 7min | 3 tasks | 3 files |
 | Phase 30 P06 | 4min | 2 tasks | 1 files |
 | Phase 30 P07 | 5min | 4 tasks | 4 files |
+| Phase 30 P08 | 20m | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -228,6 +229,7 @@ Recent decisions affecting current work:
 - [Phase ?]: 30-04: settings characterization (round-trip IIFE-1 + tab-nav IIFE-3) jsdom-EXECUTES the real settings.js and asserts observable output only (D-08); verified falsifiable on an observable change, survives an internal rename (D-08/D-12)
 - [Phase ?]: 30-04: target-handler selection by registration index (IIFE-1=0, tab-nav=2) guarded by a captured.length===5 assertion — invoke exactly one of five anonymous DOMContentLoaded boot handlers without booting the others (F-F)
 - [Phase ?]: 30-04: round-trip mock mirrors setTherapistSetting writes into the read store so save reload re-renders the saved value as a genuine round-trip, while preserving the __calls spy + assertNoWrites
+- [Phase 30]: Phase 30-08: snippet screen-wiring tests inject global.PortfolioDB so app-stub.refreshSnippetCache (Node scope) resolves the mock; import-merge drives the real file-input->FileReader->applyImport path, never the leaf detectImportCollisions
 
 ### Pending Todos
 
@@ -292,7 +294,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-27T12:51:12.681Z
+**Last session:** 2026-06-27T13:05:42.469Z
 
 Last activity: 2026-06-26 — Quick task 260626-h5j: snippet trigger space handling (recall smart-commit + editor space→hyphen auto-convert + reworded format error in 4 langs). Investigation of a "quick-paste not working in Czech" report proved NO Czech bug — root cause was a typed space in the trigger. TDD RED→GREEN (11+6 new tests), 24-04 + 260619-okw regressions green, commits `d284ee6` + `92dbef4`. Earlier today: Phase 29 re-verification complete (5/5 UAT pass, on-device confirmed; OBS-02 NUL copy-truncation fixed `2f27feb`; amber report button `ab97211`); Phase 29 → complete.
 Stopped at: Phase 30 context gathered
