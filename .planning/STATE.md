@@ -4,8 +4,8 @@ milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 31
 current_phase_name: Refactor God Modules
-status: verifying
-stopped_at: Phase 30 — all 13 plans executed; ready for phase verification
+status: ready_to_plan
+stopped_at: Phase 30 complete & verified (13/13 plans, suite green 103/103); Phase 31 not started
 last_updated: "2026-06-27T14:34:11.448Z"
 last_activity: 2026-06-27
 last_activity_desc: Phase 30 complete, transitioned to Phase 31
@@ -24,13 +24,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 30 — test-harness-coverage
+**Current focus:** Phase 31 — Refactor God Modules
 
 ## Current Position
 
 Phase: 31 — Refactor God Modules
 Plan: Not started
-Status: All 13 plans executed (summaries on disk); ready for phase verification
+Status: Phase 30 complete & verified (4/4 must-haves, suite green 103/103); Phase 31 not started
 Last activity: 2026-06-27 — Phase 30 complete, transitioned to Phase 31
 
 ## Performance Metrics
