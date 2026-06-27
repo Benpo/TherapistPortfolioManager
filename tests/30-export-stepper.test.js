@@ -97,6 +97,9 @@ function loadRealPdf(win) {
  * @param {object} [opts]
  * @param {object} [opts.shareMock] createShareMock() result to install as
  *        navigator.canShare/share before eval.
+ * @param {boolean} [opts.mobile] when true, matchMedia reports matches:true so
+ *        the export mobile-tabs path (exportApplyMobileTabs) executes its mobile
+ *        branch (GAP-10 / region B3 — the path the default matches:false hides).
  */
 function buildEnv(opts) {
   opts = opts || {};
@@ -122,9 +125,10 @@ function buildEnv(opts) {
     getSeverityValue: function () { return null; },
   });
   win.PortfolioDB = createMockPortfolioDB({ clients: [], sessions: [] });
+  var mediaMatches = !!opts.mobile;
   win.matchMedia = function () {
     return {
-      matches: false,
+      matches: mediaMatches,
       addEventListener: function () {}, removeEventListener: function () {},
       addListener: function () {}, removeListener: function () {},
     };
@@ -258,8 +262,139 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── D. exportCloseDialog hides the modal (GAP-10 / B3 residual) ─────────────
+  await test('clicking the export close control hides the export modal (exportCloseDialog adds is-hidden when the preview is unedited)', async function () {
+    var env = buildEnv();
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    var modal = win.document.getElementById('exportModal');
+    win.document.getElementById('exportSessionBtn').click();
+    await settle();
+    assert.strictEqual(modal.classList.contains('is-hidden'), false,
+      'opening the dialog must make the modal visible (not is-hidden)');
+
+    // The close control is a .modal-close button; the delegated onModalClick
+    // routes it to exportCloseDialog(false). hasEditedPreview is false (no edit)
+    // so no discard confirm — the modal hides immediately.
+    win.document.getElementById('exportClose').click();
+    await settle();
+    assert.strictEqual(modal.classList.contains('is-hidden'), true,
+      'clicking the close control must hide the modal (exportCloseDialog)');
+
+    env.dom.window.close();
+  });
+
+  // ─── E. MD + PDF download dispatch reach the triggerDownload SEAM (B3) ────────
+  // SEAM checks (not full-render coverage): we assert the export download
+  // controls reach window.PDFExport.triggerDownload with the right extension,
+  // proving exportHandleDownloadPdf (add-session.js:1359) and
+  // exportHandleDownloadMd dispatched — not that the PDF bytes are correct.
+  await test('the step-3 PDF and MD download controls each reach the PDFExport.triggerDownload SEAM with the matching file extension', async function () {
+    var env = buildEnv();
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    // Spy the download seam (real triggerDownload would hit URL.createObjectURL
+    // + anchor click; we only assert the dispatch reached the seam).
+    var dlCalls = [];
+    win.PDFExport.triggerDownload = function (blob, fname) {
+      dlCalls.push({ fname: fname, type: blob && blob.type });
+    };
+
+    setVal(win, 'trappedEmotions', 'TRAP_X');
+
+    win.document.getElementById('exportSessionBtn').click();
+    await settle();
+    win.document.getElementById('exportNextBtn').click(); // step 1 → 2 (builds editor md)
+    await settle();
+    win.document.getElementById('exportNextBtn').click(); // step 2 → 3
+    await settle();
+    assert.strictEqual(activeStep(win), 3, 'must reach step 3 for the download controls');
+
+    // PDF: exportHandleDownloadPdf is async (builds a real PDF) → poll the seam.
+    win.document.getElementById('exportDownloadPdf').click();
+    await waitFor(function () {
+      return dlCalls.some(function (c) { return /\.pdf$/.test(c.fname); });
+    }, 200);
+    assert.ok(dlCalls.some(function (c) { return /\.pdf$/.test(c.fname); }),
+      'the PDF download control must reach triggerDownload with a .pdf filename (SEAM)');
+
+    // MD: exportHandleDownloadMd routes through the same seam synchronously.
+    win.document.getElementById('exportDownloadMd').click();
+    await settle();
+    var mdCall = dlCalls.filter(function (c) { return /\.md$/.test(c.fname); });
+    assert.strictEqual(mdCall.length, 1,
+      'the MD download control must reach triggerDownload exactly once with a .md filename (SEAM)');
+
+    env.dom.window.close();
+  });
+
+  // ─── F. exportUpdatePreview renders #exportPreview via the REAL MdRender branch
+  // (B3). An INJECTED MdRender stub returns a recognizable wrapper so a green
+  // assertion proves the MdRender branch at add-session.js:1269-1271 ran — NOT
+  // the tautological editor.value textContent fallback at :1273.
+  await test('with an injected window.MdRender, advancing to step 2 renders #exportPreview from MdRender.render (the real MdRender branch, not the editor.value fallback)', async function () {
+    var env = buildEnv();
+    var win = env.win;
+    // Inject a MdRender whose output is structurally distinct from the fallback:
+    // the fallback path sets preview.textContent (no element, escaped), so a
+    // data-mdrender attribute in innerHTML can ONLY come from this stub.
+    win.MdRender = {
+      render: function (md) { return '<p data-mdrender="1">' + md + '</p>'; },
+    };
+    await env.domHandler();
+    await settle();
+
+    setVal(win, 'trappedEmotions', 'TRAP_MARKER');
+
+    win.document.getElementById('exportSessionBtn').click();
+    await settle();
+    win.document.getElementById('exportNextBtn').click(); // step 1 → 2 → exportUpdatePreview
+    await settle();
+
+    var preview = win.document.getElementById('exportPreview');
+    assert.ok(preview.innerHTML.indexOf('data-mdrender="1"') !== -1,
+      'the preview must reflect the injected MdRender wrapper (proves the MdRender branch ran, not the editor.value fallback)');
+    assert.ok(preview.innerHTML.indexOf('TRAP_MARKER') !== -1,
+      'the MdRender output must carry the built markdown content (the editor value flowed through MdRender.render)');
+    // A non-zero element child confirms innerHTML (MdRender branch), not textContent.
+    assert.ok(preview.querySelector('p[data-mdrender="1"]'),
+      'the preview must contain the MdRender-produced <p> element (innerHTML branch, not textContent fallback)');
+
+    env.dom.window.close();
+  });
+
+  // ─── G. Mobile tabs apply under matchMedia matches:true (B3) ─────────────────
+  await test('with matchMedia matches:true, opening the dialog applies the mobile-tabs layout (tabs visible, preview hidden behind the active edit tab)', async function () {
+    var env = buildEnv({ mobile: true });
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    win.document.getElementById('exportSessionBtn').click();
+    await settle();
+
+    var modal = win.document.getElementById('exportModal');
+    var tabs = modal.querySelector('.export-mobile-tabs');
+    var editor = win.document.getElementById('exportEditor');
+    var preview = win.document.getElementById('exportPreview');
+    assert.ok(tabs, 'the mobile-tabs element must exist');
+    assert.strictEqual(tabs.classList.contains('is-hidden'), false,
+      'under matchMedia matches:true the mobile tabs must be revealed (exportApplyMobileTabs mobile branch)');
+    // Default active tab is "edit" → editor visible, preview hidden on mobile.
+    assert.strictEqual(editor.classList.contains('is-hidden'), false,
+      'the edit pane must stay visible under the default active edit tab');
+    assert.strictEqual(preview.classList.contains('is-hidden'), true,
+      'the preview pane must be hidden behind the inactive preview tab on mobile');
+
+    env.dom.window.close();
+  });
+
   // ─── F-A end-of-file count guard ─────────────────────────────────────────────
-  var EXPECTED_COUNT = 3;
+  var EXPECTED_COUNT = 7;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
