@@ -347,6 +347,12 @@ function makeSandbox(opts) {
 // Test runner
 // ────────────────────────────────────────────────────────────────────
 
+// Vacuous-green guard (WR-05): the exact number of scenarios this file MUST run.
+// Scenarios 1, 2, 3, 4, 6 (Scenario 5 was removed in 30-12 / GAP-15). If a
+// scenario is ever silently dropped, `passed + failed` falls below this and the
+// run FAILs — closing the same hole the 30-* sibling tests already guard with
+// their own EXPECTED_COUNT.
+const EXPECTED_COUNT = 5;
 let passed = 0;
 let failed = 0;
 function test(name, fn) {
@@ -590,6 +596,17 @@ await test('Scenario 6: no recorded showToast call uses an English literal as fi
 // ─── Report ──────────────────────────────────────────────────────────
 console.log('');
 console.log('Plan 25-11 toast-behavior tests — ' + passed + ' passed, ' + failed + ' failed');
+
+// Vacuous-green guard (WR-05): assert every expected scenario actually ran, so a
+// deleted or commented-out scenario can never pass silently by simply not
+// executing. This is the same falsifiability the 30-* sibling tests enforce.
+const ran = passed + failed;
+if (ran !== EXPECTED_COUNT) {
+  console.log('FAIL  expected ' + EXPECTED_COUNT + ' scenarios to run, but ' + ran +
+    ' executed — a scenario was added or dropped without updating EXPECTED_COUNT');
+  process.exit(1);
+}
+
 process.exit(failed === 0 ? 0 : 1);
 
 })();
