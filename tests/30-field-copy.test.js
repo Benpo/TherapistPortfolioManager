@@ -22,8 +22,9 @@
  * Never an internal function name (D-08/D-12): the test asserts the captured
  * clipboard writeText STRING. It EXECUTES add-session.js under jsdom — it
  * performs NO source-slicing (no fs.readFileSync of the asset for assertion, no
- * SRC.indexOf(/SRC.slice(), asserts no internal function names, and does NOT
- * widen window.__addSessionTestHooks or modify any assets/* file.
+ * source-text indexOf/slice as a coverage mechanism), asserts no internal
+ * function names, and does NOT widen the add-session window test-hook surface or
+ * modify any assets/* file.
  *
  * buildFieldCopyText returns `${clientName}\n\n${value}` (add-session.js:765-770).
  * With no client selected on a clean ?-URL, getClientNameForCopy returns

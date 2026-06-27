@@ -19,7 +19,7 @@
  * pattern), drive the REAL DOMContentLoaded handler, and observe the wiring
  * through OBSERVABLE DOM only (style.height was SET) — driven by a REAL `input`
  * Event dispatched on a real .session-textarea, NOT by calling the leaf helper
- * and NOT by widening the __addSessionTestHooks export surface.
+ * and NOT by widening the add-session test-hook export surface.
  *
  * HONEST SCOPE (R12 — the load-bearing caveat): jsdom performs NO LAYOUT, so
  * every element's scrollHeight is 0. computeGrowHeight therefore ALWAYS returns
@@ -37,8 +37,8 @@
  * Never an internal function name (D-08/D-12): the test asserts the textarea's
  * style.height attribute. It EXECUTES add-session.js under jsdom — it performs NO
  * source-slicing (no fs.readFileSync of the asset for assertion, no
- * SRC.indexOf(/SRC.slice() and does NOT widen window.__addSessionTestHooks or
- * modify any assets/* file.
+ * source-text indexOf/slice as a coverage mechanism) and does NOT widen the
+ * add-session window test-hook surface or modify any assets/* file.
  *
  * FALSIFIABLE / mutation-kill (G1, recorded in SUMMARY): in a SCRATCH copy of
  * add-session.js, remove the `autoGrow(target)` call from the delegated input
