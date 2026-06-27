@@ -165,6 +165,39 @@ function createAppStub(overrides) {
     return record('initCommon', arguments, ret);
   };
 
+  // Phase 30 Plan 07 (Task 0 / G2) — snippet-cache pair mirroring app.js:87-104.
+  //
+  //   App.getSnippets()        — SYNCHRONOUS read; returns `_snippetCache.slice()`.
+  //   App.refreshSnippetCache()— ASYNC; sets `_snippetCache = await
+  //                              window.PortfolioDB.getAllSnippets()`.
+  //
+  // This is the ONE intentional PortfolioDB read in the stub, matching
+  // production: settings.js afterSnippetMutation → refreshSnippetCache →
+  // renderSnippetList reads getSnippets(), so a snippet write becomes visible in
+  // the list with no per-test plumbing. Both are spy-recorded like the rest of
+  // the surface. An override may pre-seed `_snippetCache` via overrides.snippets.
+  var _snippetCache = Array.isArray(overrides.snippets) ? overrides.snippets.map(deepCopy) : [];
+  calls.set('getSnippets', []);
+  stub.getSnippets = function () {
+    return record('getSnippets', arguments, _snippetCache.slice());
+  };
+  calls.set('refreshSnippetCache', []);
+  stub.refreshSnippetCache = function () {
+    var db = (typeof window !== 'undefined' && window.PortfolioDB) ||
+      (typeof global !== 'undefined' && global.PortfolioDB) || null;
+    var p;
+    if (db && typeof db.getAllSnippets === 'function') {
+      p = Promise.resolve(db.getAllSnippets()).then(function (list) {
+        _snippetCache = Array.isArray(list) ? list : [];
+        return undefined;
+      }, function () { _snippetCache = []; return undefined; });
+    } else {
+      _snippetCache = [];
+      p = Promise.resolve();
+    }
+    return record('refreshSnippetCache', arguments, p);
+  };
+
   // F-B: the severity pair is supplied ONLY via overrides (real app.js fns).
   // They are NOT spied — they ARE the real coupled widget pair. When absent,
   // both remain undefined so the smoke can assert it.
@@ -180,6 +213,9 @@ function createAppStub(overrides) {
   Object.keys(overrides).forEach(function (k) {
     if (k === 't' || k === 'initCommon' ||
         k === 'createSeverityScale' || k === 'getSeverityValue') { return; }
+    // Phase 30 Plan 07 (Task 0 / G2): the snippet-cache pair + its seed are
+    // owned above — do not let the pass-through loop clobber them.
+    if (k === 'getSnippets' || k === 'refreshSnippetCache' || k === 'snippets') { return; }
     if (Object.prototype.hasOwnProperty.call(DEFAULT_RETURNS, k)) { return; }
     stub[k] = overrides[k];
   });

@@ -18,11 +18,30 @@
  *   mockDb.__calls.get('clearAll');         // [] (empty) means no calls
  *
  * Options:
- *   clients              : array     default []           — getAllClients return
- *   sessions             : array     default []           — getAllSessions return
+ *   clients              : array     default []           — getAllClients / getClient store
+ *   sessions             : array     default []           — getAllSessions / getSession store
  *   therapistSettings    : array     default []           — getAllTherapistSettings return
- *   snippets             : array     default []           — getAllSnippets return
+ *   snippets             : array     default []           — getAllSnippets store
  *   validateSnippetShape : function  default returns true — pure validator behavior
+ *
+ * Phase 30 Plan 07 (Task 0 / G2) — store-backed extension. The mock is now
+ * backed by in-memory clients/sessions/snippets stores seeded from `opts`, so
+ * the add-session / settings characterization tests (and all of wave 2:
+ * 30-08..30-12) can drive the REAL page methods instead of re-adding them
+ * locally and colliding on this shared file. Four new methods are exposed:
+ *
+ *   getSession(id)  : read  — looks up the seeded session store by id, records
+ *                     the call on the read ledger, resolves the record or null.
+ *   getClient(id)   : read  — same, against the client store.
+ *   addSnippet(s)   : write — pushes into the snippet store, recorded; in
+ *                     WRITE_METHODS so assertNoWrites covers it.
+ *   deleteSnippet(id): write — removes from the snippet store by id, recorded;
+ *                     in WRITE_METHODS.
+ *
+ * getAllSnippets now reads back the LIVE snippet store (so a write is observable
+ * on the next read), and updateSnippet mutates that same store by id while
+ * keeping its existing __calls spy behavior. All additive — existing consumers
+ * (25-03, 25-08, 30-01..06) that only assert the __calls ledger stay green.
  */
 
 'use strict';
@@ -33,6 +52,10 @@ const WRITE_METHODS = [
   'addSession',
   'setTherapistSetting',
   'updateSnippet',
+  // Phase 30 Plan 07 (Task 0 / G2) — store-backed snippet mutations. In
+  // WRITE_METHODS so assertNoWrites covers them for the no-mutation tests.
+  'addSnippet',
+  'deleteSnippet',
   // Phase 25 Plan 10 (CR-02) — sentinel write path. Added to the shared
   // helper so Plan 25-08 round-trip test can assert sentinel survival
   // without duplicating mock plumbing. assertNoWrites picks this up
@@ -45,6 +68,9 @@ const READ_METHODS = [
   'getAllSessions',
   'getAllTherapistSettings',
   'getAllSnippets',
+  // Phase 30 Plan 07 (Task 0 / G2) — id-keyed reads against the seeded stores.
+  'getSession',
+  'getClient',
 ];
 
 function createMockPortfolioDB(opts) {
@@ -58,6 +84,14 @@ function createMockPortfolioDB(opts) {
     try { return JSON.parse(JSON.stringify(arg)); } catch (_) { return arg; }
   }
 
+  // Phase 30 Plan 07 (Task 0 / G2) — live in-memory stores seeded from opts.
+  // Deep-copied on seed so the caller's seed arrays are never mutated by writes.
+  const clientStore = (opts.clients || []).map(deepCopy);
+  const sessionStore = (opts.sessions || []).map(deepCopy);
+  const snippetStore = (opts.snippets || []).map(deepCopy);
+
+  function sameId(a, b) { return String(a) === String(b); }
+
   function makeWriteSpy(name) {
     return function () {
       const args = Array.prototype.slice.call(arguments).map(deepCopy);
@@ -66,10 +100,29 @@ function createMockPortfolioDB(opts) {
     };
   }
 
+  // Read spy returning the LIVE store (deep-copied) so writes are observable on
+  // the next read. Records the call-shape on the ledger like the legacy spy.
+  function makeStoreReadSpy(name, store) {
+    return function () {
+      calls.get(name).push([]);
+      return Promise.resolve(store.map(deepCopy));
+    };
+  }
+
   function makeReadSpy(name, defaultValue) {
     return function () {
       calls.get(name).push([]);
       return Promise.resolve(defaultValue);
+    };
+  }
+
+  // id-keyed read: records [id], resolves the matching record (deep-copied) or
+  // null. Mirrors PortfolioDB.getSession / getClient (resolve a single record).
+  function makeByIdReadSpy(name, store) {
+    return function (id) {
+      calls.get(name).push([id]);
+      const found = store.find(function (r) { return sameId(r.id, id); });
+      return Promise.resolve(found ? deepCopy(found) : null);
     };
   }
 
@@ -81,18 +134,44 @@ function createMockPortfolioDB(opts) {
     addClient: makeWriteSpy('addClient'),
     addSession: makeWriteSpy('addSession'),
     setTherapistSetting: makeWriteSpy('setTherapistSetting'),
-    updateSnippet: makeWriteSpy('updateSnippet'),
+    // updateSnippet: keep the __calls spy AND mutate the live store by id so a
+    // round-trip (write → getAllSnippets) reflects the edit.
+    updateSnippet: function (snippet) {
+      calls.get('updateSnippet').push(Array.prototype.slice.call(arguments).map(deepCopy));
+      if (snippet && snippet.id != null) {
+        const idx = snippetStore.findIndex(function (s) { return sameId(s.id, snippet.id); });
+        if (idx !== -1) { snippetStore[idx] = deepCopy(snippet); }
+      }
+      return Promise.resolve();
+    },
+    // Phase 30 Plan 07 (Task 0 / G2) — store-backed snippet add/delete.
+    addSnippet: function (snippet) {
+      calls.get('addSnippet').push(Array.prototype.slice.call(arguments).map(deepCopy));
+      snippetStore.push(deepCopy(snippet));
+      return Promise.resolve();
+    },
+    deleteSnippet: function (id) {
+      calls.get('deleteSnippet').push([id]);
+      const idx = snippetStore.findIndex(function (s) { return sameId(s.id, id); });
+      if (idx !== -1) { snippetStore.splice(idx, 1); }
+      return Promise.resolve();
+    },
     // Phase 25 Plan 10 (CR-02) — raw sentinel write path for the
     // snippetsDeletedSeeds therapistSettings row. backup.js importBackup
     // calls this BEFORE the snippet-restore loop so seedSnippetsIfNeeded
     // sees the restored deleted-ids.
     _writeTherapistSentinel: makeWriteSpy('_writeTherapistSentinel'),
 
-    // Reads (return configured arrays; spied call-shape)
-    getAllClients: makeReadSpy('getAllClients', opts.clients || []),
-    getAllSessions: makeReadSpy('getAllSessions', opts.sessions || []),
+    // Reads — getAll* now read the LIVE stores (deep-copied); a write is
+    // observable on the next read. therapistSettings keeps the legacy shape.
+    getAllClients: makeStoreReadSpy('getAllClients', clientStore),
+    getAllSessions: makeStoreReadSpy('getAllSessions', sessionStore),
     getAllTherapistSettings: makeReadSpy('getAllTherapistSettings', opts.therapistSettings || []),
-    getAllSnippets: makeReadSpy('getAllSnippets', opts.snippets || []),
+    getAllSnippets: makeStoreReadSpy('getAllSnippets', snippetStore),
+
+    // id-keyed reads against the seeded stores.
+    getSession: makeByIdReadSpy('getSession', sessionStore),
+    getClient: makeByIdReadSpy('getClient', clientStore),
 
     // Pure validator (reading is OK; writing is forbidden). Default = accept.
     validateSnippetShape: function (snippet) {
