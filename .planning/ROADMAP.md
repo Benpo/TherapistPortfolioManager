@@ -178,11 +178,25 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 **Plans:** 6 plans (5 waves)
 
 Plans:
+**Wave 1**
+
 - [ ] 31-01-PLAN.md — Wave 1 · RFCT-03 openDB() connection pooling, test-first (deadlock-safe; new `31-openDB-pooling` characterization test)
 - [ ] 31-02-PLAN.md — Wave 1 · RFCT-03 overview.js + sessions.js innerHTML→textContent/DOM hardening, test-first (2 new characterization tests)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 31-03-PLAN.md — Wave 2 · RFCT-01 extract SnippetsUI IIFE → `settings-snippets.js` (+ wiring + extraction-robust snippet test loaders + D-04 glue dedup)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 31-04-PLAN.md — Wave 3 · RFCT-01 extract Photos/StorageUsage (2 coupled IIFEs) → `settings-photos.js` (+ wiring + photos test loaders, vm + win.eval)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 31-05-PLAN.md — Wave 4 · RFCT-02 extract export-modal + md builders → `export-modal.js` via init(ctx) context-injection (+ wiring + :2071 log fix + export test loaders)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 31-06-PLAN.md — Wave 5 · finalize: APP_VERSION bump (cache roll) + PRECACHE audit + D-08 manual UAT smoke-test phase gate
 
 ### Phase 32: README + Code Comments

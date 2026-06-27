@@ -309,17 +309,17 @@ The two `_dbPromise = null` lines are the whole correctness story — without th
 
 **If a claim above proves wrong at plan time, it does not block — it sharpens a Wave 0 characterization test.** No assumed *decisions* here; the decisions are all locked in CONTEXT.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **How wide should the export-modal handshake be?**
    - What we know: the export region needs ~10 closure values; DOM els are re-readable, mutable state is not.
    - What's unclear: whether to pass individual accessors or a single `ctx` object (cosmetic).
-   - Recommendation: single `ctx` object (Pattern 2) — one call site in `add-session.js`, easy to diff, no new public globals.
+   - **RESOLVED:** single `ctx` object (Pattern 2) — one call site in `add-session.js`, easy to diff, no new public globals. Implemented in plan 31-05 (`window.__exportModalInit(ctx)`).
 
 2. **Does any consumer outside settings.html load the snippet/photos code?**
    - What we know: SnippetsUI/Photos IIFEs are `settings.html`-only; the snippet *engine* (`snippets.js`) is loaded on both pages, but the *UI* IIFE is settings-only.
    - What's unclear: nothing observed to the contrary.
-   - Recommendation: confirm with `grep -rn "settings-snippets\|settings-photos" *.html` after creating the files — should appear only in `settings.html`.
+   - **RESOLVED:** confirmed settings-only; plan 31-06 acceptance criteria includes the `grep -rn "settings-snippets\|settings-photos" *.html` check (must appear only in `settings.html`).
 
 ## Environment Availability
 
