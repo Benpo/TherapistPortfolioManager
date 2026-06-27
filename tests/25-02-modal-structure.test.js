@@ -1,7 +1,8 @@
 /**
  * Phase 25 Plan 02 — Backup & Restore modal markup + header-icon mount structure.
  *
- * Asserts on the STATIC file content of index.html and assets/app.js:
+ * Asserts on the STATIC markup of index.html (HTML structure is legitimately
+ * a static contract — no module is executed here):
  *
  *   1. Old overview backup IDs are PURGED from index.html:
  *        - id="sendBackupBtn"
@@ -23,7 +24,17 @@
  *      #addClientBtn and #addSessionBtn — no other action buttons.
  *   5. The required data-i18n keys are bound on the modal markup.
  *   6. The modal contains exactly 5 elements with class="backup-contents-item".
- *   7. assets/app.js exposes App.mountBackupCloudButton AND calls it from initCommon.
+ *
+ * REMOVED (Phase 30 WR-01/WR-02 hardening, 2026-06-27): two former checks read
+ * assets/app.js AS TEXT and regex-asserted that `mountBackupCloudButton` is
+ * declared and called from initCommon — the source-slicing anti-pattern this
+ * milestone exists to eliminate (they pinned SHAPE, not behaviour, and shipped a
+ * dead `require('vm')` that masqueraded as an execution marker). They are dropped
+ * rather than allowlisted. app.js is NOT in the Phase 31 refactor scope, so the
+ * mount is not at risk now; the genuine gap — no EXECUTING test boots app.js and
+ * asserts the cloud button mounts into #headerActions — is a low-priority
+ * follow-up for the future app.js coverage work (see ROADMAP "Codebase Health II"
+ * outlook), not a Phase-31 blocker.
  *
  * Run: node tests/25-02-modal-structure.test.js
  * Exits 0 on full pass, 1 on any failure.
@@ -33,14 +44,14 @@
 
 const fs = require('fs');
 const path = require('path');
-const vm = require('vm');
 
 const indexPath = path.join(__dirname, '..', 'index.html');
-const appPath = path.join(__dirname, '..', 'assets', 'app.js');
 
 const indexSrc = fs.readFileSync(indexPath, 'utf8');
-const appSrc = fs.readFileSync(appPath, 'utf8');
 
+// Vacuous-green guard (WR-05 sibling): the exact number of structural checks this
+// file must run, so a silently-dropped test can never pass by simply not running.
+const EXPECTED_COUNT = 6;
 let passed = 0;
 let failed = 0;
 function test(name, fn) {
@@ -152,26 +163,15 @@ test('Modal contains exactly 5 elements with class="backup-contents-item" (D-09)
   }
 });
 
-test('assets/app.js declares mountBackupCloudButton and exposes it on App', function () {
-  if (!/function\s+mountBackupCloudButton\s*\(/.test(appSrc)) {
-    throw new Error('function mountBackupCloudButton not declared in assets/app.js');
-  }
-  if (!/mountBackupCloudButton\s*:\s*mountBackupCloudButton/.test(appSrc)) {
-    throw new Error('mountBackupCloudButton not exposed on the App return object');
-  }
-});
-
-test('initCommon calls mountBackupCloudButton (cross-page icon mount)', function () {
-  // Find the initCommon function body and verify it contains a call to mountBackupCloudButton().
-  const initStart = appSrc.indexOf('function initCommon');
-  if (initStart === -1) throw new Error('initCommon function not found in assets/app.js');
-  // Take a generous slice (initCommon is ~70 lines)
-  const slice = appSrc.slice(initStart, initStart + 4000);
-  if (!/mountBackupCloudButton\s*\(\s*\)/.test(slice)) {
-    throw new Error('initCommon does not call mountBackupCloudButton()');
-  }
-});
-
 console.log('');
 console.log('Plan 25-02 modal-structure tests — ' + passed + ' passed, ' + failed + ' failed');
+
+// Vacuous-green guard: assert every expected structural check actually ran.
+const ran = passed + failed;
+if (ran !== EXPECTED_COUNT) {
+  console.log('FAIL  expected ' + EXPECTED_COUNT + ' checks to run, but ' + ran +
+    ' executed — a check was added or dropped without updating EXPECTED_COUNT');
+  process.exit(1);
+}
+
 process.exit(failed === 0 ? 0 : 1);
