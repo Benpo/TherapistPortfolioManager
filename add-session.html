@@ -604,6 +604,8 @@
   <script src="./assets/crop.js"></script>
   <script src="./assets/md-render.js"></script>
   <script src="./assets/pdf-export.js"></script>
+  <!-- export-modal.js loads BEFORE add-session.js so window.__exportModalInit exists when add-session.js boots -->
+  <script src="./assets/export-modal.js"></script>
   <script src="./assets/add-session.js"></script>
   <script>
     if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}

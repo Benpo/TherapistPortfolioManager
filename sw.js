@@ -45,6 +45,7 @@ const PRECACHE_URLS = [
   '/assets/crop.js',
   '/assets/add-client.js',
   '/assets/add-session.js',
+  '/assets/export-modal.js',
   '/assets/reporting.js',
   '/assets/disclaimer.js',
   '/assets/license.js',
