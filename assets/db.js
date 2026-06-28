@@ -7,6 +7,13 @@ window.PortfolioDB = (() => {
   let _migrationDone = false;
   let _seedingDone = false;
   let _seedingPromise = null;
+  // RFCT-03 (Phase 31): connection pool — a single resolved Promise<IDBDatabase>
+  // reused across openDB()'s 23 call sites. Left uninitialized (undefined → falsy)
+  // on purpose so the only invalidation (null-out) lines are the two sites below
+  // (db.onversionchange before close, and request.onerror) — those two null-outs
+  // are the whole correctness story of the pool: without them a closed/failed
+  // connection would be handed back to the next caller.
+  let _dbPromise;
 
   /**
    * One-time migration: copies data from "emotion_code_portfolio" to "sessions_garden"
@@ -291,7 +298,14 @@ window.PortfolioDB = (() => {
 
   async function openDB() {
     await migrateOldDB();
-    return new Promise((resolve, reject) => {
+    // RFCT-03 pooling: return the cached connection if one is live. The check is
+    // placed AFTER `await migrateOldDB()` (never around it): migrateOldDB() calls
+    // openDB() recursively (db.js ~:67), so the inner recursive call opens and
+    // caches the handle (migrateOldDB short-circuits its own second run via
+    // _migrationDone) and the outer call then returns that same cached promise.
+    // Caching BEFORE/around migrateOldDB() would deadlock the recursion.
+    if (_dbPromise) return _dbPromise;
+    _dbPromise = new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onupgradeneeded = (event) => {
@@ -327,6 +341,9 @@ window.PortfolioDB = (() => {
 
         // When another tab upgrades the DB, close this connection so the upgrade can proceed
         db.onversionchange = () => {
+          // RFCT-03: invalidate the pool BEFORE closing so the next openDB()
+          // re-opens a fresh connection instead of reusing this closed handle.
+          _dbPromise = null;
           db.close();
           showDBVersionChangedMessage();
         };
@@ -343,8 +360,13 @@ window.PortfolioDB = (() => {
           });
       };
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => {
+        // RFCT-03: do not cache a failed open — invalidate so the next call retries.
+        _dbPromise = null;
+        reject(request.error);
+      };
     });
+    return _dbPromise;
   }
 
   /**
@@ -710,8 +732,14 @@ window.PortfolioDB = (() => {
     // diagnostic trail with nothing to replace it. A true clean slate is still
     // available via the OBS-03 reset path (indexedDB.deleteDatabase).
     // Allow the next openDB() to repopulate the seed pack (debug-wipe flow).
+    // RFCT-03 (Phase 31): with connection pooling, a cached openDB() short-circuits
+    // before its onsuccess seed-on-open path, so resetting the seeding flags alone
+    // would never reseed after a wipe. Reset the pool to its uninitialized state
+    // (undefined) too, so the next openDB() actually re-opens and reseeds — this
+    // preserves the pre-pooling clearAll()->reseed contract (24-04 test F).
     _seedingDone = false;
     _seedingPromise = null;
+    _dbPromise = undefined;
   }
 
   // ────────────────────────────────────────────────────────────────────
