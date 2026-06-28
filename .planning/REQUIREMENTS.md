@@ -33,7 +33,7 @@ Requirements for the Codebase Health & Reliability milestone. Each maps to exact
 
 ### Refactor God Modules (Phase 31)
 
-- [ ] **RFCT-01**: Cohesive units are extracted from `settings.js` (~2,827 lines) into separate IIFE modules (e.g. SnippetEditor, PhotoManager, StorageUsage) with no observable behavior change (Phase 30 suite stays green)
+- [x] **RFCT-01**: Cohesive units are extracted from `settings.js` (~2,827 lines) into separate IIFE modules (e.g. SnippetEditor, PhotoManager, StorageUsage) with no observable behavior change (Phase 30 suite stays green)
 - [ ] **RFCT-02**: Export-modal logic is extracted from `add-session.js` (~2,173 lines) into its own IIFE module with behavior preserved (suite green)
 - [x] **RFCT-03**: Opportunistic cleanups within touched code only — `var`→`const`/`let`, `innerHTML`+i18n hardening (`overview.js`/`sessions.js`), `openDB()` connection pooling (cache the resolved `IDBDatabase`), and tagged logging in non-trivial silent `catch` blocks
 
@@ -102,7 +102,7 @@ Which phases cover which requirements. Status filled during execution.
 | TEST-02 | Phase 30 | Complete |
 | TEST-03 | Phase 30 | Complete |
 | TEST-04 | Phase 30 | Complete |
-| RFCT-01 | Phase 31 | Pending |
+| RFCT-01 | Phase 31 | Complete |
 | RFCT-02 | Phase 31 | Pending |
 | RFCT-03 | Phase 31 | Complete |
 | DOCS-01 | Phase 32 | Pending |
