@@ -21,13 +21,14 @@
  * (D-08): the persistence-call args captured by the mock, the App.showToast
  * key, and the rendered #snippetList contents. Never an internal function name.
  *
- * WHY captured[1] (F-F cross-handler flake): settings.js registers 5
- * DOMContentLoaded handlers (IIFE-1 fields :643, snippets boot :2016, tab-nav
- * :2111, backups :2342, photos :2949). We invoke ONLY captured[1] (the snippets
- * boot at settings.js:1898) via the captured-listener map — never a blanket
- * dispatchEvent that would also boot the others and let an unrelated async
- * rejection flake this test. A captured.length===5 self-check fails loudly if
- * the registration count drifts (so index 1 is no longer guaranteed).
+ * WHY the delta-capture (F-F cross-handler flake): the snippets boot handler now
+ * lives in assets/settings-snippets.js (extracted from settings.js). We snapshot
+ * the captured-handler count, eval settings-snippets.js, assert it registered
+ * exactly one new DOMContentLoaded handler, and invoke ONLY that one — never a
+ * blanket dispatchEvent that would also boot the other settings handlers and let
+ * an unrelated async rejection flake this test. The +1 delta is extraction-robust:
+ * it does not couple to a fixed handler count or positional index, so it survives
+ * later settings.js extractions (e.g. Photos in plan 04).
  *
  * WHY global.PortfolioDB (landmine): app-stub.refreshSnippetCache reads
  * `window.PortfolioDB || global.PortfolioDB` (it runs in Node module scope, not
@@ -120,14 +121,21 @@ function buildEnv(seedSnippets) {
   win.Snippets = { getPrefix: function () { return ';'; }, setPrefix: function () {} };
   win.SNIPPETS_SEED = [];
 
+  // settings-snippets.js registers exactly the snippets boot handler. Capture it
+  // by an extraction-robust delta (NOT a fixed count/index): snapshot the handler
+  // count, eval the snippets file, assert it added exactly one handler, and select
+  // that one. This survives further settings.js extractions (e.g. Photos in plan 04).
+  var beforeSnip = captured.length;
+  win.eval(readAsset('assets/settings-snippets.js'));
+  if (captured.length - beforeSnip !== 1) {
+    throw new Error('expected settings-snippets.js to register exactly 1 DOMContentLoaded handler; got ' +
+      (captured.length - beforeSnip));
+  }
+  var snippetsBoot = captured[captured.length - 1];
+
   win.eval(readAsset('assets/settings.js'));
 
-  if (captured.length !== 5) {
-    throw new Error('expected settings.js to register 5 DOMContentLoaded handlers; got ' +
-      captured.length + ' — IIFE-2 snippets-boot handler-index (1) selection is unsafe');
-  }
-
-  return { dom: dom, win: win, mockDb: mockDb, appStub: appStub, snippetsBoot: captured[1] };
+  return { dom: dom, win: win, mockDb: mockDb, appStub: appStub, snippetsBoot: snippetsBoot };
 }
 
 // Observable: the bare triggers rendered in the snippet list, in DOM order.

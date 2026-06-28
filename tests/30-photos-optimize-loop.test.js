@@ -223,15 +223,19 @@ function makeSandbox(opts) {
   vm.createContext(sandbox);
   vm.runInContext(settingsSrc, sandbox, { filename: 'assets/settings.js' });
 
-  if (captured.length !== 5) {
-    throw new Error('expected settings.js to register 5 DOMContentLoaded handlers; got ' +
-      captured.length + ' — photos IIFE-5 handler-index selection is unsafe');
+  // Select the photos boot by stable identity (the named bindPhotosTab handler),
+  // asserting exactly one match — count/index-INDEPENDENT, so it survives every
+  // settings.js extraction (Snippets 5->4, Photos 4->3, ...).
+  var photosMatches = captured.filter(function (fn) { return fn.name === 'bindPhotosTab'; });
+  if (photosMatches.length !== 1) {
+    throw new Error('expected exactly 1 photos (bindPhotosTab) DOMContentLoaded handler; got ' + photosMatches.length);
   }
 
   return {
     sandbox: sandbox,
     helpers: sandbox.window.__PhotosTabHelpers,
     captured: captured,
+    photosBoot: photosMatches[0],
     dom: dom,
     showToastCalls: showToastCalls,
     updateClientCalls: updateClientCalls,
@@ -333,8 +337,8 @@ async function test(name, fn) {
       },
     });
 
-    // Boot ONLY the photos IIFE (captured[4]) — never the other four.
-    ctx.captured[4]();
+    // Boot ONLY the photos IIFE (selected by bindPhotosTab identity) — never the others.
+    ctx.photosBoot();
     await settle();
 
     var btn = ctx.dom.elements.get('photosOptimizeBtn');

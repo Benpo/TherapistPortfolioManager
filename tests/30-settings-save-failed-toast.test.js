@@ -124,12 +124,15 @@ function buildEnv(throwOnSave) {
 
   win.eval(readAsset('assets/settings.js'));
 
-  if (captured.length !== 5) {
-    throw new Error('expected settings.js to register 5 DOMContentLoaded handlers; got ' +
-      captured.length + ' — IIFE-1 handler-index selection is unsafe');
+  // Select the fields boot by stable identity (the only settings boot that calls
+  // App.initCommon), asserting exactly one match — count/index-INDEPENDENT, so it
+  // survives every settings.js extraction (Snippets 5->4, Photos 4->3, ...).
+  var fieldsMatches = captured.filter(function (fn) { return String(fn).indexOf('initCommon') >= 0; });
+  if (fieldsMatches.length !== 1) {
+    throw new Error('expected exactly 1 fields (initCommon) DOMContentLoaded handler; got ' + fieldsMatches.length);
   }
 
-  return { dom: dom, win: win, app: appStub, mockDb: mockDb, iife1: captured[0] };
+  return { dom: dom, win: win, app: appStub, mockDb: mockDb, iife1: fieldsMatches[0] };
 }
 
 function failedToastFired(appStub) {

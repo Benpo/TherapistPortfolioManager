@@ -38,8 +38,10 @@ const sandbox = {
 };
 vm.createContext(sandbox);
 
+const snippetsSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'settings-snippets.js'), 'utf8');
 const src = fs.readFileSync(path.join(__dirname, '..', 'assets', 'settings.js'), 'utf8');
 try {
+  vm.runInContext(snippetsSrc, sandbox, { filename: 'assets/settings-snippets.js' });
   vm.runInContext(src, sandbox, { filename: 'assets/settings.js' });
 } catch (err) {
   console.error('FATAL: assets/settings.js failed to load in vm sandbox.');

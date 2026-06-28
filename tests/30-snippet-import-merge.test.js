@@ -32,9 +32,11 @@
  * colliding trigger appears EXACTLY ONCE in the rendered #snippetList (no
  * duplicate). Never an internal function name.
  *
- * WHY captured[1] + global.PortfolioDB: same as 30-snippet-wiring.test.js — only
- * the IIFE-2 snippets boot (captured[1], settings.js:1898) is invoked, with a
- * captured.length===5 self-check; and app-stub.refreshSnippetCache resolves
+ * WHY the delta-capture + global.PortfolioDB: same as 30-snippet-wiring.test.js —
+ * the snippets boot now lives in assets/settings-snippets.js; buildEnv evals it,
+ * asserts it registered exactly one new DOMContentLoaded handler (extraction-robust
+ * +1 delta, no fixed count/index), and invokes ONLY that handler; and
+ * app-stub.refreshSnippetCache resolves
  * PortfolioDB via global (it runs in Node scope), so buildEnv mirrors the mock
  * onto global.PortfolioDB and clears it at end-of-file. The REPLACE branch is
  * reachable ONLY because App.getSnippets() returns the seeded colliding snippet
@@ -106,14 +108,21 @@ function buildEnv(seedSnippets) {
   win.Snippets = { getPrefix: function () { return ';'; }, setPrefix: function () {} };
   win.SNIPPETS_SEED = [];
 
+  // settings-snippets.js registers exactly the snippets boot handler. Capture it
+  // by an extraction-robust delta (NOT a fixed count/index): snapshot the handler
+  // count, eval the snippets file, assert it added exactly one handler, and select
+  // that one. This survives further settings.js extractions (e.g. Photos in plan 04).
+  var beforeSnip = captured.length;
+  win.eval(readAsset('assets/settings-snippets.js'));
+  if (captured.length - beforeSnip !== 1) {
+    throw new Error('expected settings-snippets.js to register exactly 1 DOMContentLoaded handler; got ' +
+      (captured.length - beforeSnip));
+  }
+  var snippetsBoot = captured[captured.length - 1];
+
   win.eval(readAsset('assets/settings.js'));
 
-  if (captured.length !== 5) {
-    throw new Error('expected settings.js to register 5 DOMContentLoaded handlers; got ' +
-      captured.length + ' — IIFE-2 snippets-boot handler-index (1) selection is unsafe');
-  }
-
-  return { dom: dom, win: win, mockDb: mockDb, appStub: appStub, snippetsBoot: captured[1] };
+  return { dom: dom, win: win, mockDb: mockDb, appStub: appStub, snippetsBoot: snippetsBoot };
 }
 
 function renderedTriggers(win) {

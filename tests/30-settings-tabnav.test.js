@@ -103,12 +103,15 @@ function buildTabEnv(search) {
 
   win.eval(readAsset('assets/settings.js'));
 
-  if (captured.length !== 5) {
-    throw new Error('expected settings.js to register 5 DOMContentLoaded handlers; got ' +
-      captured.length + ' — tab-nav handler-index selection (index 2) is unsafe');
+  // Select the tab-nav boot by stable identity (the only settings boot that queries
+  // the settings-tabs tablist), asserting exactly one match — count/index-INDEPENDENT,
+  // so it survives every settings.js extraction (Snippets 5->4, Photos 4->3, ...).
+  var tabnavMatches = captured.filter(function (fn) { return String(fn).indexOf('settings-tabs[role="tablist"]') >= 0; });
+  if (tabnavMatches.length !== 1) {
+    throw new Error('expected exactly 1 tab-nav (settings-tabs tablist) DOMContentLoaded handler; got ' + tabnavMatches.length);
   }
 
-  return { dom: dom, win: win, tabnavBoot: captured[2] };
+  return { dom: dom, win: win, tabnavBoot: tabnavMatches[0] };
 }
 
 var passed = 0;

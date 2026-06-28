@@ -14,11 +14,11 @@
  *
  * THE GUARD (D-09 jsdom real-page): load the REAL settings.html + assets/
  * settings.js into jsdom, inject the spy PortfolioDB mock + App.* stub, drive
- * ONLY the IIFE-1 (fields) DOMContentLoaded handler (captured[0],
- * settings.js:643) via the captured-listener map — never a blanket dispatch
- * that would also boot snippets/tab-nav/backups/photos (F-F). A
- * captured.length===5 self-check fails loudly if the registration count drifts
- * (so index 0 is no longer guaranteed). Then assert OBSERVABLE behavior only
+ * ONLY the fields DOMContentLoaded handler (selected by the App.initCommon
+ * identity token) via the captured-listener map — never a blanket dispatch
+ * that would also boot snippets/tab-nav/backups/photos (F-F). The identity
+ * selection asserts exactly one match and is count/index-INDEPENDENT, so it
+ * survives every settings.js extraction. Then assert OBSERVABLE behavior only
  * (D-08): the #settingsSavedNotice visibility/auto-dismiss and the
  * setTherapistSetting write-gate. Never an internal function name.
  *
@@ -107,12 +107,15 @@ function buildEnv(appOverrides) {
 
   win.eval(readAsset('assets/settings.js'));
 
-  if (captured.length !== 5) {
-    throw new Error('expected settings.js to register 5 DOMContentLoaded handlers; got ' +
-      captured.length + ' — IIFE-1 handler-index (0) selection is unsafe');
+  // Select the fields boot by stable identity (the only settings boot that calls
+  // App.initCommon), asserting exactly one match — count/index-INDEPENDENT, so it
+  // survives every settings.js extraction (Snippets 5->4, Photos 4->3, ...).
+  var fieldsMatches = captured.filter(function (fn) { return String(fn).indexOf('initCommon') >= 0; });
+  if (fieldsMatches.length !== 1) {
+    throw new Error('expected exactly 1 fields (initCommon) DOMContentLoaded handler; got ' + fieldsMatches.length);
   }
 
-  return { dom: dom, win: win, mockDb: mockDb, appStub: appStub, iife1: captured[0] };
+  return { dom: dom, win: win, mockDb: mockDb, appStub: appStub, iife1: fieldsMatches[0] };
 }
 
 // Replace the jsdom window's timers with a manual queue so showSavedNotice's

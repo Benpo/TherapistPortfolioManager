@@ -141,16 +141,16 @@ function buildEnv(seeded) {
 
   win.eval(readAsset('assets/settings.js'));
 
-  // Index-selection safety: settings.js registers exactly 5 DOMContentLoaded
-  // handlers (IIFE-1 fields :643, snippets :2016, tab-nav :2111, backups :2342,
-  // photos :2949). If that count drifts, picking index 0 for IIFE-1 is no longer
-  // guaranteed — fail loudly rather than silently drive the wrong handler.
-  if (captured.length !== 5) {
-    throw new Error('expected settings.js to register 5 DOMContentLoaded handlers; got ' +
-      captured.length + ' — IIFE-1 handler-index selection is unsafe');
+  // Identity-selection safety: select the fields boot by the only settings boot
+  // that calls App.initCommon, asserting exactly one match. This is count/index-
+  // INDEPENDENT, so it survives every settings.js extraction (Snippets 5->4,
+  // Photos 4->3, ...) instead of breaking whenever the handler count drifts.
+  var fieldsMatches = captured.filter(function (fn) { return String(fn).indexOf('initCommon') >= 0; });
+  if (fieldsMatches.length !== 1) {
+    throw new Error('expected exactly 1 fields (initCommon) DOMContentLoaded handler; got ' + fieldsMatches.length);
   }
 
-  return { dom: dom, win: win, mockDb: mockDb, seeded: seeded, iife1: captured[0] };
+  return { dom: dom, win: win, mockDb: mockDb, seeded: seeded, iife1: fieldsMatches[0] };
 }
 
 var passed = 0;

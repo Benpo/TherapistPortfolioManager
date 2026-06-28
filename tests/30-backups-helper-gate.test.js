@@ -26,9 +26,9 @@
  * BackupManager is present — so this test deliberately does NOT target it.
  *
  * THE GUARD (D-09 real-page jsdom): load the REAL settings.html body + the REAL
- * assets/settings.js into a jsdom window, capture the 5 DOMContentLoaded
- * handlers and invoke ONLY captured[3] (the backups IIFE — never booting the
- * other four), inject the App.* stub (spy showToast) + a BackupManager whose
+ * assets/settings.js into a jsdom window, capture the DOMContentLoaded handlers
+ * and invoke ONLY the backups boot (selected by the bindBackupsTab identity —
+ * never booting the others), inject the App.* stub (spy showToast) + a BackupManager whose
  * canEnableSchedule we CONTROL per case, then assert OBSERVABLE behavior only
  * (D-08): the helper element's resolved data-i18n/text, the select value, the
  * #schedulePasswordError visibility, and the absence/presence of the
@@ -75,8 +75,8 @@ async function settle() { for (var i = 0; i < 6; i++) { await flush(); } }
 
 /**
  * Build a jsdom env: real settings.html + real settings.js, App stub injected.
- * Captures the 5 DOMContentLoaded handlers and returns ONLY the IIFE-4 (backups)
- * handler (captured[3]) so the test never boots the other four IIFEs.
+ * Captures the DOMContentLoaded handlers and returns ONLY the backups boot
+ * (selected by the bindBackupsTab identity) so the test never boots the others.
  *
  * `canEnable(mode)` controls BackupManager.canEnableSchedule — the REAL D-18
  * gate. Default mirrors the permissive roundtrip stub (true); the rejection
@@ -144,12 +144,15 @@ function buildEnv(opts) {
 
   win.eval(readAsset('assets/settings.js'));
 
-  if (captured.length !== 5) {
-    throw new Error('expected settings.js to register 5 DOMContentLoaded handlers; got ' +
-      captured.length + ' — IIFE-4 (backups) handler-index selection is unsafe');
+  // Select the backups boot by stable identity (the named bindBackupsTab handler),
+  // asserting exactly one match — count/index-INDEPENDENT, so it survives every
+  // settings.js extraction (Snippets 5->4, Photos 4->3, ...).
+  var backupsMatches = captured.filter(function (fn) { return fn.name === 'bindBackupsTab'; });
+  if (backupsMatches.length !== 1) {
+    throw new Error('expected exactly 1 backups (bindBackupsTab) DOMContentLoaded handler; got ' + backupsMatches.length);
   }
 
-  return { dom: dom, win: win, app: appStub, backups: captured[3] };
+  return { dom: dom, win: win, app: appStub, backups: backupsMatches[0] };
 }
 
 // Did App.showToast ever record a 'schedule.savedToast'? (2nd arg is the key.)
