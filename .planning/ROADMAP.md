@@ -62,7 +62,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 - [x] **Phase 28: Update Reliability & Versioning** — field-verified fix for installed-Safari PWA updates; one source-of-truth version constant driving the footer + SW `CACHE_NAME` + a runtime **integrity self-check** (so the displayed version can't lie, as v209 did); CSP `<meta>`→HTTP header; `_headers` cache TTL. Fully offline-compatible (no phone-home). Footer source today: `assets/shared-chrome.js:~8`. (completed 2026-06-22)
 - [x] **Phase 29: Reliability & Observability** — local crash log persisted to IndexedDB + a Settings "Report a problem" copy-to-clipboard flow (zero network, GDPR-safe); IDB migration "reset & recover" escape hatch so a failed migration can't trap a user in an infinite refresh loop. (completed 2026-06-23)
 - [x] **Phase 30: Test Harness & Coverage** — fix the 7 PDF tests that can't run in Node (`jsdom` lacks `HTMLCanvasElement.getContext`; old-Node `blob.arrayBuffer`); add an RTL regression guard; add **behavior tests on the god modules before the refactor** (per `feedback-behavior-verification`). May introduce the project's first `package.json` + dev-dependency (decide at plan time). (completed 2026-06-26)
-- [ ] **Phase 31: Refactor God Modules** — behavior-preserving extraction from `settings.js` (~2,827 lines) and `add-session.js` (~2,173 lines) using the existing IIFE pattern; guarded by the green suite from Phase 30. Opportunistic in touched code: `var`→`const`, `innerHTML`-i18n hardening, `openDB()` connection pooling, logging in silent catches.
+- [x] **Phase 31: Refactor God Modules** — behavior-preserving extraction from `settings.js` (~2,827 lines) and `add-session.js` (~2,173 lines) using the existing IIFE pattern; guarded by the green suite from Phase 30. Opportunistic in touched code: `var`→`const`, `innerHTML`-i18n hardening, `openDB()` connection pooling, logging in silent catches. (completed 2026-06-28)
 - [ ] **Phase 32: README + Code Comments** — project README (run/deploy/architecture) for Sapir as ongoing maintainer; code-level comments describing the *refactored* structure.
 - [ ] **Phase 33: DE/CS i18n completion** — translate the 13 export-modal keys currently showing English to German/Czech users (needs Sapir's strings). Independent of the others — slot in whenever ready.
 
@@ -175,7 +175,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   2. The export-modal logic is extracted from `add-session.js` into its own IIFE module, with behavior preserved and the suite green
   3. Within code touched by the refactor only, opportunistic cleanups are applied: `var`→`const`/`let`, `innerHTML`+i18n hardening in `overview.js`/`sessions.js`, `openDB()` connection pooling (caching the resolved `IDBDatabase`), and tagged logging added to non-trivial silent `catch` blocks
 
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans complete
 
 Plans:
 **Wave 1**
@@ -197,7 +197,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 31-06-PLAN.md — Wave 5 · finalize: APP_VERSION bump (cache roll) + PRECACHE audit + D-08 manual UAT smoke-test phase gate
+- [x] 31-06-PLAN.md — Wave 5 · finalize: APP_VERSION bump (cache roll) + PRECACHE audit + D-08 manual UAT smoke-test phase gate
 
 ### Phase 32: README + Code Comments
 
@@ -271,6 +271,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
 | 29. Reliability & Observability | v1.2 | 4/4 | Complete    | 2026-06-23 |
 | 30. Test Harness & Coverage | v1.2 | 13/13 | Complete    | 2026-06-27 |
-| 31. Refactor God Modules | v1.2 | 5/6 | In Progress|  |
+| 31. Refactor God Modules | v1.2 | 6/6 | Complete   | 2026-06-28 |
 | 32. README + Code Comments | v1.2 | 0/– | Planned | - |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
