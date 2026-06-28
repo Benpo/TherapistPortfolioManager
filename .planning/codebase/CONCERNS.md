@@ -1,230 +1,166 @@
 # Codebase Concerns
 
-**Analysis Date:** 2026-06-22
-
----
-
-## Security Concerns
-
-### CSP Uses `unsafe-inline` for Both `script-src` and `style-src`
-
-- **Risk:** `script-src 'unsafe-inline'` nullifies the XSS protection CSP provides. Any successful injection of a `<script>` tag or inline event handler executes freely.
-- **Files:** All `*.html` pages set CSP via `<meta http-equiv>` — `index.html:23`, `add-session.html`, `add-client.html`, `reporting.html`, `settings.html`, and all legal/disclaimer pages.
-- **Current mitigation:** The app avoids inserting user-controlled data via `innerHTML` in most places (textContent is used for names, notes, etc.). `md-render.js` HTML-escapes before re-injecting markdown.
-- **Recommendation:** Move to nonce-based or hash-based CSP to eliminate `unsafe-inline` from `script-src`. This is a medium-effort refactor but high security value given the app handles sensitive clinical data.
-
-### CSP Delivered as `<meta>` Tag, Not HTTP Header
-
-- **Risk:** `<meta>` CSP does not protect navigations or `<base>` injection. HTTP `Content-Security-Policy` headers are stronger.
-- **Files:** `_headers` (Cloudflare Pages headers) has no CSP entry; all pages define CSP inline.
-- **Fix approach:** Add `Content-Security-Policy` to `_headers` and remove per-page `<meta>` tags.
-
-### License Validation Is Entirely Client-Side
-
-- **Risk:** `isLicensed()` in `assets/license.js:179` checks only whether `portfolioLicenseActivated === '1'` and a non-empty instance ID exist in `localStorage`. Any user who sets these two keys in DevTools bypasses the paywall permanently.
-- **Files:** `assets/license.js:179–185`
-- **Current mitigation:** Base64 encoding of keys is noted as "cosmetic obfuscation only" (`license.js:148`).
-- **Impact:** Revenue loss. The app is a PWA with no server-side data — there is no server to verify against at runtime. The Lemon Squeezy API is only called at initial activation and deactivation (`license.js:211`, `263`).
-- **Scaling risk:** As the user base grows, trivially-bypassed licensing becomes a meaningful revenue leak. A periodic re-validation (e.g., weekly re-ping to LS API with graceful offline fallback) would raise the bar significantly.
-
-### License Key Stored in `localStorage` (Base64 Only)
-
-- **Risk:** `localStorage` is readable by any script on the same origin. If an XSS vector is ever introduced, the license key and instance ID are immediately exposed.
-- **Files:** `assets/license.js:250–251`
-- **Recommendation:** Acceptable risk for current scale, but worth noting alongside the CSP concern above.
-
-### `innerHTML` Used with i18n Translation Strings in `overview.js` and `sessions.js`
-
-- **Risk:** Translated strings are injected via `innerHTML` in `overview.js:456` and `sessions.js:147`. While translation strings are developer-controlled today, this pattern would become an XSS vector if translation strings were ever loaded from a remote source or user-editable.
-- **Files:** `assets/overview.js:456`, `assets/sessions.js:147`
-- **Fix approach:** Replace with `textContent` for the text node and build SVG icons separately, or use `createElement` + attribute setting.
-
-### `innerHTML` Used for `pricingLegalText` (Landing Page)
-
-- **Risk:** `assets/landing.js:477` injects `t.pricingLegalText` via `innerHTML`. This string contains raw `<a>` tags and is developer-controlled. The pattern is safe today but fragile — if a non-developer ever edits translation content, HTML injection is trivial.
-- **Files:** `assets/landing.js:477`, `assets/i18n-en.js`, `assets/i18n-he.js`, `assets/i18n-de.js`, `assets/i18n-cs.js`
-
----
-
-## i18n / l10n Gaps
-
-### German (`de`) and Czech (`cs`) Translations Incomplete — 13 Keys Each
-
-- **Issue:** 13 translation keys in `assets/i18n-de.js` and `assets/i18n-cs.js` have English fallback values with `// TODO i18n: translate to German/Czech` comments.
-- **Affected keys (both files):** `settings.saved.notice`, `settings.saved.dismiss`, export modal stepper labels (`export.stepper.label.1/2/3`), export step helpers (`export.step1.helper`, `export.step2.helper`, `export.step3.helper`), and markdown formatting tips (`export.format.help.*`).
-- **Files:** `assets/i18n-de.js:419–447`, `assets/i18n-cs.js:419–447`
-- **Impact:** DE and CS users see English strings in the export modal flow — a core workflow.
-- **Priority:** High — export is a key feature, not a settings edge case.
-
-### No RTL Regression Guard for Non-Hebrew Locales
-
-- **Issue:** The app has explicit RTL support for Hebrew (via `dir="rtl"` on `<html>`). No automated test guards against accidentally applying RTL to DE/CS/EN locales.
-
----
-
-## Technical Debt
-
-### `settings.js` Is a 2,827-Line God Module
-
-- **Issue:** `assets/settings.js` contains 182 named functions covering section settings, snippet management, photo optimization, storage usage display, and more.
-- **Files:** `assets/settings.js`
-- **Impact:** High coupling, slow to navigate, difficult to unit-test in isolation. Adding any new settings feature requires reading the entire file.
-- **Fix approach:** Extract `SnippetEditor`, `PhotoManager`, and `StorageUsage` into separate JS modules. The IIFE pattern already used in other files (`assets/backup.js`, `assets/md-render.js`) supports this without a bundler.
-
-### `add-session.js` Is a 2,173-Line Monolith
-
-- **Issue:** Session form, issue management, export modal (3-step stepper), markdown preview, and tag/trigger logic all live in one file.
-- **Files:** `assets/add-session.js`
-- **Fix approach:** The export modal (approximately lines 1200–1500) is a clear extraction candidate into `assets/export-modal.js`.
-
-### No Build Step — All JS Served Raw
-
-- **Issue:** Every JS file is served as-is with no bundling, minification, or tree-shaking. The total uncompressed JS payload is ~18,000 lines across 20+ files.
-- **Files:** All `assets/*.js` except `assets/jspdf.min.js` and `assets/bidi.min.js`
-- **Impact:** Slower first load on slow connections. No dead-code elimination. No module system — all globals.
-- **Scaling risk:** Adding more features worsens load time linearly. Introducing a bundler would enable code-splitting, proper modules, and minification.
-
-### Global Namespace Pollution — All Modules Are Browser Globals
-
-- **Issue:** `App`, `PortfolioDB`, `BackupManager`, `MdRender`, `LicenseManager`, `CropModule`, `SnippetsModule` are all `window.*` globals. There is no import/export system.
-- **Files:** All `assets/*.js`
-- **Impact:** Risk of naming collisions; hard to test in isolation without careful mock setup; order of `<script>` tags in HTML is load-order-sensitive.
-
-### Service Worker Cache Version Requires Manual Bump
-
-- **Issue:** `sw.js:12` hardcodes `CACHE_NAME = 'sessions-garden-v210'`. A manual bump is required on every deploy that changes a precached asset.
-- **Files:** `sw.js:12`
-- **Current mitigation:** A pre-commit hook is documented to skip the bump when `sw.js` is already in the diff (see `memory/reference-pre-commit-sw-bump.md`), meaning edits to precached assets without touching `sw.js` can silently serve stale files to installed PWA users.
-- **Fix approach:** Generate `CACHE_NAME` from a content hash at deploy time using a simple build script.
-
-### Backup Import Has No Maximum File-Size Guard
-
-- **Issue:** `assets/backup.js` reads the entire imported ZIP into memory via `FileReader` with no size cap. A maliciously crafted or accidentally huge file would exhaust browser memory.
-- **Files:** `assets/backup.js`
-- **Fix approach:** Add a `file.size > MAX_BYTES` check before `readAsArrayBuffer`.
-
-### `openDB()` Called on Every DB Operation — No Connection Pooling
-
-- **Issue:** `assets/db.js:272` opens a new `indexedDB.open()` call on every invocation (64+ call sites across the codebase). Although IDB internally reuses the connection, the promise overhead and migration checks run on every call.
-- **Files:** `assets/db.js:272`
-- **Fix approach:** Cache the resolved `IDBDatabase` instance in a module-level variable and return it on subsequent calls.
-
-### `var` Used Throughout Older Modules
-
-- **Issue:** `assets/backup.js`, `assets/disclaimer.js`, `assets/license.js`, `assets/overview.js`, `assets/sessions.js` use `var` throughout. Newer modules (`assets/app.js`, `assets/add-session.js`) use `const`/`let`.
-- **Impact:** Not a bug today, but `var` hoisting makes accidental variable reuse invisible and refactoring harder.
-
-### `jspdf.min.js` Is a Vendored Bundle Without a Recorded Version
-
-- **Issue:** `assets/jspdf.min.js` is a local copy with no `package.json` entry and no version comment other than the copyright year. No automated dependency-update path exists.
-- **Files:** `assets/jspdf.min.js`
-- **Impact:** Security patches and bug fixes in jsPDF are not tracked or applied.
-
----
-
-## Performance Risks
-
-### No Pagination on Sessions or Clients Tables
-
-- **Issue:** `assets/sessions.js` and `assets/overview.js` render all records into a DOM table on every load. No virtual scrolling or pagination exists.
-- **Files:** `assets/sessions.js:79`, `assets/overview.js:355`
-- **Scaling risk:** A therapist with 5+ years of weekly sessions (~260 clients, ~2,600 sessions) will see noticeable render lag. At 10,000 rows the table becomes unusable.
-- **Fix approach:** Add client-side pagination (25 rows/page) or a virtual scroll implementation.
-
-### PDF Export Runs on the Main Thread
-
-- **Issue:** `assets/pdf-export.js` (1,198 lines) uses jsPDF synchronously on the main UI thread. Large exports with RTL bidi processing will block the UI for seconds.
-- **Files:** `assets/pdf-export.js`, `assets/jspdf.min.js`
-- **Fix approach:** Move PDF generation to a Web Worker.
-
-### Photo Optimization Loop Is Sequential
-
-- **Issue:** `assets/settings.js:2370` (`_optimizeAllPhotosLoop`) iterates all client photos sequentially with `await` per photo. For 50+ clients with photos, this can take tens of seconds and holds the settings page in a "loading" state.
-- **Files:** `assets/settings.js:2370`
-- **Fix approach:** Process photos in bounded parallel batches (e.g., 4 concurrent).
-
-### `_headers` Cache TTL for JS/CSS Is Only 1 Hour
-
-- **Issue:** `assets/*.js` and `assets/*.css` are served with `Cache-Control: public, max-age=3600`. For a PWA that handles its own cache invalidation via the SW, this is unnecessarily short — it causes redundant CDN revalidation every hour.
-- **Files:** `_headers`
-- **Fix approach:** Increase to `max-age=86400` or longer with the SW still owning freshness for installed users.
-
----
-
-## Accessibility Gaps
-
-### Dynamic Table Rows Have No `aria-rowindex` or Row Count
-
-- **Issue:** Sessions and overview tables are rendered entirely in JS with no `aria-rowcount` on `<table>` and no `aria-rowindex` on rows. Screen readers cannot announce "row 5 of 47".
-- **Files:** `assets/sessions.js:79`, `assets/overview.js:355`
-
-### Export Modal Stepper Has No `aria-current="step"` Indicator
-
-- **Issue:** The 3-step export stepper has no ARIA step indicator. Screen reader users cannot determine which step is active.
-- **Files:** `add-session.html`, `assets/add-session.js` (stepper rendering section)
-
-### Toast Notifications in Demo Mode Untested with Assistive Technology
-
-- **Issue:** Demo mode suppresses certain toast behaviors. No audit has verified that `aria-live="polite"` announcements function correctly in demo mode.
-- **Files:** `assets/app.js:272`, `assets/demo-hints.js`
-
----
-
-## Error Handling Gaps
-
-### ~53 Silent `catch` Blocks Swallow Errors Without Logging
-
-- **Issue:** Across all JS files there are approximately 53 `catch (_)` or `catch (e) { /* ignore */ }` blocks. While most wrap localStorage or optional UI operations, failures in these paths are invisible in production — there is no error telemetry.
-- **Files:** `assets/app.js:109,442,461,527,547,674,977`, `assets/backup-modal.js`, `assets/license.js`, and others.
-- **Fix approach:** For non-trivial catch paths, add at minimum `console.warn` with a tag prefix so support can diagnose issues from user-shared console screenshots.
-
-### No Error Telemetry / Crash Reporting
-
-- **Issue:** No Sentry, Rollbar, or equivalent is integrated. Uncaught exceptions and IDB failures are invisible after deployment.
-- **Impact:** Production bugs affecting a small percentage of users (e.g., specific browser IDB quirks, Safari PWA storage eviction) go undetected until a user reports them.
-- **Fix approach:** Add a lightweight `window.addEventListener('unhandledrejection', ...)` + `window.onerror` handler that persists the last N errors to IDB for a "report a problem" copy-to-clipboard flow — no external service required.
-
-### IDB Migration Failure Has No Recovery Escape Hatch
-
-- **Issue:** `assets/db.js:149` catches migration failures and shows a "please refresh" banner. If the migration genuinely fails (e.g., corrupted old DB), refreshing will loop indefinitely. There is no "reset and start fresh" escape hatch from this state.
-- **Files:** `assets/db.js:149`, `assets/db.js:409–420`
-
----
-
-## Known TODOs in Code
-
-| File | Lines | Description |
-|---|---|---|
-| `assets/i18n-de.js` | 419–447 | 13 strings not yet translated to German |
-| `assets/i18n-cs.js` | 419–447 | 13 strings not yet translated to Czech |
-| `assets/overview.js` | 463 | Severity render D-25 verification noted as reported 2026-05-13 (informational comment) |
-
----
+**Analysis Date:** 2026-06-28
+
+## Tech Debt
+
+**Incomplete i18n translations (Czech and German):**
+- Issue: 26 string keys carry `// TODO i18n: translate to Czech` / `// TODO i18n: translate to German` comments. Affected keys are in the export-modal section (section selector, delivery method copy, expanded label variants). The app falls back to the English string, so users get mixed-language UI in those flows.
+- Files: `assets/i18n-cs.js` (lines 445–472), `assets/i18n-de.js` (lines 445–472)
+- Impact: Czech and German therapists see English text in export/delivery UI steps.
+- Fix approach: Translate the 13 flagged keys in each file; grep gate `// TODO i18n` to zero.
+
+**License enforcement is client-side only:**
+- Issue: The `isLicensed()` check reads `portfolioLicenseActivated === '1'` and a Base64-decoded instance ID from `localStorage`. The encoding is `btoa`/`atob` — explicitly documented as "cosmetic obfuscation" (license.js line 149). A technically aware user can set the key in DevTools and bypass the gate entirely. Real enforcement relies on Lemon Squeezy's 2-device activation limit, which only fires when the user tries to activate on a third device.
+- Files: `assets/license.js` (lines 148–182), `assets/app.js` (line 1103), `assets/shared-chrome.js` (line 23)
+- Impact: No revenue leakage at scale (app data is local only, there is nothing server-side to protect), but a deliberate bypass takes ~10 seconds via DevTools. Acceptable trade-off for an offline-first PWA, but should be a known constraint for any future monetization changes.
+- Fix approach: No perfect fix for a fully offline client-side app. Periodic re-validation against the Lemon Squeezy API on app open (already possible — the instance ID is stored) would raise the bar.
+
+**`window.name` as demo-mode trigger:**
+- Issue: The entire app switches to a separate IndexedDB database (`demo_portfolio`) based on `window.name === 'demo-mode'`. `window.name` persists across navigations within a tab and can be set by a referring page. Any external site can open the app in a named window and land in demo mode.
+- Files: `assets/db.js` (line 2), `assets/app.js` (line 264), `assets/backup-modal.js` (line 295), `assets/demo-seed.js` (line 8), `assets/demo.js` (line 8)
+- Impact: Low severity — demo mode writes to a separate DB, it cannot access real user data. The concern is that a confused user in demo mode could think their real data is gone.
+- Fix approach: Use a URL query param (`?demo=1`) instead of `window.name`, or validate that the referrer is the landing page before accepting `window.name`.
+
+**God-module file sizes:**
+- Issue: Three files each exceed 1,300 lines with 40–57 functions each, handling multiple responsibilities that have grown over 31+ phases. No bundler or module system — all globals.
+  - `assets/backup.js`: 1,575 lines, 57 functions (encryption, key derivation, ZIP, import, export, UI modals, scheduling)
+  - `assets/add-session.js`: 1,518 lines, 40 functions (session form, section rendering, snippet expansion, PDF trigger)
+  - `assets/settings-snippets.js`: 1,329 lines (snippet CRUD, tag UI, import/export, seeding UI)
+- Impact: Hard to test (tests use complex stubs), harder to refactor safely. Phase 31 explicitly documented that test shape coupling to god-module structure caused failures (`reference-test-shape-coupling-extractions.md`).
+- Fix approach: Extract sub-concerns into separate files per the Phase 31 RFCT pattern; add per-mechanism grep gates so extraction regressions are caught.
+
+**No build pipeline / all globals:**
+- Issue: Every JS file is a plain `<script>` with module-level IIFEs exposing a global (`window.PortfolioDB`, `window.App`, `window.BackupManager`, etc.). Load order is enforced by `<script>` tag ordering in HTML. No bundler, no tree-shaking, no dead-code elimination.
+- Files: All `assets/*.js`, all `*.html` files
+- Impact: Adding a new page requires manually ensuring correct script-tag order. A misplaced tag causes silent runtime failures (undefined global). Already seen: `snippets-seed.js` must load before `db.js`.
+- Fix approach: Medium-term — adopt a bundler (Vite/esbuild) or native ES modules. Short-term — document the load-order contract in ARCHITECTURE.md.
+
+**Pre-commit hook skips CACHE_NAME bump:**
+- Issue: The pre-commit hook does not bump `CACHE_NAME` when `sw.js` is in the diff. `PRECACHE_URLS` edits need a manual follow-up chore commit (documented in `memory/reference-pre-commit-sw-bump.md`).
+- Files: `sw.js`, `assets/version.js`
+- Impact: Easy to forget, leading to stale SW caches that silently serve old assets after deploy.
+- Fix approach: Update the pre-commit hook to detect `PRECACHE_URLS` edits in `sw.js` and trigger a version bump automatically.
+
+## Security Considerations
+
+**`'unsafe-inline'` in Content-Security-Policy:**
+- Risk: The deployed CSP (`_headers`) allows `script-src 'self' 'unsafe-inline'` and `style-src 'self' 'unsafe-inline'`. This makes the CSP XSS protection largely ineffective — any injected inline script would execute.
+- Files: `_headers` (line 2)
+- Current mitigation: The app carefully uses `.textContent` for user-controlled data in most places. `innerHTML` is used for static SVG literals and hardcoded i18n strings, not user data. `MdRender` HTML-escapes before applying structural rules.
+- Recommendations: Move inline SVGs to external files or use a nonce-based CSP to allow specific inline blocks. The landing page `legalEl.innerHTML = t.pricingLegalText` is safe (hardcoded strings only), but the pattern is one copy-paste accident away from a vulnerability.
+
+**`disclaimer.js` innerHTML with i18n data:**
+- Risk: `assets/disclaimer.js` line 86 does `els.sections.innerHTML = html` where `html` is assembled from `escapeHtml(section.title)` and `escapeHtml(p)`. Escaping is in place but relies on the `escapeHtml` function being called correctly at every interpolation point.
+- Files: `assets/disclaimer.js` (line 86)
+- Current mitigation: `escapeHtml` is called on every user-facing string insertion. The data source is the i18n bundle (hardcoded at deploy time), not user input.
+- Recommendations: Low immediate risk. Document as an invariant to maintain when extending the disclaimer renderer.
+
+**License key stored in `localStorage`:**
+- Risk: License key, instance ID, and activation flag are stored in `localStorage` as Base64 strings. `localStorage` is accessible to any same-origin JavaScript including browser extensions. A malicious extension could exfiltrate the Lemon Squeezy instance ID.
+- Files: `assets/license.js` (lines 250–252)
+- Current mitigation: The instance ID is only useful for deactivating the license via LS API. The attacker would need LS API access. No payment data is stored.
+- Recommendations: Low priority given offline-first architecture. Document the known limitation.
+
+## Performance Bottlenecks
+
+**Photo storage size in IndexedDB:**
+- Problem: Client photos are stored as base64 data URLs directly in the `clients` object store. `estimatePhotosBytes` in `assets/db.js` shows the team is aware of size. A therapist with many clients each with a high-res photo can hit hundreds of MB in IndexedDB.
+- Files: `assets/db.js` (lines 675–689), `assets/settings-photos.js`, `assets/crop.js`
+- Cause: No streaming or chunked storage — entire base64 string is held in memory when `getAllClients()` is called on every page render.
+- Improvement path: A bulk-optimize flow exists (`settings-photos.js`). The remaining gap is loading all clients eagerly; lazy-load photos only when the photo is rendered.
+
+**`getAllClients()` and `getAllSessions()` called on every page render:**
+- Problem: Every page (sessions, overview, add-session, reporting) calls `getAllClients()` or `getAllSessions()` at init, loading the full dataset. For a therapist with thousands of sessions and large photo data, this scan grows with usage.
+- Files: `assets/sessions.js`, `assets/overview.js`, `assets/reporting.js`, `assets/add-session.js`
+- Cause: No pagination, no lazy loading, no cursor-based iteration.
+- Improvement path: Use IDB indexes (already present: `clientId`, `date`) to page or filter at the DB layer rather than loading all records and filtering in JS.
+
+## Fragile Areas
+
+**`_dbPromise` connection pool invalidation:**
+- Files: `assets/db.js` (lines 16, 88–90, 152–157, 354–358, 373–376, 748–752)
+- Why fragile: The pool has exactly three null-out sites and one `undefined` reset site. Missing any of them causes the next `openDB()` call to return a closed handle, causing silent failures on any IDB operation. Phase 31 CR-01 was exactly this bug (the migration close path missed a null-out). The correctness contract is entirely in the comments, not enforced structurally.
+- Safe modification: Every code path that calls `db.close()` must immediately precede the close with `_dbPromise = null`. Any new `openDB()` recursive call (like `migrateOldDB`) must also null-out after closing. Add a test for each new null-out path.
+- Test coverage: `tests/31-openDB-pooling.test.js` (559 lines) covers the known paths.
+
+**Script load order dependency:**
+- Files: All `*.html` pages
+- Why fragile: `snippets-seed.js` must load before `db.js`; `app.js` must load before page-specific scripts. There is no enforcement mechanism — a misplaced `<script>` tag produces a runtime `TypeError: window.X is not a function` that is hard to trace.
+- Safe modification: When adding a new JS file, trace all globals it reads and confirm those scripts appear earlier in the same HTML file's `<script>` tags.
+- Test coverage: Not tested. The test suite uses jsdom stubs that do not reproduce load-order failures.
+
+**`withStore` returns the IDBRequest result, not the resolved value:**
+- Files: `assets/db.js` (lines 617–626)
+- Why fragile: `withStore` resolves with the return value of `callback(store)` — which for `store.put()` / `store.delete()` is an `IDBRequest` object, not the actual key or `undefined`. Callers that discard the resolved value (most do) are fine, but any caller that relies on the resolved value to get the newly assigned key would get an IDBRequest, not a number.
+- Safe modification: Use `addRecord` (which properly wires `request.onsuccess`) for writes where the auto-assigned key matters; use `withStore` only for fire-and-forget writes.
+- Test coverage: Tested indirectly via roundtrip tests, but the withStore return value contract is not explicitly tested.
 
 ## Scaling Limits
 
-### No Multi-Device Sync
+**IndexedDB storage per origin:**
+- Current capacity: Browser-controlled; Chrome typically allows up to ~60% of available disk for a single origin. No server-side storage.
+- Limit: Therapists with large photo sets can exhaust browser storage. `navigator.storage.persist()` is requested (see `assets/app.js`) to reduce eviction risk.
+- Scaling path: Client-side only app — no server to offload to. The existing bulk-optimize flow is the primary mitigation.
 
-- **Current state:** Data lives exclusively in IndexedDB on the device where the app is installed. Backup/restore is the only data-transfer mechanism.
-- **Limit:** Therapists who switch devices or use multiple devices cannot access their data across devices.
-- **Scaling path:** A cloud sync layer with end-to-end encryption using the existing AES-GCM key infrastructure would require significant architecture addition (backend + auth).
+**Single-tenant, single-device architecture:**
+- Current capacity: One therapist, one browser. Data is not shared across devices — backup export/import is the only sync mechanism.
+- Limit: A therapist who switches devices loses their data unless they remembered to export a backup.
+- Scaling path: Would require a server-side sync layer (out of scope for the current PWA-offline model).
 
-### IndexedDB Has No Record Count Caps
+## Dependencies at Risk
 
-- **Current capacity:** Unlimited clients and sessions.
-- **Limit:** UI tables degrade severely beyond ~500 sessions (no pagination). PDF export of large histories may hit browser memory limits.
-- **Scaling path:** Add table pagination; implement export chunking.
+**`jspdf.min.js` vendored locally:**
+- Risk: `assets/jspdf.min.js` is a vendored copy with no version pin visible in `package.json` (which has only `jsdom` as a dev dependency). Security fixes in jsPDF are not automatically picked up.
+- Impact: PDF export is a core feature. A jsPDF vulnerability would require a manual re-vendor.
+- Migration plan: Pin the jsPDF version in `package.json` as a devDependency and add a copy step, or reference the CDN version with subresource integrity.
+
+**`jszip.min.js` vendored locally:**
+- Risk: Same pattern as jsPDF — vendored without a `package.json` reference. JSZip is used for backup ZIP creation and extraction.
+- Impact: Backup import/export would be affected by a JSZip vulnerability.
+- Migration plan: Same as jsPDF — pin in `package.json` and add a build copy step.
+
+**`bidi.min.js` vendored locally:**
+- Risk: Vendored BiDi library for RTL text rendering in PDFs. No version reference.
+- Impact: Hebrew RTL export would be affected.
+- Migration plan: Same pattern as above.
+
+## Missing Critical Features
+
+**No automated re-validation of license after activation:**
+- Problem: `isLicensed()` only checks `localStorage` after initial activation. If a user's license is revoked by Lemon Squeezy (chargeback, fraud), the app continues to function indefinitely.
+- Blocks: Enforcement of subscription or usage policy changes.
+
+**No cross-device sync:**
+- Problem: All data lives in the local browser's IndexedDB. There is no mechanism to sync between a therapist's laptop and phone.
+- Blocks: Multi-device workflows. The backup export/import flow is manual.
+
+## Test Coverage Gaps
+
+**Load-order / global availability not tested:**
+- What's not tested: Whether each HTML page loads its `<script>` tags in the correct order. The test suite mocks all globals via `tests/_helpers/`, so a missing or misplaced `<script>` tag on a real page would not be caught by any test.
+- Files: All `*.html` pages
+- Risk: A new page or a refactored script tag order could silently break a production page.
+- Priority: Medium
+
+**License bypass / enforcement not tested:**
+- What's not tested: The `isLicensed()` localStorage-check path and any page-level gate that redirects to `license.html`. No test confirms the gate fires when `portfolioLicenseActivated` is absent.
+- Files: `assets/license.js`, `assets/app.js` (line 1103), `assets/shared-chrome.js` (line 23)
+- Risk: A refactor to `isLicensed()` could silently remove the gate.
+- Priority: Medium
+
+**Integration between pages (navigation flows) not tested:**
+- What's not tested: The redirect chain after save (`add-session.js` → `sessions.html`), the back-to-app redirect after license activation, and the demo→live-mode switch.
+- Files: Multiple page controllers
+- Risk: Cross-page state bugs (e.g., wrong redirect URL, missing query params) are invisible to unit tests.
+- Priority: Low (manual UAT catches these, but regression risk grows with scale)
+
+**PDF rendering in real browsers not tested:**
+- What's not tested: The `jsdom-pdf-env.js` helper stubs the canvas/font environment. RTL bidi rendering, glyph coverage, and font loading are verified against a simulated environment only.
+- Files: `tests/pdf-bidi.test.js`, `tests/pdf-glyph-coverage.test.js`, `assets/pdf-export.js`
+- Risk: A font or jsPDF update could silently break Hebrew or Latin PDF output in a real browser.
+- Priority: Medium
 
 ---
 
-## Hard-Coded Values That Should Be Config
-
-| Value | Location | Status |
-|---|---|---|
-| `'sessions-garden-v210'` (SW cache name) | `sw.js:12` | Should be auto-generated from deploy hash |
-| Checkout URL (Lemon Squeezy) | `assets/landing.js:4` | Named constant, acceptable; undocumented if changed |
-| `max-age=3600` for JS/CSS | `_headers` | Too short; should be `86400`+ |
-
----
-
-*Concerns audit: 2026-06-22*
+*Concerns audit: 2026-06-28*

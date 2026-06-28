@@ -1,188 +1,225 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-06-22
+**Analysis Date:** 2026-06-28
 
 ## Directory Layout
 
 ```
 TherapistPortfolioManager_app/
-├── index.html              # Main app entry — Overview (client list)
-├── sessions.html           # Session list for a client
-├── add-session.html        # Session create/edit form
-├── add-client.html         # Client create/edit form
-├── reporting.html          # Reporting/analytics
-├── settings.html           # Therapist settings + snippets
-├── landing.html            # Marketing + license purchase (pre-auth)
-├── license.html            # License activation
-├── demo.html               # Demo mode (sandboxed IndexedDB)
-├── disclaimer.html         # Terms (German / default)
-├── disclaimer-en.html      # Terms (English)
-├── disclaimer-he.html      # Terms (Hebrew)
-├── disclaimer-cs.html      # Terms (Czech)
-├── datenschutz.html        # Privacy policy (German)
-├── datenschutz-en.html     # Privacy policy (English)
-├── datenschutz-he.html     # Privacy policy (Hebrew)
-├── datenschutz-cs.html     # Privacy policy (Czech)
-├── impressum.html          # Legal notice (German)
-├── impressum-en.html       # Legal notice (English)
-├── impressum-he.html       # Legal notice (Hebrew)
-├── impressum-cs.html       # Legal notice (Czech)
-├── manifest.json           # PWA web app manifest
-├── sw.js                   # Service worker (cache management)
-├── _headers                # Cloudflare Pages HTTP response headers
-├── _redirects              # Cloudflare Pages redirect rules
-├── assets/                 # All JS, CSS, fonts, images, vendor libs
-│   ├── app.js              # Shared runtime utilities (window.App)
-│   ├── db.js               # IndexedDB abstraction (window.PortfolioDB)
-│   ├── shared-chrome.js    # Shared nav/footer component
-│   ├── i18n.js             # i18n bootstrapper
-│   ├── i18n-en.js          # English translations
-│   ├── i18n-he.js          # Hebrew translations
-│   ├── i18n-de.js          # German translations
-│   ├── i18n-cs.js          # Czech translations
-│   ├── i18n-disclaimer.js  # Disclaimer-specific translations
-│   ├── overview.js         # Client list page module
-│   ├── sessions.js         # Session list page module
-│   ├── add-session.js      # Session form page module
-│   ├── add-client.js       # Client form page module
-│   ├── reporting.js        # Reporting page module
-│   ├── settings.js         # Settings page module
-│   ├── snippets.js         # Snippet picker component
-│   ├── snippets-seed.js    # Default snippet seed data
-│   ├── pdf-export.js       # PDF generation (uses jsPDF)
-│   ├── md-render.js        # Markdown-to-HTML renderer
-│   ├── backup.js           # Backup export/import logic
-│   ├── backup-modal.js     # Backup UI modal
-│   ├── landing.js          # Landing page / license purchase
-│   ├── license.js          # License activation
-│   ├── disclaimer.js       # Disclaimer/terms page logic
-│   ├── demo.js             # Demo mode UI + overlay
-│   ├── demo-seed.js        # Demo data seeder
-│   ├── demo-seed-data.json # Synthetic demo data
-│   ├── demo-hints.js       # Demo hint tooltip system
-│   ├── crop.js             # Client photo crop utility
-│   ├── globe-lang.js       # Language switcher globe widget
-│   ├── tokens.css          # Design tokens (CSS custom properties)
-│   ├── app.css             # Main application styles
-│   ├── landing.css         # Landing page styles
-│   ├── demo.css            # Demo mode overlay styles
-│   ├── globe-lang.css      # Globe language switcher styles
-│   ├── jspdf.min.js        # Vendored: jsPDF library
-│   ├── jszip.min.js        # Vendored: JSZip library
-│   ├── bidi.min.js         # Vendored: BiDi text algorithm (RTL support)
-│   ├── branding/           # App icons, favicons, OG image
-│   ├── fonts/              # Rubik + Heebo web fonts (woff2 + base64 for PDF)
-│   └── illustrations/      # In-app illustration images
-├── tests/                  # Behavior tests
-├── .planning/              # GSD planning artifacts (not deployed)
-│   └── codebase/           # Codebase analysis documents
-├── .claude/                # Claude Code configuration + context
-├── assets/cf-purge-cache.sh # Cloudflare cache purge script
-└── scripts/                # (symlink or alias to assets/ — same directory)
+├── assets/                     # All JavaScript, CSS, fonts, images, i18n
+│   ├── *.js                    # App modules (see Key File Locations)
+│   ├── tokens.css              # CSS design tokens (colors, spacing, type)
+│   ├── app.css                 # App-wide styles
+│   ├── demo.css                # Demo mode overlay styles
+│   ├── landing.css             # Landing page styles
+│   ├── globe-lang.css          # Language picker styles
+│   ├── fonts/                  # Rubik woff2 (Regular, SemiBold, Bold)
+│   ├── branding/               # Logos, favicons, OG image
+│   └── illustrations/          # SVG/PNG scene illustrations
+├── tests/                      # Test suite (Node.js + custom runner)
+│   ├── _helpers/               # Shared test utilities and stubs
+│   ├── *.test.js               # Test files (prefixed by phase number)
+│   └── run-all.js              # Test runner entry point
+├── scripts/                    # CI/deploy utilities
+│   └── cf-purge-cache.sh       # Cloudflare cache purge script
+├── .github/
+│   └── workflows/
+│       └── deploy.yml          # GitHub Actions: stamp BUILD_TOKEN, deploy to CF Pages
+├── .claude/
+│   ├── context/                # Session prompts and context docs
+│   └── hooks/                  # Claude Code hooks
+├── .planning/                  # GSD planning artifacts (not deployed)
+│   └── codebase/               # Codebase map documents (this dir)
+├── index.html                  # App home (client overview)
+├── sessions.html               # Session list page
+├── add-client.html             # Add/edit client form
+├── add-session.html            # Add/edit session form
+├── settings.html               # Therapist settings (snippets, photos, backup)
+├── reporting.html              # Reporting / analytics page
+├── report.html                 # Diagnostic report page
+├── demo.html                   # Demo mode entry (sets window.name)
+├── landing.html                # Marketing + license activation page
+├── disclaimer.html             # Terms of service (German default)
+├── disclaimer-en.html          # Terms — English
+├── disclaimer-he.html          # Terms — Hebrew
+├── disclaimer-cs.html          # Terms — Czech
+├── impressum.html              # Impressum (German default)
+├── impressum-en.html           # Impressum — English
+├── impressum-he.html           # Impressum — Hebrew
+├── impressum-cs.html           # Impressum — Czech
+├── datenschutz.html            # Privacy policy (German default)
+├── datenschutz-en.html         # Privacy — English
+├── datenschutz-he.html         # Privacy — Hebrew
+├── datenschutz-cs.html         # Privacy — Czech
+├── license.html                # License activation page
+├── license.html                # License page
+├── manifest.json               # PWA web app manifest
+├── sw.js                       # Service worker
+├── _headers                    # Cloudflare Pages HTTP header rules
+├── _redirects                  # Cloudflare Pages redirect rules
+├── package.json                # Dev dependencies (test runner only)
+├── package-lock.json
+├── CLAUDE.md                   # Project-level Claude Code rules
+└── README.md
 ```
 
 ## Directory Purposes
 
-**Root HTML files:**
-- Purpose: One HTML file per screen/page. No templating — each is a standalone document.
-- Key pattern: App pages include inline gate scripts in `<head>` for license/terms redirect logic before any content loads.
-- Legal pages (disclaimer, impressum, datenschutz) are duplicated per language suffix (`-en`, `-he`, `-cs`; German is the unsuffixed default).
-
 **`assets/`:**
-- Purpose: All deliverable client-side assets — JS modules, CSS, fonts, images, vendored libraries.
-- No subdirectory per concern; everything flat except `branding/`, `fonts/`, `illustrations/`.
-- Key files: `app.js` (shared runtime), `db.js` (data layer), `tokens.css` (design system variables).
-
-**`assets/branding/`:**
-- Purpose: App icon set (192px, 512px, 180px apple-touch, 32px favicon, .ico, OG image).
-- Generated: No. Committed: Yes.
-
-**`assets/fonts/`:**
-- Purpose: Rubik web font (woff2, used by app CSS) and Heebo base64 fonts (embedded in PDF export).
-- Generated: No. Committed: Yes.
-
-**`assets/illustrations/`:**
-- Purpose: In-app SVG/PNG illustrations (garden, watering-can).
-- Generated: No. Committed: Yes.
+- Purpose: All runtime JavaScript, CSS, fonts, images — everything deployed as-is
+- Contains: IIFE modules, design token CSS, i18n dictionaries, vendor libs (jsPDF, JSZip, bidi)
+- Key files: `app.js`, `db.js`, `backup.js`, `version.js`, `shared-chrome.js`, `tokens.css`, `app.css`
 
 **`tests/`:**
-- Purpose: Behavior tests (falsifiable, runtime-behavior tests per project convention).
-- Key files: see `TESTING.md`.
+- Purpose: Test suite, run with Node.js via `npm test` (no browser)
+- Contains: Phase-prefixed test files (`24-04-*.test.js`, `31-*.test.js`, etc.), helper stubs in `_helpers/`
+- Key files: `run-all.js` (orchestrator), `tests/_helpers/` (DOM stubs, IDB mock, test utilities)
 
-**`.planning/`:**
-- Purpose: GSD planning system artifacts — phase plans, codebase docs, research.
-- Not deployed. Not part of the application.
+**`scripts/`:**
+- Purpose: Deployment and ops scripts
+- Contains: `cf-purge-cache.sh` (Cloudflare cache purge after deploy)
+
+**`.github/workflows/`:**
+- Purpose: CI/CD pipeline
+- Contains: `deploy.yml` — stamps `__BUILD_TOKEN__` in `assets/version.js` with `${GITHUB_SHA::7}`, deploys to Cloudflare Pages
 
 ## Key File Locations
 
-**Entry Points:**
-- `index.html`: Main app (Overview — client list). SW `start_url`.
-- `landing.html`: Pre-license entry point. Marketing + demo + license purchase.
-- `sw.js`: Service worker — registered by all app pages except `landing.html`.
+**Entry Points (HTML pages):**
+- `index.html`: App home — client overview, search, filters
+- `sessions.html`: Session list for a client (URL param: `?clientId=N`)
+- `add-client.html`: Add or edit a client (URL param: `?clientId=N` for edit)
+- `add-session.html`: Add or edit a session (URL params: `?clientId=N&sessionId=M`)
+- `settings.html`: Therapist settings (tab-nav: snippets, photos, backup, schedule)
+- `reporting.html`: Reporting and analytics views
+- `landing.html`: Marketing page + Lemon Squeezy checkout entry
+
+**Core Modules:**
+- `assets/version.js`: `AppVersion` — deploy token, integrity check, SW cache management
+- `assets/db.js`: `PortfolioDB` — all IndexedDB I/O, schema migrations, connection pool
+- `assets/app.js`: `App` — i18n, nav, shared UI helpers, section label cache
+- `assets/backup.js`: `BackupManager` — ZIP export/import, AES-256-GCM encryption
+- `assets/shared-chrome.js`: `SharedChrome` — footer, nav chrome, localized legal links
+
+**Page Modules (one per page):**
+- `assets/overview.js` — used by `index.html`
+- `assets/sessions.js` — used by `sessions.html`
+- `assets/add-client.js` — used by `add-client.html`
+- `assets/add-session.js` — used by `add-session.html`
+- `assets/settings.js` — used by `settings.html` (coordinates tab modules)
+- `assets/settings-snippets.js` — snippets tab logic
+- `assets/settings-photos.js` — photo management tab logic
+- `assets/reporting.js` — used by `reporting.html`
+- `assets/landing.js` — used by `landing.html`
+- `assets/license.js` — used by `license.html`
+
+**UI Utility Modules:**
+- `assets/export-modal.js`: Export dialog (PDF, markdown, ZIP)
+- `assets/backup-modal.js`: Backup options modal
+- `assets/crop.js`: `CropModule` — photo crop canvas modal
+- `assets/pdf-export.js`: `PDFExport` — bidi-aware PDF generation
+- `assets/md-render.js`: `MdRender` — markdown to HTML/text renderer
+- `assets/snippets.js`: `Snippets` — snippet picker UI
+
+**i18n:**
+- `assets/i18n.js`: Loader stub (sets `window.I18N_DEFAULT`)
+- `assets/i18n-en.js`: English strings + quotes (`window.I18N.en`, `window.QUOTES.en`)
+- `assets/i18n-he.js`: Hebrew strings (`window.I18N.he`)
+- `assets/i18n-de.js`: German strings (`window.I18N.de`)
+- `assets/i18n-cs.js`: Czech strings (`window.I18N.cs`)
+- `assets/i18n-disclaimer.js`: Legal page strings (`window.DISCLAIMER_I18N`)
+
+**Observability:**
+- `assets/crashlog.js`: `CrashLog` — IDB crash log CRUD; early buffer in `index.html` `<head>`
+- `assets/report.js`: `Report` — diagnostic page renderer
+
+**Vendor Libraries:**
+- `assets/jspdf.min.js`: jsPDF (PDF generation)
+- `assets/jszip.min.js`: JSZip (backup ZIP)
+- `assets/bidi.min.js`: Unicode BiDi algorithm (RTL PDF text)
 
 **Configuration:**
-- `manifest.json`: PWA manifest (name, icons, start_url, display mode).
-- `_headers`: Cloudflare Pages HTTP headers (CSP, cache-control).
-- `_redirects`: Cloudflare Pages URL rewrites (pretty URLs for `.html` pages).
+- `assets/version.js`: `APP_VERSION` (hand-set semver) + `INTEGRITY_TOKEN` (build-stamped)
+- `manifest.json`: PWA manifest (name, icons, start URL, display mode)
+- `sw.js`: Service worker (precache list, cache strategy)
+- `_headers`: Cloudflare Pages HTTP header overrides (cache-control, security headers)
+- `_redirects`: Cloudflare Pages redirect rules
 
-**Core Logic:**
-- `assets/db.js`: All data persistence — CRUD for clients, sessions, therapistSettings, snippets.
-- `assets/app.js`: Shared utilities — i18n, modals, nav guards, section-label and snippet caches.
-- `assets/shared-chrome.js`: Shared navigation/footer, renders into every page.
-
-**Design System:**
-- `assets/tokens.css`: CSS custom properties — colors, spacing, typography scale.
-- `assets/app.css`: Full application stylesheet (4097 lines).
+**Testing:**
+- `tests/run-all.js`: Test runner
+- `tests/_helpers/`: DOM stubs, IDB mock, assertion helpers
+- `tests/*.test.js`: All test files
 
 ## Naming Conventions
 
 **Files:**
-- Page modules: match their HTML page (`overview.js` → `index.html`, `sessions.js` → `sessions.html`).
-- i18n files: `i18n-<lang>.js` (two-letter ISO code).
-- Vendored libraries: `<name>.min.js`.
-- Legal pages: `<type>.html` (German default), `<type>-<lang>.html` (other languages).
+- HTML pages: `kebab-case.html` with language suffix for legal variants (e.g., `disclaimer-he.html`)
+- JS modules: `kebab-case.js` matching the module purpose (e.g., `backup-modal.js`, `settings-snippets.js`)
+- CSS files: `kebab-case.css` (e.g., `tokens.css`, `globe-lang.css`)
+- Test files: `{phase-number}-{short-descriptor}.test.js` (e.g., `31-openDB-pooling.test.js`) or `quick-{YYMMDD}-{id}-{descriptor}.test.js` for hotfix tests
 
-**Directories:**
-- Flat structure within `assets/` — no nesting by feature.
+**JavaScript:**
+- Global module objects: `PascalCase` (e.g., `window.PortfolioDB`, `window.BackupManager`, `window.App`)
+- Private module internals: `camelCase` with `_` prefix for module-private vars/functions (e.g., `_dbPromise`, `_sectionLabelCache`, `_migrationDone`)
+- Constants: `SCREAMING_SNAKE_CASE` (e.g., `DB_VERSION`, `CACHE_NAME`, `PBKDF2_ITERATIONS`)
+- IDB store names: `camelCase` strings (e.g., `"clients"`, `"sessions"`, `"therapistSettings"`, `"snippets"`, `"crashlog"`)
+
+**CSS:**
+- BEM-lite: `block-name`, `block-name__element`, `block-name--modifier` (e.g., `.db-error-banner`, `.integrity-nudge`, `.integrity-nudge--online`)
+- Design tokens: `--token-name` CSS custom properties defined in `assets/tokens.css`
 
 ## Where to Add New Code
 
-**New app screen:**
-- Create `<screen-name>.html` in the root directory, following the pattern of existing pages (gate scripts, script loading order, `data-nav` attribute on `<body>`).
-- Create `assets/<screen-name>.js` for page-specific logic.
-- Add the HTML route to `PRECACHE_HTML` in `sw.js`.
-- Add the asset JS file to `PRECACHE_URLS` in `sw.js`.
+**New app page:**
+1. Create `newpage.html` in root — copy gate script block from `index.html`
+2. Load scripts in correct order: `version.js` → `crashlog.js` → i18n files → `app.js` → `db.js` → (other deps) → `newpage.js`
+3. Create `assets/newpage.js` — call `App.initCommon()` on `DOMContentLoaded`, use `PortfolioDB` for data
+4. Add nav entry in `App.renderNav()` in `assets/app.js`
+
+**New DB operation:**
+- Add method to the `PortfolioDB` IIFE in `assets/db.js`
+- Export it in the `return {}` block at the bottom (~line 1110)
+- Schema change: increment `DB_VERSION`, add versioned migration function to `migrations` object
+
+**New i18n string:**
+- Add key to all four language files: `assets/i18n-en.js`, `assets/i18n-he.js`, `assets/i18n-de.js`, `assets/i18n-cs.js`
+- Keep keys alphabetical within their group; use `data-i18n="key"` in HTML or `App.t('key')` in JS
 
 **New shared utility:**
-- Add to `assets/app.js` (attach as `App.fnName = function(){}`).
+- If used by multiple pages: add to `assets/app.js` `App` module and export in `return {}`
+- If purely visual/chrome: add to `assets/shared-chrome.js` `SharedChrome` module
 
-**New IndexedDB operation:**
-- Add to `assets/db.js`; expose in the `return {}` block at the bottom.
+**New test:**
+- Create `tests/{phase}-{descriptor}.test.js`
+- Use helpers from `tests/_helpers/`
+- Tests run in Node.js — no real browser DOM; use stubs from `_helpers`
 
-**New i18n strings:**
-- Add the key to all four language files: `assets/i18n-en.js`, `assets/i18n-he.js`, `assets/i18n-de.js`, `assets/i18n-cs.js`.
-
-**New styles:**
-- Global/component styles: `assets/app.css`.
-- Design token changes: `assets/tokens.css`.
-- Landing-page-only styles: `assets/landing.css`.
-
-**New branding asset:**
-- Place in `assets/branding/`.
-
-**Tests:**
-- Place in `tests/` following existing test file patterns.
+**New asset to precache:**
+- Add path to `PRECACHE_URLS` array in `sw.js` (exact deployed path)
+- Also add to `assets/version.js` if it needs integrity tracking
 
 ## Special Directories
 
-**`.planning/`:**
-- Purpose: GSD planning system — phases, codebase docs, research, sketches.
-- Generated: Partially (by GSD tools). Committed: Yes.
+**`.claude/worktrees/`:**
+- Purpose: Git worktrees used by parallel agent sub-tasks
+- Generated: Yes (by GSD agent system)
+- Committed: No — these are temporary working directories
 
-**`.claude/`:**
-- Purpose: Claude Code hooks, session context, worktrees.
-- Generated: Partially. Committed: Yes (hooks and commands); worktree directories are ephemeral.
+**`.planning/`:**
+- Purpose: GSD planning artifacts, phase plans, codebase maps
+- Generated: Partially (by GSD commands)
+- Committed: Yes
+
+**`assets/fonts/`:**
+- Purpose: Self-hosted Rubik font (woff2 only) for offline/PWA support
+- Generated: No (committed)
+- Committed: Yes
+
+**`assets/illustrations/`:**
+- Purpose: Scene illustrations for onboarding and empty states
+- Generated: No
+- Committed: Yes
 
 ---
 
-*Structure analysis: 2026-06-22*
+*Structure analysis: 2026-06-28*

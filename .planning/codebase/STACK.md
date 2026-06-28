@@ -1,76 +1,78 @@
 # Technology Stack
 
-**Analysis Date:** 2026-06-22
+**Analysis Date:** 2026-06-28
 
 ## Languages
 
 **Primary:**
-- JavaScript (ES2020+) — all application logic, no TypeScript
-- HTML5 — page structure (multi-page app, one `.html` per screen)
-- CSS — styling via custom properties (`assets/tokens.css`, `assets/app.css`)
+- JavaScript (ES2020+) — all application logic, service worker, assets
+- HTML5 — all page shells (`index.html`, `add-client.html`, `sessions.html`, `settings.html`, `reporting.html`, `report.html`, `demo.html`, `landing.html`, and legal pages)
+- CSS3 — custom design tokens (`assets/tokens.css`), app styles (`assets/app.css`), landing styles (`assets/landing.css`), demo styles (`assets/demo.css`)
+
+**Secondary:**
+- JSON — manifest (`manifest.json`), demo seed data (`assets/demo-seed-data.json`)
 
 ## Runtime
 
 **Environment:**
-- Browser (PWA) — no server-side runtime
-- Node.js — test runner only (`node tests/*.test.js`)
+- Browser — the app is a client-only PWA; all runtime is the end-user's browser (no server-side JS)
+- Node.js ≥18.0.0 — development/test workbench only (`npm test`); never ships to production
 
 **Package Manager:**
-- None — no `package.json`. All JS dependencies are vendored as minified files in `assets/`.
+- npm (lockfile: `package-lock.json` present)
 
 ## Frameworks
 
 **Core:**
-- None — vanilla JavaScript, no framework (React, Vue, Angular, etc.)
-- Multi-page app (MPA) architecture: one HTML file per screen
-
-**PWA:**
-- Service Worker (`sw.js`) — cache-first strategy, cache name `sessions-garden-v210`
-- Web App Manifest (`manifest.json`) — standalone display mode, installable
+- None — vanilla JS throughout; no React, Vue, Angular, or any UI framework
 
 **Testing:**
-- Node.js built-in `assert` + custom `test()` runner — no external test framework
-- Tests run with `node tests/<filename>.test.js`; exit 0 = pass, exit 1 = fail
-- VM sandbox (`node:vm`) used to load and isolate browser JS modules in Node
+- jsdom ^29.1.1 — DOM simulation for headless unit tests
+- Custom test runner: `tests/run-all.js` — discovers and executes all `*.test.js` files
 
-## Key Dependencies (vendored)
+**Build/Dev:**
+- No bundler (Webpack, Vite, Rollup, etc.) — assets are served as-is
+- GitHub Actions (`deploy.yml`) — single build step: `sed` replaces `__BUILD_TOKEN__` placeholder in `assets/version.js` with the git short-hash (`${GITHUB_SHA::7}`)
 
-All dependencies are bundled as static files — no npm install required.
+## Key Dependencies
 
-**Critical:**
-- `assets/jspdf.min.js` — jsPDF (2021+ build) — PDF export of session reports
-- `assets/jszip.min.js` — JSZip — backup archive creation/extraction (`.sgbackup` files)
-- `assets/bidi.min.js` — Unicode BiDi algorithm — RTL text rendering in PDF export
+**Critical (vendored, shipped in `assets/`):**
+- `assets/jspdf.min.js` — PDF generation (vendored, minified)
+- `assets/jszip.min.js` — ZIP archive creation for backup export (vendored, minified)
+- `assets/bidi.min.js` — Unicode Bidirectional algorithm for RTL PDF rendering (vendored, minified)
 
-**Storage:**
-- Browser IndexedDB (native) — all client/session data. Accessed via custom wrapper in `assets/db.js`
-
-**Fonts:**
-- Rubik (Regular, SemiBold, Bold) — self-hosted in `assets/fonts/` as `.woff2`
+**Dev-only (npm, not shipped):**
+- `jsdom` ^29.1.1 — headless DOM for tests
 
 ## Configuration
 
 **Environment:**
-- `.env` file present — contains Lemon Squeezy API key and store credentials
-- Variable names visible via CSP `connect-src` in `index.html` header; API calls target `https://api.lemonsqueezy.com`
+- No runtime environment variables — the app is fully client-side with zero server
+- Secrets (Cloudflare zone ID, purge token, GitHub token) live exclusively in GitHub Actions secrets; never in source
+- License credentials stored in browser `localStorage` under keys: `portfolioLicenseActivated`, `portfolioLicenseKey`, `portfolioLicenseInstance`
 
 **Build:**
-- No build step — static files served as-is
-- `_headers` — Cloudflare Pages HTTP headers config (CSP, cache-control)
-- `_redirects` — Cloudflare Pages routing config
-- `scripts/cf-purge-cache.sh` — manual Cloudflare cache purge script
+- `.github/workflows/deploy.yml` — only build artifact; stamps `INTEGRITY_TOKEN` in `assets/version.js`
+- `_headers` — Cloudflare Pages HTTP headers (CSP, cache-control per path)
+- `_redirects` — Cloudflare Pages redirect rules (root navigation handled by JS gate in `index.html`)
 
 ## Platform Requirements
 
 **Development:**
-- Any static file server (no build tooling needed)
-- Node.js (any modern version) for running tests
+- Node.js ≥18.0.0 (for `npm test` only)
+- No build tools required to serve locally — open HTML files directly or via any static server
 
 **Production:**
-- Cloudflare Pages (static hosting)
-- Domain: `sessionsgarden.app`
-- CSP enforced via `_headers`: `connect-src` allows only `self` and `https://api.lemonsqueezy.com`
+- Cloudflare Pages (static hosting, CDN)
+- Service worker (`sw.js`) precaches all static assets; app is fully offline-capable after first load
+- PWA: `manifest.json` enables installability on mobile/desktop
+
+## Versioning
+
+- Hand-set semver in `assets/version.js` (`APP_VERSION`, currently `1.2.2`)
+- Deploy-stamped cache-buster: `INTEGRITY_TOKEN` = git short-hash (7 chars), drives `CACHE_NAME` in `sw.js`
+- `assets/version.js` and `sw.js` are served with `Cache-Control: no-cache`; all other assets cache for 86400s
 
 ---
 
-*Stack analysis: 2026-06-22*
+*Stack analysis: 2026-06-28*

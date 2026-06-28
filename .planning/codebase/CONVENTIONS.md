@@ -1,186 +1,157 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-06-22
+**Analysis Date:** 2026-06-28
 
-## Project Architecture
+## Language & Module Pattern
 
-This is a vanilla JS + HTML SPA (no bundler, no TypeScript). All JS runs in the browser as IIFE modules assigned to `window.*`. There is no `src/` directory — all application code lives in `assets/`.
+All production code is **vanilla JavaScript (ES2020+), zero-build, zero-npm**. Every
+`assets/*.js` file ships as-is to the browser — no bundler, no TypeScript, no transpile
+step. The sole `package.json` devDependency is `jsdom` (test runner only).
+
+**Module pattern:** IIFE assigned to `window.*` global.
+
+```js
+// Every production module follows this exact shape:
+window.PortfolioDB = (() => {
+  'use strict';
+  // private state + helpers
+  return { publicMethod, ... };
+})();
+
+// Older/simpler modules use var at top level instead of IIFE:
+var CrashLog = (function () {
+  'use strict';
+  ...
+  return { logError, ... };
+})();
+```
+
+Files: `assets/db.js`, `assets/app.js`, `assets/crashlog.js`, `assets/backup.js`, etc.
 
 ## Naming Patterns
 
 **Files:**
-- Kebab-case for all asset files: `pdf-export.js`, `globe-lang.js`, `md-render.js`
-- Feature pages match their HTML file name: `sessions.html` / `assets/sessions.js`
-- i18n locale files: `i18n-{locale}.js` (e.g., `i18n-en.js`, `i18n-he.js`, `i18n-de.js`, `i18n-cs.js`)
-- CSS design token file: `assets/tokens.css` (loaded before `app.css`)
-- Phase/plan naming in tests: `{phase}-{plan}-{description}.test.js` (e.g., `25-11-i18n-parity.test.js`)
-- Quick-task tests: `quick-{YYMMDD}-{task-id}-{description}.test.js` (e.g., `quick-260620-q8m-pdf-paragraph-linebreaks.test.js`)
+- `kebab-case.js` for all asset files: `add-client.js`, `shared-chrome.js`, `pdf-export.js`
+- `i18n-{lang}.js` for language dictionaries: `i18n-en.js`, `i18n-he.js`, `i18n-de.js`, `i18n-cs.js`
+- Test files: `{phase}-{plan}-{slug}.test.js` (e.g. `25-01-sendToMyself-removed.test.js`) or `quick-{date}-{id}-{slug}.test.js`
 
-**JavaScript identifiers:**
-- camelCase for functions and variables: `applyTranslations`, `getSectionLabel`, `isSectionEnabled`
-- PascalCase for module namespace objects exposed on `window`: `window.App`, `window.PortfolioDB`, `window.PDFExport`, `window.Snippets`
-- Private module-level variables prefixed with `_`: `_sectionLabelCache`, `_snippetCache`, `_migrationDone`
-- Constants in UPPER_SNAKE_CASE: `DB_NAME`, `DB_VERSION`, `DELETED_SEEDS_KEY`
+**Functions:**
+- `camelCase` for all functions: `openDB`, `migrateOldDB`, `getAllClients`, `buildReportRow`
+- `_prefixedPrivate` for module-private variables: `_dbPromise`, `_migrationDone`, `_seedingDone`, `_sectionLabelCache`, `_snippetCache`
 
-**CSS classes:**
-- BEM-like kebab-case: `.app-shell`, `.app-header`, `.is-modal-open`
-- State classes use `is-` prefix: `body.is-modal-open`
-- Data attributes for behavior hooks: `data-i18n`, `data-i18n-placeholder`
+**Constants:**
+- `SCREAMING_SNAKE_CASE` for module-level constants: `DB_NAME`, `DB_VERSION`, `OLD_DB_NAME`, `MIRROR_KEY`, `MAX_ENTRIES`, `MAX_AGE_MS`
 
-**HTML files:**
-- Kebab-case: `add-client.html`, `add-session.html`, `datenschutz-en.html`
-- Legal pages duplicated per locale suffix: `impressum-en.html`, `impressum-he.html`, `impressum-de.html`, `impressum-cs.html`
+**DOM data attributes:**
+- `data-i18n` for translation keys
+- `data-i18n-placeholder` for placeholder translations
+- `data-role="..."` for behavioral hooks (e.g. `data-role="report"`)
 
-## Module Pattern
+## Code Style
 
-Every JS file exports its public API by assigning an IIFE-returned object to a `window.*` namespace:
+**Formatting:**
+- No automated formatter (no Prettier/ESLint config present)
+- Single quotes for strings in test files; double quotes in production assets
+- 2-space indentation throughout
+
+**Declarations:**
+- `const`/`let` in production ES modules (IIFE bodies)
+- `var` in test files and some older production modules (CrashLog uses `var`)
+- `'use strict';` declared at the top of every file
+
+**JSDoc:**
+- All public-facing functions in production modules carry `@param` / `@returns` JSDoc
+- Internal helpers use inline comments explaining the "why" (especially for non-obvious constraints)
 
 ```js
-window.App = (() => {
-  // private vars
-  let _private = ...;
-
-  function publicFn() { ... }
-
-  return { publicFn, ... };
-})();
+/**
+ * Translate a key using the current language dictionary.
+ * Falls back to English, then returns the key itself.
+ * @param {string} key - i18n key (e.g., 'nav.overview')
+ * @returns {string} Translated string
+ */
+function t(key) { ... }
 ```
-
-Callers reference other modules via `window.App.getSectionLabel(...)`, never via ES module imports.
-
-Modules that expose private functions for testing attach them as:
-```js
-window.Snippets.__testExports = { detectTrigger, resolveExpansion };
-```
-Production code never reads `__testExports`.
-
-## i18n / Localization Patterns
-
-**Supported locales:** `en`, `he`, `de`, `cs`
-
-**Key structure:** Dot-namespaced strings matching feature area:
-- `'nav.overview'`, `'session.form.trapped'`, `'photos.usage.body'`
-
-**Translation lookup via `App.t(key)`** (falls back: current lang → English → key itself):
-```js
-function t(key) {
-  const dict = window.I18N || {};
-  return (dict[currentLang] && dict[currentLang][key])
-      || (dict.en && dict.en[key])
-      || key;
-}
-```
-
-**HTML wiring:** `data-i18n="key"` on elements; `data-i18n-placeholder="key"` on inputs.
-`App.applyTranslations()` scans the DOM and fills them.
-
-**Locale files:** `assets/i18n-{locale}.js` each populate `window.I18N.{locale}` as a flat key→string map.
-`assets/i18n.js` is a loader stub (sets `window.I18N_DEFAULT = "en"`) — no content.
-
-**RTL support:** `html[dir="rtl"]` toggled at runtime for Hebrew. CSS uses logical properties
-(`inset-inline`, `margin-inline-start`) where directional.
-
-**Parity invariant (enforced):** Every key in `i18n-en.js` must exist in all other locale files.
-Enforced by `tests/25-11-i18n-parity.test.js`. Czech (`assets/i18n-cs.js`) has known
-untranslated stub values marked `// TODO i18n: translate to Czech`.
-
-**Section label overrides:** `App.getSectionLabel(sectionKey, defaultI18nKey)` reads a therapist-
-customised label from `_sectionLabelCache` or falls back to `t(defaultI18nKey)`. Custom labels
-MUST be rendered via `.textContent` (never `innerHTML`) — stated in JSDoc.
-
-**Snippet locale fallback chain:** `active → en → he → de → cs`, first non-empty value wins.
-Implemented in `assets/snippets.js`, tested in `tests/24-04-trigger-regex.test.js`.
-
-## CSS / Design Token Conventions
-
-**Two-layer token architecture in `assets/tokens.css`:**
-
-**Layer 1 — Primitive tokens** (raw values, never used directly in component CSS):
-```css
---color-green-600: #2d6a4f;
---color-cream-warm-50: #fdf8f0;
---color-dark-900: #2f2d38;
-```
-
-**Layer 2 — Semantic tokens** (reference primitives, used everywhere else):
-```css
---color-primary: var(--color-green-600);
---color-background: var(--color-cream-warm-50);
---color-text: var(--color-dark-900);
---shadow-soft: 0 18px 40px rgba(36, 24, 72, 0.08);
-```
-
-**Z-index token scale** (defined in `assets/app.css`):
-```css
---z-dropdown: 100;
---z-nav: 200;
---z-modal: 300;
---z-modal-top: 350;   /* crop popup inside modal */
---z-popover: 360;     /* snippet autocomplete */
---z-modal-confirm: 370; /* blocking confirm dialog */
---z-toast: 400;
---z-banner: 500;
-```
-
-**Dark mode:** `[data-theme="dark"]` on the root element overrides all semantic tokens.
-Primitive tokens never change. Dark palette is teal-grey (not dark green).
-
-**Rule:** Never reference a primitive token directly in component CSS — always use a semantic token.
 
 ## Error Handling
 
-**Async/await with try/catch** used throughout `assets/db.js`:
+**Production pattern — never-throwing guard idiom:**
+Every handler and storage operation is wrapped so errors can never crash the page.
+Exemplar: `assets/crashlog.js` and `assets/version.js`.
+
 ```js
 try {
-  const dbs = await indexedDB.databases();
+  // ... operation
+} catch (_) { /* ignore */ }
+```
+
+**Async functions:**
+- `async/await` throughout production code (`assets/db.js`, `assets/app.js`)
+- Rejections are caught with `try/catch` inside the async body or at the call site
+- Promise callbacks (`onsuccess`, `onerror`, `oncomplete`) on IDB requests follow the old-callback shape required by IndexedDB
+
+**Feature-gating:**
+Optional dependencies are checked before use to ensure graceful degradation:
+
+```js
+if (typeof window.CrashLog !== 'undefined') {
+  window.CrashLog.logError(entry);
+}
+```
+
+## Import Organization
+
+There are no ES module `import` statements. Dependencies are loaded via `<script>` tags
+in each HTML page in declaration order. Inter-module calls use `window.*` globals
+(`window.App`, `window.PortfolioDB`, `window.CrashLog`, etc.).
+
+## i18n Pattern
+
+All user-facing strings go through `App.t(key)` for runtime translation. Hard-coded
+English strings in production JS are a known violation that must be eliminated (see
+`tests/25-11-hardcoded-english-removed.test.js`).
+
+Modules that must render before `i18n.js` loads (e.g. `crashlog.js`, `version.js`)
+embed their own pre-i18n 4-language string tables as `var MODULE_STRINGS = { en, he, de, cs }`.
+
+## DOM Safety Rule
+
+Custom labels from user input are applied via `.textContent` or `.value`, **never
+`innerHTML`**. This is explicitly documented in JSDoc for `getSectionLabel`:
+
+> Callers MUST render the result via .textContent or .value (never innerHTML)
+> because customLabel is stored verbatim.
+
+## Sync-Read / Async-Load Cache Pattern
+
+Shared data accessed on the hot path uses an eager-load + synchronous-read pattern:
+
+1. `initCommon()` populates the cache asynchronously at page load
+2. All callers read synchronously via a getter that returns a copy
+
+```js
+// Write: async, on init
+_sectionLabelCache = await PortfolioDB.getAllTherapistSettings();
+
+// Read: sync, everywhere
+function getSectionLabel(sectionKey, defaultI18nKey) {
+  const entry = _sectionLabelCache.get(sectionKey);
   ...
-} catch (e) {
-  // silent fail or fallback
 }
 ```
 
-Functions return `null`/`false` on failure rather than re-throwing. No global error handler.
+This pattern is used for `_sectionLabelCache` (`app.js`) and `_snippetCache` (`app.js`).
 
-Re-entry guards on async init functions:
-```js
-if (_migrationDone || DB_NAME !== "sessions_garden") {
-  _migrationDone = true;
-  return;
-}
-_migrationDone = true;
-```
+## Comments
 
-## Comment Style
+**Phase/plan references:** Code comments cite the phase and plan that introduced
+non-obvious code (e.g. `// RFCT-03 (Phase 31)`, `// Phase 22`). This is the primary
+traceability mechanism — do not omit.
 
-**Section dividers** for logical blocks within a file:
-```js
-// ---------------------------------------------------------------------------
-// i18n — translation and language management
-// ---------------------------------------------------------------------------
-```
-
-**Phase/plan references** inline: `// Phase 22`, `// Phase 24 Plan 04:`, `// Phase 27`
-
-**Z-index and stacking rationale** comments in CSS explain WHY each layer value is what it is.
-
-**JSDoc** on all public functions: `@param`, `@returns`, and caller safety constraints.
-Example from `assets/app.js`:
-```js
-/**
- * Callers MUST render the result via .textContent or .value (never innerHTML)
- * because customLabel is stored verbatim.
- * @param {string} sectionKey
- * @param {string} defaultI18nKey
- * @returns {string} Resolved label
- */
-```
-
-## Code Safety Rules
-
-- Custom label values must never be injected as `innerHTML` (XSS risk)
-- Demo mode isolated via `window.name === "demo-mode"` → uses `"demo_portfolio"` IndexedDB, not `"sessions_garden"`
-- Module singletons guard re-entry with boolean flags (`_migrationDone`, `_seedingDone`)
+**Constraint notes:** Any zero-build constraint violation (no `fetch`, no `import`, no
+`XMLHttpRequest`) is called out with a comment referencing the specific constraint code
+(e.g. `// VER-06 carry-over`).
 
 ---
 
-*Convention analysis: 2026-06-22*
+*Convention analysis: 2026-06-28*

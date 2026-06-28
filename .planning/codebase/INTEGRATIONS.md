@@ -1,86 +1,95 @@
 # External Integrations
 
-**Analysis Date:** 2026-06-22
+**Analysis Date:** 2026-06-28
 
 ## APIs & External Services
 
-**Payments / Licensing:**
-- Lemon Squeezy — one-time purchase licensing and checkout
-  - SDK/Client: Vanilla `fetch` (no SDK)
-  - Auth: API key in `.env` (name not printed here)
-  - Store ID: `324581` (Sessions Garden store — never use store `289135`)
+**Licensing / Payments:**
+- Lemon Squeezy — purchase checkout and license key activation/deactivation
   - Checkout URL: `https://sessionsgarden.lemonsqueezy.com/checkout/buy/70849bde-8fcb-4b30-8525-435f4c7fec66` (hardcoded in `assets/landing.js`)
-  - License activate: `POST https://api.lemonsqueezy.com/v1/licenses/activate` (`assets/license.js:211`)
-  - License deactivate: `POST https://api.lemonsqueezy.com/v1/licenses/deactivate` (`assets/license.js:263`)
-  - CSP `connect-src` explicitly permits `https://api.lemonsqueezy.com` (enforced in `_headers`)
+  - License activation: `POST https://api.lemonsqueezy.com/v1/licenses/activate` (`assets/license.js`)
+  - License deactivation: `POST https://api.lemonsqueezy.com/v1/licenses/deactivate` (`assets/license.js`)
+  - Auth: no server-side API key — calls are unauthenticated from the browser (public LS License API)
+  - Store ID: `324581` (Sessions Garden store), Product ID: `919889`
+  - CSP `connect-src` in `_headers` explicitly allows `https://api.lemonsqueezy.com`
+
+**Cache Purging:**
+- Cloudflare Cache Purge API — called at the end of every deploy
+  - Endpoint: `https://api.cloudflare.com/client/v4/zones/<CF_ZONE_ID>/purge_cache`
+  - Auth: `CF_PURGE_TOKEN` GitHub Actions secret; `CF_ZONE_ID` GitHub Actions secret
+  - Invoked in `.github/workflows/deploy.yml` (server-side only, never exposed to browser)
 
 ## Data Storage
 
 **Databases:**
-- Browser IndexedDB (native) — all client/session/snippets data stored on-device
-  - Connection: native `indexedDB` browser API
-  - Client: custom wrapper `assets/db.js` (no ORM, no idb library)
-  - Privacy design: zero server-side storage; all data stays on user's device
+- IndexedDB (browser-native) — all client/session/settings data stored client-side
+  - Database name: `SessionsGardenDB` (v6 schema)
+  - Object stores: `clients`, `sessions`, `therapistSettings`, `snippets`, `crashlog`
+  - Client: custom wrapper in `assets/db.js` — no third-party IDB library
+  - Connection pool: single `_dbPromise` reused across all 23 call sites (`assets/db.js`)
 
 **File Storage:**
-- Local only — backups exported as `.sgbackup` files (ZIP archive via JSZip)
-- No cloud file storage service
+- Local filesystem only — backup exports written as `.sgbackup` files via the browser download API
+- No cloud file storage
 
 **Caching:**
-- Service Worker cache (`sw.js`) — static asset caching in browser
-- Cloudflare Pages CDN — edge caching for static assets (controlled via `_headers`)
+- Service Worker CacheStorage (`sw.js`) — cache-first strategy for all precached static assets
+- Cache key: `sessions-garden-<INTEGRITY_TOKEN>` (auto-derived, never hand-edited)
 
 ## Authentication & Identity
 
 **Auth Provider:**
-- None (no user accounts, no OAuth)
-- License activation replaces auth: `portfolioLicenseActivated` and `portfolioLicenseInstance` stored in `localStorage`
-- Gate system in `index.html` redirects to `landing.html` → `disclaimer-*.html` → `license.html` based on localStorage state
+- None — no user account system, no server-side auth
+- License validation: `localStorage` check only after initial activation (`assets/license.js`)
+  - Keys: `portfolioLicenseActivated`, `portfolioLicenseKey`, `portfolioLicenseInstance`
+  - Values obfuscated (rot-13 or similar lightweight encoding) — noted as DEBT-01 in source
+  - Activation limited to 2 devices/browsers per license key (enforced by Lemon Squeezy)
 
 ## Monitoring & Observability
 
 **Error Tracking:**
-- None detected
+- CrashLog — custom client-side error capture, stored in IndexedDB `crashlog` store (`assets/crashlog.js`)
+- No third-party error tracking service (Sentry, etc.)
 
 **Logs:**
-- Browser console only (`console.error` / `console.log` in source files)
+- No server-side logs — app is entirely client-side
+- CrashLog entries visible in the app's recovery/export flows
 
 ## CI/CD & Deployment
 
 **Hosting:**
-- Cloudflare Pages — static site hosting
-  - Cache purge script: `scripts/cf-purge-cache.sh`
-  - Header rules: `_headers`
-  - Redirect rules: `_redirects`
+- Cloudflare Pages — static site hosting with CDN
+- Deploy branch: `deploy` (force-pushed from `main` via GitHub Actions)
+- No server, no Functions, no Workers — pure static file serving
 
 **CI Pipeline:**
-- None detected (no GitHub Actions, no CF Pages build pipeline config found)
-- Deployments appear to be manual pushes to CF Pages
+- GitHub Actions: `.github/workflows/deploy.yml`
+  - Trigger: push to `main`
+  - Steps: checkout → prepare staging dir → stamp `INTEGRITY_TOKEN` → verify no sensitive files → push to `deploy` branch → purge Cloudflare cache
+  - No test step in CI — tests are run locally via `npm test`
 
 ## Environment Configuration
 
-**Required env vars (names only — see `.env`):**
-- Lemon Squeezy API key — used by `assets/license.js` for license validation calls
-- Lemon Squeezy Store ID `324581` — hardcoded in `CLAUDE.md` as the Sessions Garden store
+**Required secrets (GitHub Actions only):**
+- `GITHUB_TOKEN` — push to `deploy` branch (auto-provided by Actions)
+- `CF_ZONE_ID` — Cloudflare zone for cache purge
+- `CF_PURGE_TOKEN` — Cloudflare API token scoped to cache purge
 
-**Secrets location:**
-- `.env` file in project root — never read or commit contents
+**No `.env` file required** — the application has no server and no runtime secrets
 
 ## Webhooks & Callbacks
 
 **Incoming:**
-- None detected — no server-side endpoint exists (pure static app)
+- None — no webhook endpoints (no server to receive them)
 
 **Outgoing:**
-- None — all Lemon Squeezy calls are client-initiated REST calls, not webhooks
+- None — the only external calls are the two Lemon Squeezy License API calls triggered by user action in `assets/license.js`
 
-## PWA / Offline
+## Fonts
 
-**Service Worker:**
-- `sw.js` — cache-first for static assets, network-first for HTML pages
-- Cache name versioned: `sessions-garden-v210` (must bump on deploy to bust caches)
-- Precache list covers all JS, CSS, fonts, illustrations, and JSON data files
+- Rubik (Regular, SemiBold, Bold) — self-hosted `.woff2` in `assets/fonts/` (no Google Fonts or CDN)
+- Heebo — self-hosted, base64-embedded for PDF export only (`assets/fonts/heebo-base64.js`, `assets/fonts/heebo-bold-base64.js`)
 
 ---
 
-*Integration audit: 2026-06-22*
+*Integration audit: 2026-06-28*

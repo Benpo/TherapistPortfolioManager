@@ -1,213 +1,290 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-06-22
+**Analysis Date:** 2026-06-28
 
 ## Test Framework
 
-**Runner:** Node.js built-in (`node tests/<file>.test.js`) — no Jest, no Vitest, no test runner framework.
+**Runner:**
+- Custom Node.js runner — `tests/run-all.js`
+- No Jest, Mocha, or Vitest. The runner uses `child_process.spawnSync` to run each
+  `tests/*.test.js` as an isolated child process (continues on failure, 120s timeout per file).
+- Config: no config file — behavior is hardcoded in `tests/run-all.js`
 
-**Assertion library:** Node.js built-in `assert` module (`require('assert')`).
+**Assertion Library:**
+- Node.js built-in `assert` module (`assert.ok`, `assert.strictEqual`, `assert.deepStrictEqual`, `assert.throws`)
+- Some tests use a hand-rolled `check(name, condition)` helper instead
 
-**Sandbox execution:** `node:vm` — asset files are loaded into a controlled sandbox via `vm.runInContext()` to isolate browser globals from Node.
+**DOM Environment:**
+- `jsdom` (v29) — installed as the sole devDependency for tests that need a DOM
+- Many tests use Node.js `vm` module to load production JS into a custom sandbox — no jsdom needed
+- Helper: `tests/_helpers/jsdom-pdf-env.js` bootstraps the full jsdom environment for PDF tests
 
-**No package.json** — the project has no npm setup. There is no `npm test` command. Tests are run individually.
-
-**Run commands:**
+**Run Commands:**
 ```bash
-node tests/<test-file>.test.js          # Run a single test file
-node tests/25-11-i18n-parity.test.js    # Example: i18n parity check
-node tests/24-04-trigger-regex.test.js  # Example: snippet trigger logic
-
-# Some PDF tests require jsdom installed at /tmp/node_modules/jsdom
-mkdir -p /tmp && cd /tmp && npm install jsdom
-node tests/quick-260620-q8m-pdf-paragraph-linebreaks.test.js
-# Or with custom jsdom path:
-JSDOM_PATH=/path/to/node_modules/jsdom node tests/<pdf-test>.test.js
+npm test              # Run all 106 test files (tests/run-all.js)
+node tests/<file>.test.js   # Run a single test file directly
 ```
-
-All test files exit 0 on pass, 1 on any failure.
 
 ## Test File Organization
 
-**Location:** `tests/` directory at project root (not co-located with source).
+**Location:**
+- All test files at `tests/*.test.js` (top-level, not co-located with source)
+- Shared helpers at `tests/_helpers/` — never run as tests themselves
 
-**Total files:** 74 test files as of 2026-06-22.
+**Naming:**
+- Phase/plan tests: `{phase}-{plan}-{slug}.test.js` → `25-01-sendToMyself-removed.test.js`
+- Quick/hotfix tests: `quick-{YYMMDD}-{id}-{slug}.test.js` → `quick-260626-h5j-trigger-autoconvert.test.js`
+- Feature/concern tests: descriptive slug → `pdf-bidi.test.js`, `sw-precache-cache-reload.test.js`
 
-**Helper files:** `tests/_helpers/mock-navigator-share.js`, `tests/_helpers/mock-portfolio-db.js`
-
-**Naming conventions:**
-- Phase/plan tests: `{phase}-{plan}-{description}.test.js`
-  - e.g., `25-11-i18n-parity.test.js`, `24-04-trigger-regex.test.js`
-- Quick-task tests: `quick-{YYMMDD}-{task-id}-{description}.test.js`
-  - e.g., `quick-260620-q8m-pdf-paragraph-linebreaks.test.js`, `quick-260619-okw-trigger-unicode.test.js`
-- PDF-specific tests: `pdf-{description}.test.js`
-  - e.g., `pdf-bidi.test.js`, `pdf-bold-rendering.test.js`, `pdf-digit-order.test.js`
-- Service worker test: `sw-precache-cache-reload.test.js`
+**Helper files in `tests/_helpers/`:**
+- `app-stub.js` — spy-instrumented `App.*` stub for page-level tests
+- `mock-portfolio-db.js` — spy-instrumented `PortfolioDB.*` stub
+- `jsdom-pdf-env.js` — full jsdom + jsPDF environment bootstrap for PDF tests
+- `base64-codec.js` — base64 encode/decode utility
+- `mock-navigator-share.js` — Web Share API stub
 
 ## Test Structure
 
-**Standard structure: vm sandbox + test runner loop**
+Each test file is self-contained and exits with `process.exit(0)` (all pass) or
+`process.exit(1)` (any failure). There are two hand-rolled runner patterns:
+
+**Pattern A — async test() helper with EXPECTED_COUNT guard (newer tests):**
 
 ```js
 'use strict';
+const assert = require('assert');
+
+const EXPECTED_COUNT = 5; // vacuous-green guard: a dropped await test() is caught
+let passed = 0;
+let failed = 0;
+
+async function test(name, fn) {
+  try {
+    await fn();
+    console.log('  PASS  ' + name);
+    passed++;
+  } catch (err) {
+    console.log('  FAIL  ' + name);
+    console.log('        ' + (err && err.message || err));
+    failed++;
+  }
+}
+
+(async () => {
+  await test('A. description', async () => {
+    // ... assertions
+  });
+  // ...
+
+  const ran = passed + failed;
+  if (ran !== EXPECTED_COUNT) {
+    console.log('FAIL  scenario-count guard: ran ' + ran + ' of ' + EXPECTED_COUNT);
+    process.exit(1);
+  }
+  process.exit(failed === 0 ? 0 : 1);
+})();
+```
+
+Files using this pattern: `tests/31-openDB-pooling.test.js`, `tests/25-01-sendToMyself-removed.test.js`
+
+**Pattern B — synchronous check() with failures counter:**
+
+```js
+'use strict';
+let failures = 0;
+function check(name, cond) {
+  if (cond) console.log('  ok  - ' + name);
+  else { console.error('  FAIL - ' + name); failures++; }
+}
+
+// ... test functions calling check() ...
+
+async function run() {
+  testFunctionA();
+  await testFunctionB();
+  if (failures > 0) { process.exit(1); }
+  console.log('PASSED: all cases.');
+  process.exit(0);
+}
+run().catch((e) => { console.error('TEST CRASHED:', e); process.exit(1); });
+```
+
+Files using this pattern: `tests/29-03-report-wiring.test.js`, `tests/29-03-report.test.js`
+
+## Sandbox Loading — Core Technique
+
+Production assets are vanilla IIFE globals that assume a browser environment.
+Tests load them into a `vm` sandbox that provides exactly the browser globals the
+module needs at load time — no more.
+
+```js
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-const assert = require('assert');
 
-// 1. Build a minimal browser-globals sandbox
 const sandbox = {
-  window: { name: '' },
-  document: { addEventListener() {}, getElementById() { return null; }, ... },
-  navigator: { userAgent: '' },
-  setTimeout, clearTimeout, Promise, JSON, Math, ...,
-  console: { log() {}, warn() {}, error() {} },
+  window: { name: 'app' },
+  indexedDB: makeIDBShim(),
+  IDBKeyRange: { only(v) { return { _only: v }; } },
+  localStorage: { getItem() { return null; }, setItem() {} },
+  document: { getElementById() { return null; }, createElement() { ... } },
+  console: { error() {}, warn() {}, log() {} },
+  setTimeout, clearTimeout, queueMicrotask, Promise, JSON, Math, Date,
+  Array, Object, Set, Map,
 };
 vm.createContext(sandbox);
+const src = fs.readFileSync(path.join(__dirname, '..', 'assets', 'db.js'), 'utf8');
+vm.runInContext(src, sandbox, { filename: 'assets/db.js' });
 
-// 2. Load the asset under test into the sandbox
-const src = fs.readFileSync(path.join(__dirname, '..', 'assets', 'snippets.js'), 'utf8');
-vm.runInContext(src, sandbox, { filename: 'assets/snippets.js' });
-
-// 3. Extract the module under test
-const { detectTrigger } = sandbox.window.Snippets.__testExports;
-
-// 4. Custom test runner (no framework)
-let passed = 0, failed = 0;
-function test(name, fn) {
-  try { fn(); console.log('  PASS  ' + name); passed++; }
-  catch (err) { console.log('  FAIL  ' + name + '\n        ' + err.message); failed++; }
-}
-
-// 5. Tests using assert
-test('description', () => {
-  assert.strictEqual(result.type, 'match');
-});
-
-// 6. Exit code
-process.exit(failed === 0 ? 0 : 1);
+// Access exposed globals:
+const PortfolioDB = sandbox.window.PortfolioDB;
 ```
 
-**Async tests** use a top-level `async function main()` + `.catch(err => process.exit(1))`:
-```js
-async function main() {
-  // await calls...
-}
-main().catch(err => { console.error('FATAL:', err); process.exit(1); });
-```
-
-## PDF Tests (jsdom-based)
-
-PDF rendering tests (files matching `pdf-*.test.js` and PDF-related quick tests) require jsdom
-because jsPDF uses browser DOM APIs. Pattern:
-
-```js
-const { JSDOM } = require(process.env.JSDOM_PATH || '/tmp/node_modules/jsdom');
-
-function buildJsdomEnv() {
-  const dom = new JSDOM('<!doctype html>...', {
-    url: 'file://' + REPO_ROOT + '/test-harness.html',
-    runScripts: 'outside-only',
-  });
-  const win = dom.window;
-  win.HTMLCanvasElement.prototype.getContext = () => null; // jsdom stub
-  win.eval(fs.readFileSync('assets/jspdf.min.js', 'utf8'));
-  win.eval(fs.readFileSync('assets/bidi.min.js', 'utf8'));
-  win.eval(fs.readFileSync('assets/fonts/heebo-base64.js', 'utf8'));
-  win.eval(fs.readFileSync('assets/pdf-export.js', 'utf8'));
-  return dom;
-}
-```
-
-Deterministic PDF output is achieved by pinning date and file ID on the jsPDF instance:
-```js
-doc.setCreationDate("D:20260101000000+00'00'");
-doc.setFileId('00000000000000000000000000000000');
-```
+**Key rule:** Each scenario that needs a clean module state calls `loadDB()` / a loader
+function which creates a fresh `vm.createContext` — never reuse a sandbox across tests.
 
 ## Mocking
 
-**What is mocked:**
-- `window.localStorage` — stubbed inline in each sandbox (`{ getItem() { return 'he'; }, setItem() {} }`)
-- `document.*` — minimal stubs (getElementById returns null, querySelectorAll returns [])
-- `navigator.userAgent` — set to empty string
-- `HTMLCanvasElement.prototype.getContext` — returns `null` (jsPDF PDF tests only)
-- jsPDF `doc.text` — wrapped to record all draw calls into `win.__textCalls` (behavior spy for paragraph layout tests)
+**Framework:** Hand-rolled stubs — no sinon, jest.fn(), etc.
 
-**What is NOT mocked:**
-- `assert` — uses real Node.js assert
-- `vm` sandbox itself — real Node.js vm module
-- File system reads — real `fs.readFileSync` against the actual repo files
+**IDB Shim pattern (complex — for db.js tests):**
 
-**Helper files:**
-- `tests/_helpers/mock-navigator-share.js` — stubs `navigator.share`
-- `tests/_helpers/mock-portfolio-db.js` — stubs IndexedDB calls
+A custom in-memory IndexedDB shim is written inline in the test file. The shim in
+`tests/31-openDB-pooling.test.js` is the canonical strengthened reference:
+- `makeIDBShim()` returns a full IDB-shaped object with `open`, `databases`, `deleteDatabase`
+- Stores are in-memory `Map` instances
+- All IDB callbacks are delivered via `queueMicrotask` (matching browser async behavior)
+- Exposes test seams: `idb._openCount`, `idb._openedHandles`, `idb._stage(name, version, stores)`, `idb._peek(name, store)`, `idb._hasDatabase(name)`
+- Closed-handle guard: `close()` sets `_closed` flag; `transaction()` throws `InvalidStateError` when `_closed`
 
-## Key Test Patterns
+**App stub (for page-level tests):**
 
-### Behavior Tests (mandatory for runtime-behavior fixes)
+`tests/_helpers/app-stub.js` exports `createAppStub(overrides)`:
+- Spy-instrumented: every call recorded to `stub.__calls` (a `Map` of `methodName → [[args], ...]`)
+- All surface methods return sensible defaults (i18n `t(key)` returns the key; `initCommon()` returns `Promise.resolve()`)
+- Overrides: pass `{ methodName: fn }` to replace defaults per-test
 
-Per project memory (`feedback-behavior-verification.md`): runtime-behavior bugs MUST have a
-falsifiable behavior test that FAILS on the old code and PASSES after the fix. Grep/shape checks
-are not sufficient.
+```js
+const { createAppStub } = require('./_helpers/app-stub');
+const appStub = createAppStub({ t: (k) => myMessages[k] || k });
+win.App = appStub;
+// ... drive the real page ...
+assert.strictEqual(appStub.__calls.get('showToast').length, 1);
+```
 
-Pattern: spy on a low-level rendering call and assert on observable output:
-- `tests/quick-260620-q8m-pdf-paragraph-linebreaks.test.js` wraps `doc.text` to record baseline Y
-  coordinates and asserts that 3 separate lines render on 3 distinct Y values.
+**DOM stub pattern (for wiring tests):**
 
-### i18n Parity Tests
+Each test file that needs DOM but not jsdom writes a `makeElement(tag)` / `makeDocument(registry)` factory inline. The element stub implements: `classList`, `dataset`, `style`, `textContent`, `onclick`, `setAttribute`, `appendChild`, `querySelector`, `_allText()`, `_allWithHref()`, `_find(sel)`.
 
-`tests/25-11-i18n-parity.test.js` — loads all 4 locale files in a vm sandbox and asserts:
-1. Specific new keys exist in all 4 locales
-2. Every key in `i18n-en.js` exists in all other locale files (parity invariant)
+**What to mock:**
+- Browser globals the module reads at load time (must be in sandbox)
+- IndexedDB (use hand-rolled shim, not a third-party library)
+- `App.*` surface (use `createAppStub`)
+- `PortfolioDB.*` surface (use `tests/_helpers/mock-portfolio-db.js`)
+- `localStorage` (use `{ _m: new Map(), getItem(k){...}, setItem(k,v){...}, removeItem(k){...} }`)
 
-### Shape / Structure Tests
+**What NOT to mock:**
+- The coupled severity widget pair (`App.createSeverityScale` + `App.getSeverityValue`) — load the real `app.js` and pass through via overrides
+- The module under test itself
 
-Tests that assert module structure without runtime behavior:
-- `tests/25-01-sendToMyself-removed.test.js` — grep-style: asserts a removed function is absent
-- `tests/25-13-css-audit.test.js` — reads CSS source and checks class/variable presence
+## Test Categories
 
-### ReDoS Safety Tests
+**1. Behavioral / observable-effect tests (primary):**
+Assert observable side effects — returned values, persisted store state via `_peek`, DOM
+content via `_allText()`, navigation target via `location.href`. Never assert internal
+private state (`_dbPromise`, `_migrationDone`, etc.).
 
-`tests/24-04-trigger-regex.test.js` scenario H: runs an adversarial 10,000-char input 5 times
-and asserts total elapsed time < 50ms.
+**2. Source / shape audit tests (secondary):**
+`fs.readFileSync` + regex/`indexOf` to assert that specific strings or CSS rule shapes
+exist or are absent in production source files. Used for i18n enforcement, CSS regression
+guards, and removal verification.
 
-### Test Documentation Pattern
+```js
+// Source audit example
+const css = fs.readFileSync(cssPath, 'utf8');
+assert.ok(css.indexOf('sendToMyself') === -1, 'string must not appear in source');
+```
 
-Each test file opens with a block comment that:
-1. Names the phase/plan and what is being tested
-2. Lists the numbered scenarios (A, B, C... or Test 1, 2, 3...)
-3. States the `Run:` command
-4. States the exit code contract
-5. For behavior tests: explains the bug root cause, the fix, and why the test is falsifiable
+**3. Vacuous-green guard:**
+Every test suite using Pattern A includes an `EXPECTED_COUNT` check at the end. If a
+`await test(...)` is accidentally dropped (e.g. missing `await`), the count mismatch
+fails the suite before the count reaches the runner.
 
-## What Is Tested
+## Fixtures and Factories
 
-- Snippet trigger detection regex and locale fallback chain (`assets/snippets.js`)
-- PDF paragraph rendering, bold text, BiDi, digit order, RTL ordered lists, glyph coverage
-- i18n key parity across all 4 locales
-- IndexedDB migration shape
-- Photo crop, resize, delete, bytes estimator
-- Schedule/reminder debounce, interval, password enforcement
-- Backup import/export structure
-- Service worker precache configuration
-- Cloud sync state machine
-- CSS structure audits
+**Test data:**
+- Inline within each test — no shared fixture files
+- IDB pre-seeding via `idb._stage(name, version, storesSpec)`:
 
-## What Is NOT Tested
+```js
+idb._stage('emotion_code_portfolio', 5, {
+  clients: {
+    keyPath: 'id',
+    records: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }]
+  },
+  sessions: { keyPath: 'id', records: [] },
+});
+```
 
-- Full end-to-end user flows (no Playwright/Cypress)
-- IndexedDB read/write at runtime (tests mock the DB layer)
-- UI rendering correctness in a browser (no visual regression tests)
-- Authentication / Lemon Squeezy payment flows
-- Settings save/load round-trips in a real browser context
+## Coverage
 
-## Coverage Status
+**Requirements:** No coverage tool configured. Coverage is not numerically enforced.
 
-No coverage tooling configured. No enforced coverage threshold. Coverage is informal — each
-phase/quick task adds targeted tests for the specific behavior changed, rather than
-maintaining aggregate line coverage.
+**Known gaps:** Test coverage is behavior-driven, not line-driven. Source-audit tests
+(`grep` gates) verify shape but not execution path. A known failure mode: tests that
+count file mentions do not prove the code runs (see `memory/feedback-test-coverage-count-not-real.md`).
+
+## Common Patterns
+
+**Async settlement — flush microtasks/timers:**
+
+```js
+// After triggering an async operation, flush with two setTimeout rounds:
+await new Promise((r) => setTimeout(r, 0));
+await new Promise((r) => setTimeout(r, 0));
+```
+
+**Deadlock protection via Promise.race:**
+
+```js
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('TIMEOUT (' + ms + 'ms): ' + label)), ms)
+    ),
+  ]);
+}
+// Usage:
+const result = await withTimeout(PortfolioDB.getAllClients(), 5000, 'getAllClients');
+```
+
+**Concurrent-open test:**
+
+```js
+const results = await Promise.allSettled([
+  PortfolioDB.getAllClients(),
+  PortfolioDB.getAllClients(),
+]);
+assert.strictEqual(results.length, 2, 'both concurrent opens must settle (no hang)');
+```
+
+**DOM event capture (async page handlers):**
+
+The `docListeners` pattern (from `25-06`): override `document.addEventListener` before
+`vm.runInContext` to capture registered handlers, then `await` the specific async handler
+rather than dispatching `DOMContentLoaded` (which does not await async listeners).
+
+**Error testing:**
+
+```js
+assert.throws(
+  () => handle.transaction('clients', 'readonly'),
+  (e) => e && e.name === 'InvalidStateError',
+  'closed handle must throw InvalidStateError'
+);
+```
 
 ---
 
-*Testing analysis: 2026-06-22*
+*Testing analysis: 2026-06-28*
