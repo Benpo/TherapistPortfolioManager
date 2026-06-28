@@ -453,7 +453,14 @@ function renderClientRows(clients, sessionsByClient) {
     detailCell.colSpan = 4;
 
     if (!clientSessions.length) {
-      detailCell.innerHTML = `<div class="helper-text">${App.t("overview.sessions.none")}</div>`;
+      // RFCT-03 (Phase 31): build the empty-state node via textContent instead
+      // of string-interpolated innerHTML — observable output is identical (a
+      // .helper-text div whose text is the i18n string), locked by
+      // tests/31-overview-render-hardening.test.js.
+      const emptyHelper = document.createElement("div");
+      emptyHelper.className = "helper-text";
+      emptyHelper.textContent = App.t("overview.sessions.none");
+      detailCell.appendChild(emptyHelper);
     } else {
       const list = document.createElement("div");
       list.className = "session-list";
@@ -507,7 +514,22 @@ function renderClientRows(clients, sessionsByClient) {
         // Phase 24-06 follow-up: dropped `row-toggle` (34px circle with grid:place-items:center
         //   was clipping both label + icon into one cell). .edit-button now styles as a pill
         //   with label + icon side-by-side.
-        editButton.innerHTML = '<span class="button-label" data-i18n="overview.table.view">' + App.t("overview.table.view") + '</span><span class="button-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>';
+        // RFCT-03 (Phase 31): build the view button via textContent for the
+        // i18n label instead of string-interpolated innerHTML. The icon span's
+        // SVG is static/app-controlled (no interpolation) so it is assigned
+        // once via innerHTML. Observable output is identical (a .button-label
+        // with data-i18n + a .button-icon svg), locked by
+        // tests/31-overview-render-hardening.test.js.
+        const viewLabel = document.createElement("span");
+        viewLabel.className = "button-label";
+        viewLabel.setAttribute("data-i18n", "overview.table.view");
+        viewLabel.textContent = App.t("overview.table.view");
+        const viewIcon = document.createElement("span");
+        viewIcon.className = "button-icon";
+        viewIcon.setAttribute("aria-hidden", "true");
+        viewIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+        editButton.appendChild(viewLabel);
+        editButton.appendChild(viewIcon);
         editButton.addEventListener("click", () => {
           window.location.href = `./add-session.html?sessionId=${session.id}`;
         });
