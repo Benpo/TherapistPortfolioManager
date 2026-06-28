@@ -63,6 +63,10 @@ var codec = require('./_helpers/base64-codec');
 
 var REPO_ROOT = path.resolve(__dirname, '..');
 var settingsSrc = fs.readFileSync(path.join(REPO_ROOT, 'assets', 'settings.js'), 'utf8');
+// Phase 31-04: the two photos IIFEs (__PhotosTabHelpers + bindPhotosTab) moved
+// to assets/settings-photos.js. Load it into the SAME sandbox so the hook is
+// populated and the bindPhotosTab DOMContentLoaded handler is captured.
+var photosSrc = fs.readFileSync(path.join(REPO_ROOT, 'assets', 'settings-photos.js'), 'utf8');
 
 function flush() { return new Promise(function (r) { setTimeout(r, 0); }); }
 async function settle() { for (var i = 0; i < 8; i++) { await flush(); } }
@@ -222,6 +226,7 @@ function makeSandbox(opts) {
 
   vm.createContext(sandbox);
   vm.runInContext(settingsSrc, sandbox, { filename: 'assets/settings.js' });
+  vm.runInContext(photosSrc, sandbox, { filename: 'assets/settings-photos.js' });
 
   // Select the photos boot by stable identity (the named bindPhotosTab handler),
   // asserting exactly one match — count/index-INDEPENDENT, so it survives every

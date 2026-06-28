@@ -37,6 +37,11 @@ function readSource(rel) {
 }
 
 const settingsSrc = readSource('assets/settings.js');
+// Phase 31-04: the Photos UI IIFE (which references the "photos.usage.body"
+// i18n key) moved to settings-photos.js. The POSITIVE presence check scans the
+// COMBINED post-move source; the NEGATIVE/absence gates stay on settingsSrc.
+const photosSrc = readSource('assets/settings-photos.js');
+const settingsCombined = settingsSrc + photosSrc;
 const heSrc = readSource('assets/i18n-he.js');
 
 let passed = 0;
@@ -111,9 +116,9 @@ test('settings.js does NOT contain inline English fallback "Photos use {size} of
 });
 
 test('settings.js storage line uses i18n key "photos.usage.body" (UAT-C3)', function () {
-  if (settingsSrc.indexOf("'photos.usage.body'") === -1 &&
-      settingsSrc.indexOf('"photos.usage.body"') === -1) {
-    throw new Error('settings.js does not reference the i18n key "photos.usage.body" (UAT-C3 not wired)');
+  if (settingsCombined.indexOf("'photos.usage.body'") === -1 &&
+      settingsCombined.indexOf('"photos.usage.body"') === -1) {
+    throw new Error('settings.js/settings-photos.js does not reference the i18n key "photos.usage.body" (UAT-C3 not wired)');
   }
 });
 

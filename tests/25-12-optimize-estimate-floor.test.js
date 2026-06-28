@@ -49,6 +49,11 @@ const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 const settingsSrc = fs.readFileSync(path.join(ROOT, 'assets', 'settings.js'), 'utf8');
+// Phase 31-04: the photos IIFEs (incl. ESTIMATE_DISPLAY_FLOOR_BYTES + its
+// __PhotosTabHelpers exposure) moved to assets/settings-photos.js. Source-text
+// assertions for the moved symbol read photosSrc; the runtime sandbox also
+// loads it so __PhotosTabHelpers is populated.
+const photosSrc = fs.readFileSync(path.join(ROOT, 'assets', 'settings-photos.js'), 'utf8');
 
 let passed = 0, failed = 0;
 function test(name, fn) {
@@ -79,7 +84,7 @@ const I18N = i18nSandbox.window.I18N;
 (async function runAll() {
 
 await test('Source: ESTIMATE_DISPLAY_FLOOR_BYTES constant exists in settings.js', () => {
-  const m = settingsSrc.match(/\bvar\s+ESTIMATE_DISPLAY_FLOOR_BYTES\s*=\s*([^;]+);/);
+  const m = photosSrc.match(/\bvar\s+ESTIMATE_DISPLAY_FLOOR_BYTES\s*=\s*([^;]+);/);
   if (!m) {
     throw new Error('no `var ESTIMATE_DISPLAY_FLOOR_BYTES = ...;` declaration found in settings.js');
   }
@@ -104,7 +109,7 @@ await test('Source: ESTIMATE_DISPLAY_FLOOR_BYTES constant exists in settings.js'
 });
 
 await test('Source: ESTIMATE_DISPLAY_FLOOR_BYTES is exposed on __PhotosTabHelpers (for testability + D-30 single-source)', () => {
-  if (!/ESTIMATE_DISPLAY_FLOOR_BYTES\s*:\s*ESTIMATE_DISPLAY_FLOOR_BYTES/.test(settingsSrc)) {
+  if (!/ESTIMATE_DISPLAY_FLOOR_BYTES\s*:\s*ESTIMATE_DISPLAY_FLOOR_BYTES/.test(photosSrc)) {
     throw new Error('ESTIMATE_DISPLAY_FLOOR_BYTES is not exposed on __PhotosTabHelpers');
   }
 });
@@ -291,6 +296,7 @@ function makeSandbox(opts) {
 
   vm.createContext(sandbox);
   vm.runInContext(settingsSrc, sandbox, { filename: 'assets/settings.js' });
+  vm.runInContext(photosSrc, sandbox, { filename: 'assets/settings-photos.js' });
   document._fireReady();
 
   return { sandbox, document, elements, confirmDialogCalls };

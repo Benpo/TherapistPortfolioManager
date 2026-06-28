@@ -46,6 +46,11 @@ const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 const settingsSrc = fs.readFileSync(path.join(ROOT, 'assets', 'settings.js'), 'utf8');
+// Phase 31-04: the photos IIFEs (incl. OPTIMIZE_RECOMMEND_THRESHOLD_BYTES + its
+// __PhotosTabHelpers exposure) moved to assets/settings-photos.js. Source-text
+// assertions for the moved symbol read photosSrc; the runtime sandbox also
+// loads it so __PhotosTabHelpers is populated.
+const photosSrc = fs.readFileSync(path.join(ROOT, 'assets', 'settings-photos.js'), 'utf8');
 
 let passed = 0, failed = 0;
 function test(name, fn) {
@@ -171,6 +176,7 @@ function makeSandbox(opts) {
 
   vm.createContext(sandbox);
   vm.runInContext(settingsSrc, sandbox, { filename: 'assets/settings.js' });
+  vm.runInContext(photosSrc, sandbox, { filename: 'assets/settings-photos.js' });
   document._fireReady();
   return { sandbox, document, elements, langRef };
 }
@@ -184,8 +190,8 @@ function makeDataURLOfBytes(targetBytes) {
 
 // ── 1. Source constant ──────────────────────────────────────────────
 await test('Source: OPTIMIZE_RECOMMEND_THRESHOLD_BYTES = 2 MB constant exists in settings.js', () => {
-  const m = settingsSrc.match(/\bvar\s+OPTIMIZE_RECOMMEND_THRESHOLD_BYTES\s*=\s*([^;]+);/);
-  if (!m) throw new Error('no `var OPTIMIZE_RECOMMEND_THRESHOLD_BYTES = ...;` in settings.js');
+  const m = photosSrc.match(/\bvar\s+OPTIMIZE_RECOMMEND_THRESHOLD_BYTES\s*=\s*([^;]+);/);
+  if (!m) throw new Error('no `var OPTIMIZE_RECOMMEND_THRESHOLD_BYTES = ...;` in settings-photos.js');
   let value;
   try { value = vm.runInNewContext('(' + m[1].trim() + ')'); }
   catch (e) { throw new Error('expression not evaluable: ' + m[1]); }
@@ -195,7 +201,7 @@ await test('Source: OPTIMIZE_RECOMMEND_THRESHOLD_BYTES = 2 MB constant exists in
 });
 
 await test('Source: OPTIMIZE_RECOMMEND_THRESHOLD_BYTES exposed on __PhotosTabHelpers', () => {
-  if (!/OPTIMIZE_RECOMMEND_THRESHOLD_BYTES\s*:\s*OPTIMIZE_RECOMMEND_THRESHOLD_BYTES/.test(settingsSrc)) {
+  if (!/OPTIMIZE_RECOMMEND_THRESHOLD_BYTES\s*:\s*OPTIMIZE_RECOMMEND_THRESHOLD_BYTES/.test(photosSrc)) {
     throw new Error('OPTIMIZE_RECOMMEND_THRESHOLD_BYTES not exposed on __PhotosTabHelpers');
   }
 });

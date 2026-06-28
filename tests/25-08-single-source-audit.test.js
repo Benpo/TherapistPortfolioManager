@@ -41,6 +41,12 @@ const overviewJs  = readSrc('assets/overview.js');
 const backupModalJs = readSrc('assets/backup-modal.js');
 const appJs       = readSrc('assets/app.js');
 const settingsJs  = readSrc('assets/settings.js');
+// Phase 31-04: the Photos tab consumers (CropModule.resizeToMaxDimension +
+// PortfolioDB.updateClient call-sites) moved out of settings.js into
+// settings-photos.js. Positive presence checks scan the COMBINED post-move
+// source so they assert the same thing at the symbol's new home.
+const photosJs    = readSrc('assets/settings-photos.js');
+const settingsCombined = settingsJs + photosJs;
 const addClientJs = readSrc('assets/add-client.js');
 const cropJs      = readSrc('assets/crop.js');
 
@@ -105,7 +111,7 @@ check('resizeToMaxDimension consumed by add-client.js (Plan 06 new uploads)',
   /CropModule\.resizeToMaxDimension\s*\(/.test(addClientJs));
 
 check('resizeToMaxDimension consumed by settings.js (Plan 07 Photos tab optimize)',
-  /CropModule\.resizeToMaxDimension\s*\(/.test(settingsJs));
+  /CropModule\.resizeToMaxDimension\s*\(/.test(settingsCombined));
 
 // ===========================================================================
 // D-30 HELPER 3: PortfolioDB.updateClient
@@ -114,7 +120,7 @@ check('resizeToMaxDimension consumed by settings.js (Plan 07 Photos tab optimize
 // bulk delete-all in settings.js route through it (D-30 single-source).
 // ===========================================================================
 
-const updateClientHits = (settingsJs.match(/PortfolioDB\.updateClient\s*\(/g) || []).length;
+const updateClientHits = (settingsCombined.match(/PortfolioDB\.updateClient\s*\(/g) || []).length;
 check('PortfolioDB.updateClient used by settings.js in ≥ 2 distinct call-sites (Plan 07 optimize + delete-all)',
   updateClientHits >= 2);
 

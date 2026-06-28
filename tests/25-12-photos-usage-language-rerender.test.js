@@ -46,6 +46,11 @@ const path = require('path');
 const vm = require('vm');
 
 const settingsSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'settings.js'), 'utf8');
+// Phase 31-04: the photos IIFEs (incl. bindPhotosTab + the app:language
+// listener) moved to assets/settings-photos.js. The source-slice of the
+// photos-tab IIFE reads photosSrc; the runtime sandbox also loads it so
+// __PhotosTabHelpers is populated and bindPhotosTab boots.
+const photosSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'settings-photos.js'), 'utf8');
 
 let passed = 0, failed = 0;
 function test(name, fn) {
@@ -70,10 +75,10 @@ function test(name, fn) {
 test('Source: photos-tab IIFE registers an app:language listener', () => {
   // Find the photos-tab IIFE start. We look for the bindPhotosTab
   // function declaration as our anchor — it's unique to this IIFE.
-  const anchor = settingsSrc.indexOf('function bindPhotosTab');
-  if (anchor === -1) throw new Error('bindPhotosTab not found in settings.js');
+  const anchor = photosSrc.indexOf('function bindPhotosTab');
+  if (anchor === -1) throw new Error('bindPhotosTab not found in settings-photos.js');
   // The IIFE ends with `})();` followed by a newline. Find it.
-  const tail = settingsSrc.slice(anchor);
+  const tail = photosSrc.slice(anchor);
   const iifeEnd = tail.indexOf('})();');
   if (iifeEnd === -1) throw new Error('photos-tab IIFE closing `})();` not located');
   const photosIIFE = tail.slice(0, iifeEnd);
@@ -250,6 +255,7 @@ function makeSandbox(translations, currentLangRef) {
 
   vm.createContext(sandbox);
   vm.runInContext(settingsSrc, sandbox, { filename: 'assets/settings.js' });
+  vm.runInContext(photosSrc, sandbox, { filename: 'assets/settings-photos.js' });
   document._fireReady();
 
   return { sandbox, document, elements };

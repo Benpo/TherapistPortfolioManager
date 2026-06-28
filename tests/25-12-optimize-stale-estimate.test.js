@@ -44,6 +44,10 @@ const path = require('path');
 const vm = require('vm');
 
 const settingsSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'settings.js'), 'utf8');
+// Phase 31-04: the photos IIFEs (incl. handleOptimize) moved to
+// assets/settings-photos.js. The source-slice of handleOptimize reads photosSrc;
+// the runtime sandbox also loads it so __PhotosTabHelpers is populated.
+const photosSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'settings-photos.js'), 'utf8');
 
 let passed = 0, failed = 0;
 function test(name, fn) {
@@ -73,13 +77,13 @@ function test(name, fn) {
 
 test('Source: handleOptimize estimate uses a per-photo gate (not flat photoBytes*0.6)', () => {
   // Slice the handleOptimize function body.
-  const fnIdx = settingsSrc.indexOf('async function handleOptimize');
-  if (fnIdx === -1) throw new Error('handleOptimize function missing from settings.js');
+  const fnIdx = photosSrc.indexOf('async function handleOptimize');
+  if (fnIdx === -1) throw new Error('handleOptimize function missing from settings-photos.js');
   // Walk forward to the next `async function ` or `function ` at IIFE indentation.
-  const rest = settingsSrc.slice(fnIdx + 1, fnIdx + 6000);
+  const rest = photosSrc.slice(fnIdx + 1, fnIdx + 6000);
   const nextFnIdx = rest.search(/\n\s{2}(?:async\s+)?function\s+\w+\s*\(/);
-  const end = nextFnIdx === -1 ? settingsSrc.length : (fnIdx + 1 + nextFnIdx);
-  const body = settingsSrc.slice(fnIdx, end);
+  const end = nextFnIdx === -1 ? photosSrc.length : (fnIdx + 1 + nextFnIdx);
+  const body = photosSrc.slice(fnIdx, end);
 
   // The forbidden naive shape: a single `photoBytes * 0.6` (or 0.5/0.7)
   // with NO per-photo iteration. We check for the ABSENCE of the
@@ -294,6 +298,7 @@ function makeSandbox(opts) {
 
   vm.createContext(sandbox);
   vm.runInContext(settingsSrc, sandbox, { filename: 'assets/settings.js' });
+  vm.runInContext(photosSrc, sandbox, { filename: 'assets/settings-photos.js' });
   document._fireReady();
 
   return { sandbox, document, elements, confirmDialogCalls };

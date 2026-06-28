@@ -36,6 +36,11 @@ const path = require('path');
 const vm = require('vm');
 
 const settingsSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'settings.js'), 'utf8');
+// Phase 31-04: the photos IIFEs (__PhotosTabHelpers + bindPhotosTab) moved to
+// assets/settings-photos.js. Load it into the SAME sandbox so the monkey-patch
+// of __PhotosTabHelpers._optimizeAllPhotosLoop/_deleteAllPhotosLoop targets a
+// defined hook and bindPhotosTab is registered before _fireReady().
+const photosSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'settings-photos.js'), 'utf8');
 
 // ────────────────────────────────────────────────────────────────────
 // Test infrastructure — DOM stub builder + sandbox factory.
@@ -331,6 +336,7 @@ function makeSandbox(opts) {
   // Load assets/settings.js. It registers DOMContentLoaded listeners that
   // bind handlers; we fire those listeners after load to wire the handlers.
   vm.runInContext(settingsSrc, sandbox, { filename: 'assets/settings.js' });
+  vm.runInContext(photosSrc, sandbox, { filename: 'assets/settings-photos.js' });
   dom.document._fireReady();
 
   return {

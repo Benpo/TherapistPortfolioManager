@@ -100,8 +100,12 @@ sandbox.self = sandbox.window;
 vm.createContext(sandbox);
 
 const src = fs.readFileSync(path.join(__dirname, '..', 'assets', 'settings.js'), 'utf8');
+// Phase 31-04: __PhotosTabHelpers moved to assets/settings-photos.js. Load it
+// into the SAME sandbox so the hook is populated.
+const photosSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'settings-photos.js'), 'utf8');
 try {
   vm.runInContext(src, sandbox, { filename: 'assets/settings.js' });
+  vm.runInContext(photosSrc, sandbox, { filename: 'assets/settings-photos.js' });
 } catch (err) {
   console.error('FATAL: assets/settings.js failed to load in vm sandbox.');
   console.error('       ' + err.message);
