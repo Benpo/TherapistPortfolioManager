@@ -83,6 +83,11 @@ window.PortfolioDB = (() => {
 
       if (existingClients > 0) {
         newDB.close();
+        // CR-01 (Phase 31): closing the pooled handle (opened by the recursive
+        // openDB() above) leaves _dbPromise holding a CLOSED connection. Null it
+        // so the outer openDB() re-opens a fresh live handle instead of returning
+        // this dead one (mirrors the invalidate-before-close pattern at onversionchange).
+        _dbPromise = null;
         // Old DB still exists but new DB has data — just delete the old DB
         indexedDB.deleteDatabase(OLD_DB_NAME);
         console.log("Skipped migration: sessions_garden already has data. Deleted emotion_code_portfolio.");
@@ -145,6 +150,11 @@ window.PortfolioDB = (() => {
       }
 
       newDB.close();
+      // CR-01 (Phase 31): same as the early-return path above — closing the pooled
+      // handle would otherwise leave _dbPromise holding a closed connection, which
+      // the outer openDB() would hand back to consumers (use-after-close). Null the
+      // pool so the outer call re-opens a fresh live handle after migration.
+      _dbPromise = null;
 
       // Delete the old database
       indexedDB.deleteDatabase(OLD_DB_NAME);

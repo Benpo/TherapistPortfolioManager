@@ -385,7 +385,7 @@ const NEW_DB = 'sessions_garden';
 // Test runner (mirrors the suite's EXPECTED_COUNT vacuous-green guard).
 // ────────────────────────────────────────────────────────────────────
 
-const EXPECTED_COUNT = 4; // Tests A, B, C, D — a dropped `await test(...)` FAILs.
+const EXPECTED_COUNT = 5; // Tests A, B, C, D, E — a dropped `await test(...)` FAILs.
 let passed = 0;
 let failed = 0;
 
@@ -508,6 +508,42 @@ async function test(name, fn) {
     // The legacy DB was consumed (deleted) — the migration ran.
     assert.strictEqual(idb._hasDatabase(LEGACY_DB), false,
       'legacy DB must be deleted after migration (side-effect occurred exactly once)');
+  });
+
+  // ─── E. CR-01 regression: the handle RETURNED after migration is USABLE ─
+  // Where D asserts the migration SIDE-EFFECT (via _peek, tolerant of a poisoned
+  // handle through allSettled), E asserts the CONSUMER-VISIBLE contract: with the
+  // legacy DB staged present, a SINGLE getAllClients() must RESOLVE to the migrated
+  // array — i.e. openDB() must hand back a LIVE connection, not the closed handle
+  // that migrateOldDB()'s newDB.close() left in the pool. Falsifiable: on the
+  // unfixed pool (no _dbPromise invalidation after the migration close) the outer
+  // openDB() returns the closed handle, getAllClients() does db.transaction(...)
+  // → throws InvalidStateError → the promise REJECTS → this test FAILs (RED).
+  // After nulling _dbPromise at both migration close sites, the outer openDB()
+  // re-opens a fresh live handle and the read resolves (GREEN).
+  await test('E. With legacy DB present, getAllClients() RESOLVES to the migrated clients (returned handle is live, not closed)', async () => {
+    const { PortfolioDB } = loadDB({
+      stage: (s) => s._stage(LEGACY_DB, 5, {
+        clients: { keyPath: 'id', records: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }] },
+        sessions: { keyPath: 'id', records: [] },
+      }),
+    });
+
+    // A SINGLE call (not allSettled): on the unfixed code this REJECTS with
+    // InvalidStateError, so the await throws and the test fails for the right reason.
+    const clients = await withTimeout(
+      PortfolioDB.getAllClients(),
+      5000,
+      'getAllClients on the migration page-load'
+    );
+
+    assert.ok(Array.isArray(clients),
+      'getAllClients() on the migration load must RESOLVE to an array — a closed pooled handle would reject with InvalidStateError (CR-01)');
+    assert.strictEqual(clients.length, 2,
+      'the returned live handle must read the 2 migrated clients — got ' + clients.length);
+    const names = clients.map((c) => c.name).sort();
+    assert.deepStrictEqual(names, ['Alice', 'Bob'],
+      'the resolved array must contain the migrated client records, proving the handle is usable');
   });
 
   // ─── Report + vacuous-green guard ───────────────────────────────────
