@@ -201,13 +201,23 @@ Plans:
 
 ### Phase 32: README + Code Comments
 
-**Goal**: Sapir can run, deploy, and understand the app's architecture from a project README, and the refactored modules carry comments describing their structure and responsibilities.
+**Goal**: The maintainer (Ben + his AI agents) can run, deploy, and understand the app's architecture from an in-repo project README, and the refactored modules carry comments describing their structure and responsibilities. _(Audience reframed by 32-CONTEXT D-01/D-02 — supersedes the original "for Sapir" wording.)_
 **Depends on**: Phase 31 (documentation and code comments describe the *refactored* structure)
 **Requirements**: DOCS-01, DOCS-02
 **Success Criteria** (what must be TRUE):
 
-  1. A project README documents how to run the app locally, how to deploy it, and how its architecture is organized, written for Sapir as the ongoing maintainer
+  1. A project README documents how to run the app locally, how to deploy it, and how its architecture is organized — written for the maintainer (Ben + his AI agents, per D-01) and kept in-repo as agent context (D-02)
   2. The modules extracted in Phase 31 carry code-level comments describing their structure and responsibilities
+
+**Plans:** 0/4 plans complete
+
+Plans:
+**Wave 1** *(all four deliverables are independent — fully parallel)*
+
+- [ ] 32-01-PLAN.md — Wave 1 · DOCS-01 rewrite README.md into the in-repo maintainer guide (run/deploy/file-map/recipes/agent-rules) + stop publishing it (D-04 deploy.yml line removal)
+- [ ] 32-02-PLAN.md — Wave 1 · DOCS-02 comment pilot part A: de-phase + responsibility banners on the 3 extracted modules (export-modal, settings-snippets, settings-photos) + comments-only strip-and-compare gate
+- [ ] 32-03-PLAN.md — Wave 1 · DOCS-02 comment pilot part B: slimmed-shape banner on settings.js + brand-new banner on add-session.js + de-phase + comments-only gate
+- [ ] 32-04-PLAN.md — Wave 1 · by-product artifacts: comment-coverage map (D-14) + help-content inventory (D-13), both `.planning/` seeds
 
 ### Phase 33: DE/CS i18n completion
 
