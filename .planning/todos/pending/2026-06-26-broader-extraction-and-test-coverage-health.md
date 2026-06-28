@@ -65,3 +65,22 @@ Codebase Health II** milestone. Decide at v1.2 close (`/gsd-complete-milestone` 
 
 Cross-ref: `.planning/codebase/CONCERNS.md`, `.planning/codebase/TESTING.md` ("Coverage Status"
 — coverage is informal, no threshold), and Phase 30 `30-CONTEXT.md` D-13/D-14.
+
+## Structural test gaps — confirmed against the suite (2026-06-28 remap)
+
+The 2026-06-28 codebase remap (`/gsd-map-codebase`) flagged 4 test gaps in `CONCERNS.md`.
+Verified each against the 106-file `tests/*.test.js` suite. Phase 30 added good *functional*
+breadth (the `30-*` series), but these **structural** properties remain out of jsdom's reach:
+
+| Gap | Status after P30 | Evidence | Priority |
+|---|---|---|---|
+| **License gate untested** | ❌ still open | `grep -lE 'isLicensed\|portfolioLicenseActivated\|license\.html' tests/` → **zero hits**. The paywall is pure localStorage logic (`license.js`, `app.js:1103`, `shared-chrome.js:23`) that a refactor could silently remove with no failing test. | **The one concrete, jsdom-fixable gap** — unit-test the gate decision directly |
+| **Script load-order untested** | ❌ still open | jsdom stubs all globals, so a mis-ordered `<script>` tag (e.g. `snippets-seed.js` must precede `db.js`) produces a real-page `TypeError` no test reproduces. | Medium — needs a real-DOM/Playwright harness, not jsdom |
+| **Cross-page navigation flows** | 🟡 partial | `30-save-redirect.test.js` now covers save→sessions. License-activation redirect + demo→live switch still uncovered. | Low — manual UAT catches these today |
+| **PDF rendering in a real browser** | 🟡 mitigated | 10+ PDF test files exist (`pdf-bidi`, `pdf-glyph-coverage`, …) but all jsdom-stubbed via `jsdom-pdf-env.js`. Real-browser bidi/glyph/font loading unverified. | Medium — a font/jsPDF bump could silently break Hebrew output |
+
+**Takeaway for scoping:** the license-gate test is small and should land early (pure logic, no
+harness needed). Load-order + real-browser PDF justify standing up a Playwright/cross-browser
+layer — which is *also* the long-open "Quality & DevEx: Playwright + cross-browser + maintenance
+guide" goal (migrated here from the retired `.planning/OPEN-ITEMS.md`, 2026-06-28). Fold them
+together when this is promoted to v1.3.
