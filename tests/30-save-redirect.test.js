@@ -205,6 +205,9 @@ function buildEnv(savedId) {
   };
   sandbox.PortfolioDB = mockDb;
 
+  // export-modal.js BEFORE add-session.js into the SAME sandbox: add-session.js's
+  // unconditional window.__exportModalInit boot call would TypeError otherwise.
+  vm.runInContext(readAsset('assets/export-modal.js'), sandbox, { filename: 'assets/export-modal.js' });
   vm.runInContext(readAsset('assets/add-session.js'), sandbox, { filename: 'assets/add-session.js' });
 
   if (captured.length !== 1) {

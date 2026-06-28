@@ -107,6 +107,7 @@ function buildEnv(search, seedOpts) {
   var mockDb = createMockPortfolioDB(seedOpts);
   win.PortfolioDB = mockDb;
 
+  win.eval(readAsset('assets/export-modal.js')); // export-modal.js BEFORE add-session.js (unconditional __exportModalInit boot call)
   win.eval(readAsset('assets/add-session.js'));
 
   if (captured.length !== 1) {

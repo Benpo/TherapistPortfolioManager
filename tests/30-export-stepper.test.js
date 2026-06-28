@@ -143,6 +143,7 @@ function buildEnv(opts) {
     Object.defineProperty(win.navigator, 'share', { value: opts.shareMock.share, configurable: true });
   }
 
+  win.eval(readAsset('assets/export-modal.js')); // export-modal.js BEFORE add-session.js (unconditional __exportModalInit boot call)
   win.eval(readAsset('assets/add-session.js'));
 
   if (captured.length !== 1) {

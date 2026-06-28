@@ -47,6 +47,7 @@ function test(name, fn) {
 }
 
 const ADD_SESSION_SRC = fs.readFileSync(path.join(ROOT, 'assets', 'add-session.js'), 'utf8');
+const EXPORT_MODAL_SRC = fs.readFileSync(path.join(ROOT, 'assets', 'export-modal.js'), 'utf8');
 const CSS = fs.readFileSync(path.join(ROOT, 'assets', 'app.css'), 'utf8');
 
 // ────────────────────────────────────────────────────────────────────
@@ -142,6 +143,11 @@ function loadComputeGrowHeight() {
   };
   sandbox.window.App = App;
   vm.createContext(sandbox);
+  // export-modal.js BEFORE add-session.js into the SAME sandbox (via vm.runInContext,
+  // matching this booter's own mechanism — NOT win.eval). add-session.js calls
+  // window.__exportModalInit at its export-wiring point; this test swallows the
+  // DOMContentLoaded registration, but the loader keeps the booter set consistent.
+  vm.runInContext(EXPORT_MODAL_SRC, sandbox, { filename: 'assets/export-modal.js' });
   vm.runInContext(ADD_SESSION_SRC, sandbox, { filename: 'assets/add-session.js' });
   const hooks = sandbox.window.__addSessionTestHooks;
   assert.ok(hooks && typeof hooks.computeGrowHeight === 'function',

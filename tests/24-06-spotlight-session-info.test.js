@@ -110,6 +110,15 @@ const EPILOGUE = `
 
 vm.createContext(sandbox);
 try {
+  // export-modal.js BEFORE add-session.js into the SAME vm sandbox: add-session.js
+  // now calls window.__exportModalInit at its export-wiring point. (This test never
+  // dispatches DOMContentLoaded, but the loader keeps the booter set consistent and
+  // is harmless — export-modal.js only registers the private handshake on eval.)
+  vm.runInContext(
+    fs.readFileSync(path.join(__dirname, '..', 'assets', 'export-modal.js'), 'utf8'),
+    sandbox,
+    { filename: 'assets/export-modal.js' }
+  );
   vm.runInContext(src + EPILOGUE, sandbox, { filename: 'assets/add-session.js' });
 } catch (err) {
   console.error('FATAL: add-session.js failed to load in vm sandbox.');

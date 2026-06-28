@@ -57,13 +57,18 @@ test('A: <textarea id="exportEditor"> carries data-snippets="true" (session-form
 // Test B — openExportDialog defensively binds the editor
 // ────────────────────────────────────────────────────────────────────
 
-const ADD_SESSION_SRC = fs.readFileSync(path.join(ROOT, 'assets', 'add-session.js'), 'utf8');
+// RFCT-02: openExportDialog (with the defensive Snippets.bindTextarea call) moved
+// from add-session.js to assets/export-modal.js. This is a SOURCE-AUDIT (g7p never
+// boots add-session.js — its only runtime is vm.runInContext(snippets.js) below) so
+// it gets NO booter loader; the Test B check is repointed to the moved code's new
+// home at unchanged strength.
+const EXPORT_MODAL_SRC = fs.readFileSync(path.join(ROOT, 'assets', 'export-modal.js'), 'utf8');
 
-test('B: add-session.js calls window.Snippets.bindTextarea on the export editor', () => {
+test('B: export-modal.js calls window.Snippets.bindTextarea on the export editor', () => {
   assert.ok(
-    /Snippets\.bindTextarea\s*\(/.test(ADD_SESSION_SRC),
-    'openExportDialog() must defensively call window.Snippets.bindTextarea(editor) ' +
-    '(idempotent — guarded by the internal _bound WeakMap).'
+    /Snippets\.bindTextarea\s*\(/.test(EXPORT_MODAL_SRC),
+    'openExportDialog() (now in assets/export-modal.js) must defensively call ' +
+    'window.Snippets.bindTextarea(editor) (idempotent — guarded by the internal _bound WeakMap).'
   );
 });
 
