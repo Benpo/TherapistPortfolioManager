@@ -6,14 +6,14 @@ current_phase: 31
 current_phase_name: refactor-god-modules
 status: executing
 stopped_at: Phase 31 context gathered
-last_updated: "2026-06-28T06:17:21.864Z"
+last_updated: "2026-06-28T06:25:14.985Z"
 last_activity: 2026-06-28
 last_activity_desc: Phase 31 execution started
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 27
-  completed_plans: 22
+  completed_plans: 23
   percent: 50
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 31 (refactor-god-modules) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-06-28 — Phase 31 execution started
 
@@ -122,6 +122,7 @@ Last activity: 2026-06-28 — Phase 31 execution started
 | Phase 30 P12 | 11min | 3 tasks | 7 files |
 | Phase 30 P13 | 40min | 3 tasks | 4 files |
 | Phase 31 P01 | 18min | 2 tasks | 2 files |
+| Phase 31 P02 | ~50m | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -243,6 +244,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 30-12]: GAP-05/06/15/16 fakes removed; 30-save-redirect captures the real post-save destination via vm.runInContext over jsdom (jsdom-29 locks window.location); 30-settings-save-failed-toast pins the real onSave catch with a rejecting DB; npm test 102/0 green
 - [Phase ?]: [Phase 31-01]: openDB() pools a single Promise<IDBDatabase>; invalidated (null) only in db.onversionchange (before close) and request.onerror; cache-check placed AFTER await migrateOldDB() to avoid the migrate->openDB recursion deadlock
 - [Phase ?]: [Phase 31-01]: _dbPromise declared uninitialized so grep -c '_dbPromise = null' counts exactly 2 invalidation sites; clearAll() resets the pool to undefined so post-wipe reseed still fires (Rule 1 fix preserving 24-04 test F)
+- [Phase ?]: 31-02: RFCT-03 i18n innerHTML sites swapped to textContent/DOM nodes; static SVG kept as one-shot innerHTML on a dedicated icon span; sessions.js gained its first-ever characterization test
 
 ### Pending Todos
 
@@ -307,7 +309,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-28T06:17:00.470Z
+**Last session:** 2026-06-28T06:24:53.695Z
 
 Last activity: 2026-06-27 — Plan 30-13 executed (FINAL gap-closure plan). Added the permanent fake-test detector gate `tests/30-fake-test-detector.test.js` (Prevention #1 — fails any future source-slicing test on every `npm test`, scoped to executable assets, 3 legit static guards allowlisted, two demonstrated mutation-kills), hardened the runner (WR-01 spawnSync timeout+killSignal) and the shared PDF wrapper (WR-02 Reflect.construct forwards all args), and corrected the 5 mis-credits in `30-RESEARCH.md`'s behavior inventory. `npm test` → 103 passed, 0 failed. Commits `eeb20d5`, `473f15a`, `4a7be6d`. The gap-closure round 30-07..30-13 is now complete; all 13 phase-30 plans have summaries on disk.
 Stopped at: Phase 31 context gathered
