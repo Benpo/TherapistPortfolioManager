@@ -175,7 +175,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
   2. The export-modal logic is extracted from `add-session.js` into its own IIFE module, with behavior preserved and the suite green
   3. Within code touched by the refactor only, opportunistic cleanups are applied: `var`→`const`/`let`, `innerHTML`+i18n hardening in `overview.js`/`sessions.js`, `openDB()` connection pooling (caching the resolved `IDBDatabase`), and tagged logging added to non-trivial silent `catch` blocks
 
-**Plans:** 4/6 plans executed
+**Plans:** 5/6 plans executed
 
 Plans:
 **Wave 1**
@@ -193,7 +193,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 31-05-PLAN.md — Wave 4 · RFCT-02 extract export-modal + md builders → `export-modal.js` via init(ctx) context-injection (+ wiring + :2071 log fix + export test loaders)
+- [x] 31-05-PLAN.md — Wave 4 · RFCT-02 extract export-modal + md builders → `export-modal.js` via init(ctx) context-injection (+ wiring + :2071 log fix + export test loaders)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -271,6 +271,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
 | 29. Reliability & Observability | v1.2 | 4/4 | Complete    | 2026-06-23 |
 | 30. Test Harness & Coverage | v1.2 | 13/13 | Complete    | 2026-06-27 |
-| 31. Refactor God Modules | v1.2 | 4/6 | In Progress|  |
+| 31. Refactor God Modules | v1.2 | 5/6 | In Progress|  |
 | 32. README + Code Comments | v1.2 | 0/– | Planned | - |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
