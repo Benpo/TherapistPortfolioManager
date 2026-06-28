@@ -271,6 +271,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete    | 2026-06-22 |
 | 29. Reliability & Observability | v1.2 | 4/4 | Complete    | 2026-06-23 |
 | 30. Test Harness & Coverage | v1.2 | 13/13 | Complete    | 2026-06-27 |
-| 31. Refactor God Modules | v1.2 | 6/6 | Complete   | 2026-06-28 |
+| 31. Refactor God Modules | v1.2 | 6/6 | Complete    | 2026-06-28 |
 | 32. README + Code Comments | v1.2 | 0/– | Planned | - |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
