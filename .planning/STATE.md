@@ -253,6 +253,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 31-03]: test-shape coupling fixed three ways — 8 vm tests eval settings-snippets.js before settings.js; 2 snippet boot tests capture via +1 handler delta; 6 sibling loaders select handlers by stable identity (initCommon/settings-tabs/bindBackupsTab/bindPhotosTab) asserting exactly-one match, no hardcoded count (survives Photos 4->3 drift)
 - [Phase ?]: 31-04: coupled-IIFE-pair extraction — both Photos IIFEs moved together helpers-first; pure verbatim move, RFCT-03 in-region cleanup deferred to preserve the source string the static-source audits scan
 - [Phase 31]: 31-05: export-modal extracted via init(ctx) handshake; ctx held to 5 members, shared closure helpers re-derived self-contained in export-modal.js
+- [Phase 31]: CR-01 fix (code review): null _dbPromise after both migrateOldDB() close() sites (db.js:85, :147) so the outer openDB() returns a LIVE handle post legacy-migration instead of the closed pooled one (use-after-close regression from RFCT-03 pooling); guarded by test E in 31-openDB-pooling.test.js (RED→GREEN). grep -c '_dbPromise = null' is now 4 (the 31-01 ==2 gate was a one-time plan check, not an automated test)
 
 ### Pending Todos
 

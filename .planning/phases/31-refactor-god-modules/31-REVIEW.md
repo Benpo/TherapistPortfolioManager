@@ -15,11 +15,13 @@ files_reviewed_list:
   - assets/version.js
   - sw.js
 findings:
-  critical: 1
+  critical: 0
   warning: 2
   info: 4
-  total: 7
+  total: 6
 status: issues_found
+resolved:
+  - CR-01
 ---
 
 # Phase 31: Code Review Report
@@ -57,7 +59,17 @@ behavior drift the phase asked to prioritize.
 
 ## Critical Issues
 
-### CR-01: openDB() returns a closed connection after legacy-DB migration (use-after-close regression)
+### CR-01: openDB() returns a closed connection after legacy-DB migration (use-after-close regression) — RESOLVED
+
+**Resolution (2026-06-28, commit fc10d46):** Fixed by nulling the pool at both
+migration close sites — `_dbPromise = null;` after `newDB.close()` at db.js:85
+(idempotency early-return) and db.js:147 (normal copy path), mirroring the
+invalidate-on-close pattern already used at `onversionchange` (db.js:344-347). The
+outer `openDB()` now re-opens a fresh live connection after migration instead of
+returning the closed handle. Regression test added: **test E** in
+`tests/31-openDB-pooling.test.js` ("With legacy DB present, getAllClients() RESOLVES
+to the migrated clients") — demonstrated RED on the unfixed pool (rejects with
+InvalidStateError) and GREEN after the fix. Full suite green (107 cases, 0 failed).
 
 **File:** `assets/db.js:299-307`, `assets/db.js:85`, `assets/db.js:147`
 **Issue:**
