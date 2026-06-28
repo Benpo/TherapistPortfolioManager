@@ -65,6 +65,7 @@ const PRECACHE_URLS = [
   '/assets/globe-lang.css',
   '/assets/globe-lang.js',
   '/assets/settings.js',
+  '/assets/settings-snippets.js',
   '/assets/pdf-export.js',
   '/assets/md-render.js',
   '/assets/jspdf.min.js',
