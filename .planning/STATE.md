@@ -6,7 +6,7 @@ current_phase: 31
 current_phase_name: refactor-god-modules
 status: executing
 stopped_at: Phase 31 context gathered
-last_updated: "2026-06-28T06:50:21.218Z"
+last_updated: "2026-06-28T06:50:39.384Z"
 last_activity: 2026-06-28
 last_activity_desc: Phase 31 execution started
 progress:
@@ -249,6 +249,7 @@ Recent decisions affecting current work:
 - [Phase ?]: 31-02: RFCT-03 i18n innerHTML sites swapped to textContent/DOM nodes; static SVG kept as one-shot innerHTML on a dedicated icon span; sessions.js gained its first-ever characterization test
 - [Phase ?]: [Phase 31-03]: SnippetsUI IIFE moved VERBATIM (byte-for-byte) to assets/settings-snippets.js; window.__SnippetEditorHelpers hook preserved exactly; anonymous IIFE (no new public global); optional RFCT-03 cleanups deferred per VERBATIM directive
 - [Phase ?]: [Phase 31-03]: test-shape coupling fixed three ways — 8 vm tests eval settings-snippets.js before settings.js; 2 snippet boot tests capture via +1 handler delta; 6 sibling loaders select handlers by stable identity (initCommon/settings-tabs/bindBackupsTab/bindPhotosTab) asserting exactly-one match, no hardcoded count (survives Photos 4->3 drift)
+- [Phase ?]: 31-04: coupled-IIFE-pair extraction — both Photos IIFEs moved together helpers-first; pure verbatim move, RFCT-03 in-region cleanup deferred to preserve the source string the static-source audits scan
 
 ### Pending Todos
 
