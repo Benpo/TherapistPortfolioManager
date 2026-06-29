@@ -237,8 +237,8 @@ Plans:
 
 **Goal**: The client-facing session-export PDF is intentionally designed in the Sessions Garden brand (icon-derived palette, branded header, client card, styled before/after severity) rather than default jsPDF output — with Hebrew RTL/bidi correctness fully preserved and the displayed session number correct under deletions.
 **Depends on**: Nothing (independent of Phases 33, 35, 36).
-**Requirements**: PDFX-01 (visual redesign), PDFX-02 (session-number ordinal correctness) — to be formalized in REQUIREMENTS.md at plan time.
-**Status**: **Design LOCKED** with Ben 2026-06-29 (collaborative mockup session). Contract: `phases/34-session-pdf-export-visual-polish/34-DESIGN-DECISIONS.md` + `design-mockups/FINAL-mockup.html`. Next: `/gsd-ui-phase 34` (UI-SPEC) → `/gsd-plan-phase 34` → execute.
+**Requirements**: PDFX-01 (visual redesign, incl. FN-2 localized pill + FN-3 offline logo), PDFX-02 (session-number ordinal correctness), PDFX-03 (save-before-export guard).
+**Status**: **Design LOCKED** + UI-SPEC approved (2026-06-29). Planning in progress (`/gsd-plan-phase 34`). Contract: `34-UI-SPEC.md` + `34-DESIGN-DECISIONS.md` + `design-mockups/FINAL-mockup.html`; context `34-CONTEXT.md`, research `34-RESEARCH.md`, validation `34-VALIDATION.md`.
 **Success Criteria** (what must be TRUE):
 
   1. The exported session PDF renders the locked design (icon-mint header band, app-icon logo with green keyline, document-title header with no brand-as-letterhead, cream client card, free-text trapped-emotions, two-bar before/after severity, "made with Sessions Garden" footer) — matching `34-DESIGN-DECISIONS.md`
@@ -246,8 +246,9 @@ Plans:
   3. The displayed **session number is a derived chronological ordinal** (position among the client's sessions sorted by date), NOT the autoIncrement DB id — so deleting an earlier session renumbers the rest (delete the 2nd → former 3rd becomes 2nd), verified by a behavior test
   4. The in-person/remote pill renders the session's existing localized field value (no new field, no hardcoded label)
   5. The redesign is verified against the Phase 30 PDF test suite (suite stays green), and the logo is an embedded PNG (fully offline)
+  6. Exporting with unsaved changes offers a non-blocking "Save & export" / "Keep editing" prompt (no hard block, no stale export); "Save & export" persists via a behavior-preserving extracted save function and continues the export with a correct ordinal
 
-**Plans:** Not yet planned — UI-SPEC next.
+**Plans:** Not yet planned — planning in progress.
 
 ### Phase 35: Demo System Refresh / Version Parity
 

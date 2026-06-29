@@ -7,7 +7,7 @@
 
 ## v1.2 Requirements
 
-Requirements for the Codebase Health & Reliability milestone. Each maps to exactly one roadmap phase (28–33).
+Requirements for the Codebase Health & Reliability milestone. Each maps to exactly one roadmap phase (28–36; phases 34–36 are the v1.2 tail added 2026-06-29 by Ben's work order).
 
 ### Update Reliability & Versioning (Phase 28)
 
@@ -46,6 +46,12 @@ Requirements for the Codebase Health & Reliability milestone. Each maps to exact
 
 - [ ] **I18N-01**: The 13 English-fallback keys in `assets/i18n-de.js` (lines ~419–447) are translated to German; no `// TODO i18n` markers remain _(needs Sapir's strings)_
 - [ ] **I18N-02**: The 13 English-fallback keys in `assets/i18n-cs.js` (lines ~419–447) are translated to Czech; no `// TODO i18n` markers remain _(needs Sapir's strings)_
+
+### Session PDF Export — Visual Polish (Phase 34)
+
+- [ ] **PDFX-01**: The exported session PDF is visually redesigned — full-bleed mint header band (embedded offline logo + title/subtitle, *no* clinic letterhead), cream client card with a localized in-person/remote pill, leaf-diamond section headings, free-text body, a two-bar before/after severity block, and a footer band (brand-as-tool mark + pagination + "Exported on" date) — using jsPDF primitives only (flat fills/lines/embedded PNG/colored text). **Hebrew RTL/bidi must not regress** and the **Phase 23/30 PDF test suite stays green** (the 5 SHA-256 fixtures regenerated deliberately and visually verified; content-stream floor tests unchanged). Includes FN-2 (localized `sessionType` pill, no new field) and FN-3 (offline-embedded `icon-512.png`).
+- [ ] **PDFX-02**: The card's "Session #N" is a **derived chronological ordinal** (1-based position among the client's sessions sorted ascending by `date`, tie-break `id`, computed at export time — never the `autoIncrement` DB key), so deleting a middle session renumbers the rest with no gaps. **MUST be covered by a falsifiable behavior test authored before implementation** (FN-1; per `feedback-behavior-verification`).
+- [ ] **PDFX-03**: Exporting with unsaved changes (dirty form via `window.PortfolioFormDirty()`, or a never-saved new session) offers a non-blocking **"Save & export" / "Keep editing"** prompt — not a hard block, not a silent stale export. "Save & export" reuses a **save function extracted from the current inline save handler** (behavior-preserving, no forced redirect), persists (a new session gains an `id` and a derivable ordinal), then continues the export; save-validation failure aborts the export. No "export without saving" path — a client-facing PDF never reflects unsaved/discarded edits. Completes FN-1.
 
 ## Future Requirements
 
@@ -109,11 +115,14 @@ Which phases cover which requirements. Status filled during execution.
 | DOCS-02 | Phase 32 | Complete |
 | I18N-01 | Phase 33 | Pending |
 | I18N-02 | Phase 33 | Pending |
+| PDFX-01 | Phase 34 | Planned |
+| PDFX-02 | Phase 34 | Planned |
+| PDFX-03 | Phase 34 | Planned |
 
 **Coverage:**
 
-- v1.2 requirements: 20 total
-- Mapped to phases: 20
+- v1.2 requirements: 23 total
+- Mapped to phases: 23
 - Unmapped: 0
 
 ---
