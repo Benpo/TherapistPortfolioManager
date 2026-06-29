@@ -8,7 +8,7 @@ Transform the existing functional vanilla JS prototype into a sellable product f
 
 - ✅ **v1.0 MVP** — Phases 1–7 (shipped 2026-03-18)
 - ✅ **v1.1 Final Polish & Launch** — Phases 8–27 (shipped 2026-06-22) — full phase detail archived in `milestones/v1.1-ROADMAP.md`
-- 📋 **v1.2 Codebase Health & Reliability** — Phases 28–33 (scope co-designed & locked with Ben 2026-06-22; per-phase planning not yet started)
+- 📋 **v1.2 Codebase Health & Reliability** — Phases 28–36 (core 28–33 co-designed & locked with Ben 2026-06-22; tail 34–36 added 2026-06-29)
 
 ## Phases
 
@@ -55,7 +55,7 @@ Full goals, success criteria, and per-plan detail are archived in `milestones/v1
 
 </details>
 
-### 📋 v1.2 — Codebase Health & Reliability (Planned — Phases 28–33)
+### 📋 v1.2 — Codebase Health & Reliability (Planned — Phases 28–36)
 
 Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisions). A deliberate shift from feature work to maintainability and reliability. Phases run in **dependency order**: get updates reliably delivered + observable, build a test safety net, *then* refactor behind it, *then* document the result. No PLAN files yet — `/gsd-plan-phase` per phase in upcoming sessions.
 
@@ -65,6 +65,9 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 - [x] **Phase 31: Refactor God Modules** — behavior-preserving extraction from `settings.js` (~2,827 lines) and `add-session.js` (~2,173 lines) using the existing IIFE pattern; guarded by the green suite from Phase 30. Opportunistic in touched code: `var`→`const`, `innerHTML`-i18n hardening, `openDB()` connection pooling, logging in silent catches. (completed 2026-06-28)
 - [x] **Phase 32: README + Code Comments** — project README (run/deploy/architecture) for Sapir as ongoing maintainer; code-level comments describing the *refactored* structure. (plans executed 2026-06-29; pending human UAT — see 32-UAT.md) (completed 2026-06-29)
 - [ ] **Phase 33: DE/CS i18n completion** — translate the 13 export-modal keys currently showing English to German/Czech users (needs Sapir's strings). Independent of the others — slot in whenever ready.
+- [ ] **Phase 34: Session PDF Export — Visual Polish** — make the exported session PDF (`pdf-export.js`, bidi-aware) look intentionally designed rather than default jsPDF output. **Design-led**: collaborative brainstorm/design pass to define the target look → SPEC → PLAN → exec. Success criteria drafted at design time. Hebrew RTL/bidi correctness must be preserved. (added 2026-06-29 — first of the v1.2 tail, by Ben's work order)
+- [ ] **Phase 35: Demo System Refresh / Version Parity** — bring the demo group (`demo.js`/`demo-seed.js`/`demo-hints.js`/`demo.html`) back in sync with the current app schema, features, and version (flagged "stale" in `32-COMMENT-COVERAGE-MAP.md`). Effort uncertain → **size via a discuss/spike before locking a plan**. (added 2026-06-29)
+- [ ] **Phase 36: Code Comments — Batch 2** — apply the Phase 32 banner convention to the remaining ~21 production modules, starting at the 3 lowest-staleness batch-1 modules (`db.js`/`overview.js`/`sessions.js`); seeded by `32-COMMENT-COVERAGE-MAP.md`. Guarded by green `npm test` + comments-only strip-and-compare gate. (added 2026-06-29)
 
 ### Phase 28: Update Reliability & Versioning
 
@@ -230,6 +233,49 @@ Plans:
   2. The 13 English-fallback keys in `assets/i18n-cs.js` (lines ~419–447) are translated to Czech, and no `// TODO i18n` markers remain
   3. A DE or CS user opening the export modal sees the stepper labels, step helpers, and markdown formatting tips in their own language rather than English
 
+### Phase 34: Session PDF Export — Visual Polish
+
+**Goal**: The client-facing session-export PDF is intentionally designed in the Sessions Garden brand (icon-derived palette, branded header, client card, styled before/after severity) rather than default jsPDF output — with Hebrew RTL/bidi correctness fully preserved and the displayed session number correct under deletions.
+**Depends on**: Nothing (independent of Phases 33, 35, 36).
+**Requirements**: PDFX-01 (visual redesign), PDFX-02 (session-number ordinal correctness) — to be formalized in REQUIREMENTS.md at plan time.
+**Status**: **Design LOCKED** with Ben 2026-06-29 (collaborative mockup session). Contract: `phases/34-session-pdf-export-visual-polish/34-DESIGN-DECISIONS.md` + `design-mockups/FINAL-mockup.html`. Next: `/gsd-ui-phase 34` (UI-SPEC) → `/gsd-plan-phase 34` → execute.
+**Success Criteria** (what must be TRUE):
+
+  1. The exported session PDF renders the locked design (icon-mint header band, app-icon logo with green keyline, document-title header with no brand-as-letterhead, cream client card, free-text trapped-emotions, two-bar before/after severity, "made with Sessions Garden" footer) — matching `34-DESIGN-DECISIONS.md`
+  2. Hebrew RTL/bidi rendering remains correct after the redesign — no regression vs the Phase 23 RTL rewrite
+  3. The displayed **session number is a derived chronological ordinal** (position among the client's sessions sorted by date), NOT the autoIncrement DB id — so deleting an earlier session renumbers the rest (delete the 2nd → former 3rd becomes 2nd), verified by a behavior test
+  4. The in-person/remote pill renders the session's existing localized field value (no new field, no hardcoded label)
+  5. The redesign is verified against the Phase 30 PDF test suite (suite stays green), and the logo is an embedded PNG (fully offline)
+
+**Plans:** Not yet planned — UI-SPEC next.
+
+### Phase 35: Demo System Refresh / Version Parity
+
+**Goal**: The demo experience mirrors the current shipped app — its seed data, hints, and screens reflect the present schema, feature set, and version — so a prospective buyer sees the real product rather than a stale snapshot.
+**Depends on**: Nothing (independent). Effort uncertain — size before planning.
+**Requirements**: TBD — formalized after the sizing spike (provisional code: DEMO-*).
+**Status**: Begins with a short **sizing spike / discuss-phase** to determine whether this is a seed-data refresh (small) or ripples into hints/screens (medium), before a plan is locked. (Distinct from the accepted-as-is `window.name` demo-security limitation in `todos/pending/2026-06-28-demo-mode-window-name-hardening.md`.)
+**Success Criteria (DRAFT — refine after sizing)**:
+
+  1. The demo seed data (`demo-seed.js`) reflects the current session/client/issue schema with no missing or obsolete fields
+  2. Demo hints/screens (`demo-hints.js`, `demo.html`) match current app features and navigation
+  3. The demo displays a version consistent with the shipped app (no stale version mismatch)
+
+**Plans:** Not yet planned — sizing spike first.
+
+### Phase 36: Code Comments — Batch 2
+
+**Goal**: The remaining production JS modules carry file-top banner comments following the Phase 32 convention, so the whole `assets/*.js` (+ root `sw.js`) surface is self-describing for the maintainer and AI agents — extending DOCS-02 from the 5 pilot modules to full coverage.
+**Depends on**: Nothing (independent; builds on Phase 32's established convention). If Phases 34/35 touch `pdf-export.js` / the demo files, comment those after they settle to avoid churn.
+**Requirements**: DOCS-03 (continuation of DOCS-02).
+**Success Criteria** (what must be TRUE):
+
+  1. The 3 batch-1 modules (`db.js`, `overview.js`, `sessions.js`) carry Phase-32-convention banners (what it owns · public `window.*` surface · cross-`window.*` dependencies · key invariants), with header-less files getting brand-new banners
+  2. The remaining production modules listed in `32-COMMENT-COVERAGE-MAP.md` are covered, with `// Phase X` / `// D-NN` archaeology de-phased into plain what-it-does text
+  3. Every batch is verified by green `npm test` + the comments-only strip-and-compare gate (zero behavior change)
+
+**Plans:** Not yet planned.
+
 ## Backlog
 
 Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage (2026-06-22) is complete.
@@ -284,3 +330,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 31. Refactor God Modules | v1.2 | 6/6 | Complete    | 2026-06-28 |
 | 32. README + Code Comments | v1.2 | 4/4 | Complete    | 2026-06-29 |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
+| 34. Session PDF Export — Visual Polish | v1.2 | 0/– | Planned (design-led) | - |
+| 35. Demo System Refresh / Version Parity | v1.2 | 0/– | Planned (size first) | - |
+| 36. Code Comments — Batch 2 | v1.2 | 0/– | Planned | - |

@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
-current_phase: 33
-current_phase_name: DE/CS i18n completion
+current_phase: 34
+current_phase_name: Session PDF Export — Visual Polish
 status: ready_to_plan
-stopped_at: Phase 33 context gathered
-last_updated: "2026-06-29T15:27:49.297Z"
+stopped_at: "Phase 34 UI-SPEC approved (4/6 PASS, 2 non-blocking FLAGs); ready for /gsd-plan-phase 34"
+last_updated: "2026-06-29T18:53:03.037Z"
 last_activity: 2026-06-29
-last_activity_desc: Phase 32 complete (UAT 2/2 passed), transitioned to Phase 33
+last_activity_desc: "Phase 34 UI-SPEC approved — design locked via collaborative mockups. Phase 33 parked (blocked on Sapir's strings)."
 progress:
-  total_phases: 6
+  total_phases: 9
   completed_phases: 5
   total_plans: 31
   completed_plans: 31
-  percent: 83
+  percent: 56
 ---
 
 # Project State
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 33 — DE/CS i18n completion
+**Current focus:** Phase 34 — Session PDF Export — Visual Polish (design locked, UI-SPEC approved)
 
 ## Current Position
 
-Phase: 33 — DE/CS i18n completion
+Phase: 34 — Session PDF Export — Visual Polish
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-06-29 — Phase 32 complete (UAT 2/2 passed), transitioned to Phase 33
+Status: UI-SPEC approved — ready to plan (`/gsd-plan-phase 34`)
+Last activity: 2026-06-29 — Phase 34 UI-SPEC approved (design locked via collaborative mockup session). Phase 33 parked (blocked on Sapir's strings).
 
 ## Performance Metrics
 
@@ -330,11 +330,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-29T15:27:49.287Z
+**Last session:** 2026-06-29T18:53:03.028Z
 
 Last activity: 2026-06-29 — Phase 32 (README + Code Comments) verified and closed. UAT 2/2 passed (test 1: 6 README how-do-I recipes cross-checked accurate against deploy.yml/version.js/i18n/sw.js; test 2: help-content inventory carries 4-tag discipline, full P26 spine, all license.html topics, no pasteable copy). Verification canonicalized human_needed→passed; phase.complete advanced ROADMAP + STATE to Phase 33. PROJECT.md evolved (P32 marked done, 2 decisions logged, footer + stale-maintainer-framing note).
-Stopped at: Phase 33 context gathered
-Resume file: .planning/phases/33-de-cs-i18n-completion/33-CONTEXT.md
+Stopped at: Phase 34 UI-SPEC approved (4/6 PASS, 2 non-blocking FLAGs)
+Resume file: .planning/phases/34-session-pdf-export-visual-polish/34-UI-SPEC.md
 Next: `/gsd-plan-phase 33` (DE/CS i18n completion) — but it needs Sapir's 13 export-modal DE/CS strings first; also pending: the planned PROJECT.md maintainer reframe + drift audit.
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
