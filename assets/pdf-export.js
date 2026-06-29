@@ -113,6 +113,21 @@ window.PDFExport = (function () {
         // section headings + page-1 title rendering via setFont('Heebo', 'bold').
         return loadScriptOnce('./assets/fonts/heebo-bold-base64.js');
       }).then(function () {
+        // Phase 34 (34-06, D-05/FN-3): make the embedded-logo base64 module
+        // (window.IconLogoBase64, vendored by 34-01) available for the header
+        // band. In production add-session.html eager-loads it (so the <script>
+        // tag is present and this resolves immediately via loadScriptOnce's
+        // existing-tag fast path) and the SW precaches it for offline. When no
+        // tag exists we DO NOT append an external <script>: a headless/jsdom env
+        // never fires a script's onload, so an unstubbed append would hang the
+        // export forever. In that case we fall back to the already-eval'd global
+        // if present, else skip entirely -- drawHeaderBand() guards the missing
+        // global and simply omits the logo (the band/card still render).
+        if (document.querySelector('script[src="./assets/branding/icon-512-base64.js"]')) {
+          return loadScriptOnce('./assets/branding/icon-512-base64.js');
+        }
+        return; // global-only or absent: no blocking append (see drawHeaderBand guard)
+      }).then(function () {
         _depsLoaded = true;
       });
     })();
@@ -723,6 +738,49 @@ window.PDFExport = (function () {
       var FOOTER_BASELINE_Y = PAGE_H - 32;
       var RUNNING_HEADER_Y = MARGIN_TOP - 24;
 
+      // Phase 34 (34-06): branded page-1 header band + client card geometry.
+      // bandHeight ~= logo(48) + 2x24pt vertical padding (UI-SPEC item 1, D-01).
+      var BAND_HEIGHT = 96;        // D-01 full-bleed mint header band height
+      var CARD_TOP_MARGIN = 24;    // gap below the band before the client card
+      var CARD_BOTTOM_MARGIN = 24; // gap after the card before body content
+
+      // Phase 34 (34-06): icon-sampled palette (UI-SPEC § Color; D-02 overrides
+      // UI-SPEC FLAG-2: the card border is #c8e6d4 to match the FINAL mockup).
+      var COLOR_BAND        = '#e2f3e3'; // mint header band fill (icon-mint)
+      var COLOR_BRAND_DEEP  = '#345e34'; // title + client name (icon-deep-green)
+      var COLOR_BRAND_HEAD  = '#456b42'; // subtitle + meta keys (icon-head-green)
+      var COLOR_MUTED       = '#5f5c72'; // meta values (muted ink)
+      var COLOR_LOGO_LINE   = '#3a7d5f'; // logo keyline stroke (green-500)
+      var COLOR_CARD_FILL   = '#fdf8f0'; // cream client card surface
+      var COLOR_CARD_BORDER = '#c8e6d4'; // client card border (D-02, green-200)
+      var COLOR_PILL_FILL   = '#e8f5ee'; // session-type pill fill (green-100)
+      var COLOR_PILL_TEXT   = '#1e5c3a'; // session-type pill text (green-700)
+
+      // Hex -> jsPDF setX color helpers (jsPDF version-agnostic: pass r,g,b ints
+      // rather than relying on CSS-string parsing support).
+      function _rgb(hex) {
+        var h = String(hex).replace('#', '');
+        return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+      }
+      function setFill(hex)   { var c = _rgb(hex); doc.setFillColor(c[0], c[1], c[2]); }
+      function setStroke(hex) { var c = _rgb(hex); doc.setDrawColor(c[0], c[1], c[2]); }
+      function setInk(hex)    { var c = _rgb(hex); doc.setTextColor(c[0], c[1], c[2]); }
+
+      // Phase 34 (34-06): localized PDF copy resolver. Reads the same dictionary
+      // App.t reads (window.I18N[uiLang][key]); falls back to en, then a literal
+      // default so headless/test builds that omit i18n still render (D-01/D-04).
+      function pdfI18n(key, fallback) {
+        try {
+          var L = window.I18N;
+          if (L) {
+            var d = L[opts.uiLang];
+            if (d && typeof d[key] === 'string' && d[key].length) return d[key];
+            if (L.en && typeof L.en[key] === 'string' && L.en[key].length) return L.en[key];
+          }
+        } catch (e) { /* fall through to default */ }
+        return fallback;
+      }
+
       var clientName = String(sessionData.clientName || "");
       var sessionDateDisplay = formatDate(sessionData.sessionDate, opts.uiLang);
       var sessionType = String(sessionData.sessionType || "");
@@ -875,11 +933,75 @@ window.PDFExport = (function () {
       // drawPageHeader -- full header on page 1; running header on pages 2+
       // -----------------------------------------------------------------------
 
-      function drawPage1Header() {
+      // Phase 34 (34-06, D-01/D-05/D-10/D-12): the branded page-1 opening — a
+      // full-bleed mint header band carrying the embedded offline logo (under a
+      // green keyline) plus a localized title + subtitle. No "Sessions Garden"
+      // wordmark letterhead (D-01). Every new text/shape anchors by docDir and
+      // routes shaped strings through doc.text with isInputVisual:false, so the
+      // Phase 23 RTL invariant holds by construction (D-10). Returns the y where
+      // the client card should begin.
+      function drawHeaderBand() {
+        // Full-bleed mint band (content insets to MARGIN_X; the fill is edge-to-edge).
+        setFill(COLOR_BAND);
+        doc.rect(0, 0, PAGE_W, BAND_HEIGHT, 'F');
+
+        var logoSize = 48;
+        var logoY = (BAND_HEIGHT - logoSize) / 2; // vertically centered in the band
+        // Logo tile at the START edge (left in LTR / right in RTL), inset MARGIN_X.
+        var logoX = (docDir === 'rtl') ? (PAGE_W - MARGIN_X - logoSize) : MARGIN_X;
+
+        // D-05/FN-3: embed the vendored base64 logo (NEVER fetched). Guard the
+        // global so the band still renders if the asset is unavailable (e.g. a
+        // render-tier test that does not load it).
+        if (typeof window.IconLogoBase64 === 'string' && window.IconLogoBase64.length > 0) {
+          try {
+            doc.addImage('data:image/png;base64,' + window.IconLogoBase64, 'PNG',
+              logoX, logoY, logoSize, logoSize);
+          } catch (e) { /* never let a logo failure abort the export */ }
+        }
+        // Green keyline over the logo tile. jsPDF cannot clip the PNG to rounded
+        // corners (UI-SPEC FLAG-7) — the square corners sit under the 10pt-radius
+        // keyline; negligible at this size.
+        setStroke(COLOR_LOGO_LINE);
+        doc.setLineWidth(1.5);
+        doc.roundedRect(logoX, logoY, logoSize, logoSize, 10, 10, 'S');
+
+        // Title + subtitle on the TRAILING side of the logo (per docDir), 14pt gap.
+        var gap = 14;
+        var titleVisual = shapeForJsPdf(pdfI18n('session.copy.title', 'Session Summary'));
+        var subtitleVisual = shapeForJsPdf(pdfI18n('pdf.header.subtitle', 'A personal session summary'));
+        var titleY = logoY + 20;
+        var subtitleY = titleY + 16;
+        var textX = (docDir === 'rtl') ? (logoX - gap) : (logoX + logoSize + gap);
+        var textOpts = (docDir === 'rtl')
+          ? { align: 'right', isInputVisual: false }
+          : { isInputVisual: false };
+
+        doc.setFont('Heebo', 'bold');
+        doc.setFontSize(20);
+        setInk(COLOR_BRAND_DEEP);
+        doc.text(titleVisual, textX, titleY, textOpts);
+
+        doc.setFont('Heebo', 'normal');
+        doc.setFontSize(11);
+        setInk(COLOR_BRAND_HEAD);
+        doc.text(subtitleVisual, textX, subtitleY, textOpts);
+
+        // Restore a clean baseline for downstream renderer code.
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('Heebo', 'normal');
+        doc.setLineWidth(1);
+        return BAND_HEIGHT + CARD_TOP_MARGIN;
+      }
+
+      function drawPage1Header(startY) {
         // Title: client name (16pt). Phase 23 (D4) -- horizontally centered on page 1.
         // The bidi pre-shape (shapeForJsPdf, from Plan 23-02) stays -- it produces
         // the visual-order string the centering math measures and renders.
-        var titleY = MARGIN_TOP;
+        // Phase 34 (34-06): optional startY so the legacy centered block sits BELOW
+        // the new header band during the incremental Task-1 commit (drawPage1Header
+        // is removed entirely in Task 2 once drawClientCard lands).
+        var titleY = (typeof startY === 'number') ? startY : MARGIN_TOP;
         // Plan 23-09: client name title renders in bold (Heebo Bold variant)
         // -- fits the "title" semantic and gives the page-1 header more visual weight.
         doc.setFont("Heebo", "bold");
@@ -939,7 +1061,10 @@ window.PDFExport = (function () {
       // Render -- iterate parsed blocks; auto page-break on overflow
       // -----------------------------------------------------------------------
 
-      var y = drawPage1Header();
+      // Phase 34 (34-06, Task 1): draw the branded header band, then (transiently)
+      // the legacy centered title block below it. Task 2 replaces the legacy block
+      // with drawClientCard().
+      var y = drawPage1Header(drawHeaderBand());
       var blocks = parseMarkdown(markdown);
 
       function ensureRoom(neededHeight) {

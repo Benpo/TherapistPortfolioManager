@@ -603,6 +603,10 @@
   <script src="./assets/snippets.js"></script>
   <script src="./assets/crop.js"></script>
   <script src="./assets/md-render.js"></script>
+  <!-- Phase 34 (34-06, D-05/FN-3): eager-load the vendored base64 logo so
+       window.IconLogoBase64 is present when the PDF header band renders — zero
+       fetch, offline-safe (precached by 34-01). Loaded before pdf-export.js. -->
+  <script src="./assets/branding/icon-512-base64.js"></script>
   <script src="./assets/pdf-export.js"></script>
   <!-- export-modal.js loads BEFORE add-session.js so window.__exportModalInit exists when add-session.js boots -->
   <script src="./assets/export-modal.js"></script>
