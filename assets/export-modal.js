@@ -20,6 +20,39 @@
 (function () {
   "use strict";
 
+  // ── FN-1 / D-03 / PDFX-02: derived chronological session ordinal ───────────
+  // The export card's "Session #N" is a CHRONOLOGICAL ordinal computed at export
+  // time — the 1-based position of this session among the client's sessions
+  // sorted ascending by ISO `date` (tie-break: numeric `id`) — and NEVER the
+  // autoIncrement key (db.js:225). So deleting a middle session renumbers the
+  // rest with no gap (the Ben-flagged renumber case). The sort is a pure lexical
+  // string compare on the ISO date (YYYY-MM-DD → lexical == chronological), with
+  // a deliberate NO `new Date()` on the date field — parsing would drag in
+  // TZ/locale ambiguity (34-RESEARCH Pitfall 2). An unsaved session (id not
+  // found) derives length+1: the ordinal it WILL become on save. Reads
+  // window.PortfolioDB.getSessionsByClient at CALL time (never captured) so it
+  // always sees the live DB. Defined at module scope (outside initExportModal)
+  // so it is a pure, init-independent helper and testable in isolation via the
+  // exposed __exportModalTestHooks seam below.
+  async function deriveSessionOrdinal(clientId, thisSessionId) {
+    const db = (typeof window !== "undefined" && window.PortfolioDB)
+      ? window.PortfolioDB
+      : (typeof PortfolioDB !== "undefined" ? PortfolioDB : null);
+    if (!db || typeof db.getSessionsByClient !== "function") return 1;
+    const sessions = (await db.getSessionsByClient(clientId)) || [];
+    const sorted = sessions.slice().sort(function (a, b) {
+      const da = (a && a.date != null) ? String(a.date) : "";
+      const dbv = (b && b.date != null) ? String(b.date) : "";
+      const byDate = da.localeCompare(dbv);
+      if (byDate !== 0) return byDate;
+      // Tie-break on numeric id (lower id first) — deterministic regardless of
+      // the unsorted getAll() return order.
+      return (Number(a && a.id) || 0) - (Number(b && b.id) || 0);
+    });
+    const idx = sorted.findIndex(function (s) { return s && s.id === thisSessionId; });
+    return idx === -1 ? sorted.length + 1 : idx + 1;
+  }
+
   function initExportModal(ctx) {
     // DOM elements: from ctx.els or re-resolved by the same static IDs (unchanged
     // in add-session.html). Mutable JS state (editingSession/sessionId/isReadMode)
@@ -799,5 +832,10 @@
   // (mirrors the add-session.js __addSessionTestHooks idiom).
   if (typeof window !== "undefined") {
     window.__exportModalInit = initExportModal;
+    // FN-1 test seam (the __addSessionTestHooks idiom): expose the pure ordinal
+    // derivation so tests/34-session-ordinal.test.js can drive it directly
+    // against a seeded window.PortfolioDB — no DOM, no init handshake required.
+    window.__exportModalTestHooks = window.__exportModalTestHooks || {};
+    window.__exportModalTestHooks.deriveSessionOrdinal = deriveSessionOrdinal;
   }
 })();
