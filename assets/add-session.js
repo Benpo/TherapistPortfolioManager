@@ -973,6 +973,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     getSessionId: () => sessionId,
     isReadMode: () => isReadMode,
     getIssuesPayload,
+    // PDFX-03 / D-13: the reusable save the export guard calls to persist a
+    // dirty / never-saved session before exporting (returns {savedId,isNew} or
+    // null on validation failure; performs NO navigation — the caller decides).
+    saveSession: saveSessionForm,
     els: { sessionDate, clientSelect, insightsInput, customerSummaryInput },
   });
 
@@ -1063,92 +1067,115 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // Reusable save (PDFX-03 / D-13): validate → persist → return {savedId,isNew}.
+  // Extracted VERBATIM (validation order, toasts, payload shape all unchanged)
+  // from the inline submit handler so the export guard (export-modal.js) can
+  // persist a dirty / never-saved session BEFORE it exports — a brand-new
+  // session then gains an id and the FN-1 ordinal derivation can locate it.
+  //
+  // Contract: returns null on ANY validation failure (showing the SAME toast as
+  // the original handler — the caller treats null as "abort, stay editing") and
+  // performs NO navigation. The caller owns the redirect: the save BUTTON keeps
+  // its exact 600ms redirect; the export path stays on-page and proceeds to
+  // export. isNew = there was no prior editingSession (a fresh add). This is a
+  // behavior-preserving extraction guarded by the green suite
+  // (tests/34-save-before-export.test.js + tests/30-export-stepper.test.js).
+  async function saveSessionForm() {
+    const clientId = Number.parseInt(clientSelect.value, 10);
+    if (!clientId) {
+      App.showToast("", "toast.selectClient");
+      return null;
+    }
+    const date = sessionDate.value;
+    if (!date) {
+      App.showToast("", "toast.errorRequired");
+      return null;
+    }
+
+    const issuesPayload = getIssuesPayload();
+    if (!validateIssues(issuesPayload)) {
+      App.showToast("", "toast.issueMissing");
+      return null;
+    }
+
+    // Heart Shield validation
+    const isHeartShield = heartShieldToggle ? heartShieldToggle.checked : false;
+    let shieldRemoved = null;
+    if (isHeartShield) {
+      const shieldRemovedInput = document.querySelector("input[name='shieldRemoved']:checked");
+      if (!shieldRemovedInput) {
+        App.showToast("", "toast.heartShieldRequired");
+        return null;
+      }
+      shieldRemoved = shieldRemovedInput.value === "yes";
+    }
+
+    const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
+    const sessionType = sessionTypeInput ? sessionTypeInput.value : "clinic";
+    const trappedEmotions = document.getElementById("trappedEmotions").value.trim();
+    const heartShieldEmotions = isHeartShield ? (document.getElementById("heartShieldEmotions") || {}).value?.trim() || "" : "";
+    const comments = document.getElementById("sessionComments").value.trim();
+    const insights = insightsInput ? insightsInput.value.trim() : "";
+    const limitingBeliefs = (document.getElementById("limitingBeliefs") || {}).value?.trim() || "";
+    const additionalTech = (document.getElementById("additionalTech") || {}).value?.trim() || "";
+    const customerSummary = customerSummaryInput ? customerSummaryInput.value.trim() : "";
+
+    const isNew = !editingSession;
+    let savedId;
+    if (editingSession) {
+      await PortfolioDB.updateSession({
+        ...editingSession,
+        clientId,
+        date,
+        sessionType,
+        issues: issuesPayload,
+        trappedEmotions,
+        heartShieldEmotions,
+        insights,
+        limitingBeliefs,
+        additionalTech,
+        customerSummary,
+        comments,
+        isHeartShield,
+        shieldRemoved,
+        updatedAt: new Date().toISOString()
+      });
+      savedId = editingSession.id;
+      App.showToast("", "toast.sessionUpdated");
+    } else {
+      const newId = await PortfolioDB.addSession({
+        clientId,
+        date,
+        sessionType,
+        issues: issuesPayload,
+        trappedEmotions,
+        heartShieldEmotions,
+        insights,
+        limitingBeliefs,
+        additionalTech,
+        customerSummary,
+        comments,
+        isHeartShield,
+        shieldRemoved,
+        createdAt: new Date().toISOString()
+      });
+      savedId = newId;
+      App.showToast("", "toast.sessionSaved");
+    }
+    return { savedId, isNew };
+  }
+
   if (sessionForm) {
     sessionForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const clientId = Number.parseInt(clientSelect.value, 10);
-      if (!clientId) {
-        App.showToast("", "toast.selectClient");
-        return;
-      }
-      const date = sessionDate.value;
-      if (!date) {
-        App.showToast("", "toast.errorRequired");
-        return;
-      }
-
-      const issuesPayload = getIssuesPayload();
-      if (!validateIssues(issuesPayload)) {
-        App.showToast("", "toast.issueMissing");
-        return;
-      }
-
-      // Heart Shield validation
-      const isHeartShield = heartShieldToggle ? heartShieldToggle.checked : false;
-      let shieldRemoved = null;
-      if (isHeartShield) {
-        const shieldRemovedInput = document.querySelector("input[name='shieldRemoved']:checked");
-        if (!shieldRemovedInput) {
-          App.showToast("", "toast.heartShieldRequired");
-          return;
-        }
-        shieldRemoved = shieldRemovedInput.value === "yes";
-      }
-
-      const sessionTypeInput = document.querySelector("input[name='sessionType']:checked");
-      const sessionType = sessionTypeInput ? sessionTypeInput.value : "clinic";
-      const trappedEmotions = document.getElementById("trappedEmotions").value.trim();
-      const heartShieldEmotions = isHeartShield ? (document.getElementById("heartShieldEmotions") || {}).value?.trim() || "" : "";
-      const comments = document.getElementById("sessionComments").value.trim();
-      const insights = insightsInput ? insightsInput.value.trim() : "";
-      const limitingBeliefs = (document.getElementById("limitingBeliefs") || {}).value?.trim() || "";
-      const additionalTech = (document.getElementById("additionalTech") || {}).value?.trim() || "";
-      const customerSummary = customerSummaryInput ? customerSummaryInput.value.trim() : "";
-
-      let savedId;
-      if (editingSession) {
-        await PortfolioDB.updateSession({
-          ...editingSession,
-          clientId,
-          date,
-          sessionType,
-          issues: issuesPayload,
-          trappedEmotions,
-          heartShieldEmotions,
-          insights,
-          limitingBeliefs,
-          additionalTech,
-          customerSummary,
-          comments,
-          isHeartShield,
-          shieldRemoved,
-          updatedAt: new Date().toISOString()
-        });
-        savedId = editingSession.id;
-        App.showToast("", "toast.sessionUpdated");
-      } else {
-        const newId = await PortfolioDB.addSession({
-          clientId,
-          date,
-          sessionType,
-          issues: issuesPayload,
-          trappedEmotions,
-          heartShieldEmotions,
-          insights,
-          limitingBeliefs,
-          additionalTech,
-          customerSummary,
-          comments,
-          isHeartShield,
-          shieldRemoved,
-          createdAt: new Date().toISOString()
-        });
-        savedId = newId;
-        App.showToast("", "toast.sessionSaved");
-      }
+      // Save BUTTON path: delegate to the reusable save, then own the redirect.
+      // Behavior-preserving — validate/persist/redirect identical to before
+      // (the 600ms redirect lives HERE now, not inside saveSessionForm()).
+      const result = await saveSessionForm();
+      if (!result) return;
       formSaving = true;
       setTimeout(() => {
-        window.location.href = `./add-session.html?sessionId=${savedId}`;
+        window.location.href = `./add-session.html?sessionId=${result.savedId}`;
       }, 600);
     });
   }
