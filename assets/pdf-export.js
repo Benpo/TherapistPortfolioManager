@@ -717,7 +717,11 @@ window.PDFExport = (function () {
       var MARGIN_TOP = 71;
       var MARGIN_BOTTOM = 71;
       var USABLE_W = PAGE_W - 2 * MARGIN_X; // 453 pt (was 483pt pre-Phase-23)
-      var BODY_SIZE = 11;
+      // Phase 34 (34-07, D-07/D-12): airier free-text body — bump 11 -> 11.5pt to
+      // match the FINAL mockup's rhythm. The paragraph/list structure
+      // (splitTextToSize + parseInlineBold) is unchanged; only the type scale and
+      // leading change. Ink stays #2f2d38 (set per draw via the body colour).
+      var BODY_SIZE = 11.5;
       // Plan 23-09: HEADING_SIZE bumped 14 -> 16 for clearer visual hierarchy
       // against 11pt body. Effective per-level sizes (computed in the heading
       // render branch below):
@@ -731,7 +735,9 @@ window.PDFExport = (function () {
       // Plan 23-09: TITLE_SIZE bumped 16 -> 18 so the page-1 client name
       // remains visibly larger than H1 section headers.
       var TITLE_SIZE = 18;
-      var LINE_HEIGHT_BODY = 16;
+      // Phase 34 (34-07, D-07/D-12): body leading bumped 16 -> 19 (~1.65 of the
+      // new 11.5pt body) for the airier paragraph rhythm in the FINAL mockup.
+      var LINE_HEIGHT_BODY = 19;
       var LINE_HEIGHT_HEADING = 26;
       var LINE_HEIGHT_META = 14;
       var LINE_HEIGHT_TITLE = 22;
@@ -755,6 +761,28 @@ window.PDFExport = (function () {
       var COLOR_CARD_BORDER = '#c8e6d4'; // client card border (D-02, green-200)
       var COLOR_PILL_FILL   = '#e8f5ee'; // session-type pill fill (green-100)
       var COLOR_PILL_TEXT   = '#1e5c3a'; // session-type pill text (green-700)
+
+      // Phase 34 (34-07): section-heading chrome (D-06) + body/footer ink.
+      var COLOR_LEAF_DIAMOND = '#7da877'; // leaf-diamond bullet fill (D-06)
+      var COLOR_HEADING_RULE = '#bfe0b0'; // vein rule beneath the heading (D-06)
+      var COLOR_BODY_INK     = '#2f2d38'; // free-text body ink (D-07)
+      var COLOR_FOOTER_RULE  = '#eef7ea'; // footer top rule, mint-soft (D-09)
+
+      // Phase 34 (34-07, D-06): heading geometry — leaf-diamond bullet ~9pt, 4pt
+      // gap to the label, ~1.5pt vein rule 4pt beneath the baseline, 24pt top /
+      // 8pt bottom margins (UI-SPEC § Spacing + FINAL mockup).
+      var LEAF_DIAMOND_SIZE     = 9;
+      var LEAF_DIAMOND_GAP      = 4;
+      var HEADING_TOP_MARGIN    = 24;
+      var HEADING_BOTTOM_MARGIN = 8;
+      var HEADING_RULE_GAP      = 4;
+      var HEADING_RULE_WIDTH    = 1.5;
+
+      // Phase 34 (34-07, D-09): footer band geometry — mint-soft top rule, small
+      // logo, three zones along the existing footer baseline.
+      var FOOTER_RULE_WIDTH = 1;
+      var FOOTER_LOGO_SIZE  = 15;
+      var FOOTER_LOGO_GAP   = 6;
 
       // Hex -> jsPDF setX color helpers (jsPDF version-agnostic: pass r,g,b ints
       // rather than relying on CSS-string parsing support).
@@ -1181,20 +1209,64 @@ window.PDFExport = (function () {
           var hSize = (block.level === 1) ? HEADING_SIZE + 2
                     : (block.level === 2) ? HEADING_SIZE
                     : HEADING_SIZE - 2;
-          ensureRoom(LINE_HEIGHT_HEADING);
-          // Headings: do NOT splitTextToSize (we expect short headings); if
-          // they do overflow, jsPDF will draw past the margin -- acceptable.
-          // Plan 23-09: pass weight='bold' so headings render in Heebo Bold,
-          // creating clear visual hierarchy vs body text. drawTextLine restores
-          // implicit normal weight via its weight default for any subsequent
-          // calls that omit the argument.
-          // Phase 23 (23-12): strip inline `**` markers — the whole heading
-          // is bold already (Plan 23-09), so inline bold is redundant.
-          // Without this strip, a user typing `## My **header**` would see
-          // literal `**` glyphs in the heading.
+          // Phase 34 (34-07, D-06): airier branded section heading — a leaf-diamond
+          // bullet at the START edge, a #456b42 bold label 4pt after it, and a
+          // #bfe0b0 vein rule spanning the content width beneath the baseline.
+          // 24pt top margin / 8pt bottom margin. The bullet is symmetric (a
+          // rotated square = two triangle() calls about a centre), so it is
+          // identical under LTR/RTL — no mirroring needed (D-10).
+          y += HEADING_TOP_MARGIN;
+          // Reserve heading line + rule gap + bottom margin; on a page-break the
+          // top margin is correctly dropped (heading starts at MARGIN_TOP).
+          ensureRoom(LINE_HEIGHT_HEADING + HEADING_RULE_GAP + HEADING_BOTTOM_MARGIN);
+
+          // Phase 23 (23-12): strip inline `**` markers — the whole heading is
+          // bold already, so inline bold is redundant.
           var headingText = stripInlineMarkdown(block.text);
-          drawTextLine(headingText, y, hSize, 'bold');
-          y += LINE_HEIGHT_HEADING;
+
+          // Leaf-diamond bullet at the START edge (left in LTR / right in RTL),
+          // vertically centred on the label cap height (34-RESEARCH Pattern 3).
+          var dHalf = LEAF_DIAMOND_SIZE / 2;
+          var diamondCy = y - hSize * 0.30;
+          var diamondCx, labelX;
+          if (docDir === 'rtl') {
+            diamondCx = PAGE_W - MARGIN_X - dHalf;
+            labelX    = PAGE_W - MARGIN_X - LEAF_DIAMOND_SIZE - LEAF_DIAMOND_GAP;
+          } else {
+            diamondCx = MARGIN_X + dHalf;
+            labelX    = MARGIN_X + LEAF_DIAMOND_SIZE + LEAF_DIAMOND_GAP;
+          }
+          setFill(COLOR_LEAF_DIAMOND);
+          // Two triangles sharing the top/bottom vertices form a 45° square
+          // (symmetric about cx — identical LTR/RTL, no RTL mirroring).
+          doc.triangle(diamondCx, diamondCy - dHalf, diamondCx + dHalf, diamondCy,
+                       diamondCx, diamondCy + dHalf, 'F');
+          doc.triangle(diamondCx, diamondCy - dHalf, diamondCx - dHalf, diamondCy,
+                       diamondCx, diamondCy + dHalf, 'F');
+
+          // Label: 16pt bold #456b42, start-anchored 4pt after the bullet.
+          doc.setFont('Heebo', 'bold');
+          doc.setFontSize(hSize);
+          setInk(COLOR_BRAND_HEAD); // #456b42
+          var headingVisual = shapeForJsPdf(headingText);
+          if (docDir === 'rtl') {
+            doc.text(headingVisual, labelX, y, { align: 'right', isInputVisual: false });
+          } else {
+            doc.text(headingVisual, labelX, y, { isInputVisual: false });
+          }
+
+          // Vein rule: ~1.5pt #bfe0b0 spanning the content width, ~4pt beneath.
+          var ruleY = y + HEADING_RULE_GAP;
+          setStroke(COLOR_HEADING_RULE);
+          doc.setLineWidth(HEADING_RULE_WIDTH);
+          doc.line(MARGIN_X, ruleY, PAGE_W - MARGIN_X, ruleY);
+
+          // Restore a clean baseline for downstream renderer code.
+          doc.setTextColor(0, 0, 0);
+          doc.setFont('Heebo', 'normal');
+          doc.setLineWidth(1);
+
+          y += LINE_HEIGHT_HEADING + HEADING_BOTTOM_MARGIN;
           continue;
         }
 
@@ -1210,6 +1282,7 @@ window.PDFExport = (function () {
               : item;
             doc.setFont("Heebo", "normal");
             doc.setFontSize(BODY_SIZE);
+            setInk(COLOR_BODY_INK); // Phase 34 (34-07, D-07): body ink #2f2d38
             // Phase 23 (23-12): inline-bold rendering for list items.
             // Parse the raw item (which retains `**X**` markers per
             // parseMarkdown 23-12 change), wrap on the STRIPPED text, then
@@ -1345,6 +1418,7 @@ window.PDFExport = (function () {
           // wrapped sub-line and hand off to drawSegmentedLine.
           doc.setFont("Heebo", "normal");
           doc.setFontSize(BODY_SIZE);
+          setInk(COLOR_BODY_INK); // Phase 34 (34-07, D-07): body ink #2f2d38
           var paraSegments = parseInlineBold(block.text);
           var paraStripped = '';
           for (var psi = 0; psi < paraSegments.length; psi++) paraStripped += paraSegments[psi].text;
