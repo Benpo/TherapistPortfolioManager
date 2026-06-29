@@ -248,14 +248,14 @@ Plans:
   5. The redesign is verified against the Phase 30 PDF test suite (suite stays green), and the logo is an embedded PNG (fully offline)
   6. Exporting with unsaved changes offers a non-blocking "Save & export" / "Keep editing" prompt (no hard block, no stale export); "Save & export" persists via a behavior-preserving extracted save function and continues the export with a correct ordinal
 
-**Plans:** 2/10 plans executed
+**Plans:** 3/10 plans executed
 
 Plans:
 **Wave 1**
 
 - [x] 34-01-PLAN.md — Offline logo base64 module + SW precache (D-05/FN-3) [W1]
 - [x] 34-02-PLAN.md — New i18n strings (subtitle, severity heading, footer mark/Exported on, save-export prompt) ×4 locales [W1]
-- [ ] 34-03-PLAN.md — Wave-0 render tests: logo-embed, pill-localized, rtl-newblocks (RED) [W1]
+- [x] 34-03-PLAN.md — Wave-0 render tests: logo-embed, pill-localized, rtl-newblocks (RED) [W1]
 - [ ] 34-04-PLAN.md — Wave-0 behavior tests: session-ordinal (FN-1 spine), severity-bars, save-before-export (RED) [W1]
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -357,6 +357,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 31. Refactor God Modules | v1.2 | 6/6 | Complete    | 2026-06-28 |
 | 32. README + Code Comments | v1.2 | 4/4 | Complete    | 2026-06-29 |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
-| 34. Session PDF Export — Visual Polish | v1.2 | 2/10 | In Progress|  |
+| 34. Session PDF Export — Visual Polish | v1.2 | 3/10 | In Progress|  |
 | 35. Demo System Refresh / Version Parity | v1.2 | 0/– | Planned (size first) | - |
 | 36. Code Comments — Batch 2 | v1.2 | 0/– | Planned | - |
