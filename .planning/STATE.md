@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
-current_phase: 32
-current_phase_name: readme-code-comments
-status: verifying
-stopped_at: Phase 32 context gathered
-last_updated: "2026-06-29T03:58:24.826Z"
+current_phase: 33
+current_phase_name: DE/CS i18n completion
+status: ready_to_plan
+stopped_at: Phase 32 complete, ready to plan Phase 33
+last_updated: "2026-06-29T08:50:50.374Z"
 last_activity: 2026-06-29
-last_activity_desc: Phase 32 execution started
+last_activity_desc: Phase 32 complete, transitioned to Phase 33
 progress:
   total_phases: 6
   completed_phases: 5
@@ -21,17 +21,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-19)
+See: .planning/PROJECT.md (updated 2026-06-29)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 32 — readme-code-comments
+**Current focus:** Phase 33 — DE/CS i18n completion
 
 ## Current Position
 
-Phase: 32 (readme-code-comments) — EXECUTING
-Plan: 4 of 4
-Status: Phase complete — ready for verification
-Last activity: 2026-06-29 — Phase 32 execution started
+Phase: 33 — DE/CS i18n completion
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-06-29 — Phase 32 complete (UAT 2/2 passed), transitioned to Phase 33
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Last activity: 2026-06-29 — Phase 32 execution started
 | 29 | 4 | - | - |
 | 30 | 13 | - | - |
 | 31 | 6 | - | - |
+| 32 | 4 | - | - |
 
 **Recent Trend:**
 
@@ -262,6 +263,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 32-01]: README reframed to Ben-solo + AI agents (D-01); operational-first, recipes truth-checked against live files; architecture points to .planning/codebase/*.md not duplicated (D-08); README removed from deploy-staging so it is repo-only (D-04)
 - [Phase 32-02]: DOCS-02 comment pilot (3 extracted modules) — de-phased to plain four-slot banners; comments-only proven via strip-and-compare against pre-edit baseline + green suite (D-11). Sequential-executor variant: baseline = commit before Task 1, not live HEAD.
 - [Phase ?]: [Phase 32-03]: DOCS-02 comment pilot completed for the 2 slimmed parents — settings.js JSDoc banner rewritten to its post-P31 slimmed shape (names settings-snippets.js + settings-photos.js as extracted-out); add-session.js got a brand-new four-slot banner documenting the export-modal boot handshake. Comments-only proven via strip-and-compare against pre-plan baseline f3f723b + green suite (D-11).
+- [Phase 32-04]: Two `.planning/` seed artifacts (not shipped): `32-COMMENT-COVERAGE-MAP.md` flags every production JS module done/batch-1/remaining (batch-1 = db.js/overview.js/sessions.js; version.js + ~20 others remaining/low-priority) → seeds the comments batch-2 phase with the pilot's four-slot-banner convention; `32-HELP-CONTENT-INVENTORY.md` is a tagged topic tree along the P26 7-step spine (title+intent only, no help copy; demo excluded as stale) → seeds the future help/onboarding phase. Phase 32 closed via UAT 2/2 pass (recipe accuracy + inventory discipline), verification canonicalized human_needed→passed.
+- [Phase 32]: KNOWN DEBT — PROJECT.md "maintainer = Sapir (non-technical)" framing (PROJECT.md ~L95/L107, Constraints) is stale; the maintainer reframe to Ben-solo + cloud Claude Code + a full PROJECT.md drift audit is a planned post-P32 task, still pending (see memory `project-maintainer-reframe-ben-solo`).
 
 ### Pending Todos
 
@@ -306,6 +309,7 @@ Recent decisions affecting current work:
 - LNCH-01: Requires Sapir to provide real business name, address, contact details before Impressum can be written
 - LNCH-02: Requires Sapir to run generation on e-recht24.de or adsimple.de (interactive form)
 - LNCH-03: Requires Sapir to create/configure Lemon Squeezy account and product
+- ⚠️ [Phase 33] DE/CS i18n completion needs Sapir to supply the 13 export-modal translation strings (DE + CS) before the phase can ship — the dependency, not the wiring, is the blocker
 
 ### Quick Tasks Completed
 
@@ -326,12 +330,12 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-29T03:58:18.037Z
+**Last session:** 2026-06-29
 
-Last activity: 2026-06-27 — Plan 30-13 executed (FINAL gap-closure plan). Added the permanent fake-test detector gate `tests/30-fake-test-detector.test.js` (Prevention #1 — fails any future source-slicing test on every `npm test`, scoped to executable assets, 3 legit static guards allowlisted, two demonstrated mutation-kills), hardened the runner (WR-01 spawnSync timeout+killSignal) and the shared PDF wrapper (WR-02 Reflect.construct forwards all args), and corrected the 5 mis-credits in `30-RESEARCH.md`'s behavior inventory. `npm test` → 103 passed, 0 failed. Commits `eeb20d5`, `473f15a`, `4a7be6d`. The gap-closure round 30-07..30-13 is now complete; all 13 phase-30 plans have summaries on disk.
-Stopped at: Phase 32 context gathered
-Resume file: .planning/phases/32-readme-code-comments/32-CONTEXT.md
-Next: re-verify Phase 30 (`/gsd-verify-work` or `/gsd-secure-phase 30`) — the safety net is now complete + self-guarding for the Phase 31 refactor.
+Last activity: 2026-06-29 — Phase 32 (README + Code Comments) verified and closed. UAT 2/2 passed (test 1: 6 README how-do-I recipes cross-checked accurate against deploy.yml/version.js/i18n/sw.js; test 2: help-content inventory carries 4-tag discipline, full P26 spine, all license.html topics, no pasteable copy). Verification canonicalized human_needed→passed; phase.complete advanced ROADMAP + STATE to Phase 33. PROJECT.md evolved (P32 marked done, 2 decisions logged, footer + stale-maintainer-framing note).
+Stopped at: Phase 32 complete, ready to plan Phase 33
+Resume file: None
+Next: `/gsd-plan-phase 33` (DE/CS i18n completion) — but it needs Sapir's 13 export-modal DE/CS strings first; also pending: the planned PROJECT.md maintainer reframe + drift audit.
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
 
