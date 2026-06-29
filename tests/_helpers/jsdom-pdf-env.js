@@ -91,6 +91,14 @@ function buildJsdomEnv(options) {
   win.eval(readAsset('assets/bidi.min.js'));
   win.eval(readAsset('assets/fonts/heebo-base64.js'));
   win.eval(readAsset('assets/fonts/heebo-bold-base64.js'));
+  // Phase 34 (34-06, D-05/FN-3): define window.IconLogoBase64 by evaluating the
+  // vendored logo module directly into the window — mirroring how the libs above
+  // are eval'd. This makes harness-built PDFs include the real embedded logo
+  // (image XObject) exactly as production does, and removes any dependence on a
+  // lazy <script> append: PDFExport.ensureDeps short-circuits its icon step on
+  // this already-present global instead of appending an unresolvable <script>
+  // (jsdom never fires onload), which previously hung buildSessionPDF forever.
+  win.eval(readAsset('assets/branding/icon-512-base64.js'));
 
   // Wrap jsPDF so every instance gets the deterministic pins applied on the
   // INSTANCE (jsPDF installs `text` etc. as own props per instance in its
