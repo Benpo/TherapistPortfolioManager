@@ -1490,6 +1490,171 @@ window.PDFExport = (function () {
       }
 
       // -----------------------------------------------------------------------
+      // drawSeverityBlock -- the signature two-bar before/after severity block
+      // (34-09, D-08/D-10/D-11). Renders STRUCTURALLY from the structured
+      // issues[] input (NOT from markdown). Empty issues -> renders nothing
+      // (no heading, no track). Per complaint: a section heading once, then one
+      // row carrying the complaint name on the START edge and two stacked
+      // barlines on the trailing side, each a proportional fill (value/10 ×
+      // track) growing FROM THE START EDGE so RTL is correct by construction.
+      // The before bar is a FLAT pre-lightened hex (#ee6a6a) — NEVER a GState
+      // opacity op — so the content stream stays deterministic (D-08/D-11);
+      // shapeForJsPdf is NOT modified. Numerals route through the
+      // isInputVisual:false path so digit runs keep visual order under RTL.
+      // -----------------------------------------------------------------------
+      function drawSeverityBlock(issues) {
+        if (!issues || !issues.length) return; // D-08 empty-state: omit entirely
+
+        // D-08 geometry (UI-SPEC item 5): shared 0–10 track 118×8pt r4 on a
+        // mint-soft #eef7ea bg; flat fills (before red / after green).
+        var TRACK_W = 118, TRACK_H = 8, TRACK_R = 4;
+        var COLOR_TRACK       = '#eef7ea';
+        var COLOR_BEFORE_FILL = '#ee6a6a'; // FLAT pre-lightened red — NOT a GState op (D-08/D-11)
+        var COLOR_AFTER_FILL  = '#2fb37d'; // green "after" fill
+        var COLOR_BEFORE_NUM  = '#ea4b4b';
+        var COLOR_AFTER_NUM   = '#2fb37d';
+        var CAPTION_SIZE = 9.5, NUMERAL_SIZE = 10.5, NAME_SIZE = BODY_SIZE;
+        var GAP = 6, BAR_LINE_H = 16, ROW_PAD = 12;
+        var captionW = 42, numeralW = 22;
+        var barUnitW = captionW + GAP + TRACK_W + GAP + numeralW;
+        var rowHeight = BAR_LINE_H * 2 + ROW_PAD;
+
+        // Anchored shaped-text helper — 23-08 invariant (isInputVisual:false) on
+        // every draw so shapeForJsPdf output passes through unchanged.
+        function drawAt(text, x, baseline, align) {
+          var v = shapeForJsPdf(String(text));
+          if (align === 'right') doc.text(v, x, baseline, { align: 'right', isInputVisual: false });
+          else doc.text(v, x, baseline, { isInputVisual: false });
+        }
+
+        // --- Section heading: leaf-diamond + label (pdf.severity.heading) + vein
+        // rule (reuses the 34-07 heading style; symmetric bullet = identical
+        // LTR/RTL, no mirroring). ---
+        y += HEADING_TOP_MARGIN;
+        ensureRoom(LINE_HEIGHT_HEADING + HEADING_RULE_GAP + HEADING_BOTTOM_MARGIN);
+        var hSize = HEADING_SIZE;
+        var dHalf = LEAF_DIAMOND_SIZE / 2;
+        var diamondCy = y - hSize * 0.30;
+        var diamondCx, labelX;
+        if (docDir === 'rtl') {
+          diamondCx = PAGE_W - MARGIN_X - dHalf;
+          labelX    = PAGE_W - MARGIN_X - LEAF_DIAMOND_SIZE - LEAF_DIAMOND_GAP;
+        } else {
+          diamondCx = MARGIN_X + dHalf;
+          labelX    = MARGIN_X + LEAF_DIAMOND_SIZE + LEAF_DIAMOND_GAP;
+        }
+        setFill(COLOR_LEAF_DIAMOND);
+        doc.triangle(diamondCx, diamondCy - dHalf, diamondCx + dHalf, diamondCy,
+                     diamondCx, diamondCy + dHalf, 'F');
+        doc.triangle(diamondCx, diamondCy - dHalf, diamondCx - dHalf, diamondCy,
+                     diamondCx, diamondCy + dHalf, 'F');
+        doc.setFont('Heebo', 'bold');
+        doc.setFontSize(hSize);
+        setInk(COLOR_BRAND_HEAD);
+        drawAt(pdfI18n('pdf.severity.heading', 'Severity — before & after'),
+               labelX, y, docDir === 'rtl' ? 'right' : null);
+        var sevRuleY = y + HEADING_RULE_GAP;
+        setStroke(COLOR_HEADING_RULE);
+        doc.setLineWidth(HEADING_RULE_WIDTH);
+        doc.line(MARGIN_X, sevRuleY, PAGE_W - MARGIN_X, sevRuleY);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('Heebo', 'normal');
+        doc.setLineWidth(1);
+        y += LINE_HEIGHT_HEADING + HEADING_BOTTOM_MARGIN;
+
+        // Captions reuse the scale labels (resolved once).
+        var beforeCaption = pdfI18n('session.copy.scale.before', 'Before');
+        var afterCaption  = pdfI18n('session.copy.scale.after', 'After');
+
+        // Per-docDir slot layout (constant across rows): the bar unit hugs the
+        // trailing side; the complaint name hugs the START edge. Internal order
+        // reads caption -> track -> numeral start->trailing (mirrored under RTL).
+        var unitLeftX, nameX, nameAlign;
+        var captionX, trackX, numeralX, captionAlign, numeralAlign;
+        if (docDir === 'rtl') {
+          unitLeftX = MARGIN_X;                         // trailing = left under RTL
+          nameX = PAGE_W - MARGIN_X; nameAlign = 'right';
+          numeralX  = unitLeftX;                        // leftmost (trailing-most)
+          trackX    = unitLeftX + numeralW + GAP;
+          captionX  = trackX + TRACK_W + GAP + captionW; // right edge of caption
+          captionAlign = 'right'; numeralAlign = null;
+        } else {
+          unitLeftX = PAGE_W - MARGIN_X - barUnitW;     // trailing = right under LTR
+          nameX = MARGIN_X; nameAlign = null;
+          captionX  = unitLeftX;                        // leftmost (start-most)
+          trackX    = unitLeftX + captionW + GAP;
+          numeralX  = trackX + TRACK_W + GAP;
+          captionAlign = null; numeralAlign = null;
+        }
+
+        // Draw one barline: full track first, then the proportional fill growing
+        // from the START edge, then caption + numeral.
+        function drawBar(barBaseline, value, has, fillHex, numHex, caption) {
+          var trackTop = barBaseline - 7;
+          setFill(COLOR_TRACK);
+          doc.roundedRect(trackX, trackTop, TRACK_W, TRACK_H, TRACK_R, TRACK_R, 'F');
+          if (has) {
+            var v = Math.max(0, Math.min(10, value));
+            var fillW = (v / 10) * TRACK_W;
+            if (fillW > 0.5) {
+              // Fill grows from the START edge: LTR from the left, RTL from the
+              // right (Pattern 2) — RTL correct by construction (D-10).
+              var fillX = (docDir === 'rtl') ? (trackX + TRACK_W - fillW) : trackX;
+              var rr = Math.min(TRACK_R, fillW / 2);
+              setFill(fillHex);
+              doc.roundedRect(fillX, trackTop, fillW, TRACK_H, rr, rr, 'F');
+            }
+          }
+          doc.setFont('Heebo', 'bold'); doc.setFontSize(CAPTION_SIZE); setInk(COLOR_MUTED);
+          drawAt(caption, captionX, barBaseline, captionAlign);
+          // Numerals are drawn in the REGULAR Heebo weight (not bold): the embedded
+          // bold font is a separate subset with its own glyph-id map, and the RTL
+          // digit-order gate (34-rtl-newblocks part B) + pdf-digit-order pin the
+          // REGULAR digit GIDs (0138–0141). Bold numerals would emit unrecognized
+          // GIDs and break the digit-order verification. Colour still distinguishes
+          // before (red) from after (green); the value reads clearly at 10.5pt.
+          doc.setFont('Heebo', 'normal'); doc.setFontSize(NUMERAL_SIZE); setInk(numHex);
+          drawAt(has ? String(value) : '–', numeralX, barBaseline, numeralAlign);
+        }
+
+        for (var ii = 0; ii < issues.length; ii++) {
+          var issue = issues[ii] || {};
+          var beforeVal = Number(issue.before);
+          var afterVal  = Number(issue.after);
+          var hasBefore = isFinite(beforeVal);
+          var hasAfter  = isFinite(afterVal);
+
+          ensureRoom(rowHeight); // Pitfall 5: a severity row never splits mid-bar
+          var rowTop = y;
+
+          // complaint name (start-anchored, leading column)
+          doc.setFont('Heebo', 'normal'); doc.setFontSize(NAME_SIZE); setInk(COLOR_BODY_INK);
+          drawAt(issue.name || '', nameX, rowTop + 10, nameAlign);
+
+          drawBar(rowTop + 10, beforeVal, hasBefore, COLOR_BEFORE_FILL, COLOR_BEFORE_NUM, beforeCaption);
+          drawBar(rowTop + 10 + BAR_LINE_H, afterVal, hasAfter, COLOR_AFTER_FILL, COLOR_AFTER_NUM, afterCaption);
+
+          y = rowTop + rowHeight;
+
+          if (ii < issues.length - 1) {
+            setStroke(COLOR_TRACK);
+            doc.setLineWidth(1);
+            doc.line(MARGIN_X, y - 6, PAGE_W - MARGIN_X, y - 6);
+          }
+        }
+
+        // Restore a clean baseline for downstream renderer code.
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('Heebo', 'normal');
+        doc.setLineWidth(1);
+      }
+
+      // Phase 34 (34-09, D-08): render the severity bars STRUCTURALLY from the
+      // forwarded issues[] (34-05), after the markdown body and before the
+      // footer pass. Severity is no longer emitted as markdown body text.
+      drawSeverityBlock(sessionData.issues || []);
+
+      // -----------------------------------------------------------------------
       // Footer pass -- full-bleed three-zone footer band on every page (34-07)
       // -----------------------------------------------------------------------
 
