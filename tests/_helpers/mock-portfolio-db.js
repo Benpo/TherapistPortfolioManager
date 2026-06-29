@@ -71,6 +71,12 @@ const READ_METHODS = [
   // Phase 30 Plan 07 (Task 0 / G2) — id-keyed reads against the seeded stores.
   'getSession',
   'getClient',
+  // Phase 34 Plan 04 (Wave 0 / FN-1) — client-scoped session read backing the
+  // 34-session-ordinal.test.js ordinal-derivation gate. Mirrors the REAL
+  // PortfolioDB.getSessionsByClient (db.js:976-986): index.getAll(clientId),
+  // returned UNSORTED (primary-key/store order — NOT date order) so the
+  // derivation under test must do the date sort + id tie-break itself.
+  'getSessionsByClient',
 ];
 
 function createMockPortfolioDB(opts) {
@@ -172,6 +178,18 @@ function createMockPortfolioDB(opts) {
     // id-keyed reads against the seeded stores.
     getSession: makeByIdReadSpy('getSession', sessionStore),
     getClient: makeByIdReadSpy('getClient', clientStore),
+
+    // Phase 34 Plan 04 (Wave 0 / FN-1) — client-scoped sessions, UNSORTED.
+    // Records [clientId] on the ledger; resolves the seeded sessions whose
+    // .clientId matches, deep-copied, in STORE (seed-array) order — deliberately
+    // NOT date-sorted, mirroring the real index.getAll(clientId). The ordinal
+    // derivation under test (34-05 deriveSessionOrdinal) is responsible for the
+    // chronological sort + numeric-id tie-break.
+    getSessionsByClient: function (clientId) {
+      calls.get('getSessionsByClient').push([clientId]);
+      var matches = sessionStore.filter(function (s) { return sameId(s.clientId, clientId); });
+      return Promise.resolve(matches.map(deepCopy));
+    },
 
     // Pure validator (reading is OK; writing is forbidden). Default = accept.
     validateSnippetShape: function (snippet) {
