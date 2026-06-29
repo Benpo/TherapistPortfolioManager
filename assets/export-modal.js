@@ -1,6 +1,6 @@
 // assets/export-modal.js — page-private export-modal + markdown builders for the
 // add-session page. Extracted out of the single add-session.js DOMContentLoaded
-// closure (RFCT-02). This is a behavior-preserving closure extraction: the export
+// closure. This is a behavior-preserving closure extraction: the export
 // region captured ~10 closure-locals plus getIssuesPayload, so a plain cut-paste
 // would throw ReferenceError. Instead add-session.js calls
 // window.__exportModalInit(ctx) once at boot, passing live accessor closures for
@@ -420,7 +420,7 @@
 
         const labelSpan = document.createElement("span");
         labelSpan.className = "export-section-label";
-        labelSpan.textContent = label; // textContent — never innerHTML (T-22-06-02 mitigation)
+        labelSpan.textContent = label; // textContent — never innerHTML (section labels are user-influenced)
 
         row.appendChild(cb);
         row.appendChild(labelSpan);
@@ -738,7 +738,7 @@
 
       // Event-delegated close on the modal root: survives any z-index issue,
       // any cleanup-ordering bug, and works identically on every step.
-      // Root cause for the Step 3 X-button bug (UAT Test 2): the .modal-close had
+      // This guards a stacking-order issue on Step 3: the .modal-close had
       // no z-index inside .modal-card (z-index:1), and on Step 3 the
       // .export-output-card buttons (later in DOM order) painted at the same
       // stacking level — so direct clicks on the X were absorbed by the body
