@@ -147,6 +147,7 @@ window.I18N.he = {
   "session.copy.scale.change": "שינוי",
   "pdf.footer.pageXofY": "עמוד {x} מתוך {y}",
   "pdf.header.subtitle": "סיכום אישי של המפגש",
+  "pdf.card.sessionNo": "מפגש",
   "pdf.severity.heading": "חומרה — לפני ואחרי",
   "pdf.footer.madeWith": "נוצר עם Sessions Garden · sessionsgarden.app",
   "pdf.footer.exportedOn": "יוצא בתאריך",

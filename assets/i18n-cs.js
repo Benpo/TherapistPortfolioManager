@@ -147,6 +147,7 @@ window.I18N.cs = {
   "session.copy.scale.change": "Změna",
   "pdf.footer.pageXofY": "Stránka {x} z {y}",
   "pdf.header.subtitle": "Osobní shrnutí sezení",
+  "pdf.card.sessionNo": "Sezení",
   "pdf.severity.heading": "Závažnost — před a po",
   "pdf.footer.madeWith": "Vytvořeno pomocí Sessions Garden · sessionsgarden.app",
   "pdf.footer.exportedOn": "Exportováno dne",

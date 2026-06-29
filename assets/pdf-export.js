@@ -994,43 +994,136 @@ window.PDFExport = (function () {
         return BAND_HEIGHT + CARD_TOP_MARGIN;
       }
 
-      function drawPage1Header(startY) {
-        // Title: client name (16pt). Phase 23 (D4) -- horizontally centered on page 1.
-        // The bidi pre-shape (shapeForJsPdf, from Plan 23-02) stays -- it produces
-        // the visual-order string the centering math measures and renders.
-        // Phase 34 (34-06): optional startY so the legacy centered block sits BELOW
-        // the new header band during the incremental Task-1 commit (drawPage1Header
-        // is removed entirely in Task 2 once drawClientCard lands).
-        var titleY = (typeof startY === 'number') ? startY : MARGIN_TOP;
-        // Plan 23-09: client name title renders in bold (Heebo Bold variant)
-        // -- fits the "title" semantic and gives the page-1 header more visual weight.
-        doc.setFont("Heebo", "bold");
-        doc.setFontSize(TITLE_SIZE);
-        var titleVisual = shapeForJsPdf(clientName || " "); // Phase 23 (D1, D2)
-        doc.text(titleVisual, pageWidth / 2, titleY, { align: 'center', isInputVisual: false }); // Phase 23 (D4); 23-08 isInputVisual:false
+      // Phase 34 (34-06, D-02/D-04/D-10/D-12): the cream client card below the
+      // header band — client name (23pt bold) + a single meta row carrying Date,
+      // a green localized session-type pill (verbatim value, FN-2), and Session
+      // #N. Replaces the legacy centered drawPage1Header title block. Every piece
+      // anchors by docDir and routes through shapeForJsPdf with isInputVisual:false
+      // (D-10); the row is laid out start→trailing (LTR) or mirrored right→left
+      // (RTL). Returns the y where the body should begin.
+      function drawClientCard() {
+        var padX = 20, padY = 16;
+        var nameSize = 23, metaSize = 11.5;
+        var cardHeight = 88; // padY + name + gap + meta row + padY (see UI-SPEC item 2)
 
-        // Meta line: "{sessionDate} - {sessionType}". Phase 23 (D4) -- centered as
-        // part of the title block. NOTE: drawTextLine is NOT used here because
-        // drawTextLine anchors at the docDir-driven left/right margin per D4's
-        // "body content stays left/right-anchored" rule (Phase 23 23-10 -- the
-        // anchor follows uiLang now, not per-line content). The title block (this
-        // draw + the title above) is the only centered region. Body paragraphs,
-        // lists, section headings, and the running header on pages 2+ all keep
-        // using drawTextLine and stay anchored per docDir.
-        var metaText = [sessionDateDisplay, sessionType].filter(function (s) {
-          return s && String(s).length > 0;
-        }).join("  -  ");
-        var metaY = titleY + LINE_HEIGHT_TITLE;
-        if (metaText.length > 0) {
-          // Plan 23-09: meta line stays in regular weight (secondary info; the
-          // bold title above carries the visual hierarchy).
-          doc.setFont("Heebo", "normal");
-          doc.setFontSize(META_SIZE);
-          var metaVisual = shapeForJsPdf(metaText); // Phase 23 (D1, D2)
-          doc.text(metaVisual, pageWidth / 2, metaY, { align: 'center', isInputVisual: false }); // Phase 23 (D4); 23-08 isInputVisual:false
+        // Pitfall 5: measure first and ensureRoom so the card never splits across
+        // a page. On page 1 it always fits; the guard is correct-by-construction.
+        y = BAND_HEIGHT + CARD_TOP_MARGIN; // page-1 cursor start (outer y via closure)
+        ensureRoom(cardHeight);
+        var cardTop = y;
+
+        // Surface: cream rounded card with the D-02 green border (#c8e6d4 — matches
+        // the FINAL mockup; overrides UI-SPEC FLAG-2 #bfe0b0 per 34-RESEARCH Open Q1).
+        setFill(COLOR_CARD_FILL);
+        setStroke(COLOR_CARD_BORDER);
+        doc.setLineWidth(1);
+        doc.roundedRect(MARGIN_X, cardTop, USABLE_W, cardHeight, 10, 10, 'FD');
+
+        var contentLeft = MARGIN_X + padX;
+        var contentRight = PAGE_W - MARGIN_X - padX;
+
+        // Client name (23pt bold, start-anchored).
+        var nameBaseline = cardTop + padY + 17;
+        doc.setFont('Heebo', 'bold');
+        doc.setFontSize(nameSize);
+        setInk(COLOR_BRAND_DEEP);
+        var nameVisual = shapeForJsPdf(clientName || ' ');
+        if (docDir === 'rtl') {
+          doc.text(nameVisual, contentRight, nameBaseline, { align: 'right', isInputVisual: false });
+        } else {
+          doc.text(nameVisual, contentLeft, nameBaseline, { isInputVisual: false });
         }
-        // Return the y cursor where body should begin
-        return metaY + LINE_HEIGHT_META + 8;
+
+        // Meta row.
+        var metaBaseline = nameBaseline + 26;
+        drawMetaRow(contentLeft, contentRight, metaBaseline, metaSize);
+
+        // Restore a clean baseline for downstream renderer code.
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('Heebo', 'normal');
+        return cardTop + cardHeight + CARD_BOTTOM_MARGIN;
+      }
+
+      // Phase 34 (34-06): measure a shaped string's width at a given weight/size.
+      function measureAt(str, weight, size) {
+        doc.setFont('Heebo', weight);
+        doc.setFontSize(size);
+        return doc.getStringUnitWidth(str) * size;
+      }
+
+      // Phase 34 (34-06): a two-tone meta item (bold colored key + muted value).
+      // Internal order respects docDir so RTL reads key→value right-to-left.
+      function makeTextItem(key, value, size) {
+        var keyVis = shapeForJsPdf(String(key));
+        var valVis = shapeForJsPdf(String(value));
+        var keyW = measureAt(keyVis, 'bold', size);
+        var valW = measureAt(valVis, 'normal', size);
+        var spaceW = measureAt(' ', 'normal', size);
+        return {
+          width: keyW + spaceW + valW,
+          draw: function (x, baseline) {
+            var keyX, valX;
+            if (docDir === 'rtl') { valX = x; keyX = x + valW + spaceW; }
+            else { keyX = x; valX = x + keyW + spaceW; }
+            doc.setFont('Heebo', 'bold'); doc.setFontSize(size); setInk(COLOR_BRAND_HEAD);
+            doc.text(keyVis, keyX, baseline, { isInputVisual: false });
+            doc.setFont('Heebo', 'normal'); doc.setFontSize(size); setInk(COLOR_MUTED);
+            doc.text(valVis, valX, baseline, { isInputVisual: false });
+          },
+        };
+      }
+
+      // Phase 34 (34-06, D-04/FN-2): the green session-type pill. Draws the
+      // localized label VERBATIM as its own standalone text (no hardcoded label),
+      // shaped through shapeForJsPdf + isInputVisual:false so it mirrors under RTL.
+      function makePillItem(label) {
+        var pillSize = 11, pillPadX = 12, pillH = 16;
+        var labelVis = shapeForJsPdf(String(label));
+        var labelW = measureAt(labelVis, 'bold', pillSize);
+        var width = labelW + 2 * pillPadX;
+        return {
+          width: width,
+          draw: function (x, baseline) {
+            var pillTop = baseline - pillH + 4; // visually center the pill on the row
+            setFill(COLOR_PILL_FILL);
+            doc.roundedRect(x, pillTop, width, pillH, pillH / 2, pillH / 2, 'F');
+            doc.setFont('Heebo', 'bold'); doc.setFontSize(pillSize); setInk(COLOR_PILL_TEXT);
+            doc.text(labelVis, x + pillPadX, baseline, { isInputVisual: false });
+          },
+        };
+      }
+
+      // Phase 34 (34-06): lay out the meta row. Logical order Date · pill · Session
+      // #N (matches the FINAL mockup). LTR flows start→trailing from contentLeft;
+      // RTL mirrors, flowing right→left from contentRight (D-10 start-edge anchor).
+      function drawMetaRow(contentLeft, contentRight, baseline, size) {
+        var gap = 16;
+        var items = [];
+        if (sessionDateDisplay && sessionDateDisplay.length) {
+          items.push(makeTextItem(pdfI18n('session.copy.date', 'Date:'), sessionDateDisplay, size));
+        }
+        if (sessionType && sessionType.length) {
+          items.push(makePillItem(sessionType)); // localized value, verbatim (FN-2)
+        }
+        if (sessionData.sessionNumber != null && String(sessionData.sessionNumber).length) {
+          items.push(makeTextItem(pdfI18n('pdf.card.sessionNo', 'Session'),
+            '#' + sessionData.sessionNumber, size));
+        }
+        var i, cursor;
+        if (docDir === 'rtl') {
+          cursor = contentRight;
+          for (i = 0; i < items.length; i++) {
+            var x = cursor - items[i].width;
+            items[i].draw(x, baseline);
+            cursor = x - gap;
+          }
+        } else {
+          cursor = contentLeft;
+          for (i = 0; i < items.length; i++) {
+            items[i].draw(cursor, baseline);
+            cursor += items[i].width + gap;
+          }
+        }
       }
 
       function drawRunningHeader() {
@@ -1061,10 +1154,11 @@ window.PDFExport = (function () {
       // Render -- iterate parsed blocks; auto page-break on overflow
       // -----------------------------------------------------------------------
 
-      // Phase 34 (34-06, Task 1): draw the branded header band, then (transiently)
-      // the legacy centered title block below it. Task 2 replaces the legacy block
-      // with drawClientCard().
-      var y = drawPage1Header(drawHeaderBand());
+      // Phase 34 (34-06): the branded page-1 opening — full-bleed header band
+      // (logo + title + subtitle) then the cream client card (name + Date ·
+      // localized pill · Session #N). drawClientCard sets the body cursor.
+      drawHeaderBand();
+      var y = drawClientCard();
       var blocks = parseMarkdown(markdown);
 
       function ensureRoom(neededHeight) {

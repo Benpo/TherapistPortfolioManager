@@ -147,6 +147,7 @@ window.I18N.en = {
   "session.copy.scale.change": "Change",
   "pdf.footer.pageXofY": "Page {x} of {y}",
   "pdf.header.subtitle": "A personal session summary",
+  "pdf.card.sessionNo": "Session",
   "pdf.severity.heading": "Severity — before & after",
   "pdf.footer.madeWith": "Made with Sessions Garden · sessionsgarden.app",
   "pdf.footer.exportedOn": "Exported on",
