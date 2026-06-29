@@ -55,17 +55,39 @@ window.PDFExport = (function () {
 
   /**
    * Append a <script src="..."> tag to document.body and resolve when it loads.
-   * Returns immediately (resolved Promise) if a script tag with the same src
-   * already exists in the document.
+   * Returns immediately (resolved Promise) if the dependency is ALREADY present
+   * (its global is on window, or a script tag with the same src already exists).
+   *
+   * @param {string} src                  script URL to lazy-load
+   * @param {function} [isReady]          optional predicate returning true when
+   *   the dependency's global is already on window. When it returns true we
+   *   resolve SYNCHRONOUSLY and NEVER append a <script>.
+   *
+   * Why the isReady short-circuit matters (the false-green bug fix): some
+   * environments never fire an appended script's load/error event — jsdom has
+   * no resource loader, and any headless test harness that eval's the lib
+   * directly into the window has no real network. Awaiting such a <script>'s
+   * onload hangs the promise forever; the consuming Node process then exits 0
+   * with zero output (an unresolved promise keeps nothing in the event loop),
+   * silently inerting every gate that builds a PDF. If the dependency's global
+   * is already defined the script body has effectively already run — there is
+   * nothing to wait for, so resolve immediately instead of appending.
    */
-  function loadScriptOnce(src) {
+  function loadScriptOnce(src, isReady) {
     return new Promise(function (resolve, reject) {
-      // Already in DOM? (Either previously loaded by us or hardcoded in HTML.)
+      // (1) Global already present? Resolve synchronously; never append.
+      if (typeof isReady === 'function') {
+        var ready = false;
+        try { ready = !!isReady(); } catch (_) { ready = false; }
+        if (ready) { resolve(); return; }
+      }
+      // (2) Already in DOM? (Either previously loaded by us or hardcoded in HTML.)
       var existing = document.querySelector('script[src="' + src + '"]');
       if (existing) {
         resolve();
         return;
       }
+      // (3) Not loaded yet -- append and await onload (real-browser lazy-load).
       var s = document.createElement('script');
       s.src = src;
       s.async = false; // preserve append order so dependent scripts load in sequence
@@ -99,34 +121,54 @@ window.PDFExport = (function () {
         }
       }
       progress('loading-lib');
-      return loadScriptOnce('./assets/jspdf.min.js').then(function () {
+      // Every loadScriptOnce below passes an isReady global predicate so the
+      // call resolves synchronously when the dependency is already on window
+      // (production 2nd-export, or a test harness that eval'd the libs). This
+      // is what keeps headless/jsdom builds from hanging on an appended
+      // <script> whose onload never fires. The first-export production path
+      // (global absent -> append + await onload) is unchanged.
+      return loadScriptOnce('./assets/jspdf.min.js', function () {
+        return !!(window.jspdf && window.jspdf.jsPDF);
+      }).then(function () {
         // Phase 23 (D1) -- bidi-js is part of the "library" phase, before fonts. Per RESEARCH 'Performance / Lazy-Load Notes': order doesn't matter functionally (bidi has no deps on fonts), but grouping libs together keeps the progress phases semantically clean.
-        return loadScriptOnce('./assets/bidi.min.js');
+        return loadScriptOnce('./assets/bidi.min.js', function () {
+          return typeof window.bidi_js === 'function';
+        });
       }).then(function () {
         // Phase 23 (D1, G9) -- invoke the bidi-js factory ONCE the script is loaded and cache the result module-level. window.bidi_js is the UMD attachment from assets/bidi.min.js. Calling it earlier (e.g. at module-eval time, before loadScriptOnce resolves) throws TypeError.
         _bidi = window.bidi_js();
         progress('loading-fonts');
         // Plan 23-07: single unified Heebo font (replaces noto-sans + noto-sans-hebrew).
-        return loadScriptOnce('./assets/fonts/heebo-base64.js');
+        return loadScriptOnce('./assets/fonts/heebo-base64.js', function () {
+          return typeof window.Heebo === 'string' && window.Heebo.length > 0;
+        });
       }).then(function () {
         // Plan 23-09: Heebo Bold (weight 700) loaded after Regular -- used for
         // section headings + page-1 title rendering via setFont('Heebo', 'bold').
-        return loadScriptOnce('./assets/fonts/heebo-bold-base64.js');
+        return loadScriptOnce('./assets/fonts/heebo-bold-base64.js', function () {
+          return typeof window.HeeboBold === 'string' && window.HeeboBold.length > 0;
+        });
       }).then(function () {
         // Phase 34 (34-06, D-05/FN-3): make the embedded-logo base64 module
         // (window.IconLogoBase64, vendored by 34-01) available for the header
-        // band. In production add-session.html eager-loads it (so the <script>
-        // tag is present and this resolves immediately via loadScriptOnce's
-        // existing-tag fast path) and the SW precaches it for offline. When no
-        // tag exists we DO NOT append an external <script>: a headless/jsdom env
-        // never fires a script's onload, so an unstubbed append would hang the
-        // export forever. In that case we fall back to the already-eval'd global
-        // if present, else skip entirely -- drawHeaderBand() guards the missing
-        // global and simply omits the logo (the band/card still render).
-        if (document.querySelector('script[src="./assets/branding/icon-512-base64.js"]')) {
-          return loadScriptOnce('./assets/branding/icon-512-base64.js');
+        // band. The logo is OPTIONAL (drawHeaderBand guards the global and omits
+        // the logo if absent) so this step must NEVER block the export:
+        //   - global already present (production eager-load via add-session.html,
+        //     SW-precached for offline, or a test harness eval) -> resolve now;
+        //   - global absent but a <script> tag exists -> loadScriptOnce resolves
+        //     via the existing-tag fast path (no new append);
+        //   - global absent and no tag -> skip the logo entirely.
+        // We never append an external <script> we'd have to await: a headless/
+        // jsdom env never fires onload and the export would hang forever.
+        if (typeof window.IconLogoBase64 === 'string' && window.IconLogoBase64.length > 0) {
+          return; // already available -- drawHeaderBand emits the logo synchronously
         }
-        return; // global-only or absent: no blocking append (see drawHeaderBand guard)
+        if (document.querySelector('script[src="./assets/branding/icon-512-base64.js"]')) {
+          return loadScriptOnce('./assets/branding/icon-512-base64.js', function () {
+            return typeof window.IconLogoBase64 === 'string' && window.IconLogoBase64.length > 0;
+          });
+        }
+        return; // absent and no tag: skip the logo gracefully (drawHeaderBand guard)
       }).then(function () {
         _depsLoaded = true;
       });
