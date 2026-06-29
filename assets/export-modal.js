@@ -62,6 +62,9 @@
     const insightsInput = ctx.els.insightsInput;
     const customerSummaryInput = ctx.els.customerSummaryInput;
     const getIssuesPayload = ctx.getIssuesPayload;
+    // Live editing-session accessor (mutable JS state in add-session.js) — read
+    // at every use site, never cached. Used to derive the FN-1 session ordinal.
+    const getEditingSession = ctx.getEditingSession;
     const heartShieldToggle = document.getElementById("heartShieldToggle");
 
     // Copy text to the clipboard with a secure-context path and an execCommand
@@ -581,6 +584,42 @@
       _exportState = null;
     }
 
+    // Assemble the data-tier render inputs the renderer needs as EXPLICIT args so
+    // buildSessionPDF stays a pure function of its inputs (PDFX-01):
+    //   • sessionNumber — the FN-1 chronological ordinal (D-03). Derived from the
+    //     editing session's clientId/id; for a new (unsaved) session we fall back
+    //     to the selected client's count + 1 (deriveSessionOrdinal returns
+    //     length+1 when the id is absent). Omitted gracefully (undefined) when no
+    //     client is resolvable — the renderer then draws no card number.
+    //   • issues — the STRUCTURED {name,before,after} array (NOT markdown) so the
+    //     render tier can draw the severity bars from data (D-08, wired in 34-09).
+    //   • exportedOn — today's date, localized via App.formatDate, distinct from
+    //     the card's session date (D-09).
+    // The markdown body is UNCHANGED here; severity stays in the markdown until
+    // 34-09 swaps it atomically.
+    async function buildRenderInputs() {
+      let sessionNumber;
+      try {
+        const es = (typeof getEditingSession === "function") ? getEditingSession() : null;
+        let clientIdForOrdinal = (es && es.clientId != null) ? es.clientId : null;
+        const thisSessionId = es ? es.id : null;
+        if (clientIdForOrdinal == null && clientSelect && clientSelect.value && clientSelect.value !== "__new__") {
+          const parsed = parseInt(clientSelect.value, 10);
+          if (!Number.isNaN(parsed)) clientIdForOrdinal = parsed;
+        }
+        if (clientIdForOrdinal != null) {
+          sessionNumber = await deriveSessionOrdinal(clientIdForOrdinal, thisSessionId);
+        }
+      } catch (err) {
+        // Omit the ordinal gracefully — a render-tier convenience, never a hard
+        // dependency of the export.
+        sessionNumber = undefined;
+      }
+      const issues = (typeof getIssuesPayload === "function") ? getIssuesPayload() : [];
+      const exportedOn = App.formatDate(new Date());
+      return { sessionNumber, issues, exportedOn };
+    }
+
     async function exportHandleDownloadPdf() {
       const btn = document.getElementById("exportDownloadPdf");
       const subtitle = document.getElementById("exportPdfSubtitle");
@@ -593,11 +632,15 @@
         if (subtitle) subtitle.textContent = App.t("export.preparing");
         const editor = document.getElementById("exportEditor");
         const data = _exportState ? _exportState.sessionData : getCurrentSessionDataForExport();
+        const renderInputs = await buildRenderInputs();
         const blob = await window.PDFExport.buildSessionPDF({
           clientName: data.clientName,
           sessionDate: data.sessionDateFormatted,
           sessionType: data.sessionTypeLabel,
-          markdown: editor ? editor.value : ""
+          markdown: editor ? editor.value : "",
+          sessionNumber: renderInputs.sessionNumber,
+          issues: renderInputs.issues,
+          exportedOn: renderInputs.exportedOn
         }, {
           uiLang: localStorage.getItem("portfolioLang") || "en",
           onProgress: function (phase) {
@@ -651,11 +694,15 @@
       try {
         btn.disabled = true;
         const data = _exportState ? _exportState.sessionData : getCurrentSessionDataForExport();
+        const renderInputs = await buildRenderInputs();
         const blob = await window.PDFExport.buildSessionPDF({
           clientName: data.clientName,
           sessionDate: data.sessionDateFormatted,
           sessionType: data.sessionTypeLabel,
-          markdown: editor.value
+          markdown: editor.value,
+          sessionNumber: renderInputs.sessionNumber,
+          issues: renderInputs.issues,
+          exportedOn: renderInputs.exportedOn
         }, { uiLang: localStorage.getItem("portfolioLang") || "en" });
         const slug = window.PDFExport.slugify(data.clientName);
         const fname = slug + "_" + (data.sessionDateISO || "session") + ".pdf";
