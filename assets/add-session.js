@@ -1,3 +1,43 @@
+// ────────────────────────────────────────────────────────────────────────
+// add-session.js — Add / edit-session page controller (slimmed parent).
+//
+// OWNS: the add/edit-session form (all section textareas + issue rows + the
+// heart-shield toggle), the client <select> and its cached client list, the
+// inline "new client" form, the edit-client modal, inline photo capture for
+// both, and the session reading vs. edit modes (read-only view → Edit →
+// Cancel/Revert). On submit it writes the session via PortfolioDB; on load it
+// can hydrate an existing session for viewing/editing.
+//
+// PUBLIC SURFACE: window.PortfolioFormDirty() — a live dirty-state predicate
+// read by App.installNavGuard — and window.__addSessionTestHooks.computeGrowHeight,
+// the pure textarea-grow helper exposed for unit tests. No feature API beyond these.
+//
+// BOOT HANDSHAKE: at load it calls window.__exportModalInit(ctx) exactly once,
+// passing live accessor closures for its mutable session state (editingSession /
+// sessionId / isReadMode) plus the shared DOM elements. This pairs with
+// assets/export-modal.js, which owns the copy/export-modal flow that was
+// extracted out of this file's DOMContentLoaded closure.
+//
+// DEPENDENCIES (window.* chain):
+//   window.App.{initCommon, t, showToast, confirmDialog, applyTranslations,
+//               formatDate, isSectionEnabled, getSectionLabel, installNavGuard,
+//               initBirthDatePicker, readFileAsDataURL, setSubmitLabel,
+//               createSeverityScale, getSeverityValue, lockBodyScroll,
+//               unlockBodyScroll}        — set by assets/app.js IIFE
+//   window.PortfolioDB.{getSession, addSession, updateSession, deleteSession,
+//               getSessionsByClient, getAllSessions, getClient, addClient,
+//               updateClient, getAllClients}  — set by assets/db.js IIFE
+//   window.__exportModalInit             — set by assets/export-modal.js
+//   The per-textarea snippet-expansion `input` listener is attached by the
+//   snippets layer; this file's autoGrow handler only measures + sets height, so
+//   it composes cleanly with that listener regardless of order.
+//
+// INVARIANTS: all user-entered values are rendered via textContent / .value /
+// .placeholder — NEVER innerHTML (custom labels and session content are
+// user-controlled). The autoGrow handler never mutates .value and never calls
+// preventDefault/stopPropagation, so handler order is irrelevant. PortfolioFormDirty
+// is a function (not a snapshot) so the nav-guard always reads live state.
+// ────────────────────────────────────────────────────────────────────────
 let clientCache = [];
 let inlinePhotoData = "";
 let editClientPhotoData = "";
@@ -5,7 +45,7 @@ let editingClientId = null;
 let formDirty = false;
 let formSaving = false;
 
-// Quick 260516-rna — single-sourced auto-grow for the long session textareas.
+// Single-sourced auto-grow for the long session textareas.
 // Used by the read-mode resize path, the live `input` path, and the
 // edit-load (populateSession) path so the scrollHeight math lives in ONE place.
 //
@@ -32,8 +72,8 @@ function growAllSessionTextareas() {
   document.querySelectorAll(".session-textarea").forEach((el) => autoGrow(el));
 }
 
-// Expose the pure hook for falsifiable behavior testing (mirrors the g7p
-// __*TestHooks convention). Guarded so module eval is safe under a vm sandbox.
+// Expose the pure hook for falsifiable behavior testing (the window.__*TestHooks
+// convention). Guarded so module eval is safe under a vm sandbox.
 if (typeof window !== "undefined") {
   window.__addSessionTestHooks = Object.assign(
     window.__addSessionTestHooks || {},
@@ -44,13 +84,13 @@ if (typeof window !== "undefined") {
 document.addEventListener("DOMContentLoaded", async () => {
   await App.initCommon();
 
-  // Phase 22 Plan 12 (Gap B, D3): expose dirty state for App.installNavGuard consumers.
+  // Expose dirty state for App.installNavGuard consumers.
   // Function form (not a snapshot) so the guard always reads the live state.
   window.PortfolioFormDirty = function () {
     return formDirty && !formSaving;
   };
 
-  // Phase 24 Plan 08 — protect the "Back to Overview" link at the bottom of the
+  // Protect the "Back to Overview" link at the bottom of the
   // session form. Mirrors the brand-link guard installed in App.initCommon for the
   // top logo. Both new-session and edit-existing flows share this link, so a
   // single guard install here covers both.
@@ -101,7 +141,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const prefillClientId = !sessionId && prefillClientParam ? Number.parseInt(prefillClientParam, 10) : null;
   let editingSession = null;
   let isReadMode = false;
-  let lastSavedSnapshot = null; // D-06: snapshot for revertSessionForm (Cancel/Revert)
+  let lastSavedSnapshot = null; // snapshot for revertSessionForm (Cancel/Revert)
   const NEW_CLIENT_VALUE = "__new__";
 
   // Birth date pickers (three-dropdown replacement for native date inputs)
@@ -124,7 +164,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Unsaved changes protection
   if (sessionForm) {
-    // Quick 260516-rna: delegated auto-grow. Composes with the dirty-tracking
+    // Delegated auto-grow. Composes with the dirty-tracking
     // listener below and the per-textarea snippets `input` listener — this
     // handler only measures + sets height (no preventDefault / no .value
     // mutation), so handler order is irrelevant.
@@ -140,7 +180,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     sessionForm.addEventListener("input", () => {
       formDirty = true;
-      updateCancelButtonLabel(); // D-04: swap to "Discard changes" on first edit
+      updateCancelButtonLabel(); // swap to "Discard changes" on first edit
     });
     sessionForm.addEventListener("change", () => {
       formDirty = true;
@@ -148,7 +188,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
   window.addEventListener("beforeunload", (e) => {
-    // Phase 22 Plan 12 (Gap B, D3): honour the one-shot bypass flag set by
+    // Honour the one-shot bypass flag set by
     // App.installNavGuard so the user does not see a custom dialog AND the
     // browser-native one for the same intentional in-app navigation.
     if (window.PortfolioFormDirtyBypass) return;
@@ -194,7 +234,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function resizeReadModeTextareas() {
-    // Quick 260516-rna: single-sourced through the top-level autoGrow helper
+    // Single-sourced through the top-level autoGrow helper
     // so the scrollHeight math is not duplicated between read-mode and the
     // live/edit-load grow paths.
     readModeTextareas.forEach((textarea) => autoGrow(textarea));
@@ -206,12 +246,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Phase 24-01 follow-up: moved inside DOMContentLoaded so inlineBirthDatePicker
-  //   (declared `const` at line ~49) is reachable via closure. Previously top-level —
-  //   the bare `inlineBirthDatePicker` reference resolved to window.inlineBirthDatePicker
+  // Kept inside DOMContentLoaded so inlineBirthDatePicker (declared `const`
+  //   above) is reachable via closure. If it were top-level, the bare
+  //   `inlineBirthDatePicker` reference would resolve to window.inlineBirthDatePicker
   //   (the <div id="inlineBirthDatePicker"> via legacy named-element access) which
-  //   has no .clear() method → TypeError → dropdown change handler aborted before
-  //   reaching populateSpotlight. Root cause of the BLOCKER spotlight bug.
+  //   has no .clear() method → TypeError → the dropdown change handler would abort
+  //   before reaching populateSpotlight. Root cause of the spotlight bug.
   function resetInlineClientForm() {
     const fields = [
       "inlineClientFirstName",
@@ -247,7 +287,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (editButton) editButton.classList.toggle("is-hidden", !isReadMode);
     if (copySessionBtn) copySessionBtn.classList.toggle("is-hidden", !isReadMode);
     if (exportSessionBtn) exportSessionBtn.classList.toggle("is-hidden", !isReadMode);
-    // D-02/D-06: Cancel button is visible in edit mode for existing sessions only.
+    // Cancel button is visible in edit mode for existing sessions only.
     if (cancelButton) cancelButton.classList.toggle("is-hidden", isReadMode || !editingSession);
     if (sessionForm) {
       sessionForm.querySelectorAll("input, select, textarea").forEach((el) => {
@@ -674,7 +714,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return payload.length > 0;
   }
 
-  // D-06 (Phase 24): capture form state for revertSessionForm. Mirrors the IDB session
+  // Capture form state for revertSessionForm. Mirrors the IDB session
   //   shape so revert can call populateSession(snapshot, ...) to restore.
   function snapshotFormState() {
     const sessionDateEl = document.getElementById("sessionDate");
@@ -705,7 +745,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
   }
 
-  // D-06 (Phase 24): revert form to last-saved snapshot. Delegates to populateSession for
+  // Revert form to last-saved snapshot. Delegates to populateSession for
   //   the heavy lifting (handles all textareas, issues teardown/rebuild, spotlight refresh).
   function revertSessionForm() {
     if (!lastSavedSnapshot) return;
@@ -714,7 +754,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateCancelButtonLabel();
   }
 
-  // D-04 (Phase 24): asymmetric Cancel button label. "Cancel" when clean, "Discard changes" when dirty.
+  // Asymmetric Cancel button label. "Cancel" when clean, "Discard changes" when dirty.
   function updateCancelButtonLabel() {
     if (!cancelButton) return;
     const labelSpan = cancelButton.querySelector(".button-label");
@@ -770,7 +810,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ============================================================
-  // Section visibility (REQ-3, REQ-5 amended 2026-04-28)
+  // Section visibility (REQ-3, REQ-5)
   // ============================================================
   // - Enabled: visible, badge hidden, fully editable
   // - Disabled + new session: hidden
@@ -838,7 +878,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       const hasData = sectionHasData(sectionKey);
       if (hasData) {
-        // REQ-5 amendment 2026-04-28: visible, badge shown, inputs remain
+        // REQ-5: visible, badge shown, inputs remain
         // fully editable — do NOT add disabled / readonly attributes here.
         wrapper.classList.remove("is-hidden");
         if (badge) badge.classList.remove("is-hidden");
@@ -849,11 +889,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Phase 22 GAP fix: write the therapist's customLabel into the visible
-  // form labels. applyTranslations() resets these to the i18n default, so
-  // this MUST run after every applyTranslations pass that affects this page.
-  // Uses .textContent (never innerHTML) — customLabel is user-controlled
-  // (T-22-02-01).
+  // Write the therapist's customLabel into the visible form labels.
+  // applyTranslations() resets these to the i18n default, so this MUST run
+  // after every applyTranslations pass that affects this page. Uses
+  // .textContent (never innerHTML) — customLabel is user-controlled.
   function applySectionLabels() {
     const wrappers = document.querySelectorAll("[data-section-key]");
     wrappers.forEach((wrapper) => {
@@ -865,12 +904,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       const resolvedLabel = App.getSectionLabel(sectionKey, defaultI18nKey);
       labelEl.textContent = resolvedLabel;
 
-      // Phase 22-14.3 — keep descendant input/textarea placeholders in sync
-      // with the renamed label. When the therapist has a custom label,
-      // override the placeholder; when there is no custom label, restore
-      // the placeholder from its data-i18n-placeholder key. Use .placeholder
-      // (attribute, not innerHTML) — customLabel is user-controlled and
-      // assigning to .placeholder is safe (T-22-02-01 mitigation).
+      // Keep descendant input/textarea placeholders in sync with the renamed
+      // label. When the therapist has a custom label, override the placeholder;
+      // when there is no custom label, restore the placeholder from its
+      // data-i18n-placeholder key. Use .placeholder (attribute, not innerHTML)
+      // — customLabel is user-controlled and assigning to .placeholder is safe.
       const isCustom = resolvedLabel !== App.t(defaultI18nKey);
       const fields = wrapper.querySelectorAll("input, textarea");
       fields.forEach((field) => {
@@ -925,8 +963,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Wire the export-modal + markdown builders (extracted to assets/export-modal.js,
-  // RFCT-02). Pass live accessor closures for the mutable session state plus the
+  // Wire the export-modal + markdown builders (extracted to assets/export-modal.js).
+  // Pass live accessor closures for the mutable session state plus the
   // shared DOM els so the export module always reads add-session.js's live values.
   // Unconditional on purpose: if export-modal.js is missing or mis-ordered this
   // throws loudly at boot (TypeError) rather than silently disabling export.
@@ -945,7 +983,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // D-02/D-03/D-04/D-06 (Phase 24): Cancel/Revert button — confirm on dirty, silent on clean.
+  // Cancel/Revert button — confirm on dirty, silent on clean.
   if (cancelButton) {
     cancelButton.addEventListener("click", async () => {
       const isDirty = !!(window.PortfolioFormDirty && window.PortfolioFormDirty());
@@ -1142,7 +1180,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (isReadMode) resizeReadModeTextareas();
     populateSpotlight(editingSession ? editingSession.clientId : (clientSelect ? clientSelect.value : null));
-    updateCancelButtonLabel(); // D-04: re-translate Cancel/Discard label
+    updateCancelButtonLabel(); // re-translate Cancel/Discard label
   });
 
   if (sessionId && Number.isInteger(sessionId)) {
@@ -1156,7 +1194,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       setReadMode(true);
       applySectionVisibility(true);
       applySectionLabels();
-      // D-06 (Phase 24): snapshot the freshly-loaded session for revertSessionForm.
+      // Snapshot the freshly-loaded session for revertSessionForm.
       //   Wait one tick so populateSession's dynamic issue rows are in the DOM before reading.
       Promise.resolve().then(() => {
         lastSavedSnapshot = snapshotFormState();
@@ -1168,7 +1206,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // New session — hide disabled sections from the form per REQ-3.
     applySectionVisibility(false);
     applySectionLabels();
-    // Quick 260516-rna: size the (empty) long textareas once after initial
+    // Size the (empty) long textareas once after initial
     // construction/i18n so they start consistent; subsequent typing grows them
     // via the delegated input listener.
     growAllSessionTextareas();
@@ -1278,7 +1316,7 @@ function getClientDisplayName(client) {
   return last ? `${first} ${last}` : first;
 }
 
-// Phase 24 Plan 06 — pure render helper for the Session-info subsection.
+// Pure render helper for the Session-info subsection.
 // Kept side-effect-free (no document.getElementById, no IDB) so it's unit-testable
 // in Node without jsdom. populateSpotlight's async wrapper looks up the refs and
 // the sessions array, then delegates to this helper.
@@ -1287,7 +1325,7 @@ function getClientDisplayName(client) {
 // `sessions` is the unsorted array of session records for one client.
 // `formatDate` is App.formatDate (locale-aware).
 function renderSpotlightSessionInfo(refs, sessions, formatDate) {
-  // D-30: empty-history clients render no Session-info, no strings, no divider.
+  // Empty-history clients render no Session-info, no strings, no divider.
   if (!sessions || sessions.length === 0) {
     refs.sessionInfo.classList.add("is-hidden");
     return;
@@ -1312,7 +1350,7 @@ function renderSpotlightSessionInfo(refs, sessions, formatDate) {
   refs.lastDate.textContent = latest.date ? formatDate(latest.date) : "—";
   refs.total.textContent = String(sessions.length);
 
-  // D-31: customerSummary read-only quote. Use textContent — never innerHTML —
+  // customerSummary read-only quote. Use textContent — never innerHTML —
   // because the value comes from the user-entered session form.
   const summaryText = (latest.customerSummary || "").trim();
   if (summaryText) {
@@ -1323,8 +1361,8 @@ function renderSpotlightSessionInfo(refs, sessions, formatDate) {
   }
 }
 
-// populateSpotlight: SSOT for client spotlight (Phase 24 D-01). Plan 06 extends with Session-info subsection.
-// Async because Plan 06 loads sessions from IDB to render Last session / Total / Last note.
+// populateSpotlight: SSOT for client spotlight. Also renders the Session-info subsection.
+// Async because it loads sessions from IDB to render Last session / Total / Last note.
 async function populateSpotlight(clientId) {
   const spotlight = document.getElementById("clientSpotlight");
   if (!spotlight) return;
@@ -1393,7 +1431,7 @@ async function populateSpotlight(clientId) {
     }
   }
 
-  // Phase 24 Plan 06 — Session-info subsection (pre-session context card).
+  // Session-info subsection (pre-session context card).
   // Subsection markup may be absent on pages that reuse populateSpotlight without it.
   if (!sessionInfoEl) return;
   const refs = {
@@ -1510,7 +1548,7 @@ function populateSession(session, issues, createIssueBlock) {
 
   App.applyTranslations();
 
-  // Quick 260516-rna: grow every .session-textarea to fit its just-assigned
+  // Grow every .session-textarea to fit its just-assigned
   // value so an existing session opened for EDIT shows full content on load
   // (not trimmed/scrolled until the first keystroke). Covers the heart-shield
   // emotions field too (it shares .session-textarea).
