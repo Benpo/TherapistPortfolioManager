@@ -54,6 +54,7 @@ const PRECACHE_URLS = [
   '/assets/fonts/Rubik-SemiBold.woff2',
   '/assets/fonts/Rubik-Bold.woff2',
   '/assets/branding/logo-512.png',
+  '/assets/branding/icon-512-base64.js',
   '/assets/illustrations/garden.png',
   '/assets/illustrations/watering-can.png',
   '/assets/demo.js',
