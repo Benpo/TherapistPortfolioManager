@@ -19,7 +19,7 @@
  *
  * DEPENDENCIES (window.* chain): App.{initCommon, t, showToast, confirmDialog},
  * PortfolioDB.{therapistSettings, getAllTherapistSettings, setTherapistSetting},
- * BackupManager.{canEnableSchedule, pickBackupFolder}, CrashLog.clear, and the
+ * BackupManager.canEnableSchedule, CrashLog.clear, and the
  * "sessions-garden-settings" BroadcastChannel.
  *
  * SECURITY (invariant): Custom labels are user-controlled text. The rename input
