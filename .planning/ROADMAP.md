@@ -248,7 +248,7 @@ Plans:
   5. The redesign is verified against the Phase 30 PDF test suite (suite stays green), and the logo is an embedded PNG (fully offline)
   6. Exporting with unsaved changes offers a non-blocking "Save & export" / "Keep editing" prompt (no hard block, no stale export); "Save & export" persists via a behavior-preserving extracted save function and continues the export with a correct ordinal
 
-**Plans:** 8/10 plans executed
+**Plans:** 9/10 plans executed
 
 Plans:
 **Wave 1**
@@ -270,7 +270,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 34-09-PLAN.md — Render C: two-bar before/after severity block + move severity out of markdown [W4]
+- [x] 34-09-PLAN.md — Render C: two-bar before/after severity block + move severity out of markdown [W4]
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -357,6 +357,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 31. Refactor God Modules | v1.2 | 6/6 | Complete    | 2026-06-28 |
 | 32. README + Code Comments | v1.2 | 4/4 | Complete    | 2026-06-29 |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
-| 34. Session PDF Export — Visual Polish | v1.2 | 8/10 | In Progress|  |
+| 34. Session PDF Export — Visual Polish | v1.2 | 9/10 | In Progress|  |
 | 35. Demo System Refresh / Version Parity | v1.2 | 0/– | Planned (size first) | - |
 | 36. Code Comments — Batch 2 | v1.2 | 0/– | Planned | - |
