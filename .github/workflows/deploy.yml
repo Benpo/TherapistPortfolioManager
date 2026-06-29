@@ -25,7 +25,6 @@ jobs:
           cp _headers deploy-staging/
           cp _redirects deploy-staging/
           cp LICENSE deploy-staging/
-          cp README.md deploy-staging/
           cp *.html deploy-staging/
           cp -r assets deploy-staging/
           cp manifest.json deploy-staging/
