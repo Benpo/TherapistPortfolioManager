@@ -104,8 +104,19 @@ function loadRealPdf(win) {
 function buildEnv(opts) {
   opts = opts || {};
   var html = readAsset('add-session.html');
+  // Open the page on a SAVED, clean session (?sessionId=1) so the export trigger
+  // takes the "clean AND saved → open the dialog directly as today" path. The
+  // PDFX-03 / D-13 save-before-export guard (34-08) now fences the export behind
+  // a non-blocking prompt for a DIRTY form or a NEVER-SAVED new session; this
+  // test exercises the STEPPER state machine downstream of the open, so it loads
+  // an existing session to keep that precondition direct-open. The seeded session
+  // is EMPTY-content (issues:[] → one default empty issue row, all fields "") so
+  // populateSession leaves the form byte-identical to a fresh new session, and
+  // buildFilteredSessionMarkdown omits client/date from the body — every existing
+  // assertion (filtered markdown markers, share/download seams, preview, mobile
+  // tabs) is unchanged.
   var dom = new JSDOM(html, {
-    url: 'https://localhost/add-session.html',
+    url: 'https://localhost/add-session.html?sessionId=1',
     runScripts: 'outside-only',
     pretendToBeVisual: false,
   });
@@ -124,7 +135,18 @@ function buildEnv(opts) {
     createSeverityScale: function () { return win.document.createElement('div'); },
     getSeverityValue: function () { return null; },
   });
-  win.PortfolioDB = createMockPortfolioDB({ clients: [], sessions: [] });
+  // Seed the saved session loaded by ?sessionId=1 (empty content → form matches a
+  // fresh new session post-populate; sets editingSession so the export trigger's
+  // save-before-export guard sees a clean, already-saved session and opens directly).
+  win.PortfolioDB = createMockPortfolioDB({
+    clients: [{ id: 1, name: 'Test Client' }],
+    sessions: [{
+      id: 1, clientId: 1, date: '', sessionType: 'clinic', issues: [],
+      trappedEmotions: '', heartShieldEmotions: '', insights: '',
+      limitingBeliefs: '', additionalTech: '', customerSummary: '', comments: '',
+      isHeartShield: false, shieldRemoved: null
+    }]
+  });
   var mediaMatches = !!opts.mobile;
   win.matchMedia = function () {
     return {

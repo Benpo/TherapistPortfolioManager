@@ -87,8 +87,16 @@ async function settle() { for (var i = 0; i < 6; i++) { await flush(); } }
  */
 function buildEnv() {
   var html = readAsset('add-session.html');
+  // Open on a SAVED, clean session (?sessionId=1) so the export trigger takes the
+  // "clean AND saved → open directly" path. The PDFX-03 / D-13 save-before-export
+  // guard (34-08) fences export behind a non-blocking prompt for a dirty / never-
+  // saved session; these markdown-builder tests assert the FILTERED/FULL markdown
+  // downstream of the open, so they load an existing EMPTY-content session
+  // (issues:[] → one default empty issue row, all fields "") which populateSession
+  // leaves byte-identical to a fresh new session. buildFilteredSessionMarkdown
+  // omits client/date from the body, so every markdown assertion is unchanged.
   var dom = new JSDOM(html, {
-    url: 'https://localhost/add-session.html',
+    url: 'https://localhost/add-session.html?sessionId=1',
     runScripts: 'outside-only',
     pretendToBeVisual: false,
   });
@@ -115,9 +123,20 @@ function buildEnv() {
     createSeverityScale: function () { return win.document.createElement('div'); },
     getSeverityValue: function () { return null; },
   });
-  // add-session.js init calls PortfolioDB.getAllClients() (loadClients); a clean
-  // ?-URL (no clientId/sessionId) keeps populateSpotlight an early return.
-  win.PortfolioDB = createMockPortfolioDB({ clients: [], sessions: [] });
+  // add-session.js init calls PortfolioDB.getAllClients() (loadClients) and, with
+  // ?sessionId=1, PortfolioDB.getSession(1). Seed the saved session (empty content
+  // → form matches a fresh new session post-populate) so editingSession is set and
+  // the export trigger's save-before-export guard sees a clean, already-saved
+  // session and opens the dialog directly.
+  win.PortfolioDB = createMockPortfolioDB({
+    clients: [{ id: 1, name: 'Test Client' }],
+    sessions: [{
+      id: 1, clientId: 1, date: '', sessionType: 'clinic', issues: [],
+      trappedEmotions: '', heartShieldEmotions: '', insights: '',
+      limitingBeliefs: '', additionalTech: '', customerSummary: '', comments: '',
+      isHeartShield: false, shieldRemoved: null
+    }]
+  });
 
   // jsdom does not implement matchMedia; add-session.js uses it for the
   // accordion + export mobile-tabs layout (desktop branch when matches=false).

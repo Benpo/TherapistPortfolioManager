@@ -65,6 +65,10 @@
     // Live editing-session accessor (mutable JS state in add-session.js) — read
     // at every use site, never cached. Used to derive the FN-1 session ordinal.
     const getEditingSession = ctx.getEditingSession;
+    // PDFX-03 / D-13: reusable save the export guard calls to persist a dirty /
+    // never-saved session before exporting (returns {savedId,isNew} or null on
+    // validation failure; performs NO navigation — this module owns the flow).
+    const saveSession = ctx.saveSession;
     const heartShieldToggle = document.getElementById("heartShieldToggle");
 
     // Copy text to the clipboard with a secure-context path and an execCommand
@@ -602,7 +606,13 @@
       try {
         const es = (typeof getEditingSession === "function") ? getEditingSession() : null;
         let clientIdForOrdinal = (es && es.clientId != null) ? es.clientId : null;
-        const thisSessionId = es ? es.id : null;
+        let thisSessionId = es ? es.id : null;
+        // A brand-new session persisted via the save-before-export guard has no
+        // editingSession yet; use the id the save returned so deriveSessionOrdinal
+        // LOCATES the just-saved row (else it derives length+1 — off by one) (D-13).
+        if (thisSessionId == null && _exportState && _exportState.savedSessionId != null) {
+          thisSessionId = _exportState.savedSessionId;
+        }
         if (clientIdForOrdinal == null && clientSelect && clientSelect.value && clientSelect.value !== "__new__") {
           const parsed = parseInt(clientSelect.value, 10);
           if (!Number.isNaN(parsed)) clientIdForOrdinal = parsed;
@@ -744,13 +754,18 @@
       }
     }
 
-    async function openExportDialog() {
+    // preSavedId (optional): the id returned by a just-completed save-before-export
+    // save of a BRAND-NEW session. editingSession is still null in that moment, so
+    // this id is threaded onto _exportState and used by buildRenderInputs() to
+    // locate the just-saved row for a correct FN-1 ordinal (D-13).
+    async function openExportDialog(preSavedId) {
       const modal = document.getElementById("exportModal");
       if (!modal) return;
       const sessionData = getCurrentSessionDataForExport();
       _exportState = {
         currentStep: 1,
         sessionData,
+        savedSessionId: (preSavedId != null) ? preSavedId : null,
         hasEditedPreview: false,
         cleanup: null
       };
@@ -869,7 +884,33 @@
     }
 
     if (exportSessionBtn) {
-      exportSessionBtn.addEventListener("click", () => {
+      exportSessionBtn.addEventListener("click", async () => {
+        // PDFX-03 / D-13: fence the export behind an honest save. A dirty form
+        // (live PortfolioFormDirty) or a never-saved new session (no editingSession)
+        // gets a NON-BLOCKING two-choice prompt — never a hard block, never a
+        // silent stale export. Clean + already-saved exports directly as before.
+        const dirty = !!(window.PortfolioFormDirty && window.PortfolioFormDirty());
+        const unsaved = (typeof getEditingSession === "function") ? !getEditingSession() : false;
+        if (dirty || unsaved) {
+          const ok = await App.confirmDialog({
+            titleKey: "export.unsaved.title",
+            messageKey: "export.unsaved.body",
+            confirmKey: "export.unsaved.saveExport",
+            cancelKey: "export.unsaved.keepEditing",
+            tone: "neutral"
+          });
+          // "Keep editing" → dismiss: no persist, no export.
+          if (!ok) return;
+          // "Save & export" → persist via the extracted save (no redirect). A
+          // validation failure returns null → abort the export, user stays editing
+          // (the save's own toast already fired). There is NO export-without-save.
+          const result = (typeof saveSession === "function") ? await saveSession() : null;
+          if (!result) return;
+          // Proceed with the just-saved id so a brand-new session derives the
+          // correct FN-1 ordinal (editingSession is still null at this point).
+          openExportDialog(result.savedId);
+          return;
+        }
         openExportDialog();
       });
     }
