@@ -373,28 +373,14 @@
       // the literal asterisk leaking into the section title. stripRequired() is
       // a no-op on labels that don't end with "*", so it's safe to apply
       // defensively to every heading call site.
-      if (selected.has("issues")) {
-        // i18n'd scale labels (see buildSessionMarkdown for details).
-        const beforeLabel = App.t("session.copy.scale.before");
-        const afterLabel = App.t("session.copy.scale.after");
-        const changeLabel = App.t("session.copy.scale.change");
-        const issuesPayload = getIssuesPayload();
-        const issuesText = issuesPayload.length
-          ? issuesPayload.map((issue) => {
-              const hasBefore = issue.before !== null && issue.before !== undefined;
-              const hasAfter = issue.after !== null && issue.after !== undefined;
-              const before = hasBefore ? issue.before : "-";
-              const after = hasAfter ? issue.after : "-";
-              if (hasBefore && hasAfter) {
-                const delta = issue.after - issue.before;
-                const sign = delta > 0 ? "+" : "";
-                return `- ${issue.name} — ${beforeLabel}: ${before}, ${afterLabel}: ${after}, ${changeLabel}: ${sign}${delta}`;
-              }
-              return `- ${issue.name} — ${beforeLabel}: ${before}, ${afterLabel}: ${after}`;
-            }).join("\n")
-          : `- ${App.t("session.copy.empty")}`;
-        lines.push("", `## ${stripRequired(App.getSectionLabel("issues", "session.form.issuesHeading"))}`, issuesText);
-      }
+      // Phase 34 (34-09, D-08): the issues/severity section is NO LONGER emitted
+      // as markdown body text here. Severity now renders STRUCTURALLY in the PDF
+      // as the two-bar before/after block (drawSeverityBlock in pdf-export.js),
+      // fed by the structured issues[] forwarded on the buildSessionPDF input
+      // contract (34-05). Dropping the markdown emission together with adding the
+      // bars (same phase) guarantees severity appears EXACTLY ONCE — as bars —
+      // never doubled and never missing. The FULL builder (buildSessionMarkdown,
+      // the clipboard-copy path) still emits the text issues section unchanged.
 
       const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
       const heartShieldEmotionsValue = (heartShieldEmotionsEl ? heartShieldEmotionsEl.value : "").trim();
