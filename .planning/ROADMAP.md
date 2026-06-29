@@ -63,7 +63,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 - [x] **Phase 29: Reliability & Observability** — local crash log persisted to IndexedDB + a Settings "Report a problem" copy-to-clipboard flow (zero network, GDPR-safe); IDB migration "reset & recover" escape hatch so a failed migration can't trap a user in an infinite refresh loop. (completed 2026-06-23)
 - [x] **Phase 30: Test Harness & Coverage** — fix the 7 PDF tests that can't run in Node (`jsdom` lacks `HTMLCanvasElement.getContext`; old-Node `blob.arrayBuffer`); add an RTL regression guard; add **behavior tests on the god modules before the refactor** (per `feedback-behavior-verification`). May introduce the project's first `package.json` + dev-dependency (decide at plan time). (completed 2026-06-26)
 - [x] **Phase 31: Refactor God Modules** — behavior-preserving extraction from `settings.js` (~2,827 lines) and `add-session.js` (~2,173 lines) using the existing IIFE pattern; guarded by the green suite from Phase 30. Opportunistic in touched code: `var`→`const`, `innerHTML`-i18n hardening, `openDB()` connection pooling, logging in silent catches. (completed 2026-06-28)
-- [ ] **Phase 32: README + Code Comments** — project README (run/deploy/architecture) for Sapir as ongoing maintainer; code-level comments describing the *refactored* structure.
+- [x] **Phase 32: README + Code Comments** — project README (run/deploy/architecture) for Sapir as ongoing maintainer; code-level comments describing the *refactored* structure. (completed 2026-06-29)
 - [ ] **Phase 33: DE/CS i18n completion** — translate the 13 export-modal keys currently showing English to German/Czech users (needs Sapir's strings). Independent of the others — slot in whenever ready.
 
 ### Phase 28: Update Reliability & Versioning
@@ -209,7 +209,7 @@ Plans:
   1. A project README documents how to run the app locally, how to deploy it, and how its architecture is organized — written for the maintainer (Ben + his AI agents, per D-01) and kept in-repo as agent context (D-02)
   2. The modules extracted in Phase 31 carry code-level comments describing their structure and responsibilities
 
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 **Wave 1** *(all four deliverables are independent — fully parallel)*
@@ -217,7 +217,7 @@ Plans:
 - [x] 32-01-PLAN.md — Wave 1 · DOCS-01 rewrite README.md into the in-repo maintainer guide (run/deploy/file-map/recipes/agent-rules) + stop publishing it (D-04 deploy.yml line removal)
 - [x] 32-02-PLAN.md — Wave 1 · DOCS-02 comment pilot part A: de-phase + responsibility banners on the 3 extracted modules (export-modal, settings-snippets, settings-photos) + comments-only strip-and-compare gate
 - [x] 32-03-PLAN.md — Wave 1 · DOCS-02 comment pilot part B: slimmed-shape banner on settings.js + brand-new banner on add-session.js + de-phase + comments-only gate
-- [ ] 32-04-PLAN.md — Wave 1 · by-product artifacts: comment-coverage map (D-14) + help-content inventory (D-13), both `.planning/` seeds
+- [x] 32-04-PLAN.md — Wave 1 · by-product artifacts: comment-coverage map (D-14) + help-content inventory (D-13), both `.planning/` seeds
 
 ### Phase 33: DE/CS i18n completion
 
@@ -282,5 +282,5 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 29. Reliability & Observability | v1.2 | 4/4 | Complete    | 2026-06-23 |
 | 30. Test Harness & Coverage | v1.2 | 13/13 | Complete    | 2026-06-27 |
 | 31. Refactor God Modules | v1.2 | 6/6 | Complete    | 2026-06-28 |
-| 32. README + Code Comments | v1.2 | 3/4 | In Progress|  |
+| 32. README + Code Comments | v1.2 | 4/4 | Complete   | 2026-06-29 |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
