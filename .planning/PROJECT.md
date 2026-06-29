@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A browser-based session management app for Emotion Code / Body Code practitioners. Tracks clients, sessions, trapped emotions, severity ratings, Heart Shield (מגננת הלב) progress, and generates reports. Vanilla HTML/JS/CSS app with IndexedDB storage, garden-themed design, dark mode, 4-language support (EN/HE/DE/CS), ZIP backup, legal compliance, and a marketing landing page. Preparing for first paid release.
+A browser-based session management app for Emotion Code / Body Code practitioners. Tracks clients, sessions, trapped emotions, severity ratings, Heart Shield (מגננת הלב) progress, and generates reports. Vanilla HTML/JS/CSS app with IndexedDB storage, garden-themed design, dark mode, 4-language support (EN/HE/DE/CS), AES-256-GCM encrypted `.sgbackup` backups, legal compliance, and a marketing landing page. Live and sold since v1.1 (2026-06-22).
 
 ## Core Value
 
@@ -58,19 +58,26 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - ✓ Cloudflare Pages deployment (live) — v1.1
 - ✓ In-app onboarding/help — design contract only (`26-UI-SPEC.md`); build deferred — v1.1
 
+<!-- v1.2 — Codebase Health & Reliability (in progress; validated as phases ship) -->
+
+- ✓ DOCS-01 — In-repo maintainer README (operational-first, truth-checked recipes, repo-only/not published) — Phase 32
+- ✓ DOCS-02 — Code-comment pilot on the 5 refactored modules (four-slot responsibility banners + de-phase-numbering, comments-only-proven) — Phase 32
+
 ### Active
 
 <!-- v1.1 shipped 2026-06-22. v1.2 scope co-designed & locked with Ben 2026-06-22 (Phases 28–33). -->
 
 - [ ] **v1.2 — Codebase Health & Reliability** (scope locked 2026-06-22 — Phases 28–33, dependency order):
-  - [ ] P28 Update Reliability & Versioning — verified Safari PWA update fix; single version source → footer + SW cache + runtime integrity self-check; CSP→header; cache TTL
-  - [ ] P29 Reliability & Observability — local crash log + "Report a problem" copy flow (zero network); IDB migration escape hatch
+  - [x] P28 Update Reliability & Versioning — verified Safari PWA update fix; single version source → footer + SW cache + runtime integrity self-check; CSP→header; cache TTL ✓ complete & live 2026-06-22 (shipped v1.2.1)
+  - [x] P29 Reliability & Observability — local crash log + "Report a problem" copy flow (zero network); IDB migration escape hatch ✓ complete & live 2026-06-23
   - [x] P30 Test Harness & Coverage — fix 7 PDF tests; RTL guard; behavior tests on god modules pre-refactor ✓ complete 2026-06-26, safety-net hardened 2026-06-27 (first `package.json` + `npm test` runner; 103 test files green; source-slicing fakes removed → executing jsdom characterization with recorded mutation-kills; permanent fake-test-detector gate)
   - [x] P31 Refactor God Modules — extract from `settings.js` / `add-session.js`; opportunistic cleanups behind the test net ✓ complete 2026-06-28 (settings.js 2,969→1,014; add-session.js 1,863→1,518; 3 new page-private IIFE modules: settings-snippets / settings-photos / export-modal; openDB pooling + i18n innerHTML hardening; suite green throughout; D-08 UAT passed; review regression CR-01 fixed test-first)
   - [x] P32 README + Code Comments — maintainer README + comments on the refactored code ✓ complete 2026-06-29 (maintainer-audience README rewrite with 6 truth-checked how-do-I recipes + file-map; comment pilot on the 5 P31-touched files — four-slot responsibility banners + de-phase-numbering, proven comments-only via strip-and-compare + green suite; stopped shipping README publicly — `cp README.md` removed from deploy.yml, D-04; two `.planning/` seed artifacts: comment-coverage map → comments batch-2 phase, help-content inventory → future help/onboarding phase)
   - [ ] P33 DE/CS i18n completion — 13 export-modal keys (needs Sapir's strings; independent)
 
 **Deferred to backlog (v1.1 close + 2026-06-22 concerns triage):** mobile `21-03`; help/onboarding build (Phase 26 — design done); landing DE/CS verify (LNCH-04); license re-validation; pagination; PDF→Web Worker; and other triaged concerns — see ROADMAP "Backlog" for the full list.
+
+**Candidate phases surfaced during P32 (NOT yet sequenced via `/gsd-phase` — note only):** (1) **comments — batch 2** (apply the P32 comment pilot to the next module group; batch-1 = `db.js`/`overview.js`/`sessions.js`; driven by `32-COMMENT-COVERAGE-MAP.md`; stays within v1.2); (2) **vendor-dependency pinning** (HARD-02 + `jszip`/`bidi` integrity/version pinning); (3) **demo refresh** (the stale `demo.html`/`demo-*.js` group). These are candidates pending Ben's sequencing decision, not committed scope.
 
 ### Out of Scope
 
@@ -90,9 +97,9 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 
 **Legal research completed**: Comprehensive analysis in `.planning/research/` covers GDPR Article 9, German BDSG, Section 203 StGB. Key finding: local-only app = zero GDPR processor obligations, just a software vendor. EUR 0-500 worst case compliance cost.
 
-**Collaboration workflow**: Ben and Sapir both work on this from different computers. Both have Claude Code. Everything (code + .planning/) tracked in GitHub, always synced via git.
+**Development workflow**: Single-owner + AI-agent loop — Ben drives Claude Code (cloud and local) as the development engine. The GitHub repo is both the single source of truth and the agent context (the in-repo `README.md` is the canonical maintainer guide). No multi-machine human collaboration.
 
-**Target users**: Emotion Code / Body Code practitioners. Non-technical. Sapir (Ben's wife, also a practitioner) is the primary ongoing developer — workflow must be simplified for her.
+**Two audiences, kept separate** (P32 D-01): (1) **Customers / product users** = non-technical Emotion Code / Body Code practitioners — the product UX stays approachable for them (unchanged). (2) **Maintainer / developer** = Ben (drives Claude Code; comfortable with terminal/git/architecture-at-concept, not a daily JS author) + AI agents. Sapir is the **business / Gewerbe / domain / legal owner**, not a hands-on developer.
 
 **Business model**: One-time purchase (EUR 119). Hosted on Cloudflare Pages (free). Payments via Lemon Squeezy (MoR, 5% + $0.50/sale). Sold under Sapir's Gewerbe.
 
@@ -101,10 +108,10 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - **Tech stack**: Vanilla HTML/CSS/JS, zero npm dependencies — keep the simplicity
 - **Data storage**: IndexedDB only, no external calls, no backend
 - **Languages**: 4 required (Hebrew RTL, English, German, Czech)
-- **Collaboration**: GitHub-tracked, multi-machine workflow with Claude Code
+- **Workflow**: GitHub-tracked; AI-assisted single-owner workflow (Ben + Claude Code)
 - **Cost model**: One-time sale — hosting/distribution costs must be minimal recurring
 - **Legal**: EU/German compliance per existing research, local-only model
-- **Maintainer**: Sapir (non-technical) will develop going forward — everything must be approachable
+- **Maintainer**: Ben (solo, AI-assisted) + Claude Code agents; the in-repo `README.md` is the canonical maintainer guide. (Product UX still approachable for non-technical customers.)
 
 ## Key Decisions
 
@@ -131,21 +138,22 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 | Zero-dependency rule applies to PRODUCTION code only; dev/test tooling may use npm freely | Cloudflare ships static `/assets/*`, never `node_modules` — dev deps (e.g. jsdom for PDF tests) never reach customers, so they don't compromise the ~50KB zero-runtime-dep production bundle | ✓ Decided 2026-06-26 (Phase 30 discuss) — first `package.json` (devDeps-only) lands in P30 |
 | README is repo-only maintainer guide, not published | Removed `cp README.md` from deploy.yml (D-04) so deploy/maintenance detail never reaches the product URL; the CF copy was unlinked, no loss. Only production-adjacent change in P32 | ✓ Shipped Phase 32 |
 | Code-comments done as a tight 5-file pilot + coverage map, not an all-files sweep | A blanket sweep risks staleness/accuracy errors on untouched files; the pilot establishes the reusable convention (four-slot banner + de-phase-numbering, comments-only-diff guardrail) and a coverage map makes a templated "comments batch-2" phase plannable. Ends the comment-topic drag carried since ~P29 | ✓ Shipped Phase 32 — batch-2 deferred within v1.2 |
+| Maintainer reframe to Ben + agents (D-01/D-02) | Docs/dev are calibrated for Ben (drives Claude Code) + AI agents, not a non-technical Sapir; README rewritten in-repo as agent context (D-03) and no longer published at the product URL (D-04). Product UX stays approachable for non-technical customers (two audiences kept separate) | ✓ Decided 2026-06-28 (P32 discuss); PROJECT.md reframed 2026-06-29 |
 
 ## Current Milestone: v1.2 Codebase Health & Reliability (scope locked — planning per phase)
 
-**Status:** v1.1 shipped and archived 2026-06-22 (Phases 8–27; see `milestones/v1.1-*`). v1.2 scope was **co-designed and locked with Ben on 2026-06-22** — a deliberate shift from feature work to **maintainability and reliability**. The concerns triage (`.planning/codebase/CONCERNS.md`) is complete; outcomes folded into phases / backlog / won't-do (see ROADMAP). Next: `/gsd-plan-phase` per phase, in dependency order.
+**Status:** v1.1 shipped and archived 2026-06-22 (Phases 8–27; see `milestones/v1.1-*`). v1.2 scope was **co-designed and locked with Ben on 2026-06-22** — a deliberate shift from feature work to **maintainability and reliability**. **Progress: P28–P32 complete (5 of 6); only P33 remains.** P28 (v1.2.1) and P29 are live; P30/P31 (test harness + refactor) done; P32 (docs) done. Next: `/gsd-plan-phase 33` (blocked on Sapir's 13 DE/CS export-modal strings).
 
 **Committed scope (Phases 28–33, dependency order):**
-- **P28 Update Reliability & Versioning** — verified Safari PWA update fix; single version source → footer + SW `CACHE_NAME` + runtime integrity self-check; CSP→header; cache TTL
-- **P29 Reliability & Observability** — local crash log + "Report a problem" copy flow (zero network); IDB migration escape hatch
-- **P30 Test Harness & Coverage** — fix the 7 PDF tests; RTL guard; behavior tests on god modules before the refactor
-- **P31 Refactor God Modules** — `settings.js` (~2.8k) / `add-session.js` (~2.2k) extraction, behind the test net
-- **P32 README + Code Comments** — maintainer docs describing the refactored structure
+- **P28 Update Reliability & Versioning** ✓ — verified Safari PWA update fix; single version source → footer + SW `CACHE_NAME` + runtime integrity self-check; CSP→header; cache TTL
+- **P29 Reliability & Observability** ✓ — local crash log + "Report a problem" copy flow (zero network); IDB migration escape hatch
+- **P30 Test Harness & Coverage** ✓ — fix the 7 PDF tests; RTL guard; behavior tests on god modules before the refactor
+- **P31 Refactor God Modules** ✓ — `settings.js` (~2.8k) / `add-session.js` (~2.2k) extraction, behind the test net
+- **P32 README + Code Comments** ✓ — maintainer docs describing the refactored structure
 - **P33 DE/CS i18n completion** — 13 export-modal keys (needs Sapir's strings; independent)
 
 ---
-*Last updated: 2026-06-29 — Phase 32 (README + Code Comments) complete. Maintainer-audience README rewrite (6 truth-checked how-do-I recipes cross-checked against deploy.yml / version.js / i18n / sw.js, current file-map, "rules an agent must not break"); README de-published from the deploy (D-04, `cp README.md` removed from deploy.yml — only production-adjacent change). Code-comment pilot on the 5 P31-touched files (export-modal / settings-snippets / settings-photos / settings / add-session): four-slot responsibility banners + de-phase-numbering, proven comments-only via strip-and-compare vs bb7d022 + green suite; code-review fix 9ab2360 (settings.js dep-banner). Two `.planning/` seed artifacts produced: `32-COMMENT-COVERAGE-MAP.md` (seeds comments batch-2 — batch-1: db.js/overview.js/sessions.js; version.js et al. remaining/low-priority) and `32-HELP-CONTENT-INVENTORY.md` (seeds future help/onboarding phase, extends P26 spine). UAT 2/2 passed. NOTE: PROJECT.md maintainer framing (lines ~95/107: "Sapir non-technical primary developer") is stale — the planned post-P32 maintainer reframe (Ben solo + cloud Claude Code) + full drift audit is still pending. Next: `/gsd-plan-phase 33` (DE/CS i18n completion — needs Sapir's 13 export-modal strings).*
+*Last updated: 2026-06-29 — Phase 32 (README + Code Comments) complete. Maintainer-audience README rewrite (6 truth-checked how-do-I recipes cross-checked against deploy.yml / version.js / i18n / sw.js, current file-map, "rules an agent must not break"); README de-published from the deploy (D-04, `cp README.md` removed from deploy.yml — only production-adjacent change). Code-comment pilot on the 5 P31-touched files (export-modal / settings-snippets / settings-photos / settings / add-session): four-slot responsibility banners + de-phase-numbering, proven comments-only via strip-and-compare vs bb7d022 + green suite; code-review fix 9ab2360 (settings.js dep-banner). Two `.planning/` seed artifacts produced: `32-COMMENT-COVERAGE-MAP.md` (seeds comments batch-2 — batch-1: db.js/overview.js/sessions.js; version.js et al. remaining/low-priority) and `32-HELP-CONTENT-INVENTORY.md` (seeds future help/onboarding phase, extends P26 spine). UAT 2/2 passed. Then ran the full PROJECT.md drift audit + **maintainer reframe to Ben + AI agents** (D-01/D-02): "What This Is" release status + backup tech refreshed; P28/P29/P32 marked complete; Context/Constraints reframed (single-owner + agent workflow, Sapir = business/domain/legal not dev, two audiences kept separate); DOCS-01/02 validated; candidate-phases note added; project `CLAUDE.md` Git-Sync path made path-agnostic. Next: `/gsd-plan-phase 33` (DE/CS i18n completion — needs Sapir's 13 export-modal strings).*
 
 <!-- superseded footer below retained for history -->
 *Phase 31 (Refactor God Modules) complete. Behavior-preserving extraction: `settings.js` 2,969→1,014 lines (SnippetsUI→`settings-snippets.js`, Photos/StorageUsage→`settings-photos.js`) and `add-session.js` 1,863→1,518 (export-modal+markdown builders→`export-modal.js`), each a page-private IIFE wired into its page + precached in `sw.js`; session-save path retained in add-session.js. Opportunistic RFCT-03 hardening: `openDB()` connection pooling (deadlock-safe, dual invalidation) and `overview.js`/`sessions.js` interpolated-i18n `innerHTML`→`textContent`+DOM. Test suite stayed green throughout (106 files / 107 cases); manual D-08 UAT passed on v1.2.2 (incl. backup export/import). Code review found 1 critical regression — CR-01: pooled `openDB()` returned a closed handle after legacy-DB migration — fixed test-first (test E RED→GREEN, `_dbPromise` nulled after migration close); advisory WR-01/WR-02 + info items deferred. Next: `/gsd-discuss-phase 32` → `/gsd-plan-phase 32` (README + Code Comments).*
