@@ -146,6 +146,10 @@ window.I18N.de = {
   "session.copy.scale.after": "Nachher",
   "session.copy.scale.change": "Änderung",
   "pdf.footer.pageXofY": "Seite {x} von {y}",
+  "pdf.header.subtitle": "Eine persönliche Sitzungszusammenfassung",
+  "pdf.severity.heading": "Schweregrad — vorher & nachher",
+  "pdf.footer.madeWith": "Erstellt mit Sessions Garden · sessionsgarden.app",
+  "pdf.footer.exportedOn": "Exportiert am",
   "session.edit": "Sitzung bearbeiten",
   "session.form.afterSeverityTitle": "Schweregrad am Ende der Sitzung",
   "session.form.afterSeverity": "Schweregrad am Ende der Sitzung",
@@ -449,6 +453,10 @@ window.I18N.de = {
   // --- Phase 22 \u2014 Export modal ---
   "session.export": "Exportieren",
   "export.title": "Sitzung exportieren",
+  "export.unsaved.title": "Vor dem Export speichern?",
+  "export.unsaved.body": "Das PDF eines Klienten sollte Ihre gespeicherten Änderungen widerspiegeln, und eine neue Sitzung muss gespeichert werden, um die richtige Nummer zu erhalten.",
+  "export.unsaved.saveExport": "Speichern & exportieren",
+  "export.unsaved.keepEditing": "Weiter bearbeiten",
   // TODO i18n: translate to German
   "export.stepper.label.1": "Choose",
   // TODO i18n: translate to German
