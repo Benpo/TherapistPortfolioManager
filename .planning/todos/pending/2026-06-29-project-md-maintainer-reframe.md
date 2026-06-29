@@ -39,7 +39,10 @@ passes** (so "current state" isn't edited before UAT might shift it).
 
 ## Edit list (apply to `.planning/PROJECT.md` unless noted)
 
-- **A. "What This Is" (L5)** — "Preparing for first paid release." → **live and sold since v1.1 (2026-06-22)**.
+- **A. "What This Is" (L5)** — two *factual* clauses to refresh (release status + backup tech), NOT
+  the product/audience framing: "Preparing for first paid release." → **live and sold since v1.1
+  (2026-06-22)**; and "ZIP backup" → **AES-256-GCM encrypted `.sgbackup`** (per the README header).
+  The therapist-facing framing of "What This Is" / "Core Value" otherwise stays unchanged (guardrail above).
 - **B. Active milestone list (L66–67)** — P28 `[ ]`→`[x]` (complete & live 2026-06-22) and
   P29 `[ ]`→`[x]` (complete & live 2026-06-23). (ROADMAP progress table already shows both Complete.)
 - **C. Active milestone list (L70)** — P32 `[ ]`→`[x]` with a one-liner (README maintainer guide +
