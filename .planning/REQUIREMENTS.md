@@ -39,7 +39,7 @@ Requirements for the Codebase Health & Reliability milestone. Each maps to exact
 
 ### README + Code Comments (Phase 32)
 
-- [ ] **DOCS-01**: A project README documents how to run, deploy, and understand the architecture of the app, written for Sapir as the ongoing maintainer
+- [x] **DOCS-01**: A project README documents how to run, deploy, and understand the architecture of the app, written for Sapir as the ongoing maintainer
 - [ ] **DOCS-02**: The refactored modules carry code-level comments describing their structure and responsibilities _(depends on Phase 31)_
 
 ### DE/CS i18n Completion (Phase 33)
@@ -105,7 +105,7 @@ Which phases cover which requirements. Status filled during execution.
 | RFCT-01 | Phase 31 | Complete |
 | RFCT-02 | Phase 31 | Complete |
 | RFCT-03 | Phase 31 | Complete |
-| DOCS-01 | Phase 32 | Pending |
+| DOCS-01 | Phase 32 | Complete |
 | DOCS-02 | Phase 32 | Pending |
 | I18N-01 | Phase 33 | Pending |
 | I18N-02 | Phase 33 | Pending |

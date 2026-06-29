@@ -209,12 +209,12 @@ Plans:
   1. A project README documents how to run the app locally, how to deploy it, and how its architecture is organized — written for the maintainer (Ben + his AI agents, per D-01) and kept in-repo as agent context (D-02)
   2. The modules extracted in Phase 31 carry code-level comments describing their structure and responsibilities
 
-**Plans:** 0/4 plans complete
+**Plans:** 1/4 plans executed
 
 Plans:
 **Wave 1** *(all four deliverables are independent — fully parallel)*
 
-- [ ] 32-01-PLAN.md — Wave 1 · DOCS-01 rewrite README.md into the in-repo maintainer guide (run/deploy/file-map/recipes/agent-rules) + stop publishing it (D-04 deploy.yml line removal)
+- [x] 32-01-PLAN.md — Wave 1 · DOCS-01 rewrite README.md into the in-repo maintainer guide (run/deploy/file-map/recipes/agent-rules) + stop publishing it (D-04 deploy.yml line removal)
 - [ ] 32-02-PLAN.md — Wave 1 · DOCS-02 comment pilot part A: de-phase + responsibility banners on the 3 extracted modules (export-modal, settings-snippets, settings-photos) + comments-only strip-and-compare gate
 - [ ] 32-03-PLAN.md — Wave 1 · DOCS-02 comment pilot part B: slimmed-shape banner on settings.js + brand-new banner on add-session.js + de-phase + comments-only gate
 - [ ] 32-04-PLAN.md — Wave 1 · by-product artifacts: comment-coverage map (D-14) + help-content inventory (D-13), both `.planning/` seeds
@@ -282,5 +282,5 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 29. Reliability & Observability | v1.2 | 4/4 | Complete    | 2026-06-23 |
 | 30. Test Harness & Coverage | v1.2 | 13/13 | Complete    | 2026-06-27 |
 | 31. Refactor God Modules | v1.2 | 6/6 | Complete    | 2026-06-28 |
-| 32. README + Code Comments | v1.2 | 0/– | Planned | - |
+| 32. README + Code Comments | v1.2 | 1/4 | In Progress|  |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
