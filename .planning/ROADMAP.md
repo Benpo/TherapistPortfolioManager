@@ -251,15 +251,29 @@ Plans:
 **Plans:** 10 plans (5 waves)
 
 Plans:
+**Wave 1**
+
 - [ ] 34-01-PLAN.md — Offline logo base64 module + SW precache (D-05/FN-3) [W1]
 - [ ] 34-02-PLAN.md — New i18n strings (subtitle, severity heading, footer mark/Exported on, save-export prompt) ×4 locales [W1]
 - [ ] 34-03-PLAN.md — Wave-0 render tests: logo-embed, pill-localized, rtl-newblocks (RED) [W1]
 - [ ] 34-04-PLAN.md — Wave-0 behavior tests: session-ordinal (FN-1 spine), severity-bars, save-before-export (RED) [W1]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 34-05-PLAN.md — Data tier: deriveSessionOrdinal (FN-1) + buildSessionPDF input contract (sessionNumber/issues[]/exportedOn) [W2]
 - [ ] 34-06-PLAN.md — Render A: header band + client card + embedded logo + localized pill (replaces drawPage1Header) [W2]
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 34-07-PLAN.md — Render B: leaf-diamond section headings + body typography + footer band [W3]
 - [ ] 34-08-PLAN.md — PDFX-03: extract reusable save + non-blocking Save-before-export prompt [W3]
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 34-09-PLAN.md — Render C: two-bar before/after severity block + move severity out of markdown [W4]
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 34-10-PLAN.md — Regenerate 5 SHA-256 baselines + full suite green + human visual verification [W5]
 
 ### Phase 35: Demo System Refresh / Version Parity

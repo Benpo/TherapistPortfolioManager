@@ -326,15 +326,18 @@ No new threat patterns introduced. RTL/bidi correctness is a *correctness* invar
 | A3 | `triangle()` two-call diamond is the simplest bullet technique | Pattern 3 | If `triangle` fill has a seam artifact, fall back to `lines()` polygon — cosmetic only |
 | A4 | Regenerating the 5 SHA baselines is the accepted green-keeping path | Pitfall 1 | Confirmed by the file's own `--regenerate` mode + README; LOW risk |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Card border color: `#bfe0b0` (UI-SPEC FLAG-2) vs `#c8e6d4` (brief + mockup CSS)?**
    - What we know: The research brief explicitly locks `#c8e6d4` for the client card; UI-SPEC FLAG-2 pinned `#bfe0b0`.
    - Recommendation: **Use the brief's `#c8e6d4`** (it post-dates and explicitly overrides FLAG-2: "Border colors MATCH THE MOCKUP"). Section rule stays `#bfe0b0`, severity/footer rule `#eef7ea`. Confirm with Ben at plan time — it's a one-line constant.
+   - RESOLVED: D-02 locks the card border to #c8e6d4 (match mockup); section rule stays #bfe0b0.
 
 2. **Unsaved-session export ordinal (Pitfall 3).** Decide: `count+1` vs omit "Session #N". Recommendation: `count+1` (matches what the session will become on save).
+   - RESOLVED: D-13/PDFX-03 — export always proceeds on a saved session (Save & export, or Keep editing), so the ordinal is always derivable.
 
 3. **Logo embed mechanism:** base64 module (recommended) vs cache-served fetch of precached `logo-512.png`. Recommendation: base64 module for determinism; adds one PRECACHE entry + one lazy-load step + a CACHE token bump.
+   - RESOLVED: base64 module (assets/branding/icon-512-base64.js) per D-05 / Claude's Discretion.
 
 ## Sources
 
