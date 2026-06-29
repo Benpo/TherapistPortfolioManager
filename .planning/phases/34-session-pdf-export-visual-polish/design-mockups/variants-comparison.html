@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sessions Garden — Session PDF redesign · side-by-side comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --deep:#2d6a4f; --mintA:#3a7d5f; --mintB:#74b89a; --sage:#537855; --minticon:#e2f3e3;
+    --ig-deep:#345e34; --ig-head:#456b42; --ig-bullet:#7da877; --ig-mint:#e2f3e3;
+    --ig-mint-soft:#eef7ea; --ig-vein:#bfe0b0; --green-200:#c8e6d4; --green-100:#e8f5ee;
+    --green-700:#1e5c3a; --green-dark:#174a30;
+    --cream-50:#fdf8f0; --ink:#2f2d38; --muted:#5f5c72; --sev-bad:#ea4b4b; --sev-good:#2fb37d;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#445049;font-family:'Heebo',system-ui,sans-serif;padding:30px 24px 80px;color:#eaf2ec;}
+  h1{text-align:center;font-size:20px;margin:0 0 4px;color:#fff;}
+  .intro{text-align:center;font-size:13px;line-height:1.6;max-width:900px;margin:0 auto 10px;color:#cfe0d6;}
+  .axes{max-width:900px;margin:0 auto 26px;background:#3a443e;border:1px solid #55615a;border-radius:10px;padding:12px 18px;font-size:12.5px;line-height:1.7;color:#dbe7e0;}
+  .axes b{color:#fff;}
+  .sheet{display:flex;flex-wrap:wrap;gap:34px 26px;justify-content:center;align-items:flex-start;}
+  .col{width:397px;}
+  .cap{font-size:12.5px;line-height:1.5;margin:0 0 8px;color:#eaf2ec;}
+  .cap .v{display:inline-block;background:#1f6f4a;color:#fff;font-weight:700;border-radius:5px;padding:1px 8px;margin-inline-end:6px;font-size:11px;}
+  .cap .t{color:#bcd0c5;}
+  .scaled{zoom:.5;-moz-transform:scale(.5);-moz-transform-origin:top left;}
+
+  /* ---- shared page ---- */
+  .page{width:210mm;min-height:235mm;background:#fff;box-shadow:0 6px 22px rgba(0,0,0,.3);overflow:hidden;display:flex;flex-direction:column;}
+  .body{padding:13mm 20mm 0;flex:1;}
+  .band{padding:8mm 20mm;display:flex;align-items:center;gap:14px;}
+  .badge{width:46px;height:46px;border-radius:50%;background:var(--cream-50);display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55);}
+  .badge img{width:30px;height:30px;display:block;}
+  .logo{width:48px;height:48px;border-radius:11px;background:#fff;border:1px solid rgba(255,255,255,.7);padding:3px;flex:0 0 auto;box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .logo img{width:100%;height:100%;display:block;border-radius:8px;}
+  .htext{display:flex;flex-direction:column;line-height:1.2;}
+  .htext .ttl{font-size:20px;font-weight:700;}
+  .htext .sub{font-size:11px;font-weight:500;margin-top:2px;}
+  .brandmark{display:flex;flex-direction:column;line-height:1.15;}
+  .brandmark .name{font-size:19px;font-weight:700;}
+  .brandmark .by{font-size:10.5px;font-weight:500;}
+  .band .spacer{flex:1;}
+  .kicker{font-size:11px;font-weight:500;text-align:end;}
+
+  .card{margin:9mm 0 7mm;background:var(--ig-mint);border:1px solid var(--ig-vein);border-radius:10px;padding:6mm 7mm;}
+  .card.cream{background:var(--cream-50);border-color:var(--green-200);}
+  .card .client{font-size:23px;font-weight:700;color:var(--ig-deep);margin:0 0 8px;}
+  .card .row{display:flex;flex-wrap:wrap;gap:7px 16px;align-items:center;font-size:11.5px;color:var(--muted);font-weight:500;}
+  .card .row .k{color:var(--ig-head);font-weight:700;}
+  .tile{background:#fff;border:1px solid var(--ig-vein);color:var(--ig-deep);border-radius:8px;padding:3px 12px;font-size:11px;font-weight:700;}
+  .pill{background:var(--green-100);color:var(--green-700);border-radius:999px;padding:2px 11px;font-size:11px;font-weight:700;}
+
+  h2.sec{font-size:15.5px;font-weight:700;color:var(--ig-head);margin:8mm 0 3mm;padding-bottom:4px;border-bottom:1.5px solid var(--ig-vein);display:flex;align-items:center;gap:8px;}
+  h2.sec::before{content:"";width:9px;height:9px;border-radius:2px;background:var(--ig-bullet);transform:rotate(45deg);flex:0 0 auto;}
+  p.txt{font-size:11.5px;line-height:1.6;color:var(--ink);margin:0 0 9px;}
+  p.emo{font-size:11.5px;line-height:1.7;color:var(--ink);margin:0;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{background:var(--green-50,#f2faf5);border:1px solid var(--green-200);color:var(--green-700);border-radius:8px;padding:5px 12px;font-size:11.5px;font-weight:500;}
+
+  .sev{margin-top:3mm;}
+  .sevrow{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid var(--ig-mint-soft);}
+  .sevrow .lbl{flex:1;font-size:11.5px;font-weight:500;color:var(--ink);}
+  .track{width:122px;height:7px;border-radius:4px;background:var(--ig-mint-soft);position:relative;flex:0 0 auto;overflow:hidden;}
+  .track .fill{position:absolute;top:0;bottom:0;background:var(--ig-bullet);border-radius:4px;}
+  .nums{font-size:11px;font-weight:700;flex:0 0 auto;min-width:60px;text-align:end;}
+  .nums .b{color:var(--sev-bad);} .nums .arr{color:var(--muted);font-weight:500;margin:0 4px;} .nums .g{color:var(--sev-good);}
+
+  .rfoot{margin-top:auto;padding:6mm 20mm;border-top:1px solid var(--ig-mint-soft);display:flex;align-items:center;font-size:10px;color:var(--muted);}
+  .rfoot .made{display:flex;align-items:center;gap:6px;color:var(--ig-head);font-weight:600;}
+  .rfoot .made img{width:14px;height:14px;border-radius:3px;}
+  .rfoot .pg{flex:1;text-align:center;}
+
+  /* band variants */
+  .deep{background:var(--deep);color:var(--cream-50);} .deep .by,.deep .kicker,.deep .sub{color:#c8e6d4;}
+  .bmintA{background:var(--mintA);color:var(--cream-50);} .bmintA .sub{color:#cfe9da;}
+  .bmintB{background:var(--mintB);color:var(--green-dark);} .bmintB .sub{color:var(--green-700);}
+  .bsage{background:var(--sage);color:var(--cream-50);} .bsage .sub{color:#e6f1e2;}
+  .bminticon{background:var(--minticon);color:var(--ig-deep);} .bminticon .sub{color:var(--ig-head);}
+
+  [dir="rtl"] .card .client,[dir="rtl"] .htext,[dir="rtl"] .brandmark{text-align:right;}
+  .LEAF{} /* marker */
+</style>
+</head>
+<body>
+<h1>Session PDF redesign — every variant, side by side (Hebrew RTL)</h1>
+<div class="intro">Same content in all five. What differs: the <b>brand treatment</b>, the <b>header green</b>, the <b>logo mark</b>, and how <b>trapped emotions</b> render. v1 is reproduced as it originally was.</div>
+<div class="axes">
+  <b>Axes to decide on:</b><br>
+  • <b>Brand</b>: “Sessions Garden” as a letterhead (V1) — vs — document title “סיכום מפגש” + brand demoted to footer (V2–V4). <span style="color:#f0c9a0">(you flagged the letterhead implies the clinic is named Sessions Garden)</span><br>
+  • <b>Green</b>: deep #2d6a4f (V1) · #3a7d5f (V2-A) · mint #74b89a (V2-B) · icon-sage #537855 (V3/4) · icon-mint #e2f3e3 (V4)<br>
+  • <b>Logo</b>: dark leaf in a cream circle (V1–V2) — vs — the actual app icon tile (V3/4)<br>
+  • <b>Emotions</b>: chips/word-cloud (V1) — vs — free text (V2–V4) <span style="color:#f0c9a0">(you noted it's free text in real life)</span>
+</div>
+
+<div class="sheet">
+
+  <!-- V1 -->
+  <div class="col">
+    <p class="cap"><span class="v">V1</span><span class="t">Brand letterhead · deep green #2d6a4f · dark-leaf badge · chips · modality pill</span></p>
+    <div class="scaled"><div class="page" dir="rtl">
+      <div class="band deep">
+        <div class="badge"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/leaf-transparent-512.png"></div>
+        <div class="brandmark"><span class="name">Sessions Garden</span><span class="by">סיכום מפגש טיפולי</span></div>
+        <div class="spacer"></div><div class="kicker">ספיר · קוד הרגש</div>
+      </div>
+      <div class="body">
+        <div class="card cream"><div class="client">מיכל לוי</div>
+          <div class="row"><span><span class="k">תאריך:</span> 24 במרץ 2026</span><span class="pill">קוד הרגש</span><span><span class="k">מפגש מס׳</span> 4</span></div></div>
+        <h2 class="sec">סיכום המפגש</h2>
+        <p class="txt">במפגש זה עבדנו על שחרור רגשות כלואים הקשורים לתחושת חוסר ביטחון. מיכל דיווחה על הקלה משמעותית כבר במהלך הפגישה.</p>
+        <h2 class="sec">רגשות כלואים ששוחררו</h2>
+        <div class="chips"><span class="chip">פחד · גיל 7</span><span class="chip">עצב · תורשתי</span><span class="chip">חוסר ביטחון · גיל 12</span><span class="chip">בדידות · גיל 9</span></div>
+        <h2 class="sec">מדדי חומרה — לפני ואחרי</h2>
+        <div class="sev">
+          <div class="sevrow"><span class="lbl">כאב ראש</span><span class="track"><span class="fill" style="width:38%"></span></span><span class="nums"><span class="b">8</span><span class="arr">→</span><span class="g">3</span></span></div>
+          <div class="sevrow"><span class="lbl">מתח בכתפיים</span><span class="track"><span class="fill" style="width:29%"></span></span><span class="nums"><span class="b">7</span><span class="arr">→</span><span class="g">2</span></span></div>
+          <div class="sevrow"><span class="lbl">חרדה כללית</span><span class="track"><span class="fill" style="width:50%"></span></span><span class="nums"><span class="b">6</span><span class="arr">→</span><span class="g">3</span></span></div>
+        </div>
+      </div>
+      <div class="rfoot"><span class="made"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/leaf-transparent-512.png">sessionsgarden.app</span><span class="pg">עמוד 1 מתוך 1</span><span style="min-width:80px;text-align:start">24.03.2026</span></div>
+    </div></div>
+  </div>
+
+  <!-- V2-A -->
+  <div class="col">
+    <p class="cap"><span class="v">V2-A</span><span class="t">Doc title · green #3a7d5f cream · dark-leaf badge · free text · in-person tile</span></p>
+    <div class="scaled"><div class="page" dir="rtl">
+      <div class="band bmintA">
+        <div class="badge"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/leaf-transparent-512.png"></div>
+        <div class="htext"><span class="ttl">סיכום מפגש</span><span class="sub">מסמך אישי עבור המטופל/ת</span></div>
+      </div>
+      <div class="body">
+        <div class="card cream"><div class="client">מיכל לוי</div>
+          <div class="row"><span><span class="k">תאריך:</span> 24 במרץ 2026</span><span><span class="k">מפגש מס׳</span> 4</span><span class="tile">פגישה פרונטלית</span></div></div>
+        <h2 class="sec">סיכום המפגש</h2>
+        <p class="txt">במפגש זה עבדנו על שחרור רגשות כלואים הקשורים לתחושת חוסר ביטחון מתמשכת. מיכל דיווחה על הקלה משמעותית בתחושת המתח כבר במהלך הפגישה.</p>
+        <h2 class="sec">רגשות כלואים ששוחררו</h2>
+        <p class="emo">פחד (גיל 7), עצב (תורשתי), חוסר ביטחון (גיל 12) ובדידות (גיל 9). שוחררו בעזרת איזון מרידיאן הגב.</p>
+        <h2 class="sec">מדדי חומרה — לפני ואחרי</h2>
+        <div class="sev">
+          <div class="sevrow"><span class="lbl">כאב ראש</span><span class="track"><span class="fill" style="width:38%"></span></span><span class="nums"><span class="b">8</span><span class="arr">→</span><span class="g">3</span></span></div>
+          <div class="sevrow"><span class="lbl">מתח בכתפיים</span><span class="track"><span class="fill" style="width:29%"></span></span><span class="nums"><span class="b">7</span><span class="arr">→</span><span class="g">2</span></span></div>
+          <div class="sevrow"><span class="lbl">חרדה כללית</span><span class="track"><span class="fill" style="width:50%"></span></span><span class="nums"><span class="b">6</span><span class="arr">→</span><span class="g">3</span></span></div>
+        </div>
+      </div>
+      <div class="rfoot"><span class="made"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/leaf-transparent-512.png">נוצר עם Sessions Garden · sessionsgarden.app</span><span class="pg">עמוד 1 מתוך 1</span><span style="min-width:80px;text-align:start">24.03.2026</span></div>
+    </div></div>
+  </div>
+
+  <!-- V2-B -->
+  <div class="col">
+    <p class="cap"><span class="v">V2-B</span><span class="t">Doc title · mint #74b89a deep-green text · dark-leaf badge · free text</span></p>
+    <div class="scaled"><div class="page" dir="rtl">
+      <div class="band bmintB">
+        <div class="badge"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/leaf-transparent-512.png"></div>
+        <div class="htext"><span class="ttl">סיכום מפגש</span><span class="sub">מסמך אישי עבור המטופל/ת</span></div>
+      </div>
+      <div class="body">
+        <div class="card cream"><div class="client">מיכל לוי</div>
+          <div class="row"><span><span class="k">תאריך:</span> 24 במרץ 2026</span><span><span class="k">מפגש מס׳</span> 4</span><span class="tile">פגישה מרחוק</span></div></div>
+        <h2 class="sec">סיכום המפגש</h2>
+        <p class="txt">במפגש זה עבדנו על שחרור רגשות כלואים הקשורים לתחושת חוסר ביטחון מתמשכת. מיכל דיווחה על הקלה משמעותית בתחושת המתח כבר במהלך הפגישה.</p>
+        <h2 class="sec">רגשות כלואים ששוחררו</h2>
+        <p class="emo">פחד (גיל 7), עצב (תורשתי), חוסר ביטחון (גיל 12) ובדידות (גיל 9). שוחררו בעזרת איזון מרידיאן הגב.</p>
+        <h2 class="sec">מדדי חומרה — לפני ואחרי</h2>
+        <div class="sev">
+          <div class="sevrow"><span class="lbl">כאב ראש</span><span class="track"><span class="fill" style="width:38%"></span></span><span class="nums"><span class="b">8</span><span class="arr">→</span><span class="g">3</span></span></div>
+          <div class="sevrow"><span class="lbl">מתח בכתפיים</span><span class="track"><span class="fill" style="width:29%"></span></span><span class="nums"><span class="b">7</span><span class="arr">→</span><span class="g">2</span></span></div>
+          <div class="sevrow"><span class="lbl">חרדה כללית</span><span class="track"><span class="fill" style="width:50%"></span></span><span class="nums"><span class="b">6</span><span class="arr">→</span><span class="g">3</span></span></div>
+        </div>
+      </div>
+      <div class="rfoot"><span class="made"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/leaf-transparent-512.png">נוצר עם Sessions Garden · sessionsgarden.app</span><span class="pg">עמוד 1 מתוך 1</span><span style="min-width:80px;text-align:start">24.03.2026</span></div>
+    </div></div>
+  </div>
+
+  <!-- V3/4 sage -->
+  <div class="col">
+    <p class="cap"><span class="v">V3/4</span><span class="t">Doc title · icon-sage #537855 cream · <b>app-icon logo</b> · free text</span></p>
+    <div class="scaled"><div class="page" dir="rtl">
+      <div class="band bsage">
+        <div class="logo"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/icon-512.png"></div>
+        <div class="htext"><span class="ttl">סיכום מפגש</span><span class="sub">מסמך אישי עבור המטופל/ת</span></div>
+      </div>
+      <div class="body">
+        <div class="card"><div class="client">מיכל לוי</div>
+          <div class="row"><span><span class="k">תאריך:</span> 24 במרץ 2026</span><span><span class="k">מפגש מס׳</span> 4</span><span class="tile">פגישה פרונטלית</span></div></div>
+        <h2 class="sec">סיכום המפגש</h2>
+        <p class="txt">במפגש זה עבדנו על שחרור רגשות כלואים הקשורים לתחושת חוסר ביטחון מתמשכת. מיכל דיווחה על הקלה משמעותית בתחושת המתח כבר במהלך הפגישה.</p>
+        <h2 class="sec">רגשות כלואים ששוחררו</h2>
+        <p class="emo">פחד (גיל 7), עצב (תורשתי), חוסר ביטחון (גיל 12) ובדידות (גיל 9). שוחררו בעזרת איזון מרידיאן הגב.</p>
+        <h2 class="sec">מדדי חומרה — לפני ואחרי</h2>
+        <div class="sev">
+          <div class="sevrow"><span class="lbl">כאב ראש</span><span class="track"><span class="fill" style="width:38%"></span></span><span class="nums"><span class="b">8</span><span class="arr">→</span><span class="g">3</span></span></div>
+          <div class="sevrow"><span class="lbl">מתח בכתפיים</span><span class="track"><span class="fill" style="width:29%"></span></span><span class="nums"><span class="b">7</span><span class="arr">→</span><span class="g">2</span></span></div>
+          <div class="sevrow"><span class="lbl">חרדה כללית</span><span class="track"><span class="fill" style="width:50%"></span></span><span class="nums"><span class="b">6</span><span class="arr">→</span><span class="g">3</span></span></div>
+        </div>
+      </div>
+      <div class="rfoot"><span class="made"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/icon-512.png">נוצר עם Sessions Garden · sessionsgarden.app</span><span class="pg">עמוד 1 מתוך 1</span><span style="min-width:80px;text-align:start">24.03.2026</span></div>
+    </div></div>
+  </div>
+
+  <!-- V4 mint icon -->
+  <div class="col">
+    <p class="cap"><span class="v">V4</span><span class="t">Doc title · icon-mint #e2f3e3 deep-green text · <b>app-icon logo</b> · free text</span></p>
+    <div class="scaled"><div class="page" dir="rtl">
+      <div class="band bminticon">
+        <div class="logo"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/icon-512.png"></div>
+        <div class="htext"><span class="ttl">סיכום מפגש</span><span class="sub">מסמך אישי עבור המטופל/ת</span></div>
+      </div>
+      <div class="body">
+        <div class="card"><div class="client">מיכל לוי</div>
+          <div class="row"><span><span class="k">תאריך:</span> 24 במרץ 2026</span><span><span class="k">מפגש מס׳</span> 4</span><span class="tile">פגישה מרחוק</span></div></div>
+        <h2 class="sec">סיכום המפגש</h2>
+        <p class="txt">במפגש זה עבדנו על שחרור רגשות כלואים הקשורים לתחושת חוסר ביטחון מתמשכת. מיכל דיווחה על הקלה משמעותית בתחושת המתח כבר במהלך הפגישה.</p>
+        <h2 class="sec">רגשות כלואים ששוחררו</h2>
+        <p class="emo">פחד (גיל 7), עצב (תורשתי), חוסר ביטחון (גיל 12) ובדידות (גיל 9). שוחררו בעזרת איזון מרידיאן הגב.</p>
+        <h2 class="sec">מדדי חומרה — לפני ואחרי</h2>
+        <div class="sev">
+          <div class="sevrow"><span class="lbl">כאב ראש</span><span class="track"><span class="fill" style="width:38%"></span></span><span class="nums"><span class="b">8</span><span class="arr">→</span><span class="g">3</span></span></div>
+          <div class="sevrow"><span class="lbl">מתח בכתפיים</span><span class="track"><span class="fill" style="width:29%"></span></span><span class="nums"><span class="b">7</span><span class="arr">→</span><span class="g">2</span></span></div>
+          <div class="sevrow"><span class="lbl">חרדה כללית</span><span class="track"><span class="fill" style="width:50%"></span></span><span class="nums"><span class="b">6</span><span class="arr">→</span><span class="g">3</span></span></div>
+        </div>
+      </div>
+      <div class="rfoot"><span class="made"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/icon-512.png">נוצר עם Sessions Garden · sessionsgarden.app</span><span class="pg">עמוד 1 מתוך 1</span><span style="min-width:80px;text-align:start">24.03.2026</span></div>
+    </div></div>
+  </div>
+
+</div>
+</body>
+</html>

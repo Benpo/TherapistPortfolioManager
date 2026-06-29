@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sessions Garden — PDF redesign v5 (V4 header + V1 customer box)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --minticon:#e2f3e3; --ig-deep:#345e34; --ig-head:#456b42; --ig-bullet:#7da877;
+    --ig-mint:#e2f3e3; --ig-mint-soft:#eef7ea; --ig-vein:#bfe0b0;
+    --green-100:#e8f5ee; --green-200:#c8e6d4; --green-700:#1e5c3a;
+    --cream-50:#fdf8f0; --ink:#2f2d38; --muted:#5f5c72; --sev-bad:#ea4b4b; --sev-good:#2fb37d;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#5b6b62;font-family:'Heebo',system-ui,sans-serif;padding:40px 0;color:var(--ink);}
+  .lead{max-width:210mm;margin:0 auto 26px;color:#eaf2ec;text-align:center;font-size:14px;line-height:1.6;}
+  .lead b{color:#fff;}
+  .label{max-width:210mm;margin:34px auto 8px;color:#dfeae3;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;}
+  .label span{color:#bfd3c8;font-weight:500;text-transform:none;letter-spacing:0;}
+
+  .page{width:210mm;min-height:297mm;margin:0 auto;background:#fff;box-shadow:0 10px 40px rgba(0,0,0,.28);overflow:hidden;display:flex;flex-direction:column;}
+  .body{padding:13mm 20mm 0;flex:1;}
+
+  /* header = V4 mint band + app-icon logo */
+  .band{background:var(--minticon);color:var(--ig-deep);padding:8mm 20mm;display:flex;align-items:center;gap:14px;}
+  .band .sub{color:var(--ig-head);}
+  .logo{width:48px;height:48px;border-radius:10px;background:#fff;border:1.5px solid #3a7d5f;padding:0;overflow:hidden;flex:0 0 auto;}
+  .logo img{width:100%;height:100%;display:block;border-radius:8px;}
+  .htext{display:flex;flex-direction:column;line-height:1.2;}
+  .htext .ttl{font-size:20px;font-weight:700;letter-spacing:.01em;}
+  .htext .sub{font-size:11px;font-weight:500;margin-top:2px;}
+
+  /* customer box = V1 style: cream card + green rounded pill */
+  .card{margin:9mm 0 7mm;background:var(--cream-50);border:1px solid var(--green-200);border-radius:10px;padding:6mm 7mm;}
+  .card .client{font-size:23px;font-weight:700;color:var(--ig-deep);margin:0 0 8px;}
+  .card .row{display:flex;flex-wrap:wrap;gap:7px 16px;align-items:center;font-size:11.5px;color:var(--muted);font-weight:500;}
+  .card .row .k{color:var(--ig-head);font-weight:700;}
+  .pill{background:var(--green-100);color:var(--green-700);border-radius:999px;padding:2px 12px;font-size:11px;font-weight:700;}
+
+  h2.sec{font-size:15.5px;font-weight:700;color:var(--ig-head);margin:8mm 0 3mm;padding-bottom:4px;border-bottom:1.5px solid var(--ig-vein);display:flex;align-items:center;gap:8px;}
+  h2.sec::before{content:"";width:9px;height:9px;border-radius:2px;background:var(--ig-bullet);transform:rotate(45deg);flex:0 0 auto;}
+  p.txt{font-size:11.5px;line-height:1.65;color:var(--ink);margin:0 0 9px;}
+  p.emo{font-size:11.5px;line-height:1.7;color:var(--ink);margin:0;}
+
+  .sev{margin-top:3mm;}
+  .sevrow{display:flex;align-items:center;gap:16px;padding:9px 0;border-bottom:1px solid var(--ig-mint-soft);}
+  .sevrow .lbl{flex:1;font-size:11.5px;font-weight:500;color:var(--ink);}
+  .bars{width:190px;flex:0 0 auto;display:flex;flex-direction:column;gap:5px;}
+  .barline{display:flex;align-items:center;gap:8px;}
+  .barline .cap{font-size:9.5px;font-weight:700;width:34px;color:var(--muted);flex:0 0 auto;}
+  .barline .track{width:118px;height:8px;border-radius:4px;background:var(--ig-mint-soft);overflow:hidden;flex:0 0 auto;}
+  .barline .track .f{display:block;height:100%;border-radius:4px;}
+  .barline .track .f.bef{background:var(--sev-bad);opacity:.85;}
+  .barline .track .f.aft{background:var(--sev-good);}
+  .barline .barval{font-size:10.5px;font-weight:700;}
+  .barline .barval.b{color:var(--sev-bad);} .barline .barval.g{color:var(--sev-good);}
+
+  .rfoot{margin-top:auto;padding:6mm 20mm;border-top:1px solid var(--ig-mint-soft);display:flex;align-items:center;font-size:10px;color:var(--muted);}
+  .rfoot .made{display:flex;align-items:center;gap:6px;color:var(--ig-head);font-weight:600;}
+  .rfoot .made img{width:15px;height:15px;border-radius:3px;}
+  .rfoot .pg{flex:1;text-align:center;}
+  [dir="rtl"] .card .client,[dir="rtl"] .htext{text-align:right;}
+</style>
+</head>
+<body>
+
+<div class="lead">
+  <b>v5 — V4 header + V1 customer box</b><br>
+  Header: mint band (#e2f3e3) + app-icon logo + document title. Customer box: V1's cream card with the green rounded pill (now carrying the session's localized in-person/remote value).
+</div>
+
+<!-- Hebrew RTL -->
+<div class="label">Hebrew (RTL)</div>
+<div class="page" dir="rtl">
+  <div class="band">
+    <div class="logo"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/icon-512.png" alt="logo"></div>
+    <div class="htext"><span class="ttl">סיכום מפגש</span><span class="sub">מסמך אישי עבור המטופל/ת</span></div>
+  </div>
+  <div class="body">
+    <div class="card">
+      <div class="client">מיכל לוי</div>
+      <div class="row"><span><span class="k">תאריך:</span> 24 במרץ 2026</span><span class="pill">פגישה פרונטלית</span><span><span class="k">מפגש מס׳</span> 4</span></div>
+    </div>
+    <h2 class="sec">סיכום המפגש</h2>
+    <p class="txt">במפגש זה עבדנו על שחרור רגשות כלואים הקשורים לתחושת חוסר ביטחון מתמשכת. מיכל דיווחה על הקלה משמעותית בתחושת המתח כבר במהלך הפגישה, ועל בהירות רגשית גדולה יותר בסיומה.</p>
+    <h2 class="sec">רגשות כלואים ששוחררו</h2>
+    <p class="emo">פחד (גיל 7), עצב (תורשתי), חוסר ביטחון (גיל 12) ובדידות (גיל 9). הרגשות שוחררו במהלך המפגש בעזרת איזון מרידיאן הגב.</p>
+    <h2 class="sec">מדדי חומרה — לפני ואחרי</h2>
+    <div class="sev">
+      <div class="sevrow"><span class="lbl">כאב ראש</span><div class="bars"><div class="barline"><span class="cap">לפני</span><span class="track"><span class="f bef" style="width:80%"></span></span><span class="barval b">8</span></div><div class="barline"><span class="cap">אחרי</span><span class="track"><span class="f aft" style="width:30%"></span></span><span class="barval g">3</span></div></div></div>
+      <div class="sevrow"><span class="lbl">מתח בכתפיים</span><div class="bars"><div class="barline"><span class="cap">לפני</span><span class="track"><span class="f bef" style="width:70%"></span></span><span class="barval b">7</span></div><div class="barline"><span class="cap">אחרי</span><span class="track"><span class="f aft" style="width:20%"></span></span><span class="barval g">2</span></div></div></div>
+      <div class="sevrow"><span class="lbl">חרדה כללית</span><div class="bars"><div class="barline"><span class="cap">לפני</span><span class="track"><span class="f bef" style="width:60%"></span></span><span class="barval b">6</span></div><div class="barline"><span class="cap">אחרי</span><span class="track"><span class="f aft" style="width:30%"></span></span><span class="barval g">3</span></div></div></div>
+    </div>
+  </div>
+  <div class="rfoot">
+    <span class="made"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/icon-512.png">נוצר עם Sessions Garden · sessionsgarden.app</span>
+    <span class="pg">עמוד 1 מתוך 1</span>
+    <span style="min-width:90px;text-align:start">24.03.2026</span>
+  </div>
+</div>
+
+<!-- English LTR -->
+<div class="label">English (LTR)</div>
+<div class="page" dir="ltr">
+  <div class="band">
+    <div class="logo"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/icon-512.png" alt="logo"></div>
+    <div class="htext"><span class="ttl">Session Summary</span><span class="sub">A personal record for the client</span></div>
+  </div>
+  <div class="body">
+    <div class="card">
+      <div class="client">Michal Levi</div>
+      <div class="row"><span><span class="k">Date:</span> March 24, 2026</span><span class="pill">In person</span><span><span class="k">Session</span> #4</span></div>
+    </div>
+    <h2 class="sec">Session summary</h2>
+    <p class="txt">In this session we worked on releasing trapped emotions tied to a persistent sense of insecurity. Michal reported a meaningful drop in tension during the session itself, and greater emotional clarity by the end.</p>
+    <h2 class="sec">Trapped emotions released</h2>
+    <p class="emo">Fear (age 7), Sorrow (inherited), Insecurity (age 12) and Loneliness (age 9). Released during the session through back-meridian balancing.</p>
+    <h2 class="sec">Severity — before &amp; after</h2>
+    <div class="sev">
+      <div class="sevrow"><span class="lbl">Headache</span><div class="bars"><div class="barline"><span class="cap">Before</span><span class="track"><span class="f bef" style="width:80%"></span></span><span class="barval b">8</span></div><div class="barline"><span class="cap">After</span><span class="track"><span class="f aft" style="width:30%"></span></span><span class="barval g">3</span></div></div></div>
+      <div class="sevrow"><span class="lbl">Shoulder tension</span><div class="bars"><div class="barline"><span class="cap">Before</span><span class="track"><span class="f bef" style="width:70%"></span></span><span class="barval b">7</span></div><div class="barline"><span class="cap">After</span><span class="track"><span class="f aft" style="width:20%"></span></span><span class="barval g">2</span></div></div></div>
+      <div class="sevrow"><span class="lbl">General anxiety</span><div class="bars"><div class="barline"><span class="cap">Before</span><span class="track"><span class="f bef" style="width:60%"></span></span><span class="barval b">6</span></div><div class="barline"><span class="cap">After</span><span class="track"><span class="f aft" style="width:30%"></span></span><span class="barval g">3</span></div></div></div>
+    </div>
+  </div>
+  <div class="rfoot">
+    <span class="made"><img src="file:///Users/ben/Claude-Code-Sandbox/TherapistPortfolioManager_app/assets/branding/icon-512.png">Made with Sessions Garden · sessionsgarden.app</span>
+    <span class="pg">Page 1 of 1</span>
+    <span style="min-width:90px;text-align:end">24.03.2026</span>
+  </div>
+</div>
+
+</body>
+</html>

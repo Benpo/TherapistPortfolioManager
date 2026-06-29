@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Severity visualization — options</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ig-head:#456b42; --ig-deep:#345e34; --ig-bullet:#7da877; --ig-vein:#bfe0b0;
+    --ig-mint-soft:#eef7ea; --ink:#2f2d38; --muted:#5f5c72;
+    --bad:#ea4b4b; --good:#2fb37d; --amber:#e89b3c;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#5b6b62;font-family:'Heebo',sans-serif;padding:36px 0;color:var(--ink);}
+  .wrap{max-width:760px;margin:0 auto;}
+  h1{color:#fff;text-align:center;font-size:19px;margin:0 0 6px;}
+  .sub{color:#cfe0d6;text-align:center;font-size:13px;margin:0 0 26px;}
+  .opt{background:#fff;border-radius:12px;padding:22px 26px 26px;margin:0 auto 22px;box-shadow:0 6px 22px rgba(0,0,0,.25);}
+  .tag{font-size:12px;font-weight:700;color:#fff;background:#1f6f4a;border-radius:5px;padding:2px 9px;display:inline-block;margin-bottom:3px;}
+  .desc{font-size:12px;color:var(--muted);margin:6px 0 16px;}
+  h2.sec{font-size:15px;font-weight:700;color:var(--ig-head);margin:0 0 10px;padding-bottom:4px;border-bottom:1.5px solid var(--ig-vein);display:flex;align-items:center;gap:8px;}
+  h2.sec::before{content:"";width:9px;height:9px;border-radius:2px;background:var(--ig-bullet);transform:rotate(45deg);}
+
+  .row{display:flex;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid var(--ig-mint-soft);}
+  .lbl{flex:1;font-size:12.5px;font-weight:500;}
+
+  /* A — numbers only + improvement tag */
+  .numsA{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;}
+  .numsA .b{color:var(--bad);} .numsA .arr{color:var(--muted);} .numsA .g{color:var(--good);}
+  .drop{background:#e7f6ee;color:var(--good);border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;margin-inline-start:8px;}
+
+  /* B — dumbbell gap track */
+  .dumb{width:210px;flex:0 0 auto;position:relative;height:18px;}
+  .dtrack{position:absolute;inset:0;top:7px;height:4px;border-radius:3px;background:var(--ig-mint-soft);}
+  .dgap{position:absolute;top:7px;height:4px;border-radius:3px;background:var(--good);}
+  .dot{position:absolute;top:3px;width:12px;height:12px;border-radius:50%;transform:translateX(50%);}
+  .dot.bef{background:#fff;border:2px solid var(--bad);}
+  .dot.aft{background:var(--good);border:2px solid var(--good);}
+  .dnum{position:absolute;top:-12px;font-size:9.5px;font-weight:700;transform:translateX(50%);}
+  .numsB{font-size:12px;font-weight:700;min-width:54px;text-align:start;}
+  .numsB .b{color:var(--bad);} .numsB .arr{color:var(--muted);margin:0 3px;} .numsB .g{color:var(--good);}
+
+  /* C — dual before/after bars */
+  .bars{width:210px;flex:0 0 auto;display:flex;flex-direction:column;gap:5px;}
+  .barline{display:flex;align-items:center;gap:7px;}
+  .barline .cap{font-size:9.5px;font-weight:700;width:30px;color:var(--muted);}
+  .bar{height:8px;border-radius:4px;}
+  .bar.bef{background:var(--bad);opacity:.85;}
+  .bar.aft{background:var(--good);}
+  .barval{font-size:10px;font-weight:700;}
+  .barval.b{color:var(--bad);} .barval.g{color:var(--good);}
+
+  .legend{font-size:11px;color:var(--muted);margin-top:10px;}
+  .note{max-width:760px;margin:8px auto 0;color:#dfeae3;font-size:12.5px;text-align:center;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>מדדי חומרה — שלוש דרכים להצגה</h1>
+  <p class="sub">Same data (כאב ראש 8→3, מתח 7→2, חרדה 6→3) — pick the one that reads clearest.</p>
+
+  <!-- Option A -->
+  <div class="opt">
+    <span class="tag">A · מספרים בלבד</span>
+    <p class="desc">No bar at all. Colored before→after + a green “reduction” tag. Simplest, zero ambiguity, fully bidi-safe.</p>
+    <h2 class="sec">מדדי חומרה — לפני ואחרי</h2>
+    <div class="row"><span class="lbl">כאב ראש</span><span class="numsA"><span class="b">8</span><span class="arr">←</span><span class="g">3</span><span class="drop">ירידה של 5</span></span></div>
+    <div class="row"><span class="lbl">מתח בכתפיים</span><span class="numsA"><span class="b">7</span><span class="arr">←</span><span class="g">2</span><span class="drop">ירידה של 5</span></span></div>
+    <div class="row"><span class="lbl">חרדה כללית</span><span class="numsA"><span class="b">6</span><span class="arr">←</span><span class="g">3</span><span class="drop">ירידה של 3</span></span></div>
+  </div>
+
+  <!-- Option B -->
+  <div class="opt">
+    <span class="tag">B · ציר עם פער</span>
+    <p class="desc">A 0–10 scale. Two dots — red ring = before, green = after — with the <b>green span = the reduction</b>. The improvement is the visible green segment.</p>
+    <h2 class="sec">מדדי חומרה — לפני ואחרי</h2>
+    <div class="row"><span class="lbl">כאב ראש</span>
+      <div class="dumb"><div class="dtrack"></div><div class="dgap" style="left:30%;width:50%"></div><div class="dot aft" style="left:30%"></div><div class="dot bef" style="left:80%"></div><div class="dnum g" style="left:30%;color:#2fb37d">3</div><div class="dnum b" style="left:80%;color:#ea4b4b">8</div></div>
+      <span class="numsB"><span class="b">8</span><span class="arr">←</span><span class="g">3</span></span></div>
+    <div class="row"><span class="lbl">מתח בכתפיים</span>
+      <div class="dumb"><div class="dtrack"></div><div class="dgap" style="left:20%;width:50%"></div><div class="dot aft" style="left:20%"></div><div class="dot bef" style="left:70%"></div><div class="dnum" style="left:20%;color:#2fb37d">2</div><div class="dnum" style="left:70%;color:#ea4b4b">7</div></div>
+      <span class="numsB"><span class="b">7</span><span class="arr">←</span><span class="g">2</span></span></div>
+    <div class="row"><span class="lbl">חרדה כללית</span>
+      <div class="dumb"><div class="dtrack"></div><div class="dgap" style="left:30%;width:30%"></div><div class="dot aft" style="left:30%"></div><div class="dot bef" style="left:60%"></div><div class="dnum" style="left:30%;color:#2fb37d">3</div><div class="dnum" style="left:60%;color:#ea4b4b">6</div></div>
+      <span class="numsB"><span class="b">6</span><span class="arr">←</span><span class="g">3</span></span></div>
+    <div class="legend">● עיגול ירוק = אחרי · ○ טבעת אדומה = לפני · הקטע הירוק = מידת ההקלה</div>
+  </div>
+
+  <!-- Option C -->
+  <div class="opt">
+    <span class="tag">C · שני פסים</span>
+    <p class="desc">Two bars per complaint — red “before”, green “after”. The shorter green bar shows the drop directly. Most explicit, takes the most vertical room.</p>
+    <h2 class="sec">מדדי חומרה — לפני ואחרי</h2>
+    <div class="row"><span class="lbl">כאב ראש</span>
+      <div class="bars">
+        <div class="barline"><span class="cap">לפני</span><span class="bar bef" style="width:80%"></span><span class="barval b">8</span></div>
+        <div class="barline"><span class="cap">אחרי</span><span class="bar aft" style="width:30%"></span><span class="barval g">3</span></div>
+      </div></div>
+    <div class="row"><span class="lbl">מתח בכתפיים</span>
+      <div class="bars">
+        <div class="barline"><span class="cap">לפני</span><span class="bar bef" style="width:70%"></span><span class="barval b">7</span></div>
+        <div class="barline"><span class="cap">אחרי</span><span class="bar aft" style="width:20%"></span><span class="barval g">2</span></div>
+      </div></div>
+    <div class="row"><span class="lbl">חרדה כללית</span>
+      <div class="bars">
+        <div class="barline"><span class="cap">לפני</span><span class="bar bef" style="width:60%"></span><span class="barval b">6</span></div>
+        <div class="barline"><span class="cap">אחרי</span><span class="bar aft" style="width:30%"></span><span class="barval g">3</span></div>
+      </div></div>
+  </div>
+
+  <p class="note">All three are jsPDF-reproducible and bidi-safe. A = your “focus on numbers”; B & C are two ways to “visualize the gap”.</p>
+</div>
+</body>
+</html>
