@@ -1,12 +1,12 @@
 // ────────────────────────────────────────────────────────────────────────
-// Phase 24 Plan 05 — Snippet Settings UI
+// settings-snippets.js — Snippet Settings UI
 //
 // Self-contained IIFE that owns the Text Snippets section: prefix input,
 // list view, search + tag filter, modal editor (single-lang default with
 // "Edit translations" reveal), import/export with collision modal,
 // per-row + bulk reset for modified seeds.
 //
-// Cross-IIFE identifier-resolution chain (per .continue-here.md):
+// Cross-IIFE identifier-resolution chain (its window.* dependencies):
 //   window.App.{getSnippets, refreshSnippetCache, t, showToast, confirmDialog,
 //               getLanguage, initCommon}     — set by assets/app.js IIFE
 //   window.PortfolioDB.{getSnippet, addSnippet, updateSnippet, deleteSnippet,
@@ -101,7 +101,7 @@
 
   /**
    * filterSnippetList — applies search + tag filters + alphabetical sort.
-   * Search is current-locale only (D-16): matches trigger OR expansions[currentLang].
+   * Search is current-locale only: matches trigger OR expansions[currentLang].
    * Tag filter OR-combines (any matching tag). Search AND tags AND-combine.
    * @param {Array} cache
    * @param {{searchText:string, activeTags:string[], currentLang:string}} opts
@@ -354,7 +354,7 @@
         // "Snippet saved" copy from the snippet-CRUD path).
         showSaved();
       } catch (err) {
-        // Defensive: Plan 04 setPrefix validates length only, so a local-validation
+        // Defensive: setPrefix validates length only, so a local-validation
         // pass should never throw — but hedge against future tightening.
         showError("snippets.prefix.error.invalidChar");
       }
@@ -362,8 +362,8 @@
 
     // Hide stale indicators when the app language changes — their textContent
     // was set via t(messageKey) at validation/save time, so a language switch
-    // would otherwise leave them in the previous locale (UAT bug: Hebrew error
-    // remained visible after switching to English).
+    // would otherwise leave them in the previous locale (a stale Hebrew error
+    // otherwise remained visible after switching to English).
     document.addEventListener("app:language", function () {
       clearError();
       if (savedEl) savedEl.classList.add("is-hidden");
@@ -580,7 +580,7 @@
     triggerErr.textContent = "";
 
     // Defensive reset of ALL tag-input state — must clear before any
-    // per-snippet repopulation. Fixes UAT bug where a tag added to one
+    // per-snippet repopulation. Without it, a tag added to one
     // snippet appeared in the editor when opening a different snippet.
     if (tagsList) {
       while (tagsList.firstChild) tagsList.removeChild(tagsList.firstChild);
@@ -616,7 +616,7 @@
       resetBtn.classList.add("is-hidden");
     }
 
-    // Translations block — populate but keep hidden by default (D-12)
+    // Translations block — populate but keep hidden by default
     while (translationsBlock.firstChild) translationsBlock.removeChild(translationsBlock.firstChild);
     translationsBlock.classList.add("is-hidden");
     translationsToggle.setAttribute("aria-expanded", "false");

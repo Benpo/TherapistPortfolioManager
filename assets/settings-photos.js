@@ -1,16 +1,16 @@
 // ────────────────────────────────────────────────────────────────────────
-// Phase 25 Plan 07 — Photos Settings tab
+// settings-photos.js — Photos Settings tab
 //
 // Owns the Settings → Photos tab body. Two bulk operations:
-//   - Optimize all photos (D-24): walks every client.photoData through the
+//   - Optimize all photos: walks every client.photoData through the
 //     same CropModule.resizeToMaxDimension(blob, 800, 0.75) that powers new
-//     uploads (D-30 single-source-of-truth). Only persists when the new size
-//     is strictly smaller than the original — no-op on already-optimized
-//     photos. Confirm dialog uses tone:'neutral' (irreversible but not
-//     destructive: visual quality stays the same).
-//   - Delete all photos (D-25): walks every client and clears photoData via
+//     uploads (the single source of truth for resizing). Only persists when
+//     the new size is strictly smaller than the original — no-op on
+//     already-optimized photos. Confirm dialog uses tone:'neutral'
+//     (irreversible but not destructive: visual quality stays the same).
+//   - Delete all photos: walks every client and clears photoData via
 //     PortfolioDB.updateClient — same write path as the existing edit-client
-//     save (D-30). Confirm dialog uses tone:'danger'.
+//     save. Confirm dialog uses tone:'danger'.
 //
 // Storage usage line reads PortfolioDB.estimatePhotosBytes(clients) for the
 // photo-only number; falls back to navigator.storage.estimate() top-level
@@ -18,7 +18,7 @@
 // surfaces an empty state when no client has photoData.
 //
 // Two testable loop helpers live INSIDE the IIFE and are exposed on
-// window.__PhotosTabHelpers (mirror of the Plan 24 __SnippetEditorHelpers
+// window.__PhotosTabHelpers (mirror of the __SnippetEditorHelpers
 // pattern). Tests inject getAllClients + updateClient (+ resize + dataURL
 // adapters for the optimize loop) as function dependencies — no IDB.
 // ────────────────────────────────────────────────────────────────────────
@@ -35,13 +35,12 @@
     return (n / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
-  // Phase 25 Plan 12 post-UAT fix (bug 3, 2026-05-15) — per-photo
-  // "already-optimized" threshold. A photo that has been through the
+  // Per-photo "already-optimized" threshold. A photo that has been through the
   // resize-to-800px @ q=0.75 pipeline typically lands in the 30-80 KB
   // range. Anything below 100 KB is treated as already-optimized and
   // contributes 0 to the savings estimate. Photos at or above 100 KB
-  // are assumed to have ~60% room to shrink (matches the historical
-  // heuristic, but now applied per-photo instead of to the total).
+  // are assumed to have ~60% room to shrink (a fast heuristic applied
+  // per-photo rather than to the portfolio total).
   //
   // Why a constant (vs. a deeper dry-run): a true dry-run would decode
   // every photo, run resizeToMaxDimension, encode, and measure — that
@@ -52,8 +51,7 @@
   // strictly smaller, so the heuristic can never cause data corruption.
   var PHOTO_OPTIMIZED_BYTES_THRESHOLD = 100 * 1024; // 100 KB
 
-  // Phase 25 Plan 12 round-2 post-UAT fix (Change B, 2026-05-15) —
-  // display floor for the savings estimate. When estimatePhotoSavings
+  // Display floor for the savings estimate. When estimatePhotoSavings
   // returns < ESTIMATE_DISPLAY_FLOOR_BYTES, the UI (refreshPhotosTab
   // inline preview + handleOptimize confirm dialog) renders the
   // friendly i18n string `photos.optimize.minimal` instead of a tiny
@@ -64,8 +62,7 @@
   // sub-KB is "not worth showing as bytes," KB-scale is worth showing.
   var ESTIMATE_DISPLAY_FLOOR_BYTES = 1024; // 1 KB
 
-  // Phase 25 round-5 post-UAT (Change 3, 2026-05-15) — the
-  // optimize-estimate VERDICT threshold. Folded into the storage-usage
+  // The optimize-estimate VERDICT threshold. Folded into the storage-usage
   // line as a 3-tier verdict recomputed on every refreshPhotosTab:
   //   S < ESTIMATE_DISPLAY_FLOOR_BYTES (1 KB)      → "already compact"
   //   ESTIMATE_DISPLAY_FLOOR_BYTES ≤ S < this (2 MB) → "optional"
@@ -159,7 +156,7 @@
    * @param {() => Promise<Client[]>} getAllClients
    * @param {(c: Client) => Promise<void>} updateClient
    * @param {(blob: Blob, maxEdge: number, quality: number) => Promise<Blob>} resize
-   *        — CropModule.resizeToMaxDimension (D-30 single-source-of-truth with Plan 06).
+   *        — CropModule.resizeToMaxDimension (the single resize path, shared with add-client).
    * @param {(blob: Blob) => Promise<string>} blobToDataURLFn
    * @param {(dataURL: string) => Blob} dataURLToBlobFn
    * @returns {Promise<{success:number, failed:number, savedBytes:number}>}
@@ -200,33 +197,32 @@
     window.__PhotosTabHelpers = {
       _deleteAllPhotosLoop: _deleteAllPhotosLoop,
       _optimizeAllPhotosLoop: _optimizeAllPhotosLoop,
-      // Adapters re-exposed so the Task-2 UI handlers (defined below) and
+      // Adapters re-exposed so the UI handlers (defined below) and
       // future maintainers share the same conversion code path.
       humanBytes: humanBytes,
       dataURLToBlob: dataURLToBlob,
       blobToDataURL: blobToDataURL,
-      // Plan 12 post-UAT fix (bug 3): per-photo savings estimator used
-      // by handleOptimize for the confirm-dialog estimate. Replaces the
-      // flat photoBytes*0.6 heuristic that produced stale estimates
-      // after the first optimize pass.
+      // Per-photo savings estimator used by handleOptimize for the
+      // confirm-dialog estimate. Per-photo (not a flat photoBytes*0.6)
+      // so the estimate stays accurate after the first optimize pass.
       estimatePhotoSavings: estimatePhotoSavings,
       PHOTO_OPTIMIZED_BYTES_THRESHOLD: PHOTO_OPTIMIZED_BYTES_THRESHOLD,
-      // Plan 12 round-2 post-UAT fix (Change B): expose the display
-      // floor so the UI layers (refreshPhotosTab + handleOptimize) share
-      // the same value (D-30 single-source) and tests can read it back.
+      // Expose the display floor so the UI layers (refreshPhotosTab +
+      // handleOptimize) share the same value (single source) and tests
+      // can read it back.
       ESTIMATE_DISPLAY_FLOOR_BYTES: ESTIMATE_DISPLAY_FLOOR_BYTES,
-      // Round-5 post-UAT (Change 3): the "recommended" verdict threshold
-      // (2 MB). Single-source so refreshPhotosTab's 3-tier verdict and any
-      // future caller agree, and tests can read it back.
+      // The "recommended" verdict threshold (2 MB). Single-source so
+      // refreshPhotosTab's 3-tier verdict and any future caller agree,
+      // and tests can read it back.
       OPTIMIZE_RECOMMEND_THRESHOLD_BYTES: OPTIMIZE_RECOMMEND_THRESHOLD_BYTES,
     };
   }
 
-  // Task 2 (UI wiring) is appended below this IIFE.
+  // The UI wiring is appended below this IIFE.
 })();
 
 // ────────────────────────────────────────────────────────────────────────
-// Phase 25 Plan 07 Task 2 — Photos Settings tab UI wiring
+// Photos Settings tab — UI wiring
 //
 // Reads PortfolioDB.estimatePhotosBytes + navigator.storage.estimate to
 // render the usage line, hides the action sections + surfaces an empty
@@ -313,19 +309,17 @@
 
     if (hasPhotos) {
       usageEl.removeAttribute('data-i18n');
-      // Phase 25 round-5 post-UAT (Change 3, 2026-05-15) — fold a 3-tier
-      // optimize VERDICT into the storage-usage line, recomputed on every
-      // refreshPhotosTab() call. Replaces the standalone savings-preview /
-      // "Minimal savings expected" line (UAT-C3's photos.usage.body is
+      // Fold a 3-tier optimize VERDICT into the storage-usage line,
+      // recomputed on every refreshPhotosTab() call. photos.usage.body is
       // kept as a back-compat fallback but the live render now selects
-      // compact / optional / recommended):
+      // compact / optional / recommended:
       //
       //   S < ESTIMATE_DISPLAY_FLOOR_BYTES (1 KB)   → photos.usage.compact
       //   1 KB ≤ S < OPTIMIZE_RECOMMEND (2 MB)       → photos.usage.optional
       //   S ≥ OPTIMIZE_RECOMMEND_THRESHOLD (2 MB)    → photos.usage.recommended
       //
       // Estimate routes through __PhotosTabHelpers.estimatePhotoSavings
-      // (D-30 single-source with handleOptimize). {size} = total photo
+      // (single source with handleOptimize). {size} = total photo
       // storage; {savings} = estimated freeable bytes.
       var _ph = (typeof window !== 'undefined' && window.__PhotosTabHelpers) || null;
       var estimated = (_ph && typeof _ph.estimatePhotoSavings === 'function')
@@ -356,10 +350,9 @@
       usageEl.textContent = verdictTemplate
         .replace('{size}', readHumanBytes(displayBytes))
         .replace('{savings}', readHumanBytes(estimated));
-      // Phase 25 round-6 (Ben 2026-05-15): the folded verdict lost the
-      // green treatment the old standalone savings line had and read as
-      // dead static text. Tag the line with a tier class so it visibly
-      // reads as a live recommendation, not a fixed caption.
+      // The folded verdict could read as dead static text, so tag the line
+      // with a tier class so it visibly reads as a live recommendation,
+      // not a fixed caption.
       usageEl.classList.remove(
         'photos-usage-verdict--compact',
         'photos-usage-verdict--optional',
@@ -369,7 +362,7 @@
 
       // The standalone savings-preview line is absorbed into the verdict
       // above. Keep #photosOptimizePreview hidden during a normal render —
-      // handleOptimize (UAT-D4) still writes the post-optimize result
+      // handleOptimize still writes the post-optimize result
       // there for ~8s, so we don't remove the element, just clear it.
       if (previewEl && !previewEl.classList.contains('photos-savings-preview--result')) {
         previewEl.textContent = '';
@@ -392,8 +385,8 @@
    * handleOptimize — confirm via App.confirmDialog (tone:'neutral'), then
    * invoke _optimizeAllPhotosLoop with the production dependencies:
    *   - PortfolioDB.getAllClients
-   *   - PortfolioDB.updateClient (same write path as edit-client save — D-30)
-   *   - CropModule.resizeToMaxDimension (same resize as add-client — D-30)
+   *   - PortfolioDB.updateClient (same write path as edit-client save)
+   *   - CropModule.resizeToMaxDimension (same resize as add-client)
    */
   async function handleOptimize() {
     var btn = $('photosOptimizeBtn');
@@ -415,11 +408,10 @@
       return;
     }
 
-    // Phase 25 Plan 12 UAT-C2: count photos AND compute estimated savings up
-    // front so we can pass them through the confirmDialog placeholders bag.
-    // The dialog title carries {n} and the body carries {n} + {size}; both
-    // must be substituted BEFORE render — see App.confirmDialog placeholders
-    // option (Plan 12 extension).
+    // Count photos AND compute estimated savings up front so we can pass
+    // them through the confirmDialog placeholders bag. The dialog title
+    // carries {n} and the body carries {n} + {size}; both must be
+    // substituted BEFORE render — see App.confirmDialog placeholders option.
     var photoCount = 0;
     for (var pi = 0; pi < clients.length; pi++) {
       var c = clients[pi];
@@ -427,9 +419,9 @@
         photoCount++;
       }
     }
-    // Phase 25 Plan 12 post-UAT fix (bug 3, 2026-05-15): use the
-    // per-photo threshold heuristic from __PhotosTabHelpers.estimatePhotoSavings
-    // instead of the flat `photoBytes * 0.6`. Already-optimized photos
+    // Use the per-photo threshold heuristic from
+    // __PhotosTabHelpers.estimatePhotoSavings instead of a flat
+    // `photoBytes * 0.6`. Already-optimized photos
     // (each below PHOTO_OPTIMIZED_BYTES_THRESHOLD = 100 KB) contribute 0
     // to the estimate, so a second optimize click after the photos have
     // been shrunk shows a near-zero estimate instead of the stale MB-scale
@@ -445,8 +437,7 @@
       // is exported above and runs in the same settings.js bundle).
       estimatedSavings = Math.floor(photoBytes * 0.6);
     }
-    // Phase 25 Plan 12 round-2 post-UAT fix (Change B, 2026-05-15):
-    // when the estimate is below the display floor (~1 KB), pass the
+    // When the estimate is below the display floor (~1 KB), pass the
     // friendly i18n string `photos.optimize.minimal` as the {size}
     // placeholder instead of a raw byte amount. The dialog still opens
     // and the user can still confirm — the optimize loop continues to
@@ -467,7 +458,7 @@
           confirmKey: 'photos.optimize.confirm.yes',
           cancelKey: 'confirm.cancel',
           tone: 'neutral',    // UI-SPEC: irreversible but visual quality stays the same.
-          // UAT-C2: substitute {n} and {size} in title + body before render.
+          // Substitute {n} and {size} in title + body before render.
           placeholders: { n: String(photoCount), size: estimatedSavingsLabel }
         });
       } catch (_) { confirmed = false; }
@@ -500,7 +491,7 @@
         .replace('{failed}', String(result.failed))
         .replace('{size}', readHumanBytes(result.savedBytes));
 
-      // Phase 25 Plan 12 UAT-D4: surface the savings number INLINE next to
+      // Surface the savings number INLINE next to
       // the Optimize button so the cause→effect link is obvious. The toast
       // remains as a secondary cross-page signal. The inline pill persists
       // for 8 seconds — enough to read the savings number even on a slow
@@ -530,9 +521,9 @@
         if (typeof window !== 'undefined') window.__photosOptimizeResultTimer = clearTimer;
       }
 
-      // Keep the toast for cross-page legibility — same shape Plan 11
-      // settled on (literal msg in arg 0, '' in arg 1 because the message
-      // is already an i18n-resolved + substituted string).
+      // Keep the toast for cross-page legibility — literal msg in arg 0,
+      // '' in arg 1 because the message is already an i18n-resolved +
+      // substituted string.
       if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
         App.showToast(msg, '');
       }
@@ -548,7 +539,7 @@
 
   /**
    * handleDeleteAll — destructive confirm (tone:'danger'), then invoke
-   * _deleteAllPhotosLoop. Same updateClient write path as edit-client (D-30).
+   * _deleteAllPhotosLoop. Same updateClient write path as edit-client.
    */
   async function handleDeleteAll() {
     var btn = $('photosDeleteAllBtn');
@@ -602,13 +593,12 @@
 
   if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', bindPhotosTab);
-    // Phase 25 Plan 12 post-UAT fix (bug 4, 2026-05-15): refreshPhotosTab
-    // sets usageEl.textContent directly and removes the data-i18n
-    // attribute (so applyTranslations() does not try to replace the
-    // substituted value with the bare template at next setLanguage()
+    // refreshPhotosTab sets usageEl.textContent directly and removes the
+    // data-i18n attribute (so applyTranslations() does not try to replace
+    // the substituted value with the bare template at next setLanguage()
     // pass). The trade-off: applyTranslations() also won't re-render the
     // storage line when the language changes. Listen on the `app:language`
-    // custom event (dispatched by app.js setLanguage at line 126) and
+    // custom event (dispatched by app.js setLanguage) and
     // re-run refreshPhotosTab so the storage line picks up the new
     // locale's "photos.usage.body" / "photos.usage.unavailable" template
     // along with the rest of the UI. The re-run is idempotent — the same
