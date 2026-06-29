@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 34
-current_phase_name: Session PDF Export — Visual Polish
-status: ready_to_plan
+current_phase_name: session-pdf-export-visual-polish
+status: executing
 stopped_at: Phase 34 UI-SPEC approved (4/6 PASS, 2 non-blocking FLAGs); ready for /gsd-plan-phase 34
-last_updated: "2026-06-29T20:17:58.820Z"
+last_updated: "2026-06-29T20:40:45.150Z"
 last_activity: 2026-06-29
-last_activity_desc: Phase 34 UI-SPEC approved (design locked via collaborative mockup session). Phase 33 parked (blocked on Sapir's strings).
+last_activity_desc: Phase 34 execution started
 progress:
   total_phases: 9
   completed_phases: 5
-  total_plans: 31
-  completed_plans: 31
+  total_plans: 41
+  completed_plans: 32
   percent: 56
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 34 — Session PDF Export — Visual Polish (design locked, UI-SPEC approved)
+**Current focus:** Phase 34 — session-pdf-export-visual-polish
 
 ## Current Position
 
-Phase: 34 — Session PDF Export — Visual Polish
-Plan: Not started
-Status: UI-SPEC approved — ready to plan (`/gsd-plan-phase 34`)
-Last activity: 2026-06-29 — Phase 34 UI-SPEC approved (design locked via collaborative mockup session). Phase 33 parked (blocked on Sapir's strings).
+Phase: 34 (session-pdf-export-visual-polish) — EXECUTING
+Plan: 2 of 10
+Status: Ready to execute
+Last activity: 2026-06-29 — Phase 34 execution started
 
 ## Performance Metrics
 
@@ -133,6 +133,7 @@ Last activity: 2026-06-29 — Phase 34 UI-SPEC approved (design locked via colla
 | Phase 32 P02 | 12min | 3 tasks | 3 files |
 | Phase 32 P03 | 14min | 3 tasks | 2 files |
 | Phase 32 P04 | 12m | 2 tasks | 2 files |
+| Phase 34 P01 | 12m | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -265,6 +266,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 32-03]: DOCS-02 comment pilot completed for the 2 slimmed parents — settings.js JSDoc banner rewritten to its post-P31 slimmed shape (names settings-snippets.js + settings-photos.js as extracted-out); add-session.js got a brand-new four-slot banner documenting the export-modal boot handshake. Comments-only proven via strip-and-compare against pre-plan baseline f3f723b + green suite (D-11).
 - [Phase 32-04]: Two `.planning/` seed artifacts (not shipped): `32-COMMENT-COVERAGE-MAP.md` flags every production JS module done/batch-1/remaining (batch-1 = db.js/overview.js/sessions.js; version.js + ~20 others remaining/low-priority) → seeds the comments batch-2 phase with the pilot's four-slot-banner convention; `32-HELP-CONTENT-INVENTORY.md` is a tagged topic tree along the P26 7-step spine (title+intent only, no help copy; demo excluded as stale) → seeds the future help/onboarding phase. Phase 32 closed via UAT 2/2 pass (recipe accuracy + inventory discipline), verification canonicalized human_needed→passed.
 - [Phase 32]: KNOWN DEBT — PROJECT.md "maintainer = Sapir (non-technical)" framing (PROJECT.md ~L95/L107, Constraints) is stale; the maintainer reframe to Ben-solo + cloud Claude Code + a full PROJECT.md drift audit is a planned post-P32 task, still pending (see memory `project-maintainer-reframe-ben-solo`).
+- [Phase ?]: Phase34-01: vendored icon-512.png as window.IconLogoBase64; APP_VERSION 1.2.2->1.2.3; CACHE_NAME auto-rolls via deploy git-SHA
 
 ### Pending Todos
 
@@ -330,7 +332,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-29T18:53:03.028Z
+**Last session:** 2026-06-29T20:40:14.874Z
 
 Last activity: 2026-06-29 — Phase 32 (README + Code Comments) verified and closed. UAT 2/2 passed (test 1: 6 README how-do-I recipes cross-checked accurate against deploy.yml/version.js/i18n/sw.js; test 2: help-content inventory carries 4-tag discipline, full P26 spine, all license.html topics, no pasteable copy). Verification canonicalized human_needed→passed; phase.complete advanced ROADMAP + STATE to Phase 33. PROJECT.md evolved (P32 marked done, 2 decisions logged, footer + stale-maintainer-framing note).
 Stopped at: Phase 34 UI-SPEC approved (4/6 PASS, 2 non-blocking FLAGs)
