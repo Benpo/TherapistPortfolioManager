@@ -1448,27 +1448,93 @@ window.PDFExport = (function () {
       }
 
       // -----------------------------------------------------------------------
-      // Footer pass -- "Page X of Y" centered, on every page
+      // Footer pass -- full-bleed three-zone footer band on every page (34-07)
       // -----------------------------------------------------------------------
 
-      var totalPages = doc.getNumberOfPages();
-      for (var pn = 1; pn <= totalPages; pn++) {
-        doc.setPage(pn);
-        // Phase 23: footer is always Latin (page number) + LTR. jsPDF's RTL flag reset is no longer needed here -- no other code path enables that flag after Phase 23, so the reset is redundant (G1).
-        // Plan 23-07: unified Heebo replaces the prior single-script Latin setFont call.
-        doc.setFont("Heebo", "normal");
+      // Phase 34 (34-07, D-09/D-10/D-12): the footer band. A mint-soft (#eef7ea)
+      // top rule across the content width, then three zones along the existing
+      // footer baseline: START = a small offline logo + the made-with brand-as-
+      // tool mark (#456b42 bold — never a letterhead); CENTER = the per-locale
+      // "Page X of Y" label (unchanged switch); END = 'Exported on' + date
+      // (muted #5f5c72). Under RTL the START/END zones mirror (made-with on the
+      // right, exported-on on the left); every doc.text passes isInputVisual:false
+      // and anchors by docDir so numerals keep visual order (D-10).
+      function drawFooterBand(pn, totalPages) {
+        var baseY = FOOTER_BASELINE_Y;
+        var footSize = 8.5;
+
+        // Mint-soft top rule (D-09 / FINAL mockup `.rfoot` — NOT the #bfe0b0 vein).
+        setStroke(COLOR_FOOTER_RULE);
+        doc.setLineWidth(FOOTER_RULE_WIDTH);
+        doc.line(MARGIN_X, baseY - 16, PAGE_W - MARGIN_X, baseY - 16);
+        doc.setLineWidth(1);
+
+        var haveLogo = (typeof window.IconLogoBase64 === 'string' && window.IconLogoBase64.length > 0);
+        var logoY = baseY - 11; // vertically centred on the ~8.5pt footer text
+        var madeVisual = shapeForJsPdf(
+          pdfI18n('pdf.footer.madeWith', 'Made with Sessions Garden · sessionsgarden.app'));
+
+        // ---- START zone: small logo + made-with mark (#456b42 bold).
+        doc.setFont('Heebo', 'bold');
+        doc.setFontSize(footSize);
+        setInk(COLOR_BRAND_HEAD); // #456b42
+        if (docDir === 'rtl') {
+          // START = right edge: logo hugs the right margin, text to its left.
+          var rLogoX = PAGE_W - MARGIN_X - FOOTER_LOGO_SIZE;
+          if (haveLogo) {
+            try { doc.addImage('data:image/png;base64,' + window.IconLogoBase64, 'PNG', rLogoX, logoY, FOOTER_LOGO_SIZE, FOOTER_LOGO_SIZE); } catch (e) { /* never abort on a logo failure */ }
+          }
+          var rTextX = (haveLogo ? rLogoX : (PAGE_W - MARGIN_X)) - FOOTER_LOGO_GAP;
+          doc.text(madeVisual, rTextX, baseY, { align: 'right', isInputVisual: false });
+        } else {
+          var lLogoX = MARGIN_X;
+          if (haveLogo) {
+            try { doc.addImage('data:image/png;base64,' + window.IconLogoBase64, 'PNG', lLogoX, logoY, FOOTER_LOGO_SIZE, FOOTER_LOGO_SIZE); } catch (e) { /* never abort on a logo failure */ }
+          }
+          var lTextX = MARGIN_X + (haveLogo ? (FOOTER_LOGO_SIZE + FOOTER_LOGO_GAP) : 0);
+          doc.text(madeVisual, lTextX, baseY, { isInputVisual: false });
+        }
+
+        // ---- CENTER zone: the localized "Page X of Y" label (unchanged switch).
+        doc.setFont('Heebo', 'normal');
         doc.setFontSize(META_SIZE);
-        // Phase 23 (23-09): i18n "Page X of Y" footer per uiLang. Inline switch
-        // matches the formatDate() pattern at L366. Hebrew uses RTL natural
-        // word order ("עמוד {pn} מתוך {total}"); the bidi pre-shape on the
-        // string below produces the correct visual order.
+        setInk(COLOR_MUTED);
+        // Phase 23 (23-09): i18n "Page X of Y" per uiLang. Hebrew uses RTL natural
+        // word order; the bidi pre-shape below produces the correct visual order.
         var label = (opts.uiLang === 'he') ? ('עמוד ' + pn + ' מתוך ' + totalPages)
                   : (opts.uiLang === 'de') ? ('Seite ' + pn + ' von ' + totalPages)
                   : (opts.uiLang === 'cs') ? ('Stránka ' + pn + ' z ' + totalPages)
                   : ('Page ' + pn + ' of ' + totalPages);
         var labelVisual = shapeForJsPdf(label);
-        // Phase 23 (23-05) -- centered via jsPDF's canonical horizontal-align API for consistency with the title-block centering introduced by 23-03. Equivalent to the previous manual (PAGE_W - textWidth) / 2 form. The pageWidth local was introduced by 23-03 and is in scope here.
-        doc.text(labelVisual, pageWidth / 2, FOOTER_BASELINE_Y, { align: 'center', isInputVisual: false });
+        doc.text(labelVisual, pageWidth / 2, baseY, { align: 'center', isInputVisual: false });
+
+        // ---- END zone: 'Exported on' + date (muted #5f5c72), relabelled per
+        // D-09 to disambiguate from the card's session date. Sourced from
+        // sessionData.exportedOn (34-05).
+        var exportedOnVal = String(sessionData.exportedOn || '');
+        if (exportedOnVal.length) {
+          var exportedVisual = shapeForJsPdf(
+            pdfI18n('pdf.footer.exportedOn', 'Exported on') + ' ' + exportedOnVal);
+          doc.setFont('Heebo', 'normal');
+          doc.setFontSize(footSize);
+          setInk(COLOR_MUTED);
+          if (docDir === 'rtl') {
+            // END = left edge.
+            doc.text(exportedVisual, MARGIN_X, baseY, { isInputVisual: false });
+          } else {
+            doc.text(exportedVisual, PAGE_W - MARGIN_X, baseY, { align: 'right', isInputVisual: false });
+          }
+        }
+
+        // Restore a clean baseline for any downstream code.
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('Heebo', 'normal');
+      }
+
+      var totalPages = doc.getNumberOfPages();
+      for (var pn = 1; pn <= totalPages; pn++) {
+        doc.setPage(pn);
+        drawFooterBand(pn, totalPages);
       }
 
       progress('done');
