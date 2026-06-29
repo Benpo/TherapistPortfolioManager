@@ -1,24 +1,41 @@
 /**
- * settings.js — Settings page controller (Phase 22 Plan 04).
+ * settings.js — Settings page controller (slimmed parent).
  *
- * Renders 9 section rows (rename + enable/disable toggle + reset button) backed
- * by PortfolioDB.therapistSettings. On Save, persists changes via
- * PortfolioDB.setTherapistSetting and posts a BroadcastChannel message so peer
- * tabs refresh their App._sectionLabelCache.
+ * OWNS: the 9 section rows (rename + enable/disable toggle + reset button) backed
+ * by PortfolioDB.therapistSettings, the Save flow, the post-save success pill, the
+ * "Report a problem" entry row, the settings tablist (tab nav), and the Backups
+ * tab handlers. On Save it persists each change via PortfolioDB.setTherapistSetting
+ * and posts a BroadcastChannel message so peer tabs refresh their
+ * App._sectionLabelCache.
  *
- * SECURITY (T-22-04-01 mitigation): Custom labels are user-controlled text. The
- * rename input is rendered via `input.value = customLabel` (browser auto-escapes
- * attribute value); badge + label text is rendered via `el.textContent`. NEVER
- * `innerHTML` — see the comment near renderRow().
+ * EXTRACTED OUT (no longer in this file): the Text Snippets section now lives in
+ * assets/settings-snippets.js and the Photos tab now lives in
+ * assets/settings-photos.js. This file still renders the tab buttons, but each of
+ * those two panels is owned by its own module.
+ *
+ * PUBLIC SURFACE: the first IIFE returns { buildReportRow, mountReportRow } so the
+ * report row is unit-testable; the tab-nav and Backups IIFEs register no globals —
+ * they self-boot on DOMContentLoaded.
+ *
+ * DEPENDENCIES (window.* chain): App.{initCommon, t, showToast, confirmDialog},
+ * PortfolioDB.{therapistSettings, getAllTherapistSettings, setTherapistSetting},
+ * BackupManager.{canEnableSchedule, pickBackupFolder}, CrashLog.clear, and the
+ * "sessions-garden-settings" BroadcastChannel.
+ *
+ * SECURITY (invariant): Custom labels are user-controlled text. The rename input
+ * is rendered via `input.value = customLabel` (browser auto-escapes the attribute
+ * value); badge + label text is rendered via `el.textContent`. NEVER `innerHTML`
+ * — see the comment near renderRow().
  */
 window.SettingsPage = (function () {
   "use strict";
 
-  // Three rows are disable-only per SPEC REQ-2 amendment (2026-04-28):
-  // their purpose is structurally fixed; the toggle and Reset still work.
+  // Three rows are disable-only per SPEC REQ-2: their purpose is structurally
+  // fixed; the toggle and Reset still work.
   var LOCKED_RENAME = new Set(["heartShield", "issues", "nextSession"]);
 
-  // Canonical 9-row schema. Keys + i18n labels MUST match Plan 02 + Plan 06.
+  // Canonical 9-row schema. Keys + i18n labels MUST stay in sync with the
+  // session form and the i18n bundle.
   var SECTION_DEFS = [
     { key: "trapped",              i18nLabelKey: "session.form.trapped",              i18nDescKey: "settings.row.trapped.description" },
     { key: "insights",             i18nLabelKey: "session.form.insights",             i18nDescKey: "settings.row.insights.description" },
@@ -144,7 +161,7 @@ window.SettingsPage = (function () {
     input.value = customLabel;
     input.setAttribute("data-section-key", def.key);
 
-    // Gap 1: lock rename input when row is disabled (in addition to LOCKED_RENAME structural lock).
+    // Lock rename input when row is disabled (in addition to LOCKED_RENAME structural lock).
     if (!enabled && !locked) {
       input.disabled = true;
       input.setAttribute("aria-disabled", "true");
@@ -165,13 +182,13 @@ window.SettingsPage = (function () {
       infoIcon.setAttribute("role", "img");
       infoIcon.setAttribute("aria-label", tooltip);
       infoIcon.title = tooltip;
-      // Gap 4: CSS-driven tooltip via ::after { content: attr(data-tooltip) }.
+      // CSS-driven tooltip via ::after { content: attr(data-tooltip) }.
       // Native title alone is unreliable on Safari/macOS — keep title for AT/keyboard
       // fallback and add data-tooltip for the visible CSS bubble.
       infoIcon.setAttribute("data-tooltip", tooltip);
       infoIcon.tabIndex = 0;
       // Inline SVG info-circle (constant markup, no user data) — built via DOM APIs
-      // so this file contains zero direct HTML-string assignments (T-22-04-01 contract).
+      // so this file contains zero direct HTML-string assignments (the no-innerHTML contract).
       infoIcon.appendChild(buildInfoIconSvg(16));
       renameWrap.appendChild(input);
       renameWrap.appendChild(infoIcon);
@@ -207,7 +224,7 @@ window.SettingsPage = (function () {
     resetBtn.title = resetTip;
     // SECURITY: Inline SVG built via DOM APIs (no innerHTML, no user data).
     resetBtn.appendChild(buildResetIconSvg());
-    // Gap N4 (22-13): visible text label next to the icon so first-time users
+    // Visible text label next to the icon so first-time users
     // can tell what the button does without hovering. aria-label + title keep
     // the longer "Reset to default name" for desktop hover + screen readers.
     var resetLabel = document.createElement("span");
@@ -233,9 +250,9 @@ window.SettingsPage = (function () {
       resetBtn.setAttribute("aria-disabled", "true");
     });
 
-    // Toggle handler — also locks/unlocks the rename input on this row (Gap 1).
+    // Toggle handler — also locks/unlocks the rename input on this row.
     // The disable-warning is no longer fired here; it now fires on Save iff there
-    // are net enabled→disabled transitions vs. the last-loaded DB state (Gap 2 / D1).
+    // are net enabled→disabled transitions vs. the last-loaded DB state.
     toggleInput.addEventListener("change", function () {
       if (toggleInput.checked) {
         // Re-enable: remove badge if present
@@ -286,17 +303,17 @@ window.SettingsPage = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // Post-save success pill — D2 locked state machine.
-  // Replaces the OLD "About saved settings" blue notice.
+  // Post-save success pill — the locked state machine that replaces the old
+  // "About saved settings" blue notice.
   // ---------------------------------------------------------------------------
-  // Auto-dismiss timeout for the success pill. Bumped 6000ms -> 8000ms in 22-13
-  // (Gap N5 D2) so the pill is noticed without feeling sticky.
+  // Auto-dismiss timeout for the success pill (8000ms — long enough to notice,
+  // short enough not to feel sticky).
   var NOTICE_AUTO_DISMISS_MS = 8000;
   var noticeTimeoutId = null;
   // Captures the 200ms post-"leaving" cleanup setTimeout queued inside
   // dismissSavedNotice(). cancelLeave() must clear BOTH this AND noticeTimeoutId,
   // otherwise an orphaned cleanup from the previous dismiss can hide a freshly
-  // re-shown pill (Gap N5 regression root cause).
+  // re-shown pill (the regression root cause).
   var noticeLeaveTimeoutId = null;
   var noticeListenersOn = false;
 
@@ -335,7 +352,7 @@ window.SettingsPage = (function () {
     // new one (handles the edge case where dismiss fires twice within ~200ms).
     clearTimeout(noticeLeaveTimeoutId);
     // Capture the 200ms cleanup so cancelLeave can kill it before a re-show
-    // (Gap N5 fix — orphaned cleanup was wiping freshly-shown pills).
+    // (orphaned cleanup was wiping freshly-shown pills).
     noticeLeaveTimeoutId = setTimeout(function () {
       noticeLeaveTimeoutId = null;
       var n = document.getElementById("settingsSavedNotice");
@@ -458,7 +475,7 @@ window.SettingsPage = (function () {
       }
     }
 
-    // Gap 2 (D1): warn on Save iff at least one toggle transitioned enabled → disabled
+    // Warn on Save iff at least one toggle transitioned enabled → disabled
     // since the last persisted DB state. Re-enables alone do NOT trigger; same-cycle
     // off-then-on yields no transition and does NOT trigger.
     var disabledNow = computeDisableTransitions();
@@ -542,11 +559,10 @@ window.SettingsPage = (function () {
   // ---------------------------------------------------------------------------
 
   // ──────────────────────────────────────────────────────────────────────
-  // OBS-01 surfacing (Phase 29 Plan 03): the "Report a problem" entry row +
-  // an optional crash-log "clear" affordance. Built with createElement +
-  // textContent only (NEVER innerHTML — same security contract as renderRow,
-  // settings.js:112). Kept self-contained inside this section so it survives
-  // the Phase 31 settings.js extraction (CONTEXT code_context).
+  // OBS-01 surfacing: the "Report a problem" entry row + an optional crash-log
+  // "clear" affordance. Built with createElement + textContent only (NEVER
+  // innerHTML — same security contract as renderRow). Kept self-contained inside
+  // this section so a future settings.js extraction can relocate it as a unit.
   // ──────────────────────────────────────────────────────────────────────
   function buildReportRow() {
     var tt = (window.App && App.t) ? App.t : function (k) { return k; };
@@ -578,7 +594,7 @@ window.SettingsPage = (function () {
     controls.className = "settings-row-controls settings-report-controls";
 
     // Primary affordance: navigate to the dedicated report screen.
-    // "Report a problem" affordance (UAT 2026-06-26): styled as a soft AMBER
+    // "Report a problem" affordance: styled as a soft AMBER
     // "alert" (warning palette) — signals "something's wrong" without the loud
     // green primary or the solid-red Delete style, and stays visually distinct
     // from the quiet outlined "Clear problem log" beside it. Amber styling lives
@@ -679,7 +695,7 @@ window.SettingsPage = (function () {
     loadAndRender();
   });
 
-  // Export the report-row builder so it is unit-testable and so the Phase 31
+  // Export the report-row builder so it is unit-testable and so a future
   // extraction has a stable seam to relocate.
   return {
     buildReportRow: buildReportRow,
@@ -688,11 +704,11 @@ window.SettingsPage = (function () {
 })();
 
 // ────────────────────────────────────────────────────────────────────────
-// Phase 24 Plan 05 — Settings page tab nav
+// Settings page tab nav
 //
-// Two-tab tablist: "Custom field names" (the Phase 22 form) and
-// "Text Snippets" (the Plan 05 surface). Activated tab persists across
-// reload via URL param ?tab=fields|snippets. Default = fields.
+// Tab nav for the settings tablist: "Custom field names" (the section-rename
+// form), "Text Snippets", Backups, and Photos. Activated tab persists across
+// reload via URL param ?tab=fields|snippets|backups|photos. Default = fields.
 //
 // Accessibility per WAI-ARIA tabs pattern:
 //   - role=tablist on the container
@@ -709,7 +725,7 @@ window.SettingsPage = (function () {
     try {
       var params = new URLSearchParams(window.location.search);
       var t = params.get("tab");
-      // Phase 25 Plan 05 — Backups + Photos tabs are now valid ?tab= targets.
+      // Backups + Photos tabs are also valid ?tab= targets.
       if (t === "fields" || t === "snippets" || t === "backups" || t === "photos") return t;
     } catch (e) {}
     return null;
@@ -783,22 +799,21 @@ window.SettingsPage = (function () {
 })();
 
 // ────────────────────────────────────────────────────────────────────────
-// Phase 25 Plan 05 — Backups tab handlers (D-11 / D-16 / D-17 / D-18 / D-19)
+// Backups tab handlers
 //
-// Wires the new Backups tab:
+// Wires the Backups tab:
 //   - Frequency selector writes localStorage.portfolioBackupScheduleMode and
-//     refreshes the helper text. D-18 password-mandatory gate is enforced
-//     via BackupManager.canEnableSchedule (pure helper from Plan 05 Task 1);
-//     a non-Off selection without an acknowledged password reverts the
-//     selector and shows the inline error.
+//     refreshes the helper text. The password-mandatory gate is enforced
+//     via BackupManager.canEnableSchedule (a pure helper); a non-Off selection
+//     without an acknowledged password reverts the selector and shows the
+//     inline error.
 //   - Custom-days input clamps to [1..365] and writes
 //     localStorage.portfolioBackupScheduleCustomDays.
 //   - Password-acked checkbox writes localStorage.portfolioBackupSchedulePasswordAcked.
 //     Unchecking it while a schedule is active force-disables the schedule
-//     (D-18: schedule cannot live without an acknowledged password).
-//   - Folder picker invokes BackupManager.pickBackupFolder() — moved here
-//     from the overview per D-11. Persists only the folder NAME for UI;
-//     the FileSystemDirectoryHandle stays session-scoped (D-20).
+//     (a schedule cannot live without an acknowledged password).
+//   - Folder picker invokes BackupManager.pickBackupFolder(). Persists only the
+//     folder NAME for UI; the FileSystemDirectoryHandle stays session-scoped.
 //   - ON→OFF requires a neutral-tone confirm (UI-SPEC: disabling is
 //     reversible — banner returns when the 7-day threshold next crosses).
 // ────────────────────────────────────────────────────────────────────────
@@ -821,8 +836,8 @@ window.SettingsPage = (function () {
       return (n && n > 0) ? n : 7;
     } catch (_) { return 7; }
   }
-  // Phase 25 Plan 12 UAT-D1: readFolderName + refreshFolderState removed
-  // along with the folder-picker UI. The BackupManager primitives
+  // readFolderName + refreshFolderState were removed along with the
+  // folder-picker UI. The BackupManager primitives
   // (pickBackupFolder / isAutoBackupSupported) stay in backup.js.
 
   function tt(key, fallback) {
@@ -850,7 +865,7 @@ window.SettingsPage = (function () {
   }
 
   /**
-   * Persist a new schedule mode after enforcing the D-18 password-mandatory
+   * Persist a new schedule mode after enforcing the password-mandatory
    * gate and (for ON→OFF) the neutral-tone confirm. Returns true if the
    * write happened, false if the user cancelled or the gate blocked it.
    * In both rejection paths the <select> is reverted to the previously
@@ -861,7 +876,7 @@ window.SettingsPage = (function () {
     var ackedErr = $('schedulePasswordError');
     var prev = readScheduleMode();
 
-    // D-18: gate non-Off transitions on canEnableSchedule (pure helper).
+    // Gate non-Off transitions on canEnableSchedule (pure helper).
     var gateAllowed = true;
     if (typeof BackupManager !== 'undefined' &&
         typeof BackupManager.canEnableSchedule === 'function') {
@@ -873,8 +888,8 @@ window.SettingsPage = (function () {
     if (!gateAllowed) {
       if (ackedErr) ackedErr.classList.remove('is-hidden');
       if (sel) sel.value = prev;
-      // Phase 25 round-6 (#7, Ben 2026-05-15): the error explains WHY the
-      // change bounced; this leads the eye to WHERE to act. Pulse the
+      // The error explains WHY the change bounced; this leads the eye to
+      // WHERE to act. Pulse the
       // password callout + focus the ack checkbox, then self-clear so the
       // highlight doesn't linger after the user moves on.
       var callout = $('schedulePasswordCallout');
@@ -926,11 +941,10 @@ window.SettingsPage = (function () {
     }
     refreshFrequencyHelper();
     refreshCustomDaysVisibility();
-    // Phase 25 Plan 12 UAT-D3: surface a save-toast every time the schedule
-    // frequency is actually persisted. The toast key resolves through the
-    // shared i18n bundle (new 'schedule.savedToast' key in all 4 locales —
-    // shipped alongside this commit) so the user always sees explicit
-    // confirmation that the change took effect.
+    // Surface a save-toast every time the schedule frequency is actually
+    // persisted. The toast key resolves through the shared i18n bundle (the
+    // 'schedule.savedToast' key in all 4 locales) so the user always sees
+    // explicit confirmation that the change took effect.
     if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
       App.showToast('', 'schedule.savedToast');
     }
@@ -956,7 +970,7 @@ window.SettingsPage = (function () {
         var n = Math.max(1, Math.min(365, Number(customDays.value) || 7));
         customDays.value = String(n);
         try { localStorage.setItem('portfolioBackupScheduleCustomDays', String(n)); } catch (_) {}
-        // UAT-D3: save-toast whenever the custom-days value is committed
+        // Save-toast whenever the custom-days value is committed
         // (only meaningful when mode === 'custom', but firing it on every
         // commit is harmless and keeps the contract uniform).
         if (readScheduleMode() === 'custom' &&
@@ -974,9 +988,9 @@ window.SettingsPage = (function () {
           localStorage.setItem('portfolioBackupSchedulePasswordAcked',
             ack.checked ? 'true' : 'false');
         } catch (_) {}
-        // WR-01 (code-review 2026-05-16): if the user un-acks while a
-        // schedule is active, the schedule MUST go off — D-18 forbids an
-        // active schedule without an acked password. This is NOT the
+        // If the user un-acks while a schedule is active, the schedule MUST
+        // go off — an active schedule without an acked password is forbidden.
+        // This is NOT the
         // user-initiated "do you want to turn it off?" path, so it must
         // NOT route through the cancellable applyFrequencyChange('off')
         // disable-confirm: cancelling that left scheduleMode=active while
@@ -992,7 +1006,7 @@ window.SettingsPage = (function () {
             App.showToast('', 'schedule.savedToast');
           }
         } else if (typeof App !== 'undefined' && typeof App.showToast === 'function') {
-          // UAT-D3: save-toast for the ack-checkbox toggle itself (only
+          // Save-toast for the ack-checkbox toggle itself (only
           // when we did NOT force the schedule off — that path surfaces
           // its own toast above).
           App.showToast('', 'schedule.savedToast');
@@ -1002,7 +1016,7 @@ window.SettingsPage = (function () {
       });
     }
 
-    // Phase 25 Plan 12 UAT-D1: folder-picker click handler removed.
+    // The folder-picker click handler was removed.
     // The BackupManager.pickBackupFolder primitive stays in backup.js
     // (kept for any future caller); only the Settings → Backups UI host
     // is removed.
