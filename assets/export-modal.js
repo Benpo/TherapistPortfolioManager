@@ -613,7 +613,32 @@
       }
       const issues = (typeof getIssuesPayload === "function") ? getIssuesPayload() : [];
       const exportedOn = App.formatDate(new Date());
-      return { sessionNumber, issues, exportedOn };
+
+      // Change 1 (owner revision): tell the render tier WHERE severity sits in
+      // form order. The form DOM (add-session.html) places the issues/severity
+      // section right after heartShield (position 2) and before every text
+      // section, so the PDF must draw the two-bar block after the heartShield
+      // section (when present) and before the rest — never last. We forward the
+      // count of leading body sections that precede severity: 1 when the
+      // heart-shield section heads the exported body, else 0. Read from the editor
+      // markdown actually being exported (the heartShield ## is always the first
+      // section when present, per buildFilteredSessionMarkdown) so manual Step-2
+      // edits are honoured. Robust + locale-correct: it matches the SAME localized
+      // heartShield label the builder emits.
+      let severityAfterSections = 0;
+      try {
+        const editorEl = document.getElementById("exportEditor");
+        const md = editorEl ? editorEl.value : "";
+        const firstHeading = md.match(/^##[ \t]+(.+?)[ \t]*$/m);
+        if (firstHeading) {
+          const hsLabel = stripRequired(App.getSectionLabel("heartShield", "session.form.heartShield"));
+          if (firstHeading[1].trim() === String(hsLabel).trim()) severityAfterSections = 1;
+        }
+      } catch (e) {
+        severityAfterSections = 0;
+      }
+
+      return { sessionNumber, issues, exportedOn, severityAfterSections };
     }
 
     async function exportHandleDownloadPdf() {
@@ -636,7 +661,8 @@
           markdown: editor ? editor.value : "",
           sessionNumber: renderInputs.sessionNumber,
           issues: renderInputs.issues,
-          exportedOn: renderInputs.exportedOn
+          exportedOn: renderInputs.exportedOn,
+          severityAfterSections: renderInputs.severityAfterSections
         }, {
           uiLang: localStorage.getItem("portfolioLang") || "en",
           onProgress: function (phase) {
@@ -698,7 +724,8 @@
           markdown: editor.value,
           sessionNumber: renderInputs.sessionNumber,
           issues: renderInputs.issues,
-          exportedOn: renderInputs.exportedOn
+          exportedOn: renderInputs.exportedOn,
+          severityAfterSections: renderInputs.severityAfterSections
         }, { uiLang: localStorage.getItem("portfolioLang") || "en" });
         const slug = window.PDFExport.slugify(data.clientName);
         const fname = slug + "_" + (data.sessionDateISO || "session") + ".pdf";

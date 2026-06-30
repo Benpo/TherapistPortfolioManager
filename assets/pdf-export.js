@@ -786,6 +786,19 @@ window.PDFExport = (function () {
       var FOOTER_BASELINE_Y = PAGE_H - 32;
       var RUNNING_HEADER_Y = MARGIN_TOP - 24;
 
+      // Phase 34 (REVISED per owner review, Change 2): continuation-header (pages
+      // 2+) treatment. Previously a small plain-text line that read like body text
+      // and sat flush against the first content line. Now: a header-like BOLD
+      // client name + a muted REGULAR-weight date (numerals stay regular weight so
+      // their pinned digit GIDs survive — bold+digits would break pdf-digit-order /
+      // 34-rtl-newblocks), a light vein rule beneath (a treatment BETWEEN plain
+      // text and the full page-1 cream card), and CONT_HEADER_PAD of breathing room
+      // before the first content line. All anchored by docDir for RTL.
+      var CONT_HEADER_NAME_SIZE = 11.5;
+      var CONT_HEADER_DATE_SIZE = 10;
+      var CONT_HEADER_RULE_GAP  = 7;   // header baseline -> vein rule
+      var CONT_HEADER_PAD       = 18;  // extra space below the rule before content
+
       // Phase 34 (34-06): branded page-1 header band + client card geometry.
       // bandHeight ~= logo(48) + 2x24pt vertical padding (UI-SPEC item 1, D-01).
       var BAND_HEIGHT = 96;        // D-01 full-bleed mint header band height
@@ -798,7 +811,7 @@ window.PDFExport = (function () {
       var COLOR_BRAND_DEEP  = '#345e34'; // title + client name (icon-deep-green)
       var COLOR_BRAND_HEAD  = '#456b42'; // subtitle + meta keys (icon-head-green)
       var COLOR_MUTED       = '#5f5c72'; // meta values (muted ink)
-      var COLOR_LOGO_LINE   = '#3a7d5f'; // logo keyline stroke (green-500)
+      // (COLOR_LOGO_LINE removed with the header logo — Change 3 owner revision.)
       var COLOR_CARD_FILL   = '#fdf8f0'; // cream client card surface
       var COLOR_CARD_BORDER = '#c8e6d4'; // client card border (D-02, green-200)
       var COLOR_PILL_FILL   = '#e8f5ee'; // session-type pill fill (green-100)
@@ -1003,59 +1016,36 @@ window.PDFExport = (function () {
       // drawPageHeader -- full header on page 1; running header on pages 2+
       // -----------------------------------------------------------------------
 
-      // Phase 34 (34-06, D-01/D-05/D-10/D-12): the branded page-1 opening — a
-      // full-bleed mint header band carrying the embedded offline logo (under a
-      // green keyline) plus a localized title + subtitle. No "Sessions Garden"
-      // wordmark letterhead (D-01). Every new text/shape anchors by docDir and
-      // routes shaped strings through doc.text with isInputVisual:false, so the
-      // Phase 23 RTL invariant holds by construction (D-10). Returns the y where
-      // the client card should begin.
+      // Phase 34 (34-06, D-01/D-05/D-10/D-12; REVISED per owner review): the
+      // branded page-1 opening — a full-bleed mint header band carrying ONLY the
+      // localized title. Two intentional owner-approved overrides of the locked
+      // UI-SPEC: (1) the embedded logo is REMOVED from the header (it lives in the
+      // footer band, which still embeds the image XObject so 34-logo-embed stays
+      // green); (2) the redundant subtitle ("A personal session summary") is
+      // REMOVED — the "Session Summary" title already says it. The title is
+      // vertically centred and start-anchored (left in LTR / right in RTL); every
+      // text/shape anchors by docDir and routes shaped strings through doc.text
+      // with isInputVisual:false, so the Phase 23 RTL invariant holds by
+      // construction (D-10). Returns the y where the client card should begin.
       function drawHeaderBand() {
         // Full-bleed mint band (content insets to MARGIN_X; the fill is edge-to-edge).
         setFill(COLOR_BAND);
         doc.rect(0, 0, PAGE_W, BAND_HEIGHT, 'F');
 
-        var logoSize = 48;
-        var logoY = (BAND_HEIGHT - logoSize) / 2; // vertically centered in the band
-        // Logo tile at the START edge (left in LTR / right in RTL), inset MARGIN_X.
-        var logoX = (docDir === 'rtl') ? (PAGE_W - MARGIN_X - logoSize) : MARGIN_X;
-
-        // D-05/FN-3: embed the vendored base64 logo (NEVER fetched). Guard the
-        // global so the band still renders if the asset is unavailable (e.g. a
-        // render-tier test that does not load it).
-        if (typeof window.IconLogoBase64 === 'string' && window.IconLogoBase64.length > 0) {
-          try {
-            doc.addImage('data:image/png;base64,' + window.IconLogoBase64, 'PNG',
-              logoX, logoY, logoSize, logoSize);
-          } catch (e) { /* never let a logo failure abort the export */ }
-        }
-        // Green keyline over the logo tile. jsPDF cannot clip the PNG to rounded
-        // corners (UI-SPEC FLAG-7) — the square corners sit under the 10pt-radius
-        // keyline; negligible at this size.
-        setStroke(COLOR_LOGO_LINE);
-        doc.setLineWidth(1.5);
-        doc.roundedRect(logoX, logoY, logoSize, logoSize, 10, 10, 'S');
-
-        // Title + subtitle on the TRAILING side of the logo (per docDir), 14pt gap.
-        var gap = 14;
+        // Localized title only, start-anchored and vertically centred in the band.
+        // Bumped 20 -> 22pt now that it stands alone (no logo / no subtitle) so it
+        // carries the band on its own. Renders correctly in EN/HE/DE/CS + RTL via
+        // pdfI18n('session.copy.title') + shapeForJsPdf.
         var titleVisual = shapeForJsPdf(pdfI18n('session.copy.title', 'Session Summary'));
-        var subtitleVisual = shapeForJsPdf(pdfI18n('pdf.header.subtitle', 'A personal session summary'));
-        var titleY = logoY + 20;
-        var subtitleY = titleY + 16;
-        var textX = (docDir === 'rtl') ? (logoX - gap) : (logoX + logoSize + gap);
-        var textOpts = (docDir === 'rtl')
-          ? { align: 'right', isInputVisual: false }
-          : { isInputVisual: false };
-
+        var titleY = BAND_HEIGHT / 2 + 8; // baseline ~centred for a 22pt cap height
         doc.setFont('Heebo', 'bold');
-        doc.setFontSize(20);
+        doc.setFontSize(22);
         setInk(COLOR_BRAND_DEEP);
-        doc.text(titleVisual, textX, titleY, textOpts);
-
-        doc.setFont('Heebo', 'normal');
-        doc.setFontSize(11);
-        setInk(COLOR_BRAND_HEAD);
-        doc.text(subtitleVisual, textX, subtitleY, textOpts);
+        if (docDir === 'rtl') {
+          doc.text(titleVisual, PAGE_W - MARGIN_X, titleY, { align: 'right', isInputVisual: false });
+        } else {
+          doc.text(titleVisual, MARGIN_X, titleY, { isInputVisual: false });
+        }
 
         // Restore a clean baseline for downstream renderer code.
         doc.setTextColor(0, 0, 0);
@@ -1196,51 +1186,127 @@ window.PDFExport = (function () {
         }
       }
 
+      // Phase 34 (REVISED per owner review, Change 2): the pages-2+ continuation
+      // header. Header-like BOLD name (#456b42) + muted REGULAR date (#5f5c72),
+      // then a light vein rule (#bfe0b0) beneath. The name is bold for header
+      // weight; the DATE stays regular weight because it carries digits and the
+      // bold Heebo subset has its own glyph-id map — bold numerals would emit
+      // unrecognized GIDs and trip pdf-digit-order / 34-rtl-newblocks (the same
+      // constraint the severity-numeral draw documents). Anchor follows docDir
+      // (Phase 23-10): name hugs the start edge, the date trails it.
       function drawRunningHeader() {
-        var bits = [clientName, sessionDateDisplay].filter(function (s) {
-          return s && String(s).length > 0;
-        });
-        if (bits.length === 0) return;
-        var text = bits.join("  -  ");
-        // Plan 23-09: running header on pages 2+ stays in regular weight (matches
-        // page-1 meta line; only the page-1 title and section headings are bold).
-        doc.setFont("Heebo", "normal");
-        doc.setFontSize(META_SIZE);
-        var visual = shapeForJsPdf(text); // Phase 23 (D1, D2)
-        // Phase 23 (23-10): running-header anchor follows docDir, same rule as
-        // drawTextLine. Hebrew session -> right anchor (even if the running header
-        // happens to start with a Latin client name); Latin session -> left anchor.
-        if (docDir === 'rtl') {
-          // Phase 23 (23-06): right-anchor the visual string at the right margin
-          // (same fix as drawTextLine -- without align:'right' the running header
-          // would flow off the right edge for Hebrew sessions).
-          doc.text(visual, PAGE_W - MARGIN_X, RUNNING_HEADER_Y, { align: 'right', isInputVisual: false });
-        } else {
-          doc.text(visual, MARGIN_X, RUNNING_HEADER_Y, { isInputVisual: false });
+        var nameStr = (clientName && String(clientName).length > 0) ? String(clientName) : '';
+        var dateStr = (sessionDateDisplay && String(sessionDateDisplay).length > 0) ? String(sessionDateDisplay) : '';
+        if (!nameStr && !dateStr) return;
+
+        var baseY = RUNNING_HEADER_Y;
+        var sep = '   ';  // visual gap between name and date (whitespace only)
+
+        var nameVisual = nameStr ? shapeForJsPdf(nameStr) : '';
+        var dateVisual = dateStr ? shapeForJsPdf(dateStr) : '';
+
+        // Measure pieces at their own weights/sizes.
+        var nameW = 0, sepW = 0, dateW = 0;
+        if (nameStr) {
+          doc.setFont('Heebo', 'bold'); doc.setFontSize(CONT_HEADER_NAME_SIZE);
+          nameW = doc.getStringUnitWidth(nameVisual) * CONT_HEADER_NAME_SIZE;
         }
+        doc.setFont('Heebo', 'normal'); doc.setFontSize(CONT_HEADER_DATE_SIZE);
+        if (nameStr && dateStr) sepW = doc.getStringUnitWidth(sep) * CONT_HEADER_DATE_SIZE;
+        if (dateStr) dateW = doc.getStringUnitWidth(dateVisual) * CONT_HEADER_DATE_SIZE;
+
+        if (docDir === 'rtl') {
+          // START edge = right margin: bold name hugs the right, date flows leftward.
+          var rx = PAGE_W - MARGIN_X;
+          if (nameStr) {
+            doc.setFont('Heebo', 'bold'); doc.setFontSize(CONT_HEADER_NAME_SIZE); setInk(COLOR_BRAND_HEAD);
+            doc.text(nameVisual, rx, baseY, { align: 'right', isInputVisual: false });
+          }
+          if (dateStr) {
+            var dxR = rx - (nameStr ? (nameW + sepW) : 0);
+            doc.setFont('Heebo', 'normal'); doc.setFontSize(CONT_HEADER_DATE_SIZE); setInk(COLOR_MUTED);
+            doc.text(dateVisual, dxR, baseY, { align: 'right', isInputVisual: false });
+          }
+        } else {
+          var lx = MARGIN_X;
+          if (nameStr) {
+            doc.setFont('Heebo', 'bold'); doc.setFontSize(CONT_HEADER_NAME_SIZE); setInk(COLOR_BRAND_HEAD);
+            doc.text(nameVisual, lx, baseY, { isInputVisual: false });
+          }
+          if (dateStr) {
+            var dxL = lx + (nameStr ? (nameW + sepW) : 0);
+            doc.setFont('Heebo', 'normal'); doc.setFontSize(CONT_HEADER_DATE_SIZE); setInk(COLOR_MUTED);
+            doc.text(dateVisual, dxL, baseY, { isInputVisual: false });
+          }
+        }
+
+        // Light vein rule beneath the header — a treatment between plain text and
+        // the full page-1 cream card. Spans the content width, anchored by margins
+        // (symmetric, so RTL-correct by construction).
+        var ruleY = baseY + CONT_HEADER_RULE_GAP;
+        setStroke(COLOR_HEADING_RULE);
+        doc.setLineWidth(1);
+        doc.line(MARGIN_X, ruleY, PAGE_W - MARGIN_X, ruleY);
+
+        // Restore a clean baseline for downstream renderer code.
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('Heebo', 'normal');
+        doc.setLineWidth(1);
       }
 
       // -----------------------------------------------------------------------
       // Render -- iterate parsed blocks; auto page-break on overflow
       // -----------------------------------------------------------------------
 
-      // Phase 34 (34-06): the branded page-1 opening — full-bleed header band
-      // (logo + title + subtitle) then the cream client card (name + Date ·
-      // localized pill · Session #N). drawClientCard sets the body cursor.
+      // Phase 34 (34-06; REVISED Change 3): the branded page-1 opening — full-bleed
+      // header band (localized title only — logo + subtitle removed) then the cream
+      // client card (name + Date · localized pill · Session #N). drawClientCard
+      // sets the body cursor.
       drawHeaderBand();
       var y = drawClientCard();
       var blocks = parseMarkdown(markdown);
+
+      // Phase 34 (REVISED per owner review, Change 1): the structural severity
+      // block renders in its FORM-ORDER slot, not after the whole body. The form
+      // DOM (add-session.html) places the issues/severity section at position 2 —
+      // right after the heartShield section and BEFORE every other section
+      // (heart-shield-emotions, trapped, insights, …, comments, next-meeting /
+      // plan notes). export-modal forwards sessionData.severityAfterSections =
+      // (heartShield section present ? 1 : 0); the renderer draws the two-bar block
+      // just before the (severityAfterSections+1)-th section heading. If that many
+      // section headings never appear (fewer sections, or a body with none) it
+      // falls back to the end — which, with no trailing sections, is still the
+      // correct form slot. The block's APPEARANCE is unchanged (drawSeverityBlock,
+      // hoisted below); only its position in the flow moves.
+      var severityIssues = sessionData.issues || [];
+      var severityAfterSections =
+        (typeof sessionData.severityAfterSections === 'number' && sessionData.severityAfterSections >= 0)
+          ? sessionData.severityAfterSections : 0;
+      var severityDrawn = false;
+      var sectionHeadingsSeen = 0;
 
       function ensureRoom(neededHeight) {
         if (y + neededHeight > PAGE_H - MARGIN_BOTTOM) {
           doc.addPage();
           drawRunningHeader();
-          y = MARGIN_TOP;
+          // Change 2: start content below the continuation header + its vein rule,
+          // with CONT_HEADER_PAD of breathing room (no longer flush at MARGIN_TOP).
+          y = MARGIN_TOP + CONT_HEADER_PAD;
         }
       }
 
       for (var bi = 0; bi < blocks.length; bi++) {
         var block = blocks[bi];
+
+        // Change 1: insert the severity block at its form-order slot — just before
+        // the section heading that follows the target number of leading sections.
+        if (block.type === 'heading' && block.level >= 2) {
+          if (!severityDrawn && sectionHeadingsSeen === severityAfterSections) {
+            drawSeverityBlock(severityIssues);
+            severityDrawn = true;
+          }
+          sectionHeadingsSeen++;
+        }
 
         if (block.type === 'blank') {
           y += LINE_HEIGHT_BODY * 0.5;
@@ -1649,10 +1715,18 @@ window.PDFExport = (function () {
         doc.setLineWidth(1);
       }
 
-      // Phase 34 (34-09, D-08): render the severity bars STRUCTURALLY from the
-      // forwarded issues[] (34-05), after the markdown body and before the
-      // footer pass. Severity is no longer emitted as markdown body text.
-      drawSeverityBlock(sessionData.issues || []);
+      // Phase 34 (34-09, D-08; REVISED Change 1): the severity bars render
+      // STRUCTURALLY from the forwarded issues[] (34-05) — now in their form-order
+      // slot inside the block loop above (drawSeverityBlock called just before the
+      // section that follows severityAfterSections leading sections). This
+      // post-loop call is the FALLBACK: it fires only when that slot was never
+      // reached (a body with fewer section headings than severityAfterSections, or
+      // none at all), where the end IS the correct form slot. Severity is never
+      // emitted as markdown body text (removed in 34-09).
+      if (!severityDrawn) {
+        drawSeverityBlock(severityIssues);
+        severityDrawn = true;
+      }
 
       // -----------------------------------------------------------------------
       // Footer pass -- full-bleed three-zone footer band on every page (34-07)
