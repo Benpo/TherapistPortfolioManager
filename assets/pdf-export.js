@@ -786,18 +786,27 @@ window.PDFExport = (function () {
       var FOOTER_BASELINE_Y = PAGE_H - 32;
       var RUNNING_HEADER_Y = MARGIN_TOP - 24;
 
-      // Phase 34 (REVISED per owner review, Change 2): continuation-header (pages
-      // 2+) treatment. Previously a small plain-text line that read like body text
-      // and sat flush against the first content line. Now: a header-like BOLD
-      // client name + a muted REGULAR-weight date (numerals stay regular weight so
-      // their pinned digit GIDs survive — bold+digits would break pdf-digit-order /
-      // 34-rtl-newblocks), a light vein rule beneath (a treatment BETWEEN plain
-      // text and the full page-1 cream card), and CONT_HEADER_PAD of breathing room
-      // before the first content line. All anchored by docDir for RTL.
-      var CONT_HEADER_NAME_SIZE = 11.5;
-      var CONT_HEADER_DATE_SIZE = 10;
-      var CONT_HEADER_RULE_GAP  = 7;   // header baseline -> vein rule
-      var CONT_HEADER_PAD       = 18;  // extra space below the rule before content
+      // Phase 34 (REVISED per owner review, Change 2 + checkpoint restyle): the
+      // continuation header (pages 2+) is PAGE CHROME — a running head, not a
+      // content section heading. It previously shared the section-heading visual
+      // language (bold brand-green name + green vein rule #bfe0b0), so when a
+      // field's body text CONTINUED onto a later page the bold-green head at the
+      // top falsely read as "a new section starts here." Now it matches the FOOTER
+      // register instead: a SMALL, MUTED (#5f5c72 / COLOR_MUTED) who/when line —
+      // the client name kept lightly emphasised (bold, but muted, never brand-
+      // green; name has no digits so bold is safe), the date in muted REGULAR
+      // weight (numerals stay regular so their pinned digit GIDs survive — bold +
+      // digits would break pdf-digit-order / 34-rtl-newblocks) — beneath a thin
+      // full-width HAIRLINE in the footer's rule colour/width (COLOR_FOOTER_RULE /
+      // FOOTER_RULE_WIDTH), NOT the leaf-diamond/green vein rule. Top running head
+      // and bottom footer thus share one "chrome" language that frames the page
+      // body; a reader reads it as letterhead-style page furniture, so continued
+      // text below reads as a continuation. CONT_HEADER_PAD breathing room before
+      // the first content line is preserved. All anchored by docDir for RTL.
+      var CONT_HEADER_NAME_SIZE = 9.5;  // small chrome type, slight emphasis vs date
+      var CONT_HEADER_DATE_SIZE = 9;    // quieter still — metadata, not a heading
+      var CONT_HEADER_RULE_GAP  = 7;    // header baseline -> chrome hairline
+      var CONT_HEADER_PAD       = 18;   // extra space below the rule before content
 
       // Phase 34 (34-06): branded page-1 header band + client card geometry.
       // bandHeight ~= logo(48) + 2x24pt vertical padding (UI-SPEC item 1, D-01).
@@ -1216,10 +1225,12 @@ window.PDFExport = (function () {
         if (dateStr) dateW = doc.getStringUnitWidth(dateVisual) * CONT_HEADER_DATE_SIZE;
 
         if (docDir === 'rtl') {
-          // START edge = right margin: bold name hugs the right, date flows leftward.
+          // START edge = right margin: name hugs the right, date flows leftward.
+          // Both in the muted chrome ink — name lightly emphasised (bold), date
+          // regular. NOT brand-green (that's the section-heading register).
           var rx = PAGE_W - MARGIN_X;
           if (nameStr) {
-            doc.setFont('Heebo', 'bold'); doc.setFontSize(CONT_HEADER_NAME_SIZE); setInk(COLOR_BRAND_HEAD);
+            doc.setFont('Heebo', 'bold'); doc.setFontSize(CONT_HEADER_NAME_SIZE); setInk(COLOR_MUTED);
             doc.text(nameVisual, rx, baseY, { align: 'right', isInputVisual: false });
           }
           if (dateStr) {
@@ -1230,7 +1241,7 @@ window.PDFExport = (function () {
         } else {
           var lx = MARGIN_X;
           if (nameStr) {
-            doc.setFont('Heebo', 'bold'); doc.setFontSize(CONT_HEADER_NAME_SIZE); setInk(COLOR_BRAND_HEAD);
+            doc.setFont('Heebo', 'bold'); doc.setFontSize(CONT_HEADER_NAME_SIZE); setInk(COLOR_MUTED);
             doc.text(nameVisual, lx, baseY, { isInputVisual: false });
           }
           if (dateStr) {
@@ -1240,12 +1251,14 @@ window.PDFExport = (function () {
           }
         }
 
-        // Light vein rule beneath the header — a treatment between plain text and
-        // the full page-1 cream card. Spans the content width, anchored by margins
-        // (symmetric, so RTL-correct by construction).
+        // Thin full-width HAIRLINE beneath the running head — the FOOTER's rule
+        // colour/width (COLOR_FOOTER_RULE / FOOTER_RULE_WIDTH), NOT the green vein
+        // rule (#bfe0b0) used by section headings. Top running head + bottom footer
+        // share one chrome hairline language that frames the page body. Spans the
+        // content width, anchored by margins (symmetric, so RTL-correct).
         var ruleY = baseY + CONT_HEADER_RULE_GAP;
-        setStroke(COLOR_HEADING_RULE);
-        doc.setLineWidth(1);
+        setStroke(COLOR_FOOTER_RULE);
+        doc.setLineWidth(FOOTER_RULE_WIDTH);
         doc.line(MARGIN_X, ruleY, PAGE_W - MARGIN_X, ruleY);
 
         // Restore a clean baseline for downstream renderer code.
@@ -1289,8 +1302,8 @@ window.PDFExport = (function () {
         if (y + neededHeight > PAGE_H - MARGIN_BOTTOM) {
           doc.addPage();
           drawRunningHeader();
-          // Change 2: start content below the continuation header + its vein rule,
-          // with CONT_HEADER_PAD of breathing room (no longer flush at MARGIN_TOP).
+          // Change 2: start content below the continuation running head + its chrome
+          // hairline, with CONT_HEADER_PAD of breathing room (not flush at MARGIN_TOP).
           y = MARGIN_TOP + CONT_HEADER_PAD;
         }
       }
