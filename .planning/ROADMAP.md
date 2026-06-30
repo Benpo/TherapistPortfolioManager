@@ -333,6 +333,25 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 - **Broader extraction + test-coverage health (post-v1.2 outlook — likely a "v1.3 Codebase Health II")** — surfaced during Phase 30 discussion (2026-06-26). v1.2 only char-tests + refactors the two god modules (`settings.js`, `add-session.js`); the rest of the `.js` landscape has two unaddressed risks: (a) **dangerous test-coverage gaps** in large files (`app.js` = 1,474 lines / only 6 tests; `license.js` 568/0; `overview.js`, `landing.js`), and (b) **further extraction candidates** among the 4-digit files (`backup.js`, `app.js`, `pdf-export.js`, `db.js` — triage god-module vs cohesive-large, don't assume) + an app-wide glue-duplication sweep (`t()` in 5 files, `showToast` in 2). Best done *after* v1.2 establishes the test harness (P30) + extraction pattern (P31) as the template. Full coverage map + scoping in todo: `todos/pending/2026-06-26-broader-extraction-and-test-coverage-health.md`. Decide promotion at v1.2 close.
 - **Other pending todos** — see `.planning/todos/pending/` (incl. deactivation data-loss warning, PWA install guidance, v12 IDB encryption, drag-sort settings, modality templates).
 
+### Phase 999.1: Next session date field with overview column (BACKLOG)
+
+**Goal:** Add an optional, real **date** field for the next session — stored on the session record alongside the existing free-text "information for the next session" note — and surface it in the overview table as its own column, mirroring how the last-session date is already shown.
+
+**Scope (as captured 2026-06-30):**
+- New optional "next session date" lives in the same "information for the next session" section that today holds only a text field.
+- Must be a proper **date input (date picker)**, not free text — a real date type so the value can't be malformed or exploited.
+- Saved directly within the session record.
+- Displayed on the overview table as a column, similar to the existing "last session date" column.
+- Optional — setting/flagging the date is never required; rows without one render empty as last-session does.
+
+**Notes:** Likely small/immediate. Touch points to trace during planning: the add/edit-session form (the next-session note section), the session data model/migration, and the overview table renderer + its date-column formatting (RTL/locale-aware, matching last-session).
+
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
