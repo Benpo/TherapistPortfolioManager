@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
-current_phase: 34
-current_phase_name: session-pdf-export-visual-polish
-status: executing
+current_phase: 35
+current_phase_name: Demo System Refresh / Version Parity
+status: All 10 plans executed; golden baselines regenerated + human-approved
 stopped_at: Completed 34-10-PLAN.md
-last_updated: "2026-06-30T08:50:00Z"
+last_updated: "2026-06-30T09:30:02.267Z"
 last_activity: 2026-06-30
-last_activity_desc: Phase 34 plan 10/10 complete — golden baselines regenerated (human-approved)
+last_activity_desc: Phase 34 complete, transitioned to Phase 35
 progress:
   total_phases: 9
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 41
   completed_plans: 41
-  percent: 57
+  percent: 67
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 
 ## Current Position
 
-Phase: 34 (session-pdf-export-visual-polish) — EXECUTING
-Plan: 10 of 10 — COMPLETE (awaiting phase-level verification by orchestrator)
+Phase: 35 — Demo System Refresh / Version Parity
+Plan: Not started
 Status: All 10 plans executed; golden baselines regenerated + human-approved
-Last activity: 2026-06-30 — Phase 34 plan 10/10 complete (baseline regeneration)
+Last activity: 2026-06-30 — Phase 34 complete, transitioned to Phase 35
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Last activity: 2026-06-30 — Phase 34 plan 10/10 complete (baseline regeneratio
 | 30 | 13 | - | - |
 | 31 | 6 | - | - |
 | 32 | 4 | - | - |
+| 34 | 10 | - | - |
 
 **Recent Trend:**
 

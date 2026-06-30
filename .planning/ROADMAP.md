@@ -357,6 +357,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 31. Refactor God Modules | v1.2 | 6/6 | Complete    | 2026-06-28 |
 | 32. README + Code Comments | v1.2 | 4/4 | Complete    | 2026-06-29 |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
-| 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete   | 2026-06-30 |
+| 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete    | 2026-06-30 |
 | 35. Demo System Refresh / Version Parity | v1.2 | 0/– | Planned (size first) | - |
 | 36. Code Comments — Batch 2 | v1.2 | 0/– | Planned | - |
