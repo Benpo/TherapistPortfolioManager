@@ -5,8 +5,8 @@ milestone_name: — Codebase Health & Reliability
 current_phase: 35
 current_phase_name: demo-system-refresh-version-parity
 status: executing
-stopped_at: Completed 34-10-PLAN.md
-last_updated: "2026-06-30T13:09:12.910Z"
+stopped_at: Drafted 35-04 demo seed — gates GREEN, paused at D-05 blocking-human clinical sign-off
+last_updated: "2026-06-30T13:19:06.932Z"
 last_activity: 2026-06-30
 last_activity_desc: Phase 35 execution started
 progress:
@@ -148,6 +148,7 @@ Last activity: 2026-06-30 — Phase 35 execution started
 | Phase 35 P02 | 30min | 2 tasks | 2 files |
 | Phase 35 P03 | 12min | 2 tasks | 1 files |
 | Phase 35 P05 | 3min | 2 tasks | 3 files |
+| Phase 35 P04 | 12min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -292,6 +293,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 35-02: Home/normal demo-exposure no-regression target is #backupCloudBtn presence; index.html export lives in the is-hidden backup modal (modal-export visibility is a false target)
 - [Phase 35]: 35-03: Converged demo.html chrome onto the single source (D-01) — header-actions block replaced with empty #headerActions, shared-chrome.js loaded before app.js; subtitle literal swept therapeutic->energy (D-07).
 - [Phase ?]: 35-05: demo-hints.js dead-code removed (D-08/DEMO-09); SW cache safe via INTEGRITY_TOKEN-derived CACHE_NAME, no manual bump; APP_VERSION semver bump deferred to phase-close
+- [Phase ?]: 35-04: relative-date seam — isoDaysAgo (noon-anchored) + applyRelativeDates exposed via window.__demoSeedHelpers BEFORE the demo-mode early-return; seedData() applies it at load so the demo self-freshens (DEMO-06)
+- [Phase ?]: 35-04: Heart Shield removal arc authored on Anita C (3 sessions, final shieldRemoved:true) against overview.js .some() badge path; added Maple House other-type client + an other sessionType; newest session daysAgo:0; seed gate GREEN; PENDING Ben+Sapir clinical sign-off (D-05 blocking-human, never auto-approved)
 
 ### Pending Todos
 
@@ -357,10 +360,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-30T13:08:48.928Z
+**Last session:** 2026-06-30T13:19:06.926Z
 
 Last activity: 2026-06-30 — Phase 34 plan 10/10 complete. Redesigned-PDF golden baselines regenerated AFTER the owner's blocking visual sign-off (EN+HE vs FINAL-mockup); one approved HE footer label tweak (pdf.footer.exportedOn → "הופק בתאריך"); full suite 112/112 green (pdf-latin-regression now matching the new baselines). Mid-phase test-harness defect (inert false-GREEN pdf gates, jsdom loadScriptOnce hang) was fixed in cb00179/a6951a8 — gates now genuinely live. Commits: 6413d25 (label), 6e4418b (baselines), + this docs commit.
-Stopped at: Completed 34-10-PLAN.md
+Stopped at: Drafted 35-04 demo seed — gates GREEN, paused at D-05 blocking-human clinical sign-off
 Resume file: None
 Next: orchestrator runs phase-level verification + completion for Phase 34 (this plan does NOT mark the phase complete or spawn a verifier).
 
