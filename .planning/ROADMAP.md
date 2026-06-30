@@ -289,11 +289,11 @@ Plans:
   3. The orphaned `demo-hints.js` is removed cleanly, and backup/export/license controls are hidden in demo mode (DEMO-08/09/11)
   4. The landing iframe demo entry point keeps working end-to-end (DEMO-10)
 
-**Plans:** 1/6 plans executed
+**Plans:** 2/6 plans executed
 **Wave 1**
 
 - [x] 35-01-PLAN.md — Wave-0 validation scaffolds: demo chrome + static gates (DEMO-01/02/03/04/08/09)
-- [ ] 35-02-PLAN.md — Wave-0 validation scaffolds: seed + exposure gates (DEMO-05/06/07/11)
+- [x] 35-02-PLAN.md — Wave-0 validation scaffolds: seed + exposure gates (DEMO-05/06/07/11)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -373,5 +373,5 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 32. README + Code Comments | v1.2 | 4/4 | Complete    | 2026-06-29 |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
 | 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete    | 2026-06-30 |
-| 35. Demo System Refresh / Version Parity | v1.2 | 1/6 | In Progress|  |
+| 35. Demo System Refresh / Version Parity | v1.2 | 2/6 | In Progress|  |
 | 36. Code Comments — Batch 2 | v1.2 | 0/– | Planned | - |

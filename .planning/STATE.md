@@ -6,14 +6,14 @@ current_phase: 35
 current_phase_name: demo-system-refresh-version-parity
 status: executing
 stopped_at: Completed 34-10-PLAN.md
-last_updated: "2026-06-30T12:45:37.844Z"
+last_updated: "2026-06-30T12:58:35.587Z"
 last_activity: 2026-06-30
 last_activity_desc: Phase 35 execution started
 progress:
   total_phases: 9
   completed_phases: 6
   total_plans: 47
-  completed_plans: 42
+  completed_plans: 43
   percent: 67
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 35 (demo-system-refresh-version-parity) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-06-30 — Phase 35 execution started
 
@@ -145,6 +145,7 @@ Last activity: 2026-06-30 — Phase 35 execution started
 | Phase 34 P9 | 8min | 2 tasks | 2 files |
 | Phase 34 P10 | 15min | 2 tasks | 6 files |
 | Phase 35 P01 | 5min | 2 tasks | 3 files |
+| Phase 35 P02 | 30min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -286,6 +287,7 @@ Recent decisions affecting current work:
 - [Phase 34-10]: D-11 closed — 5 golden SHA-256 baselines (en/de/cs/he/he-mixed) regenerated AFTER a blocking human visual sign-off (EN+HE vs FINAL-mockup); full suite 112/112. One approved HE footer tweak: pdf.footer.exportedOn "יוצא בתאריך"→"הופק בתאריך". Owner-approved checkpoint revisions intentionally override locked D-05/header-subtitle (header simplified, severity to form-order, page-2 header restyled). NOTE: pdf-latin-regression + 3 floor gates were inert false-GREEN mid-phase (jsdom loadScriptOnce hang); fixed in cb00179/a6951a8 — now genuinely live (see .planning/debug/pdf-harness-loadscript-hang.md)
 - [Phase ?]: 35-01: Wave-0 demo RED gates pair a behavioral jsdom gate (real App.initCommon) with a static source gate; only the static one is allowlisted in the fake-test-detector.
 - [Phase ?]: 35-01: i18n app.subtitle regression guards assert !/therapeut/i, not brittle exact strings — green now, guards a 35-03 terminology regression.
+- [Phase ?]: 35-02: Home/normal demo-exposure no-regression target is #backupCloudBtn presence; index.html export lives in the is-hidden backup modal (modal-export visibility is a false target)
 
 ### Pending Todos
 
@@ -351,7 +353,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-30T12:45:01.862Z
+**Last session:** 2026-06-30T12:58:09.671Z
 
 Last activity: 2026-06-30 — Phase 34 plan 10/10 complete. Redesigned-PDF golden baselines regenerated AFTER the owner's blocking visual sign-off (EN+HE vs FINAL-mockup); one approved HE footer label tweak (pdf.footer.exportedOn → "הופק בתאריך"); full suite 112/112 green (pdf-latin-regression now matching the new baselines). Mid-phase test-harness defect (inert false-GREEN pdf gates, jsdom loadScriptOnce hang) was fixed in cb00179/a6951a8 — gates now genuinely live. Commits: 6413d25 (label), 6e4418b (baselines), + this docs commit.
 Stopped at: Completed 34-10-PLAN.md
