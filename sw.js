@@ -60,7 +60,6 @@ const PRECACHE_URLS = [
   '/assets/demo.js',
   '/assets/demo-seed.js',
   '/assets/demo-seed-data.json',
-  '/assets/demo-hints.js',
   '/assets/demo.css',
   '/assets/landing.css',
   '/assets/landing.js',
