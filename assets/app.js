@@ -324,6 +324,11 @@ window.App = (() => {
    * Links to ./license.html with an SVG key icon.
    */
   function initLicenseLink() {
+    // Phase 35 Plan 06 (DEMO-10 iframe-escape fix): never mount the header
+    // license key-icon in demo mode — license.html computes its own back-link to
+    // ./landing.html and would escape the demo iframe. Mirrors the
+    // mountBackupCloudButton demo guard (the established window.name seam).
+    if (typeof window !== 'undefined' && window.name === 'demo-mode') return;
     var actions = document.querySelector('.header-actions');
     if (!actions) return;
     var link = document.createElement('a');

@@ -24,9 +24,17 @@ var SharedChrome = (function() {
       isActivated = (activatedVal === '1' || activatedVal === 'true')
         && !!localStorage.getItem('portfolioLicenseInstance');
     } catch(e) {}
+    // Phase 35 Plan 06 (DEMO-10 iframe-escape fix): in demo mode every
+    // back/brand/home link must stay INSIDE the demo. window.name==='demo-mode'
+    // persists across same-origin navigations within the landing iframe, so a
+    // demo visitor (never "activated") would otherwise resolve homeHref to
+    // ./landing.html — which re-embeds the demo and recurses (frame-in-frame
+    // nesting). Pin the home target to ./demo.html in demo mode; all non-demo
+    // behavior is unchanged.
+    var isDemo = (typeof window !== 'undefined' && window.name === 'demo-mode');
     return {
       isActivated: isActivated,
-      homeHref: isActivated ? './index.html' : './landing.html',
+      homeHref: isDemo ? './demo.html' : (isActivated ? './index.html' : './landing.html'),
       homeLabel: isActivated ? 'backToApp' : 'backToHome'
     };
   }
@@ -77,6 +85,16 @@ var SharedChrome = (function() {
     var lang = getLang();
     var strings = FOOTER_STRINGS[lang] || FOOTER_STRINGS.en;
 
+    // Phase 35 Plan 06 (DEMO-10 iframe-escape fix): omit the footer License link
+    // in demo mode. license.html computes its OWN back-link (./landing.html when
+    // not activated) and would escape the iframe; removing the entry point keeps
+    // the demo self-contained. The version line and other footer content stay
+    // intact. Non-demo footers are unchanged.
+    var isDemo = (typeof window !== 'undefined' && window.name === 'demo-mode');
+    var licenseLinkHtml = isDemo
+      ? ''
+      : '<a href="./license.html">' + strings.license + '</a>';
+
     // Remove existing footer if re-rendering
     var existing = document.querySelector('.app-footer');
     if (existing) existing.remove();
@@ -92,7 +110,7 @@ var SharedChrome = (function() {
         '<a href="' + getLocalizedLegalLink('disclaimer', lang) + '?readonly=true">' + strings.terms + '</a>' +
         '<a href="' + getLocalizedLegalLink('impressum', lang) + '">' + strings.impressum + '</a>' +
         '<a href="' + getLocalizedLegalLink('datenschutz', lang) + '">' + strings.privacy + '</a>' +
-        '<a href="./license.html">' + strings.license + '</a>' +
+        licenseLinkHtml +
       '</nav>' +
       '<p class="app-footer-contact"><a href="mailto:contact@sessionsgarden.app">contact@sessionsgarden.app</a></p>' +
       // Render clean OPTIMISTICALLY (D-09): show v{APP_VERSION} with no marker.
