@@ -5,16 +5,16 @@ milestone_name: — Codebase Health & Reliability
 current_phase: 35
 current_phase_name: demo-system-refresh-version-parity
 status: executing
-stopped_at: Drafted 35-04 demo seed — gates GREEN, paused at D-05 blocking-human clinical sign-off
-last_updated: "2026-06-30T13:19:06.932Z"
+stopped_at: 35-04 demo seed complete — Ben signed off at D-05; other-type client removed (overrides D-04). Wave 3 (35-06) next.
+last_updated: "2026-06-30T13:50:00.619Z"
 last_activity: 2026-06-30
-last_activity_desc: Phase 35 execution started
+last_activity_desc: 35-04 demo seed refresh complete (D-05 sign-off)
 progress:
   total_phases: 9
   completed_phases: 6
   total_plans: 47
-  completed_plans: 45
-  percent: 67
+  completed_plans: 46
+  percent: 98
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 35 (demo-system-refresh-version-parity) — EXECUTING
-Plan: 5 of 6
-Status: Ready to execute
-Last activity: 2026-06-30 — Phase 35 execution started
+Plan: 5 of 6 done — Wave 3 (35-06 demo exposure) next
+Status: Ready to execute 35-06
+Last activity: 2026-06-30 — 35-04 demo seed refresh complete (Ben signed off at D-05)
 
 ## Performance Metrics
 
@@ -294,7 +294,8 @@ Recent decisions affecting current work:
 - [Phase 35]: 35-03: Converged demo.html chrome onto the single source (D-01) — header-actions block replaced with empty #headerActions, shared-chrome.js loaded before app.js; subtitle literal swept therapeutic->energy (D-07).
 - [Phase ?]: 35-05: demo-hints.js dead-code removed (D-08/DEMO-09); SW cache safe via INTEGRITY_TOKEN-derived CACHE_NAME, no manual bump; APP_VERSION semver bump deferred to phase-close
 - [Phase ?]: 35-04: relative-date seam — isoDaysAgo (noon-anchored) + applyRelativeDates exposed via window.__demoSeedHelpers BEFORE the demo-mode early-return; seedData() applies it at load so the demo self-freshens (DEMO-06)
-- [Phase ?]: 35-04: Heart Shield removal arc authored on Anita C (3 sessions, final shieldRemoved:true) against overview.js .some() badge path; added Maple House other-type client + an other sessionType; newest session daysAgo:0; seed gate GREEN; PENDING Ben+Sapir clinical sign-off (D-05 blocking-human, never auto-approved)
+- [Phase ?]: 35-04: Heart Shield removal arc authored on Anita C (3 sessions, final shieldRemoved:true) against overview.js .some() badge path; newest session daysAgo:0; seed gate 3/3 GREEN; D-05 SIGNED OFF by Ben.
+- [Phase ?]: 35-04 (D-05 sign-off): Ben approved the seed with ONE revision — REMOVE the other-type demo client (Maple House) + its lone other-type session. This brand decision OVERRIDES D-04 (which had called for an other-type for variety). Seed now 7 clients / 11 sessions; Heart-Shield arc + relative dates + v6 schema approved as-is. Commit be27c2f (seed-only). Final clinical wording remains Sapir's domain — visually re-reviewed at the 35-06 DEMO-10 real-browser regression.
 
 ### Pending Todos
 
@@ -362,10 +363,10 @@ Recent decisions affecting current work:
 
 **Last session:** 2026-06-30T13:19:06.926Z
 
-Last activity: 2026-06-30 — Phase 34 plan 10/10 complete. Redesigned-PDF golden baselines regenerated AFTER the owner's blocking visual sign-off (EN+HE vs FINAL-mockup); one approved HE footer label tweak (pdf.footer.exportedOn → "הופק בתאריך"); full suite 112/112 green (pdf-latin-regression now matching the new baselines). Mid-phase test-harness defect (inert false-GREEN pdf gates, jsdom loadScriptOnce hang) was fixed in cb00179/a6951a8 — gates now genuinely live. Commits: 6413d25 (label), 6e4418b (baselines), + this docs commit.
-Stopped at: Drafted 35-04 demo seed — gates GREEN, paused at D-05 blocking-human clinical sign-off
+Last activity: 2026-06-30 — 35-04 demo seed refresh COMPLETE. Ben signed off at the D-05 blocking-human gate with ONE revision: remove the `other`-type demo client (Maple House) — a brand decision that overrides D-04 (which had asked for an `other`-type for variety). Applied via `be27c2f` (seed-only, 35 deletions). Seed now 7 clients / 11 sessions; Anita C Heart-Shield removal arc + relative dates + v6 schema untouched. Seed gate 3/3 GREEN; full suite 116 passed / 1 failed (the 1 = 35-06's `35-demo-exposure.test.js`, RED by design). DEMO-05/06/07 marked complete. Final clinical wording stays Sapir's domain — visually re-reviewed during the 35-06 DEMO-10 real-browser regression.
+Stopped at: 35-04 complete (D-05 sign-off applied) — Wave 3 (35-06 demo exposure) next.
 Resume file: None
-Next: orchestrator runs phase-level verification + completion for Phase 34 (this plan does NOT mark the phase complete or spawn a verifier).
+Next: orchestrator advances to Wave 3 — 35-06 demo exposure (its `35-demo-exposure.test.js` gate is RED by design and turns GREEN there).
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
 

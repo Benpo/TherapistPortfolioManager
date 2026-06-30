@@ -289,7 +289,7 @@ Plans:
   3. The orphaned `demo-hints.js` is removed cleanly, and backup/export/license controls are hidden in demo mode (DEMO-08/09/11)
   4. The landing iframe demo entry point keeps working end-to-end (DEMO-10)
 
-**Plans:** 4/6 plans executed
+**Plans:** 5/6 plans executed
 **Wave 1**
 
 - [x] 35-01-PLAN.md — Wave-0 validation scaffolds: demo chrome + static gates (DEMO-01/02/03/04/08/09)
@@ -298,7 +298,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 35-03-PLAN.md — Demo home chrome convergence + terminology sweep (D-01/D-07)
-- [ ] 35-04-PLAN.md — Seed refresh: Heart-Shield arc + relative dates, human-approved (D-03/04/05/06/07)
+- [x] 35-04-PLAN.md — Seed refresh: Heart-Shield arc + relative dates, human-approved (D-03/04/05/06/07)
 - [x] 35-05-PLAN.md — Delete demo-hints.js (three coordinated edits) + SW cache reconcile (D-08)
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -373,5 +373,5 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 32. README + Code Comments | v1.2 | 4/4 | Complete    | 2026-06-29 |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
 | 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete    | 2026-06-30 |
-| 35. Demo System Refresh / Version Parity | v1.2 | 4/6 | In Progress|  |
+| 35. Demo System Refresh / Version Parity | v1.2 | 5/6 | In Progress|  |
 | 36. Code Comments — Batch 2 | v1.2 | 0/– | Planned | - |
