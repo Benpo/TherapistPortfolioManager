@@ -143,7 +143,7 @@ Which phases cover which requirements. Status filled during execution.
 | DEMO-07 | Phase 35 | Complete |
 | DEMO-08 | Phase 35 | Complete |
 | DEMO-09 | Phase 35 | Complete |
-| DEMO-10 | Phase 35 | Pending |
+| DEMO-10 | Phase 35 | Complete |
 | DEMO-11 | Phase 35 | Complete |
 
 **Coverage:**

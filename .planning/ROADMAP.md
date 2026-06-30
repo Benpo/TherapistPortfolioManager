@@ -303,7 +303,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 35-06-PLAN.md — Demo exposure lock-down + DEMO-10 regression (D-09)
+- [x] 35-06-PLAN.md — Demo exposure lock-down + DEMO-10 regression (D-09)
 
 ### Phase 36: Code Comments — Batch 2
 
@@ -392,5 +392,5 @@ Plans:
 | 32. README + Code Comments | v1.2 | 4/4 | Complete    | 2026-06-29 |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
 | 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete    | 2026-06-30 |
-| 35. Demo System Refresh / Version Parity | v1.2 | 5/6 | In Progress|  |
+| 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | In Progress|  |
 | 36. Code Comments — Batch 2 | v1.2 | 0/– | Planned | - |

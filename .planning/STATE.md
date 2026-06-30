@@ -5,16 +5,16 @@ milestone_name: — Codebase Health & Reliability
 current_phase: 35
 current_phase_name: demo-system-refresh-version-parity
 status: executing
-stopped_at: 35-04 demo seed complete — Ben signed off at D-05; other-type client removed (overrides D-04). Wave 3 (35-06) next.
-last_updated: "2026-06-30T13:50:00.619Z"
+stopped_at: 35-06 demo exposure lock-down complete — DEMO-10 real-browser regression APPROVED by Ben (3 iframe-escape nav fixes applied). All 6 of Phase 35's plans now have summaries; phase verification/completion is the orchestrator's.
+last_updated: "2026-06-30T18:30:00.000Z"
 last_activity: 2026-06-30
-last_activity_desc: 35-04 demo seed refresh complete (D-05 sign-off)
+last_activity_desc: 35-06 demo exposure lock-down + DEMO-10 regression complete (DEMO-10/11)
 progress:
   total_phases: 9
   completed_phases: 6
   total_plans: 47
-  completed_plans: 46
-  percent: 98
+  completed_plans: 47
+  percent: 100
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 
 ## Current Position
 
-Phase: 35 (demo-system-refresh-version-parity) — EXECUTING
-Plan: 5 of 6 done — Wave 3 (35-06 demo exposure) next
-Status: Ready to execute 35-06
-Last activity: 2026-06-30 — 35-04 demo seed refresh complete (Ben signed off at D-05)
+Phase: 35 (demo-system-refresh-version-parity) — EXECUTING (all 6 plans have summaries; awaiting orchestrator phase verification/completion)
+Plan: 6 of 6 done — Wave 3 (35-06 demo exposure) COMPLETE
+Status: 35-06 finalized — phase.complete is the orchestrator's to run
+Last activity: 2026-06-30 — 35-06 demo exposure lock-down + DEMO-10 real-browser regression complete (Ben approved)
 
 ## Performance Metrics
 
@@ -149,6 +149,7 @@ Last activity: 2026-06-30 — 35-04 demo seed refresh complete (Ben signed off a
 | Phase 35 P03 | 12min | 2 tasks | 1 files |
 | Phase 35 P05 | 3min | 2 tasks | 3 files |
 | Phase 35 P04 | 12min | 2 tasks | 2 files |
+| Phase 35 P06 | ~45min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -296,6 +297,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 35-04: relative-date seam — isoDaysAgo (noon-anchored) + applyRelativeDates exposed via window.__demoSeedHelpers BEFORE the demo-mode early-return; seedData() applies it at load so the demo self-freshens (DEMO-06)
 - [Phase ?]: 35-04: Heart Shield removal arc authored on Anita C (3 sessions, final shieldRemoved:true) against overview.js .some() badge path; newest session daysAgo:0; seed gate 3/3 GREEN; D-05 SIGNED OFF by Ben.
 - [Phase ?]: 35-04 (D-05 sign-off): Ben approved the seed with ONE revision — REMOVE the other-type demo client (Maple House) + its lone other-type session. This brand decision OVERRIDES D-04 (which had called for an other-type for variety). Seed now 7 clients / 11 sessions; Heart-Shield arc + relative dates + v6 schema approved as-is. Commit be27c2f (seed-only). Final clinical wording remains Sapir's domain — visually re-reviewed at the 35-06 DEMO-10 real-browser regression.
+- [Phase ?]: 35-06 (DEMO-11): Backup cloud btn + overview Export/Import + openExportFlow + license activate/deactivate hidden/disabled in demo via the window.name==='demo-mode' seam (UX-level exposure reduction on top of the demo_portfolio DB-name isolation, unchanged); toast.exportDisabledDemo localized in all 4 langs (UI chrome, not seed → all-language rule applies). Settings→Backups stays operable in demo BY DESIGN (D-09 refinement, T-SETTINGS-RESID accepted) — not a gap.
+- [Phase ?]: 35-06 (DEMO-10): Full Phase-35 demo regression APPROVED by Ben in a real browser. Surfaced + fixed 3 iframe-escape paths (Rule-1 deviations, all approved): (1) homeHref/footer-License/initLicenseLink → ./demo.html in demo (9be659b); (2) .disclaimer-brand logo added to updateBackLinks() selector (26f66fd); (3) redirectDemoBrandLink() repoints in-app .brand-link → ./demo.html (af33a9e). New tests/35-demo-nav.test.js (14 cases). Full suite 118/0.
 
 ### Pending Todos
 
@@ -361,12 +364,12 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-30T13:19:06.926Z
+**Last session:** 2026-06-30T18:30:00.000Z
 
-Last activity: 2026-06-30 — 35-04 demo seed refresh COMPLETE. Ben signed off at the D-05 blocking-human gate with ONE revision: remove the `other`-type demo client (Maple House) — a brand decision that overrides D-04 (which had asked for an `other`-type for variety). Applied via `be27c2f` (seed-only, 35 deletions). Seed now 7 clients / 11 sessions; Anita C Heart-Shield removal arc + relative dates + v6 schema untouched. Seed gate 3/3 GREEN; full suite 116 passed / 1 failed (the 1 = 35-06's `35-demo-exposure.test.js`, RED by design). DEMO-05/06/07 marked complete. Final clinical wording stays Sapir's domain — visually re-reviewed during the 35-06 DEMO-10 real-browser regression.
-Stopped at: 35-04 complete (D-05 sign-off applied) — Wave 3 (35-06 demo exposure) next.
+Last activity: 2026-06-30 — 35-06 demo exposure lock-down COMPLETE. DEMO-11 hides/disables the backup cloud btn, overview Export/Import, the `openExportFlow` path, and license activate/deactivate in demo mode (0b32b2e/98d1275/d8997a7); `toast.exportDisabledDemo` added in all 4 langs. The DEMO-10 full-demo regression was APPROVED by Ben in a real browser; it surfaced 3 iframe-escape nav paths, all fixed inline (9be659b/26f66fd/af33a9e) and covered by the new `tests/35-demo-nav.test.js` (14 cases). Full suite 118 passed / 0 failed; no test weakened. DEMO-10 + DEMO-11 marked Complete. KNOWN RESIDUAL (deferred by design): Settings→Backups stays operable in the demo (D-09 refinement, T-SETTINGS-RESID accepted). All 6 of Phase 35's plans now have summaries.
+Stopped at: 35-06 finalized — phase verification/completion left to the orchestrator (do NOT mark the phase complete here).
 Resume file: None
-Next: orchestrator advances to Wave 3 — 35-06 demo exposure (its `35-demo-exposure.test.js` gate is RED by design and turns GREEN there).
+Next: orchestrator runs Phase 35 verification, then phase.complete.
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
 
