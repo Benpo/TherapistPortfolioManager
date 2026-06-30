@@ -1113,45 +1113,56 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const isNew = !editingSession;
     let savedId;
-    if (editingSession) {
-      await PortfolioDB.updateSession({
-        ...editingSession,
-        clientId,
-        date,
-        sessionType,
-        issues: issuesPayload,
-        trappedEmotions,
-        heartShieldEmotions,
-        insights,
-        limitingBeliefs,
-        additionalTech,
-        customerSummary,
-        comments,
-        isHeartShield,
-        shieldRemoved,
-        updatedAt: new Date().toISOString()
-      });
-      savedId = editingSession.id;
-      App.showToast("", "toast.sessionUpdated");
-    } else {
-      const newId = await PortfolioDB.addSession({
-        clientId,
-        date,
-        sessionType,
-        issues: issuesPayload,
-        trappedEmotions,
-        heartShieldEmotions,
-        insights,
-        limitingBeliefs,
-        additionalTech,
-        customerSummary,
-        comments,
-        isHeartShield,
-        shieldRemoved,
-        createdAt: new Date().toISOString()
-      });
-      savedId = newId;
-      App.showToast("", "toast.sessionSaved");
+    // The IndexedDB write can reject (quota, blocked upgrade, corrupt store). Without
+    // a guard the rejection propagates as an unhandled promise rejection with no user
+    // feedback, and the caller still fires its redirect. Wrap it like the sibling async
+    // handlers (toast.errorGeneric) and return null so the caller aborts cleanly — the
+    // save-then-export trigger sees a falsy result and skips both redirect and export.
+    try {
+      if (editingSession) {
+        await PortfolioDB.updateSession({
+          ...editingSession,
+          clientId,
+          date,
+          sessionType,
+          issues: issuesPayload,
+          trappedEmotions,
+          heartShieldEmotions,
+          insights,
+          limitingBeliefs,
+          additionalTech,
+          customerSummary,
+          comments,
+          isHeartShield,
+          shieldRemoved,
+          updatedAt: new Date().toISOString()
+        });
+        savedId = editingSession.id;
+        App.showToast("", "toast.sessionUpdated");
+      } else {
+        const newId = await PortfolioDB.addSession({
+          clientId,
+          date,
+          sessionType,
+          issues: issuesPayload,
+          trappedEmotions,
+          heartShieldEmotions,
+          insights,
+          limitingBeliefs,
+          additionalTech,
+          customerSummary,
+          comments,
+          isHeartShield,
+          shieldRemoved,
+          createdAt: new Date().toISOString()
+        });
+        savedId = newId;
+        App.showToast("", "toast.sessionSaved");
+      }
+    } catch (err) {
+      console.error("Session save failed:", err);
+      App.showToast("", "toast.errorGeneric");
+      return null;
     }
     return { savedId, isNew };
   }

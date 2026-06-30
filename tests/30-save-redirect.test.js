@@ -270,6 +270,29 @@ async function captureRedirectFor(savedId) {
   return result;
 }
 
+// Drive a full new-session save whose DB write REJECTS, and report what the
+// handler surfaced (Phase 34 WR-01 hardening gate). The mock's addSession is
+// swapped for a rejecting one AFTER boot but BEFORE submit.
+async function captureFailedSave() {
+  var env = buildEnv(1); // resolved id is irrelevant — the write rejects
+  await env.domHandler();
+  await settle();
+  env.mockDb.addSession = function () {
+    return Promise.reject(new Error('IndexedDB write rejected (quota/blocked)'));
+  };
+  seedValidForm(env.win);
+  fireSubmit(env.win);
+  await settle();
+  env.runRedirectTimers(); // run any captured 600ms timer (there must be none)
+  var result = {
+    href: env.hrefAssignments.length ? env.hrefAssignments[env.hrefAssignments.length - 1] : null,
+    timerCount: env.capturedRedirects.length,
+    toastKeys: (env.app.__calls.get('showToast') || []).map(function (a) { return a[1]; }),
+  };
+  env.dom.window.close();
+  return result;
+}
+
 (async function () {
   // A. The destination is the saved session in reading mode, carrying the id
   //    PortfolioDB.addSession resolved.
@@ -298,8 +321,26 @@ async function captureRedirectFor(savedId) {
       'sanity: the save path fires toast.sessionSaved (the redirect destination remains the checked artifact)');
   });
 
+  // C. (Phase 34 WR-01) A rejected DB write must SURFACE the failure (error toast)
+  //    and must NOT redirect. Before the WR-01 hardening the IndexedDB write had no
+  //    try/catch: the rejection propagated as an unhandled promise rejection with
+  //    no user feedback. The falsifiable subject is the error toast — without the
+  //    guard no toast.errorGeneric fires (silent failure); with it, it does. The
+  //    success toast must NOT fire and no redirect timer may be scheduled.
+  await test('a rejected DB write surfaces toast.errorGeneric and does NOT redirect (WR-01 hardening)', async function () {
+    var r = await captureFailedSave();
+    assert.ok(r.toastKeys.indexOf('toast.errorGeneric') !== -1,
+      'a failed save must surface toast.errorGeneric; toasts fired: ' + JSON.stringify(r.toastKeys));
+    assert.ok(r.toastKeys.indexOf('toast.sessionSaved') === -1,
+      'the success toast must NOT fire when the DB write rejected');
+    assert.strictEqual(r.timerCount, 0,
+      'no 600ms redirect timer may be scheduled when the save failed');
+    assert.strictEqual(r.href, null,
+      'a failed save must NOT navigate; got ' + JSON.stringify(r.href));
+  });
+
   // ─── F-A end-of-file count guard ─────────────────────────────────────────
-  var EXPECTED_COUNT = 2;
+  var EXPECTED_COUNT = 3;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
