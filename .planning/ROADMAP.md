@@ -66,7 +66,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 - [x] **Phase 32: README + Code Comments** — project README (run/deploy/architecture) for Sapir as ongoing maintainer; code-level comments describing the *refactored* structure. (plans executed 2026-06-29; pending human UAT — see 32-UAT.md) (completed 2026-06-29)
 - [ ] **Phase 33: DE/CS i18n completion** — translate the 13 export-modal keys currently showing English to German/Czech users (needs Sapir's strings). Independent of the others — slot in whenever ready.
 - [x] **Phase 34: Session PDF Export — Visual Polish** — make the exported session PDF (`pdf-export.js`, bidi-aware) look intentionally designed rather than default jsPDF output. **Design-led**: collaborative brainstorm/design pass to define the target look → SPEC → PLAN → exec. Success criteria drafted at design time. Hebrew RTL/bidi correctness must be preserved. (added 2026-06-29 — first of the v1.2 tail, by Ben's work order) (completed 2026-06-30)
-- [ ] **Phase 35: Demo System Refresh / Version Parity** — bring the demo group (`demo.js`/`demo-seed.js`/`demo-hints.js`/`demo.html`) back in sync with the current app schema, features, and version (flagged "stale" in `32-COMMENT-COVERAGE-MAP.md`). Effort uncertain → **size via a discuss/spike before locking a plan**. (added 2026-06-29)
+- [x] **Phase 35: Demo System Refresh / Version Parity** — bring the demo group (`demo.js`/`demo-seed.js`/`demo-hints.js`/`demo.html`) back in sync with the current app schema, features, and version (flagged "stale" in `32-COMMENT-COVERAGE-MAP.md`). Effort uncertain → **size via a discuss/spike before locking a plan**. (added 2026-06-29) (completed 2026-06-30)
 - [ ] **Phase 36: Code Comments — Batch 2** — apply the Phase 32 banner convention to the remaining ~21 production modules, starting at the 3 lowest-staleness batch-1 modules (`db.js`/`overview.js`/`sessions.js`); seeded by `32-COMMENT-COVERAGE-MAP.md`. Guarded by green `npm test` + comments-only strip-and-compare gate. (added 2026-06-29)
 
 ### Phase 28: Update Reliability & Versioning
@@ -289,7 +289,7 @@ Plans:
   3. The orphaned `demo-hints.js` is removed cleanly, and backup/export/license controls are hidden in demo mode (DEMO-08/09/11)
   4. The landing iframe demo entry point keeps working end-to-end (DEMO-10)
 
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans complete
 **Wave 1**
 
 - [x] 35-01-PLAN.md — Wave-0 validation scaffolds: demo chrome + static gates (DEMO-01/02/03/04/08/09)
@@ -338,6 +338,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 **Goal:** Add an optional, real **date** field for the next session — stored on the session record alongside the existing free-text "information for the next session" note — and surface it in the overview table as its own column, mirroring how the last-session date is already shown.
 
 **Scope (as captured 2026-06-30):**
+
 - New optional "next session date" lives in the same "information for the next session" section that today holds only a text field.
 - Must be a proper **date input (date picker)**, not free text — a real date type so the value can't be malformed or exploited.
 - Saved directly within the session record.
@@ -350,6 +351,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
 ## Progress
@@ -392,5 +394,5 @@ Plans:
 | 32. README + Code Comments | v1.2 | 4/4 | Complete    | 2026-06-29 |
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
 | 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete    | 2026-06-30 |
-| 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | In Progress|  |
+| 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
 | 36. Code Comments — Batch 2 | v1.2 | 0/– | Planned | - |

@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
-current_phase: 35
-current_phase_name: demo-system-refresh-version-parity
-status: executing
-stopped_at: 35-06 demo exposure lock-down complete — DEMO-10 real-browser regression APPROVED by Ben (3 iframe-escape nav fixes applied). All 6 of Phase 35's plans now have summaries; phase verification/completion is the orchestrator's.
-last_updated: "2026-06-30T18:30:00.000Z"
+current_phase: 36
+current_phase_name: Code Comments — Batch 2
+status: completed
+stopped_at: 35-06 finalized — phase verification/completion left to the orchestrator (do NOT mark the phase complete here).
+last_updated: "2026-06-30T16:58:20.168Z"
 last_activity: 2026-06-30
-last_activity_desc: 35-06 demo exposure lock-down + DEMO-10 regression complete (DEMO-10/11)
+last_activity_desc: Phase 35 complete, transitioned to Phase 36
 progress:
   total_phases: 9
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 47
   completed_plans: 47
-  percent: 100
+  percent: 78
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 
 ## Current Position
 
-Phase: 35 (demo-system-refresh-version-parity) — EXECUTING (all 6 plans have summaries; awaiting orchestrator phase verification/completion)
-Plan: 6 of 6 done — Wave 3 (35-06 demo exposure) COMPLETE
+Phase: 36 — Code Comments — Batch 2
+Plan: Not started
 Status: 35-06 finalized — phase.complete is the orchestrator's to run
-Last activity: 2026-06-30 — 35-06 demo exposure lock-down + DEMO-10 real-browser regression complete (Ben approved)
+Last activity: 2026-06-30 — Phase 35 complete, transitioned to Phase 36
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Last activity: 2026-06-30 — 35-06 demo exposure lock-down + DEMO-10 real-brows
 | 31 | 6 | - | - |
 | 32 | 4 | - | - |
 | 34 | 10 | - | - |
+| 35 | 6 | - | - |
 
 **Recent Trend:**
 
