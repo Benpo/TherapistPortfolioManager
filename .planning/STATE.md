@@ -8,7 +8,7 @@ status: All 10 plans executed; golden baselines regenerated + human-approved
 stopped_at: Completed 34-10-PLAN.md
 last_updated: "2026-06-30T09:30:02.267Z"
 last_activity: 2026-06-30
-last_activity_desc: Phase 34 complete, transitioned to Phase 35
+last_activity_desc: Phase 34 code-review fixes applied (CR-01 + WR-01); suite 113/113 green
 progress:
   total_phases: 9
   completed_phases: 6
@@ -31,7 +31,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 Phase: 35 — Demo System Refresh / Version Parity
 Plan: Not started
 Status: All 10 plans executed; golden baselines regenerated + human-approved
-Last activity: 2026-06-30 — Phase 34 complete, transitioned to Phase 35
+Last activity: 2026-06-30 — Phase 34 code-review fixes: CR-01 (unmeasured severity now renders – not 0 in PDF, mirroring the clipboard path) + WR-01 (saveSessionForm DB write guarded with error toast). Both committed atomically (a1e97a7, 68d5eeb) with falsifiable tests; suite 113/113 green, golden baselines untouched. Info findings IN-01..04 deferred. Previously: Phase 34 complete, transitioned to Phase 35.
 
 ## Performance Metrics
 
