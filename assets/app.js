@@ -293,6 +293,30 @@ window.App = (() => {
     };
     updateBanner();
     document.addEventListener('app:language', updateBanner);
+
+    // Phase 35 Plan 06 (D-09 / DEMO-11) — hide the overview Export/Import
+    // controls in demo mode so a visitor cannot export real-looking data or
+    // import over the demo DB. UX-level exposure reduction layered on top of
+    // the real demo_portfolio DB-name isolation.
+    hideDemoExposedControls();
+  }
+
+  /**
+   * Phase 35 Plan 06 (D-09 / DEMO-11) — demo-only hide pass for the overview
+   * Export/Import controls (#exportBtn, .import-label / #importInput). Runs from
+   * initDemoMode (demo mode only). Uses JS-observable hidden/disabled props (not
+   * CSS-only) so the 35-02 jsdom exposure gate can assert it. Every lookup is
+   * null-guarded — these controls exist only on the overview/home page, but
+   * initDemoMode runs on every demo page.
+   */
+  function hideDemoExposedControls() {
+    if (typeof window === 'undefined' || window.name !== 'demo-mode') return;
+    var exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) exportBtn.hidden = true;
+    var importLabel = document.querySelector('.import-label');
+    if (importLabel) importLabel.hidden = true;
+    var importInput = document.getElementById('importInput');
+    if (importInput) importInput.disabled = true;
   }
 
   /**
@@ -423,6 +447,10 @@ window.App = (() => {
    * shared partial in a follow-up plan.)
    */
   function mountBackupCloudButton() {
+    // Phase 35 Plan 06 (D-09 / DEMO-11) — never mount the cloud backup entry
+    // point in the sales demo. window.name==='demo-mode' is the established
+    // demo seam; updateBackupCloudState already no-ops on the absent button.
+    if (typeof window !== 'undefined' && window.name === 'demo-mode') return;
     var actions = document.getElementById('headerActions') || document.querySelector('.header-actions');
     if (!actions) return;
     if (actions.querySelector('.backup-cloud-btn')) return;  // double-mount guard
