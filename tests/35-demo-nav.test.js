@@ -53,6 +53,7 @@ function buildEnv(demo) {
       '<a class="legal-back-link" href="#"></a>' +
       '<a class="legal-topbar-brand" href="./landing.html"></a>' +
       '<a class="disclaimer-brand" href="./landing.html"></a>' +
+      '<a class="brand brand-link" href="./index.html"></a>' +
       '<div class="header-actions"></div>' +
     '</div>' +
     '</body></html>';
@@ -156,6 +157,14 @@ function main() {
       'demo mode must skip mounting the header license key-icon (mirrors the mountBackupCloudButton demo guard)');
   });
 
+  test('DEMO-10 demo: redirectDemoBrandLink() points the in-app LOGO (.brand-link) at ./demo.html', function () {
+    dWin.App.redirectDemoBrandLink();
+    var brand = dDoc.querySelector('.brand-link');
+    assert.ok(brand, 'a .brand-link must exist to assert against');
+    assert.strictEqual(brand.getAttribute('href'), './demo.html',
+      'in-app pages (sessions/add-session/settings) ship a static href="./index.html" logo; in demo mode it must point at ./demo.html so the logo returns to the demo home, not the real app shell');
+  });
+
   demo.dom.window.close();
 
   // ─── NORMAL mode (no-regression inverse): everything present, as before ─────
@@ -208,10 +217,17 @@ function main() {
       'the mounted header license link must point at ./license.html');
   });
 
+  test('NORMAL: redirectDemoBrandLink() leaves the in-app LOGO (.brand-link) at ./index.html (no-op)', function () {
+    nWin.App.redirectDemoBrandLink();
+    var brand = nDoc.querySelector('.brand-link');
+    assert.strictEqual(brand.getAttribute('href'), './index.html',
+      'in normal mode redirectDemoBrandLink must be a no-op — the real in-app logo stays ./index.html (guard is demo-scoped)');
+  });
+
   normal.dom.window.close();
 
   // ─── count guard (no case silently skipped) ────────────────────────────────
-  var EXPECTED_COUNT = 12;
+  var EXPECTED_COUNT = 14;
   if (passed + failed !== EXPECTED_COUNT) {
     console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases to execute, but ' +
       (passed + failed) + ' ran — a case was silently skipped.');

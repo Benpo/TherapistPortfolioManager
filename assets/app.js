@@ -299,6 +299,7 @@ window.App = (() => {
     // import over the demo DB. UX-level exposure reduction layered on top of
     // the real demo_portfolio DB-name isolation.
     hideDemoExposedControls();
+    redirectDemoBrandLink();
   }
 
   /**
@@ -317,6 +318,23 @@ window.App = (() => {
     if (importLabel) importLabel.hidden = true;
     var importInput = document.getElementById('importInput');
     if (importInput) importInput.disabled = true;
+  }
+
+  /**
+   * Phase 35 Plan 06 (DEMO-10 finding) — in demo mode, point the header brand
+   * (logo) link at ./demo.html so it returns to the DEMO home, not the real
+   * ./index.html. Every in-app page (sessions/add-session/settings/…) ships a
+   * static href="./index.html" brand-link; without this, clicking the logo from
+   * inside a demo sub-page escapes the demo shell (loses the banner + reseed).
+   * Runs from initDemoMode (demo only); demo.html's own brand-link is already
+   * ./demo.html so this is a no-op there. JS-observable so the nav gate asserts it.
+   */
+  function redirectDemoBrandLink() {
+    if (typeof window === 'undefined' || window.name !== 'demo-mode') return;
+    var brandLinks = document.querySelectorAll('.brand-link');
+    for (var i = 0; i < brandLinks.length; i++) {
+      brandLinks[i].setAttribute('href', './demo.html');
+    }
   }
 
   /**
@@ -1389,6 +1407,7 @@ window.App = (() => {
     renderNav,
     initThemeToggle,
     initLicenseLink,
+    redirectDemoBrandLink: redirectDemoBrandLink,
     mountBackupCloudButton: mountBackupCloudButton,
     updateBackupCloudState: updateBackupCloudState,
     // Phase 25 Plan 04 Task 3 — test seams for the D-15/D-19 behavior gate
