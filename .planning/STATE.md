@@ -6,7 +6,7 @@ current_phase: 35
 current_phase_name: demo-system-refresh-version-parity
 status: executing
 stopped_at: Completed 34-10-PLAN.md
-last_updated: "2026-06-30T12:58:35.587Z"
+last_updated: "2026-06-30T13:03:38.473Z"
 last_activity: 2026-06-30
 last_activity_desc: Phase 35 execution started
 progress:
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 35 (demo-system-refresh-version-parity) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-06-30 — Phase 35 execution started
 
@@ -146,6 +146,7 @@ Last activity: 2026-06-30 — Phase 35 execution started
 | Phase 34 P10 | 15min | 2 tasks | 6 files |
 | Phase 35 P01 | 5min | 2 tasks | 3 files |
 | Phase 35 P02 | 30min | 2 tasks | 2 files |
+| Phase 35 P03 | 12min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -288,6 +289,7 @@ Recent decisions affecting current work:
 - [Phase ?]: 35-01: Wave-0 demo RED gates pair a behavioral jsdom gate (real App.initCommon) with a static source gate; only the static one is allowlisted in the fake-test-detector.
 - [Phase ?]: 35-01: i18n app.subtitle regression guards assert !/therapeut/i, not brittle exact strings — green now, guards a 35-03 terminology regression.
 - [Phase ?]: 35-02: Home/normal demo-exposure no-regression target is #backupCloudBtn presence; index.html export lives in the is-hidden backup modal (modal-export visibility is a false target)
+- [Phase 35]: 35-03: Converged demo.html chrome onto the single source (D-01) — header-actions block replaced with empty #headerActions, shared-chrome.js loaded before app.js; subtitle literal swept therapeutic->energy (D-07).
 
 ### Pending Todos
 
@@ -353,7 +355,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-30T12:58:09.671Z
+**Last session:** 2026-06-30T13:02:52.855Z
 
 Last activity: 2026-06-30 — Phase 34 plan 10/10 complete. Redesigned-PDF golden baselines regenerated AFTER the owner's blocking visual sign-off (EN+HE vs FINAL-mockup); one approved HE footer label tweak (pdf.footer.exportedOn → "הופק בתאריך"); full suite 112/112 green (pdf-latin-regression now matching the new baselines). Mid-phase test-harness defect (inert false-GREEN pdf gates, jsdom loadScriptOnce hang) was fixed in cb00179/a6951a8 — gates now genuinely live. Commits: 6413d25 (label), 6e4418b (baselines), + this docs commit.
 Stopped at: Completed 34-10-PLAN.md

@@ -134,14 +134,14 @@ Which phases cover which requirements. Status filled during execution.
 | PDFX-01 | Phase 34 | Complete |
 | PDFX-02 | Phase 34 | Complete |
 | PDFX-03 | Phase 34 | Descoped (invalid premise — export only reachable in read mode) |
-| DEMO-01 | Phase 35 | Pending |
-| DEMO-02 | Phase 35 | Pending |
-| DEMO-03 | Phase 35 | Pending |
-| DEMO-04 | Phase 35 | Pending |
+| DEMO-01 | Phase 35 | Complete |
+| DEMO-02 | Phase 35 | Complete |
+| DEMO-03 | Phase 35 | Complete |
+| DEMO-04 | Phase 35 | Complete |
 | DEMO-05 | Phase 35 | Complete |
 | DEMO-06 | Phase 35 | Complete |
 | DEMO-07 | Phase 35 | Complete |
-| DEMO-08 | Phase 35 | Pending |
+| DEMO-08 | Phase 35 | Complete |
 | DEMO-09 | Phase 35 | Pending |
 | DEMO-10 | Phase 35 | Pending |
 | DEMO-11 | Phase 35 | Complete |
