@@ -5,16 +5,16 @@ milestone_name: — Codebase Health & Reliability
 current_phase: 34
 current_phase_name: session-pdf-export-visual-polish
 status: executing
-stopped_at: Completed 34-07-PLAN.md
-last_updated: "2026-06-29T22:48:16.531Z"
-last_activity: 2026-06-29
-last_activity_desc: Phase 34 execution started
+stopped_at: Completed 34-10-PLAN.md
+last_updated: "2026-06-30T08:50:00Z"
+last_activity: 2026-06-30
+last_activity_desc: Phase 34 plan 10/10 complete — golden baselines regenerated (human-approved)
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 41
-  completed_plans: 40
-  percent: 56
+  completed_plans: 41
+  percent: 57
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 34 (session-pdf-export-visual-polish) — EXECUTING
-Plan: 10 of 10
-Status: Ready to execute
-Last activity: 2026-06-29 — Phase 34 execution started
+Plan: 10 of 10 — COMPLETE (awaiting phase-level verification by orchestrator)
+Status: All 10 plans executed; golden baselines regenerated + human-approved
+Last activity: 2026-06-30 — Phase 34 plan 10/10 complete (baseline regeneration)
 
 ## Performance Metrics
 
@@ -142,6 +142,7 @@ Last activity: 2026-06-29 — Phase 34 execution started
 | Phase 34 P07 | ~20min | 2 tasks | 1 files |
 | Phase 34 P08 | 10min | 2 tasks | 4 files |
 | Phase 34 P9 | 8min | 2 tasks | 2 files |
+| Phase 34 P10 | 15min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -280,6 +281,7 @@ Recent decisions affecting current work:
 - [Phase ?]: 34-07: leaf-diamond section headings (two triangle() fills) + #bfe0b0 vein rule + airier 11.5pt/19 body, #2f2d38 ink (D-06/D-07)
 - [Phase ?]: 34-07: full-bleed three-zone footer band (made-with mark+logo / Page X of Y / Exported-on date) on every page, RTL-mirrored (D-09)
 - [Phase ?]: [Phase 34-08]: save-before-export fences export behind an honest save — reusable saveSessionForm() (validate then persist, returns {savedId,isNew} or null on validation failure, no redirect; caller owns navigation) + a non-blocking export.unsaved.* prompt on the export trigger; just-saved id threaded into deriveSessionOrdinal so a brand-new session gets the correct FN-1 ordinal (D-13/PDFX-03)
+- [Phase 34-10]: D-11 closed — 5 golden SHA-256 baselines (en/de/cs/he/he-mixed) regenerated AFTER a blocking human visual sign-off (EN+HE vs FINAL-mockup); full suite 112/112. One approved HE footer tweak: pdf.footer.exportedOn "יוצא בתאריך"→"הופק בתאריך". Owner-approved checkpoint revisions intentionally override locked D-05/header-subtitle (header simplified, severity to form-order, page-2 header restyled). NOTE: pdf-latin-regression + 3 floor gates were inert false-GREEN mid-phase (jsdom loadScriptOnce hang); fixed in cb00179/a6951a8 — now genuinely live (see .planning/debug/pdf-harness-loadscript-hang.md)
 
 ### Pending Todos
 
@@ -345,12 +347,12 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-06-29T22:47:47.266Z
+**Last session:** 2026-06-30T08:50:00Z
 
-Last activity: 2026-06-29 — Phase 32 (README + Code Comments) verified and closed. UAT 2/2 passed (test 1: 6 README how-do-I recipes cross-checked accurate against deploy.yml/version.js/i18n/sw.js; test 2: help-content inventory carries 4-tag discipline, full P26 spine, all license.html topics, no pasteable copy). Verification canonicalized human_needed→passed; phase.complete advanced ROADMAP + STATE to Phase 33. PROJECT.md evolved (P32 marked done, 2 decisions logged, footer + stale-maintainer-framing note).
-Stopped at: Completed 34-07-PLAN.md
+Last activity: 2026-06-30 — Phase 34 plan 10/10 complete. Redesigned-PDF golden baselines regenerated AFTER the owner's blocking visual sign-off (EN+HE vs FINAL-mockup); one approved HE footer label tweak (pdf.footer.exportedOn → "הופק בתאריך"); full suite 112/112 green (pdf-latin-regression now matching the new baselines). Mid-phase test-harness defect (inert false-GREEN pdf gates, jsdom loadScriptOnce hang) was fixed in cb00179/a6951a8 — gates now genuinely live. Commits: 6413d25 (label), 6e4418b (baselines), + this docs commit.
+Stopped at: Completed 34-10-PLAN.md
 Resume file: None
-Next: `/gsd-plan-phase 33` (DE/CS i18n completion) — but it needs Sapir's 13 export-modal DE/CS strings first; also pending: the planned PROJECT.md maintainer reframe + drift audit.
+Next: orchestrator runs phase-level verification + completion for Phase 34 (this plan does NOT mark the phase complete or spawn a verifier).
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
 
