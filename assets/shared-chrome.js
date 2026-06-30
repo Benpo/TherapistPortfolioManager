@@ -67,8 +67,11 @@ var SharedChrome = (function() {
       links[i].href = ctx.homeHref;
       links[i].textContent = label;
     }
-    // Update topbar brand link
-    var brandLinks = document.querySelectorAll('.legal-topbar-brand');
+    // Update topbar/disclaimer brand (logo) links. Two brand classes exist:
+    // .legal-topbar-brand (impressum/datenschutz) and .disclaimer-brand
+    // (disclaimer). Both must follow ctx.homeHref or the logo escapes the demo
+    // iframe in demo mode (DEMO-10 logo-escape finding).
+    var brandLinks = document.querySelectorAll('.legal-topbar-brand, .disclaimer-brand');
     for (var j = 0; j < brandLinks.length; j++) {
       brandLinks[j].href = ctx.homeHref;
     }

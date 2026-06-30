@@ -51,6 +51,8 @@ function buildEnv(demo) {
   var html = '<!doctype html><html><head></head><body>' +
     '<div class="container">' +
       '<a class="legal-back-link" href="#"></a>' +
+      '<a class="legal-topbar-brand" href="./landing.html"></a>' +
+      '<a class="disclaimer-brand" href="./landing.html"></a>' +
       '<div class="header-actions"></div>' +
     '</div>' +
     '</body></html>';
@@ -118,6 +120,22 @@ function main() {
       'legal-page back link must resolve to ./demo.html in demo mode (updateBackLinks → ctx.homeHref), NOT ./landing.html');
   });
 
+  test('DEMO-10 demo: updateBackLinks() points the legal topbar LOGO (.legal-topbar-brand) at ./demo.html', function () {
+    dWin.SharedChrome.updateBackLinks();
+    var brand = dDoc.querySelector('.legal-topbar-brand');
+    assert.ok(brand, 'a .legal-topbar-brand must exist to assert against');
+    assert.strictEqual(brand.getAttribute('href'), './demo.html',
+      'the impressum/datenschutz topbar logo must resolve to ./demo.html in demo mode, NOT ./landing.html');
+  });
+
+  test('DEMO-10 demo: updateBackLinks() points the disclaimer LOGO (.disclaimer-brand) at ./demo.html', function () {
+    dWin.SharedChrome.updateBackLinks();
+    var brand = dDoc.querySelector('.disclaimer-brand');
+    assert.ok(brand, 'a .disclaimer-brand must exist to assert against');
+    assert.strictEqual(brand.getAttribute('href'), './demo.html',
+      'the disclaimer/About-page logo must resolve to ./demo.html in demo mode — it uses .disclaimer-brand, a SECOND brand class updateBackLinks must cover (the DEMO-10 logo-escape finding)');
+  });
+
   test('DEMO-10 demo: the footer License link is ABSENT (no footer path to license.html)', function () {
     dWin.SharedChrome.renderFooter();
     var footer = dDoc.querySelector('.app-footer');
@@ -158,6 +176,20 @@ function main() {
       'normal mode legal back link must remain ./landing.html — proves the in-demo redirect is demo-scoped');
   });
 
+  test('NORMAL: the legal topbar LOGO (.legal-topbar-brand) stays ./landing.html (unchanged)', function () {
+    nWin.SharedChrome.updateBackLinks();
+    var brand = nDoc.querySelector('.legal-topbar-brand');
+    assert.strictEqual(brand.getAttribute('href'), './landing.html',
+      'normal mode legal topbar logo must remain ./landing.html — proves the redirect is demo-scoped');
+  });
+
+  test('NORMAL: the disclaimer LOGO (.disclaimer-brand) stays ./landing.html (unchanged)', function () {
+    nWin.SharedChrome.updateBackLinks();
+    var brand = nDoc.querySelector('.disclaimer-brand');
+    assert.strictEqual(brand.getAttribute('href'), './landing.html',
+      'normal mode disclaimer logo must remain ./landing.html — proves the redirect is demo-scoped');
+  });
+
   test('NORMAL: the footer License link IS present (real footer untouched)', function () {
     nWin.SharedChrome.renderFooter();
     var footer = nDoc.querySelector('.app-footer');
@@ -179,7 +211,7 @@ function main() {
   normal.dom.window.close();
 
   // ─── count guard (no case silently skipped) ────────────────────────────────
-  var EXPECTED_COUNT = 8;
+  var EXPECTED_COUNT = 12;
   if (passed + failed !== EXPECTED_COUNT) {
     console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases to execute, but ' +
       (passed + failed) + ' ran — a case was silently skipped.');
