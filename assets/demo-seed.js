@@ -5,6 +5,41 @@
 window.demoSeedReady = (function() {
   'use strict';
 
+  // ── Relative-date seam (D-06 / DEMO-06) ────────────────────────────────────
+  // Computed-date model: the seed JSON carries a per-session integer `daysAgo`
+  // instead of a hardcoded absolute `date`, so the demo self-freshens forever
+  // and never looks abandoned. These helpers are PURE (no IndexedDB) and are
+  // exposed on window BEFORE the demo-mode early-return below, so tests (and any
+  // non-demo context) can exercise the transform without triggering a seed/write.
+
+  // isoDaysAgo(n, now?): YYYY-MM-DD for `n` days before `now` (default live Date),
+  // anchored at LOCAL NOON so day-arithmetic + getMonth()/getFullYear() never slip
+  // across a UTC/midnight boundary (Pitfall 5 — countSessionsThisMonth re-parses
+  // this string with local new Date(session.date)).
+  function isoDaysAgo(n, now) {
+    var base = now ? new Date(now.getTime()) : new Date();
+    base.setHours(12, 0, 0, 0);          // noon anchor — dodges the month-edge tz slip
+    base.setDate(base.getDate() - n);
+    var y = base.getFullYear();
+    var m = String(base.getMonth() + 1).padStart(2, '0');
+    var d = String(base.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
+  }
+
+  // applyRelativeDates(sessions, now?): returns COPIES with date = isoDaysAgo(daysAgo)
+  // and `daysAgo` removed. Pure — no IndexedDB, safe to call outside demo mode.
+  function applyRelativeDates(sessions, now) {
+    return sessions.map(function(s) {
+      var copy = Object.assign({}, s);
+      copy.date = isoDaysAgo(s.daysAgo, now);
+      delete copy.daysAgo;
+      return copy;
+    });
+  }
+
+  // Expose the seam BEFORE the early-return so it is reachable in any context.
+  window.__demoSeedHelpers = { isoDaysAgo: isoDaysAgo, applyRelativeDates: applyRelativeDates };
+
   if (window.name !== 'demo-mode') return Promise.resolve();
 
   // Delete and recreate the demo DB, then seed with exported data
@@ -26,6 +61,9 @@ window.demoSeedReady = (function() {
   }
 
   async function seedData(clients, sessions) {
+    // Compute each session's absolute date at load time from its relative
+    // `daysAgo` offset (live Date → the demo always shows current dates).
+    sessions = applyRelativeDates(sessions);
     // Re-key from 1 so autoIncrement works cleanly for new records
     var clientIdMap = {};
     for (var i = 0; i < clients.length; i++) {
