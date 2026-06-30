@@ -150,7 +150,7 @@ window.I18N.he = {
   "pdf.card.sessionNo": "מפגש",
   "pdf.severity.heading": "חומרה — לפני ואחרי",
   "pdf.footer.madeWith": "נוצר עם Sessions Garden · sessionsgarden.app",
-  "pdf.footer.exportedOn": "יוצא בתאריך",
+  "pdf.footer.exportedOn": "הופק בתאריך",
   "session.edit": "עריכת מפגש",
   "session.form.afterSeverityTitle": "דרגת חומרה בסיום המפגש",
   "session.form.afterSeverity": "דרגת חומרה בסיום המפגש",
