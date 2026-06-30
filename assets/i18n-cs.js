@@ -211,6 +211,7 @@ window.I18N.cs = {
   "photos.deleteAll.failed": "Fotografie se nepoda\u0159ilo smazat.",
   "toast.autoBackupSet": "Slo\u017eka z\u00e1loh nastavena pro toto sezen\u00ed",
   "toast.importDisabledDemo": "Import nen\u00ed v demo re\u017eimu dostupn\u00fd",
+  "toast.exportDisabledDemo": "Export nen\u00ed v demo re\u017eimu dostupn\u00fd",
   "confirm.import": "Importovat",
   "confirm.cancel": "Zrušit",
   "confirm.delete": "Smazat",

@@ -238,6 +238,13 @@
     var App = getApp();
     var BM = getBM();
     if (!BM || !App) return Promise.resolve(null);
+    // Phase 35 Plan 06 (D-09 / DEMO-11) — block the export flow in the sales
+    // demo, mirroring the openImportFlow guard. A demo visitor must not produce
+    // a real .sgbackup file. Toast + early-return; the normal path is untouched.
+    if (typeof window !== 'undefined' && window.name === 'demo-mode') {
+      if (typeof App.showToast === 'function') App.showToast('', 'toast.exportDisabledDemo');
+      return Promise.resolve(null);
+    }
     return Promise.resolve()
       .then(function () { return BM.exportEncryptedBackup(); })
       .then(function (result) {

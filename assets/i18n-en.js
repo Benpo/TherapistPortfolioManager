@@ -211,6 +211,7 @@ window.I18N.en = {
   "photos.deleteAll.failed": "Could not delete photos.",
   "toast.autoBackupSet": "Backup folder set for this session",
   "toast.importDisabledDemo": "Import is not available in demo mode",
+  "toast.exportDisabledDemo": "Export is not available in demo mode",
   "confirm.import": "Import",
   "confirm.cancel": "Cancel",
   "confirm.delete": "Delete",
