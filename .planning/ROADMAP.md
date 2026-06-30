@@ -279,16 +279,23 @@ Plans:
 ### Phase 35: Demo System Refresh / Version Parity
 
 **Goal**: The demo experience mirrors the current shipped app — its seed data, hints, and screens reflect the present schema, feature set, and version — so a prospective buyer sees the real product rather than a stale snapshot.
-**Depends on**: Nothing (independent). Effort uncertain — size before planning.
-**Requirements**: TBD — formalized after the sizing spike (provisional code: DEMO-*).
-**Status**: Begins with a short **sizing spike / discuss-phase** to determine whether this is a seed-data refresh (small) or ripples into hints/screens (medium), before a plan is locked. (Distinct from the accepted-as-is `window.name` demo-security limitation in `todos/pending/2026-06-28-demo-mode-window-name-hardening.md`.)
-**Success Criteria (DRAFT — refine after sizing)**:
+**Depends on**: Nothing (independent). Plan after Phase 34 execution completes (shared `app.js` surface — execute serially or in an isolated worktree).
+**Requirements**: DEMO-01, DEMO-02, DEMO-03, DEMO-04, DEMO-05, DEMO-06, DEMO-07, DEMO-08, DEMO-09, DEMO-10, DEMO-11 (formalized 2026-06-30; approach locked to D-01 chrome-only single-sourcing, D-02 collapse declined).
+**Status**: Planned — 6 plans across 3 waves.
+**Success Criteria**:
 
-  1. The demo seed data (`demo-seed.js`) reflects the current session/client/issue schema with no missing or obsolete fields
-  2. Demo hints/screens (`demo-hints.js`, `demo.html`) match current app features and navigation
-  3. The demo displays a version consistent with the shipped app (no stale version mismatch)
+  1. The demo seed (`demo-seed-data.json` + `demo-seed.js`) conforms to the current schema with a Heart-Shield arc and self-freshening relative dates (DEMO-05/06/07)
+  2. The demo home chrome is single-sourced from `shared-chrome.js` + `app.js` (drift-proof), the dead native picker is gone, and the version footer renders (DEMO-01/02/03/04)
+  3. The orphaned `demo-hints.js` is removed cleanly, and backup/export/license controls are hidden in demo mode (DEMO-08/09/11)
+  4. The landing iframe demo entry point keeps working end-to-end (DEMO-10)
 
-**Plans:** Not yet planned — sizing spike first.
+**Plans:** 6 plans
+- [ ] 35-01-PLAN.md — Wave-0 validation scaffolds: demo chrome + static gates (DEMO-01/02/03/04/08/09)
+- [ ] 35-02-PLAN.md — Wave-0 validation scaffolds: seed + exposure gates (DEMO-05/06/07/11)
+- [ ] 35-03-PLAN.md — Demo home chrome convergence + terminology sweep (D-01/D-07)
+- [ ] 35-04-PLAN.md — Seed refresh: Heart-Shield arc + relative dates, human-approved (D-03/04/05/06/07)
+- [ ] 35-05-PLAN.md — Delete demo-hints.js (three coordinated edits) + SW cache reconcile (D-08)
+- [ ] 35-06-PLAN.md — Demo exposure lock-down + DEMO-10 regression (D-09)
 
 ### Phase 36: Code Comments — Batch 2
 

@@ -53,6 +53,22 @@ Requirements for the Codebase Health & Reliability milestone. Each maps to exact
 - [x] **PDFX-02**: The card's "Session #N" is a **derived chronological ordinal** (1-based position among the client's sessions sorted ascending by `date`, tie-break `id`, computed at export time — never the `autoIncrement` DB key), so deleting a middle session renumbers the rest with no gaps. **MUST be covered by a falsifiable behavior test authored before implementation** (FN-1; per `feedback-behavior-verification`).
 - [x] **PDFX-03 — DESCOPED (2026-06-30, invalid premise)**: ~~Exporting with unsaved changes offers a non-blocking "Save & export" / "Keep editing" prompt.~~ Descoped after implementation: the session-export button (`#exportSessionBtn`) is shown **only in read mode** on an already-saved session (`add-session.js:289` toggles it on `!isReadMode`), so export is **unreachable** while editing or from an unsaved/new session — there is no dirty/unsaved export path to guard, and the guard could never fire. The guard code was removed (refactor commit `refactor(34): remove dead save-before-export guard`). The behavior-preserving `saveSessionForm` extraction is retained as the save button's handler. FN-1 ordinal correctness for the (always-saved) exported session is fully delivered by **PDFX-02**.
 
+### Demo System Refresh / Version Parity (Phase 35)
+
+Formalized 2026-06-30 at plan time (provisional `DEMO-*` resolved). The demo is the real app in demo mode; this phase unstales the one un-converged home shell, refreshes the seed, removes dead code, and adds a scoped demo exposure lock-down. Approach locked to **D-01** (chrome-only single-sourcing); **D-02** (collapse `demo.html` into `index.html`) was evaluated and declined for minimal blast radius.
+
+- **DEMO-01**: The demo home chrome (header/nav/language-picker/footer) is injected from one source (`app.js initCommon` + `shared-chrome.js`) identical to `index.html`, so it cannot silently drift again (D-01)
+- **DEMO-02**: The dead hand-typed native `<select id="languageSelect">` is removed from the demo home (zero JS references) (D-01)
+- **DEMO-03**: The "live demo" banner is preserved and language-synced across all four languages (D-01)
+- **DEMO-04**: The app version footer renders on the demo home, single-sourced from `version.js` — the on-screen version-parity signal (D-01)
+- **DEMO-05**: The seed showcases a Heart Shield removal/progression arc visible on the dashboard + session list (D-03)
+- **DEMO-06**: Seed dates are relative/computed at seed time (noon-anchored offsets), guaranteeing ≥1 session in the current calendar month so the demo never looks abandoned (D-06)
+- **DEMO-07**: Every seed session conforms exactly to the current `db.js` schema; client-type variety is kept and an `other`-type client/session is added (D-04)
+- **DEMO-08**: Demo-specific hand-typed copy uses current terminology; the stale "therapeutic" subtitle literal is gone (D-07)
+- **DEMO-09**: `assets/demo-hints.js` is removed with all three live references cleaned (the file, the `app.js` injection block, the `sw.js` precache entry) (D-08)
+- **DEMO-10**: The landing iframe demo entry point keeps working — no regression in language sync, per-page gate bypass, or reseed-on-home (manual browser verification)
+- **DEMO-11**: In demo mode (`window.name==='demo-mode'`) the Backup cloud button, Export/Import, and license activate/deactivate controls are hidden/disabled, and remain present in the real app; Settings + broader hardening stay deferred (D-09)
+
 ## Future Requirements
 
 Deferred to backlog — revisit later (from the 2026-06-22 concerns triage). Tracked but not in the v1.2 roadmap.
@@ -118,11 +134,22 @@ Which phases cover which requirements. Status filled during execution.
 | PDFX-01 | Phase 34 | Complete |
 | PDFX-02 | Phase 34 | Complete |
 | PDFX-03 | Phase 34 | Descoped (invalid premise — export only reachable in read mode) |
+| DEMO-01 | Phase 35 | Pending |
+| DEMO-02 | Phase 35 | Pending |
+| DEMO-03 | Phase 35 | Pending |
+| DEMO-04 | Phase 35 | Pending |
+| DEMO-05 | Phase 35 | Pending |
+| DEMO-06 | Phase 35 | Pending |
+| DEMO-07 | Phase 35 | Pending |
+| DEMO-08 | Phase 35 | Pending |
+| DEMO-09 | Phase 35 | Pending |
+| DEMO-10 | Phase 35 | Pending |
+| DEMO-11 | Phase 35 | Pending |
 
 **Coverage:**
 
-- v1.2 requirements: 23 total
-- Mapped to phases: 23
+- v1.2 requirements: 34 total (23 original + 11 DEMO-* formalized 2026-06-30)
+- Mapped to phases: 34
 - Unmapped: 0
 
 ---
