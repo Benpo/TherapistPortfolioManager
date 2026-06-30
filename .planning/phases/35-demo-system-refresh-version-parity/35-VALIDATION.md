@@ -49,6 +49,7 @@ created: 2026-06-30
 | DEMO-07 | Every seed session conforms to current schema (no legacy fields; `sessionType ∈ {clinic,online,other}`; `issues[]` shape) | data/unit | assert field whitelist + enum over all sessions | T-XSS | ❌ W0 |
 | DEMO-08 | Demo home subtitle literal no longer says "therapeutic"; `data-i18n="app.subtitle"` present and resolves to "energy" copy in all 4 dicts | static grep | assert no "therapeutic" literal on demo home; `app.subtitle` resolves in he/en/de/cs | — | ❌ W0 |
 | DEMO-09 | `demo-hints.js` referenced by zero live files (file + `app.js` injection block + `sw.js` precache entry all removed) | static grep | `grep -rn "demo-hints" assets/ sw.js *.html` (exclude sketches/worktrees) returns nothing; assert file absent | — | ❌ W0 |
+| DEMO-11 | In demo mode (`window.name==='demo-mode'`) the Backup cloud button, Export/Import, and license activate/deactivate controls are hidden/disabled (D-09); they remain present in normal mode | jsdom render | `tests/35-demo-exposure.test.js`: boot home/settings in jsdom with `window.name='demo-mode'`, run initCommon; assert backup cloud button + export/import + license-activate controls are absent or `disabled`/`hidden`; re-boot WITHOUT demo-mode and assert they ARE present (no regression to the real app) | T-DBLEAK | ❌ W0 |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -58,6 +59,7 @@ created: 2026-06-30
 
 - [ ] `tests/35-demo-chrome.test.js` — DEMO-01/02/04 (jsdom chrome render + no-native-select)
 - [ ] `tests/35-demo-seed.test.js` — DEMO-05/06/07 (heart-shield arc, this-month, schema conformance)
+- [ ] `tests/35-demo-exposure.test.js` — DEMO-11 (backup/export/license hidden in demo mode, present in normal mode)
 - [ ] grep-based assertions for DEMO-08/09 (may live in the seed/chrome test files or a small `tests/35-demo-static.test.js`)
 - [ ] No framework install needed (jsdom present).
 - [ ] **Heed Pitfall 4:** assertions must check DOM/data, not process exit ([[reference-pdf-jsdom-inert-gates]]).

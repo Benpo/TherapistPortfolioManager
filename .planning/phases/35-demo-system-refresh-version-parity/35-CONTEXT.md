@@ -26,7 +26,7 @@ Bring the landing-page demo back into parity with the live app so prospective bu
 - Delete the orphaned guided-tour file.
 
 **Out of scope (deferred — see Deferred Ideas):**
-- Locking down what the demo *exposes* (settings / backup / export / license). Ben's call: "update now, block some in the future."
+- Locking down what the demo *exposes* — **scope updated 2026-06-30 (see D-09):** hiding **backup / export / license** controls in demo mode is now IN scope; **Settings** lock-down and broader hardening of production-grade controls remain out of scope. Ben's call: "update now, block some in the future."
 - Reviving a guided onboarding tour.
 - Localizing the seed's clinical sample text into HE/DE/CS.
 
@@ -38,6 +38,7 @@ Bring the landing-page demo back into parity with the live app so prospective bu
 ### Home-screen chrome convergence (root-cause fix for drift)
 - **D-01:** Stop `demo.html` from drifting by **single-sourcing its chrome from `assets/shared-chrome.js`**, exactly as `index.html` does (empty `#headerActions` + `#nav-placeholder` filled by shared-chrome; drop the hand-typed native `<select>` language picker). After this, the demo home header/nav/lang-picker/footer is identical to the real app by construction and cannot fall out of sync again. This directly implements Ben's "single-source chrome" durability choice.
 - **D-02:** Planning/research MAY evaluate the stronger form — **collapsing `demo.html` into `index.html` + a demo flag/entry bootstrap** (so there is literally no separate home page to maintain). Treat as a preferred direction to assess, not a locked requirement; the non-negotiable outcome is "demo home chrome comes from one source." `shared-chrome.js` likely needs a small demo-mode awareness (preserve the demo banner; decide footer/version display inside the iframe) — flag for research.
+- **D-01/D-02 RESOLVED (2026-06-30, post-research):** **D-01 chosen** (chrome-only single-sourcing). Research recommended D-02 (collapse into `index.html` via iframe `name="demo-mode"`) but Ben chose the minimal-blast-radius D-01 path: it makes the demo home chrome current and drift-proof without the D-02 browser-timing checkpoint (assumption A1) or surfacing index.html's full backup/export modal on the demo home. The demo overview *body* stays as-is this phase. Per research: `shared-chrome.js` needs **no** demo-specific change; render BOTH the banner (already present, owned by `app.js initDemoMode`) and the version footer inside the iframe (the footer is the on-screen version-parity signal and the concrete fix for "demo home has no footer").
 
 ### Seed data refresh (the demo's story)
 - **D-03:** **Showcase Heart Shield (מגננת הלב).** The flagship v1.1 clinical feature is currently invisible — the existing 11 demo sessions have zero `isHeartShield`/`shieldRemoved`. Add Heart Shield session(s) with a believable removal/progression arc. Keep the existing client-type variety (adult / child / animal / other).
@@ -51,7 +52,10 @@ Bring the landing-page demo back into parity with the live app so prospective bu
 - **D-07:** **UI + terminology parity, English sample content.** Sweep `demo.html`'s hand-typed strings and any demo-specific copy (subtitle, the "live demo" banner, etc.) to current 4-language terminology (מפגש/לקוח; "energy" not "therapeutic"). **Seed clinical content (trappedEmotions / comments / insights / customerSummary) stays English sample text shown to all locales** — acceptable for sample data; localizing it is deferred.
 
 ### Dead code
-- **D-08:** **Delete `assets/demo-hints.js`** (372-line pulsing-dot guided tour, loaded by no page). Recoverable from git history if onboarding is ever wanted.
+- **D-08:** **Delete `assets/demo-hints.js`** (372-line pulsing-dot guided tour). Recoverable from git history if onboarding is ever wanted. **Correction (research 2026-06-30):** it is NOT "loaded by no page" — it is dynamically injected by `app.js` (the demo-hints block, ~L735-740; locate by content, not line number) in iframe context AND precached in `sw.js` (PRECACHE_URLS). Clean deletion = **three coordinated edits**: remove the file, the `app.js` injection block, and the `sw.js` precache entry (SW install tolerates the 404 via `allSettled`, so it is hygiene not a hard blocker).
+
+### Demo exposure lock-down (scoped in from deferred — Ben 2026-06-30)
+- **D-09:** **Hide/disable Backup, Export/Import, and license-activate controls when `window.name === 'demo-mode'`.** A scoped slice of the previously-deferred exposure lock-down, pulled into this phase per Ben (he does not want backup working in the demo). Use the existing demo-mode seam (`backup-modal.js` already has a demo-mode guard ~L295; `app.js initDemoMode` runs in demo mode). Scope: the Backup cloud button, Export/Import, and license activate/deactivate. **Settings** and any broader hardening remain deferred. Keep it a focused vanilla-JS guard (hide/disable in demo mode), not a redesign; the real data boundary remains the `demo_portfolio` DB-name isolation — this is UX-level exposure reduction on top of it.
 
 ### Claude's Discretion
 - Exact number/spread of added sessions and the specific emotion/issue content of the draft (subject to Ben+Sapir approval per D-05).
@@ -117,7 +121,7 @@ Bring the landing-page demo back into parity with the live app so prospective bu
 <deferred>
 ## Deferred Ideas
 
-- **Demo exposure lock-down** (own future phase): hide/disable sensitive surfaces in demo mode — Export/Import, real Backup/Restore, license activate/deactivate, possibly Settings — so buyers can't poke production-grade controls. Ben: "update now, block some in the future."
+- **Demo exposure lock-down** — **PARTIALLY PULLED INTO SCOPE 2026-06-30 (see D-09):** Backup/Restore, Export/Import, and license activate/deactivate are now hidden/disabled in demo mode *this* phase. **Still deferred:** Settings lock-down and any broader hardening of production-grade controls. Ben: "update now, block some in the future."
 - **Guided onboarding tour** (own future phase): if buyer onboarding is ever wanted, rebuild a pulsing-dot tour fresh (the deleted `demo-hints.js` is in git history as a starting point; its targets/copy need re-verifying against current UI).
 - **Localized seed content** (HE/DE/CS sample session text): would need Sapir to author localized clinical samples; matters more if a Hebrew-audience live-demo push (e.g. the conference) needs it. English sample content ships this phase.
 
