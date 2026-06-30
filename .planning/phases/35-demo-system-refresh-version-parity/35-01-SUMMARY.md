@@ -132,3 +132,7 @@ None - no external service configuration required.
 ---
 *Phase: 35-demo-system-refresh-version-parity*
 *Completed: 2026-06-30*
+
+## Self-Check: PASSED
+- Files verified on disk: tests/35-demo-chrome.test.js, tests/35-demo-static.test.js, 35-01-SUMMARY.md
+- Commits verified in git: b3a5e16, 504b581, 1f7b0e6, 0ebceb1
