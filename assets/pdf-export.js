@@ -1700,8 +1700,14 @@ window.PDFExport = (function () {
           var issue = issues[ii] || {};
           var beforeVal = Number(issue.before);
           var afterVal  = Number(issue.after);
-          var hasBefore = isFinite(beforeVal);
-          var hasAfter  = isFinite(afterVal);
+          // An UNMEASURED scale is null/undefined (App.getSeverityValue returns
+          // null for an unset scale; getIssuesPayload passes it through). Number(null)
+          // is 0 and isFinite(0) is true, so without the null/undefined guard an
+          // unmeasured value would render as "0" — which reads as "fully resolved"
+          // on a 0–10 clinical scale. Mirror the clipboard/text path (export-modal.js)
+          // and treat null/undefined as "not measured" → renders the '–' glyph.
+          var hasBefore = issue.before !== null && issue.before !== undefined && isFinite(beforeVal);
+          var hasAfter  = issue.after  !== null && issue.after  !== undefined && isFinite(afterVal);
 
           ensureRoom(rowHeight); // Pitfall 5: a severity row never splits mid-bar
           var rowTop = y;
