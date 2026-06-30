@@ -895,10 +895,22 @@ window.App = (() => {
    */
   function formatDate(dateString) {
     if (!dateString) return "";
-    const locale = currentLang === "he" ? "he-IL" : "en-US";
     const date = new Date(dateString);
     if (Number.isNaN(date.getTime())) return dateString;
-    return new Intl.DateTimeFormat(locale, { year: "numeric", month: "short", day: "numeric" }).format(date);
+    // Map the UI language to a BCP-47 locale. de/cs previously fell through to
+    // en-US, which rendered US month-first order with English month names
+    // (e.g. "Jun 15, 2026"). Map them explicitly so dates render in European
+    // day-month-year order with LOCALIZED month names (de "15. Juni 2026",
+    // cs "15. června 2026"), matching the day-month-year order already used by
+    // en ("Jun 15, 2026" short / "15 June 2026" long export) and he, and the
+    // long-form localized date the PDF export draws.
+    const localeMap = { he: "he-IL", de: "de-DE", cs: "cs-CZ" };
+    const locale = localeMap[currentLang] || "en-US";
+    // de/cs use long month names: cs's short month is numeric (e.g. "6."), which
+    // would lose the localized month name the owner asked for. en/he keep their
+    // existing short-month rendering byte-for-byte unchanged.
+    const month = (currentLang === "de" || currentLang === "cs") ? "long" : "short";
+    return new Intl.DateTimeFormat(locale, { year: "numeric", month, day: "numeric" }).format(date);
   }
 
   function severityColor(value) {
