@@ -290,11 +290,19 @@ Plans:
   4. The landing iframe demo entry point keeps working end-to-end (DEMO-10)
 
 **Plans:** 6 plans
+**Wave 1**
+
 - [ ] 35-01-PLAN.md — Wave-0 validation scaffolds: demo chrome + static gates (DEMO-01/02/03/04/08/09)
 - [ ] 35-02-PLAN.md — Wave-0 validation scaffolds: seed + exposure gates (DEMO-05/06/07/11)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 35-03-PLAN.md — Demo home chrome convergence + terminology sweep (D-01/D-07)
 - [ ] 35-04-PLAN.md — Seed refresh: Heart-Shield arc + relative dates, human-approved (D-03/04/05/06/07)
 - [ ] 35-05-PLAN.md — Delete demo-hints.js (three coordinated edits) + SW cache reconcile (D-08)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 35-06-PLAN.md — Demo exposure lock-down + DEMO-10 regression (D-09)
 
 ### Phase 36: Code Comments — Batch 2
