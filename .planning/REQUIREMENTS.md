@@ -115,8 +115,8 @@ Which phases cover which requirements. Status filled during execution.
 | DOCS-02 | Phase 32 | Complete |
 | I18N-01 | Phase 33 | Pending |
 | I18N-02 | Phase 33 | Pending |
-| PDFX-01 | Phase 34 | Planned |
-| PDFX-02 | Phase 34 | Planned |
+| PDFX-01 | Phase 34 | Complete |
+| PDFX-02 | Phase 34 | Complete |
 | PDFX-03 | Phase 34 | Descoped (invalid premise — export only reachable in read mode) |
 
 **Coverage:**
