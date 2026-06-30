@@ -1681,10 +1681,51 @@ window.PDFExport = (function () {
         var madeVisual = shapeForJsPdf(
           pdfI18n('pdf.footer.madeWith', 'Made with Sessions Garden · sessionsgarden.app'));
 
-        // ---- START zone: small logo + made-with mark (#456b42 bold).
-        doc.setFont('Heebo', 'bold');
-        doc.setFontSize(footSize);
-        setInk(COLOR_BRAND_HEAD); // #456b42
+        // Phase 34 (34-10 gap fix B6): the three footer zones previously overlapped
+        // — the long made-with mark overran into the page-centered "Page X of Y"
+        // label ("sessionsgarden.aPage 1 of 2"). Fix: center the page label at the
+        // TRUE page center, measure its half-width, then AUTO-FIT each side zone's
+        // font so it can never reach the center label (CLEARANCE gap on each side).
+        // Deterministic and locale-agnostic: works for any content under LTR/RTL.
+        var CLEARANCE = 12;            // min gap between center label and each side
+        var FOOT_MIN_SIZE = 6.5;       // smallest acceptable side-zone font
+
+        // fitSize: largest size <= desired whose shaped width fits maxWidth (floored
+        // at minSize). getStringUnitWidth scales linearly with size, so the ratio is
+        // exact. maxWidth <= 0 (degenerate) just returns minSize.
+        function fitSize(visual, weight, maxWidth, desired, minSize) {
+          doc.setFont('Heebo', weight);
+          doc.setFontSize(desired);
+          var w = doc.getStringUnitWidth(visual) * desired;
+          if (maxWidth <= 0) return minSize;
+          if (w <= maxWidth) return desired;
+          var s = desired * (maxWidth / w);
+          return (s < minSize) ? minSize : s;
+        }
+
+        // ---- CENTER zone (measured first): the localized "Page X of Y" label,
+        // truly centered at pageWidth/2 (23-09 i18n switch; Hebrew RTL word order
+        // resolved by the bidi pre-shape).
+        var label = (opts.uiLang === 'he') ? ('עמוד ' + pn + ' מתוך ' + totalPages)
+                  : (opts.uiLang === 'de') ? ('Seite ' + pn + ' von ' + totalPages)
+                  : (opts.uiLang === 'cs') ? ('Stránka ' + pn + ' z ' + totalPages)
+                  : ('Page ' + pn + ' of ' + totalPages);
+        var labelVisual = shapeForJsPdf(label);
+        var centerX = pageWidth / 2;
+        doc.setFont('Heebo', 'normal');
+        doc.setFontSize(META_SIZE);
+        var centerHalfW = (doc.getStringUnitWidth(labelVisual) * META_SIZE) / 2;
+        var centerLeft = centerX - centerHalfW;
+        var centerRight = centerX + centerHalfW;
+
+        var exportedOnVal = String(sessionData.exportedOn || '');
+        var haveExported = exportedOnVal.length > 0;
+        var exportedVisual = haveExported
+          ? shapeForJsPdf(pdfI18n('pdf.footer.exportedOn', 'Exported on') + ' ' + exportedOnVal)
+          : '';
+
+        // ---- START zone: small logo + made-with mark (#456b42 bold). Auto-fit so
+        // its trailing edge clears the centered label by CLEARANCE.
         if (docDir === 'rtl') {
           // START = right edge: logo hugs the right margin, text to its left.
           var rLogoX = PAGE_W - MARGIN_X - FOOTER_LOGO_SIZE;
@@ -1692,6 +1733,9 @@ window.PDFExport = (function () {
             try { doc.addImage('data:image/png;base64,' + window.IconLogoBase64, 'PNG', rLogoX, logoY, FOOTER_LOGO_SIZE, FOOTER_LOGO_SIZE); } catch (e) { /* never abort on a logo failure */ }
           }
           var rTextX = (haveLogo ? rLogoX : (PAGE_W - MARGIN_X)) - FOOTER_LOGO_GAP;
+          var madeMaxR = rTextX - (centerRight + CLEARANCE);
+          var madeSizeR = fitSize(madeVisual, 'bold', madeMaxR, footSize, FOOT_MIN_SIZE);
+          doc.setFont('Heebo', 'bold'); doc.setFontSize(madeSizeR); setInk(COLOR_BRAND_HEAD);
           doc.text(madeVisual, rTextX, baseY, { align: 'right', isInputVisual: false });
         } else {
           var lLogoX = MARGIN_X;
@@ -1699,36 +1743,34 @@ window.PDFExport = (function () {
             try { doc.addImage('data:image/png;base64,' + window.IconLogoBase64, 'PNG', lLogoX, logoY, FOOTER_LOGO_SIZE, FOOTER_LOGO_SIZE); } catch (e) { /* never abort on a logo failure */ }
           }
           var lTextX = MARGIN_X + (haveLogo ? (FOOTER_LOGO_SIZE + FOOTER_LOGO_GAP) : 0);
+          var madeMaxL = (centerLeft - CLEARANCE) - lTextX;
+          var madeSizeL = fitSize(madeVisual, 'bold', madeMaxL, footSize, FOOT_MIN_SIZE);
+          doc.setFont('Heebo', 'bold'); doc.setFontSize(madeSizeL); setInk(COLOR_BRAND_HEAD);
           doc.text(madeVisual, lTextX, baseY, { isInputVisual: false });
         }
 
-        // ---- CENTER zone: the localized "Page X of Y" label (unchanged switch).
+        // ---- Draw CENTER label (font/size restored to META_SIZE).
         doc.setFont('Heebo', 'normal');
         doc.setFontSize(META_SIZE);
         setInk(COLOR_MUTED);
-        // Phase 23 (23-09): i18n "Page X of Y" per uiLang. Hebrew uses RTL natural
-        // word order; the bidi pre-shape below produces the correct visual order.
-        var label = (opts.uiLang === 'he') ? ('עמוד ' + pn + ' מתוך ' + totalPages)
-                  : (opts.uiLang === 'de') ? ('Seite ' + pn + ' von ' + totalPages)
-                  : (opts.uiLang === 'cs') ? ('Stránka ' + pn + ' z ' + totalPages)
-                  : ('Page ' + pn + ' of ' + totalPages);
-        var labelVisual = shapeForJsPdf(label);
-        doc.text(labelVisual, pageWidth / 2, baseY, { align: 'center', isInputVisual: false });
+        doc.text(labelVisual, centerX, baseY, { align: 'center', isInputVisual: false });
 
-        // ---- END zone: 'Exported on' + date (muted #5f5c72), relabelled per
-        // D-09 to disambiguate from the card's session date. Sourced from
-        // sessionData.exportedOn (34-05).
-        var exportedOnVal = String(sessionData.exportedOn || '');
-        if (exportedOnVal.length) {
-          var exportedVisual = shapeForJsPdf(
-            pdfI18n('pdf.footer.exportedOn', 'Exported on') + ' ' + exportedOnVal);
-          doc.setFont('Heebo', 'normal');
-          doc.setFontSize(footSize);
-          setInk(COLOR_MUTED);
+        // ---- END zone: 'Exported on' + date (muted #5f5c72), relabelled per D-09
+        // to disambiguate from the card's session date (34-05). Auto-fit so its
+        // leading edge clears the centered label by CLEARANCE. Anchored by docDir
+        // and routed through shapeForJsPdf so the Hebrew date keeps day-month-year
+        // visual order (B7: correct once the localized RTL label is present).
+        if (haveExported) {
           if (docDir === 'rtl') {
             // END = left edge.
+            var expMaxR = (centerLeft - CLEARANCE) - MARGIN_X;
+            var expSizeR = fitSize(exportedVisual, 'normal', expMaxR, footSize, FOOT_MIN_SIZE);
+            doc.setFont('Heebo', 'normal'); doc.setFontSize(expSizeR); setInk(COLOR_MUTED);
             doc.text(exportedVisual, MARGIN_X, baseY, { isInputVisual: false });
           } else {
+            var expMaxL = (PAGE_W - MARGIN_X) - (centerRight + CLEARANCE);
+            var expSizeL = fitSize(exportedVisual, 'normal', expMaxL, footSize, FOOT_MIN_SIZE);
+            doc.setFont('Heebo', 'normal'); doc.setFontSize(expSizeL); setInk(COLOR_MUTED);
             doc.text(exportedVisual, PAGE_W - MARGIN_X, baseY, { align: 'right', isInputVisual: false });
           }
         }
