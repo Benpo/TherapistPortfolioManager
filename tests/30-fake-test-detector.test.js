@@ -67,6 +67,7 @@
  *   - 25-08-single-source-audit         (D-30 single-source-of-truth audit)
  *   - 25-11-hardcoded-english-removed    (i18n hardcoded-string removal guard)
  *   - 25-12-folder-picker-removed        (folder-picker removal guard)
+ *   - 35-demo-static                     (demo convergence + demo-hints removal source gate)
  *   - 30-fake-test-detector              (this gate; self-allowlisted defensively)
  *
  * Run: node tests/30-fake-test-detector.test.js
@@ -87,6 +88,7 @@ var ALLOWLIST = {
   '25-08-single-source-audit': 'D-30 single-source-of-truth audit (static greps, no execution by design)',
   '25-11-hardcoded-english-removed': 'i18n hardcoded-English removal guard (static absence check)',
   '25-12-folder-picker-removed': 'folder-picker removal guard (static absence check)',
+  '35-demo-static': 'Phase 35 demo convergence + demo-hints removal source gate (DEMO-01/02/08/09 — static greps over demo.html/i18n/sw.js/assets, no execution by design; the runtime behavior is covered by the executing 35-demo-chrome jsdom gate)',
   '30-fake-test-detector': 'this gate — reads tests/*.test.js, never assets/*.js; self-allowlisted defensively'
 };
 
