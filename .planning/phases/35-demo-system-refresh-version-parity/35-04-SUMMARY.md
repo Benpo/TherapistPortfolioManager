@@ -128,6 +128,13 @@ This plan is **non-autonomous**. The autonomous drafting is complete and committ
 - **Blocker:** D-05 Ben + Sapir clinical sign-off pending before the seed ships.
 - Plan 35-06 (demo exposure) gate `35-demo-exposure.test.js` remains RED by design (its own plan).
 
+## Self-Check: PASSED
+
+- Files exist: `assets/demo-seed.js`, `assets/demo-seed-data.json`, `35-04-SUMMARY.md` — all FOUND.
+- Commits exist: `9a21980` (seam), `01668d2` (seed), `b440fc6` (docs) — all FOUND.
+- Scope clean: only `demo-seed*`, `SUMMARY`, `STATE`, `ROADMAP` touched (no unrelated pre-existing files staged).
+- Gate: `tests/35-demo-seed.test.js` exits 0 (3/3 GREEN); full suite 116 passed / 1 failed (the 1 = plan 35-06's out-of-scope `35-demo-exposure.test.js`, RED at baseline).
+
 ---
 *Phase: 35-demo-system-refresh-version-parity*
 *Completed (drafting): 2026-06-30 — pending D-05 sign-off*
