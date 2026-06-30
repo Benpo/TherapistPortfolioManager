@@ -731,13 +731,6 @@ window.App = (() => {
         initCommon._swUpdateListenerInstalled = true;
       }
     }
-
-    // Load demo hints when inside an iframe (demo context)
-    if (window !== window.top) {
-      var s = document.createElement('script');
-      s.src = './assets/demo-hints.js';
-      document.body.appendChild(s);
-    }
   }
 
   // ---------------------------------------------------------------------------
