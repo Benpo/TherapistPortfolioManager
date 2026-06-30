@@ -973,10 +973,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     getSessionId: () => sessionId,
     isReadMode: () => isReadMode,
     getIssuesPayload,
-    // PDFX-03 / D-13: the reusable save the export guard calls to persist a
-    // dirty / never-saved session before exporting (returns {savedId,isNew} or
-    // null on validation failure; performs NO navigation — the caller decides).
-    saveSession: saveSessionForm,
     els: { sessionDate, clientSelect, insightsInput, customerSummaryInput },
   });
 
@@ -1067,19 +1063,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Reusable save (PDFX-03 / D-13): validate → persist → return {savedId,isNew}.
-  // Extracted VERBATIM (validation order, toasts, payload shape all unchanged)
-  // from the inline submit handler so the export guard (export-modal.js) can
-  // persist a dirty / never-saved session BEFORE it exports — a brand-new
-  // session then gains an id and the FN-1 ordinal derivation can locate it.
+  // Save-button handler: validate → persist → return {savedId,isNew}. Factored
+  // out of the form-submit listener (validation order, toasts, payload shape all
+  // unchanged) so the submit handler stays small; it owns the redirect.
   //
-  // Contract: returns null on ANY validation failure (showing the SAME toast as
-  // the original handler — the caller treats null as "abort, stay editing") and
-  // performs NO navigation. The caller owns the redirect: the save BUTTON keeps
-  // its exact 600ms redirect; the export path stays on-page and proceeds to
-  // export. isNew = there was no prior editingSession (a fresh add). This is a
-  // behavior-preserving extraction guarded by the green suite
-  // (tests/34-save-before-export.test.js + tests/30-export-stepper.test.js).
+  // Contract: returns null on ANY validation failure (showing the matching toast
+  // — the caller treats null as "abort, stay editing") and performs NO navigation.
+  // The save BUTTON keeps its exact 600ms redirect (in the submit listener below).
+  // isNew = there was no prior editingSession (a fresh add).
   async function saveSessionForm() {
     const clientId = Number.parseInt(clientSelect.value, 10);
     if (!clientId) {

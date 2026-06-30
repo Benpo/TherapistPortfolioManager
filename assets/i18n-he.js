@@ -452,10 +452,6 @@ window.I18N.he = {
   // --- Phase 22 — Export modal ---
   "session.export": "ייצוא",
   "export.title": "ייצוא מפגש",
-  "export.unsaved.title": "לשמור לפני הייצוא?",
-  "export.unsaved.body": "ה-PDF של הלקוח צריך לשקף את השינויים שנשמרו, ומפגש חדש צריך להישמר כדי לקבל את המספר הנכון.",
-  "export.unsaved.saveExport": "שמירה וייצוא",
-  "export.unsaved.keepEditing": "המשך עריכה",
   "export.stepper.label.1": "בחירה",
   "export.stepper.label.2": "עריכה",
   "export.stepper.label.3": "ייצוא",

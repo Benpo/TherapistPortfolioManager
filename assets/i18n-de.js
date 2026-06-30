@@ -454,10 +454,6 @@ window.I18N.de = {
   // --- Phase 22 \u2014 Export modal ---
   "session.export": "Exportieren",
   "export.title": "Sitzung exportieren",
-  "export.unsaved.title": "Vor dem Export speichern?",
-  "export.unsaved.body": "Das PDF eines Klienten sollte Ihre gespeicherten Änderungen widerspiegeln, und eine neue Sitzung muss gespeichert werden, um die richtige Nummer zu erhalten.",
-  "export.unsaved.saveExport": "Speichern & exportieren",
-  "export.unsaved.keepEditing": "Weiter bearbeiten",
   // TODO i18n: translate to German
   "export.stepper.label.1": "Choose",
   // TODO i18n: translate to German

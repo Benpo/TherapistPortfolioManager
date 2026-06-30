@@ -456,10 +456,6 @@ window.I18N.en = {
   // --- Phase 22 — Export modal ---
   "session.export": "Export",
   "export.title": "Export Session",
-  "export.unsaved.title": "Save before exporting?",
-  "export.unsaved.body": "A client's PDF should reflect your saved changes, and a new session needs to be saved to get its correct number.",
-  "export.unsaved.saveExport": "Save & export",
-  "export.unsaved.keepEditing": "Keep editing",
   "export.stepper.label.1": "Choose",
   "export.stepper.label.2": "Edit",
   "export.stepper.label.3": "Export",

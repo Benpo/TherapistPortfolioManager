@@ -454,10 +454,6 @@ window.I18N.cs = {
   // --- Phase 22 \u2014 Export modal ---
   "session.export": "Exportovat",
   "export.title": "Exportovat sezen\u00ED",
-  "export.unsaved.title": "Ulo\u017Eit p\u0159ed exportem?",
-  "export.unsaved.body": "PDF klienta by m\u011Blo odr\u00E1\u017Eet va\u0161e ulo\u017Een\u00E9 zm\u011Bny a nov\u00E9 sezen\u00ED je t\u0159eba ulo\u017Eit, aby z\u00EDskalo spr\u00E1vn\u00E9 \u010D\u00EDslo.",
-  "export.unsaved.saveExport": "Ulo\u017Eit a exportovat",
-  "export.unsaved.keepEditing": "Pokra\u010Dovat v \u00FAprav\u00E1ch",
   // TODO i18n: translate to Czech
   "export.stepper.label.1": "Choose",
   // TODO i18n: translate to Czech
