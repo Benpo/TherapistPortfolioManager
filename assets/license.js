@@ -421,6 +421,21 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e.key === 'Enter') handleActivate();
   });
 
+  // Phase 35 Plan 06 (D-09 / DEMO-11) — neutralize license activation in the
+  // sales demo. A demo visitor must not fire a real Lemon Squeezy
+  // activate/deactivate against the demo. Disabling the buttons short-circuits
+  // both handlers (they fire on click); the key input is disabled too so Enter
+  // cannot submit. window.name==='demo-mode' is the established demo seam.
+  // Strictly demo-scoped — the real license flow is untouched off demo-mode.
+  if (typeof window !== 'undefined' && window.name === 'demo-mode') {
+    var activateGuard = el('license-activate-btn');
+    if (activateGuard) { activateGuard.disabled = true; activateGuard.hidden = true; }
+    var deactivateGuard = el('license-deactivate-btn');
+    if (deactivateGuard) { deactivateGuard.disabled = true; deactivateGuard.hidden = true; }
+    var keyInputGuard = el('license-key-input');
+    if (keyInputGuard) keyInputGuard.disabled = true;
+  }
+
   // -------------------------------------------------------------------------
   // Mode switching: show activated view if already licensed
   // -------------------------------------------------------------------------
