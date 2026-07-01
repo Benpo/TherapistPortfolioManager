@@ -61,6 +61,7 @@ window.I18N.de = {
   "client.form.firstName": "Vorname *",
   "client.form.lastName": "Nachname",
   "client.form.birthDate": "Geburtsdatum",
+  "client.form.legacyAgeNote": "Gespeichertes Alter (kein Geburtsdatum hinterlegt). Datum hinzufuegen, um das Alter aktuell zu halten.",
   "client.form.photo": "Klientenfoto (optional)",
   "client.form.name": "Klientenname *",
   "client.form.email": "E-Mail",

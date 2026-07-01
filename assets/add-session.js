@@ -346,6 +346,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else if (editBirthDatePicker) {
       editBirthDatePicker.clear();
     }
+    // Quick 260630-sa8: legacy client (stored age, no birthDate) — explain the
+    // empty picker with a localized note. This modal is REUSED across clients,
+    // so toggle explicitly in both branches to avoid leaking a stale note.
+    const editBdContainer = document.getElementById("editBirthDatePicker");
+    if (editBdContainer && !document.getElementById("editLegacyAgeNote")) {
+      const note = document.createElement("p");
+      note.id = "editLegacyAgeNote";
+      note.className = "helper-text";
+      editBdContainer.insertAdjacentElement("afterend", note);
+    }
+    const editLegacyNote = document.getElementById("editLegacyAgeNote");
+    if (editLegacyNote) {
+      if (client.age != null && !client.birthDate) {
+        editLegacyNote.textContent = `${App.t("client.form.legacyAgeNote")} (${client.age})`;
+        editLegacyNote.classList.remove("is-hidden");
+      } else {
+        editLegacyNote.classList.add("is-hidden");
+      }
+    }
     if (emailEl) emailEl.value = client.email || "";
     if (phoneEl) phoneEl.value = client.phone || "";
     if (notesEl) notesEl.value = client.notes || "";

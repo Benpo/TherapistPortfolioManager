@@ -123,6 +123,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (birthDatePicker && editingClient.birthDate) {
         birthDatePicker.setValue(editingClient.birthDate);
       }
+      // Quick 260630-sa8: a legacy client has a stored `age` but no `birthDate`,
+      // so the picker stays empty. Explain that with a localized note instead of
+      // leaving it silently blank. We do NOT fabricate a birth date.
+      const bdContainer = document.getElementById("birthDatePicker");
+      if (bdContainer && !document.getElementById("legacyAgeNote")) {
+        const note = document.createElement("p");
+        note.id = "legacyAgeNote";
+        note.className = "helper-text";
+        bdContainer.insertAdjacentElement("afterend", note);
+      }
+      const legacyNote = document.getElementById("legacyAgeNote");
+      if (legacyNote) {
+        if (editingClient.age != null && !editingClient.birthDate) {
+          legacyNote.textContent = `${App.t("client.form.legacyAgeNote")} (${editingClient.age})`;
+          legacyNote.classList.remove("is-hidden");
+        } else {
+          legacyNote.classList.add("is-hidden");
+        }
+      }
       document.getElementById("clientEmail").value = editingClient.email || "";
       document.getElementById("clientPhone").value = editingClient.phone || "";
       document.getElementById("clientNotes").value = editingClient.notes || "";

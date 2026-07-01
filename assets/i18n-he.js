@@ -61,6 +61,7 @@ window.I18N.he = {
   "client.form.firstName": "שם פרטי *",
   "client.form.lastName": "שם משפחה",
   "client.form.birthDate": "תאריך לידה",
+  "client.form.legacyAgeNote": "גיל שמור (אין תאריך לידה ברשומה). הוסיפו תאריך כדי לשמור על דיוק הגיל.",
   "client.form.photo": "תמונת לקוח (אופציונלי)",
   "client.form.name": "שם לקוח *",
   "client.form.email": "אימייל",

@@ -61,6 +61,7 @@ window.I18N.en = {
   "client.form.firstName": "First Name *",
   "client.form.lastName": "Last Name",
   "client.form.birthDate": "Date of Birth",
+  "client.form.legacyAgeNote": "Saved age (no birth date on file). Add a date to keep age accurate.",
   "client.form.photo": "Client Photo (Optional)",
   "client.form.name": "Client Name *",
   "client.form.email": "Email",

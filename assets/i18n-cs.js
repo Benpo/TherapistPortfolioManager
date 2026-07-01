@@ -61,6 +61,7 @@ window.I18N.cs = {
   "client.form.firstName": "Jméno *",
   "client.form.lastName": "Příjmení",
   "client.form.birthDate": "Datum narození",
+  "client.form.legacyAgeNote": "Ulozeny vek (bez data narozeni). Pridejte datum, aby vek zustal presny.",
   "client.form.photo": "Fotografie klienta (nepovinné)",
   "client.form.name": "Jméno klienta *",
   "client.form.email": "E-mail",
