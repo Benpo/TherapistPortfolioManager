@@ -318,7 +318,17 @@ Plans:
 
 **Scope (decided with Ben, 2026-07-01):** Batch-2 = **core coverage** — batch-1 (`db.js`, `overview.js`, `sessions.js`) + all small/mid production modules = **22 modules**. The three 1,500L+ giants (`backup.js`, `app.js`, `pdf-export.js`) are **deferred to a follow-up batch-3**. The "Depends on" churn concern is **resolved**: Phases 34 & 35 are complete + verified, so `pdf-export.js` (settled at 1,899L) and the demo files (`demo.js`/`demo-seed.js`; `demo-hints.js` removed in 35-05) are stable — and the giants' deferral is the reason `pdf-export.js` isn't in this batch, not churn. Approach: capture-inline `36-CONTEXT.md`; research skipped (reuses `32-RESEARCH.md`). SC #2 is satisfied for the core subset; the giants complete DOCS-03 in batch-3.
 
-**Plans:** Not yet planned.
+**Plans:** 4 plans across 2 waves (22 modules; disjoint file sets so each plan's comments-only gate is self-contained).
+
+**Wave 1** *(batch-1 — establishes the convention rhythm, D-02)*
+
+- [ ] 36-01-PLAN.md — batch-1: db.js (new IDB-choke-point banner) + overview.js (refine + de-phase bug-ticket) + sessions.js (new banner) [3 files]
+
+**Wave 2** *(blocked on 36-01 for sequencing only — disjoint file sets, parallelizable)*
+
+- [ ] 36-02-PLAN.md — larger-mid: landing.js + license.js + snippets.js + backup-modal.js (de-phase + refine) [4 files]
+- [ ] 36-03-PLAN.md — mid: crashlog.js + report.js (keep OBS-01/OBS-02) + disclaimer.js + snippets-seed.js + crop.js [5 files]
+- [ ] 36-04-PLAN.md — small/chrome/sw/stubs: version.js (light) + add-client.js + shared-chrome.js + reporting.js + globe-lang.js + md-render.js + demo-seed.js + demo.js + i18n.js + sw.js (comment-only, no cache bump) [10 files]
 
 ## Backlog
 
@@ -397,4 +407,4 @@ Plans:
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
 | 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete    | 2026-06-30 |
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
-| 36. Code Comments — Batch 2 | v1.2 | 0/– | Planned | - |
+| 36. Code Comments — Batch 2 | v1.2 | 0/4 | Planned | - |
