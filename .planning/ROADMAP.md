@@ -316,6 +316,8 @@ Plans:
   2. The remaining production modules listed in `32-COMMENT-COVERAGE-MAP.md` are covered, with `// Phase X` / `// D-NN` archaeology de-phased into plain what-it-does text
   3. Every batch is verified by green `npm test` + the comments-only strip-and-compare gate (zero behavior change)
 
+**Scope (decided with Ben, 2026-07-01):** Batch-2 = **core coverage** — batch-1 (`db.js`, `overview.js`, `sessions.js`) + all small/mid production modules = **22 modules**. The three 1,500L+ giants (`backup.js`, `app.js`, `pdf-export.js`) are **deferred to a follow-up batch-3**. The "Depends on" churn concern is **resolved**: Phases 34 & 35 are complete + verified, so `pdf-export.js` (settled at 1,899L) and the demo files (`demo.js`/`demo-seed.js`; `demo-hints.js` removed in 35-05) are stable — and the giants' deferral is the reason `pdf-export.js` isn't in this batch, not churn. Approach: capture-inline `36-CONTEXT.md`; research skipped (reuses `32-RESEARCH.md`). SC #2 is satisfied for the core subset; the giants complete DOCS-03 in batch-3.
+
 **Plans:** Not yet planned.
 
 ## Backlog

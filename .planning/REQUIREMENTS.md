@@ -69,6 +69,12 @@ Formalized 2026-06-30 at plan time (provisional `DEMO-*` resolved). The demo is 
 - **DEMO-10**: The landing iframe demo entry point keeps working — no regression in language sync, per-page gate bypass, or reseed-on-home (manual browser verification)
 - **DEMO-11**: In demo mode (`window.name==='demo-mode'`) the Backup cloud button, Export/Import, and license activate/deactivate controls are hidden/disabled, and remain present in the real app; Settings + broader hardening stay deferred (D-09)
 
+### Code Comments — Batch 2 (Phase 36)
+
+Formalized 2026-07-01 at plan time (the roadmap referenced `DOCS-03` as "continuation of DOCS-02"; backfilled here). Scope decided with Ben 2026-07-01: **core modules now, defer the 3 giants** — cover batch-1 plus all small/mid production modules this phase; `backup.js`, `app.js`, `pdf-export.js` (each 1,500L+) move to a follow-up batch-3.
+
+- [ ] **DOCS-03**: The batch-1 modules (`db.js`, `overview.js`, `sessions.js`) plus every small/mid production module in `32-COMMENT-COVERAGE-MAP.md` — all remaining `assets/*.js` + root `sw.js`, **excluding** the three 1,500L+ giants (`backup.js`/`app.js`/`pdf-export.js`, deferred to batch-3), the vendored `*.min.js`, and the `i18n-*` dictionaries — carry file-top banner comments in the Phase 32 convention (what it owns · public `window.*` surface · cross-`window.*` dependencies · key invariants). Header-less files get brand-new banners; `// Phase X` / `// D-NN` / bug-ticket archaeology is de-phased into plain what-it-does text. Zero behavior change, verified by green `npm test` + the comments-only strip-and-compare gate _(continuation of DOCS-02; giants deferred to batch-3)_
+
 ## Future Requirements
 
 Deferred to backlog — revisit later (from the 2026-06-22 concerns triage). Tracked but not in the v1.2 roadmap.
@@ -145,11 +151,12 @@ Which phases cover which requirements. Status filled during execution.
 | DEMO-09 | Phase 35 | Complete |
 | DEMO-10 | Phase 35 | Complete |
 | DEMO-11 | Phase 35 | Complete |
+| DOCS-03 | Phase 36 | Pending |
 
 **Coverage:**
 
-- v1.2 requirements: 34 total (23 original + 11 DEMO-* formalized 2026-06-30)
-- Mapped to phases: 34
+- v1.2 requirements: 35 total (23 original + 11 DEMO-* formalized 2026-06-30 + DOCS-03 formalized 2026-07-01)
+- Mapped to phases: 35
 - Unmapped: 0
 
 ---
