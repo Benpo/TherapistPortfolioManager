@@ -223,14 +223,6 @@ const App = {
   setSubmitLabel: function () {},
   applyTranslations: function () {},
   confirmDialog: function () { return Promise.resolve(false); },
-  // Quick 260630-sa8: add-client.js now routes edit-save age through this helper.
-  // Mirror the real behavior so the ADD path (editingClient null → null age) works.
-  computeClientAgeOnEdit: function (birthDate, existingAge) {
-    if (birthDate) {
-      return Math.floor((Date.now() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000));
-    }
-    return existingAge != null ? existingAge : null;
-  },
 };
 
 const CropModule = {

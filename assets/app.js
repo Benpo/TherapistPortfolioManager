@@ -1372,31 +1372,6 @@ window.App = (() => {
   }
 
   // ---------------------------------------------------------------------------
-  // Quick 260630-sa8 — legacy-age preservation on edit-save
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Resolve a client's age when saving an EDIT.
-   *
-   * Modern clients store a `birthDate` ISO string and derive age from it. Legacy
-   * clients (created before the birth-date overhaul, commit 9dafbb6) have a stored
-   * `age` number but no `birthDate`, and no migration back-fills one. The old edit
-   * save paths did `birthDate ? computed : null`, which silently WIPED the legacy
-   * age to null on any edit-save. This helper preserves the stored age when no
-   * birth date is present instead of nulling it.
-   *
-   * @param {string|null|undefined} birthDate - ISO "YYYY-MM-DD" or falsy
-   * @param {number|null|undefined} existingAge - the client's currently-stored age
-   * @returns {number|null} recomputed age (birthDate present) or preserved age
-   */
-  function computeClientAgeOnEdit(birthDate, existingAge) {
-    if (birthDate) {
-      return Math.floor((Date.now() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000));
-    }
-    return existingAge != null ? existingAge : null;
-  }
-
-  // ---------------------------------------------------------------------------
   // Modal scroll lock — prevents body scroll behind open modals (iOS Safari)
   // ---------------------------------------------------------------------------
 
@@ -1461,7 +1436,6 @@ window.App = (() => {
     setSubmitLabel,
     readFileAsDataURL,
     initBirthDatePicker,
-    computeClientAgeOnEdit,
 
     // Security guidance
     showFirstLaunchSecurityNote,
