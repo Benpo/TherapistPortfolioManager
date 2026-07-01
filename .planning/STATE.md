@@ -4,11 +4,11 @@ milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 36
 current_phase_name: Code Comments — Batch 2
-status: completed
-stopped_at: 35-06 finalized — phase verification/completion left to the orchestrator (do NOT mark the phase complete here).
-last_updated: "2026-06-30T16:58:20.168Z"
-last_activity: 2026-06-30
-last_activity_desc: Phase 35 complete, transitioned to Phase 36
+status: planned
+stopped_at: 36 planned — 4 plans across 2 waves (22 modules); ready for /gsd-execute-phase 36
+last_updated: "2026-07-01T21:20:50.000Z"
+last_activity: 2026-07-01
+last_activity_desc: Phase 36 planned — 4 plans across 2 waves (22 modules), ready to execute
 progress:
   total_phases: 9
   completed_phases: 7
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 35 — demo-system-refresh-version-parity
+**Current focus:** Phase 36 — code-comments-batch-2
 
 ## Current Position
 
 Phase: 36 — Code Comments — Batch 2
-Plan: Not started
-Status: 35-06 finalized — phase.complete is the orchestrator's to run
-Last activity: 2026-06-30 — Phase 35 complete, transitioned to Phase 36
+Plan: Not started — 4 plans across 2 waves (22 modules)
+Status: Planned — ready for /gsd-execute-phase 36 (Wave 1 = 36-01, then Waves 2 = 36-02/03/04 in parallel)
+Last activity: 2026-07-01 — Phase 36 planned (research skipped, capture-inline context); giants deferred to batch-3
 
 ## Performance Metrics
 
