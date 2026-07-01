@@ -470,7 +470,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       const lastName = (document.getElementById("editClientLastName") || {}).value?.trim() || "";
       const birthDate = (document.getElementById("editClientBirthDate") || {}).value || null;
-      const age = birthDate ? Math.floor((Date.now() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000)) : null;
       const email = (document.getElementById("editClientEmail") || {}).value?.trim() || "";
       const phone = (document.getElementById("editClientPhone") || {}).value?.trim() || "";
       const notes = (document.getElementById("editClientNotes") || {}).value?.trim() || "";
@@ -485,6 +484,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const existing = getSelectedClient(editingClientId, clientCache) || await PortfolioDB.getClient(editingClientId);
       if (!existing) return;
+
+      // Quick 260630-sa8: preserve the legacy stored age when no birth date is
+      // entered, instead of nulling it out on every inline edit-save.
+      const age = App.computeClientAgeOnEdit(birthDate, existing.age);
 
       await PortfolioDB.updateClient({
         ...existing,

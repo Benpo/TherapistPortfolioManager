@@ -199,7 +199,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       const lastName = document.getElementById("clientLastName").value.trim();
       const birthDate = document.getElementById("clientBirthDate").value || null;
-      const age = birthDate ? Math.floor((Date.now() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000)) : null;
+      // Quick 260630-sa8: preserve a legacy client's stored age when no birth date
+      // is entered (editingClient is null on the add path, so age stays null there).
+      const age = App.computeClientAgeOnEdit(birthDate, editingClient ? editingClient.age : null);
       const email = document.getElementById("clientEmail").value.trim();
       const phone = document.getElementById("clientPhone").value.trim();
       const notes = document.getElementById("clientNotes").value.trim();
