@@ -24,6 +24,7 @@ window.I18N.he = {
   "overview.table.edit": "עריכה",
   "overview.table.view": "הצגה",
   "overview.table.previousSessions": "מפגשים קודמים",
+  "overview.table.viewSessions": "מפגשים",
   "overview.table.newSession": "מפגש חדש",
   "overview.export": "ייצוא / גיבוי נתונים",
   "overview.import": "ייבוא נתונים",
