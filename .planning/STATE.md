@@ -6,14 +6,14 @@ current_phase: 36
 current_phase_name: code-comments-batch-2
 status: executing
 stopped_at: 36 planned — 4 plans across 2 waves (22 modules); ready for /gsd-execute-phase 36
-last_updated: "2026-07-02T10:53:51.197Z"
+last_updated: "2026-07-02T11:07:08.077Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 36 execution started
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 52
-  completed_plans: 48
+  completed_plans: 49
   percent: 78
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 36 (code-comments-batch-2) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-07-02 — Phase 36 execution started
 
@@ -152,6 +152,7 @@ Last activity: 2026-07-02 — Phase 36 execution started
 | Phase 35 P04 | 12min | 2 tasks | 2 files |
 | Phase 35 P06 | ~45min | 3 tasks | 9 files |
 | Phase 36 P01 | 8 | 3 tasks | 3 files |
+| Phase 36-code-comments-batch-2 P02 | 12 | - tasks | - files |
 
 ## Accumulated Context
 
@@ -303,6 +304,7 @@ Recent decisions affecting current work:
 - [Phase ?]: 35-06 (DEMO-10): Full Phase-35 demo regression APPROVED by Ben in a real browser. Surfaced + fixed 3 iframe-escape paths (Rule-1 deviations, all approved): (1) homeHref/footer-License/initLicenseLink → ./demo.html in demo (9be659b); (2) .disclaimer-brand logo added to updateBackLinks() selector (26f66fd); (3) redirectDemoBrandLink() repoints in-app .brand-link → ./demo.html (af33a9e). New tests/35-demo-nav.test.js (14 cases). Full suite 118/0.
 - [Phase ?]: banner shape: db.js uses grouped public surface (30 methods in domains) for readability
 - [Phase ?]: de-phase gate: test filename with date-prefix pattern triggers grep; resolved by rewriting to plain prose
+- [Phase ?]: landing.js PUBLIC SURFACE: none; backup-modal.js window.formatRelativeTime added to PUBLIC SURFACE (was missing from original header per WR-01)
 
 ### Pending Todos
 
@@ -369,7 +371,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-02T10:53:43.505Z
+**Last session:** 2026-07-02T11:07:02.793Z
 
 Last activity: 2026-06-30 — 35-06 demo exposure lock-down COMPLETE. DEMO-11 hides/disables the backup cloud btn, overview Export/Import, the `openExportFlow` path, and license activate/deactivate in demo mode (0b32b2e/98d1275/d8997a7); `toast.exportDisabledDemo` added in all 4 langs. The DEMO-10 full-demo regression was APPROVED by Ben in a real browser; it surfaced 3 iframe-escape nav paths, all fixed inline (9be659b/26f66fd/af33a9e) and covered by the new `tests/35-demo-nav.test.js` (14 cases). Full suite 118 passed / 0 failed; no test weakened. DEMO-10 + DEMO-11 marked Complete. KNOWN RESIDUAL (deferred by design): Settings→Backups stays operable in the demo (D-09 refinement, T-SETTINGS-RESID accepted). All 6 of Phase 35's plans now have summaries.
 Stopped at: 35-06 finalized — phase verification/completion left to the orchestrator (do NOT mark the phase complete here).
