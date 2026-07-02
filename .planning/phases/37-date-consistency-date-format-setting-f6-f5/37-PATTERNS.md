@@ -226,17 +226,9 @@ settings: {
 if (manifest.settings.language) { localStorage.setItem("portfolioLang", manifest.settings.language); }
 if (manifest.settings.theme) { localStorage.setItem("portfolioTheme", manifest.settings.theme); }
 ```
-**Apply:** add a guarded `if (manifest.settings.dateFormat) { localStorage.setItem("portfolioDateFormat", manifest.settings.dateFormat); }` right after theme. No manifest `version` bump (additive-optional).
+**Apply:** mirror TWO keys into the export `settings` object beside `snippetPrefix` — `dateFormat: localStorage.getItem("portfolioDateFormat")` and `sessionTypes: localStorage.getItem("portfolioSessionTypes")` — and add matching guarded restores `if (manifest.settings.dateFormat) { localStorage.setItem("portfolioDateFormat", manifest.settings.dateFormat); }` and `if (manifest.settings.sessionTypes) { localStorage.setItem("portfolioSessionTypes", manifest.settings.sessionTypes); }` right after theme. No manifest `version` bump (additive-optional).
 
-**Session-type list (IDB therapistSettings) — restore is GENERIC (A2 RESOLVED):** the restore loop DOES write arbitrary `sectionKey` rows — VERIFIED at `backup.js:1145-1181`:
-```js
-for (var k = 0; k < manifest.therapistSettings.length; k++) {
-  var rec = manifest.therapistSettings[k];
-  ...
-  await db.setTherapistSetting(cleanRec);   // writes any sectionKey, incl. "sessionTypes"
-}
-```
-Export already dumps all rows (`backup.js:600, 642-666`). So an IDB `therapistSettings` row `{sectionKey:"sessionTypes", ...}` round-trips with **zero backup code changes** beyond the `dateFormat` scalar. This closes RESEARCH-personalization Open Question 1 / Assumption A2.
+**Session-type list → localStorage (A2 CORRECTED — the IDB path does NOT round-trip):** the earlier "restore loop writes arbitrary `sectionKey` rows" claim was **FALSE**. VERIFIED: `backup.js:1169` DROPS any `sectionKey` not in `ALLOWED_SECTION_KEYS` (`sessionTypes` is not in it), and `backup.js:1173-1177` COERCES the surviving rows to `{sectionKey, customLabel, enabled}` (stripping `overrides`/`custom`). So an IDB `therapistSettings` `{sectionKey:"sessionTypes", ...}` row would silently lose every rename/custom type on restore (PERS-05/D-17 violation). Storage therefore lives in `localStorage['portfolioSessionTypes']` as JSON `{ overrides:{<lockedKey>:"<label>"}, custom:[{key,label}] }`, read/written like `portfolioDateFormat` (try/catch + JSON.parse with default), and rides the localStorage settings block exactly like `dateFormat` — that additive scalar is the ONLY backup edit; the therapistSettings whitelist is left untouched.
 
 ---
 
