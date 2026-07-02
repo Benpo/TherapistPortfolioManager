@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 36
-status: completed
-stopped_at: Phase 37 context gathered
-last_updated: "2026-07-02T17:41:51.975Z"
+status: executing
+stopped_at: Phase 37 UI-SPEC approved
+last_updated: "2026-07-02T22:05:07.792Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 36 marked complete
 progress:
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 
 Phase: 36 — COMPLETE
 Plan: 5 of 5
-Status: Phase 36 complete
+Status: Ready to execute
 Last activity: 2026-07-02 — Phase 36 marked complete
 
 ## Performance Metrics
@@ -376,11 +376,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-02T17:41:51.969Z
+**Last session:** 2026-07-02T21:17:03.466Z
 
 Last activity: 2026-07-02 — Completed quick task 260702-q5f (UAT F3): home-overview "view previous sessions" toggle relabelled — Feather eye icon + visible word pill + `aria-expanded`. After Ben reviewed the live app, follow-ups: label **Sessions→History** (4 langs; kills the duplicate "Sessions" vs the count column), added the missing **Actions** column `<th>` (borders now span full width), and fixed the expanded detail-row `colSpan` 4→5. Verified desktop/mobile/4 langs via headless-Chrome; 119/119 green. 5 code commits (979f20c, 9a677f7, bf891b8, 131bb08, 8730651). Ready to push.
-Stopped at: Phase 37 context gathered
-Resume file: .planning/phases/37-date-consistency-date-format-setting-f6-f5/37-CONTEXT.md
+Stopped at: Phase 37 UI-SPEC approved
+Resume file: .planning/phases/37-date-consistency-date-format-setting-f6-f5/37-UI-SPEC.md
 Next: orchestrator runs Phase 35 verification, then phase.complete.
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
