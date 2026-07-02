@@ -438,9 +438,10 @@ function renderClientRows(clients, sessionsByClient) {
     const detailButton = document.createElement("button");
     detailButton.className = "row-toggle";
     detailButton.type = "button";
-    detailButton.title = App.t("overview.table.previousSessions");
     detailButton.setAttribute("aria-label", App.t("overview.table.previousSessions"));
-    detailButton.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+    detailButton.setAttribute("aria-expanded", "false");
+    detailButton.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span class="row-toggle-label" data-i18n="overview.table.viewSessions"></span>';
+    detailButton.querySelector(".row-toggle-label").textContent = App.t("overview.table.viewSessions");
     const quickAddButton = document.createElement("button");
     quickAddButton.className = "row-quick-add";
     quickAddButton.type = "button";
@@ -561,6 +562,7 @@ function renderClientRows(clients, sessionsByClient) {
     detailButton.addEventListener("click", () => {
       const isOpen = detailRow.style.display === "table-row";
       detailRow.style.display = isOpen ? "none" : "table-row";
+      detailButton.setAttribute("aria-expanded", String(!isOpen));
     });
 
     tableBody.appendChild(row);
