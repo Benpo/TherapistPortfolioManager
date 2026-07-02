@@ -67,7 +67,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 - [ ] **Phase 33: DE/CS i18n completion** — translate the 13 export-modal keys currently showing English to German/Czech users (needs Sapir's strings). Independent of the others — slot in whenever ready.
 - [x] **Phase 34: Session PDF Export — Visual Polish** — make the exported session PDF (`pdf-export.js`, bidi-aware) look intentionally designed rather than default jsPDF output. **Design-led**: collaborative brainstorm/design pass to define the target look → SPEC → PLAN → exec. Success criteria drafted at design time. Hebrew RTL/bidi correctness must be preserved. (added 2026-06-29 — first of the v1.2 tail, by Ben's work order) (completed 2026-06-30)
 - [x] **Phase 35: Demo System Refresh / Version Parity** — bring the demo group (`demo.js`/`demo-seed.js`/`demo-hints.js`/`demo.html`) back in sync with the current app schema, features, and version (flagged "stale" in `32-COMMENT-COVERAGE-MAP.md`). Effort uncertain → **size via a discuss/spike before locking a plan**. (added 2026-06-29) (completed 2026-06-30)
-- [ ] **Phase 36: Code Comments — Batch 2** — apply the Phase 32 banner convention to the remaining ~21 production modules, starting at the 3 lowest-staleness batch-1 modules (`db.js`/`overview.js`/`sessions.js`); seeded by `32-COMMENT-COVERAGE-MAP.md`. Guarded by green `npm test` + comments-only strip-and-compare gate. (added 2026-06-29)
+- [x] **Phase 36: Code Comments — Batch 2** — apply the Phase 32 banner convention to the remaining ~21 production modules, starting at the 3 lowest-staleness batch-1 modules (`db.js`/`overview.js`/`sessions.js`); seeded by `32-COMMENT-COVERAGE-MAP.md`. Guarded by green `npm test` + comments-only strip-and-compare gate. (added 2026-06-29) (completed 2026-07-02)
 
 ### Phase 28: Update Reliability & Versioning
 
@@ -318,7 +318,7 @@ Plans:
 
 **Scope (decided with Ben, 2026-07-01):** Batch-2 = **core coverage** — batch-1 (`db.js`, `overview.js`, `sessions.js`) + all small/mid production modules = **22 modules**. The three 1,500L+ giants (`backup.js`, `app.js`, `pdf-export.js`) are **deferred to a follow-up batch-3**. The "Depends on" churn concern is **resolved**: Phases 34 & 35 are complete + verified, so `pdf-export.js` (settled at 1,899L) and the demo files (`demo.js`/`demo-seed.js`; `demo-hints.js` removed in 35-05) are stable — and the giants' deferral is the reason `pdf-export.js` isn't in this batch, not churn. Approach: capture-inline `36-CONTEXT.md`; research skipped (reuses `32-RESEARCH.md`). SC #2 is satisfied for the core subset; the giants complete DOCS-03 in batch-3.
 
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 
 **Wave 1** *(batch-1 — establishes the convention rhythm, D-02)*
 
@@ -332,7 +332,7 @@ Plans:
 
 **Wave 3** *(pilot-file ID sweep — blocked on the round-1 human checkpoint after Wave 1/2, D-09)*
 
-- [ ] 36-05-PLAN.md — pilot-file ID sweep: strip leftover planning IDs (banner + body) from the 5 Phase-32 files — settings-snippets.js + settings-photos.js + export-modal.js + settings.js + add-session.js — to prose under option 3 (D-07); banners already good, not rewritten [5 files]
+- [x] 36-05-PLAN.md — pilot-file ID sweep: strip leftover planning IDs (banner + body) from the 5 Phase-32 files — settings-snippets.js + settings-photos.js + export-modal.js + settings.js + add-session.js — to prose under option 3 (D-07); banners already good, not rewritten [5 files]
 
 ## Backlog
 
@@ -411,4 +411,4 @@ Plans:
 | 33. DE/CS i18n completion | v1.2 | 0/– | Planned | - |
 | 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete    | 2026-06-30 |
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
-| 36. Code Comments — Batch 2 | v1.2 | 4/5 | In Progress|  |
+| 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete   | 2026-07-02 |
