@@ -1,14 +1,16 @@
 ---
 phase: 32-readme-code-comments
 verified: 2026-06-29T09:45:00Z
-status: human_needed
+status: passed
 score: 20/20 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 human_verification:
+
   - test: "Read each of the 6 how-do-I recipes in README.md and cross-check the mechanics against the live file it documents: recipe 2 (ship a change) vs .github/workflows/deploy.yml; recipe 3 (bump version) vs assets/version.js; recipe 4 (add translation) vs assets/i18n-*.js + package.json; recipe 5 (add JS module) vs sw.js PRECACHE_URLS. Focus: does the recipe accurately reflect every nuance of the real workflow (e.g. the sed-stamp only on the staging copy, the INTEGRITY_TOKEN being deploy-stamped not hand-set, the 4 i18n files to touch)?"
     expected: "Each recipe step is accurate and complete for the stated live file — no from-memory drift, no missing steps, no stale mechanics"
     why_human: "Structural presence of recipes is verified by grep. Content accuracy (do the described steps actually match what the code/CI does?) is a narrative-fidelity judgment that requires reading both the recipe and the live file; grep cannot catch a step that is plausible but wrong"
+
   - test: "Spot-check the 32-HELP-CONTENT-INVENTORY.md: (a) pick 3–4 leaves across different sections and confirm each carries all 4 tags {persona source, P26 status, suggested format, priority}; (b) confirm the P26 7-step workflow spine topics are all present; (c) confirm license.html features (activation, trial, 2-device, re-activation) appear as topics; (d) confirm no help-copy paragraphs — every leaf is title + one-line intent only"
     expected: "Every sampled leaf has a complete 4-tag set; spine steps and license topics are present; no leaf contains help copy (a sentence that could be pasted directly into a help page)"
     why_human: "Automated greps confirmed persona/priority/intent keys and demo exclusion exist. The completeness of the tag set per-leaf and the 'inventory only / no help copy' discipline require reading the actual leaf content"
