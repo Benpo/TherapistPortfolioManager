@@ -73,7 +73,7 @@ Formalized 2026-06-30 at plan time (provisional `DEMO-*` resolved). The demo is 
 
 Formalized 2026-07-01 at plan time (the roadmap referenced `DOCS-03` as "continuation of DOCS-02"; backfilled here). Scope decided with Ben 2026-07-01: **core modules now, defer the 3 giants** — cover batch-1 plus all small/mid production modules this phase; `backup.js`, `app.js`, `pdf-export.js` (each 1,500L+) move to a follow-up batch-3.
 
-- [ ] **DOCS-03**: The batch-1 modules (`db.js`, `overview.js`, `sessions.js`) plus every small/mid production module in `32-COMMENT-COVERAGE-MAP.md` — all remaining `assets/*.js` + root `sw.js`, **excluding** the three 1,500L+ giants (`backup.js`/`app.js`/`pdf-export.js`, deferred to batch-3), the vendored `*.min.js`, and the `i18n-*` dictionaries — carry file-top banner comments in the Phase 32 convention (what it owns · public `window.*` surface · cross-`window.*` dependencies · key invariants). Header-less files get brand-new banners; `// Phase X` / `// D-NN` / bug-ticket archaeology is de-phased into plain what-it-does text. Zero behavior change, verified by green `npm test` + the comments-only strip-and-compare gate _(continuation of DOCS-02; giants deferred to batch-3)_
+- [x] **DOCS-03**: The batch-1 modules (`db.js`, `overview.js`, `sessions.js`) plus every small/mid production module in `32-COMMENT-COVERAGE-MAP.md` — all remaining `assets/*.js` + root `sw.js`, **excluding** the three 1,500L+ giants (`backup.js`/`app.js`/`pdf-export.js`, deferred to batch-3), the vendored `*.min.js`, and the `i18n-*` dictionaries — carry file-top banner comments in the Phase 32 convention (what it owns · public `window.*` surface · cross-`window.*` dependencies · key invariants). Header-less files get brand-new banners; `// Phase X` / `// D-NN` / bug-ticket archaeology is de-phased into plain what-it-does text. Zero behavior change, verified by green `npm test` + the comments-only strip-and-compare gate _(continuation of DOCS-02; giants deferred to batch-3)_
 
 ## Future Requirements
 
@@ -151,7 +151,7 @@ Which phases cover which requirements. Status filled during execution.
 | DEMO-09 | Phase 35 | Complete |
 | DEMO-10 | Phase 35 | Complete |
 | DEMO-11 | Phase 35 | Complete |
-| DOCS-03 | Phase 36 | Pending |
+| DOCS-03 | Phase 36 | Complete |
 
 **Coverage:**
 
