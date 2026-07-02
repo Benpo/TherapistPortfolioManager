@@ -1596,7 +1596,10 @@ window.PDFExport = (function () {
         var GAP = 6, BAR_LINE_H = 16, ROW_PAD = 12;
         var captionW = 42, numeralW = 22;
         var barUnitW = captionW + GAP + TRACK_W + GAP + numeralW;
-        var rowHeight = BAR_LINE_H * 2 + ROW_PAD;
+        // rowHeight is now PER-ROW (dynamic): computed inside the per-issue loop
+        // from max(wrapped-name block, two-bar unit) + ROW_PAD. A single-line name
+        // reduces to the historical fixed 44pt (nameBlockH 16 < barBlockH 32), so
+        // single-line rows render byte-identically to before this change.
 
         // Anchored shaped-text helper — 23-08 invariant (isInputVisual:false) on
         // every draw so shapeForJsPdf output passes through unchanged.
@@ -1666,6 +1669,15 @@ window.PDFExport = (function () {
           captionAlign = null; numeralAlign = null;
         }
 
+        // Name-column width (computed once). The bar unit stays fixed at its
+        // trailing x; the name wraps inside the leading column so a long emotion
+        // name never draws across / under the bars. A GAP gutter keeps wrapped
+        // lines off the bar unit. Symmetric per docDir (~253pt both directions).
+        var nameColW = (docDir === 'rtl')
+          ? (PAGE_W - MARGIN_X) - (unitLeftX + barUnitW) - GAP
+          : unitLeftX - MARGIN_X - GAP;
+        var nameLineH = BAR_LINE_H; // wrapped name lines share the bar-line rhythm
+
         // Draw one barline: full track first, then the proportional fill growing
         // from the START edge, then caption + numeral.
         function drawBar(barBaseline, value, has, fillHex, numHex, caption) {
@@ -1709,12 +1721,32 @@ window.PDFExport = (function () {
           var hasBefore = issue.before !== null && issue.before !== undefined && isFinite(beforeVal);
           var hasAfter  = issue.after  !== null && issue.after  !== undefined && isFinite(afterVal);
 
+          // Wrap the LOGICAL name to the name column BEFORE measuring the row.
+          // splitTextToSize measures the unshaped logical string; drawAt shapes
+          // each line at draw time (the same wrap-then-shape order the paragraph /
+          // list renderers use). Set the name font first so the measurement uses
+          // the actual NAME_SIZE / Heebo-normal metrics.
+          doc.setFont('Heebo', 'normal'); doc.setFontSize(NAME_SIZE);
+          var nameLines = doc.splitTextToSize(String(issue.name || ''), nameColW);
+          if (!nameLines || !nameLines.length) nameLines = [''];
+
+          // Per-row DYNAMIC height: the taller of the wrapped-name block and the
+          // two-bar unit, plus row padding. Single-line name -> 16 < 32 -> 44pt
+          // (byte-identical to the pre-wrap fixed height, so single-line rows and
+          // the golden-baseline PDFs are unaffected).
+          var nameBlockH = nameLines.length * nameLineH;
+          var barBlockH  = BAR_LINE_H * 2;
+          var rowHeight  = Math.max(nameBlockH, barBlockH) + ROW_PAD;
+
           ensureRoom(rowHeight); // Pitfall 5: a severity row never splits mid-bar
           var rowTop = y;
 
-          // complaint name (start-anchored, leading column)
-          doc.setFont('Heebo', 'normal'); doc.setFontSize(NAME_SIZE); setInk(COLOR_BODY_INK);
-          drawAt(issue.name || '', nameX, rowTop + 10, nameAlign);
+          // complaint name (start-anchored, leading column) — one baseline per
+          // wrapped line, top-aligned to the bar unit.
+          setInk(COLOR_BODY_INK);
+          for (var nl = 0; nl < nameLines.length; nl++) {
+            drawAt(nameLines[nl], nameX, rowTop + 10 + nl * nameLineH, nameAlign);
+          }
 
           drawBar(rowTop + 10, beforeVal, hasBefore, COLOR_BEFORE_FILL, COLOR_BEFORE_NUM, beforeCaption);
           drawBar(rowTop + 10 + BAR_LINE_H, afterVal, hasAfter, COLOR_AFTER_FILL, COLOR_AFTER_NUM, afterCaption);
