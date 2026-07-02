@@ -489,6 +489,11 @@ a {
   font-weight: 700;
 }
 
+/* Actions column header sits above the right-aligned row-actions buttons */
+.table th.col-actions {
+  text-align: end;
+}
+
 .table .row-toggle {
   display: inline-flex;
   align-items: center;

@@ -464,7 +464,7 @@ function renderClientRows(clients, sessionsByClient) {
     const detailRow = document.createElement("tr");
     detailRow.className = "detail-row";
     const detailCell = document.createElement("td");
-    detailCell.colSpan = 4;
+    detailCell.colSpan = 5;
 
     if (!clientSessions.length) {
       // Build the empty-state node via textContent instead
