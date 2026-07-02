@@ -1,43 +1,38 @@
-/**
- * report.js — OBS-02 "Report a problem" controller (Phase 29, Plan 03).
- *
- * Assembles the persisted crash log (CrashLog.getEntries, Plan 01) plus basic
- * diagnostic context into a multi-line text report, runs it through a
- * best-effort redaction floor (D-04), and renders it into an EDITABLE
- * <textarea> preview so the user's own eyes are the final privacy gate before
- * anything leaves the device.
- *
- * Two outbound affordances, both user-initiated, nothing automatic:
- *   - "Copy report"            → copies the CURRENT textarea value (the user may
- *                                have edited it) to the clipboard. The full
- *                                multi-line log travels via Copy (D-06).
- *   - "Open email to support"  → a SHORT prefilled mailto: to the Impressum
- *                                support address. The body is a "paste below"
- *                                template ONLY — never the full log (URL-length
- *                                limits + leakage into mail-client history). If
- *                                mailto: proves unreliable in the installed PWA
- *                                the screen degrades to copy-only + a visible
- *                                support address (D-06).
- *
- * Constraints honored verbatim (CONTEXT / 29-PATTERNS): zero-build, zero-npm,
- * IIFE-global served as-is, and ZERO network calls — no fetch, no
- * XMLHttpRequest, no dynamic import anywhere in this file. Transmission is
- * ALWAYS the user's own mailto handoff. Every storage/DOM op is guarded.
- *
- * Clipboard idiom copied verbatim from add-session.js:738-763 (SecureContext
- * navigator.clipboard.writeText with the execCommand textarea fallback). mailto
- * idiom from backup.js (window.location.href = 'mailto:...').
- */
+// ────────────────────────────────────────────────────────────────────────
+// report.js — "Report a problem" controller
+//
+// OWNS: the report page — assembles crash-log entries (CrashLog.getEntries)
+//   + diagnostic context into a multi-line text report, runs a best-effort
+//   redaction pass, and renders it into an EDITABLE <textarea> so the user's
+//   own eyes are the final privacy gate before anything leaves the device.
+//   Two user-initiated affordances: "Copy report" (full multi-line log to
+//   clipboard) and "Open email" (SHORT mailto: template — never the full log,
+//   to avoid URL-length limits and mail-client history leakage). If mailto:
+//   proves unreliable in the installed PWA, the screen degrades to copy-only
+//   + a visible support address.
+// PUBLIC SURFACE: Report (also assigned to self/globalThis) with
+//   { init, assembleReport, redactReport, copyReport, openSupportEmail,
+//     copyTextToClipboard, SUPPORT_ADDRESS }.
+// DEPENDENCIES: CrashLog.{getEntries, clStr} — crash entries + fallback
+//   strings. App.{t, showToast} — i18n + toasts. AppVersion.APP_VERSION,
+//   PortfolioDB.DB_VERSION — diagnostic context. Clipboard idiom mirrors
+//   add-session.js:738-763 (SecureContext + execCommand fallback).
+// CONSTRAINTS: nothing is transmitted automatically — Copy and mailto only;
+//   the user always reviews the redacted preview before anything leaves the
+//   device. Redaction is a best-effort floor, not a guarantee — the editable
+//   textarea is the real gate. ZERO network calls. Every DOM + storage op
+//   is guarded; never throws.
+// ────────────────────────────────────────────────────────────────────────
 var Report = (function () {
   'use strict';
 
-  // The Impressum support address (UI-SPEC §OBS-02.3). Single constant, no user
-  // input — T-29-12 accepted (low risk, hardcoded).
+  // The Impressum support address. Single constant, no user
+  // input — low risk, hardcoded.
   var SUPPORT_ADDRESS = 'contact@sessionsgarden.app';
 
   // ──────────────────────────────────────────────────────────────────────
   // i18n helper — Surface A (full app). Falls back to the CrashLog 4-language
-  // strings (Plan 01) for the empty-state heading/body if i18n.js is absent,
+  // strings for the empty-state heading/body if i18n.js is absent,
   // then to a hardcoded EN literal. Never throws.
   // ──────────────────────────────────────────────────────────────────────
   function t(key, fallback) {
@@ -66,7 +61,7 @@ var Report = (function () {
 
   // ──────────────────────────────────────────────────────────────────────
   // Clipboard — verbatim from add-session.js:738-763. Carries the full
-  // multi-line log (D-06). SecureContext path + execCommand fallback.
+  // multi-line log. SecureContext path + execCommand fallback.
   // ──────────────────────────────────────────────────────────────────────
   function copyTextToClipboard(text) {
     if (typeof navigator !== 'undefined' && navigator.clipboard &&
@@ -183,7 +178,7 @@ var Report = (function () {
 
   // ──────────────────────────────────────────────────────────────────────
   // redactReport — best-effort scrub of obvious client-identifying tokens
-  // (D-04 FLOOR, not a guarantee — the editable preview is the real gate).
+  // (best-effort floor — the editable preview is the real gate).
   // Heuristics (builder's discretion):
   //   - email addresses
   //   - phone-number-like digit runs
@@ -193,7 +188,7 @@ var Report = (function () {
   // are non-identifying device facts. The UA string in particular contains
   // capitalised multi-word tokens (e.g. "Intel Mac OS X") that the name
   // heuristic below would otherwise destroy. So we EXTRACT the "User agent:"
-  // line before redacting and re-stitch its original value afterward (WR-02).
+  // line before redacting and re-stitch its original value afterward.
   // ──────────────────────────────────────────────────────────────────────
   var UA_LINE_RE = /^(User agent:\s?).*$/m;
 
@@ -201,7 +196,7 @@ var Report = (function () {
     if (!text) return text;
     var out = text;
     try {
-      // WR-02: pull the User-agent line out before redaction so the heuristics
+      // Pull the User-agent line out before redaction so the heuristics
       // can't clobber its (non-identifying) value, then put it back verbatim.
       var uaLine = null;
       var uaMatch = out.match(UA_LINE_RE);
@@ -236,7 +231,7 @@ var Report = (function () {
           return '[redacted-name]';
         }
       );
-      // WR-02: re-stitch the original User-agent line so its value survives.
+      // Re-stitch the original User-agent line so its value survives.
       if (uaLine != null) {
         out = out.replace(/ ?UA_PLACEHOLDER ?/, uaLine);
       }
@@ -302,8 +297,8 @@ var Report = (function () {
   // ──────────────────────────────────────────────────────────────────────
   function copyReport() {
     var preview = $('reportPreview');
-    // COPY THE CURRENT textarea value (the user may have edited it — D-04 honors
-    // those edits), NOT a stale assembled string.
+    // COPY THE CURRENT textarea value (the user may have edited it — those
+    // edits are honored), NOT a stale assembled string.
     var current = preview ? String(preview.value || '') : '';
     if (!current) return Promise.resolve(false);
     return copyTextToClipboard(current).then(function (ok) {
@@ -317,7 +312,7 @@ var Report = (function () {
   }
 
   function openSupportEmail() {
-    // SHORT body only — the full log goes via Copy (D-06 / T-29-11). The body is
+    // SHORT body only — the full log goes via Copy. The body is
     // a "paste below this line" template, never the assembled log.
     var subject = t('report.email.subject', 'Sessions Garden — problem report');
     var body = t('report.email.body',
@@ -327,13 +322,13 @@ var Report = (function () {
         '?subject=' + encodeURIComponent(subject) +
         '&body=' + encodeURIComponent(body);
     } catch (e) {
-      // D-06 degradation: if the navigation throws, surface the address visibly.
+      // If mailto: navigation throws, surface the address visibly.
       warn('mailto navigation failed; showing visible support address', e);
       degradeToVisibleAddress();
     }
   }
 
-  // D-06 degradation surface: make the support address visible so the user can
+  // Make the support address visible so the user can
   // copy it manually if the email button is unreliable in the installed PWA.
   function degradeToVisibleAddress() {
     var addr = $('reportSupportAddress');

@@ -1,27 +1,13 @@
-/**
- * snippets-seed.js — Sessions Garden seed snippet pack (Phase 24).
- *
- * 60 emotion-name snippets × 4-locale meaning paragraphs. Content authored
- * by Sapir (Sessions Garden's seller). Tags are empty by default — users add
- * their own tags via the Settings editor.
- *
- * Format: every expansion is prefixed with the emotion name in that
- * locale, followed by " — " (em-dash separator), then Sapir's meaning
- * paragraph. Applied uniformly to all 60 records.
- *
- * Loaded synchronously BEFORE assets/db.js by HTML script order so the
- * post-open seedSnippetsIfNeeded hook in db.js can read window.SNIPPETS_SEED.
- *
- * Schema (must match Plan 04 Task 2 validateSnippetShape):
- *   { id, trigger, expansions: {he,en,cs,de}, tags: string[], origin, createdAt, updatedAt }
- *
- * IDs are deterministic ("seed.<english-slug>") so the migration is idempotent:
- * re-running it never duplicates the seeds. Seeds are sorted alphabetically
- * by trigger.
- *
- * Timestamps are identical static strings — "modified seed" detection in the
- * export flow (REQ-8) compares updatedAt > createdAt OR content vs SNIPPETS_SEED.
- */
+// snippets-seed.js — seed snippet pack; registers window.SNIPPETS_SEED
+//
+// 60 emotion-name snippets × 4-locale meaning paragraphs (en/he/de/cs).
+// Consumed by db.js seedSnippetsIfNeeded() on first open. Must load BEFORE
+// db.js (HTML script order). IDs are deterministic ("seed.<english-slug>") —
+// migration is idempotent; re-running never duplicates. Timestamps are static
+// strings; "modified seed" detection in the export flow compares
+// updatedAt > createdAt or content diff against SNIPPETS_SEED.
+// Schema: { id, trigger, expansions: {he,en,cs,de}, tags: string[],
+//           origin, createdAt, updatedAt }
 (function () {
   "use strict";
 

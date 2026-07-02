@@ -1,13 +1,23 @@
-/**
- * CropModule — Shared photo crop module
- *
- * Extracted from add-client.js to enable crop on any page (add-client, add-session).
- * Uses lazy DOM initialization: DOM refs are resolved on first openCropModal() call,
- * NOT at module load. This prevents null ref errors when the crop modal DOM
- * doesn't exist yet or is on a different page.
- *
- * Usage: CropModule.openCropModal(dataURL, onSave, onCancel, isRecrop)
- */
+// ────────────────────────────────────────────────────────────────────────
+// crop.js — shared canvas-based photo crop modal
+//
+// OWNS: the crop modal UI — pointer-event pan, wheel/button zoom, canvas
+//   render, confirm (outputs a 300×300 JPEG at q=0.75) and cancel. Extracted
+//   from add-client.js so both add-client and add-session share one crop
+//   implementation. Also owns resizeToMaxDimension() — two-pass
+//   createImageBitmap resize + JPEG re-encode (strips EXIF including GPS as a
+//   security side-benefit; avoids OOM on large camera photos via decode-time
+//   resize hints rather than full-res decode + canvas scale).
+// PUBLIC SURFACE: CropModule (global const, accessible to same-page scripts)
+//   with { openCropModal, resizeToMaxDimension }. Lazy DOM init: DOM refs
+//   are resolved on the first openCropModal() call, not at module load, so
+//   the module is safe to include on any page regardless of modal presence.
+// DEPENDENCIES: App.{lockBodyScroll, unlockBodyScroll, applyTranslations}
+//   (optional — checked at call site; crop works without them).
+// CONSTRAINTS: pure Canvas API + Pointer Events; non-destructive cancel
+//   (original image unchanged). Canvas re-encode strips EXIF metadata
+//   (GPS, camera model) — side-benefit, not guaranteed across all browsers.
+// ────────────────────────────────────────────────────────────────────────
 const CropModule = (function () {
   let initialized = false;
   let cropImage = null;
@@ -136,7 +146,7 @@ const CropModule = (function () {
           cropImage.naturalWidth * cropScale,
           cropImage.naturalHeight * cropScale
         );
-        // D-21: standardize new uploads + bulk optimize on q=0.75 (was 0.85).
+        // q=0.75 standardizes new uploads and matches the bulk re-encode quality.
         var croppedDataUrl = offCanvas.toDataURL("image/jpeg", 0.75);
         closeCropModal();
         if (onSaveCallback) onSaveCallback(croppedDataUrl);
@@ -195,11 +205,11 @@ const CropModule = (function () {
    *     real (EXIF-rotated) dimensions.
    *   pass 2 (resize): re-decode with resizeWidth/resizeHeight hints so the
    *     browser downscales DURING decode — much lower peak memory than a
-   *     full-res decode followed by canvas scale (Pitfall 3 mitigation for
-   *     iPhone OOM on 12MP camera photos).
+   *     full-res decode followed by canvas scale (avoids OOM on large camera
+   *     photos such as iPhone 12 MP; hints trigger in-decoder downscale).
    *
    * Canvas re-encode strips EXIF metadata (including GPS) as a security
-   * side-benefit — see threat T-25-06-01 in plan 25-06's threat register.
+   * side-benefit — no EXIF survives canvas.toDataURL().
    *
    * @param {Blob|File} blob   - Raw photo blob (any JPEG / PNG / HEIC the browser can decode)
    * @param {number}    maxEdge - Maximum longest-edge in CSS pixels (default 800)

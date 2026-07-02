@@ -1,6 +1,20 @@
-// Sessions Garden — Disclaimer / T&C gate logic
-// Handles: language detection, checkbox validation, acceptance storage,
-//          receipt generation, redirect to app, readonly mode
+// ────────────────────────────────────────────────────────────────────────
+// disclaimer.js — Disclaimer / T&C gate logic
+//
+// OWNS: the disclaimer/terms-acceptance page — language detection (URL param
+//   → saved lang → browser lang), checkbox validation, acceptance storage
+//   (`portfolioTermsAccepted` + `portfolioTermsLang` in localStorage), receipt
+//   download, redirect-to-app flow, and readonly viewing mode.
+// PUBLIC SURFACE: none — self-boots on DOMContentLoaded, registers no global.
+// DEPENDENCIES: window.DISCLAIMER_I18N (localized strings; set by
+//   i18n-disclaimer.js); initGlobeLang (the globe language-picker widget;
+//   set by assets/globe-lang.js).
+// CONSTRAINTS: gates the app pages — T&C must be accepted before entering
+//   the app (enforced by the inline gate script in each protected HTML head).
+//   Readonly mode (?readonly=true) lets users view the terms without accepting.
+//   The accept action writes to localStorage; Private Browsing silently skips
+//   the write (the user may still continue).
+// ────────────────────────────────────────────────────────────────────────
 
 (function () {
   'use strict';
