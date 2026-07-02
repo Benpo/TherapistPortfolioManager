@@ -5,7 +5,7 @@
 
 > ⭐ **THIS IS THE LIVING MASTER TRACKER for the therapist's UAT feedback.** Revisit it whenever picking up new TPM work so parked/deferred items (F1, F2, F4, F7, F8, F9, F10) aren't lost. Mirrored in memory: `project-therapist-uat-2026-07-02.md`. Update the statuses here as items are handled.
 >
-> **Current status (2026-07-02):** F6+F5 → **GSD phase started** (covered). F3 → **handoff written** (`2026-07-02_f3-view-sessions-label-HANDOFF.md`), run after Phase 36. F7 → awaiting photo (likely already fixed by 260702-bg4). Everything else parked/deferred/dropped per below.
+> **Current status (2026-07-02):** F6+F5 → **GSD phase started** (covered). F3 → ✅ **DONE** (quick task `260702-q5f`, commits 979f20c/9a677f7/bf891b8): clock→eye+word pill + aria-expanded, verified desktop/mobile/4 langs. F7 → awaiting photo (likely already fixed by 260702-bg4). Everything else parked/deferred/dropped per below.
 **Context:** Code anchors verified by exploration on 2026-07-02. All file:line refs are current as of `main` @ 07d9fc9.
 
 > **Deployment note:** All fixes only reach the practitioner after a deploy + service-worker cache update (see MEMORY: reference-pwa-sw-cache-updates / reference-sw-version-update-delivery). Even already-fixed items (F7) won't help her until this ships.
@@ -16,7 +16,7 @@
 
 | ID | Item | Type | Effort | Ready? |
 |----|------|------|--------|--------|
-| F3 | "View sessions" clock button unlabeled | UX quick win | S | ✅ ready now |
+| F3 | "View sessions" clock button unlabeled | UX quick win | S | ✅ DONE (q5f) |
 | F1 | Can't figure out how to use snippets | Discoverability (feature is built) | S–M | ✅ ready now |
 | F9 | Heart-Shield "released" bubble should name the emotion(s) | Feature (data exists) | M | ✅ ready now |
 | F6 | Date discrepancy / off-by-one on back-dated sessions | **Bug (trust-critical)** | M | ⏳ needs photo to confirm; hypothesis strong |
@@ -36,7 +36,7 @@
 > **HARD RULE: plan first, do NOT execute anything until the plan is approved.**
 
 - **F6 + F5 = the priority.** ✅ **GSD phase started 2026-07-02** (this item is now covered by that phase — discuss/plan/execute lives there). Acceptance for F6: **all date parsing/formatting consistent to LOCAL, app-wide, agent-verified**. F5: user date-format setting (incl. numeric US/EU) + adapt the client birth-date 3-dropdown ordering. Supporting docs: `2026-07-02_f6-f5-date-consistency-PLAN-PROPOSAL.md`, `2026-07-02_f6-f5-discuss-phase-HANDOFF.md`.
-- **F3** — ✅ **handoff written** (`2026-07-02_f3-view-sessions-label-HANDOFF.md`). Quick task; **run after Phase 36** (overview.js is in Phase 36's comment-only scope).
+- **F3** — ✅ **DONE 2026-07-02** (quick task `260702-q5f`, commits 979f20c/9a677f7/bf891b8). Clock icon → Feather **eye** + visible word label ("Sessions" / "מפגשים" / "Sitzungen" / "Sezení", new `overview.table.viewSessions` key) rendered as an auto-width pill; added `aria-expanded`. Verified desktop + mobile + all 4 langs via headless-Chrome screenshots (no overflow, `+` reachable, RTL correct); 119/119 tests green. Handoff file deleted (implemented). Icon choice (eye) + label ("Sessions") decided with Ben before build.
 - **F4 — DEFERRED.** And re-framed: session types should be **managed in Settings**, not hardcoded per-session. Revisit as a settings-driven list later.
 - **F10 — DROPPED.** Not a direction for this product.
 - **F2 — PENDING.** Ben wants to know *where* this would live (main session window?) before deciding scope. See F2 section — answer added.
