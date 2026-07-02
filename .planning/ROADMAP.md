@@ -412,3 +412,22 @@ Plans:
 | 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete    | 2026-06-30 |
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete   | 2026-07-02 |
+
+### Phase 37: Date consistency + date-format setting + session types (F6+F5+F4)
+
+**Goal:** Every calendar date in the app is parsed and formatted through one canonical local-time helper (killing the UTC-midnight off-by-one), the user can choose their date presentation from a new **Personalization** Settings tab, and session types become a Settings-managed two-tier list (5 locked defaults + custom) — all with Hebrew RTL correctness and PDF parity preserved.
+**Depends on:** Phase 36
+**Requirements**: DATE-01, DATE-02, DATE-03, DATE-04, DATE-05, DATE-06, DATE-07, PERS-01, PERS-02, PERS-03, PERS-04, PERS-05, PERS-06, PERS-07, PERS-08
+**Success Criteria** (what must be TRUE):
+
+  1. Every date surface (session list, overview, browser title, PDF card + footer) shows the correct calendar day in a negative-UTC timezone — `App.formatDate('2026-07-02')` returns July 2, not July 1 — proven by a TZ-pinned behavior test; an app-wide sweep leaves **zero** `new Date("<calendar-date>")` UTC-parses, while wall-clock timestamps are untouched
+  2. A new Personalization Settings tab lets the user pick one of 6 date formats; the choice persists in `localStorage["portfolioDateFormat"]`, applies to every date surface (UI, title, PDF), and Hebrew numeric dates render left-to-right without flipping
+  3. Session types are a Settings-managed two-tier list — 5 locked defaults (In-person/Online/Remote/Proxy/Other; renameable, non-deletable) + user-added custom types (renameable + deletable); existing sessions' stored keys resolve forever and unknown types degrade gracefully to the raw string
+  4. The birthdate entry uses a native `<input type="date">` (no data migration), and both `portfolioDateFormat` and the session-type list survive a backup export→restore round-trip
+  5. The Phase 30/34 test suite stays green — TZ-pinned date tests + F4/F5/backup behavior tests authored before implementation; changed PDF SHA-256 baselines regenerated with real-output visual review; all new UI strings translated across EN/HE/DE/CS
+
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 37 to break down)

@@ -75,6 +75,31 @@ Formalized 2026-07-01 at plan time (the roadmap referenced `DOCS-03` as "continu
 
 - [x] **DOCS-03**: The batch-1 modules (`db.js`, `overview.js`, `sessions.js`) plus every small/mid production module in `32-COMMENT-COVERAGE-MAP.md` — all remaining `assets/*.js` + root `sw.js`, **excluding** the three 1,500L+ giants (`backup.js`/`app.js`/`pdf-export.js`, deferred to batch-3), the vendored `*.min.js`, and the `i18n-*` dictionaries — carry file-top banner comments in the Phase 32 convention (what it owns · public `window.*` surface · cross-`window.*` dependencies · key invariants). Header-less files get brand-new banners; `// Phase X` / `// D-NN` / bug-ticket archaeology is de-phased into plain what-it-does text. Zero behavior change, verified by green `npm test` + the comments-only strip-and-compare gate _(continuation of DOCS-02; giants deferred to batch-3)_
 
+### Date Consistency + Date-Format Setting + Session Types (Phase 37)
+
+Formalized 2026-07-02 at plan time from the F6/F5/F4 UAT triage and two focused research passes (`37-RESEARCH.md` date engine + `37-RESEARCH-personalization.md` personalization surface). Full scope + 21 locked decisions in `.planning/phases/37-date-consistency-date-format-setting-f6-f5/37-CONTEXT.md`.
+
+**Date engine (F6 date-consistency bug + F5 format logic):**
+
+- [ ] **DATE-01**: One canonical zero-dependency `window.DateFormat` IIFE (`assets/date-format.js`) regex-extracts a leading `YYYY-MM-DD` and constructs a **local** `Date(y, m-1, d)` (never `new Date("YYYY-MM-DD")` UTC-midnight); exposes `format` / `parseLocal` / `todayLocalISO` / `getPreference`, loaded before `app.js` and `pdf-export.js` on every page
+- [ ] **DATE-02**: Every calendar-date parse/format in the app routes through the helper — an app-wide sweep leaves **zero** remaining `new Date("<calendar-date>")` UTC-parses (grep gate + behavior tests), while legitimate wall-clock timestamps (`createdAt` / `exportedAt` / `Date.now()`) are deliberately **not** rerouted
+- [ ] **DATE-03**: The 6 date-format options render correctly across en/he/de/cs — numeric formats use `/` separators (except `yyyy-mm-dd` which uses `-`); "Auto" reproduces each language's conventional output, with English → en-US ("Jul 2, 2026"), unifying the old en-US-UI / en-GB-PDF split
+- [ ] **DATE-04**: Hebrew numeric dates render left-to-right within the RTL layout across all four consumption contexts (DOM display, `document.title`, PDF, markdown export) — no digit-group flipping
+- [ ] **DATE-05**: The PDF session-card date and footer "Exported on" date use the chosen format via `window.DateFormat`; `export-modal.js` stops pre-formatting and passes raw ISO to the PDF path
+- [ ] **DATE-06**: `countSessionsThisMonth` counts by **local** month boundary (dashboard miscount fixed) and the new-session date input defaults to **local** today (`add-session.js:516`)
+- [ ] **DATE-07**: TZ-pinned falsifiable behavior tests (authored before implementation, executed against the real module) prove the fix in `America/New_York`; `tests/34-date-locale.test.js` is rewritten to assert fixed behavior; changed PDF SHA-256 baselines are regenerated with real-output visual review — never blind `--regenerate` (per `reference-pdf-jsdom-inert-gates`)
+
+**Personalization surface (F5 picker + F4 session types + tab + birthdate):**
+
+- [ ] **PERS-01**: A new "Personalization" Settings tab (nav button + panel + `?tab=personalize` deep-link + whitelist) is added, translated across all 4 languages
+- [ ] **PERS-02**: A date-format `<select>` (the 6 options) in the Personalization tab persists the chosen key to `localStorage["portfolioDateFormat"]` (default `"auto"`) and triggers an app-wide date re-render on change
+- [ ] **PERS-03**: A two-tier session-type editor (modeled on `settings-snippets.js`): 5 locked defaults (In-person/`clinic`, Online/`online`, Remote/`remote`, Proxy/`proxy`, Other/`other`) show a rename field + lock icon (no delete); custom types show rename + delete; add-new input at bottom; renames are global (one language-agnostic override per type, D-16)
+- [ ] **PERS-04**: The session-type list is stored durably (IndexedDB `therapistSettings`, `sectionKey:"sessionTypes"`); `App.formatSessionType` resolves the stored key against the list + global renames, falling back to the raw string for unknown/deleted types (D-18); the add/edit-session type cards render data-driven from the list; the 3 legacy keys (`clinic`/`online`/`other`) resolve forever (D-14)
+- [ ] **PERS-05**: Backup export/restore carries `portfolioDateFormat` (scalar) and the session-type list (via `therapistSettings`) — verified round-trip, no backup manifest/schema version bump
+- [ ] **PERS-06**: The birthdate entry is swapped from 3 month/day/year `<select>` dropdowns to a single native `<input type="date">` (value `YYYY-MM-DD`, no data migration) across add-client and add-session (create + edit paths), mirroring the existing session-date field
+- [ ] **PERS-07**: New i18n keys (`settings.tab.*`, `settings.dateFormat.*`, `settings.sessionTypes.*`, `session.type.remote|proxy`) are added across en/he/de/cs
+- [ ] **PERS-08**: Behavior tests cover the surface — tab appears + deep-links; picker persists + survives reload; F4 add/rename/delete + locked-row delete rejection; global rename overrides label app-wide; unknown-type graceful fallback; backup round-trips the new keys; birthdate input persists + edits
+
 ## Future Requirements
 
 Deferred to backlog — revisit later (from the 2026-06-22 concerns triage). Tracked but not in the v1.2 roadmap.
@@ -152,11 +177,27 @@ Which phases cover which requirements. Status filled during execution.
 | DEMO-10 | Phase 35 | Complete |
 | DEMO-11 | Phase 35 | Complete |
 | DOCS-03 | Phase 36 | Complete |
+| DATE-01 | Phase 37 | Pending |
+| DATE-02 | Phase 37 | Pending |
+| DATE-03 | Phase 37 | Pending |
+| DATE-04 | Phase 37 | Pending |
+| DATE-05 | Phase 37 | Pending |
+| DATE-06 | Phase 37 | Pending |
+| DATE-07 | Phase 37 | Pending |
+| PERS-01 | Phase 37 | Pending |
+| PERS-02 | Phase 37 | Pending |
+| PERS-03 | Phase 37 | Pending |
+| PERS-04 | Phase 37 | Pending |
+| PERS-05 | Phase 37 | Pending |
+| PERS-06 | Phase 37 | Pending |
+| PERS-07 | Phase 37 | Pending |
+| PERS-08 | Phase 37 | Pending |
 
 **Coverage:**
 
 - v1.2 requirements: 35 total (23 original + 11 DEMO-* formalized 2026-06-30 + DOCS-03 formalized 2026-07-01)
-- Mapped to phases: 35
+- Phase 37 (date consistency + personalization): 15 (DATE-01..07 + PERS-01..08, formalized 2026-07-02)
+- Mapped to phases: 50
 - Unmapped: 0
 
 ---
