@@ -426,8 +426,15 @@ Plans:
   4. The birthdate entry uses a native `<input type="date">` (no data migration), and both `portfolioDateFormat` and the session-type list survive a backup export→restore round-trip
   5. The Phase 30/34 test suite stays green — TZ-pinned date tests + F4/F5/backup behavior tests authored before implementation; changed PDF SHA-256 baselines regenerated with real-output visual review; all new UI strings translated across EN/HE/DE/CS
 
-**Plans:** 0 plans
+**Plans:** 8 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 37 to break down)
+- [ ] 37-01-PLAN.md — Wave 0: date-engine RED tests (TZ-pinned falsifiable spine + 6 formats + 34-date-locale rewrite)
+- [ ] 37-02-PLAN.md — Wave 0: personalization-surface RED tests (picker/F4/backup/birthdate + tab deep-link)
+- [ ] 37-03-PLAN.md — Wave 1: date engine core (window.DateFormat) + App.formatDate delegate + 8-page/sw/test-env wiring
+- [ ] 37-04-PLAN.md — Wave 2: PDF integration (delegate + raw-ISO chain + Hebrew LTR) + baseline regen (human sign-off)
+- [ ] 37-05-PLAN.md — Wave 2: overview UTC sweep + add-client native birthdate + backup dateFormat/local filenames
+- [ ] 37-06-PLAN.md — Wave 2: Personalization tab + F5 date-format picker + all new i18n keys (en/he/de/cs)
+- [ ] 37-07-PLAN.md — Wave 3: F4 two-tier session-type editor + resolver + IDB therapistSettings storage
+- [ ] 37-08-PLAN.md — Wave 4: add-session sweep + data-driven cards + native birthdate + initBirthDatePicker removal + app-wide sweep audit

@@ -1,10 +1,11 @@
 ---
 phase: 37
 slug: date-consistency-date-format-setting-f6-f5
-status: draft
-nyquist_compliant: false
+status: planned
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-07-02
+planned: 2026-07-02
 ---
 
 # Phase 37 — Validation Strategy
@@ -39,15 +40,18 @@ created: 2026-07-02
 
 > Populated at plan time once PLAN.md wave/task IDs exist. Requirement → behavior seeds below.
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | 0 | DATE-01/02/06 | — | `parseLocal('2026-07-02').getDate()===2`; local month boundary; input default local | unit (vm, TZ-pinned) | `node tests/37-date-format.test.js` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DATE-03 | — | 6 format options × en (+he numeric) exact strings | unit (vm) | `node tests/37-date-format.test.js` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DATE-04 | — | Hebrew numeric LTR isolates present + digit order in PDF | unit + jsdom-PDF | `node tests/pdf-digit-order.test.js` | ⚠ extend | ⬜ pending |
-| TBD | TBD | 0 | DATE-05/07 | — | PDF card + footer via `DateFormat`; export-modal raw ISO; baselines regenerated | jsdom-PDF regression | `node tests/34-date-locale.test.js` | ⚠ rewrite | ⬜ pending |
-| TBD | TBD | 0 | PERS-02 | — | picker writes `portfolioDateFormat`; reload re-applies | behavior (jsdom) | TBD `tests/37-personalization.test.js` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | PERS-03/04 | — | add/rename/delete; locked-row delete rejected; unknown-type raw fallback | behavior (jsdom) | TBD | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | PERS-05 | — | backup export→import round-trips `portfolioDateFormat` + session-type list | behavior (jsdom) | TBD | ❌ W0 | ⬜ pending |
+> Tests are AUTHORED in Wave 0 (RED) by Plans 01 (engine) + 02 (surface); the "Turned green by" column names the implementation plan/wave that makes each RED test pass.
+
+| Task ID | Authored (Plan/Wave) | Turned green by (Plan/Wave) | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | Status |
+|---------|----------------------|-----------------------------|-------------|------------|-----------------|-----------|-------------------|--------|
+| 37-01-T1 | 37-01 / W0 | 37-03 / W1 (+ 37-05/W2 boundary) | DATE-01/02/06 | — | `parseLocal('2026-07-02').getDate()===2`; local month boundary; input default local | unit (vm, TZ-pinned) | `node tests/37-date-format.test.js` | ⬜ pending |
+| 37-01-T1 | 37-01 / W0 | 37-03 / W1 | DATE-03 | — | 6 format options × en (+he numeric) exact strings | unit (vm) | `node tests/37-date-format.test.js` | ⬜ pending |
+| 37-01-T1 / 37-04-T2 | 37-01 / W0 | 37-03 / W1 (isolate) · 37-04 / W2 (PDF) | DATE-04 | T-37-03-01 / T-37-04-01 | Hebrew numeric LTR isolates present (unit) + digit order in PDF | unit + jsdom-PDF | `node tests/37-date-format.test.js`; `node tests/pdf-digit-order.test.js` | ⬜ pending |
+| 37-01-T2 / 37-04-T1 | 37-01 / W0 | 37-04 / W2 | DATE-05/07 | T-37-04-02 | PDF card + footer via `DateFormat`; export-modal raw ISO; baselines regenerated (human sign-off) | jsdom-PDF regression | `node tests/34-date-locale.test.js`; `node tests/pdf-latin-regression.test.js` | ⬜ pending |
+| 37-02-T1/T2 | 37-02 / W0 | 37-06 / W2 | PERS-01/02 | — | tab deep-links; picker writes `portfolioDateFormat`; reload re-applies; fires `app:dateformat` | behavior (jsdom) | `node tests/30-settings-tabnav.test.js`; `node tests/37-personalization.test.js` | ⬜ pending |
+| 37-02-T2 | 37-02 / W0 | 37-07 / W3 | PERS-03/04 | T-37-07-SEC | add/rename/delete; locked-row delete rejected (2 ways); unknown-type raw fallback; XSS-as-text | behavior (jsdom) | `node tests/37-personalization.test.js` | ⬜ pending |
+| 37-02-T2 | 37-02 / W0 | 37-05 / W2 (scalar) · 37-07 / W3 (types) | PERS-05 | — | backup export→import round-trips `portfolioDateFormat` + session-type list | behavior (jsdom) | `node tests/37-personalization.test.js` | ⬜ pending |
+| 37-02-T2 | 37-02 / W0 | 37-05 / W2 (add-client) · 37-08 / W4 (add-session) | PERS-06 | T-37-08-01 | native `<input type="date">` persists + edits; age parses `.value` locally | behavior (jsdom) | `node tests/37-personalization.test.js` | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -74,11 +78,11 @@ created: 2026-07-02
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies (the one exception is the Plan 04 human-verify PDF checkpoint, which is intentionally manual)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (Plans 01 + 02 author every new/rewritten test file before implementation)
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s (`npm test` ~15–30s)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** planned 2026-07-02 (per-task map populated with plan/wave IDs; wave_0_complete flips true once Plans 01+02 execute and the RED tests exist)
