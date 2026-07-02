@@ -1,7 +1,7 @@
 ---
 phase: 37
 slug: date-consistency-date-format-setting-f6-f5
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-07-02
@@ -127,6 +127,8 @@ All strings are i18n keys added across **en / he / de / cs** (PERS-07). English 
 
 ## Component & Interaction Inventory
 
+**Visual hierarchy (Personalization tab focal point):** The **Date format `<select>`** is the primary anchor — it sits first in reading order with its label at the top of the panel, and is the surface's headline action (F5). The Session-types editor (heading + list) is the secondary block below it; the "Add type" primary button is the strongest accent *within* that secondary block but does not outrank the date picker at the panel level.
+
 Everything below is **reuse of an existing pattern**. The executor's job is composition; do not re-implement.
 
 | New element | Pattern reused (source) | Interaction contract |
@@ -169,11 +171,17 @@ No component registries are used; all UI is hand-authored vanilla against `token
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS *(see accepted-exception 1)*
+- [x] Dimension 2 Visuals: PASS *(focal point declared — see Component & Interaction Inventory)*
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS *(see accepted-exception 2)*
+- [x] Dimension 5 Spacing: PASS *(see accepted-exception 3)*
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** APPROVED (force-approved by Ben, 2026-07-02) — this is a **reuse-only** phase adding no new visual language. The gsd-ui-checker raised 3 BLOCKs by applying greenfield design-system rules; all three were verified against the live codebase and consciously accepted as false-positives for this phase.
+
+### Accepted checker exceptions (verified against source — do NOT "fix")
+
+1. **Copywriting — confirm dialog "Cancel".** The delete-custom-type dialog reuses the shared `confirm.cancel` i18n key (translated en/he/de/cs), used at ~15 call sites app-wide including the direct sibling snippets-delete dialog (`settings-snippets.js:933`). Renaming it here would *diverge* from every other confirm dialog — the exact risk this contract guards against. **Keep "Cancel".**
+2. **Typography — 3 weights (400/500/700).** The app's real design system ships five weights (400/500/600/700/800 across `app.css`). `.settings-tab` genuinely declares `font-weight: 500` (`app.css:3869`). The spec is factually accurate; reducing to 2 weights would break the inherited type system. **Inherit as-is.**
+3. **Spacing — off-grid inherited values (6/10px, 0.7rem/0.9rem).** Inherited verbatim from `.settings-tab`, `.snippets-list-row`, `.input`, `.toggle-card`. This phase MUST NOT change control-primitive metrics. **Reuse verbatim.**
