@@ -1,14 +1,7 @@
-/**
- * md-render.js — minimal Markdown → HTML renderer for the export preview pane.
- *
- * Subset: # / ## / ### / **bold** / *italic* / unordered lists / blank-line paragraphs / line-break.
- * Security: HTML-escapes all input BEFORE applying markdown rules. The output is safe to assign
- * via element.innerHTML in the consumer (Plan 22-06). No <script>, <img onerror=>, javascript: URLs,
- * or other tags can survive the escape pass — markdown rules only reintroduce a fixed set of
- * structural tags (h1/h2/h3/strong/em/ul/li/p/br) over already-escaped text.
- *
- * No external dependencies. No DOM access. Pure string transformation.
- */
+// md-render.js — minimal Markdown → HTML renderer; registers window.MdRender.
+// Supported subset: # / ## / ### headings, **bold**, *italic*, unordered lists,
+// blank-line paragraphs, line-break. HTML-escapes all input before applying
+// markdown rules — output is safe to assign via element.innerHTML.
 window.MdRender = (function () {
   "use strict";
 
@@ -29,12 +22,13 @@ window.MdRender = (function () {
     return out;
   }
 
-  // D-23 (Phase 24): single-newline paragraph behavior is LOCKED — consecutive non-blank
-  //   lines within a paragraph render with <br> joins (line below). Blank line = new paragraph.
-  //   Matches standard CommonMark / GitHub flavor / Notion contract. Do NOT change.
-  // D-24 (Phase 24): heading regex now accepts an optional body remainder after the
-  //   heading line, so "## heading\nbody" renders as <h2>heading</h2><p>body</p> instead
-  //   of <p>## heading<br>body</p>. Single-line headings unchanged.
+  // Single-newline paragraph behavior is LOCKED — consecutive non-blank lines
+  //   within a paragraph render with <br> joins (line below). Blank line = new
+  //   paragraph. Matches standard CommonMark / GitHub flavor / Notion contract.
+  //   Do NOT change.
+  // Heading regex accepts an optional body remainder after the heading line, so
+  //   "## heading\nbody" renders as <h2>heading</h2><p>body</p> instead of
+  //   <p>## heading<br>body</p>. Single-line headings unchanged.
   function renderBlock(block) {
     if (!block) return "";
     // Headings — accept optional body remainder after the heading line.

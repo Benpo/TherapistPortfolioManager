@@ -1,12 +1,6 @@
-/**
- * globe-lang.js — Shared globe language selector component
- *
- * Usage: initGlobeLang({ containerId, currentLang, onLangChange })
- *
- * containerId:   ID of the container element where globe markup will be injected
- * currentLang:   current active language code ('en', 'he', 'de', 'cs')
- * onLangChange:  callback(newLang) called when user selects a language
- */
+// globe-lang.js — Shared globe language-selector component (RTL-aware).
+// Injects a globe button + popover into a given container via initGlobeLang({
+//   containerId, currentLang, onLangChange }); no window.* export.
 function initGlobeLang(opts) {
   var container = document.getElementById(opts.containerId);
   if (!container) return;

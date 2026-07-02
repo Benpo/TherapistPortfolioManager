@@ -1,14 +1,14 @@
 /**
- * version.js — Single source of truth for the app version (VER-02)
+ * version.js — Single source of truth for the app version
  *
  * Exposes ONE constant object, `AppVersion`, readable from BOTH the page
  * (`window`) and the service-worker (`self`) global scopes — a service worker
  * has no `window`, so this assigns to `self`/`globalThis`.
  *
  * Two values are exposed:
- *   - APP_VERSION    : the hand-set semver (D-01). Touched only at a release
+ *   - APP_VERSION    : the hand-set semver. Touched only at a release
  *                      boundary. This milestone ships as v1.2.0.
- *   - INTEGRITY_TOKEN: a deploy-stamped git short-hash (D-02). The deploy
+ *   - INTEGRITY_TOKEN: a deploy-stamped git short-hash. The deploy
  *                      GitHub Action sed-replaces the placeholder below with
  *                      ${GITHUB_SHA::7}. When unreplaced (local / file:// open
  *                      where the deploy step never ran) it falls back to 'dev'.
@@ -17,7 +17,7 @@
  * hand-editing a cache number again (kills the v209 stale-cache failure class).
  *
  * Pure-synchronous, side-effect-free beyond assigning the global. Zero network
- * calls — no fetch, no XHR, no dynamic import (VER-06).
+ * calls — no fetch, no XHR, no dynamic import.
  */
 var AppVersion = (function() {
   'use strict';
@@ -31,7 +31,7 @@ var AppVersion = (function() {
   var INTEGRITY_TOKEN = (BUILD_TOKEN === ('__BUILD' + '_TOKEN__')) ? 'dev' : BUILD_TOKEN;
 
   // ──────────────────────────────────────────────────────────────────────
-  // Runtime integrity self-check (VER-03, D-08) — fully local, zero network.
+  // Runtime integrity self-check — fully local, zero network.
   //
   // resolveIntegrityState is a PURE function of its four arguments so the
   // honest-state machine (UI-SPEC "Three honest states") is unit-testable
@@ -44,7 +44,7 @@ var AppVersion = (function() {
   //   online             : navigator.onLine
   //   recoveryAttempted  : have we already run the genuine recovery this load?
   //
-  // States (VER-06: none of these branches touch the network):
+  // States — none of these branches touch the network:
   //   tokens match                     → 'clean'   (no nudge; footer stays clean)
   //   differ + offline (any recovery)  → 'offline' (no completion promise, D-11)
   //   differ + online + recovered      → 'wedged'  (no false "refresh", D-12)
@@ -67,8 +67,8 @@ var AppVersion = (function() {
       return 'offline';
     }
     // Online but a genuine recovery already ran and the mismatch persists:
-    // promising another "refresh to complete" would be the looped lie D-12
-    // forbids. Degrade to honest guidance (hands off to Phase 29).
+    // promising another "refresh to complete" would be a looped false promise.
+    // Degrade to honest guidance.
     if (recoveryAttempted) {
       return 'wedged';
     }
@@ -81,7 +81,7 @@ var AppVersion = (function() {
   // active SW's cache is named 'sessions-garden-<token>' (see sw.js), so the
   // cache key tells us which deploy's assets are genuinely being served. This
   // uses the CacheStorage API (caches.keys()), which is fully local — NO fetch,
-  // NO phone-home (VER-06). Resolves to null when it cannot be determined
+  // NO phone-home. Resolves to null when it cannot be determined
   // (no SW / file://), in which case the caller treats the load as clean
   // (optimistic — never cry wolf without evidence).
   function readLoadedToken() {
@@ -133,12 +133,11 @@ var AppVersion = (function() {
   }
 
   // ──────────────────────────────────────────────────────────────────────
-  // Early-lifecycle inline 4-language strings (VER-03, UI-SPEC Copywriting
-  // Contract). The integrity check may run BEFORE i18n.js loads, so these
-  // strings live HERE (colocated, never routed through i18n.js/t()), mirroring
-  // db.js's DB_STRINGS + dbStr. HE is gender-neutral (Phase 18). Tone for
-  // "your data is safe" / "refresh" reuses DB_STRINGS.migrationFailed /
-  // DB_STRINGS.refresh for consistency.
+  // Early-lifecycle inline 4-language strings — the integrity check may run
+  // BEFORE i18n.js loads, so these strings live HERE (colocated, never routed
+  // through i18n.js/t()), mirroring db.js's DB_STRINGS + dbStr. Hebrew copy is
+  // gender-neutral. Tone for "your data is safe" / "refresh" reuses
+  // DB_STRINGS.migrationFailed / DB_STRINGS.refresh for consistency.
   // ──────────────────────────────────────────────────────────────────────
   var INTEGRITY_STRINGS = {
     en: {
@@ -191,13 +190,13 @@ var AppVersion = (function() {
   }
 
   // ──────────────────────────────────────────────────────────────────────
-  // The genuine recovery (D-10). NOT a cosmetic location.reload() — a plain
-  // reload just re-serves the stale cache. This: registration.update() →
-  // delete stale HTTP/asset caches (reusing the sw.js activate-handler idiom)
-  // → reload to pick up the fresh SW. IndexedDB is NEVER touched (only HTTP
-  // caches). Flips the module-level recovery-attempted flag so a persistent
-  // mismatch escalates to 'wedged' on the next check (D-12). No new network
-  // call beyond the SW's own update mechanism (VER-06).
+  // The genuine recovery — NOT a cosmetic location.reload() — a plain reload
+  // just re-serves the stale cache. This: registration.update() → delete stale
+  // HTTP/asset caches (reusing the sw.js activate-handler idiom) → reload to
+  // pick up the fresh SW. IndexedDB is NEVER touched (only HTTP caches). Flips
+  // the module-level recovery-attempted flag so a persistent mismatch escalates
+  // to 'wedged' on the next check. No new network call beyond the SW's own
+  // update mechanism.
   // ──────────────────────────────────────────────────────────────────────
   function runGenuineRecovery() {
     _recoveryAttempted = true;
@@ -228,14 +227,14 @@ var AppVersion = (function() {
   }
 
   // ──────────────────────────────────────────────────────────────────────
-  // Nudge DOM builder (D-10/D-11/D-12) — a severity variant of the
-  // .db-error-banner family (createElement + textContent, NEVER innerHTML;
-  // role="alert"; document.body.prepend; getElementById duplicate guard).
+  // Nudge DOM builder — a severity variant of the .db-error-banner family
+  // (createElement + textContent, NEVER innerHTML; role="alert";
+  // document.body.prepend; getElementById duplicate guard).
   // The body copy + button set are BOUND to the resolved state so the words
   // can never disagree with what the button does:
   //   online  → info band, genuine-recovery CTA, completion promise
-  //   offline → warning band, NO CTA, reconnect-only copy (D-11)
-  //   wedged  → danger band, recover + report CTAs (no false "refresh", D-12)
+  //   offline → warning band, NO CTA, reconnect-only copy
+  //   wedged  → danger band, recover + report CTAs (no false "refresh")
   // ──────────────────────────────────────────────────────────────────────
   function buildNudge(state) {
     if (typeof document === 'undefined') return null;
@@ -272,13 +271,13 @@ var AppVersion = (function() {
       recover.className = 'integrity-nudge-btn';
       recover.setAttribute('data-role', 'cta');
       recover.textContent = integStr('wedgedCta');
-      // Phase 29 OBS-03: route the wedged "couldn't finish automatically" path
-      // to the real reset & recover escape hatch (db.js showDBMigrationError,
-      // Plan 02) — a surface that lets the user export-around-failure and then
-      // wipe+reload, instead of the cosmetic reload that re-runs the failing
-      // migration forever. Fall back to the genuine recovery if the hatch is
-      // unavailable (e.g. PortfolioDB not loaded), never making the false
-      // "refresh to complete" promise.
+      // Route the wedged "couldn't finish automatically" path to the real reset
+      // & recover escape hatch (db.js _showDBMigrationError) — a surface that
+      // lets the user export-around-failure and then wipe+reload, instead of
+      // the cosmetic reload that re-runs the failing migration forever. Falls
+      // back to the genuine recovery if the hatch is unavailable (e.g.
+      // PortfolioDB not loaded), never making the false "refresh to complete"
+      // promise.
       recover.onclick = function () {
         try {
           var DB = (typeof window !== 'undefined' && window.PortfolioDB) || null;
@@ -293,8 +292,8 @@ var AppVersion = (function() {
       report.className = 'integrity-nudge-btn integrity-nudge-btn--secondary';
       report.setAttribute('data-role', 'report');
       report.textContent = integStr('wedgedReport');
-      // Phase 29 OBS-02: route the wedged report stub to the dedicated report
-      // screen so the user can hand a diagnostic log to support.
+      // Route the wedged report stub to the dedicated report screen so the user
+      // can hand a diagnostic log to support.
       report.onclick = function () {
         try { window.location.href = './report.html'; } catch (e) {}
       };
@@ -318,10 +317,10 @@ var AppVersion = (function() {
     return nudge;
   }
 
-  // One-directional footer marker (D-09): once a mismatch is detected the
-  // footer ⚠ may NOT downgrade back to clean within the same load. Given the
-  // previous marked state and a freshly-resolved state, returns whether the
-  // footer should show the ⚠ marker.
+  // One-directional footer marker: once a mismatch is detected the footer ⚠ may
+  // NOT downgrade back to clean within the same load. Given the previous marked
+  // state and a freshly-resolved state, returns whether the footer should show
+  // the ⚠ marker.
   function footerMarkerForState(prevMarked, state) {
     if (prevMarked) return true;                 // never downgrade within a load
     return state !== 'clean';                    // upgrade on any non-clean state

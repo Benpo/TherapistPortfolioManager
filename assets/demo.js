@@ -1,7 +1,4 @@
-/* === DEMO MODE CONTROLLER === */
-/* Handles language sync from parent landing page. */
-/* Data comes from isolated demo_portfolio DB, seeded fresh on each load. */
-
+// demo.js — demo-mode controller: syncs language from the parent landing page.
 (function() {
   'use strict';
 

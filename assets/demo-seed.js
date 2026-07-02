@@ -1,11 +1,10 @@
-/* === DEMO SEED DATA === */
-/* Fetches demo-seed-data.json, clears demo_portfolio, and seeds it on every load. */
-/* Must run AFTER db.js but BEFORE overview.js so the dashboard renders seed data. */
-
+// demo-seed.js — fetches demo-seed-data.json, clears and re-seeds demo_portfolio
+// on every load; exposes window.demoSeedReady (a Promise). Must run after db.js
+// and before overview.js so the dashboard renders the seed data.
 window.demoSeedReady = (function() {
   'use strict';
 
-  // ── Relative-date seam (D-06 / DEMO-06) ────────────────────────────────────
+  // ── Relative-date seam ──────────────────────────────────────────────────────
   // Computed-date model: the seed JSON carries a per-session integer `daysAgo`
   // instead of a hardcoded absolute `date`, so the demo self-freshens forever
   // and never looks abandoned. These helpers are PURE (no IndexedDB) and are

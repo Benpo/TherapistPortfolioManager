@@ -1,20 +1,27 @@
-/**
- * sw.js — Sessions Garden Service Worker
- *
- * CRITICAL SAFETY NOTE:
- * This service worker handles ONLY the HTTP network/cache layer.
- * It CANNOT and DOES NOT touch IndexedDB.
- * All client data stored in IndexedDB is completely independent of this
- * service worker and is NEVER at risk from service worker installs,
- * updates, or deletions. Only static asset HTTP caches are managed here.
- */
+// ─────────────────────────────────────────────────────────────────────────────
+// sw.js — Sessions Garden Service Worker
+//
+// OWNS: static-asset precache on install (cache-first strategy) and HTML page
+//   precache with a redirect-safe fetch+put pattern; a network-first / cache-
+//   fallback strategy for navigation requests; and cache cleanup on activate.
+// PUBLIC SURFACE: SW lifecycle events — install / activate / fetch.
+// DEPENDENCIES: importScripts('/assets/version.js') for window.AppVersion.INTEGRITY_TOKEN,
+//   which derives CACHE_NAME so a new deploy auto-rolls the cache without manual
+//   edits. The path must match the shipped deployed path (assets/ prefix).
+// CONSTRAINTS: the SW handles ONLY the HTTP network/cache layer.
+//
+// CRITICAL SAFETY NOTE:
+// This service worker CANNOT and DOES NOT touch IndexedDB.
+// All client data stored in IndexedDB is completely independent of this
+// service worker and is NEVER at risk from service worker installs,
+// updates, or deletions. Only static asset HTTP caches are managed here.
+// ─────────────────────────────────────────────────────────────────────────────
 
-// Single source of truth: derive the cache name from the deploy-stamped token
-// in version.js. Bumping a deploy never requires editing a cache number again
-// (kills the v209 stale-cache failure class — D-02).
-// Path MUST match where version.js is actually deployed (assets/, mirrored in
-// PRECACHE_URLS below) — the deploy ships no root /version.js, so importing
-// '/version.js' would fetch Cloudflare's HTML fallback and throw on install.
+// Derive the cache name from the deploy-stamped integrity token in version.js.
+// A new deploy auto-rolls the cache name, eliminating the stale-cache class.
+// The importScripts path must match where version.js is actually deployed
+// (assets/ prefix) — the deploy ships no root /version.js, so '/version.js'
+// would fetch Cloudflare's HTML fallback and throw on install.
 importScripts('/assets/version.js');
 const CACHE_NAME = 'sessions-garden-' + self.AppVersion.INTEGRITY_TOKEN;
 
@@ -146,8 +153,7 @@ self.addEventListener('install', function (event) {
       // pdf-export.js got promoted into a fresh CACHE_NAME on installed (Add to
       // Dock) web apps after a deploy: caches.keys() reported the new version but
       // the cached file was old. 'reload' forces a network fetch every install so
-      // a new CACHE_NAME always contains genuinely fresh code. (See the SW-cache
-      // staleness incident, 2026-06-21.)
+      // a new CACHE_NAME always contains genuinely fresh code.
       var staticPromises = PRECACHE_URLS.map(function (url) {
         return fetch(url, { cache: 'reload' }).then(function (response) {
           if (response && response.status === 200) {

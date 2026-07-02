@@ -1,3 +1,20 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// add-client.js — Add / edit client form page.
+//
+// OWNS: the add/edit-client form — client fields (name, birth date picker,
+//   email, phone, notes, client type toggle, referral source), inline photo
+//   capture (resize on upload, crop via CropModule), and the delete flow for
+//   existing clients.
+// PUBLIC SURFACE: none — self-boots on DOMContentLoaded, registers no global.
+// DEPENDENCIES: App.{initCommon, initBirthDatePicker, t, showToast, confirmDialog,
+//   applyTranslations, setSubmitLabel, readFileAsDataURL}, PortfolioDB.{getClient,
+//   addClient, updateClient, deleteClientAndSessions}, window.CropModule.{openCropModal,
+//   resizeToMaxDimension} — set by app.js, db.js, and crop.js IIFEs.
+// CONSTRAINTS: user text rendered via textContent / .value, never innerHTML;
+//   referral source falls back to "other" for any custom value not in the preset
+//   list; photos are stored as data URLs (resized to longest edge ≤ 800 px,
+//   JPEG q = 0.75), with the original file discarded after the crop callback.
+// ─────────────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   App.initCommon();
 
@@ -58,8 +75,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   if (photoInput) {
-    // D-23: no hard upload-size cap, but a soft warning when input is very
-    // large so the user understands the slowdown. 25MB chosen as the point
+    // No hard upload-size cap, but a soft warning when the file is very
+    // large so the user understands the slowdown. 25 MB chosen as the point
     // where most phones still decode but the user notices latency.
     const SOFT_SIZE_CAP_BYTES = 25 * 1024 * 1024;
     photoInput.addEventListener("change", async () => {
@@ -70,10 +87,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           console.warn("Large photo upload:", file.size, "bytes — proceeding per D-23 (no hard cap)");
           App.showToast("", "photos.upload.warning");
         }
-        // D-21: resize on upload — longest edge <= 800px, JPEG q=0.75.
+        // Resize on upload — longest edge ≤ 800 px, JPEG q = 0.75.
         // The original `file` is held only during this call; it is garbage-
-        // collected as soon as resizeToMaxDimension returns (D-22 crop-only
-        // storage — original never persisted).
+        // collected as soon as resizeToMaxDimension returns — only the cropped
+        // data URL is stored; the original is never persisted.
         let resizedBlob;
         try {
           resizedBlob = await CropModule.resizeToMaxDimension(file, 800, 0.75);

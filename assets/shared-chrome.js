@@ -1,20 +1,34 @@
-/**
- * shared-chrome.js — Shared footer and navigation utilities for all pages
- * Used by: app pages (loaded alongside app.js), license page, legal pages
- */
+// ─────────────────────────────────────────────────────────────────────────────
+// shared-chrome.js — Shared footer and navigation chrome for all pages.
+//
+// OWNS: the rendered app footer (version line, legal-link nav, tagline, botanical
+//   image), back/brand-link text + href for legal and disclaimer pages, and the
+//   one-directional footer ⚠ marker logic. Inline FOOTER_STRINGS and
+//   BACK_LINK_STRINGS for portability — used on legal/license pages that omit
+//   i18n.js.
+// PUBLIC SURFACE: window.SharedChrome — exposes getNavigationContext, getLang,
+//   getLocalizedLegalLink, renderFooter, maybeUpgradeFooterAndNudge, updateBackLinks,
+//   FOOTER_STRINGS, BACK_LINK_STRINGS, APP_VERSION.
+// DEPENDENCIES: window.AppVersion.{APP_VERSION, checkIntegrity, footerMarkerForState,
+//   buildNudge, integStr} (version.js); window.CrashLog.logError (optional,
+//   crashlog.js — feature-gated on page type: legal/landing pages omit it).
+// CONSTRAINTS: footer strings are inlined (not via i18n.js) for use on pages that
+//   load without the i18n system; the license link is omitted in demo mode to
+//   prevent iframe escape; the footer ⚠ marker is one-directional within a load —
+//   it upgrades on mismatch but never downgrades back to clean.
+// ─────────────────────────────────────────────────────────────────────────────
 var SharedChrome = (function() {
   'use strict';
 
-  // Single source of truth (VER-02): read the semver from version.js, loaded
-  // before this file on every app page (Plan 03). The literal fallback only
-  // applies if version.js somehow failed to load (defensive — never blocks the
-  // footer from rendering).
+  // Single source of truth: read the semver from version.js, loaded before this
+  // file on every app page. The literal fallback only applies if version.js
+  // somehow failed to load (defensive — never blocks the footer from rendering).
   var APP_VERSION = (typeof window !== 'undefined' && window.AppVersion && window.AppVersion.APP_VERSION)
     ? window.AppVersion.APP_VERSION
     : '1.2.1';
 
   // Tracks whether the footer ⚠ marker has been shown this load. Once set, the
-  // footer never downgrades back to clean within the load (D-09).
+  // footer never downgrades back to clean within the load.
   var _footerMarked = false;
 
   function getNavigationContext() {
@@ -24,13 +38,12 @@ var SharedChrome = (function() {
       isActivated = (activatedVal === '1' || activatedVal === 'true')
         && !!localStorage.getItem('portfolioLicenseInstance');
     } catch(e) {}
-    // Phase 35 Plan 06 (DEMO-10 iframe-escape fix): in demo mode every
-    // back/brand/home link must stay INSIDE the demo. window.name==='demo-mode'
-    // persists across same-origin navigations within the landing iframe, so a
-    // demo visitor (never "activated") would otherwise resolve homeHref to
-    // ./landing.html — which re-embeds the demo and recurses (frame-in-frame
-    // nesting). Pin the home target to ./demo.html in demo mode; all non-demo
-    // behavior is unchanged.
+    // In demo mode every back/brand/home link must stay INSIDE the demo.
+    // window.name==='demo-mode' persists across same-origin navigations within
+    // the landing iframe, so a demo visitor (never "activated") would otherwise
+    // resolve homeHref to ./landing.html — which re-embeds the demo and recurses
+    // (frame-in-frame nesting). Pin the home target to ./demo.html in demo mode;
+    // all non-demo behavior is unchanged.
     var isDemo = (typeof window !== 'undefined' && window.name === 'demo-mode');
     return {
       isActivated: isActivated,
@@ -69,8 +82,8 @@ var SharedChrome = (function() {
     }
     // Update topbar/disclaimer brand (logo) links. Two brand classes exist:
     // .legal-topbar-brand (impressum/datenschutz) and .disclaimer-brand
-    // (disclaimer). Both must follow ctx.homeHref or the logo escapes the demo
-    // iframe in demo mode (DEMO-10 logo-escape finding).
+    // (disclaimer). Both must follow ctx.homeHref or the logo escapes the
+    // demo iframe in demo mode.
     var brandLinks = document.querySelectorAll('.legal-topbar-brand, .disclaimer-brand');
     for (var j = 0; j < brandLinks.length; j++) {
       brandLinks[j].href = ctx.homeHref;
@@ -88,11 +101,10 @@ var SharedChrome = (function() {
     var lang = getLang();
     var strings = FOOTER_STRINGS[lang] || FOOTER_STRINGS.en;
 
-    // Phase 35 Plan 06 (DEMO-10 iframe-escape fix): omit the footer License link
-    // in demo mode. license.html computes its OWN back-link (./landing.html when
-    // not activated) and would escape the iframe; removing the entry point keeps
-    // the demo self-contained. The version line and other footer content stay
-    // intact. Non-demo footers are unchanged.
+    // Omit the footer License link in demo mode. license.html computes its OWN
+    // back-link (./landing.html when not activated) and would escape the iframe;
+    // removing the entry point keeps the demo self-contained. The version line
+    // and other footer content stay intact. Non-demo footers are unchanged.
     var isDemo = (typeof window !== 'undefined' && window.name === 'demo-mode');
     var licenseLinkHtml = isDemo
       ? ''
@@ -116,7 +128,7 @@ var SharedChrome = (function() {
         licenseLinkHtml +
       '</nav>' +
       '<p class="app-footer-contact"><a href="mailto:contact@sessionsgarden.app">contact@sessionsgarden.app</a></p>' +
-      // Render clean OPTIMISTICALLY (D-09): show v{APP_VERSION} with no marker.
+      // Render clean OPTIMISTICALLY: show v{APP_VERSION} with no marker.
       // The integrity check below may UPGRADE it to v{APP_VERSION} ⚠ — it never
       // downgrades. The marker span is created empty here so the check can fill
       // it without touching the rest of the line.
@@ -127,10 +139,10 @@ var SharedChrome = (function() {
     var target = targetEl || document.querySelector('.container') || document.body;
     target.appendChild(footer);
 
-    // Honest footer (D-09 / VER-03): run the fully-local integrity self-check
-    // and, ONLY on a detected mismatch, upgrade the footer to the ⚠ marker and
-    // surface the state-bound nudge. Never the reverse. version.js owns the
-    // resolver, the strings, and the nudge; this just drives them.
+    // Run the fully-local integrity self-check and, ONLY on a detected mismatch,
+    // upgrade the footer to the ⚠ marker and surface the state-bound nudge.
+    // Never the reverse. version.js owns the resolver, the strings, and the
+    // nudge; this just drives them.
     maybeUpgradeFooterAndNudge();
   }
 
@@ -138,9 +150,8 @@ var SharedChrome = (function() {
     if (typeof window === 'undefined' || !window.AppVersion || !window.AppVersion.checkIntegrity) return;
     try {
       window.AppVersion.checkIntegrity().then(function (state) {
-        // Phase 28 → 29 seam (D-01 / 28-CONTEXT D-12): persist a non-clean
-        // integrity state into the OBS-01 crash log so the v209-class mismatch
-        // becomes reportable through the OBS-02 report screen. Feature-gated —
+        // Persist a non-clean integrity state into the crash log so a version
+        // mismatch is reportable through the report screen. Feature-gated —
         // CrashLog may not be loaded on every page (legal/landing pages omit
         // it) — and fully guarded so a logging failure never breaks the footer.
         if (state && state !== 'clean' && window.CrashLog && typeof window.CrashLog.logError === 'function') {

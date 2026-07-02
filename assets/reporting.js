@@ -1,3 +1,6 @@
+// reporting.js — Reporting page: aggregates session statistics (total clients,
+// sessions, avg issues/session, avg severity before/after, heart-shield-cleared
+// count) from PortfolioDB and renders them. Self-boots; no window.* export.
 document.addEventListener("DOMContentLoaded", async () => {
   await App.initCommon();
 
