@@ -4,16 +4,16 @@ milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 36
 status: completed
-stopped_at: 36 planned — 4 plans across 2 waves (22 modules); ready for /gsd-execute-phase 36
-last_updated: "2026-07-02T17:10:00.000Z"
+stopped_at: Phase 37 context gathered
+last_updated: "2026-07-02T17:41:51.975Z"
 last_activity: 2026-07-02
-last_activity_desc: "Quick task 260702-q5f (UAT F3): home-overview sessions toggle → eye+History pill + aria-expanded; follow-ups added Actions column header (full-width borders) + colSpan 4→5; verified desktop/mobile/4 langs, 119/119 green"
+last_activity_desc: Phase 36 marked complete
 progress:
-  total_phases: 9
+  total_phases: 10
   completed_phases: 8
   total_plans: 52
   completed_plans: 52
-  percent: 89
+  percent: 80
 current_phase_name: code-comments-batch-2
 ---
 
@@ -346,6 +346,7 @@ Recent decisions affecting current work:
 - Phase 14 added: i18n bugs, legal footer cleanup, and contact email update
 - Phase 15 added: Architecture and UI audit (dual-mode: Opus subagents for arch review + /gsd:ui-review for frontend)
 - Phase 22 added: Session Workflow Loop — pre-session context card, editable section titles, session-to-document email export (bundles 3 todos from 2026-04-26)
+- Phase 37 added: Date consistency + date-format setting (F6+F5)
 
 ### Blockers/Concerns
 
@@ -375,11 +376,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-02T13:30:11.617Z
+**Last session:** 2026-07-02T17:41:51.969Z
 
 Last activity: 2026-07-02 — Completed quick task 260702-q5f (UAT F3): home-overview "view previous sessions" toggle relabelled — Feather eye icon + visible word pill + `aria-expanded`. After Ben reviewed the live app, follow-ups: label **Sessions→History** (4 langs; kills the duplicate "Sessions" vs the count column), added the missing **Actions** column `<th>` (borders now span full width), and fixed the expanded detail-row `colSpan` 4→5. Verified desktop/mobile/4 langs via headless-Chrome; 119/119 green. 5 code commits (979f20c, 9a677f7, bf891b8, 131bb08, 8730651). Ready to push.
-Stopped at: 35-06 finalized — phase verification/completion left to the orchestrator (do NOT mark the phase complete here).
-Resume file: None
+Stopped at: Phase 37 context gathered
+Resume file: .planning/phases/37-date-consistency-date-format-setting-f6-f5/37-CONTEXT.md
 Next: orchestrator runs Phase 35 verification, then phase.complete.
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
