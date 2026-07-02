@@ -6,7 +6,7 @@ current_phase: 36
 current_phase_name: code-comments-batch-2
 status: executing
 stopped_at: 36 planned — 4 plans across 2 waves (22 modules); ready for /gsd-execute-phase 36
-last_updated: "2026-07-02T11:07:08.077Z"
+last_updated: "2026-07-02T11:26:59.795Z"
 last_activity: 2026-07-02
 last_activity_desc: Phase 36 execution started
 progress:
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 36 (code-comments-batch-2) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-07-02 — Phase 36 execution started
 
@@ -153,6 +153,7 @@ Last activity: 2026-07-02 — Phase 36 execution started
 | Phase 35 P06 | ~45min | 3 tasks | 9 files |
 | Phase 36 P01 | 8 | 3 tasks | 3 files |
 | Phase 36-code-comments-batch-2 P02 | 12 | - tasks | - files |
+| Phase 36-code-comments-batch-2 P03 | 18 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -371,7 +372,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-02T11:07:02.793Z
+**Last session:** 2026-07-02T11:26:59.788Z
 
 Last activity: 2026-06-30 — 35-06 demo exposure lock-down COMPLETE. DEMO-11 hides/disables the backup cloud btn, overview Export/Import, the `openExportFlow` path, and license activate/deactivate in demo mode (0b32b2e/98d1275/d8997a7); `toast.exportDisabledDemo` added in all 4 langs. The DEMO-10 full-demo regression was APPROVED by Ben in a real browser; it surfaced 3 iframe-escape nav paths, all fixed inline (9be659b/26f66fd/af33a9e) and covered by the new `tests/35-demo-nav.test.js` (14 cases). Full suite 118 passed / 0 failed; no test weakened. DEMO-10 + DEMO-11 marked Complete. KNOWN RESIDUAL (deferred by design): Settings→Backups stays operable in the demo (D-09 refinement, T-SETTINGS-RESID accepted). All 6 of Phase 35's plans now have summaries.
 Stopped at: 35-06 finalized — phase verification/completion left to the orchestrator (do NOT mark the phase complete here).
