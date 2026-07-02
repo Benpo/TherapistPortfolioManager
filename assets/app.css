@@ -1377,7 +1377,16 @@ html[dir="rtl"] .issue-grid {
 }
 
 html[dir="rtl"] .row-actions{
-  justify-content:flex-start;
+  /* Desktop table: buttons hug the outer (left) edge under the right-aligned
+     "Actions" (פעולות) header — mirrors the LTR layout. Mobile card overrides
+     this below to keep the buttons on the leading side with the card content. */
+  justify-content:flex-end;
+}
+
+@media (max-width: 640px) {
+  html[dir="rtl"] .row-actions{
+    justify-content:flex-start;
+  }
 }
 
 html[dir="rtl"] .heartwall-badge{
