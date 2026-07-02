@@ -24,7 +24,7 @@ window.I18N.cs = {
   "overview.table.edit": "Upravit",
   "overview.table.view": "Zobrazit",
   "overview.table.previousSessions": "Předchozí sezení",
-  "overview.table.viewSessions": "Sezení",
+  "overview.table.viewSessions": "Historie",
   "overview.table.newSession": "Nové sezení",
   "overview.export": "Export / záloha dat",
   "overview.import": "Importovat data",

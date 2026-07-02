@@ -24,7 +24,7 @@ window.I18N.en = {
   "overview.table.edit": "Edit",
   "overview.table.view": "View",
   "overview.table.previousSessions": "Previous sessions",
-  "overview.table.viewSessions": "Sessions",
+  "overview.table.viewSessions": "History",
   "overview.table.newSession": "New session",
   "overview.export": "Export / Backup Data",
   "overview.import": "Import Data",

@@ -24,7 +24,7 @@ window.I18N.de = {
   "overview.table.edit": "Bearbeiten",
   "overview.table.view": "Anzeigen",
   "overview.table.previousSessions": "Vorherige Sitzungen",
-  "overview.table.viewSessions": "Sitzungen",
+  "overview.table.viewSessions": "Verlauf",
   "overview.table.newSession": "Neue Sitzung",
   "overview.export": "Daten exportieren / sichern",
   "overview.import": "Daten importieren",
