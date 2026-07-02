@@ -1,43 +1,44 @@
-/**
- * backup-modal.js — the Backup & Restore modal, available on EVERY app page.
- *
- * Phase 25 round-5 post-UAT (Change 1 / UAT-D2, Ben 2026-05-15).
- *
- * BEFORE: the modal markup lived only in index.html and its handlers only
- * in overview.js. On settings.html / add-client.html / add-session.html the
- * header cloud-icon click had no window.openBackupModal, so it NAVIGATED to
- * ./index.html?openBackup=1 — bouncing the user away from the page they were
- * on. Ben explicitly chose "modal opens in-place everywhere" over a seamless
- * redirect or lazy-load.
- *
- * AFTER: this single module owns
- *   - the modal markup (injected into <body> if #backupModal is absent so
- *     index.html's static markup still wins and no duplicate is created),
- *   - all modal handlers (export / import / share / test-password / close /
- *     Esc / ?openBackup=1 auto-open),
- *   - window.openBackupModal / window.renderLastBackupSubtitle /
- *     window.openExportFlow / window.closeBackupModal.
- * It is loaded on index.html, settings.html, add-client.html and
- * add-session.html (after backup.js + jszip.min.js + app.js).
- *
- * overview.js no longer defines these — it registers a
- * window.__afterBackupRestore hook so the overview list refreshes after an
- * in-place restore (other pages simply reload via location.reload()).
- *
- * Dependencies: window.App (app.js), window.BackupManager (backup.js),
- * JSZip (jszip.min.js — only needed when the user actually exports/imports).
- * Every external touch is defensive so a page that somehow loads this
- * without a dependency degrades to a no-op rather than throwing.
- */
+// ─────────────────────────────────────────────────────────────────────────────
+// backup-modal.js — Backup & Restore modal, available on every app page.
+//
+// OWNS: the Backup & Restore modal in-place on every app page — modal markup
+//   (injected into <body> when #backupModal is absent so index.html's static
+//   copy wins on first paint without waiting for this script), all modal
+//   handlers (export / import / share / test-password / close / Esc /
+//   ?openBackup=1 auto-open), and the relative-time "last backup" subtitle.
+//   Before this module, the modal markup lived only in index.html and its
+//   handlers only in overview.js; on settings.html / add-client.html /
+//   add-session.html the header cloud-icon click had no window.openBackupModal
+//   so it navigated the user away from the current page. The design choice
+//   was "modal opens in-place everywhere" — this single module makes that work.
+// PUBLIC SURFACE: window.openBackupModal · window.closeBackupModal ·
+//   window.openExportFlow · window.renderLastBackupSubtitle ·
+//   window.formatRelativeTime. Loaded on index.html, settings.html,
+//   add-client.html, and add-session.html (after backup.js + jszip.min.js +
+//   app.js). The wired guard (window.__backupModalWired) prevents double
+//   binding if this module and a legacy caller both try to initialize.
+// DEPENDENCIES: window.App — App.{lockBodyScroll, unlockBodyScroll, t,
+//   applyTranslations, showToast, confirmDialog, updateBackupCloudState};
+//   window.BackupManager — BM.{exportEncryptedBackup, exportBackup,
+//   triggerDownload, isAutoBackupActive, autoSaveToFolder, shareBackup,
+//   importBackup, testBackupPassword, isShareSupported};
+//   window.__afterBackupRestore (overview.js hook — in-place list refresh
+//   after restore; other pages reload); JSZip loaded globally by jszip.min.js
+//   (only invoked at export/import time). All external calls are null-guarded
+//   so a page missing a dependency degrades to a no-op rather than throwing.
+// CONSTRAINTS: this module collects user options and delegates the ZIP/crypto
+//   pipeline to window.BackupManager — it does not do the ZIP or encryption
+//   itself. overview.js registers window.__afterBackupRestore so the client
+//   list refreshes in-place after restore; all other pages call location.reload().
+// ─────────────────────────────────────────────────────────────────────────────
 (function () {
   'use strict';
 
   // ───────────────────────────────────────────────────────────────────
-  // Modal markup — byte-for-byte the Phase 25 Plan 02/03/12 block that
-  // previously lived only in index.html (lines 182-269). Kept here as the
-  // single source of truth; index.html still ships its own static copy so
-  // first paint has the modal without waiting for this script, and the
-  // injector below skips when a #backupModal already exists.
+  // Modal markup — the block that previously lived only in index.html.
+  // Kept here as the single source of truth; index.html still ships its
+  // own static copy so first paint has the modal without waiting for this
+  // script, and the injector below skips when a #backupModal already exists.
   // ───────────────────────────────────────────────────────────────────
   var MODAL_HTML = [
     '<div id="backupModal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="backupModalTitle">',
@@ -238,9 +239,9 @@
     var App = getApp();
     var BM = getBM();
     if (!BM || !App) return Promise.resolve(null);
-    // Phase 35 Plan 06 (D-09 / DEMO-11) — block the export flow in the sales
-    // demo, mirroring the openImportFlow guard. A demo visitor must not produce
-    // a real .sgbackup file. Toast + early-return; the normal path is untouched.
+    // Block the export flow in the sales demo, mirroring the openImportFlow
+    // guard. A demo visitor must not produce a real .sgbackup file. Toast +
+    // early-return; the normal path is untouched.
     if (typeof window !== 'undefined' && window.name === 'demo-mode') {
       if (typeof App.showToast === 'function') App.showToast('', 'toast.exportDisabledDemo');
       return Promise.resolve(null);

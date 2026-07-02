@@ -1,5 +1,22 @@
-/* === LANDING PAGE LOGIC === */
-/* Language switching, theme detection, smooth scroll */
+// ─────────────────────────────────────────────────────────────────────────────
+// landing.js — Public marketing/landing page: language switching, theme
+//   detection, smooth scroll, Lemon Squeezy checkout entry, and the
+//   licensed-user auto-detect redirect.
+//
+// OWNS: all UI interactions on the landing page — multi-language rendering
+//   (EN/HE/DE/CS via LANDING_I18N), dark-mode theme detection, smooth-scroll
+//   for anchor links, feature-card spotlight glow, demo-iframe resize handles,
+//   the Lemon Squeezy checkout CTA (LS_CHECKOUT_URL constant), and the
+//   auto-detect banner that redirects an already-licensed user to the app.
+// PUBLIC SURFACE: none — self-boots on DOMContentLoaded, registers no global.
+// DEPENDENCIES: browser APIs only (localStorage, navigator.language,
+//   window.location, iframe.contentWindow.postMessage for demo-lang sync);
+//   no window.* globals set by other app modules are read here.
+// CONSTRAINTS: marketing page — not included in the PWA SW precache; the demo
+//   iframe is same-origin so postMessage uses window.location.origin as the
+//   target origin. Language and theme preferences are read from localStorage
+//   (portfolioLang, portfolioTheme).
+// ─────────────────────────────────────────────────────────────────────────────
 
 var LS_CHECKOUT_URL = 'https://sessionsgarden.lemonsqueezy.com/checkout/buy/70849bde-8fcb-4b30-8525-435f4c7fec66';
 

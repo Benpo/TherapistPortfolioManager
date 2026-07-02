@@ -1,11 +1,24 @@
 /**
- * license.js — Sessions Garden license key activation and validation
+ * license.js — License key activation and client-side validation.
  *
- * Handles first-time activation via Lemon Squeezy License API (requires internet),
- * then stores credentials in localStorage for offline daily use.
- *
- * IMPORTANT: After activation, the app does NOT need internet to check the license.
- * The isLicensed() function is purely a localStorage check — no API call needed daily.
+ * OWNS: first-time activation via the Lemon Squeezy License API (internet
+ *   required), offline daily validation (localStorage-only check — no API
+ *   call after activation), deactivation flow (frees one of the 2 LS slots),
+ *   and the license page UI (activation form / activated view / language
+ *   switching).
+ * PUBLIC SURFACE: window.applyLicenseLang — re-applies i18n strings to the
+ *   license page UI; called by the shared-chrome language switcher on init
+ *   and on language change.
+ * DEPENDENCIES: Lemon Squeezy License API
+ *   (https://api.lemonsqueezy.com/v1/licenses/activate|deactivate) — internet
+ *   required for activation and deactivation only; window.renderLicenseChrome
+ *   (shared-chrome.js) — called after deactivation to re-render the chrome nav.
+ * CONSTRAINTS: STORE_ID and PRODUCT_ID are public IDs embedded in client code —
+ *   not secrets; Lemon Squeezy validates them server-side against the license
+ *   key. Credentials are stored base64-encoded under portfolioLicenseKey /
+ *   portfolioLicenseInstance / portfolioLicenseActivated; the encoding is
+ *   cosmetic obfuscation only — real security is LS's 2-device activation limit.
+ *   isLicensed() checks localStorage exclusively — no network call on daily use.
  */
 
 // ---------------------------------------------------------------------------
@@ -146,7 +159,7 @@ const LICENSE_I18N = {
 
 // ---------------------------------------------------------------------------
 // Base64 encoding helpers — cosmetic obfuscation of license credentials
-// in localStorage (DEBT-01). Prevents casual DevTools inspection.
+// in localStorage. Prevents casual DevTools inspection.
 // Real security is Lemon Squeezy's 2-device activation limit.
 // ---------------------------------------------------------------------------
 function encodeLicenseValue(val) {
@@ -421,12 +434,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e.key === 'Enter') handleActivate();
   });
 
-  // Phase 35 Plan 06 (D-09 / DEMO-11) — neutralize license activation in the
-  // sales demo. A demo visitor must not fire a real Lemon Squeezy
-  // activate/deactivate against the demo. Disabling the buttons short-circuits
-  // both handlers (they fire on click); the key input is disabled too so Enter
-  // cannot submit. window.name==='demo-mode' is the established demo seam.
-  // Strictly demo-scoped — the real license flow is untouched off demo-mode.
+  // Neutralize license activation in the sales demo. A demo visitor must not
+  // fire a real Lemon Squeezy activate/deactivate call. Disabling the buttons
+  // short-circuits both handlers (they fire on click); the key input is disabled
+  // too so Enter cannot submit. window.name==='demo-mode' is the established
+  // demo seam. Strictly demo-scoped — the real license flow is untouched off demo.
   if (typeof window !== 'undefined' && window.name === 'demo-mode') {
     var activateGuard = el('license-activate-btn');
     if (activateGuard) { activateGuard.disabled = true; activateGuard.hidden = true; }
@@ -477,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function () {
     showActivatedMode();
   }
 
-  // Deactivate button handler — uses custom styled dialog per D-18 (bold red warning text)
+  // Deactivate button handler — uses a custom styled dialog with bold red warning text
   document.getElementById('license-deactivate-btn').addEventListener('click', async function() {
     var confirmed = await showDeactivateConfirm(strings);
     if (!confirmed) return;
@@ -493,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       await deactivateLicenseKey(key, instanceId);
 
-      // Per D-19: Clear localStorage keys, drop back to Mode A
+      // Clear localStorage keys, return to the activation form
       localStorage.removeItem('portfolioLicenseKey');
       localStorage.removeItem('portfolioLicenseInstance');
       localStorage.removeItem('portfolioLicenseActivated');
@@ -515,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ? strings.deactivateErrorNetwork
         : strings.deactivateErrorGeneric;
       showMessage(msg, true);
-      // Per D-19: offline attempt shows error, does NOT clear local state
+      // Offline deactivation shows an error but does NOT clear local state
       btn.disabled = false;
       btn.textContent = strings.deactivateBtn;
     }

@@ -1,24 +1,24 @@
-/**
- * snippets.js — Sessions Garden snippet quick-paste engine (Phase 24 Plan 04).
- *
- * Wires `[data-snippets="true"]` textareas with:
- *   - Trigger detection on input: <prefix><trigger><word-boundary> expands inline.
- *   - Caret-anchored autocomplete popover for partial triggers (≤8 candidates).
- *   - Locale fallback chain (active → en → he → de → cs).
- *   - Keyboard nav (ArrowUp/Down, Enter, Esc).
- *
- * Public API (window.Snippets):
- *   - init() — query DOM for [data-snippets="true"] and bind each. Idempotent.
- *   - bindTextarea(el), unbindTextarea(el) — programmatic binding.
- *   - getPrefix(), setPrefix(newPrefix) — runtime prefix configuration.
- *
- * Test-only: window.Snippets.__testExports.{detectTrigger, resolveExpansion}
- *
- * Identifier-resolution note: window.App.getSnippets is accessed via the
- * explicit window. prefix from inside this IIFE — App is defined in a
- * DIFFERENT IIFE (assets/app.js), so the cross-scope reference must go
- * through the window namespace.
- */
+// ─────────────────────────────────────────────────────────────────────────────
+// snippets.js — Snippet quick-paste engine.
+//
+// OWNS: binding `[data-snippets="true"]` textareas with trigger detection on
+//   input (<prefix><trigger><word-boundary> expands inline), a caret-anchored
+//   autocomplete popover for partial triggers (≤8 candidates), locale fallback
+//   chain (active → en → he → de → cs), and keyboard nav (ArrowUp/Down,
+//   Enter, Esc). Single recall chokepoint — all snippet expansion in the app
+//   goes through this module.
+// PUBLIC SURFACE: window.Snippets — { init, bindTextarea, unbindTextarea,
+//   getPrefix, setPrefix }. Also window.Snippets.__testExports.{detectTrigger,
+//   resolveExpansion} for test access to pure helpers.
+// DEPENDENCIES: window.App.getSnippets — accessed via the explicit window.
+//   prefix inside this IIFE because App is defined in a different IIFE
+//   (assets/app.js), so the cross-scope reference must go through window.
+// CONSTRAINTS: trigger validation is Unicode-aware — the detection regex uses
+//   \p{L}\p{N} so Hebrew/German/Czech tags and triggers are fully supported.
+//   The setPrefix chokepoint is the single place that validates + persists the
+//   prefix; all callers use getPrefix() so the in-memory value is always
+//   consistent with localStorage.
+// ─────────────────────────────────────────────────────────────────────────────
 window.Snippets = (function () {
   "use strict";
 
@@ -152,10 +152,10 @@ window.Snippets = (function () {
       if (trigger.startsWith(triggerText)) candidates.push(snippet);
     }
 
-    // Phase 24 Plan 05 — Tag-trigger MVP. When no trigger prefix-matches the
-    // query, fall back to tag prefix-match: return all snippets whose tags
-    // include a tag starting with the query. Lets the user type ;<tagname>
-    // to surface a curated subset of snippets in the popover.
+    // Tag-trigger fallback: when no trigger prefix-matches the query, fall
+    // back to tag prefix-match — return all snippets whose tags include a tag
+    // starting with the query. Lets the user type ;<tagname> to surface a
+    // curated subset of snippets in the popover.
     let matchedTag = null;
     if (candidates.length === 0) {
       const seen = new Set();
@@ -512,9 +512,8 @@ window.Snippets = (function () {
       throw new Error("setPrefix: prefix length must be 1 or 2 chars (got " + newPrefix.length + ")");
     }
     _prefix = newPrefix;
-    // Persist so the new prefix survives reload. Plan 04 spec required
-    // setPrefix to "validate + persist + broadcast" but only validation
-    // was originally shipped — caught during Plan 05 UAT.
+    // Persist so the new prefix survives reload. The persist + broadcast
+    // steps were added after validation-only was the original implementation.
     try {
       if (typeof localStorage !== "undefined") {
         localStorage.setItem(PREFIX_STORAGE_KEY, newPrefix);
