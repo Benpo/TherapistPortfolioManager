@@ -1,3 +1,32 @@
+// ────────────────────────────────────────────────────────────────────────
+// db.js — IndexedDB choke-point: all persistent data flows through here.
+//
+// OWNS: all CRUD for the five IDB object stores — clients, sessions,
+//   therapistSettings, snippets, crashlog; the v1–v6 versioned schema
+//   migrations (MIGRATIONS[1..6]); the _dbPromise connection pool; the
+//   one-time emotion_code_portfolio → sessions_garden rename migration;
+//   and the migration-failure escape-hatch banner (export + reset flow).
+// PUBLIC SURFACE: window.PortfolioDB — client CRUD (addClient, getClient,
+//   getAllClients, updateClient, estimatePhotosBytes, deleteClientAndSessions);
+//   session CRUD (addSession, getSession, getAllSessions, updateSession,
+//   deleteSession, getSessionsByClient); therapist settings
+//   (getAllTherapistSettings, setTherapistSetting, _writeTherapistSentinel,
+//   clearTherapistSettings); snippets (validateSnippetShape, getAllSnippets,
+//   getSnippet, addSnippet, updateSnippet, deleteSnippet, resetSeedSnippet);
+//   crash log (addCrashlog, getAllCrashlog, clearCrashlog, replaceAllCrashlog);
+//   recovery (getAllForRecoveryExport, clearAll, DB_VERSION,
+//   _showDBMigrationError).
+// DEPENDENCIES: raw IndexedDB API (no wrapper library); window.SNIPPETS_SEED
+//   (assets/snippets-seed.js — loaded before db.js on every page that needs
+//   snippets); window.BackupManager.exportRecoveryBackup and
+//   window.App.confirmDialog (used inside the migration-failure escape-hatch
+//   banner — only reachable after a migration error fires).
+// CONSTRAINTS: every module reaches IDB only through PortfolioDB — never
+//   open indexedDB directly from a page module (bypasses the pool and
+//   migrations). All IDB access serializes through _dbPromise. Demo
+//   isolation: window.name === "demo-mode" opens demo_portfolio instead of
+//   sessions_garden. The service worker never touches IDB.
+// ────────────────────────────────────────────────────────────────────────
 window.PortfolioDB = (() => {
   const DB_NAME = window.name === "demo-mode" ? "demo_portfolio" : "sessions_garden";
   const OLD_DB_NAME = "emotion_code_portfolio";
@@ -7,7 +36,7 @@ window.PortfolioDB = (() => {
   let _migrationDone = false;
   let _seedingDone = false;
   let _seedingPromise = null;
-  // RFCT-03 (Phase 31): connection pool — a single resolved Promise<IDBDatabase>
+  // Connection pool — a single resolved Promise<IDBDatabase>
   // reused across openDB()'s 23 call sites. Left uninitialized (undefined → falsy)
   // on purpose so the only invalidation (null-out) lines are the two sites below
   // (db.onversionchange before close, and request.onerror) — those two null-outs
@@ -83,7 +112,7 @@ window.PortfolioDB = (() => {
 
       if (existingClients > 0) {
         newDB.close();
-        // CR-01 (Phase 31): closing the pooled handle (opened by the recursive
+        // Closing the pooled handle (opened by the recursive
         // openDB() above) leaves _dbPromise holding a CLOSED connection. Null it
         // so the outer openDB() re-opens a fresh live handle instead of returning
         // this dead one (mirrors the invalidate-before-close pattern at onversionchange).
@@ -150,7 +179,7 @@ window.PortfolioDB = (() => {
       }
 
       newDB.close();
-      // CR-01 (Phase 31): same as the early-return path above — closing the pooled
+      // Same as the early-return path above — closing the pooled
       // handle would otherwise leave _dbPromise holding a closed connection, which
       // the outer openDB() would hand back to consumers (use-after-close). Null the
       // pool so the outer call re-opens a fresh live handle after migration.
@@ -172,7 +201,7 @@ window.PortfolioDB = (() => {
       blocked: "Please close other tabs of this app to continue.",
       versionChanged: "A newer version of this app is open. Please refresh to continue.",
       refresh: "Refresh",
-      // OBS-03 (Phase 29): reworded so the banner no longer implies a dead-end
+      // Reworded so the banner no longer implies a dead-end
       // "refresh" is the only way out — the recover actions below are the path.
       migrationFailed: "Database update failed. Your data is safe.",
       exportBackupNow: "Export backup now",
@@ -275,14 +304,14 @@ window.PortfolioDB = (() => {
       };
     },
     4: function therapistSettingsStore(db /*, transaction */) {
-      // Phase 22: additive migration — creates the therapistSettings object store.
+      // Additive migration — creates the therapistSettings object store.
       // No data mutation on existing clients/sessions stores.
       if (!db.objectStoreNames.contains("therapistSettings")) {
         db.createObjectStore("therapistSettings", { keyPath: "sectionKey" });
       }
     },
     5: function snippetsStore(db /*, transaction */) {
-      // Phase 24 D-08: additive migration — creates the snippets object store.
+      // Additive migration — creates the snippets object store.
       // Schema: { id, trigger, expansions:{he,en,cs,de}, tags:[], origin, createdAt, updatedAt }
       // Triggers match /^[\p{L}\p{N}-]{2,32}$/u — any Unicode letter/digit + hyphen
       // (enforced by validateSnippetShape); the editor lowercases before save, so the
@@ -295,7 +324,7 @@ window.PortfolioDB = (() => {
       }
     },
     6: function crashlogStore(db /*, transaction */) {
-      // Phase 29 OBS-01 (D-02): additive migration — creates the crashlog
+      // Additive migration — creates the crashlog
       // object store. Schema: { id (auto), timestamp, message, stack, url, source }.
       // No data mutation on existing stores. The crash logger writes here as its
       // primary log; a localStorage mirror (crashlogBuffer) survives an IDB-open
@@ -308,7 +337,7 @@ window.PortfolioDB = (() => {
 
   async function openDB() {
     await migrateOldDB();
-    // RFCT-03 pooling: return the cached connection if one is live. The check is
+    // Return the cached connection if one is live. The check is
     // placed AFTER `await migrateOldDB()` (never around it): migrateOldDB() calls
     // openDB() recursively (db.js ~:67), so the inner recursive call opens and
     // caches the handle (migrateOldDB short-circuits its own second run via
@@ -351,14 +380,14 @@ window.PortfolioDB = (() => {
 
         // When another tab upgrades the DB, close this connection so the upgrade can proceed
         db.onversionchange = () => {
-          // RFCT-03: invalidate the pool BEFORE closing so the next openDB()
+          // Invalidate the pool BEFORE closing so the next openDB()
           // re-opens a fresh connection instead of reusing this closed handle.
           _dbPromise = null;
           db.close();
           showDBVersionChangedMessage();
         };
 
-        // Phase 24 D-10: idempotent seed populate runs AFTER upgrade transaction
+        // Idempotent seed populate runs AFTER upgrade transaction
         // completes. First open pays the cost; subsequent calls short-circuit via
         // _seedingDone. Concurrent first-opens share _seedingPromise.
         seedSnippetsIfNeeded(db)
@@ -371,7 +400,7 @@ window.PortfolioDB = (() => {
       };
 
       request.onerror = () => {
-        // RFCT-03: do not cache a failed open — invalidate so the next call retries.
+        // Do not cache a failed open — invalidate so the next call retries.
         _dbPromise = null;
         reject(request.error);
       };
@@ -478,19 +507,19 @@ window.PortfolioDB = (() => {
     document.body.prepend(banner);
   }
 
-  // Phase 29 OBS-03: in-session flag — true once an escape-hatch export has
+  // In-session flag — true once an escape-hatch export has
   // succeeded this page load. Drives the extra-emphatic destructive-confirm
-  // variant (D-08): a user who clicked straight to Reset without exporting
+  // variant: a user who clicked straight to Reset without exporting
   // gets the stronger "you haven't exported a backup yet" wording.
   let _exportedThisSession = false;
 
   /**
-   * showDBMigrationError(err) — OBS-03 escape hatch (replaces the old dead-end
-   * "Refresh page → location.reload()" which re-ran the failing migration
-   * forever). Renders the migration-failure danger band with:
+   * showDBMigrationError(err) — escape hatch for migration failures (replaces
+   * the old dead-end "Refresh page → location.reload()" which re-ran the
+   * failing migration forever). Renders the migration-failure danger band with:
    *   1. "Export backup now" (primary green, NOT red) → BackupManager
-   *      .exportRecoveryBackup() (reads AROUND the failure, D-09). Sets the
-   *      in-session flag on success.
+   *      .exportRecoveryBackup() (reads around the failure using the no-version
+   *      open path). Sets the in-session flag on success.
    *   2. an affirmation checkbox ("I have saved a backup I can restore from")
    *      that gates (3).
    *   3. "Reset & recover" — disabled until the checkbox is checked; on click
@@ -501,8 +530,8 @@ window.PortfolioDB = (() => {
    * Built with createElement + textContent (never innerHTML), role="alert",
    * duplicate-render guard, dir set defensively from portfolioLang (RTL-safe).
    * Renders before i18n.js using the inline DB_STRINGS 4-language strings; the
-   * destructive confirm uses App.confirmDialog (Surface A, data-i18n) which is
-   * acceptable because it fires AFTER the user chose to act.
+   * destructive confirm uses App.confirmDialog (data-i18n) which is acceptable
+   * because it fires AFTER the user chose to act.
    */
   function showDBMigrationError(err) {
     console.error("IndexedDB migration failed:", err);
@@ -571,7 +600,7 @@ window.PortfolioDB = (() => {
 
       var App = (typeof window !== "undefined" && window.App) || null;
       // Choose the confirm copy variant by whether an export happened this
-      // session (D-08 double-confirm, extra-emphatic when no session export).
+      // session: extra-emphatic wording when no export has occurred yet.
       var variant = _exportedThisSession
         ? {
             titleKey: "confirm.resetApp.title",
@@ -666,7 +695,7 @@ window.PortfolioDB = (() => {
     });
   }
 
-  // Phase 25 Plan 07 — PURE photo-storage size estimator.
+  // Pure photo-storage size estimator.
   // Sums (b64 length × 0.75) across every client whose photoData (or legacy
   // `photo`) starts with a data: URL prefix. No IDB call — caller supplies
   // the clients array (typically from PortfolioDB.getAllClients()). Powers
@@ -730,36 +759,36 @@ window.PortfolioDB = (() => {
     await clearStore("sessions");
     await clearStore("clients");
     await clearStore("therapistSettings");
-    // IN-02: cache one connection instead of re-opening per store check.
+    // Cache one connection instead of re-opening per store check.
     const db = await openDB();
     if (db.objectStoreNames.contains("snippets")) {
       await clearStore("snippets");
     }
-    // IN-02: do NOT clear "crashlog" here. clearAll()'s sole caller is the
+    // Do NOT clear "crashlog" here. clearAll()'s sole caller is the
     // backup RESTORE path (backup.js). The crash log is device-local diagnostic
     // data, is not part of the backup file, and is most valuable exactly when a
     // user restores — often because something broke. Wiping it destroys the
     // diagnostic trail with nothing to replace it. A true clean slate is still
-    // available via the OBS-03 reset path (indexedDB.deleteDatabase).
+    // available via the migration-failure reset path (indexedDB.deleteDatabase).
     // Allow the next openDB() to repopulate the seed pack (debug-wipe flow).
-    // RFCT-03 (Phase 31): with connection pooling, a cached openDB() short-circuits
+    // With connection pooling, a cached openDB() short-circuits
     // before its onsuccess seed-on-open path, so resetting the seeding flags alone
     // would never reseed after a wipe. Reset the pool to its uninitialized state
     // (undefined) too, so the next openDB() actually re-opens and reseeds — this
-    // preserves the pre-pooling clearAll()->reseed contract (24-04 test F).
+    // preserves the clearAll()->reseed contract.
     _seedingDone = false;
     _seedingPromise = null;
     _dbPromise = undefined;
   }
 
   // ────────────────────────────────────────────────────────────────────
-  // Snippets (Phase 24 Plan 04)
+  // Snippets
   // ────────────────────────────────────────────────────────────────────
 
   /**
    * validateSnippetShape — pure-function validator. Throws on any rejection
    * branch. Called by addSnippet/updateSnippet, by backup importer, and by
-   * Plan 05 Settings UI before persisting user edits.
+   * the Settings UI before persisting user edits.
    *
    * Unknown locale keys in expansions (e.g., expansions.fr) are silently
    * allowed — the validator only enforces types for he/en/cs/de IF PRESENT
@@ -865,7 +894,7 @@ window.PortfolioDB = (() => {
 
   /**
    * resetSeedSnippet — restores a seed snippet from window.SNIPPETS_SEED and
-   * removes it from the deletedSeedIds list. Used by Plan 05 Settings UI
+   * removes it from the deletedSeedIds list. Used by the Settings UI
    * "Reset to default" action.
    *
    * Identifier-resolution note: window.SNIPPETS_SEED is accessed explicitly
@@ -885,10 +914,9 @@ window.PortfolioDB = (() => {
     }
   }
 
-  // Phase 25 Plan 10 (CR-02 fix) — allow-set for the dedicated sentinel write
-  // path. Kept narrow on purpose: any new sentinel record (non-section
-  // therapistSettings row) MUST be added here AND in
-  // backup.js#ALLOWED_SENTINEL_KEYS, in lock-step.
+  // Allow-set for the dedicated sentinel write path. Kept narrow on purpose:
+  // any new sentinel record (non-section therapistSettings row) MUST be added
+  // here AND in backup.js#ALLOWED_SENTINEL_KEYS, in lock-step.
   const _SENTINEL_KEYS = new Set([DELETED_SEEDS_KEY]); // 'snippetsDeletedSeeds'
 
   /**
@@ -902,11 +930,11 @@ window.PortfolioDB = (() => {
    * _getDeletedSeedIds reader looks at .deletedIds which would survive, BUT
    * the customLabel/enabled fields polluting the row would confuse any future
    * code that walks therapistSettings looking only at section rows). This is
-   * also a defence-in-depth boundary: section writes go through validation
-   * (Phase 22 T-22-07-03), sentinels go through a tightly-scoped allow-set.
+   * also a defence-in-depth boundary: section writes go through validation,
+   * sentinels go through a tightly-scoped allow-set.
    *
    * Used by:
-   *   - assets/backup.js importBackup loop (Plan 25-10 fix for CR-02)
+   *   - assets/backup.js importBackup loop (sentinel write for the deleted-seeds record)
    *
    * Input contract:
    *   record.sectionKey  — must be in _SENTINEL_KEYS
@@ -1009,7 +1037,7 @@ window.PortfolioDB = (() => {
   }
 
   // ──────────────────────────────────────────────────────────────────────
-  // Phase 29 OBS-01 — crashlog store accessors (v6).
+  // Crashlog store accessors (v6 schema).
   // The crash logger (assets/crashlog.js) owns the prune-on-write policy; these
   // are thin storage primitives. `replaceAllCrashlog` lets the logger rewrite
   // the store after pruning (clear + bulk add) in a single readwrite tx so the
@@ -1035,7 +1063,7 @@ window.PortfolioDB = (() => {
   }
 
   // ──────────────────────────────────────────────────────────────────────
-  // Phase 29 OBS-03 (D-09) — export-AROUND-failure read-only open.
+  // Export-around-failure: read-only open without a version argument.
   //
   // When a migration throws, openDB() re-opens at DB_VERSION, re-fires the
   // failing upgrade and aborts (db.js onupgradeneeded → transaction.abort).
@@ -1108,7 +1136,7 @@ window.PortfolioDB = (() => {
   }
 
   return {
-    // WR-01: expose the schema version so report.js dbVersion() reports the
+    // Expose the schema version so report.js dbVersion() reports the
     // real value in the diagnostic header instead of falling through to
     // "unknown".
     DB_VERSION,
@@ -1116,7 +1144,7 @@ window.PortfolioDB = (() => {
     updateClient,
     getClient,
     getAllClients,
-    // Phase 25 Plan 07 — pure storage-size estimator
+    // Pure storage-size estimator
     estimatePhotosBytes,
     addSession,
     updateSession,
@@ -1128,10 +1156,10 @@ window.PortfolioDB = (() => {
     clearAll,
     getAllTherapistSettings,
     setTherapistSetting,
-    // Phase 25 Plan 10 (CR-02) — raw sentinel write path; see definition above.
+    // Raw sentinel write path; see definition above.
     _writeTherapistSentinel,
     clearTherapistSettings,
-    // Phase 24 Plan 04 — snippets API
+    // Snippets API
     validateSnippetShape,
     getAllSnippets,
     getSnippet,
@@ -1139,14 +1167,14 @@ window.PortfolioDB = (() => {
     updateSnippet,
     deleteSnippet,
     resetSeedSnippet,
-    // Phase 29 OBS-01 — crashlog store accessors (v6)
+    // Crashlog store accessors (v6 schema)
     addCrashlog,
     getAllCrashlog,
     clearCrashlog,
     replaceAllCrashlog,
-    // Phase 29 OBS-03 (D-09) — export-around-failure read-only no-version open
+    // Export-around-failure read-only no-version open
     getAllForRecoveryExport,
-    // Phase 29 OBS-03 — test seam for the migration-failure escape-hatch banner
+    // Test seam for the migration-failure escape-hatch banner
     // (reached in production via openDB() onupgradeneeded catch; exposed so the
     // behavior test can render + drive it without a real upgrade abort).
     _showDBMigrationError: showDBMigrationError,

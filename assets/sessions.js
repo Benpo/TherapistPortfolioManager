@@ -1,3 +1,17 @@
+// ────────────────────────────────────────────────────────────────────────
+// sessions.js — Sessions-list page: filterable table of all sessions.
+//
+// OWNS: the sessions list load, the client + date-range + type filter
+//   pipeline, and the session row render (date, client name, type, issues,
+//   trapped emotions, Heart-Shield badge, view button).
+// PUBLIC SURFACE: none — self-boots on DOMContentLoaded, registers no global.
+// DEPENDENCIES: App.{initCommon, t, formatDate, formatSessionType}
+//   (assets/app.js); PortfolioDB.{getAllClients, getAllSessions}
+//   (assets/db.js).
+// CONSTRAINTS: user-provided and i18n text rendered via textContent — never
+//   innerHTML. Session rows are sorted newest-first with a createdAt + id
+//   tiebreaker so same-date sessions display in the correct order.
+// ────────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   await App.initCommon();
 
@@ -63,10 +77,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       return true;
     });
 
-    // Phase 24 Plan 06 follow-up (UAT 2026-05-14): same-date tiebreaker — without
-    // createdAt + id secondary keys, two sessions on the same date preserve their
-    // IDB insertion order (oldest first), which makes the sessions list display
-    // same-date entries upside-down. Mirror the spotlight helper's comparator.
+    // Same-date tiebreaker — without createdAt + id secondary keys, two sessions
+    // on the same date preserve their IDB insertion order (oldest first), which
+    // makes the sessions list display same-date entries upside-down. Mirror the
+    // spotlight helper's comparator.
     filtered.sort((a, b) => {
       const cmp = String(b.date || "").localeCompare(String(a.date || ""));
       if (cmp !== 0) return cmp;
@@ -141,11 +155,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const editButton = document.createElement("button");
       editButton.type = "button";
       editButton.className = "session-edit";
-      // Phase 24-06 follow-up: rename Edit→View for consistency with overview's
-      // 24-03 D-07 rename. Click opens read mode by default; the in-page edit
-      // toggle (#editSessionBtn) is what flips to edit mode.
-      // RFCT-03 (Phase 31): build the view button via textContent for the i18n
-      // label instead of string-interpolated innerHTML. The icon span's SVG is
+      // Label is "View" (not "Edit") — click opens read mode by default; the
+      // in-page edit toggle (#editSessionBtn) is what flips to edit mode.
+      // Build the view button via textContent for the i18n label instead of
+      // string-interpolated innerHTML. The icon span's SVG is
       // static/app-controlled (no interpolation) so it is assigned once via
       // innerHTML. Observable output is identical (a .button-label with data-i18n
       // + a .button-icon svg), locked by tests/31-sessions-render-hardening.test.js.

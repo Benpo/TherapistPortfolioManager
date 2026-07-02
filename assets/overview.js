@@ -1,13 +1,33 @@
-// Module-level storage for search filtering
+// ────────────────────────────────────────────────────────────────────────
+// overview.js — Client overview page: the searchable/sortable client table.
+//
+// OWNS: the client list load, the search + sort + "missing birth info" filter
+//   pipeline, the missing-birth warning banner, and the Heart-Shield badge
+//   render in the client table rows.
+// PUBLIC SURFACE: window.__afterBackupRestore (post-restore re-render hook) ·
+//   window.__OverviewTestHooks (test seam for pure filter helpers).
+// DEPENDENCIES: App.{initCommon, t, formatDate, formatSessionType,
+//   lockBodyScroll, unlockBodyScroll, applyTranslations,
+//   initPersistentSecuritySection} (assets/app.js);
+//   PortfolioDB.{getAllClients, getAllSessions} (assets/db.js);
+//   window.QUOTES (i18n files — daily quote data);
+//   window.renderLastBackupSubtitle (assets/backup-modal.js — optional,
+//   called only inside the post-restore hook);
+//   window.demoSeedReady (assets/demo-seed.js — awaited if present).
+// CONSTRAINTS: the missing-birth predicate is the SINGLE source of truth
+//   shared by both the banner count and the filter, so the filtered set
+//   always equals the warned count. User-provided and i18n text rendered via
+//   textContent — never innerHTML.
+// ────────────────────────────────────────────────────────────────────────
 let _allClients = [];
 let _sessionsByClient = new Map();
 
-// Quick 260516-g7p Bug #4 — "missing birth year" warning is actionable:
-// a module-level flag toggled by the banner's "Show them" control and
-// honored inside applyFiltersAndSort()'s existing filter pipeline. The
-// predicate below is the SINGLE source of truth shared by both the banner
-// count (updateMissingBirthBanner) and the filter, so the filtered set is
-// guaranteed to equal the warned count.
+// The "missing birth year" warning is actionable: a module-level flag toggled
+// by the banner's "Show them" control and honored inside
+// applyFiltersAndSort()'s existing filter pipeline. The predicate below is the
+// SINGLE source of truth shared by both the banner count
+// (updateMissingBirthBanner) and the filter, so the filtered set is guaranteed
+// to equal the warned count.
 let _missingBirthFilterActive = false;
 
 // Pure: a client is "missing birth info" when it has neither a birthDate
@@ -24,12 +44,12 @@ function clearMissingBirthFilter() {
   _missingBirthFilterActive = false;
 }
 
-// Quick 260516-g7p follow-up (UAT 2026-05-16): the banner's "Show them"
-// button is only an affordance to ACTIVATE the filter. Once active, hide it —
-// the filtered table already shows the result and the global "Clear Filters"
-// control is the single, canonical place to undo it (a second in-banner
-// "remove filter" would duplicate that control). The button reappears when
-// the filter is cleared or the banner re-renders with the filter inactive.
+// The banner's "Show them" button is only an affordance to ACTIVATE the
+// filter. Once active, hide it — the filtered table already shows the result
+// and the global "Clear Filters" control is the single, canonical place to
+// undo it (a second in-banner "remove filter" would duplicate that control).
+// The button reappears when the filter is cleared or the banner re-renders
+// with the filter inactive.
 function syncMissingBirthButton() {
   const btn = document.getElementById("missingBirthFilterBtn");
   if (btn) btn.classList.toggle("is-hidden", _missingBirthFilterActive);
@@ -47,8 +67,8 @@ function filterByMissingBirth(clients) {
   return (clients || []).filter(clientMissingBirth);
 }
 
-// Expose pure helpers for the falsifiable behavior test
-// (tests/quick-260516-g7p-missing-birth-filter.test.js). DOM-free.
+// Expose pure helpers for the falsifiable missing-birth-filter behavior test.
+// DOM-free.
 if (typeof window !== 'undefined') {
   window.__OverviewTestHooks = {
     clientMissingBirth,
@@ -59,9 +79,6 @@ if (typeof window !== 'undefined') {
   };
 }
 
-// ===========================================================================
-// Phase 25 round-5 post-UAT (Change 1 / UAT-D2, Ben 2026-05-15)
-//
 // The Backup & Restore modal markup + ALL its handlers (export / import /
 // share / test-password / close / Esc / ?openBackup=1) + the public surface
 // (window.openBackupModal / renderLastBackupSubtitle / openExportFlow /
@@ -73,7 +90,6 @@ if (typeof window !== 'undefined') {
 // overview.js only registers the post-restore refresh hook so an in-place
 // restore re-renders the overview list without a full page reload (other
 // pages reload via backup-modal.js's fallback).
-// ===========================================================================
 if (typeof window !== 'undefined') {
   window.__afterBackupRestore = function () {
     return Promise.resolve()
@@ -145,16 +161,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (addClientBtn) addClientBtn.addEventListener("click", () => (window.location.href = "./add-client.html"));
   if (addSessionBtn) addSessionBtn.addEventListener("click", () => (window.location.href = "./add-session.html"));
 
-  // -----------------------------------------------------------------------
-  // Phase 25 round-5 post-UAT (Change 1 / UAT-D2): the Backup & Restore
-  // modal markup + ALL its handlers (?openBackup=1 auto-open, close/overlay,
-  // export/share/import, the Test-password sub-card, Esc-to-close) are owned
-  // by assets/backup-modal.js, loaded on every app page. overview.js no
-  // longer wires them — backup-modal.js's bindBackupModal() runs on
-  // DOMContentLoaded (and is idempotent via window.__backupModalWired). The
-  // post-restore overview re-render is registered above as
-  // window.__afterBackupRestore.
-  // -----------------------------------------------------------------------
+  // The Backup & Restore modal markup + ALL its handlers (?openBackup=1
+  // auto-open, close/overlay, export/share/import, the Test-password sub-card,
+  // Esc-to-close) are owned by assets/backup-modal.js, loaded on every app
+  // page. overview.js no longer wires them — backup-modal.js's
+  // bindBackupModal() runs on DOMContentLoaded (and is idempotent via
+  // window.__backupModalWired). The post-restore overview re-render is
+  // registered above as window.__afterBackupRestore.
 
   setupModal();
 
@@ -172,7 +185,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const sortVal = clientSortSelect ? clientSortSelect.value : "name";
 
     let filtered = _allClients.filter(c => {
-      // Missing-birth-year filter (Bug #4) — uses the SAME predicate as the
+      // Missing-birth-year filter — uses the SAME predicate as the
       // banner count so the filtered set equals the warned count exactly.
       if (_missingBirthFilterActive && !clientMissingBirth(c)) return false;
       // Name search
@@ -247,9 +260,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Bug #4 — the missing-birth banner's "Show them" control filters the
-  // existing client table to exactly the clients with no birth year and
-  // scrolls the list into view so the therapist immediately sees them.
+  // The missing-birth banner's "Show them" control filters the existing client
+  // table to exactly the clients with no birth year and scrolls the list into
+  // view so the therapist immediately sees them.
   const missingBirthFilterBtn = document.getElementById("missingBirthFilterBtn");
   if (missingBirthFilterBtn) {
     missingBirthFilterBtn.addEventListener("click", () => {
@@ -362,12 +375,12 @@ function renderClientRows(clients, sessionsByClient) {
 
   clients.forEach((client) => {
     const clientSessions = sessionsByClient.get(client.id) || [];
-    // Phase 24 Plan 06 follow-up (UAT 2026-05-14): when two sessions share the
-    // same date, the pure-string compare returns 0 and stable sort keeps IDB
-    // insertion order — putting the oldest same-date session first. The clock-
-    // icon expansion then renders them in the WRONG order (oldest-of-today on
-    // top instead of bottom). Mirror the spotlight helper's comparator: date
-    // desc, then createdAt desc, then id desc as final fallback.
+    // When two sessions share the same date, the pure-string compare returns 0
+    // and stable sort keeps IDB insertion order — putting the oldest same-date
+    // session first. The clock-icon expansion then renders them in the WRONG
+    // order (oldest-of-today on top instead of bottom). Mirror the spotlight
+    // helper's comparator: date desc, then createdAt desc, then id desc as
+    // final fallback.
     clientSessions.sort((a, b) => {
       const cmp = String(b.date || "").localeCompare(String(a.date || ""));
       if (cmp !== 0) return cmp;
@@ -453,7 +466,7 @@ function renderClientRows(clients, sessionsByClient) {
     detailCell.colSpan = 4;
 
     if (!clientSessions.length) {
-      // RFCT-03 (Phase 31): build the empty-state node via textContent instead
+      // Build the empty-state node via textContent instead
       // of string-interpolated innerHTML — observable output is identical (a
       // .helper-text div whose text is the i18n string), locked by
       // tests/31-overview-render-hardening.test.js.
@@ -467,13 +480,10 @@ function renderClientRows(clients, sessionsByClient) {
       clientSessions.forEach((session) => {
         const item = document.createElement("div");
         item.className = "session-item";
-        // D-25 (Phase 24): severity render verified before→after. TODO 2026-05-13 reported
-        //   a reversal that is not reproducible — render has been correct since 2026-03-09
-        //   (commit bb5e2130). Hebrew RTL bidi may visually flip the parenthesized arrow;
-        //   logical data order is fixed.
-        // Plan 06 follow-up (UAT 2026-05-14): guard null/undefined severity values
-        //   so they render as "-" instead of the JS string "null". Mirrors the
-        //   sessions.js convention so both pages agree.
+        // Severity values are rendered as "name (before→after)" strings. Null/undefined
+        //   before/after values render as "-" instead of the JS string "null", mirroring
+        //   the sessions.js convention so both pages agree. Hebrew RTL bidi may visually
+        //   flip the parenthesized arrow; logical data order is correct.
         const issues = (session.issues || [])
           .map((issue) => {
             const name = issue.name || "-";
@@ -510,16 +520,15 @@ function renderClientRows(clients, sessionsByClient) {
         const editButton = document.createElement("button");
         editButton.className = "edit-button";
         editButton.type = "button";
-        // D-07 (Phase 24): label is "View" (not "Edit") — entry opens read mode by default.
-        // Phase 24-06 follow-up: dropped `row-toggle` (34px circle with grid:place-items:center
-        //   was clipping both label + icon into one cell). .edit-button now styles as a pill
-        //   with label + icon side-by-side.
-        // RFCT-03 (Phase 31): build the view button via textContent for the
-        // i18n label instead of string-interpolated innerHTML. The icon span's
-        // SVG is static/app-controlled (no interpolation) so it is assigned
-        // once via innerHTML. Observable output is identical (a .button-label
-        // with data-i18n + a .button-icon svg), locked by
-        // tests/31-overview-render-hardening.test.js.
+        // Label is "View" (not "Edit") — entry opens read mode by default;
+        //   the in-page edit toggle is what flips to edit mode. .edit-button
+        //   styles as a pill with label + icon side-by-side.
+        // Build the view button via textContent for the i18n label instead of
+        //   string-interpolated innerHTML. The icon span's SVG is
+        //   static/app-controlled (no interpolation) so it is assigned once via
+        //   innerHTML. Observable output is identical (a .button-label with
+        //   data-i18n + a .button-icon svg), locked by
+        //   tests/31-overview-render-hardening.test.js.
         const viewLabel = document.createElement("span");
         viewLabel.className = "button-label";
         viewLabel.setAttribute("data-i18n", "overview.table.view");
