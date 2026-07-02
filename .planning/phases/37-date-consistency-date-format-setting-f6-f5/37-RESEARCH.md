@@ -1,5 +1,7 @@
 # Phase 37 — Date-Correctness Engine (F6 + F5-logic) — Research
 
+> **⚠ SPLIT RESEARCH — the planner MUST read BOTH files.** Phase 37 research is intentionally split into two focused passes. THIS file covers the **date-correctness engine** (F6 + F5 format logic). The **Personalization surface** (new tab, F4 session-type editor, F5 picker element, storage, backup, birthdate input, i18n) is in the companion file **`37-RESEARCH-personalization.md`** in this directory. Shared seams (the `portfolioDateFormat` key contract, the `app:dateformat` propagation event, the birthdate age-math parse, the backup-restore-loop A2 check) are documented in both — reconcile them at plan time.
+
 **Researched:** 2026-07-02
 **Domain:** Local-time calendar-date parsing/formatting; `Intl.DateTimeFormat`; Hebrew RTL bidi; jsPDF golden-baseline testing; TZ-pinned behavior tests
 **Lane:** The date engine ONLY — canonical helper, full UTC-parse sweep, format spec, Hebrew LTR wrap, PDF integration, baseline regen, TZ tests. The Personalization tab UI, the F5 `<select>` element, F4 session types, storage/backup plumbing, and the birthdate input-element swap are the **other researcher's** lane.
