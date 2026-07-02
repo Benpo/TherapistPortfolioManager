@@ -229,7 +229,7 @@
 // state when no photos exist, and invokes the testable loop helpers
 // (window.__PhotosTabHelpers) on button clicks behind confirm dialogs.
 //
-// Optimize-all confirm uses tone:'neutral' (UI-SPEC: irreversible but the
+// Optimize-all confirm uses tone:'neutral' (irreversible but the
 // visual quality stays the same — not a destructive action). Delete-all
 // confirm uses tone:'danger'.
 // ────────────────────────────────────────────────────────────────────────
@@ -457,7 +457,7 @@
           messageKey: 'photos.optimize.confirm.body',
           confirmKey: 'photos.optimize.confirm.yes',
           cancelKey: 'confirm.cancel',
-          tone: 'neutral',    // UI-SPEC: irreversible but visual quality stays the same.
+          tone: 'neutral',    // Irreversible but visual quality stays the same.
           // Substitute {n} and {size} in title + body before render.
           placeholders: { n: String(photoCount), size: estimatedSavingsLabel }
         });

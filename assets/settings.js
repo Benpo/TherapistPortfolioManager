@@ -30,7 +30,7 @@
 window.SettingsPage = (function () {
   "use strict";
 
-  // Three rows are disable-only per SPEC REQ-2: their purpose is structurally
+  // Three rows are disable-only: their purpose is structurally
   // fixed; the toggle and Reset still work.
   var LOCKED_RENAME = new Set(["heartShield", "issues", "nextSession"]);
 
@@ -559,7 +559,7 @@ window.SettingsPage = (function () {
   // ---------------------------------------------------------------------------
 
   // ──────────────────────────────────────────────────────────────────────
-  // OBS-01 surfacing: the "Report a problem" entry row + an optional crash-log
+  // The "Report a problem" entry row + an optional crash-log
   // "clear" affordance. Built with createElement + textContent only (NEVER
   // innerHTML — same security contract as renderRow). Kept self-contained inside
   // this section so a future settings.js extraction can relocate it as a unit.
@@ -676,7 +676,7 @@ window.SettingsPage = (function () {
     if (refs.saveBtn) refs.saveBtn.addEventListener("click", onSave);
     if (refs.discardBtn) refs.discardBtn.addEventListener("click", onDiscard);
 
-    // OBS-01 surfacing: mount the "Report a problem" entry row.
+    // Mount the "Report a problem" entry row.
     mountReportRow();
 
     // Re-translate + re-render on language change.
@@ -814,8 +814,8 @@ window.SettingsPage = (function () {
 //     (a schedule cannot live without an acknowledged password).
 //   - Folder picker invokes BackupManager.pickBackupFolder(). Persists only the
 //     folder NAME for UI; the FileSystemDirectoryHandle stays session-scoped.
-//   - ON→OFF requires a neutral-tone confirm (UI-SPEC: disabling is
-//     reversible — banner returns when the 7-day threshold next crosses).
+//   - ON→OFF requires a neutral-tone confirm (disabling is reversible —
+//     banner returns when the 7-day threshold next crosses).
 // ────────────────────────────────────────────────────────────────────────
 (function () {
   "use strict";
@@ -913,7 +913,7 @@ window.SettingsPage = (function () {
     var _calloutOk = $('schedulePasswordCallout');
     if (_calloutOk) _calloutOk.classList.remove('schedule-password-callout--attention');
 
-    // ON → OFF requires a neutral-tone confirm (UI-SPEC).
+    // ON → OFF requires a neutral-tone confirm (disabling is reversible — banner returns when the 7-day threshold next crosses).
     if (prev !== 'off' && newMode === 'off') {
       var confirmed = false;
       if (typeof App !== 'undefined' && typeof App.confirmDialog === 'function') {

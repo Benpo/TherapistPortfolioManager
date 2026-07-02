@@ -20,7 +20,7 @@
 (function () {
   "use strict";
 
-  // ── FN-1 / D-03 / PDFX-02: derived chronological session ordinal ───────────
+  // ── derived chronological session ordinal ───────────────────────────────────
   // The export card's "Session #N" is a CHRONOLOGICAL ordinal computed at export
   // time — the 1-based position of this session among the client's sessions
   // sorted ascending by ISO `date` (tie-break: numeric `id`) — and NEVER the
@@ -28,7 +28,7 @@
   // rest with no gap (the Ben-flagged renumber case). The sort is a pure lexical
   // string compare on the ISO date (YYYY-MM-DD → lexical == chronological), with
   // a deliberate NO `new Date()` on the date field — parsing would drag in
-  // TZ/locale ambiguity (34-RESEARCH Pitfall 2). An unsaved session (id not
+  // TZ/locale ambiguity when parsing the ISO date. An unsaved session (id not
   // found) derives length+1: the ordinal it WILL become on save. Reads
   // window.PortfolioDB.getSessionsByClient at CALL time (never captured) so it
   // always sees the live DB. Defined at module scope (outside initExportModal)
@@ -63,7 +63,7 @@
     const customerSummaryInput = ctx.els.customerSummaryInput;
     const getIssuesPayload = ctx.getIssuesPayload;
     // Live editing-session accessor (mutable JS state in add-session.js) — read
-    // at every use site, never cached. Used to derive the FN-1 session ordinal.
+    // at every use site, never cached. Used to derive the session ordinal.
     const getEditingSession = ctx.getEditingSession;
     const heartShieldToggle = document.getElementById("heartShieldToggle");
 
@@ -254,8 +254,8 @@
       // Order MUST mirror the add-session form DOM order (data-section-key in
       // add-session.html): Trapped -> Insights -> Limiting Beliefs -> Additional
       // Techniques -> Comments -> Next Session. Insights was previously emitted
-      // last, so it sorted after Additional Techniques. Enforced by
-      // tests/quick-260615-export-section-order.test.js.
+      // last, so it sorted after Additional Techniques. The section-order test
+      // suite asserts this invariant.
       if (trappedValue.length > 0) {
         lines.push("", `## ${stripRequired(App.getSectionLabel("trapped", "session.form.trapped"))}`, trappedValue);
       }
@@ -279,9 +279,8 @@
     }
 
     // ============================================================
-    // Export modal (REQ-7 to REQ-15, REQ-17, REQ-19)
+    // Export modal
     // 3-step flow: Step 1 selection -> Step 2 edit/preview -> Step 3 outputs
-    // No Translate CTA (REQ-16 removed)
     // ============================================================
     const EXPORT_DEFAULT_CHECKED = {
       trapped: true,
@@ -369,7 +368,7 @@
       // the literal asterisk leaking into the section title. stripRequired() is
       // a no-op on labels that don't end with "*", so it's safe to apply
       // defensively to every heading call site.
-      // Phase 34 (34-09, D-08): the issues/severity section is NO LONGER emitted
+      // The issues/severity section is NO LONGER emitted
       // as markdown body text here. Severity now renders STRUCTURALLY in the PDF
       // as the two-bar before/after block (drawSeverityBlock in pdf-export.js),
       // fed by the structured issues[] forwarded on the buildSessionPDF input
@@ -391,8 +390,7 @@
       // Section order MUST mirror the add-session form DOM order (data-section-key
       // in add-session.html): trapped -> insights -> limitingBeliefs ->
       // additionalTech. Insights was previously emitted last, so it sorted after
-      // additionalTech. Enforced by
-      // tests/quick-260615-export-section-order.test.js.
+      // additionalTech. The section-order test suite asserts this invariant.
       const insightsValue = (insightsInput ? insightsInput.value : "").trim();
       if (selected.has("insights") && insightsValue.length > 0) {
         lines.push("", `## ${stripRequired(App.getSectionLabel("insights", "session.form.insights"))}`, insightsValue);
@@ -571,18 +569,17 @@
     }
 
     // Assemble the data-tier render inputs the renderer needs as EXPLICIT args so
-    // buildSessionPDF stays a pure function of its inputs (PDFX-01):
-    //   • sessionNumber — the FN-1 chronological ordinal (D-03). Derived from the
-    //     editing session's clientId/id; for a new (unsaved) session we fall back
-    //     to the selected client's count + 1 (deriveSessionOrdinal returns
-    //     length+1 when the id is absent). Omitted gracefully (undefined) when no
-    //     client is resolvable — the renderer then draws no card number.
+    // buildSessionPDF stays a pure function of its inputs:
+    //   • sessionNumber — the chronological ordinal (1-based position among the
+    //     client's sessions, ascending by ISO date). Derived from the editing
+    //     session's clientId/id; for a new (unsaved) session we fall back to the
+    //     selected client's count + 1 (deriveSessionOrdinal returns length+1 when
+    //     the id is absent). Omitted gracefully (undefined) when no client is
+    //     resolvable — the renderer then draws no card number.
     //   • issues — the STRUCTURED {name,before,after} array (NOT markdown) so the
-    //     render tier can draw the severity bars from data (D-08, wired in 34-09).
+    //     render tier can draw the severity bars from data.
     //   • exportedOn — today's date, localized via App.formatDate, distinct from
-    //     the card's session date (D-09).
-    // The markdown body is UNCHANGED here; severity stays in the markdown until
-    // 34-09 swaps it atomically.
+    //     the card's session date.
     async function buildRenderInputs() {
       let sessionNumber;
       try {
@@ -897,7 +894,7 @@
   // (mirrors the add-session.js __addSessionTestHooks idiom).
   if (typeof window !== "undefined") {
     window.__exportModalInit = initExportModal;
-    // FN-1 test seam (the __addSessionTestHooks idiom): expose the pure ordinal
+    // Test seam (the __addSessionTestHooks idiom): expose the pure ordinal
     // derivation so tests/34-session-ordinal.test.js can drive it directly
     // against a seeded window.PortfolioDB — no DOM, no init handshake required.
     window.__exportModalTestHooks = window.__exportModalTestHooks || {};

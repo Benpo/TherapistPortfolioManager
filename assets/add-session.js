@@ -810,7 +810,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ============================================================
-  // Section visibility (REQ-3, REQ-5)
+  // Section visibility
   // ============================================================
   // - Enabled: visible, badge hidden, fully editable
   // - Disabled + new session: hidden
@@ -878,7 +878,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       const hasData = sectionHasData(sectionKey);
       if (hasData) {
-        // REQ-5: visible, badge shown, inputs remain
+        // Disabled past session with data: visible, badge shown, inputs remain
         // fully editable — do NOT add disabled / readonly attributes here.
         wrapper.classList.remove("is-hidden");
         if (badge) badge.classList.remove("is-hidden");
@@ -1232,7 +1232,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }
   } else {
-    // New session — hide disabled sections from the form per REQ-3.
+    // New session — hide disabled sections from the form.
     applySectionVisibility(false);
     applySectionLabels();
     // Size the (empty) long textareas once after initial
