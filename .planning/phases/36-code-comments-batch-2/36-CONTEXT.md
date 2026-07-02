@@ -29,14 +29,19 @@ Extend the **Phase 32 code-comment pilot** (which covered 5 files) to the rest o
 - **D-02 — Sequence batch-1 first.** Start with `db.js`, `overview.js`, `sessions.js` — freshly touched in the P31 refactor → lowest staleness (per the D-14 coverage map). Remaining modules follow in later waves.
 
 ### Convention (inherited from Phase 32 — LOCKED, do not re-litigate)
-- **D-03 — Banner convention = the Phase 32 pilot.** Each file-top banner states, in a plain `//` block: **what it owns · public surface (the `window.*` it registers + key handshake) · dependencies (the cross-`window.*` chain it reads) · key invariants**. Reference template = the cleaned `assets/export-modal.js` header (`assets/export-modal.js:1–19`).
+- **D-03 — Banner convention = the Phase 32 pilot.** Each file-top banner states, in the canonical `//` labelled block with the four slots in this exact order: **`OWNS:` (what it owns) · `PUBLIC SURFACE:` (the `window.*` it registers + key handshake) · `DEPENDENCIES:` (the cross-`window.*` chain it reads) · `CONSTRAINTS:` (key invariants)**. **Reference template = `assets/settings.js:1–29`** — the 4-slot content model (labelled `OWNS`/`PUBLIC SURFACE`/`DEPENDENCIES`/`SECURITY (invariant)`). Note: `assets/export-modal.js:1–19` is a **specialized variant** (a ctx-injected extraction sub-module; it lacks a Dependencies slot and its inline comments are pre-option-3 — do not model inline style on it). The **canonical format is the `//` labelled block** (settings.js happens to use `/** */` syntax — the content/shape is the model, not the comment syntax). Full rules + worked example: `36-COMMENT-STYLE-GUIDE.md` Part A.
 - **D-04 — Two comment jobs, both comment-only.** (a) **Header-less files** get a **brand-new** banner. (b) **De-phase archaeology:** rewrite `// Phase 24 Plan 05 …`, `// D-NN (Phase X)`, and bug-ticket refs (`// Quick 260516-g7p Bug #4`, `260630-sa8`, etc.) into plain what-it-does text. Files that already have a header get de-phased + refined to the banner shape.
 - **D-05 — Proportionate depth for trivial files.** Tiny modules (`i18n.js` 4L stub, `demo.js` 21L, `reporting.js` 57L, `md-render.js` 81L, `globe-lang.js` 84L, `demo-seed.js` 84L) get a concise **1–3 line** banner — do **not** fabricate "invariants"/"dependencies" sections where there is nothing to say. `version.js` is already well-headed → **light de-phase only**.
 
 ### Guardrail (inherited — LOCKED)
 - **D-06 — Zero behavior change, verified per batch.** Every batch is verified by (a) green `npm test` and (b) the **comments-only strip-and-compare gate**: baseline `git show` vs working tree, comments + whitespace stripped, assert byte-equal → **zero code lines changed** across the batch's files. This makes "it's only comments, so it's low-risk" a *verified* claim.
 
-### Claude's Discretion (planner/executor finalize within D-01…D-06)
+### ID handling + best-practice (added 2026-07-02, with Ben)
+- **D-07 — Strip ALL planning IDs (option 3).** No planning ID survives in product code. Requirement IDs (`REQ-`/`OBS-`/`VER-`/`RFCT-`/`DOCS-`/`DEMO-`/`PDFX-`/`I18N-`/`TEST-`), decision IDs (`D-NN`), code-review IDs (`CR-NN`), and task IDs (`T-N-N-N`) all become plain prose — only the ID/tag leaves; the WHY/constraint it carried stays. Real technical tokens (`AES-256`, `SHA-256`, schema `v1–v6`, `IDBDatabase`) are NOT IDs — untouched. Rationale: `.planning/` is archived per-milestone, so an ID in shipped code becomes a dangling reference; `git blame` is the durable trace. This **supersedes the Phase-32 pilot's keep-`REQ`/`OBS`/`VER` approach** (see D-09). Full rules: `36-COMMENT-STYLE-GUIDE.md` Part B.
+- **D-08 — The style guide is the canonical comment standard.** Every executor reads `.planning/phases/36-code-comments-batch-2/36-COMMENT-STYLE-GUIDE.md` (Do's/Don'ts · real good/bad examples · de-phase before→after pairs · per-file checklist) BEFORE writing any comment — it is the FIRST entry in each plan's `<read_first>` and in `<context>`. This anchors comment quality to written rules + worked examples, not to agent judgment (closes the "quality is subjective" gap Ben flagged).
+- **D-09 — Pilot-file ID sweep (plan 36-05).** The 5 already-shipped Phase-32 files — `settings-snippets.js`, `settings-photos.js`, `export-modal.js`, `settings.js`, `add-session.js` — get their leftover `REQ-/OBS-/VER-` IDs stripped to prose so the whole codebase is consistent under D-07. **Their banners already exist and are good — do NOT rewrite them; this is an ID/tag sweep only**, verified by the same option-3 de-phase grep + strip-and-compare + green `npm test`. Sequenced **last**, after the round-1 human checkpoint.
+
+### Claude's Discretion (planner/executor finalize within D-01…D-09)
 - **Plan/wave batching** of the 22 modules — suggested grouping in `<code_context>` (≈4 plans, ~1,600–2,400L each), non-binding. Keep `db.js` (largest here, IndexedDB choke-point) manageable; group tiny files together.
 - **Exact banner wording** per file, within the D-03 shape.
 - **Per-file header-state classification** (new banner vs de-phase-and-refine): the coverage map's "—" entries were **not** verified at current code — the executor **must scan each file's current top** before deciding. Confirmed at current code: `db.js` and `sessions.js` are header-less; `overview.js` opens with a thin `// Module-level storage` line + bug-ticket archaeology.
@@ -103,9 +108,9 @@ Extend the **Phase 32 code-comment pilot** (which covered 5 files) to the rest o
 | `md-render.js` | 81 | — | concise banner (D-05) |
 | `reporting.js` | 57 | **header-less** | NEW concise banner (D-05) |
 | `demo.js` | 21 | — | 1-line banner (D-05; settled by P35) |
-| `i18n.js` | 4 | — | 1-line banner (D-05; loader stub) |
+| `i18n.js` | 4 | **ALREADY DONE** — has a 3-line loader-stub banner + no planning IDs (verified at current code 2026-07-02) | **none** — compliant under D-07; dropped from 36-04's active scope → **36-04 covers 9 files** |
 
-**Total: 22 modules, ~7,800 lines.**
+**Total: 22 modules in the coverage map, ~7,800 lines. `i18n.js` is already compliant (no work) → 21 modules actually edited across plans 36-01…36-04; 36-04's active file set is 9.**
 
 **Deferred to batch-3 (NOT this phase):** `backup.js` (1,575), `app.js` (1,531), `pdf-export.js` (1,899).
 **Excluded (not authored logic):** `jspdf.min.js`, `jszip.min.js`, `bidi.min.js`, `i18n-en/he/de/cs.js`, `i18n-disclaimer.js`.
@@ -114,7 +119,7 @@ Extend the **Phase 32 code-comment pilot** (which covered 5 files) to the rest o
 - **Plan A / Wave 1 — batch-1:** `db.js`, `overview.js`, `sessions.js` (~2,086L). Start here.
 - **Plan B / Wave 2 — larger mid:** `landing.js`, `license.js`, `snippets.js`, `backup-modal.js` (~2,409L).
 - **Plan C / Wave 2 — mid:** `crashlog.js`, `report.js`, `disclaimer.js`, `snippets-seed.js`, `crop.js` (~1,708L).
-- **Plan D / Wave 2 — small + chrome + sw + stubs:** `version.js`, `add-client.js`, `shared-chrome.js`, `globe-lang.js`, `demo-seed.js`, `md-render.js`, `reporting.js`, `sw.js`, `i18n.js`, `demo.js` (~1,597L).
+- **Plan D / Wave 2 — small + chrome + sw + stubs:** `version.js`, `add-client.js`, `shared-chrome.js`, `globe-lang.js`, `demo-seed.js`, `md-render.js`, `reporting.js`, `sw.js`, `demo.js` (~1,597L). *(`i18n.js` was in this group but is already compliant under D-07 — dropped; Plan D / 36-04 now covers 9 files.)*
 
 Waves 2 plans are independent of each other (disjoint file sets) → parallelizable after Wave 1 establishes the rhythm. Every plan runs its own comments-only gate over exactly its file set.
 

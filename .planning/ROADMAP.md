@@ -318,17 +318,21 @@ Plans:
 
 **Scope (decided with Ben, 2026-07-01):** Batch-2 = **core coverage** — batch-1 (`db.js`, `overview.js`, `sessions.js`) + all small/mid production modules = **22 modules**. The three 1,500L+ giants (`backup.js`, `app.js`, `pdf-export.js`) are **deferred to a follow-up batch-3**. The "Depends on" churn concern is **resolved**: Phases 34 & 35 are complete + verified, so `pdf-export.js` (settled at 1,899L) and the demo files (`demo.js`/`demo-seed.js`; `demo-hints.js` removed in 35-05) are stable — and the giants' deferral is the reason `pdf-export.js` isn't in this batch, not churn. Approach: capture-inline `36-CONTEXT.md`; research skipped (reuses `32-RESEARCH.md`). SC #2 is satisfied for the core subset; the giants complete DOCS-03 in batch-3.
 
-**Plans:** 4 plans across 2 waves (22 modules; disjoint file sets so each plan's comments-only gate is self-contained).
+**Plans:** 5 plans across 3 waves (21 modules edited + the 5-file pilot sweep; disjoint file sets so each plan's comments-only gate is self-contained). All banners follow the canonical four-slot standard in `36-COMMENT-STYLE-GUIDE.md`; all planning IDs are stripped to prose under option 3 (D-07). `i18n.js` is already compliant (banner + no IDs) → not edited.
 
 **Wave 1** *(batch-1 — establishes the convention rhythm, D-02)*
 
-- [ ] 36-01-PLAN.md — batch-1: db.js (new IDB-choke-point banner) + overview.js (refine + de-phase bug-ticket) + sessions.js (new banner) [3 files]
+- [ ] 36-01-PLAN.md — batch-1: db.js (new IDB-choke-point banner) + overview.js (refine + de-phase bug-ticket; PUBLIC SURFACE names both globals) + sessions.js (new banner) [3 files]
 
 **Wave 2** *(blocked on 36-01 for sequencing only — disjoint file sets, parallelizable)*
 
 - [ ] 36-02-PLAN.md — larger-mid: landing.js + license.js + snippets.js + backup-modal.js (de-phase + refine) [4 files]
-- [ ] 36-03-PLAN.md — mid: crashlog.js + report.js (keep OBS-01/OBS-02) + disclaimer.js + snippets-seed.js + crop.js [5 files]
-- [ ] 36-04-PLAN.md — small/chrome/sw/stubs: version.js (light) + add-client.js + shared-chrome.js + reporting.js + globe-lang.js + md-render.js + demo-seed.js + demo.js + i18n.js + sw.js (comment-only, no cache bump) [10 files]
+- [ ] 36-03-PLAN.md — mid: crashlog.js + report.js (OBS-01/OBS-02 stripped to prose per D-07) + disclaimer.js + snippets-seed.js + crop.js [5 files]
+- [ ] 36-04-PLAN.md — small/chrome/sw/stubs: version.js (light de-phase, VER-ids stripped) + add-client.js + shared-chrome.js + reporting.js + globe-lang.js + md-render.js + demo-seed.js + demo.js + sw.js (comment-only, no cache bump) [9 files; i18n.js dropped — already compliant]
+
+**Wave 3** *(pilot-file ID sweep — blocked on the round-1 human checkpoint after Wave 1/2, D-09)*
+
+- [ ] 36-05-PLAN.md — pilot-file ID sweep: strip leftover planning IDs (banner + body) from the 5 Phase-32 files — settings-snippets.js + settings-photos.js + export-modal.js + settings.js + add-session.js — to prose under option 3 (D-07); banners already good, not rewritten [5 files]
 
 ## Backlog
 
