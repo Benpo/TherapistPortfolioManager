@@ -431,7 +431,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 37-01-PLAN.md — Wave 0: date-engine RED tests (TZ-pinned falsifiable spine + 6 formats + 34-date-locale rewrite)
+- [x] 37-01-PLAN.md — Wave 0: date-engine RED tests (TZ-pinned falsifiable spine + 6 formats + 34-date-locale rewrite) ✓ RED gates authored (13+7 assertions fail as expected; green in Waves 1–2)
 - [ ] 37-02-PLAN.md — Wave 0: personalization-surface RED tests (picker/F4/backup/birthdate + tab deep-link)
 - [ ] 37-03-PLAN.md — Wave 1: date engine core (window.DateFormat) + App.formatDate delegate + 8-page/sw/test-env wiring
 

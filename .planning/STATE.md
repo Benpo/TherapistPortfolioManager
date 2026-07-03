@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
-current_phase: 36
+current_phase: 37
+current_phase_name: date-consistency-date-format-setting-f6-f5
 status: executing
-stopped_at: Phase 37 UI-SPEC approved
-last_updated: "2026-07-02T22:05:07.792Z"
-last_activity: 2026-07-02
-last_activity_desc: Phase 36 marked complete
+stopped_at: Phase 37 Plan 01 complete (Wave-0 date-engine RED gates)
+last_updated: "2026-07-03T05:20:00.000Z"
+last_activity: 2026-07-03
+last_activity_desc: Plan 37-01 complete — TZ-pinned date-engine RED tests authored (both RED as designed)
 progress:
   total_phases: 10
   completed_phases: 8
-  total_plans: 52
+  total_plans: 60
   completed_plans: 52
   percent: 80
-current_phase_name: code-comments-batch-2
 ---
 
 # Project State
@@ -24,14 +24,14 @@ current_phase_name: code-comments-batch-2
 See: .planning/PROJECT.md (updated 2026-06-29)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 36 — code-comments-batch-2
+**Current focus:** Phase 37 — date-consistency-date-format-setting-f6-f5
 
 ## Current Position
 
-Phase: 36 — COMPLETE
-Plan: 5 of 5
-Status: Ready to execute
-Last activity: 2026-07-02 — Phase 36 marked complete
+Phase: 37 (date-consistency-date-format-setting-f6-f5) — EXECUTING
+Plan: 2 of 8
+Status: Executing Phase 37 — Plan 37-01 complete (Wave-0 date-engine RED gates)
+Last activity: 2026-07-03 — Plan 37-01 complete: TZ-pinned date-engine RED tests authored (37-date-format.test.js new + 34-date-locale.test.js rewritten); both RED as designed
 
 ## Performance Metrics
 
@@ -308,6 +308,7 @@ Recent decisions affecting current work:
 - [Phase ?]: de-phase gate: test filename with date-prefix pattern triggers grep; resolved by rewriting to plain prose
 - [Phase ?]: landing.js PUBLIC SURFACE: none; backup-modal.js window.formatRelativeTime added to PUBLIC SURFACE (was missing from original header per WR-01)
 - [Phase ?]: 36-04: add-client/reporting new banners; shared-chrome four-slot // banner; version.js light de-phase; sw.js SAFETY NOTE preserved; 9 stubs/chrome/sw comment-only COMMENTS_ONLY_OK
+- [Phase 37-01]: Wave-0 date-engine RED gates authored FIRST — tests/37-date-format.test.js (NEW) pins TZ=America/New_York via spawnSync re-exec + EDT-offset self-check, executes real app.js/date-format.js via vm; falsifiable spine App.formatDate('2026-07-02') RED with genuine bug output 'Jul 1, 2026' (must be 'Jul 2, 2026'). tests/34-date-locale.test.js REWRITTEN (D-19) to assert fixed engine behavior + raw-ISO export chain + D-21 window.DateFormat injection in jsdom PDF env. Engine assertions guarded by a DF() accessor → clean per-test RED (missing module) that flips GREEN when Plan 37-03 lands assets/date-format.js and Plan 37-04 adds the D-21 injection. Both files RED (13 + 7 fail) by design; do not weaken to green.
 
 ### Pending Todos
 
