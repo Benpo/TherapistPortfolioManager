@@ -130,10 +130,10 @@ function buildSettingsEnv(opts) {
 
   // App stub: spied initCommon (single-mount guard) + the session-type surface
   // the editor is expected to call. formatSessionType default passthrough.
-  var appStub = createAppStub({
+  var appStub = createAppStub(Object.assign({
     getSessionTypes: function () { return []; },
     refreshSessionTypeCache: function () { return Promise.resolve(); },
-  });
+  }, opts.appOverrides || {}));
   win.App = appStub;
   win.matchMedia = function () {
     return { matches: false, media: '', addEventListener: function () {}, removeEventListener: function () {}, addListener: function () {}, removeListener: function () {} };
@@ -488,6 +488,12 @@ async function test(name, fn) {
     assert.ok(typeof App.formatSessionType('online') === 'string' && App.formatSessionType('online').length > 0,
       'a known un-overridden type must resolve to its i18n default label');
     // D-18: an unknown/deleted key returns the RAW string, not a mangled i18n key.
+    // NOTE: this asserts the raw-key fallback for a TRULY-unknown key (e.g. a key
+    // that arrived via imported data and was never in the list). It is NOT the
+    // delete-flow coverage — the friendly 'custom.deleted-xyz' string here would
+    // MASK the real `custom.<epoch>` rendering bug the delete flow fixes. The
+    // delete-in-use → reassign-to-Other behavior is covered by tests 14 & 15
+    // below with a REAL 13-digit epoch key.
     assert.strictEqual(App.formatSessionType('custom.deleted-xyz'), 'custom.deleted-xyz',
       'an unknown/deleted type must fall back to the raw key string (D-18) — no crash, no "session.type." prefix');
     env.dom.window.close();
@@ -573,8 +579,109 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── 14. Delete-in-use (App layer): reassign to "Other", not raw epoch key ─
+  // Finding #1: deleting a custom type that PAST sessions still reference must
+  // reassign those sessions to the legacy "other" key so they resolve to a real
+  // label — NEVER the raw `custom.<epoch>` string. Uses a REAL 13-digit epoch
+  // key (the prior friendly-string test masked this exact bug).
+  await test('delete-in-use (App): reassignSessionType moves real custom.<epoch> sessions to "Other" and count triggers the warning', async function () {
+    var EPOCH_KEY = 'custom.1720000000000'; // a real 13-digit epoch custom key
+    var env = buildAppEnv({ sessionTypes: { overrides: {}, custom: [{ key: EPOCH_KEY, label: 'Group session' }] } });
+    var App = env.App;
+    assert.ok(App && typeof App.countSessionsByType === 'function', 'App.countSessionsByType must exist (editor delegates the in-use count)');
+    assert.ok(typeof App.reassignSessionType === 'function', 'App.reassignSessionType must exist (editor delegates the reassign)');
+
+    // 3 sessions use the custom epoch key; 1 uses a locked default (control).
+    var mockDb = createMockPortfolioDB({ sessions: [
+      { id: 1, clientId: 'c1', date: '2026-01-01', sessionType: EPOCH_KEY },
+      { id: 2, clientId: 'c1', date: '2026-02-01', sessionType: EPOCH_KEY },
+      { id: 3, clientId: 'c2', date: '2026-03-01', sessionType: EPOCH_KEY },
+      { id: 4, clientId: 'c2', date: '2026-04-01', sessionType: 'clinic' },
+    ] });
+    env.win.PortfolioDB = mockDb;
+
+    // BEFORE reassign, the count that drives the confirm dialog must report 3.
+    var inUse = await App.countSessionsByType(EPOCH_KEY);
+    assert.strictEqual(inUse, 3, 'countSessionsByType must report the 3 in-use sessions (this count triggers the warn/confirm)');
+
+    // Demonstrate the bug the fix prevents: with the type gone from the list,
+    // the raw epoch key would render as itself.
+    assert.strictEqual(App.formatSessionType('custom.9999999999999'), 'custom.9999999999999',
+      'an orphaned custom.<epoch> key renders as the raw string (the exact defect reassign prevents)');
+
+    // Run the reassign (the explicit-confirm path) → 3 sessions moved to "other".
+    var moved = await App.reassignSessionType(EPOCH_KEY, 'other');
+    assert.strictEqual(moved, 3, 'reassignSessionType must move exactly the 3 in-use sessions');
+
+    var after = await mockDb.getAllSessions();
+    var otherLabel = App.formatSessionType('other');
+    assert.ok(typeof otherLabel === 'string' && otherLabel.length > 0 && otherLabel !== 'other',
+      'the "other" key must resolve to a real i18n label (e.g. "Other"), not the bare key');
+    after.forEach(function (s) {
+      if (s.id === 4) {
+        assert.strictEqual(s.sessionType, 'clinic', 'a session on a DIFFERENT type must be untouched by the reassign');
+        return;
+      }
+      // The 3 formerly-custom sessions now resolve to the "Other" label, never the raw epoch key.
+      assert.strictEqual(s.sessionType, 'other', 'session ' + s.id + ' must be reassigned to the legacy "other" key');
+      assert.strictEqual(App.formatSessionType(s.sessionType), otherLabel,
+        'the reassigned session must resolve to the "Other" label');
+      assert.notStrictEqual(App.formatSessionType(s.sessionType), EPOCH_KEY,
+        'the reassigned session must NEVER render as the raw custom.<epoch> key');
+    });
+    // No session record still carries the deleted custom key.
+    assert.ok(!after.some(function (s) { return s.sessionType === EPOCH_KEY; }),
+      'no session may still reference the deleted custom.<epoch> key after reassign');
+    env.dom.window.close();
+  });
+
+  // ─── 15. Delete-in-use (editor): warn with count, reassign, then remove ────
+  // Drives the REAL settings-session-types.js delete handler. The App layer is
+  // stubbed (the editor holds NO direct IDB access — Finding #1) so this asserts
+  // the editor's ORCHESTRATION: count → count-based confirm → reassign → remove.
+  await test('delete-in-use (editor): the delete handler warns with the in-use count, reassigns to "other", then removes the type', async function () {
+    var EPOCH_KEY = 'custom.1720000000001';
+    var reassignCalls = [];
+    var env = buildSettingsEnv({
+      search: '?tab=personalize',
+      seed: { sessionTypes: { overrides: {}, custom: [{ key: EPOCH_KEY, label: 'Workshop' }] } },
+      appOverrides: {
+        countSessionsByType: function () { return Promise.resolve(2); },
+        reassignSessionType: function (fromKey, toKey) { reassignCalls.push([fromKey, toKey]); return Promise.resolve(2); },
+      },
+    });
+    await runBoots(env);
+    var win = env.win;
+    var container = win.document.getElementById('sessionTypesEditor');
+    var row = container.querySelector('.session-type-row[data-type-key="' + EPOCH_KEY + '"]');
+    assert.ok(row, 'the seeded in-use custom row must render');
+    var delBtn = row.querySelector('.session-type-delete-btn');
+    assert.ok(delBtn, 'the custom row must have a delete button');
+
+    delBtn.click();
+    await settle();
+
+    // The confirm must be the COUNT-based reassign warning, carrying count=2.
+    var confirmCalls = env.appStub.__calls.get('confirmDialog') || [];
+    assert.ok(confirmCalls.length >= 1, 'deleting an in-use custom type must open a confirm dialog');
+    var opts = confirmCalls[confirmCalls.length - 1][0];
+    assert.strictEqual(opts.messageKey, 'settings.sessionTypes.confirm.reassign.body',
+      'the in-use delete must use the reassign-warning body, not the plain delete body');
+    assert.ok(opts.placeholders && Number(opts.placeholders.count) === 2,
+      'the warning must carry the in-use session count as a placeholder; got ' + JSON.stringify(opts.placeholders));
+
+    // On confirm (stub resolves true) the editor reassigns to "other" THEN removes.
+    assert.strictEqual(reassignCalls.length, 1, 'the editor must call App.reassignSessionType exactly once on confirm');
+    assert.deepStrictEqual(reassignCalls[0], [EPOCH_KEY, 'other'],
+      'the reassign must move the deleted key to the legacy "other" key');
+    var stored = JSON.parse(win.localStorage.getItem('portfolioSessionTypes') || '{}');
+    assert.ok(!(stored.custom || []).some(function (c) { return c.key === EPOCH_KEY; }),
+      'the custom type must be removed from storage after the reassign+delete');
+    env.dom.window.close();
+  });
+
   // ─── end-of-file count guard (vacuous-green trap) ─────────────────────────
-  var EXPECTED_COUNT = 13;
+  var EXPECTED_COUNT = 15;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {

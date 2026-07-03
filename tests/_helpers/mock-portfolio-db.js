@@ -50,6 +50,11 @@ const WRITE_METHODS = [
   'clearAll',
   'addClient',
   'addSession',
+  // Phase 37 (Finding #1) — session record update, backing App.reassignSessionType
+  // (the delete-in-use custom-type → "Other" reassignment). Store-backed below so
+  // a reassign is observable on the next getAllSessions read. In WRITE_METHODS so
+  // assertNoWrites covers it for the no-mutation tests.
+  'updateSession',
   'setTherapistSetting',
   'updateSnippet',
   // Phase 30 Plan 07 (Task 0 / G2) — store-backed snippet mutations. In
@@ -147,6 +152,18 @@ function createMockPortfolioDB(opts) {
       if (snippet && snippet.id != null) {
         const idx = snippetStore.findIndex(function (s) { return sameId(s.id, snippet.id); });
         if (idx !== -1) { snippetStore[idx] = deepCopy(snippet); }
+      }
+      return Promise.resolve();
+    },
+    // Phase 37 (Finding #1) — store-backed session update by id so a reassign
+    // (App.reassignSessionType) is observable on the next getAllSessions read.
+    // Records on the __calls ledger like updateSnippet.
+    updateSession: function (session) {
+      calls.get('updateSession').push(Array.prototype.slice.call(arguments).map(deepCopy));
+      if (session && session.id != null) {
+        const idx = sessionStore.findIndex(function (s) { return sameId(s.id, session.id); });
+        if (idx !== -1) { sessionStore[idx] = deepCopy(session); }
+        else { sessionStore.push(deepCopy(session)); }
       }
       return Promise.resolve();
     },

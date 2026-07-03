@@ -79,6 +79,23 @@
     return Promise.resolve(false);
   }
 
+  // Session records live in IndexedDB. This editor deliberately holds NO direct
+  // IDB access (D-17 / no-innerHTML + no-IDB isolation) — the in-use count and
+  // the reassign-on-delete both go through App, which owns the DB (Finding #1).
+  function countSessionsByType(key) {
+    if (window.App && typeof window.App.countSessionsByType === "function") {
+      return Promise.resolve(window.App.countSessionsByType(key));
+    }
+    return Promise.resolve(0);
+  }
+
+  function reassignSessionType(fromKey, toKey) {
+    if (window.App && typeof window.App.reassignSessionType === "function") {
+      return Promise.resolve(window.App.reassignSessionType(fromKey, toKey));
+    }
+    return Promise.resolve(0);
+  }
+
   // ──────────────────────────────────────────────────────────────────────
   // Storage — ONE localStorage key `portfolioSessionTypes` = {overrides,custom}
   // (mirrors the portfolioDateFormat scalar read/write: try/catch + JSON.parse
@@ -347,19 +364,47 @@
     return true;
   }
 
-  // The delete-button click path: confirm (tone danger) THEN delete. The
-  // early-return on a locked key is the first line of the two-layer guard.
+  // The legacy "Other" key an in-use custom type reassigns to on delete (D-14).
+  var REASSIGN_FALLBACK_KEY = "other";
+
+  // The delete-button click path (Finding #1): first count how many stored
+  // sessions use this custom key. If N>0, warn that those sessions will be
+  // reassigned to "Other" and — only on explicit confirm — reassign them (via
+  // App, which owns the DB) BEFORE removing the type, so past sessions never
+  // render as a raw `custom.<epoch>` key. If N==0 the plain delete confirm runs
+  // (delete-safety confirmation is preserved). Locked keys early-return (guard
+  // layer 1). The re-render happens via persist()'s CHANGED_EVENT dispatch.
   function handleDeleteCustom(key) {
     if (LOCKED_SET[key]) return; // guard layer 1
-    Promise.resolve(confirmDialog({
-      titleKey: "settings.sessionTypes.confirm.delete.title",
-      messageKey: "settings.sessionTypes.confirm.delete.body",
-      confirmKey: "settings.sessionTypes.confirm.delete.confirm",
-      cancelKey: "confirm.cancel",
-      tone: "danger",
-    })).then(function (ok) {
-      if (!ok) return;
-      if (deleteType(key)) showToast("settings.sessionTypes.savedToast");
+    Promise.resolve(countSessionsByType(key)).then(function (inUse) {
+      var count = Number(inUse) || 0;
+      if (count > 0) {
+        return Promise.resolve(confirmDialog({
+          titleKey: "settings.sessionTypes.confirm.reassign.title",
+          messageKey: "settings.sessionTypes.confirm.reassign.body",
+          confirmKey: "settings.sessionTypes.confirm.reassign.confirm",
+          cancelKey: "confirm.cancel",
+          tone: "danger",
+          placeholders: { count: count },
+        })).then(function (ok) {
+          if (!ok) return;
+          // Reassign the in-use sessions to "Other" FIRST, then drop the type.
+          return Promise.resolve(reassignSessionType(key, REASSIGN_FALLBACK_KEY)).then(function () {
+            if (deleteType(key)) showToast("settings.sessionTypes.savedToast");
+          });
+        });
+      }
+      // No sessions use this type — the plain delete confirm (unchanged).
+      return Promise.resolve(confirmDialog({
+        titleKey: "settings.sessionTypes.confirm.delete.title",
+        messageKey: "settings.sessionTypes.confirm.delete.body",
+        confirmKey: "settings.sessionTypes.confirm.delete.confirm",
+        cancelKey: "confirm.cancel",
+        tone: "danger",
+      })).then(function (ok) {
+        if (!ok) return;
+        if (deleteType(key)) showToast("settings.sessionTypes.savedToast");
+      });
     });
   }
 

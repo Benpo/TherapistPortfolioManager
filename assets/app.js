@@ -1309,6 +1309,70 @@ window.App = (() => {
     return list;
   }
 
+  // The legacy "Other" session-type key that a deleted custom type reassigns to
+  // (D-14 — a permanent locked default that resolves via DEFAULT_TYPE_I18N).
+  const REASSIGN_FALLBACK_KEY = "other";
+
+  /**
+   * Count stored sessions whose sessionType equals `key`. Used by the
+   * session-type editor's delete guard to warn before deleting an in-use custom
+   * type (Finding #1). Reads IndexedDB (the editor IIFE deliberately holds NO
+   * direct IDB access, so the data read goes through App).
+   * @param {string} key - session-type key to count (e.g. 'custom.1720000000000')
+   * @returns {Promise<number>} how many stored sessions currently use that key
+   */
+  async function countSessionsByType(key) {
+    if (!window.PortfolioDB || typeof window.PortfolioDB.getAllSessions !== "function") return 0;
+    let sessions;
+    try {
+      sessions = await window.PortfolioDB.getAllSessions();
+    } catch (_) {
+      return 0;
+    }
+    if (!Array.isArray(sessions)) return 0;
+    let count = 0;
+    for (let i = 0; i < sessions.length; i++) {
+      if (sessions[i] && sessions[i].sessionType === key) count += 1;
+    }
+    return count;
+  }
+
+  /**
+   * Reassign every stored session's sessionType from `fromKey` to `toKey` and
+   * persist each changed record (Finding #1). Called by the editor ONLY on
+   * explicit user confirm — never silently — so a deleted custom type's past
+   * sessions resolve to a real label ("Other") instead of the raw
+   * `custom.<epoch>` key. Returns the number of sessions reassigned.
+   * @param {string} fromKey - the session-type key being removed
+   * @param {string} [toKey] - the reassignment target (defaults to the legacy 'other')
+   * @returns {Promise<number>} how many session records were reassigned + persisted
+   */
+  async function reassignSessionType(fromKey, toKey) {
+    const target = toKey || REASSIGN_FALLBACK_KEY;
+    if (!window.PortfolioDB ||
+        typeof window.PortfolioDB.getAllSessions !== "function" ||
+        typeof window.PortfolioDB.updateSession !== "function") {
+      return 0;
+    }
+    let sessions;
+    try {
+      sessions = await window.PortfolioDB.getAllSessions();
+    } catch (_) {
+      return 0;
+    }
+    if (!Array.isArray(sessions)) return 0;
+    let count = 0;
+    for (let i = 0; i < sessions.length; i++) {
+      const session = sessions[i];
+      if (session && session.sessionType === fromKey) {
+        session.sessionType = target;
+        await window.PortfolioDB.updateSession(session);
+        count += 1;
+      }
+    }
+    return count;
+  }
+
   /**
    * Set a submit button's label via i18n key.
    * @param {string} key - i18n key for the label
@@ -1399,6 +1463,8 @@ window.App = (() => {
     // Shared form helpers
     formatSessionType,
     getSessionTypes,
+    countSessionsByType,
+    reassignSessionType,
     setSubmitLabel,
     readFileAsDataURL,
 
