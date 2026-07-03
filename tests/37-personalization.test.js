@@ -680,8 +680,41 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── 16. Backup faithful mirror: null-source resets a customized target ───
+  // WR-02: when the SOURCE device used the defaults (portfolioDateFormat /
+  // portfolioSessionTypes unset → manifest stores null), restoring onto a
+  // CUSTOMIZED target must RESET those keys to default (removeItem), not silently
+  // retain the target's own values. Drives the REAL backup.js export->restore.
+  await test('backup: a null-source field (source used defaults) RESETS a customized target on restore (faithful mirror)', async function () {
+    var mockDb = createMockPortfolioDB({});
+    var sandbox = buildBackupSandbox(mockDb);
+    var BM = sandbox.window.BackupManager;
+    assert.ok(BM && typeof BM.exportBackup === 'function' && typeof BM.importBackup === 'function',
+      'BackupManager.exportBackup + importBackup must be exposed');
+
+    // SOURCE uses defaults: leave both keys UNSET so the manifest stores null.
+    sandbox.localStorage.removeItem('portfolioDateFormat');
+    sandbox.localStorage.removeItem('portfolioSessionTypes');
+
+    var result = await BM.exportBackup();
+    assert.ok(result && result.blob, 'exportBackup must return a blob');
+    var file = new File([result.blob], result.filename, { type: 'application/zip' });
+
+    // TARGET is customized before the restore.
+    sandbox.localStorage.setItem('portfolioDateFormat', 'mm/dd/yyyy');
+    sandbox.localStorage.setItem('portfolioSessionTypes',
+      JSON.stringify({ overrides: { clinic: 'Studio' }, custom: [{ key: 'custom.1', label: 'Retreat' }] }));
+
+    await BM.importBackup(file);
+
+    assert.strictEqual(sandbox.localStorage.getItem('portfolioDateFormat'), null,
+      'a null-source dateFormat must RESET the customized target to default (removeItem), not retain mm/dd/yyyy');
+    assert.strictEqual(sandbox.localStorage.getItem('portfolioSessionTypes'), null,
+      'a null-source sessionTypes must RESET the customized target to default (removeItem), not retain the custom list');
+  });
+
   // ─── end-of-file count guard (vacuous-green trap) ─────────────────────────
-  var EXPECTED_COUNT = 15;
+  var EXPECTED_COUNT = 16;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
