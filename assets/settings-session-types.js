@@ -322,8 +322,10 @@
       types.custom[idx].label = label;
     }
 
+    // WR-01: persist() dispatches CHANGED_EVENT synchronously, and boot()'s
+    // listener re-renders the list — so an explicit renderTypeList() here would
+    // rebuild the DOM a second time. Rely on the event-driven re-render.
     persist(types);
-    renderTypeList();
     showToast("settings.sessionTypes.savedToast");
   }
 
@@ -341,9 +343,9 @@
     }
 
     types.custom.push({ key: "custom." + Date.now(), label: label });
+    // WR-01: event-driven re-render only (see commitRename) — no double rebuild.
     persist(types);
     input.value = "";
-    renderTypeList();
     showToast("settings.sessionTypes.savedToast");
   }
 
@@ -359,8 +361,8 @@
     }
     if (idx < 0) return false;
     types.custom.splice(idx, 1);
+    // WR-01: event-driven re-render only (see commitRename) — no double rebuild.
     persist(types);
-    renderTypeList();
     return true;
   }
 
