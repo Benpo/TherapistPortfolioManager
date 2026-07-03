@@ -76,6 +76,7 @@ const PRECACHE_URLS = [
   '/assets/settings.js',
   '/assets/settings-snippets.js',
   '/assets/settings-photos.js',
+  '/assets/settings-session-types.js',
   '/assets/pdf-export.js',
   '/assets/md-render.js',
   '/assets/jspdf.min.js',

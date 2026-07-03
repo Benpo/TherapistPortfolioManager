@@ -57,6 +57,7 @@
              Includes the "Backups" and "Photos" tabs. -->
         <div class="settings-tabs" role="tablist" aria-label="Settings sections">
           <button type="button" role="tab" id="settingsTabFieldsBtn" class="settings-tab is-active" aria-selected="true" aria-controls="settingsTabFields" data-tab="fields" data-i18n="settings.tab.fields">Custom field names</button>
+          <button type="button" role="tab" id="settingsTabPersonalizeBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabPersonalize" data-tab="personalize" tabindex="-1" data-i18n="settings.tab.personalize">Personalization</button>
           <button type="button" role="tab" id="settingsTabSnippetsBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabSnippets" data-tab="snippets" tabindex="-1" data-i18n="settings.tab.snippets">Text Snippets</button>
           <button type="button" role="tab" id="settingsTabBackupsBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabBackups" data-tab="backups" tabindex="-1" data-i18n="settings.tab.backups">Backups</button>
           <button type="button" role="tab" id="settingsTabPhotosBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabPhotos" data-tab="photos" tabindex="-1" data-i18n="settings.tab.photos">Photos</button>
@@ -113,6 +114,37 @@
                extraction. The row + optional clear affordance are populated by
                SettingsPage.buildReportRow() at init. -->
           <div id="settingsReportSection" class="settings-report-section"></div>
+        </div>
+
+        <!-- Personalization tab (Phase 37): F5 date-format picker (focal) + F4
+             session-type editor. The picker option labels are ENGINE output
+             (window.DateFormat), filled at wire-time by settings.js — never
+             hand-typed. The #sessionTypesEditor container is intentionally empty
+             here; assets/settings-session-types.js (Plan 07) populates its rows. -->
+        <div id="settingsTabPersonalize" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabPersonalizeBtn" hidden>
+          <div class="form-field">
+            <label class="label" for="dateFormatSelect" data-i18n="settings.dateFormat.label">Date format</label>
+            <select class="input select-field" id="dateFormatSelect">
+              <option value="auto" data-i18n="settings.dateFormat.auto">Automatic (follow language)</option>
+              <option value="month-day-year" data-df-example>month-day-year</option>
+              <option value="day-month-year" data-df-example>day-month-year</option>
+              <option value="mm/dd/yyyy" data-df-example>mm/dd/yyyy</option>
+              <option value="dd/mm/yyyy" data-df-example>dd/mm/yyyy</option>
+              <option value="yyyy-mm-dd" data-df-example>yyyy-mm-dd</option>
+            </select>
+          </div>
+
+          <h3 class="settings-subsection-title" data-i18n="settings.sessionTypes.heading">Session types</h3>
+          <p class="helper-text" data-i18n="settings.sessionTypes.helper">Rename the built-in types or add your own.</p>
+
+          <div id="sessionTypesEditor" class="session-types-editor" aria-live="polite"></div>
+
+          <div class="form-field session-type-add-row">
+            <input id="sessionTypeAddInput" class="input" type="text" maxlength="60" autocomplete="off"
+                   data-i18n-placeholder="settings.sessionTypes.add.placeholder"
+                   data-i18n-aria-label="settings.sessionTypes.add.placeholder" />
+            <button id="sessionTypeAddBtn" type="button" class="button" data-i18n="settings.sessionTypes.add.label">Add type</button>
+          </div>
         </div>
 
         <div id="settingsTabSnippets" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabSnippetsBtn" hidden>
@@ -343,6 +375,10 @@ Deleted photos cannot be recovered.</p>
   <script src="./assets/settings-snippets.js"></script>
   <script src="./assets/settings-photos.js"></script>
   <script src="./assets/settings.js"></script>
+  <!-- F4 session-type editor (Plan 07). Forward-declared load hook: this file is
+       created by Plan 07 and populates #sessionTypesEditor. Loaded AFTER settings.js
+       (mirrors settings-snippets.js / settings-photos.js), precached in sw.js. -->
+  <script src="./assets/settings-session-types.js"></script>
   <script>
     if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
   </script>

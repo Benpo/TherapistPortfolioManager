@@ -725,8 +725,8 @@ window.SettingsPage = (function () {
     try {
       var params = new URLSearchParams(window.location.search);
       var t = params.get("tab");
-      // Backups + Photos tabs are also valid ?tab= targets.
-      if (t === "fields" || t === "snippets" || t === "backups" || t === "photos") return t;
+      // Backups + Photos + Personalization tabs are also valid ?tab= targets.
+      if (t === "fields" || t === "snippets" || t === "backups" || t === "photos" || t === "personalize") return t;
     } catch (e) {}
     return null;
   }
@@ -791,6 +791,80 @@ window.SettingsPage = (function () {
     var initial = readUrlTab();
     if (!initial) initial = tabs[0].getAttribute("data-tab");
     activate(initial, { skipUrl: !readUrlTab() });
+  }
+
+  if (typeof document !== "undefined") {
+    document.addEventListener("DOMContentLoaded", boot);
+  }
+})();
+
+// ────────────────────────────────────────────────────────────────────────
+// Personalization tab — F5 date-format picker (PERS-02 / D-05 / D-09)
+//
+// The <select id="dateFormatSelect"> in the Personalization panel:
+//   - init: value = localStorage['portfolioDateFormat'] || 'auto'
+//   - the 5 non-auto option LABELS are ENGINE output — filled by calling
+//     window.DateFormat.format on a fixed reference date (SEAM); never
+//     hand-typed. Only the 'auto' option carries a static i18n label. If the
+//     engine is unavailable (e.g. a test env that does not load date-format.js)
+//     the static fallback text stays — value contract is unaffected.
+//   - on change: persist to localStorage, dispatch document 'app:dateformat'
+//     (a forward-compat live-re-render hook), show the saved toast, NEVER reload.
+//   - re-fill example labels on 'app:language' so they re-localize.
+//
+// Self-booting like the tab-nav IIFE above; touches only its own panel.
+// ────────────────────────────────────────────────────────────────────────
+(function () {
+  "use strict";
+
+  var REFERENCE_DATE = "2026-07-02"; // fixed reference so labels are stable
+
+  function readDateFormat() {
+    try { return localStorage.getItem("portfolioDateFormat") || "auto"; }
+    catch (e) { return "auto"; }
+  }
+
+  function currentLang() {
+    try {
+      if (window.App && typeof App.getLanguage === "function") {
+        var l = App.getLanguage();
+        if (l) return l;
+      }
+      return localStorage.getItem("portfolioLang") || "en";
+    } catch (e) { return "en"; }
+  }
+
+  function fillExampleLabels(sel) {
+    // SEAM: option labels come from the engine, not hand-typed strings.
+    if (!window.DateFormat || typeof window.DateFormat.format !== "function") return;
+    var lang = currentLang();
+    var opts = sel.querySelectorAll("option[data-df-example]");
+    Array.prototype.forEach.call(opts, function (opt) {
+      try {
+        var label = window.DateFormat.format(REFERENCE_DATE, opt.value, lang);
+        if (label) opt.textContent = label;
+      } catch (e) {}
+    });
+  }
+
+  function boot() {
+    var sel = document.getElementById("dateFormatSelect");
+    if (!sel) return;
+
+    sel.value = readDateFormat();
+    fillExampleLabels(sel);
+
+    sel.addEventListener("change", function () {
+      try { localStorage.setItem("portfolioDateFormat", sel.value); } catch (e) {}
+      // Live re-render hook — no page reload (Pitfall 2 / FIX 7).
+      document.dispatchEvent(new CustomEvent("app:dateformat", { detail: { format: sel.value } }));
+      if (window.App && typeof App.showToast === "function") {
+        App.showToast("", "settings.dateFormat.savedToast");
+      }
+    });
+
+    // Re-localize the engine-sourced example labels when the UI language changes.
+    document.addEventListener("app:language", function () { fillExampleLabels(sel); });
   }
 
   if (typeof document !== "undefined") {
