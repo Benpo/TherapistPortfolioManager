@@ -1,36 +1,36 @@
 /**
- * Phase 34 — de/cs date-locale behavior test.
+ * Phase 37 (D-19) rewrite — date-locale behavior test, now asserting the FIXED
+ * date-engine behavior instead of the pre-fix behavior it originally pinned.
  *
- * Closes the gap left by 25-11-i18n-parity (which only checks i18n KEY
- * PRESENCE, never date RENDERING) and by pdf-latin-regression (whose fixtures
- * pass a RAW ISO sessionDate straight into pdf-export.js's own formatDate — the
- * de-DE/cs-CZ branch that has been correct since Phase 22 — so they never
- * exercised the real-app chain that was broken).
+ * ORIGINAL (Phase 34) intent — preserved as history:
+ *   The old file asserted App.formatDate's per-locale output and drove the PDF
+ *   export chain via PRE-FORMATTED strings (export-modal pre-formatted the date
+ *   and handed pdf-export a non-ISO string it passed through unchanged). That
+ *   encoded the OLD split: en-US in the UI, en-GB in the PDF, and a
+ *   pre-formatting export seam.
  *
- * The real bug: assets/app.js `App.formatDate` branched only
- *   currentLang === "he" ? "he-IL" : "en-US"
- * so de/cs fell through to en-US and rendered US month-first order with ENGLISH
- * month names ("Jun 15, 2026"). App.formatDate feeds BOTH the in-app date
- * display AND the real-app PDF export: export-modal.js pre-formats the session
- * date via App.formatDate and passes the formatted STRING to
- * PDFExport.buildSessionPDF (pdf-export.js leaves an already-formatted,
- * non-ISO string unchanged), and the footer "exported on" date is
- * App.formatDate(new Date()). So de/cs exports showed US-order English dates.
+ * PHASE 37 rewrite (D-04 / D-19) — what this file now asserts:
+ *   1. The canonical engine `window.DateFormat` (assets/date-format.js) EXISTS
+ *      and exposes format / parseLocal / todayLocalISO / getPreference.
+ *   2. `auto` per-locale outputs reproduce the current app.js rule, byte-for-byte:
+ *        en -> en-US short  "Jul 2, 2026"        (D-04: en-US month-first, NOT en-GB "2 July 2026")
+ *        de -> de-DE long   "15. Juni 2026"
+ *        cs -> cs-CZ long   "15. června 2026"
+ *        he -> he-IL short  "15 ביוני 2026"
+ *   3. App.formatDate DELEGATES to the engine (its output equals the engine's
+ *      `auto` output) — proving the display path routes through DateFormat.
+ *   4. The PDF export chain now passes RAW ISO into pdf-export (the pre-format
+ *      seam is removed) and the jsdom PDF env has `window.DateFormat` injected
+ *      (D-21), so pdf-export formats the card date to the unified en-US string.
  *
- * The fix maps de->de-DE, cs->cs-CZ (long month names so cs keeps a localized
- * month — its short month is numeric "6."), in European day-month-year order,
- * while leaving en/he byte-identical.
- *
- * This test asserts (falsifiably):
- *   1. App.formatDate de  -> "15. Juni 2026"   (day < month < year; month "Juni")
- *   2. App.formatDate cs  -> "15. června 2026" (day < month < year; month "června")
- *   3. App.formatDate en  -> "Jun 15, 2026"    (UNCHANGED — exact match)
- *   4. App.formatDate he  -> "15 ביוני 2026"   (UNCHANGED — day < year, localized month)
- *   5. Real-app export chain: feeding App.formatDate's de/cs output into
- *      PDFExport.buildSessionPDF produces a non-empty PDF (real output, bytes>0).
+ * This file is authored as a RED gate: assets/date-format.js does not exist yet
+ * (lands Plan 37-03) and the jsdom PDF env does not inject it yet (D-21 lands
+ * Plan 37-04), so it FAILS against the current tree by design. It stays a
+ * behavior test — it EXECUTES the real modules via vm/jsdom, never asserting on
+ * source text (MEMORY feedback-behavior-verification).
  *
  * Run: node tests/34-date-locale.test.js
- * Exits 0 on full pass, 1 on any failure.
+ * Exits 0 on full pass, 1 on any failure (RED until Plan 37-03 / 37-04 land).
  */
 
 'use strict';
@@ -40,7 +40,9 @@ const path = require('path');
 const vm = require('vm');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const KNOWN_DATE = '2026-06-15'; // a June date so de "Juni" / cs "června" are unambiguous
+const REF_EN = '2026-07-02'; // en-US month-first => "Jul 2, 2026"
+const REF_JUN = '2026-06-15'; // de "Juni" / cs "června" unambiguous
+const REF_MAY = '2026-05-08'; // export-chain fixture date => en-US "May 8, 2026"
 
 let passed = 0, failed = 0;
 function test(name, fn) {
@@ -51,22 +53,14 @@ function test(name, fn) {
 }
 function assert(cond, msg) { if (!cond) throw new Error(msg); }
 
-// Assert European day-month-year order: the day number precedes the month
-// token, which precedes the year. All three tokens must be present.
-function assertEuropeanOrder(out, day, monthToken, year) {
-  const di = out.indexOf(day), mi = out.indexOf(monthToken), yi = out.indexOf(year);
-  assert(di >= 0, 'day "' + day + '" missing from "' + out + '"');
-  assert(mi >= 0, 'localized month "' + monthToken + '" missing from "' + out + '"');
-  assert(yi >= 0, 'year "' + year + '" missing from "' + out + '"');
-  assert(di < mi, 'NOT European order — day "' + day + '" should precede month "' + monthToken + '" in "' + out + '"');
-  assert(mi < yi, 'NOT European order — month "' + monthToken + '" should precede year "' + year + '" in "' + out + '"');
-}
-
 // ---------------------------------------------------------------------------
-// Load assets/app.js in a vm sandbox (mirrors tests/24-04-app-cache.test.js).
-// Returns the App namespace; Intl is provided so formatDate can localize.
+// Load assets/app.js (and assets/date-format.js, when present) into a vm
+// sandbox. The engine is eval'd BEFORE app.js so the (post-Plan-03) App.formatDate
+// wrapper can delegate to window.DateFormat. Against the current tree the engine
+// file is absent, so window.DateFormat is undefined and the engine assertions
+// fail cleanly (RED). Returns { App, DateFormat }.
 // ---------------------------------------------------------------------------
-function loadApp() {
+function loadAppAndEngine() {
   const documentEventTarget = { addEventListener() {}, removeEventListener() {}, dispatchEvent() { return true; } };
   const documentStub = Object.assign({
     documentElement: { lang: '', setAttribute() {} },
@@ -99,88 +93,96 @@ function loadApp() {
   sandbox.window.I18N = { en: {}, he: {}, de: {}, cs: {} };
   sandbox.window.I18N_DEFAULT = 'en';
   vm.createContext(sandbox);
+
+  // D-19/D-21: load the canonical engine into the SAME sandbox before app.js.
+  const dfPath = path.join(REPO_ROOT, 'assets', 'date-format.js');
+  if (fs.existsSync(dfPath)) {
+    vm.runInContext(fs.readFileSync(dfPath, 'utf8'), sandbox, { filename: 'assets/date-format.js' });
+  }
+
   const src = fs.readFileSync(path.join(REPO_ROOT, 'assets', 'app.js'), 'utf8').replace(/^App\./gm, 'window.App.');
   vm.runInContext(src, sandbox, { filename: 'assets/app.js' });
   const App = sandbox.window.App;
   if (!App || typeof App.formatDate !== 'function' || typeof App.setLanguage !== 'function') {
     throw new Error('app.js did not expose App.formatDate / App.setLanguage');
   }
-  return App;
+  return { App, DateFormat: sandbox.window.DateFormat };
 }
 
 (async function run() {
-  const App = loadApp();
+  const { App, DateFormat } = loadAppAndEngine();
+  function DF() {
+    assert(DateFormat, 'window.DateFormat is undefined — engine (assets/date-format.js) not implemented yet (expected RED before Plan 37-03)');
+    return DateFormat;
+  }
 
-  // ── App.formatDate: the fixed in-app + export pre-format path ──────────
-  await test('App.formatDate de -> European day-month-year with localized month "Juni"', () => {
-    App.setLanguage('de');
-    const out = App.formatDate(KNOWN_DATE);
-    assert(out.length > 0, 'empty output');
-    assert(out.indexOf('Juni') >= 0, 'expected localized German month "Juni", got "' + out + '"');
-    assert(out.indexOf('Jun ') === -1 || out.indexOf('Juni') >= 0, 'should not be English "Jun" abbreviation');
-    assertEuropeanOrder(out, '15', 'Juni', '2026');
-    // Regression on the exact bug: must NOT be the old US-order English string.
-    assert(out !== 'Jun 15, 2026', 'de still renders the old buggy en-US string');
+  // 1) Engine exists with its public surface.
+  await test('engine: window.DateFormat exposes format / parseLocal / todayLocalISO / getPreference', () => {
+    const d = DF();
+    assert(typeof d.format === 'function', 'DateFormat.format missing');
+    assert(typeof d.parseLocal === 'function', 'DateFormat.parseLocal missing');
+    assert(typeof d.todayLocalISO === 'function', 'DateFormat.todayLocalISO missing');
+    assert(typeof d.getPreference === 'function', 'DateFormat.getPreference missing');
   });
 
-  await test('App.formatDate cs -> European day-month-year with localized month "června"', () => {
-    App.setLanguage('cs');
-    const out = App.formatDate(KNOWN_DATE);
-    assert(out.length > 0, 'empty output');
-    assert(out.indexOf('června') >= 0, 'expected localized Czech month "června", got "' + out + '"');
-    // Guard against the short-month numeric form ("15. 6. 2026") losing the month name.
-    assert(!/\b6\.\s*2026/.test(out), 'cs rendered a numeric month instead of a localized name: "' + out + '"');
-    assertEuropeanOrder(out, '15', 'června', '2026');
-    assert(out !== 'Jun 15, 2026', 'cs still renders the old buggy en-US string');
+  // 2) `auto` per-locale outputs reproduce the current app.js rule (D-04 for en).
+  await test('auto en -> "Jul 2, 2026" (en-US month-first, D-04 — NOT en-GB "2 July 2026")', () => {
+    const out = DF().format(REF_EN, 'auto', 'en');
+    assert(out === 'Jul 2, 2026', 'expected "Jul 2, 2026", got "' + out + '"');
+    assert(out !== '2 July 2026', 'must not render the old en-GB long form');
   });
 
-  await test('App.formatDate en -> "Jun 15, 2026" UNCHANGED (byte-identical)', () => {
+  await test('auto de -> "15. Juni 2026" (de-DE long, unchanged)', () => {
+    const out = DF().format(REF_JUN, 'auto', 'de');
+    assert(out === '15. Juni 2026', 'expected "15. Juni 2026", got "' + out + '"');
+  });
+
+  await test('auto cs -> "15. června 2026" (cs-CZ long, unchanged)', () => {
+    const out = DF().format(REF_JUN, 'auto', 'cs');
+    assert(out === '15. června 2026', 'expected "15. června 2026", got "' + out + '"');
+  });
+
+  await test('auto he -> "15 ביוני 2026" (he-IL short, unchanged)', () => {
+    const out = DF().format(REF_JUN, 'auto', 'he');
+    assert(out === '15 ביוני 2026', 'expected "15 ביוני 2026", got "' + out + '"');
+  });
+
+  // 3) App.formatDate delegates to the engine (output === engine auto output).
+  await test('App.formatDate delegates to DateFormat (en output === engine auto output)', () => {
     App.setLanguage('en');
-    const out = App.formatDate(KNOWN_DATE);
-    assert(out === 'Jun 15, 2026', 'en output changed — expected "Jun 15, 2026", got "' + out + '"');
+    const appOut = App.formatDate(REF_EN);
+    const engineOut = DF().format(REF_EN, 'auto', 'en');
+    assert(appOut === engineOut, 'App.formatDate "' + appOut + '" != engine auto "' + engineOut + '" — wrapper not delegating');
+    assert(appOut === 'Jul 2, 2026', 'expected "Jul 2, 2026", got "' + appOut + '"');
   });
 
-  await test('App.formatDate he -> "15 ביוני 2026" UNCHANGED (localized, day before year)', () => {
-    App.setLanguage('he');
-    const out = App.formatDate(KNOWN_DATE);
-    assert(out.length > 0, 'empty output');
-    assert(out.indexOf('ביוני') >= 0, 'expected localized Hebrew month "ביוני", got "' + out + '"');
-    assert(out.indexOf('15') < out.indexOf('2026'), 'he should keep day before year, got "' + out + '"');
-    assert(out === '15 ביוני 2026', 'he output changed — expected "15 ביוני 2026", got "' + out + '"');
-  });
-
-  // ── Real-app export chain: App.formatDate output -> buildSessionPDF ─────
-  // This is the exact path export-modal.js uses: pre-format the session date
-  // via App.formatDate, then hand the already-formatted STRING to
-  // PDFExport.buildSessionPDF (which passes a non-ISO string through unchanged).
-  // Asserts the chain produces real PDF bytes for the fixed de/cs locales.
-  await test('Real-app export chain produces non-empty de + cs PDFs (bytes>0)', async () => {
+  // 4) PDF export chain: raw ISO in, engine injected (D-21), en-US card date out.
+  await test('export chain: jsdom PDF env has window.DateFormat (D-21) + raw-ISO sessionDate builds a non-empty en PDF', async () => {
     const { buildJsdomEnv } = require('./_helpers/jsdom-pdf-env');
-    for (const lang of ['de', 'cs']) {
-      App.setLanguage(lang);
-      const sessionDate = App.formatDate('2026-05-08'); // pre-formatted, European
-      const exportedOn = App.formatDate(KNOWN_DATE);
-      assert(sessionDate.length > 0 && exportedOn.length > 0, lang + ': empty pre-formatted dates');
-      const dom = buildJsdomEnv().dom;
-      const win = dom.window;
+    const { dom, win } = buildJsdomEnv();
+    try {
+      // D-21: pdf-export delegates to window.DateFormat, so it MUST be injected
+      // into the PDF env. Absent today (injection lands Plan 37-04) => RED.
+      assert(win.DateFormat && typeof win.DateFormat.format === 'function',
+        'jsdom PDF env is missing window.DateFormat — D-21 injection not applied yet (expected RED before Plan 37-04)');
+      assert(win.DateFormat.format(REF_MAY, 'auto', 'en') === 'May 8, 2026',
+        'engine in PDF env should format en auto "' + REF_MAY + '" as "May 8, 2026"');
+
+      // The export chain now passes RAW ISO (no pre-formatting) into buildSessionPDF.
       const blob = await win.PDFExport.buildSessionPDF({
-        clientName: 'Test Klient',
-        sessionDate: sessionDate,
+        clientName: 'Test Client',
+        sessionDate: REF_MAY, // RAW ISO — pdf-export formats it via the engine
         sessionType: 'Online',
         markdown: '# Session\n\nBody text for the export.\n',
-        exportedOn: exportedOn,
-      }, { uiLang: lang });
+      }, { uiLang: 'en' });
       const bytes = Buffer.from(await blob.arrayBuffer());
-      assert(bytes.length > 0, lang + ': export produced an empty PDF');
-      // pdf-export passes the already-formatted string through unchanged, so the
-      // card date the owner sees IS the European App.formatDate output.
-      assert(/^(15\. Juni 2026|8\. května 2026)$/.test(sessionDate) || sessionDate.indexOf('2026') >= 0,
-        lang + ': unexpected pre-formatted session date "' + sessionDate + '"');
+      assert(bytes.length > 0, 'export produced an empty PDF');
+    } finally {
       dom.window.close();
     }
   });
 
   console.log('');
-  console.log('Phase 34 date-locale tests — ' + passed + ' passed, ' + failed + ' failed');
+  console.log('Phase 37 (D-19) date-locale rewrite — ' + passed + ' passed, ' + failed + ' failed');
   process.exit(failed === 0 ? 0 : 1);
 })().catch((err) => { console.error('FATAL:', err && err.stack || err); process.exit(1); });
