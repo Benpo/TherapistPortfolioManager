@@ -965,7 +965,15 @@ window.App = (() => {
    * @returns {string} Formatted date (e.g., 'Mar 15, 2024'), or empty string if falsy
    */
   function formatDate(dateString) {
-    return window.DateFormat.format(dateString, window.DateFormat.getPreference(), currentLang);
+    // WR-05: defend against date-format.js failing to load (script 404 / offline
+    // first visit before the SW caches it) — mirror pdf-export.js's guard so a
+    // missing engine degrades to a raw pass-through instead of crashing every
+    // date in the app.
+    var DF = window.DateFormat;
+    if (DF && typeof DF.format === "function") {
+      return DF.format(dateString, DF.getPreference(), currentLang);
+    }
+    return dateString ? String(dateString) : "";
   }
 
   function severityColor(value) {
@@ -1041,7 +1049,18 @@ window.App = (() => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `portfolio-backup-${window.DateFormat.todayLocalISO()}.json`;
+    // WR-05: guard window.DateFormat (see formatDate) — fall back to the same
+    // hand-composed LOCAL Y-M-D used by backup.js:_assembleBackupZip so the
+    // export never crashes if date-format.js failed to load.
+    const dateStr = (window.DateFormat && typeof window.DateFormat.todayLocalISO === "function")
+      ? window.DateFormat.todayLocalISO()
+      : (function () {
+          const now = new Date();
+          return now.getFullYear() + "-" +
+            String(now.getMonth() + 1).padStart(2, "0") + "-" +
+            String(now.getDate()).padStart(2, "0");
+        })();
+    a.download = `portfolio-backup-${dateStr}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
