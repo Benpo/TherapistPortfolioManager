@@ -34,6 +34,7 @@ const PRECACHE_URLS = [
   '/manifest.json',
   '/assets/version.js',
   '/assets/crashlog.js',
+  '/assets/date-format.js',
   '/assets/tokens.css',
   '/assets/app.css',
   '/assets/jszip.min.js',

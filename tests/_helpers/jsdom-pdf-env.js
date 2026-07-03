@@ -122,6 +122,10 @@ function buildJsdomEnv(options) {
   Object.keys(OriginalJsPDF).forEach(function (k) { WrappedJsPDF[k] = OriginalJsPDF[k]; });
   win.jspdf.jsPDF = WrappedJsPDF;
 
+  // D-21: the canonical date engine must exist before pdf-export.js evals,
+  // because pdf-export's formatDate now delegates to window.DateFormat.
+  win.eval(readAsset('assets/date-format.js'));
+
   win.eval(readAsset('assets/pdf-export.js'));
   if (!win.PDFExport || typeof win.PDFExport.buildSessionPDF !== 'function') {
     throw new Error('pdf-export.js did not expose window.PDFExport.buildSessionPDF after eval');
