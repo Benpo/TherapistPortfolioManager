@@ -710,6 +710,24 @@ window.App = (() => {
       }
     }
 
+    // Phase 37 Plan 07 (FIX 2) — cross-tab session-type sync. The native
+    // `storage` event fires ONLY in OTHER tabs (never the writing tab), which is
+    // exactly the cross-tab case: when a peer tab rewrites
+    // localStorage['portfolioSessionTypes'], re-dispatch app:session-types-changed
+    // on this document so display sites (session cards, list, overview) re-render.
+    // No cache to refresh — formatSessionType reads localStorage synchronously.
+    if (typeof window !== "undefined" && typeof window.addEventListener === "function" &&
+        !initCommon._sessionTypesStorageListenerInstalled) {
+      window.addEventListener("storage", function (e) {
+        if (e && e.key === "portfolioSessionTypes") {
+          try {
+            document.dispatchEvent(new CustomEvent("app:session-types-changed"));
+          } catch (_) { /* ignore */ }
+        }
+      });
+      initCommon._sessionTypesStorageListenerInstalled = true;
+    }
+
     const savedLang = localStorage.getItem("portfolioLang") || window.I18N_DEFAULT || "en";
     setLanguage(savedLang);
     checkBackupReminder();
@@ -1192,14 +1210,103 @@ window.App = (() => {
   // Shared form helpers (extracted Phase 16)
   // ---------------------------------------------------------------------------
 
+  // ---------------------------------------------------------------------------
+  // Phase 37 Plan 07 — session-type resolver (F4)
+  //
+  // The session-type list persists as ONE localStorage key
+  // `portfolioSessionTypes` = { overrides: { <lockedKey>: "<label>" },
+  // custom: [ { key, label } ] } — localStorage, NOT IndexedDB (D-17; the IDB
+  // path does not round-trip through backup restore — 37-PATTERNS.md A2
+  // CORRECTED). Backup persists this key via Plan 05.
+  //
+  // formatSessionType reads the key SYNCHRONOUSLY on each call (no async cache,
+  // no first-paint race): override label (D-16) → custom label → i18n default
+  // → RAW String(key) fallback for unknown/deleted keys (D-18). The 3 legacy
+  // keys clinic/online/other resolve forever via DEFAULT_TYPE_I18N (D-14).
+  // ---------------------------------------------------------------------------
+
+  // The 5 locked default session types in fixed render order (D-13).
+  const SESSION_TYPE_ORDER = ["clinic", "online", "remote", "proxy", "other"];
+  // Locked default key → its session.type.* i18n key.
+  const DEFAULT_TYPE_I18N = {
+    clinic: "session.type.clinic",
+    online: "session.type.online",
+    remote: "session.type.remote",
+    proxy: "session.type.proxy",
+    other: "session.type.other",
+  };
+
   /**
-   * Format session type key to translated display string.
-   * @param {string} type - Session type ('clinic', 'online', 'other')
-   * @returns {string} Translated type label
+   * Read localStorage['portfolioSessionTypes'] behind try/catch and return a
+   * normalized `{ overrides: {...}, custom: [...] }`. A missing/corrupt key
+   * yields empty overrides + empty custom. No IDB, no module-level cache, no
+   * async — mirrors the portfolioDateFormat scalar read pattern.
+   * @returns {{overrides: Object, custom: Array}}
+   */
+  function _readSessionTypes() {
+    const fallback = { overrides: {}, custom: [] };
+    try {
+      const raw = localStorage.getItem("portfolioSessionTypes");
+      if (!raw) return fallback;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return fallback;
+      return {
+        overrides: (parsed.overrides && typeof parsed.overrides === "object") ? parsed.overrides : {},
+        custom: Array.isArray(parsed.custom) ? parsed.custom : [],
+      };
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  /**
+   * Format session type key to display string. Reads localStorage
+   * synchronously: global override (D-16) → custom label → i18n default →
+   * RAW key (D-18). Callers MUST render the result via .textContent / .value
+   * (never innerHTML) — labels are stored verbatim (T-37-07-SEC).
+   * @param {string} type - Session type key ('clinic', 'online', 'custom.NNN', …)
+   * @returns {string} Resolved display label
    */
   function formatSessionType(type) {
-    const key = 'session.type.' + (type || 'clinic');
-    return t(key);
+    const key = String(type || "clinic");
+    const data = _readSessionTypes();
+    // D-16: a non-empty global override wins app-wide.
+    const override = data.overrides[key];
+    if (typeof override === "string" && override.trim().length > 0) {
+      return override;
+    }
+    // A custom entry resolves to its stored label.
+    for (let i = 0; i < data.custom.length; i++) {
+      const entry = data.custom[i];
+      if (entry && entry.key === key) {
+        return entry.label != null ? String(entry.label) : key;
+      }
+    }
+    // A known default resolves to its i18n string (legacy keys resolve forever).
+    if (Object.prototype.hasOwnProperty.call(DEFAULT_TYPE_I18N, key)) {
+      return t(DEFAULT_TYPE_I18N[key]);
+    }
+    // D-18: unknown/deleted key → raw string (no crash, no "session.type." prefix).
+    return key;
+  }
+
+  /**
+   * App.getSessionTypes — freshly-read ordered list on each call (5 defaults
+   * with resolved labels + custom), mirroring App.getSnippets. Reads
+   * localStorage synchronously; no cache.
+   * @returns {Array<{key: string, label: string, locked: boolean}>}
+   */
+  function getSessionTypes() {
+    const data = _readSessionTypes();
+    const list = SESSION_TYPE_ORDER.map(function (key) {
+      return { key: key, label: formatSessionType(key), locked: true };
+    });
+    data.custom.forEach(function (entry) {
+      if (entry && entry.key) {
+        list.push({ key: entry.key, label: entry.label != null ? String(entry.label) : entry.key, locked: false });
+      }
+    });
+    return list;
   }
 
   /**
@@ -1426,6 +1533,7 @@ window.App = (() => {
 
     // Shared form helpers
     formatSessionType,
+    getSessionTypes,
     setSubmitLabel,
     readFileAsDataURL,
     initBirthDatePicker,
