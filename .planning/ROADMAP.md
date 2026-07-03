@@ -426,7 +426,7 @@ Plans:
   4. The birthdate entry uses a native `<input type="date">` (no data migration), and both `portfolioDateFormat` and the session-type list survive a backup export→restore round-trip
   5. The Phase 30/34 test suite stays green — TZ-pinned date tests + F4/F5/backup behavior tests authored before implementation; changed PDF SHA-256 baselines regenerated with real-output visual review; all new UI strings translated across EN/HE/DE/CS
 
-**Plans:** 6/8 plans executed
+**Plans:** 8/8 plans complete
 
 Plans:
 **Wave 1**
@@ -443,8 +443,8 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 37-07-PLAN.md — Wave 3: F4 two-tier session-type editor + resolver + IDB therapistSettings storage
+- [x] 37-07-PLAN.md — Wave 3: F4 two-tier session-type editor + resolver + IDB therapistSettings storage
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 37-08-PLAN.md — Wave 4: add-session sweep + data-driven cards + native birthdate + initBirthDatePicker removal + app-wide sweep audit
+- [x] 37-08-PLAN.md — Wave 4: add-session sweep + data-driven cards + native birthdate + initBirthDatePicker removal + app-wide sweep audit
