@@ -934,27 +934,20 @@ window.App = (() => {
 
   /**
    * Format a date string for display in the current locale.
+   *
+   * Delegates in full to the canonical window.DateFormat engine
+   * (assets/date-format.js), which reads the user's chosen format preference
+   * (localStorage['portfolioDateFormat'] || 'auto') and applies the LOCAL-time
+   * parse that kills the UTC-midnight off-by-one bug (D-01/D-02). The old
+   * inline localeMap + long/short-month rule now lives inside DateFormat's
+   * autoFormat, byte-for-byte, so 'auto' reproduces this function's previous
+   * output while the 6 explicit format options become available. The empty /
+   * unparseable pass-through behavior is preserved by the engine's format().
    * @param {string} dateString - ISO date string (e.g., '2024-03-15')
    * @returns {string} Formatted date (e.g., 'Mar 15, 2024'), or empty string if falsy
    */
   function formatDate(dateString) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return dateString;
-    // Map the UI language to a BCP-47 locale. de/cs previously fell through to
-    // en-US, which rendered US month-first order with English month names
-    // (e.g. "Jun 15, 2026"). Map them explicitly so dates render in European
-    // day-month-year order with LOCALIZED month names (de "15. Juni 2026",
-    // cs "15. června 2026"), matching the day-month-year order already used by
-    // en ("Jun 15, 2026" short / "15 June 2026" long export) and he, and the
-    // long-form localized date the PDF export draws.
-    const localeMap = { he: "he-IL", de: "de-DE", cs: "cs-CZ" };
-    const locale = localeMap[currentLang] || "en-US";
-    // de/cs use long month names: cs's short month is numeric (e.g. "6."), which
-    // would lose the localized month name the owner asked for. en/he keep their
-    // existing short-month rendering byte-for-byte unchanged.
-    const month = (currentLang === "de" || currentLang === "cs") ? "long" : "short";
-    return new Intl.DateTimeFormat(locale, { year: "numeric", month, day: "numeric" }).format(date);
+    return window.DateFormat.format(dateString, window.DateFormat.getPreference(), currentLang);
   }
 
   function severityColor(value) {
