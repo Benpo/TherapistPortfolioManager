@@ -56,14 +56,14 @@
         <!-- Tab navigation between the settings topics.
              Includes the "Backups" and "Photos" tabs. -->
         <div class="settings-tabs" role="tablist" aria-label="Settings sections">
-          <button type="button" role="tab" id="settingsTabFieldsBtn" class="settings-tab is-active" aria-selected="true" aria-controls="settingsTabFields" data-tab="fields" data-i18n="settings.tab.fields">Custom field names</button>
-          <button type="button" role="tab" id="settingsTabPersonalizeBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabPersonalize" data-tab="personalize" tabindex="-1" data-i18n="settings.tab.personalize">Personalization</button>
+          <button type="button" role="tab" id="settingsTabPersonalizeBtn" class="settings-tab is-active" aria-selected="true" aria-controls="settingsTabPersonalize" data-tab="personalize" data-i18n="settings.tab.personalize">Personalization</button>
+          <button type="button" role="tab" id="settingsTabFieldsBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabFields" data-tab="fields" tabindex="-1" data-i18n="settings.tab.fields">Custom field names</button>
           <button type="button" role="tab" id="settingsTabSnippetsBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabSnippets" data-tab="snippets" tabindex="-1" data-i18n="settings.tab.snippets">Text Snippets</button>
           <button type="button" role="tab" id="settingsTabBackupsBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabBackups" data-tab="backups" tabindex="-1" data-i18n="settings.tab.backups">Backups</button>
           <button type="button" role="tab" id="settingsTabPhotosBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabPhotos" data-tab="photos" tabindex="-1" data-i18n="settings.tab.photos">Photos</button>
         </div>
 
-        <div id="settingsTabFields" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabFieldsBtn">
+        <div id="settingsTabFields" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabFieldsBtn" hidden>
           <div class="settings-info-banner" role="note">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10"></circle>
@@ -121,7 +121,7 @@
              (window.DateFormat), filled at wire-time by settings.js — never
              hand-typed. The #sessionTypesEditor container is intentionally empty
              here; assets/settings-session-types.js (Plan 07) populates its rows. -->
-        <div id="settingsTabPersonalize" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabPersonalizeBtn" hidden>
+        <div id="settingsTabPersonalize" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabPersonalizeBtn">
           <div class="form-field">
             <label class="label" for="dateFormatSelect" data-i18n="settings.dateFormat.label">Date format</label>
             <select class="input select-field" id="dateFormatSelect">

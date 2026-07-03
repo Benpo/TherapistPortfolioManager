@@ -167,29 +167,32 @@ async function test(name, fn) {
   });
 
   // ─── C. Invalid ?tab= falls back to the default tab ──────────────────────
-  await test('an invalid ?tab= value falls back to the default (fields) tab', async function () {
+  // The default is now the FIRST tab button = Personalization (UAT 2026-07-03,
+  // item 6). boot() uses tabs[0], so moving Personalization to first position in
+  // settings.html makes it the no-param / invalid-param default.
+  await test('an invalid ?tab= value falls back to the default (personalize) tab', async function () {
     var env = buildTabEnv('?tab=bogus-not-a-tab');
     var win = env.win;
 
-    var fieldsBtn = win.document.getElementById('settingsTabFieldsBtn');
+    var personalizeBtn = win.document.getElementById('settingsTabPersonalizeBtn');
     var snippetsBtn = win.document.getElementById('settingsTabSnippetsBtn');
 
     // Pre-activate a NON-default tab so a boot that skipped the fallback would
     // leave snippets active — proving the assertion below tests boot's fallback,
     // not the authored default markup.
-    fieldsBtn.classList.remove('is-active');
-    fieldsBtn.setAttribute('aria-selected', 'false');
-    fieldsBtn.tabIndex = -1;
+    personalizeBtn.classList.remove('is-active');
+    personalizeBtn.setAttribute('aria-selected', 'false');
+    personalizeBtn.tabIndex = -1;
     snippetsBtn.classList.add('is-active');
     snippetsBtn.setAttribute('aria-selected', 'true');
     snippetsBtn.tabIndex = 0;
 
     env.tabnavBoot();
 
-    assert.ok(fieldsBtn.classList.contains('is-active'),
-      'the default (fields) tab must be active for an invalid ?tab= value (boot reset the pre-activated snippets tab)');
-    assert.strictEqual(fieldsBtn.getAttribute('aria-selected'), 'true',
-      'the fields tab aria-selected must be "true" on invalid-tab fallback');
+    assert.ok(personalizeBtn.classList.contains('is-active'),
+      'the default (personalize) tab must be active for an invalid ?tab= value (boot reset the pre-activated snippets tab)');
+    assert.strictEqual(personalizeBtn.getAttribute('aria-selected'), 'true',
+      'the personalize tab aria-selected must be "true" on invalid-tab fallback');
     assert.ok(!snippetsBtn.classList.contains('is-active'),
       'snippets must not stay active on invalid-tab fallback — the bogus value must not be honored');
 

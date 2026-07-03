@@ -706,9 +706,11 @@ window.SettingsPage = (function () {
 // ────────────────────────────────────────────────────────────────────────
 // Settings page tab nav
 //
-// Tab nav for the settings tablist: "Custom field names" (the section-rename
-// form), "Text Snippets", Backups, and Photos. Activated tab persists across
-// reload via URL param ?tab=fields|snippets|backups|photos. Default = fields.
+// Tab nav for the settings tablist: "Personalization" (first tab), "Custom
+// field names" (the section-rename form), "Text Snippets", Backups, and Photos.
+// Activated tab persists across reload via URL param
+// ?tab=personalize|fields|snippets|backups|photos. Default = personalize (the
+// first tab button — UAT 2026-07-03, item 6).
 //
 // Accessibility per WAI-ARIA tabs pattern:
 //   - role=tablist on the container
