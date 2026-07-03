@@ -196,8 +196,47 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── D. ?tab=personalize deep-links to the new Personalization tab ────────
+  // RED until Plan 06 adds the Personalization tab button/panel to settings.html
+  // AND the `personalize` token to the readUrlTab whitelist (settings.js:729).
+  // Falsifiable: with neither in place, readUrlTab rejects "personalize" and boot
+  // falls back to fields, so the Personalization button/panel never activate (and
+  // in fact do not exist yet) — this case FAILS. When Plan 06 lands the markup +
+  // whitelist token, boot honors ?tab=personalize and this turns GREEN.
+  await test('a valid ?tab=personalize selects the Personalization tab (active + aria-selected) and reveals its panel', async function () {
+    var env = buildTabEnv('?tab=personalize');
+    env.tabnavBoot(); // synchronous
+
+    var win = env.win;
+    var personalizeBtn = win.document.getElementById('settingsTabPersonalizeBtn');
+    var fieldsBtn = win.document.getElementById('settingsTabFieldsBtn');
+
+    // The Personalization tab is only reachable if boot honored ?tab=personalize;
+    // a boot that rejected the (currently un-whitelisted) token falls back to
+    // fields, so this differs from a no-op boot.
+    assert.ok(personalizeBtn,
+      'the Personalization tab button (#settingsTabPersonalizeBtn) must exist in settings.html');
+    assert.ok(personalizeBtn.classList.contains('is-active'),
+      'the Personalization tab button must be active for ?tab=personalize');
+    assert.strictEqual(personalizeBtn.getAttribute('aria-selected'), 'true',
+      'the Personalization tab aria-selected must be "true"');
+    assert.strictEqual(personalizeBtn.getAttribute('tabindex'), '0',
+      'the active Personalization tab must be keyboard-focusable (tabindex="0")');
+    assert.ok(!fieldsBtn.classList.contains('is-active'),
+      'the fields tab must not be active when personalize is selected');
+
+    var panel = win.document.getElementById('settingsTabPersonalize');
+    assert.ok(panel,
+      'the Personalization panel (#settingsTabPersonalize) must exist in settings.html');
+    assert.ok(!panel.hasAttribute('hidden'),
+      'the Personalization panel must be revealed (hidden removed) when its tab is active');
+
+    env.dom.window.close();
+  });
+
   // ─── F-A end-of-file count guard ─────────────────────────────────────────
-  var EXPECTED_COUNT = 3;
+  // Bumped 3 -> 4 for the Personalization deep-link case above (Plan 37-02, §9).
+  var EXPECTED_COUNT = 4;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
