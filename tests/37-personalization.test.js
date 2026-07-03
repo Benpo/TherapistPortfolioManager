@@ -330,8 +330,11 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  // ─── 4. Editor: 5 locked defaults render (rename + lock, no delete) ───────
-  await test('editor: the 5 locked defaults render in fixed order with a rename input + lock icon and NO delete button', async function () {
+  // ─── 4. Editor: 5 locked defaults render (rename + Revert + ⓘ, no delete) ──
+  // Item 9 redesign (UAT 2026-07-03): built-in rows reuse the Fields "Custom
+  // field names" pattern — a rename input + a Revert button (.reset-row-btn) +
+  // the shared .settings-locked-info ⓘ icon. NO lock symbol, NO delete button.
+  await test('editor: the 5 locked defaults render in fixed order with a rename input + Revert button + ⓘ info and NO delete button', async function () {
     var env = buildSettingsEnv({ search: '?tab=personalize' });
     await runBoots(env);
     var win = env.win;
@@ -342,7 +345,9 @@ async function test(name, fn) {
       var row = container.querySelector('.session-type-row[data-type-key="' + key + '"]');
       assert.ok(row, 'a locked default row for "' + key + '" must render');
       assert.ok(row.querySelector('.session-type-rename-input'), 'the "' + key + '" row must have a rename input');
-      assert.ok(row.querySelector('.session-type-lock'), 'the locked "' + key + '" row must show a lock icon');
+      assert.ok(row.querySelector('.reset-row-btn'), 'the locked "' + key + '" row must show a Revert button (reuses .reset-row-btn)');
+      assert.ok(row.querySelector('.settings-locked-info'), 'the locked "' + key + '" row must show the shared ⓘ info icon');
+      assert.ok(!row.querySelector('.session-type-lock'), 'the locked "' + key + '" row must NOT show a lock icon (removed in the item 9 redesign)');
       assert.ok(!row.querySelector('.session-type-delete-btn'), 'the locked "' + key + '" row must NOT show a delete button');
     });
 
@@ -356,37 +361,55 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  // ─── 5. Editor: add custom persists to localStorage + fires event ────────
-  await test("editor: adding a custom type persists to localStorage['portfolioSessionTypes'].custom and fires 'app:session-types-changed'", async function () {
+  // ─── 5. Editor: add custom stages then persists on Save + fires event ─────
+  // Batch model (item 9, UAT 2026-07-03): the "Add type" button REVEALS an
+  // inline input + Save(check); the add STAGES, and only the Save/Discard bar's
+  // Save commits it to localStorage['portfolioSessionTypes'] (FIX 1 —
+  // localStorage, not IDB) and dispatches 'app:session-types-changed'.
+  await test("editor: adding a custom type stages then, on Save, persists to localStorage['portfolioSessionTypes'].custom and fires 'app:session-types-changed'", async function () {
     var env = buildSettingsEnv({ search: '?tab=personalize' });
     await runBoots(env);
     var win = env.win;
+    var revealBtn = win.document.getElementById('sessionTypeAddBtn');
     var input = win.document.getElementById('sessionTypeAddInput');
-    var btn = win.document.getElementById('sessionTypeAddBtn');
+    var addSaveBtn = win.document.getElementById('sessionTypeAddSaveBtn');
+    var saveBar = win.document.getElementById('sessionTypesSaveBtn');
+    assert.ok(revealBtn, 'the add-type reveal button (#sessionTypeAddBtn) must exist');
     assert.ok(input, 'the add-new input (#sessionTypeAddInput) must exist');
-    assert.ok(btn, 'the add-new button (#sessionTypeAddBtn) must exist');
+    assert.ok(addSaveBtn, 'the inline add Save button (#sessionTypeAddSaveBtn) must exist');
+    assert.ok(saveBar, 'the session-types Save button (#sessionTypesSaveBtn) must exist');
 
     var events = [];
     win.document.addEventListener('app:session-types-changed', function () { events.push(1); });
 
+    revealBtn.click(); // reveal the inline add row
     input.value = 'Group session';
     input.dispatchEvent(new win.Event('input', { bubbles: true }));
-    btn.click();
+    addSaveBtn.click(); // stage the add
+    await settle();
+
+    // Staged, not yet committed: nothing persisted until the batch Save.
+    assert.ok(!win.localStorage.getItem('portfolioSessionTypes'),
+      'the add must STAGE only — nothing persisted before the Save/Discard bar Save');
+
+    saveBar.click(); // commit the batch
     await settle();
 
     var raw = win.localStorage.getItem('portfolioSessionTypes');
-    assert.ok(raw, "localStorage['portfolioSessionTypes'] must be written on add (FIX 1 — localStorage, not IDB)");
+    assert.ok(raw, "localStorage['portfolioSessionTypes'] must be written on Save (FIX 1 — localStorage, not IDB)");
     var parsed = JSON.parse(raw);
     assert.ok(Array.isArray(parsed.custom), 'the stored shape must carry a custom[] array');
     var labels = parsed.custom.map(function (c) { return c && c.label; });
     assert.ok(labels.indexOf('Group session') >= 0,
-      'the new custom type label must be persisted into custom[]; got ' + JSON.stringify(labels));
-    assert.ok(events.length >= 1, "adding a custom type must fire 'app:session-types-changed'");
+      'the new custom type label must be persisted into custom[] on Save; got ' + JSON.stringify(labels));
+    assert.ok(events.length >= 1, "committing the add on Save must fire 'app:session-types-changed'");
     env.dom.window.close();
   });
 
   // ─── 6. Editor: rename a locked default writes a GLOBAL override (D-16) ───
-  await test("editor: renaming a locked default writes a global override to portfolioSessionTypes.overrides and fires the change event", async function () {
+  // Batch model: the rename STAGES on input/change; the Save/Discard bar's Save
+  // commits the global override to portfolioSessionTypes.overrides (D-16).
+  await test("editor: renaming a locked default stages then, on Save, writes a global override to portfolioSessionTypes.overrides and fires the change event", async function () {
     var env = buildSettingsEnv({ search: '?tab=personalize' });
     await runBoots(env);
     var win = env.win;
@@ -405,10 +428,17 @@ async function test(name, fn) {
     input.dispatchEvent(new win.Event('change', { bubbles: true }));
     await settle();
 
+    // Not committed until Save.
+    assert.ok(!win.localStorage.getItem('portfolioSessionTypes'),
+      'the locked rename must STAGE only — nothing persisted before Save');
+
+    win.document.getElementById('sessionTypesSaveBtn').click();
+    await settle();
+
     var parsed = JSON.parse(win.localStorage.getItem('portfolioSessionTypes') || '{}');
     assert.ok(parsed.overrides && parsed.overrides.clinic === 'Face-to-face',
-      'renaming a locked default must persist a global override string (D-16); got ' + JSON.stringify(parsed.overrides));
-    assert.ok(events.length >= 1, "renaming must fire 'app:session-types-changed'");
+      'renaming a locked default must persist a global override string on Save (D-16); got ' + JSON.stringify(parsed.overrides));
+    assert.ok(events.length >= 1, "committing the rename on Save must fire 'app:session-types-changed'");
     env.dom.window.close();
   });
 
@@ -635,11 +665,15 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  // ─── 15. Delete-in-use (editor): warn with count, reassign, then remove ────
-  // Drives the REAL settings-session-types.js delete handler. The App layer is
+  // ─── 15. Delete-in-use (editor): stage delete, then Save warns + reassigns ─
+  // Drives the REAL settings-session-types.js batch flow. The App layer is
   // stubbed (the editor holds NO direct IDB access — Finding #1) so this asserts
-  // the editor's ORCHESTRATION: count → count-based confirm → reassign → remove.
-  await test('delete-in-use (editor): the delete handler warns with the in-use count, reassigns to "other", then removes the type', async function () {
+  // the editor's ORCHESTRATION at SAVE time: clicking the trash STAGES the
+  // removal; the Save/Discard bar's Save then does count → count-based confirm →
+  // reassign to "other" → remove. The guarantee is unchanged (a real epoch-key
+  // in-use type is always warned about and reassigned before it disappears),
+  // only the trigger point moved from delete-click to Save (batch model).
+  await test('delete-in-use (editor): staging a delete then Save warns with the in-use count, reassigns to "other", then removes the type', async function () {
     var EPOCH_KEY = 'custom.1720000000001';
     var reassignCalls = [];
     var env = buildSettingsEnv({
@@ -658,12 +692,21 @@ async function test(name, fn) {
     var delBtn = row.querySelector('.session-type-delete-btn');
     assert.ok(delBtn, 'the custom row must have a delete button');
 
+    // Stage the removal — batch model does NOT warn/reassign at click time.
     delBtn.click();
+    await settle();
+    var confirmsAfterStage = (env.appStub.__calls.get('confirmDialog') || []).length;
+    assert.strictEqual(confirmsAfterStage, 0,
+      'clicking the trash must only STAGE the removal — the warn/reassign fires at Save, not on click');
+    assert.strictEqual(reassignCalls.length, 0, 'no reassign may run before Save');
+
+    // Commit — the Save bar fires the in-use warning + reassign.
+    win.document.getElementById('sessionTypesSaveBtn').click();
     await settle();
 
     // The confirm must be the COUNT-based reassign warning, carrying count=2.
     var confirmCalls = env.appStub.__calls.get('confirmDialog') || [];
-    assert.ok(confirmCalls.length >= 1, 'deleting an in-use custom type must open a confirm dialog');
+    assert.ok(confirmCalls.length >= 1, 'saving a staged in-use deletion must open a confirm dialog');
     var opts = confirmCalls[confirmCalls.length - 1][0];
     assert.strictEqual(opts.messageKey, 'settings.sessionTypes.confirm.reassign.body',
       'the in-use delete must use the reassign-warning body, not the plain delete body');
@@ -729,14 +772,20 @@ async function test(name, fn) {
     assert.ok(clinicRow, 'the locked clinic row must render');
     var input = clinicRow.querySelector('.session-type-rename-input');
 
-    // Rename "Clinic" to collide with the existing custom "Online" label.
+    // Rename "Clinic" to collide with the existing custom "Online" label. The
+    // change-commit dup guard rejects it, so no override is staged — and a
+    // subsequent Save (batch model) therefore persists NO clinic override. The
+    // Save step is what makes this non-vacuous: without the guard, Save would
+    // commit overrides.clinic = "online" (a real collision).
     input.value = 'online';
     input.dispatchEvent(new win.Event('change', { bubbles: true }));
+    await settle();
+    win.document.getElementById('sessionTypesSaveBtn').click();
     await settle();
 
     var parsed = JSON.parse(win.localStorage.getItem('portfolioSessionTypes') || '{}');
     assert.ok(!(parsed.overrides && parsed.overrides.clinic),
-      'a locked rename that collides with an existing label must NOT write an override; got ' + JSON.stringify(parsed.overrides));
+      'a locked rename that collides with an existing label must NOT write an override even after Save; got ' + JSON.stringify(parsed.overrides));
     env.dom.window.close();
   });
 

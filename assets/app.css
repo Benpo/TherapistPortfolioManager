@@ -3046,6 +3046,96 @@ html[dir="rtl"] .settings-locked-info::after {
   .settings-rename-input { inline-size: 100%; }
 }
 
+/* ── Session-types editor (Personalization tab, Phase 37 item 9, UAT
+   2026-07-03). Reuses the Fields "Custom field names" language: an editable
+   name input, a Revert control (built-ins, reusing .reset-row-btn) or a Delete
+   control (custom rows), plus the shared .settings-locked-info ⓘ icon. Every
+   row is a single inline flex line — this is the fix for the earlier "trash
+   icon drops to its own line" bug (item 3). Edits are batched via the
+   session-types Save/Discard bar below. */
+.session-types-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-block: 12px;
+}
+.session-type-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.session-type-cell {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+.session-type-rename-input {
+  inline-size: 100%;
+}
+.session-type-row .reset-row-btn {
+  flex: 0 0 auto;
+}
+.session-type-delete-btn {
+  flex: 0 0 auto;
+  color: var(--color-danger);
+}
+.session-type-delete-btn svg {
+  inline-size: 18px;
+  block-size: 18px;
+}
+.session-type-delete-btn:hover {
+  background: var(--color-danger-bg);
+}
+.session-type-row .settings-locked-info {
+  flex: 0 0 auto;
+}
+.session-types-empty {
+  margin-block: 4px;
+}
+/* Add-type: compact reveal button + inline (input + save + cancel) row that the
+   button reveals on demand (item 4 pattern) — no always-present wide textbox. */
+.session-type-add-block {
+  margin-block-start: 14px;
+}
+.session-type-add-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-block-start: 4px;
+}
+.session-type-add-row[hidden] {
+  display: none;
+}
+.session-type-add-row .session-type-rename-input {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+.session-type-add-save {
+  flex: 0 0 auto;
+  color: #fff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.session-type-add-save:hover {
+  background: var(--color-primary-dark);
+}
+.session-type-add-save svg {
+  inline-size: 18px;
+  block-size: 18px;
+}
+.session-type-add-cancel {
+  flex: 0 0 auto;
+}
+/* Non-sticky Save/Discard bar for the session-types editor (mirrors the Fields
+   action-bar look without pinning it to the viewport bottom). */
+.session-types-action-bar {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-block-start: 16px;
+  padding-block-start: 16px;
+  border-block-start: 1px solid var(--color-border-soft);
+}
+
 /* Phase 22 — Settings page: post-save success pill (D2 locked design spec).
    Inserted next to the Save button as a content-sized pill, auto-dismisses on
    next interaction. (Replaced the OLD blue notice that previously lived here.) */
