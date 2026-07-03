@@ -5,15 +5,15 @@ milestone_name: — Codebase Health & Reliability
 current_phase: 37
 current_phase_name: date-consistency-date-format-setting-f6-f5
 status: executing
-stopped_at: Phase 37 Plan 01 complete (Wave-0 date-engine RED gates)
-last_updated: "2026-07-03T05:18:27.368Z"
+stopped_at: Completed 37-03-PLAN.md
+last_updated: "2026-07-03T05:25:57.868Z"
 last_activity: 2026-07-03
 last_activity_desc: "Plan 37-01 complete: TZ-pinned date-engine RED tests authored (37-date-format.test.js new + 34-date-locale.test.js rewritten); both RED as designed"
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 60
-  completed_plans: 54
+  completed_plans: 55
   percent: 80
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 37 (date-consistency-date-format-setting-f6-f5) — EXECUTING
-Plan: 3 of 8
+Plan: 4 of 8
 Status: Ready to execute
 Last activity: 2026-07-03 — Plan 37-01 complete: TZ-pinned date-engine RED tests authored (37-date-format.test.js new + 34-date-locale.test.js rewritten); both RED as designed
 
@@ -156,6 +156,7 @@ Last activity: 2026-07-03 — Plan 37-01 complete: TZ-pinned date-engine RED tes
 | Phase 36-code-comments-batch-2 P03 | 18 | 3 tasks | 5 files |
 | Phase 36 P04 | 8min | 3 tasks | 9 files |
 | Phase 37 P02 | 40m | 2 tasks | 2 files |
+| Phase 37 P03 | ~25 min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -310,6 +311,7 @@ Recent decisions affecting current work:
 - [Phase ?]: landing.js PUBLIC SURFACE: none; backup-modal.js window.formatRelativeTime added to PUBLIC SURFACE (was missing from original header per WR-01)
 - [Phase ?]: 36-04: add-client/reporting new banners; shared-chrome four-slot // banner; version.js light de-phase; sw.js SAFETY NOTE preserved; 9 stubs/chrome/sw comment-only COMMENTS_ONLY_OK
 - [Phase 37-01]: Wave-0 date-engine RED gates authored FIRST — tests/37-date-format.test.js (NEW) pins TZ=America/New_York via spawnSync re-exec + EDT-offset self-check, executes real app.js/date-format.js via vm; falsifiable spine App.formatDate('2026-07-02') RED with genuine bug output 'Jul 1, 2026' (must be 'Jul 2, 2026'). tests/34-date-locale.test.js REWRITTEN (D-19) to assert fixed engine behavior + raw-ISO export chain + D-21 window.DateFormat injection in jsdom PDF env. Engine assertions guarded by a DF() accessor → clean per-test RED (missing module) that flips GREEN when Plan 37-03 lands assets/date-format.js and Plan 37-04 adds the D-21 injection. Both files RED (13 + 7 fail) by design; do not weaken to green.
+- [Phase 37]: Date engine: parseLocal regex-extracts leading YYYY-MM-DD -> local Date(y,m-1,d), centralizing local-vs-UTC in one place (D-01/D-02); App.formatDate delegates
 
 ### Pending Todos
 
@@ -378,10 +380,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-03T05:18:19.155Z
+**Last session:** 2026-07-03T05:25:57.863Z
 
 Last activity: 2026-07-02 — Completed quick task 260702-q5f (UAT F3): home-overview "view previous sessions" toggle relabelled — Feather eye icon + visible word pill + `aria-expanded`. After Ben reviewed the live app, follow-ups: label **Sessions→History** (4 langs; kills the duplicate "Sessions" vs the count column), added the missing **Actions** column `<th>` (borders now span full width), and fixed the expanded detail-row `colSpan` 4→5. Verified desktop/mobile/4 langs via headless-Chrome; 119/119 green. 5 code commits (979f20c, 9a677f7, bf891b8, 131bb08, 8730651). Ready to push.
-Stopped at: Phase 37 UI-SPEC approved
+Stopped at: Completed 37-03-PLAN.md
 Resume file: .planning/phases/37-date-consistency-date-format-setting-f6-f5/37-UI-SPEC.md
 Next: orchestrator runs Phase 35 verification, then phase.complete.
 
