@@ -346,6 +346,12 @@ function boot() {
     throw new Error('JSZip did not attach to the sandbox global. Got: ' + typeof sandbox.JSZip);
   }
 
+  // 2b. REAL date-format.js — backup.js's export filename stamp now calls
+  // window.DateFormat.todayLocalISO() (Plan 37-05), so the engine must be present
+  // in the sandbox (it is always loaded before an export runs in production).
+  const dateFmtSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'date-format.js'), 'utf8');
+  vm.runInContext(dateFmtSrc, sandbox, { filename: 'assets/date-format.js' });
+
   // 3. REAL backup.js.
   const backupSrc = fs.readFileSync(path.join(__dirname, '..', 'assets', 'backup.js'), 'utf8');
   vm.runInContext(backupSrc, sandbox, { filename: 'assets/backup.js' });

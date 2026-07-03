@@ -610,6 +610,16 @@ window.BackupManager = (function () {
         // acceptance / UX-dismissal flags are per-install acts — none should
         // travel between devices via a backup.
         snippetPrefix: localStorage.getItem("portfolioSnippetPrefix"),
+        // Two more portable localStorage preferences ride this settings block as
+        // additive-optional scalars (no manifest version bump). The date-format
+        // choice and the session-type list (overrides + custom, JSON string) both
+        // live in localStorage — NOT IndexedDB — because the therapistSettings
+        // restore loop whitelists sectionKeys and coerces rows, so an IDB
+        // sessionTypes row would silently lose its overrides/custom on restore
+        // (37-PATTERNS.md A2 CORRECTED). Guarded restores below handle older
+        // backups that lack these fields.
+        dateFormat: localStorage.getItem("portfolioDateFormat"),
+        sessionTypes: localStorage.getItem("portfolioSessionTypes"),
       },
     };
 
@@ -728,7 +738,9 @@ window.BackupManager = (function () {
             var url = URL.createObjectURL(encBlob);
             var a = document.createElement('a');
             a.href = url;
-            var dateStr = new Date().toISOString().slice(0, 10);
+            // Local wall-clock day so a 20:00-local export stamps today's date,
+            // not tomorrow's UTC date (matches the already-local B1/B4 stamps).
+            var dateStr = window.DateFormat.todayLocalISO();
             var encFilename = 'sessions-garden-' + dateStr + '.sgbackup';
             a.download = encFilename;
             document.body.appendChild(a);
@@ -824,7 +836,8 @@ window.BackupManager = (function () {
 
     // Encrypted path — mirror exportEncryptedBackup's encrypt+download.
     var encBlob = await _encryptBlob(zipResult.blob, decision.passphrase);
-    var dateStr = new Date().toISOString().slice(0, 10);
+    // Local wall-clock day (see the other export stamp) — avoids a UTC day-ahead.
+    var dateStr = window.DateFormat.todayLocalISO();
     var encFilename = 'sessions-garden-' + dateStr + '.sgbackup';
     triggerDownload(encBlob, encFilename);
     return { ok: true, skip: false, cancelled: false, blob: encBlob, filename: encFilename };
@@ -1213,6 +1226,17 @@ window.BackupManager = (function () {
       }
       if (manifest.settings.theme) {
         localStorage.setItem("portfolioTheme", manifest.settings.theme);
+      }
+      // Restore the date-format preference and the session-type list (both
+      // additive-optional localStorage scalars, mirroring the snippetPrefix
+      // guard). Older backups without these fields leave the existing values
+      // untouched (backward-compat). The session-type list round-trips here via
+      // localStorage — NOT the therapistSettings loop (37-PATTERNS.md A2).
+      if (manifest.settings.dateFormat) {
+        localStorage.setItem("portfolioDateFormat", manifest.settings.dateFormat);
+      }
+      if (manifest.settings.sessionTypes) {
+        localStorage.setItem("portfolioSessionTypes", manifest.settings.sessionTypes);
       }
       // Restore the custom snippet prefix. Older backups have no snippetPrefix —
       // in that case leave the existing prefix untouched (backward-compat).

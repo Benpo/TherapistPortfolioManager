@@ -1016,7 +1016,9 @@
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.href = url;
-    a.download = "snippets-" + new Date().toISOString().slice(0, 10) + ".json";
+    // Local wall-clock day (window.DateFormat.todayLocalISO) so a late-evening
+    // export isn't stamped with tomorrow's UTC date — same fix class as backup.js.
+    a.download = "snippets-" + window.DateFormat.todayLocalISO() + ".json";
     document.body.appendChild(a);
     a.click();
     a.remove();
