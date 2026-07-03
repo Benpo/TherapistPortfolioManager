@@ -74,20 +74,12 @@
             </div>
             <div class="form-field">
               <label class="label" data-i18n="session.form.sessionType">Session Type</label>
-              <div class="toggle-group" id="sessionTypeGroup">
-                <label class="toggle-card active" data-type="clinic">
-                  <input type="radio" name="sessionType" value="clinic" checked />
-                  <span data-i18n="session.form.clinic">Clinic</span>
-                </label>
-                <label class="toggle-card" data-type="online">
-                  <input type="radio" name="sessionType" value="online" />
-                  <span data-i18n="session.form.online">Online</span>
-                </label>
-                <label class="toggle-card" data-type="other">
-                  <input type="radio" name="sessionType" value="other" />
-                  <span data-i18n="session.form.other">Other</span>
-                </label>
-              </div>
+              <!-- Cards render data-driven from App.getSessionTypes() (5 managed
+                   defaults + custom) by add-session.js renderSessionTypeCards();
+                   they re-render on app:language and app:session-types-changed.
+                   Labels are set via textContent only (never innerHTML) — see
+                   T-37-08-SEC. (PERS-04/D-16) -->
+              <div class="toggle-group" id="sessionTypeGroup"></div>
             </div>
             <div class="form-field">
               <label class="label" data-i18n="session.form.date">Session Date *</label>

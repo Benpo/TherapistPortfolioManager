@@ -522,6 +522,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     sessionDate.focus();
   }
 
+  // Render the session-type cards from the managed list BEFORE wiring the
+  // generic toggle-group click delegation (PERS-04). setupToggleGroup uses
+  // event delegation on the group, so dynamically (re)rendered cards stay
+  // wired. Re-render live on a Settings-tab rename/add/delete (FIX 2).
+  renderSessionTypeCards(false);
+  document.addEventListener("app:session-types-changed", () => renderSessionTypeCards(true));
   setupToggleGroup("sessionTypeGroup");
   setupToggleGroup("inlineClientTypeGroup");
 
@@ -1209,6 +1215,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     App.applyTranslations();
     applySectionLabels();
     applyCopyLabels();
+    // Re-render the session-type cards so un-renamed default labels re-translate
+    // (overrides stay fixed); preserve the current pick incl. an ephemeral card.
+    renderSessionTypeCards(true);
     if (editingSession) {
       updateSessionTitle(editingSession);
       App.setSubmitLabel("session.form.update", submitButton, submitLabel);
@@ -1316,6 +1325,84 @@ async function loadClients(selectId) {
   }
 
   return clients;
+}
+
+// Build ONE session-type toggle card. The label span is set via textContent
+// (never innerHTML) so a user-renamed / custom label can never inject markup
+// (T-37-08-SEC / D-18). `opts.ephemeral` + `opts.disabled` mark the FIX 6
+// no-match card for a stored key that is no longer in the managed list.
+function buildSessionTypeCard(key, label, opts) {
+  opts = opts || {};
+  const card = document.createElement("label");
+  card.className = "toggle-card";
+  card.setAttribute("data-type", key);
+  if (opts.ephemeral) card.setAttribute("data-ephemeral", "true");
+  const input = document.createElement("input");
+  input.type = "radio";
+  input.name = "sessionType";
+  input.value = key;
+  if (opts.disabled) input.disabled = true;
+  const span = document.createElement("span");
+  span.textContent = label;
+  card.appendChild(input);
+  card.appendChild(span);
+  return card;
+}
+
+// Select a stored session-type key across the current card set. If NO card
+// matches (e.g. a custom type deleted in Settings after this session was
+// saved), render an ephemeral DISABLED card showing the raw stored label
+// (App.formatSessionType → raw key per D-18) and select it — so the
+// checked-value read returns the ORIGINAL stored key and save never silently
+// rewrites historical data to the default (FIX 6).
+function selectSessionType(group, key) {
+  if (!group) return null;
+  let matched = null;
+  group.querySelectorAll(".toggle-card").forEach((card) => {
+    const input = card.querySelector("input[name='sessionType']");
+    const isMatch = !!input && input.value === key;
+    card.classList.toggle("active", isMatch);
+    if (input) input.checked = isMatch;
+    if (isMatch) matched = card;
+  });
+  if (!matched && key) {
+    const label = (window.App && App.formatSessionType) ? App.formatSessionType(key) : String(key);
+    const card = buildSessionTypeCard(key, label, { ephemeral: true, disabled: true });
+    card.classList.add("active");
+    const input = card.querySelector("input[name='sessionType']");
+    if (input) input.checked = true;
+    group.appendChild(card);
+    matched = card;
+  }
+  return matched;
+}
+
+// Render the session-type cards data-driven from App.getSessionTypes()
+// (5 managed defaults + custom). First card is the checked default. Called at
+// form init and re-called on app:language (default labels re-translate,
+// overrides stay fixed) and app:session-types-changed (a Settings-tab
+// rename/add/delete — same tab or a peer tab relayed by App.initCommon's
+// storage listener — updates the cards live, FIX 2). `preserveSelection`
+// keeps the user's current pick (incl. an ephemeral deleted-key card) across
+// a re-render.
+function renderSessionTypeCards(preserveSelection) {
+  const group = document.getElementById("sessionTypeGroup");
+  if (!group) return;
+  const checked = group.querySelector("input[name='sessionType']:checked");
+  const prevKey = (preserveSelection && checked) ? checked.value : null;
+  const types = (window.App && App.getSessionTypes) ? App.getSessionTypes() : [];
+  // Clear WITHOUT innerHTML (no user data ever assigned via innerHTML).
+  while (group.firstChild) group.removeChild(group.firstChild);
+  types.forEach((entry, i) => {
+    const card = buildSessionTypeCard(entry.key, entry.label);
+    if (i === 0) {
+      card.classList.add("active");
+      const input = card.querySelector("input[name='sessionType']");
+      if (input) input.checked = true;
+    }
+    group.appendChild(card);
+  });
+  if (prevKey) selectSessionType(group, prevKey);
 }
 
 function setupToggleGroup(groupId) {
@@ -1535,16 +1622,12 @@ function populateSession(session, issues, createIssueBlock) {
   if (additionalTechEl) additionalTechEl.value = session.additionalTech || "";
   populateSpotlight(session.clientId);
 
-  document.querySelectorAll("input[name='sessionType']").forEach((input) => {
-    const card = input.closest(".toggle-card");
-    if (!card) return;
-    if (input.value === session.sessionType) {
-      input.checked = true;
-      card.classList.add("active");
-    } else {
-      card.classList.remove("active");
-    }
-  });
+  // Select the stored session type. selectSessionType guards the no-match case
+  // (FIX 6): if the stored key is a custom type later deleted in Settings, it
+  // renders an ephemeral disabled card for the raw stored key and checks it, so
+  // saving preserves the historical value instead of silently rewriting it to
+  // the default.
+  selectSessionType(document.getElementById("sessionTypeGroup"), session.sessionType);
 
   // Heart Shield population
   const heartShieldToggleEl = document.getElementById("heartShieldToggle");
