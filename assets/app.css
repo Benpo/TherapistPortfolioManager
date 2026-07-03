@@ -1132,6 +1132,28 @@ html[dir="rtl"] .select-modern {
   background: var(--color-primary-soft);
 }
 
+/* Option C session-type selector (add-session, Phase 37 items 5 & 7, UAT
+   2026-07-03): custom types past the built-in few collapse behind a "＋ N more"
+   expander so the Session Type row never wraps to several lines. */
+.toggle-card.session-type-collapsed {
+  display: none;
+}
+.session-type-more-btn {
+  flex: 0 0 auto;
+  align-self: center;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--color-primary);
+  background: none;
+  border: 1px dashed var(--color-border);
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.session-type-more-btn:hover {
+  background: var(--color-primary-soft);
+}
+
 .icon-badge {
   width: 36px;
   height: 36px;

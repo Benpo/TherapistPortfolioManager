@@ -1317,6 +1317,24 @@ async function loadClients(selectId) {
   return clients;
 }
 
+// The 5 built-in session-type keys (mirrors settings-session-types.js
+// LOCKED_DEFAULTS). Option C (UAT 2026-07-03) renders these inline and collapses
+// any CUSTOM types behind a "＋ N more" expander when the list is long.
+var BUILTIN_TYPE_KEYS = { clinic: 1, online: 1, remote: 1, proxy: 1, other: 1 };
+
+// Refresh the "＋ N more" expander label / remove it when nothing stays hidden.
+function updateSessionTypeMoreButton(group) {
+  if (!group) return;
+  var btn = group.querySelector(".session-type-more-btn");
+  if (!btn) return;
+  var hidden = group.querySelectorAll(".toggle-card.session-type-collapsed");
+  if (hidden.length === 0) { btn.remove(); return; }
+  var tmpl = (window.App && App.t) ? App.t("session.form.sessionType.more") : "＋ {count} more";
+  var span = btn.querySelector(".session-type-more-label");
+  var text = String(tmpl).replace("{count}", hidden.length);
+  if (span) span.textContent = text; else btn.textContent = text;
+}
+
 // Build ONE session-type toggle card. The label span is set via textContent
 // (never innerHTML) so a user-renamed / custom label can never inject markup
 // (T-37-08-SEC / D-18). `opts.ephemeral` + `opts.disabled` mark the FIX 6
@@ -1353,7 +1371,15 @@ function selectSessionType(group, key) {
     const isMatch = !!input && input.value === key;
     card.classList.toggle("active", isMatch);
     if (input) input.checked = isMatch;
-    if (isMatch) matched = card;
+    if (isMatch) {
+      matched = card;
+      // Option C: the selected type must ALWAYS be visible inline — surface it
+      // if it was collapsed behind "＋ N more" (so editing an existing session
+      // never hides its own type).
+      if (card.classList.contains("session-type-collapsed")) {
+        card.classList.remove("session-type-collapsed");
+      }
+    }
   });
   if (!matched && key) {
     const label = (window.App && App.formatSessionType) ? App.formatSessionType(key) : String(key);
@@ -1364,6 +1390,8 @@ function selectSessionType(group, key) {
     group.appendChild(card);
     matched = card;
   }
+  // Keep the "N more" count honest after any surfacing.
+  updateSessionTypeMoreButton(group);
   return matched;
 }
 
@@ -1383,15 +1411,43 @@ function renderSessionTypeCards(preserveSelection) {
   const types = (window.App && App.getSessionTypes) ? App.getSessionTypes() : [];
   // Clear WITHOUT innerHTML (no user data ever assigned via innerHTML).
   while (group.firstChild) group.removeChild(group.firstChild);
-  types.forEach((entry, i) => {
+
+  // Option C ("common few + More", UAT 2026-07-03): the 5 built-in types always
+  // render inline; custom types collapse behind a "＋ N more" expander when the
+  // total exceeds 6. At ≤ 6 types everything shows with no expander.
+  const collapse = types.length > 6;
+  let firstAssigned = false;
+  types.forEach((entry) => {
     const card = buildSessionTypeCard(entry.key, entry.label);
-    if (i === 0) {
+    if (!firstAssigned) {
       card.classList.add("active");
       const input = card.querySelector("input[name='sessionType']");
       if (input) input.checked = true;
+      firstAssigned = true;
+    }
+    if (collapse && !BUILTIN_TYPE_KEYS[entry.key]) {
+      card.classList.add("session-type-collapsed");
     }
     group.appendChild(card);
   });
+
+  // Add the "＋ N more" expander only when custom cards are actually collapsed.
+  if (collapse && group.querySelector(".toggle-card.session-type-collapsed")) {
+    const moreBtn = document.createElement("button");
+    moreBtn.type = "button";
+    moreBtn.className = "session-type-more-btn";
+    const span = document.createElement("span");
+    span.className = "session-type-more-label";
+    moreBtn.appendChild(span);
+    moreBtn.addEventListener("click", () => {
+      group.querySelectorAll(".toggle-card.session-type-collapsed")
+        .forEach((c) => c.classList.remove("session-type-collapsed"));
+      moreBtn.remove();
+    });
+    group.appendChild(moreBtn);
+    updateSessionTypeMoreButton(group);
+  }
+
   if (prevKey) selectSessionType(group, prevKey);
 }
 
