@@ -549,7 +549,7 @@ window.I18N.cs = {
   "snippets.action.add": "P\u0159idat \u00FAryvek",
   "snippets.action.export": "Exportovat \u00FAryvky",
   "snippets.action.import": "Importovat \u00FAryvky",
-  "snippets.action.resetAllSeeds": "Resetovat v\u0161echny upraven\u00E9 v\u00FDchoz\u00ED",
+  "snippets.action.resetAllSeeds": "Resetovat v\u0161echny upraven\u00E9 \u00FAryvky",
   "snippets.list.empty": "\u017D\u00E1dn\u00E9 \u00FAryvky neodpov\u00EDdaj\u00ED aktu\u00E1ln\u00EDm filtr\u016Fm.",
   "snippets.list.delete.aria": "Smazat \u00FAryvek",
   "snippets.list.edit.aria": "Upravit \u00FAryvek",
@@ -585,7 +585,7 @@ window.I18N.cs = {
   "snippets.toast.deleted": "\u00DAryvek smaz\u00E1n",
   "snippets.toast.imported": "{n} \u00FAryvk\u016F importov\u00E1no",
   "snippets.toast.exported": "\u00DAryvky exportov\u00E1ny",
-  "snippets.toast.resetAll": "{n} v\u00FDchoz\u00EDch \u00FAryvk\u016F obnoveno",
+  "snippets.toast.resetAll": "{n} \u00FAryvk\u016F obnoveno",
   "snippets.autocomplete.empty": "\u017D\u00E1dn\u00E9 odpov\u00EDdaj\u00EDc\u00ED \u00FAryvky",
   "snippets.confirm.delete.title": "Smazat \u00FAryvek?",
   "snippets.confirm.delete.body": "Tento \u00FAryvek ji\u017E nebude dostupn\u00FD pro roz\u0161\u00ED\u0159en\u00ED.",
@@ -593,7 +593,7 @@ window.I18N.cs = {
   "snippets.confirm.resetSeed.title": "Obnovit v\u00FDchoz\u00ED?",
   "snippets.confirm.resetSeed.body": "Va\u0161e \u00FApravy budou nahrazeny p\u016Fvodn\u00EDm textem.",
   "snippets.confirm.resetSeed.confirm": "Obnovit",
-  "snippets.confirm.resetAll.title": "Obnovit v\u0161echny upraven\u00E9 v\u00FDchoz\u00ED?",
+  "snippets.confirm.resetAll.title": "Obnovit v\u0161echny upraven\u00E9 \u00FAryvky?",
   "snippets.confirm.resetAll.body": "V\u0161echny \u00FApravy v\u00FDchoz\u00EDch \u00FAryvk\u016F budou obnoveny.",
   "snippets.confirm.resetAll.confirm": "Obnovit v\u0161e"
 };

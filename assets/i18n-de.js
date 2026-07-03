@@ -549,7 +549,7 @@ window.I18N.de = {
   "snippets.action.add": "Baustein hinzuf\u00FCgen",
   "snippets.action.export": "Bausteine exportieren",
   "snippets.action.import": "Bausteine importieren",
-  "snippets.action.resetAllSeeds": "Alle ge\u00E4nderten Standardbausteine zur\u00FCcksetzen",
+  "snippets.action.resetAllSeeds": "Alle ge\u00E4nderten Bausteine zur\u00FCcksetzen",
   "snippets.list.empty": "Keine Bausteine entsprechen den aktuellen Filtern.",
   "snippets.list.delete.aria": "Baustein l\u00F6schen",
   "snippets.list.edit.aria": "Baustein bearbeiten",
@@ -585,7 +585,7 @@ window.I18N.de = {
   "snippets.toast.deleted": "Baustein gel\u00F6scht",
   "snippets.toast.imported": "{n} Bausteine importiert",
   "snippets.toast.exported": "Bausteine exportiert",
-  "snippets.toast.resetAll": "{n} Standardbausteine zur\u00FCckgesetzt",
+  "snippets.toast.resetAll": "{n} Bausteine zur\u00FCckgesetzt",
   "snippets.autocomplete.empty": "Keine passenden Bausteine",
   "snippets.confirm.delete.title": "Baustein l\u00F6schen?",
   "snippets.confirm.delete.body": "Dieser Baustein steht nicht mehr f\u00FCr die Erweiterung zur Verf\u00FCgung.",
@@ -593,8 +593,8 @@ window.I18N.de = {
   "snippets.confirm.resetSeed.title": "Auf Standard zur\u00FCcksetzen?",
   "snippets.confirm.resetSeed.body": "Ihre \u00C4nderungen werden durch den Originaltext ersetzt.",
   "snippets.confirm.resetSeed.confirm": "Zur\u00FCcksetzen",
-  "snippets.confirm.resetAll.title": "Alle ge\u00E4nderten Standardbausteine zur\u00FCcksetzen?",
-  "snippets.confirm.resetAll.body": "Alle Ihre \u00C4nderungen an Standardbausteinen werden auf den Originaltext zur\u00FCckgesetzt.",
+  "snippets.confirm.resetAll.title": "Alle ge\u00E4nderten Bausteine zur\u00FCcksetzen?",
+  "snippets.confirm.resetAll.body": "Alle Ihre \u00C4nderungen an Bausteinen werden auf den Originaltext zur\u00FCckgesetzt.",
   "snippets.confirm.resetAll.confirm": "Alle zur\u00FCcksetzen"
 };
 
