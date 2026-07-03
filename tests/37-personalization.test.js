@@ -383,14 +383,16 @@ async function test(name, fn) {
     assert.strictEqual(byValue['day-month-year'], '31 Jan 2000',
       "day-month-year label must be the engine output for the neutral date; got " + JSON.stringify(byValue['day-month-year']));
 
-    // Cross-cutting guards: every example label shows the neutral year 2000 and
-    // NONE shows the previously-leaked near-today build year 2026. The '2026'
-    // check is the explicit anti-regression tripwire for this bug.
+    // Cross-cutting guard (the COMPLETE anti-regression tripwire): the only
+    // 4-digit run in every example label is the year, and it MUST be the neutral
+    // 2000. Extracting and pinning the year fails for ANY regressed REFERENCE_DATE
+    // (2026, 2025, 2027, …), not just the specific leaked build year — so this
+    // single check carries the load regardless of which recent date creeps back.
     exampleOpts.forEach(function (o) {
-      assert.ok(o.textContent.indexOf('2000') !== -1,
-        "every example label must contain the neutral year 2000; '" + o.value + "' = " + JSON.stringify(o.textContent));
-      assert.strictEqual(o.textContent.indexOf('2026'), -1,
-        "no example label may contain the near-today build year 2026 (regressed REFERENCE_DATE); '" + o.value + "' = " + JSON.stringify(o.textContent));
+      var yr = (o.textContent.match(/\d{4}/) || [])[0];
+      assert.strictEqual(yr, '2000',
+        "every example label's year must be the neutral 2000, never a recent/near-today year " +
+        "(a regressed REFERENCE_DATE); '" + o.value + "' = " + JSON.stringify(o.textContent));
     });
 
     // The engine genuinely ran — labels are NOT the raw HTML placeholder tokens.
