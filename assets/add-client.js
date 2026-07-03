@@ -6,7 +6,7 @@
 //   capture (resize on upload, crop via CropModule), and the delete flow for
 //   existing clients.
 // PUBLIC SURFACE: none — self-boots on DOMContentLoaded, registers no global.
-// DEPENDENCIES: App.{initCommon, initBirthDatePicker, t, showToast, confirmDialog,
+// DEPENDENCIES: App.{initCommon, t, showToast, confirmDialog,
 //   applyTranslations, setSubmitLabel, readFileAsDataURL}, PortfolioDB.{getClient,
 //   addClient, updateClient, deleteClientAndSessions}, window.CropModule.{openCropModal,
 //   resizeToMaxDimension} — set by app.js, db.js, and crop.js IIFEs.
@@ -34,8 +34,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   let editingClient = null;
   let photoData = "";
 
-  // Birth date picker (three-dropdown replacement for native date input)
-  const birthDatePicker = App.initBirthDatePicker('birthDatePicker', 'clientBirthDate');
+  // Birthdate is a native <input type="date"> (#clientBirthDate) mirroring
+  // #sessionDate — value/read is plain .value (YYYY-MM-DD, no migration). The old
+  // three-dropdown birth-date picker is no longer initialised here (add-session
+  // still uses that app.js helper until Plan 08 removes it).
 
   // === CROP via shared CropModule ===
   const recropBtn = document.getElementById("recropBtn");
@@ -137,9 +139,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (editingClient) {
       document.getElementById("clientFirstName").value = editingClient.firstName || editingClient.name || "";
       document.getElementById("clientLastName").value = editingClient.lastName || editingClient.lastInitial || "";
-      if (birthDatePicker && editingClient.birthDate) {
-        birthDatePicker.setValue(editingClient.birthDate);
-      }
+      document.getElementById("clientBirthDate").value = editingClient.birthDate || "";
       document.getElementById("clientEmail").value = editingClient.email || "";
       document.getElementById("clientPhone").value = editingClient.phone || "";
       document.getElementById("clientNotes").value = editingClient.notes || "";
@@ -216,7 +216,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       const lastName = document.getElementById("clientLastName").value.trim();
       const birthDate = document.getElementById("clientBirthDate").value || null;
-      const age = birthDate ? Math.floor((Date.now() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000)) : null;
+      // Parse the birthdate in LOCAL time so age never drifts a day (UTC-parse bug).
+      const parsedBirth = birthDate ? window.DateFormat.parseLocal(birthDate) : null;
+      const age = parsedBirth ? Math.floor((Date.now() - parsedBirth) / (365.25 * 24 * 60 * 60 * 1000)) : null;
       const email = document.getElementById("clientEmail").value.trim();
       const phone = document.getElementById("clientPhone").value.trim();
       const notes = document.getElementById("clientNotes").value.trim();
