@@ -297,6 +297,21 @@
       if (label === "") {
         delete types.overrides[key];
       } else {
+        // WR-03: apply the SAME case-insensitive dup guard the custom path uses —
+        // a locked rename must not collide with another type's current label
+        // (e.g. renaming "Clinic" to "Online"). Remove this key's own resolved
+        // label from the comparison set first.
+        var selfLocked = String(resolveLabel(key, types, true)).toLowerCase();
+        var lockedSelfRemoved = false;
+        var lockedOthers = existingLabelsLower(types).filter(function (l) {
+          if (!lockedSelfRemoved && l === selfLocked) { lockedSelfRemoved = true; return false; }
+          return true;
+        });
+        if (lockedOthers.indexOf(label.toLowerCase()) >= 0) {
+          showToast("settings.sessionTypes.add.invalid");
+          renderTypeList();
+          return;
+        }
         types.overrides[key] = label;
       }
     } else {

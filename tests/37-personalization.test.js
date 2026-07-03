@@ -713,8 +713,35 @@ async function test(name, fn) {
       'a null-source sessionTypes must RESET the customized target to default (removeItem), not retain the custom list');
   });
 
+  // ─── 17. Locked rename dup-label guard (WR-03) ───────────────────────────
+  // A locked-default rename must reject a label that collides with another
+  // type's current label (custom renames were already guarded; locked ones were
+  // not) — no override may be written on collision.
+  await test('editor: renaming a locked default to an existing label is rejected (no override stored) (WR-03)', async function () {
+    var env = buildSettingsEnv({
+      search: '?tab=personalize',
+      seed: { sessionTypes: { overrides: {}, custom: [{ key: 'custom.1', label: 'Online' }] } },
+    });
+    await runBoots(env);
+    var win = env.win;
+    var container = win.document.getElementById('sessionTypesEditor');
+    var clinicRow = container.querySelector('.session-type-row[data-type-key="clinic"]');
+    assert.ok(clinicRow, 'the locked clinic row must render');
+    var input = clinicRow.querySelector('.session-type-rename-input');
+
+    // Rename "Clinic" to collide with the existing custom "Online" label.
+    input.value = 'online';
+    input.dispatchEvent(new win.Event('change', { bubbles: true }));
+    await settle();
+
+    var parsed = JSON.parse(win.localStorage.getItem('portfolioSessionTypes') || '{}');
+    assert.ok(!(parsed.overrides && parsed.overrides.clinic),
+      'a locked rename that collides with an existing label must NOT write an override; got ' + JSON.stringify(parsed.overrides));
+    env.dom.window.close();
+  });
+
   // ─── end-of-file count guard (vacuous-green trap) ─────────────────────────
-  var EXPECTED_COUNT = 16;
+  var EXPECTED_COUNT = 17;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
