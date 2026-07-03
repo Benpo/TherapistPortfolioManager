@@ -149,6 +149,7 @@ function buildEnv() {
   };
 
   win.eval(readAsset('assets/export-modal.js')); // export-modal.js BEFORE add-session.js (unconditional __exportModalInit boot call)
+  win.eval(readAsset('assets/date-format.js')); // D-21: add-session.js boot reads window.DateFormat (todayLocalISO/parseLocal)
   win.eval(readAsset('assets/add-session.js'));
 
   if (captured.length !== 1) {

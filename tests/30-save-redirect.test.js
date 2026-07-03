@@ -208,6 +208,7 @@ function buildEnv(savedId) {
   // export-modal.js BEFORE add-session.js into the SAME sandbox: add-session.js's
   // unconditional window.__exportModalInit boot call would TypeError otherwise.
   vm.runInContext(readAsset('assets/export-modal.js'), sandbox, { filename: 'assets/export-modal.js' });
+  vm.runInContext(readAsset('assets/date-format.js'), sandbox, { filename: 'assets/date-format.js' }); // D-21: add-session.js boot reads window.DateFormat
   vm.runInContext(readAsset('assets/add-session.js'), sandbox, { filename: 'assets/add-session.js' });
 
   if (captured.length !== 1) {

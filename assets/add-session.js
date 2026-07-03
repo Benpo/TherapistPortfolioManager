@@ -470,7 +470,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       const lastName = (document.getElementById("editClientLastName") || {}).value?.trim() || "";
       const birthDate = (document.getElementById("editClientBirthDate") || {}).value || null;
-      const age = birthDate ? Math.floor((Date.now() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000)) : null;
+      const birthDateParsed = birthDate ? window.DateFormat.parseLocal(birthDate) : null;
+      const age = birthDateParsed ? Math.floor((Date.now() - birthDateParsed) / (365.25 * 24 * 60 * 60 * 1000)) : null;
       const email = (document.getElementById("editClientEmail") || {}).value?.trim() || "";
       const phone = (document.getElementById("editClientPhone") || {}).value?.trim() || "";
       const notes = (document.getElementById("editClientNotes") || {}).value?.trim() || "";
@@ -513,7 +514,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- End edit client modal setup ---
 
   if (sessionDate) {
-    sessionDate.valueAsDate = new Date();
+    // Default the new-session date to the LOCAL calendar day. `valueAsDate =
+    // new Date()` set the value from a UTC-midnight Date, so in a negative-UTC
+    // zone late at night the field defaulted to TOMORROW. todayLocalISO() is
+    // the local wall-clock day (DATE-06/D-03).
+    sessionDate.value = window.DateFormat.todayLocalISO();
     sessionDate.focus();
   }
 
@@ -1024,7 +1029,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       const lastName = document.getElementById("inlineClientLastName").value.trim();
       const birthDate = document.getElementById("inlineClientBirthDate").value || null;
-      const age = birthDate ? Math.floor((Date.now() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000)) : null;
+      const birthDateParsed = birthDate ? window.DateFormat.parseLocal(birthDate) : null;
+      const age = birthDateParsed ? Math.floor((Date.now() - birthDateParsed) / (365.25 * 24 * 60 * 60 * 1000)) : null;
       const email = document.getElementById("inlineClientEmail").value.trim();
       const phone = document.getElementById("inlineClientPhone").value.trim();
       const notes = document.getElementById("inlineClientNotes").value.trim();
@@ -1366,9 +1372,12 @@ function renderSpotlightSessionInfo(refs, sessions, formatDate) {
   // descending so the most recently created one wins. id is the final
   // fallback for legacy records that lack createdAt.
   const sorted = sessions.slice().sort((a, b) => {
-    const da = new Date(a.date || 0).getTime();
-    const db = new Date(b.date || 0).getTime();
-    if (db !== da) return db - da;
+    // Session `date` is a YYYY-MM-DD calendar string — a lexical (string)
+    // compare is chronological and never UTC-shifts a day (matches
+    // sessions.js/overview.js). The createdAt tie-breaks below are legitimate
+    // wall-clock timestamps and stay as Date reads (D-03, OUT-OF-SCOPE).
+    const cmp = String(b.date || "").localeCompare(String(a.date || ""));
+    if (cmp !== 0) return cmp;
     const ca = new Date(a.createdAt || 0).getTime();
     const cb = new Date(b.createdAt || 0).getTime();
     if (cb !== ca) return cb - ca;
@@ -1424,8 +1433,9 @@ async function populateSpotlight(clientId) {
   if (name) name.textContent = displayName || "-";
   const ageEl = document.getElementById("clientSpotlightAge");
   if (ageEl) {
-    const age = selectedClient.birthDate
-      ? Math.floor((Date.now() - new Date(selectedClient.birthDate)) / (365.25 * 24 * 60 * 60 * 1000))
+    const birthDateParsed = selectedClient.birthDate ? window.DateFormat.parseLocal(selectedClient.birthDate) : null;
+    const age = birthDateParsed
+      ? Math.floor((Date.now() - birthDateParsed) / (365.25 * 24 * 60 * 60 * 1000))
       : selectedClient.age;
     if (age != null && !isNaN(age)) {
       ageEl.textContent = `${App.t("common.age")}: ${age}`;

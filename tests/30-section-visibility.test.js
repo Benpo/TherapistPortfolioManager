@@ -119,6 +119,7 @@ function buildEnv(appOverrides, envOpts) {
   };
 
   win.eval(readAsset('assets/export-modal.js')); // export-modal.js BEFORE add-session.js (unconditional __exportModalInit boot call)
+  win.eval(readAsset('assets/date-format.js')); // D-21: add-session.js boot reads window.DateFormat (todayLocalISO/parseLocal)
   win.eval(readAsset('assets/add-session.js'));
 
   if (!docHandlers['DOMContentLoaded'] || docHandlers['DOMContentLoaded'].length !== 1) {
@@ -214,6 +215,7 @@ async function buildRealReaderEnv(therapistSettings) {
   });
 
   win.eval(readAsset('assets/export-modal.js')); // export-modal.js BEFORE add-session.js (unconditional __exportModalInit boot call)
+  win.eval(readAsset('assets/date-format.js')); // D-21: add-session.js boot reads window.DateFormat (todayLocalISO/parseLocal)
   win.eval(readAsset('assets/add-session.js'));
   if (!docHandlers['DOMContentLoaded'] || docHandlers['DOMContentLoaded'].length !== 1) {
     throw new Error('expected add-session.js to register exactly 1 DOMContentLoaded handler');
