@@ -154,6 +154,12 @@ function buildSettingsEnv(opts) {
   };
   win.CropModule = { resizeToMaxDimension: function () { return Promise.resolve({ size: 0 }); } };
 
+  // Optionally load the real date engine BEFORE settings.js (mirrors the live
+  // settings.html script order: date-format.js @373 before settings.js @396).
+  // Without it window.DateFormat is undefined and the picker's fillExampleLabels
+  // hits its SEAM fallback (labels stay as the HTML placeholders) — so tests
+  // that assert the ENGINE-filled example labels must opt in via loadDateEngine.
+  if (opts.loadDateEngine) { win.eval(readAsset('assets/date-format.js')); }
   win.eval(readAsset('assets/settings.js'));
   CANDIDATE_SURFACE_FILES.forEach(function (rel) {
     var src = tryReadAsset(rel);
@@ -327,6 +333,75 @@ async function test(name, fn) {
     assert.strictEqual(events.length, 1, "exactly one 'app:dateformat' event must fire on change (live re-render, no reload)");
     assert.strictEqual(events[0] && events[0].format, 'dd/mm/yyyy',
       "the 'app:dateformat' detail.format must carry the chosen key");
+    env.dom.window.close();
+  });
+
+  // ─── 3b. Picker: example labels use a NEUTRAL sample date, not a near-today one ─
+  // Bug fix (UAT 2026-07-03 handoff E2): REFERENCE_DATE previously sat near
+  // "today"/the build date ("2026-07-02"), so the engine-filled option labels
+  // read like a live current date (confusing; leaked the enhancement date). It
+  // is now the neutral, unambiguous "2000-01-31" (day 31 > 12 → the day slot can
+  // only be the day; day/month/year all distinct). The SEAM is untouched: labels
+  // still come from window.DateFormat.format, never hand-typed — this test opts
+  // the engine in via loadDateEngine and pins lang to 'en' for deterministic
+  // output. It is a REGRESSION GUARD: it fails if REFERENCE_DATE drifts back to a
+  // recent/near-today date.
+  await test("picker: engine-filled example labels reflect the NEUTRAL sample date (2000-01-31), never a near-today date", async function () {
+    var env = buildSettingsEnv({
+      search: '?tab=personalize',
+      loadDateEngine: true,
+      appOverrides: { getLanguage: function () { return 'en'; } },
+    });
+    await runBoots(env);
+    var win = env.win;
+
+    // Sanity: the engine actually loaded (otherwise this test would vacuously
+    // pass on the untouched HTML placeholders and prove nothing about the fix).
+    assert.strictEqual(typeof win.DateFormat, 'object',
+      'window.DateFormat must be loaded for this test — otherwise fillExampleLabels never runs');
+
+    var sel = win.document.getElementById('dateFormatSelect');
+    assert.ok(sel, 'the date-format select must exist');
+
+    var exampleOpts = Array.prototype.slice.call(sel.querySelectorAll('option[data-df-example]'));
+    assert.strictEqual(exampleOpts.length, 5, 'there must be 5 engine-filled example options');
+
+    var byValue = {};
+    exampleOpts.forEach(function (o) { byValue[o.value] = o.textContent; });
+
+    // Numeric formats: exact neutral-sample output (SEAM = engine, not hand-typed).
+    assert.strictEqual(byValue['mm/dd/yyyy'], '01/31/2000',
+      "mm/dd/yyyy label must be the engine output for the neutral date; got " + JSON.stringify(byValue['mm/dd/yyyy']));
+    assert.strictEqual(byValue['dd/mm/yyyy'], '31/01/2000',
+      "dd/mm/yyyy label must be the engine output for the neutral date; got " + JSON.stringify(byValue['dd/mm/yyyy']));
+    assert.strictEqual(byValue['yyyy-mm-dd'], '2000-01-31',
+      "yyyy-mm-dd label must be the engine output for the neutral date; got " + JSON.stringify(byValue['yyyy-mm-dd']));
+
+    // Month-name formats: engine output (en-US short month), still the neutral date.
+    assert.strictEqual(byValue['month-day-year'], 'Jan 31, 2000',
+      "month-day-year label must be the engine output for the neutral date; got " + JSON.stringify(byValue['month-day-year']));
+    assert.strictEqual(byValue['day-month-year'], '31 Jan 2000',
+      "day-month-year label must be the engine output for the neutral date; got " + JSON.stringify(byValue['day-month-year']));
+
+    // Cross-cutting guards: every example label shows the neutral year 2000 and
+    // NONE shows the previously-leaked near-today build year 2026. The '2026'
+    // check is the explicit anti-regression tripwire for this bug.
+    exampleOpts.forEach(function (o) {
+      assert.ok(o.textContent.indexOf('2000') !== -1,
+        "every example label must contain the neutral year 2000; '" + o.value + "' = " + JSON.stringify(o.textContent));
+      assert.strictEqual(o.textContent.indexOf('2026'), -1,
+        "no example label may contain the near-today build year 2026 (regressed REFERENCE_DATE); '" + o.value + "' = " + JSON.stringify(o.textContent));
+    });
+
+    // The engine genuinely ran — labels are NOT the raw HTML placeholder tokens.
+    assert.notStrictEqual(byValue['mm/dd/yyyy'], 'mm/dd/yyyy',
+      'the mm/dd/yyyy label must be engine output, not the untouched HTML placeholder token (SEAM proof)');
+
+    // 'auto' keeps its static i18n label (not engine-formatted, no sample date).
+    var autoOpt = sel.querySelector('option[value="auto"]');
+    assert.ok(autoOpt && autoOpt.textContent.indexOf('2000') === -1,
+      "the 'auto' option must keep its static i18n label, never a formatted sample date");
+
     env.dom.window.close();
   });
 
@@ -790,7 +865,7 @@ async function test(name, fn) {
   });
 
   // ─── end-of-file count guard (vacuous-green trap) ─────────────────────────
-  var EXPECTED_COUNT = 17;
+  var EXPECTED_COUNT = 18; // +1: picker neutral-sample-date regression guard (E2, 2026-07-03)
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {

@@ -819,7 +819,14 @@ window.SettingsPage = (function () {
 (function () {
   "use strict";
 
-  var REFERENCE_DATE = "2026-07-02"; // fixed reference so labels are stable
+  // Fixed reference date the SEAM formats into the example labels. Kept
+  // NEUTRAL and clearly non-recent on purpose: an earlier value ("2026-07-02")
+  // sat near "today" / the build date, so the picker options read like a real
+  // current date (confusing, and it leaked the enhancement date). "2000-01-31"
+  // is unambiguous in every format — day 31 (> 12) can only be the day, and
+  // day/month/year are all distinct — so each option clearly conveys its shape
+  // (e.g. 31/01/2000 vs 01/31/2000) without looking like a live date.
+  var REFERENCE_DATE = "2000-01-31";
 
   function readDateFormat() {
     try { return localStorage.getItem("portfolioDateFormat") || "auto"; }
