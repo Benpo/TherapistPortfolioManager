@@ -724,6 +724,17 @@ window.App = (() => {
             document.dispatchEvent(new CustomEvent("app:session-types-changed"));
           } catch (_) { /* ignore */ }
         }
+        // WR-04: symmetric cross-tab relay for the date-format preference. The
+        // native `storage` event fires only in PEER tabs; re-dispatch the same
+        // `app:dateformat` signal settings.js fires on change (previously a
+        // dead signal with no consumer) so peer displays can re-render dates.
+        if (e && e.key === "portfolioDateFormat") {
+          try {
+            document.dispatchEvent(new CustomEvent("app:dateformat", {
+              detail: { format: e.newValue || "auto" },
+            }));
+          } catch (_) { /* ignore */ }
+        }
       });
       initCommon._sessionTypesStorageListenerInstalled = true;
     }
