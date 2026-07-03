@@ -151,14 +151,48 @@ async function main() {
   var blob = await win.PDFExport.buildSessionPDF(fixture.sessionData, fixture.opts);
   var ab = await blob.arrayBuffer();
   var buf = Buffer.from(ab);
+
+  // ---------------------------------------------------------------------------
+  // Phase 37 (DATE-04 PDF half): Hebrew NUMERIC date must survive jsPDF/bidi LTR.
+  // ---------------------------------------------------------------------------
+  // pdf-export.js now delegates the card date to window.DateFormat. In Hebrew a
+  // NUMERIC format (mm/dd/yyyy) is wrapped in Unicode directional isolates
+  // U+2066 (LRI) … U+2069 (PDI) so the ASCII digits render left-to-right inside
+  // an RTL document (D-07). This asserts the isolate wrap actually reaches the
+  // glyph stream in the correct order — proving bidi.min.js does NOT flip the
+  // year (2026 -> 6202) or the month/day pair. If a future change breaks the
+  // isolates (rendering .notdef or re-reversing), the year check below fails and
+  // the RESEARCH strip-fallback (strip U+2066/U+2069 before shapeForJsPdf) is the
+  // specified remedy. getPreference is overridden on the instance because jsdom's
+  // file:// origin makes localStorage throw (getPreference then returns 'auto').
+  var heNumEnv = buildJsdomEnv();
+  var heNumWin = heNumEnv.dom.window;
+  heNumWin.DateFormat.getPreference = function () { return 'mm/dd/yyyy'; };
+  var heNumBlob = await heNumWin.PDFExport.buildSessionPDF(
+    { clientName: 'Test', sessionDate: '2026-07-02', sessionType: 'online',
+      markdown: 'גוף המסמך בעברית עם תוכן לבדיקה של תאריך מספרי.' },
+    { uiLang: 'he' }
+  );
+  var heNumBuf = Buffer.from(await heNumBlob.arrayBuffer());
+  heNumEnv.dom.window.close();
+  // Guard against the jsdom false-GREEN (MEMORY reference-pdf-jsdom-inert-gates):
+  // a hung/empty render must fail loudly, never silently pass.
+  if (!heNumBuf || heNumBuf.length < 1000) {
+    console.error('[FAIL] Hebrew-numeric PDF is empty/too small (' + (heNumBuf ? heNumBuf.length : 0) + ' bytes) — render did not run');
+    process.exit(1);
+  }
+  var heNumRuns = extractDigitRuns(heNumBuf);
+
   dom.window.close();
 
   var digitRuns = extractDigitRuns(buf);
 
   if (MEASURE_MODE) {
     console.log('--- MEASURE_MODE ---');
-    console.log('All digit runs found in page 1:');
+    console.log('All digit runs found in page 1 (markdown-body fixture):');
     digitRuns.forEach(function (r, i) { console.log('  [' + i + '] ' + r); });
+    console.log('All digit runs found in page 1 (he mm/dd/yyyy card date):');
+    heNumRuns.forEach(function (r, i) { console.log('  [' + i + '] ' + r); });
     process.exit(0);
   }
 
@@ -213,7 +247,45 @@ async function main() {
     failed++;
   }
 
-  console.log('Passed ' + (4 - failed) + '/4, Failed ' + failed + '/4.');
+  // Assertion e (DATE-04): Hebrew NUMERIC card date "07/02/2026" — the year must
+  // render LTR ("2026"), NOT reversed ("6202"), proving the U+2066/U+2069 isolate
+  // wrap survives bidi.min.js in an RTL document.
+  try {
+    assert.ok(heNumRuns.indexOf('2026') >= 0,
+      'Expected year run "2026" in the he mm/dd/yyyy card date but not found. ' +
+      'Runs: [' + heNumRuns.join(', ') + ']. If "6202" appears instead, the ' +
+      'U+2066/U+2069 isolates are being stripped/flipped by bidi — apply the ' +
+      'RESEARCH strip-fallback (strip isolates before shapeForJsPdf).');
+    console.log('[PASS] he numeric "2026" appears in correct LTR order');
+  } catch (err) {
+    console.error('[FAIL] he-numeric "2026" check:', err.message);
+    failed++;
+  }
+
+  // Assertion f (DATE-04): reversed year "6202" must NOT appear in the he date.
+  try {
+    assert.ok(heNumRuns.indexOf('6202') < 0,
+      'Reversed year run "6202" found in the he mm/dd/yyyy card date — the ' +
+      'directional isolates failed to hold the digits LTR. Apply the strip-fallback.');
+    console.log('[PASS] he numeric "6202" (reversed) does NOT appear');
+  } catch (err) {
+    console.error('[FAIL] he-numeric "6202" anti-check:', err.message);
+    failed++;
+  }
+
+  // Assertion g (DATE-04): the month token "07" must appear (LTR), confirming the
+  // full numeric card date shaped, not just the year.
+  try {
+    assert.ok(heNumRuns.indexOf('07') >= 0,
+      'Expected month run "07" in the he mm/dd/yyyy card date but not found. ' +
+      'Runs: [' + heNumRuns.join(', ') + '].');
+    console.log('[PASS] he numeric "07" (month) appears in correct LTR order');
+  } catch (err) {
+    console.error('[FAIL] he-numeric "07" check:', err.message);
+    failed++;
+  }
+
+  console.log('Passed ' + (7 - failed) + '/7, Failed ' + failed + '/7.');
   process.exit(failed === 0 ? 0 : 1);
 }
 
