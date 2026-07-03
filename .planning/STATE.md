@@ -6,7 +6,7 @@ current_phase: 37
 current_phase_name: date-consistency-date-format-setting-f6-f5
 status: executing
 stopped_at: Completed 37-03-PLAN.md
-last_updated: "2026-07-03T05:46:12.382Z"
+last_updated: "2026-07-03T05:54:30.759Z"
 last_activity: 2026-07-03
 last_activity_desc: "Plan 37-01 complete: TZ-pinned date-engine RED tests authored (37-date-format.test.js new + 34-date-locale.test.js rewritten); both RED as designed"
 progress:
@@ -361,6 +361,7 @@ Recent decisions affecting current work:
 - LNCH-02: Requires Sapir to run generation on e-recht24.de or adsimple.de (interactive form)
 - LNCH-03: Requires Sapir to create/configure Lemon Squeezy account and product
 - ⚠️ [Phase 33] DE/CS i18n completion needs Sapir to supply the 13 export-modal translation strings (DE + CS) before the phase can ship — the dependency, not the wiring, is the blocker
+- 37-04 baseline regen blocked on human visual sign-off (Task 3 checkpoint); only fixture-en drifts, Hebrew fixtures byte-identical for May fixture date
 
 ### Quick Tasks Completed
 
@@ -383,7 +384,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-03T05:45:39.469Z
+**Last session:** 2026-07-03T05:54:22.814Z
 
 Last activity: 2026-07-02 — Completed quick task 260702-q5f (UAT F3): home-overview "view previous sessions" toggle relabelled — Feather eye icon + visible word pill + `aria-expanded`. After Ben reviewed the live app, follow-ups: label **Sessions→History** (4 langs; kills the duplicate "Sessions" vs the count column), added the missing **Actions** column `<th>` (borders now span full width), and fixed the expanded detail-row `colSpan` 4→5. Verified desktop/mobile/4 langs via headless-Chrome; 119/119 green. 5 code commits (979f20c, 9a677f7, bf891b8, 131bb08, 8730651). Ready to push.
 Stopped at: Completed 37-03-PLAN.md
