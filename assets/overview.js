@@ -576,7 +576,11 @@ function countSessionsThisMonth(sessions) {
   const year = now.getFullYear();
   return sessions.filter((session) => {
     if (!session.date) return false;
-    const date = new Date(session.date);
+    // Parse the calendar date in LOCAL time (window.DateFormat.parseLocal) so a
+    // YYYY-MM-DD session date is never shifted a day by UTC-midnight parsing —
+    // that shift miscounted "this month" across the month boundary (DATE-06/D-03).
+    const date = window.DateFormat.parseLocal(session.date);
+    if (!date) return false;
     return date.getMonth() === month && date.getFullYear() === year;
   }).length;
 }
@@ -627,8 +631,12 @@ function openClientModal(client, sessions) {
   if (meta) {
     meta.innerHTML = "";
     const parts = [];
-    const displayAge = client.birthDate
-      ? Math.floor((Date.now() - new Date(client.birthDate)) / (365.25 * 24 * 60 * 60 * 1000))
+    // Age math parses the birthdate in LOCAL time (window.DateFormat.parseLocal)
+    // so it never drifts by a day; a null (unparseable) parse falls back to the
+    // stored client.age exactly as an Invalid Date did before (D-03).
+    const birthDateParsed = client.birthDate ? window.DateFormat.parseLocal(client.birthDate) : null;
+    const displayAge = birthDateParsed
+      ? Math.floor((Date.now() - birthDateParsed) / (365.25 * 24 * 60 * 60 * 1000))
       : client.age;
     if (displayAge) {
       const ageEl = document.createElement("span");
@@ -731,8 +739,8 @@ function getClientMetrics(sessions) {
 function averageDaysBetween(sessions) {
   if (sessions.length < 2) return "-";
   const dates = sessions
-    .map((session) => new Date(session.date))
-    .filter((date) => !Number.isNaN(date.getTime()))
+    .map((session) => window.DateFormat.parseLocal(session.date))
+    .filter((date) => date && !Number.isNaN(date.getTime()))
     .sort((a, b) => a - b);
   if (dates.length < 2) return "-";
   let total = 0;

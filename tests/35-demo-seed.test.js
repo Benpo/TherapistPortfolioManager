@@ -121,6 +121,10 @@ function buildOverviewEnv() {
       addListener: function () {}, removeListener: function () {},
     };
   };
+  // overview.js now parses calendar dates via window.DateFormat.parseLocal
+  // (Plan 37-05 UTC-parse sweep), so the engine must be present first — mirrors
+  // the D-21 date-format injection in tests/_helpers/jsdom-pdf-env.js.
+  win.eval(readAsset('assets/date-format.js'));
   win.eval(readAsset('assets/overview.js'));
   win.App = createAppStub({ t: function (k) { return k; } });
   if (typeof win.renderClientRows !== 'function') {
@@ -148,6 +152,9 @@ function buildSeamEnv() {
     };
   };
   win.name = ''; // NOT demo-mode — demo-seed.js returns early before any indexedDB touch
+  // countSessionsThisMonth in overview.js now depends on window.DateFormat
+  // (Plan 37-05); provide the engine before evaling overview.js.
+  win.eval(readAsset('assets/date-format.js'));
   win.eval(readAsset('assets/overview.js'));
   win.eval(readAsset('assets/demo-seed.js'));
   return { dom: dom, win: win };
