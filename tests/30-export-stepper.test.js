@@ -87,6 +87,11 @@ function loadRealPdf(win) {
       win.document.body.appendChild(s);
     });
 
+  // date-format.js BEFORE pdf-export.js (mirrors index.html load order): Phase 37-04
+  // routed pdf-export.js formatDate + export-modal.js footer exportedOn through
+  // window.DateFormat (todayLocalISO/format), so the engine must be injected here or
+  // buildRenderInputs throws "Cannot read properties of undefined (reading 'todayLocalISO')".
+  win.eval(readAsset('assets/date-format.js'));
   win.eval(readAsset('assets/pdf-export.js'));
   if (!win.PDFExport || typeof win.PDFExport.buildSessionPDF !== 'function') {
     throw new Error('pdf-export.js did not expose window.PDFExport.buildSessionPDF after eval');
