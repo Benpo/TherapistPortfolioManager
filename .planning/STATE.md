@@ -6,14 +6,14 @@ current_phase: 37
 current_phase_name: date-consistency-date-format-setting-f6-f5
 status: executing
 stopped_at: Completed 37-03-PLAN.md
-last_updated: "2026-07-03T05:54:30.759Z"
+last_updated: "2026-07-03T07:00:19.931Z"
 last_activity: 2026-07-03
 last_activity_desc: "Plan 37-01 complete: TZ-pinned date-engine RED tests authored (37-date-format.test.js new + 34-date-locale.test.js rewritten); both RED as designed"
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 60
-  completed_plans: 57
+  completed_plans: 58
   percent: 80
 ---
 
@@ -159,6 +159,7 @@ Last activity: 2026-07-03 — Plan 37-01 complete: TZ-pinned date-engine RED tes
 | Phase 37 P03 | ~25 min | 2 tasks | 12 files |
 | Phase 37 P05 | 30min | 3 tasks | 7 files |
 | Phase 37 P06 | ~20 min | 2 tasks | 7 files |
+| Phase 37 P04 | 20min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -315,6 +316,7 @@ Recent decisions affecting current work:
 - [Phase 37-01]: Wave-0 date-engine RED gates authored FIRST — tests/37-date-format.test.js (NEW) pins TZ=America/New_York via spawnSync re-exec + EDT-offset self-check, executes real app.js/date-format.js via vm; falsifiable spine App.formatDate('2026-07-02') RED with genuine bug output 'Jul 1, 2026' (must be 'Jul 2, 2026'). tests/34-date-locale.test.js REWRITTEN (D-19) to assert fixed engine behavior + raw-ISO export chain + D-21 window.DateFormat injection in jsdom PDF env. Engine assertions guarded by a DF() accessor → clean per-test RED (missing module) that flips GREEN when Plan 37-03 lands assets/date-format.js and Plan 37-04 adds the D-21 injection. Both files RED (13 + 7 fail) by design; do not weaken to green.
 - [Phase 37]: Date engine: parseLocal regex-extracts leading YYYY-MM-DD -> local Date(y,m-1,d), centralizing local-vs-UTC in one place (D-01/D-02); App.formatDate delegates
 - [Phase 37]: 37-06: Personalization tab + F5 date-format picker; option labels engine-sourced, persists portfolioDateFormat + fires app:dateformat (no reload); F5+F4 i18n front-loaded across en/he/de/cs (he/de/cs ASSUMED, pending native review)
+- [Phase 37-04]: PDF date path unified on window.DateFormat (pdf-export.js formatDate delegates; export-modal.js passes raw ISO + footer exportedOn = App.formatDate(DateFormat.todayLocalISO())). Golden-baseline regen: Ben approved Option A — regenerate ONLY fixture-en (en-GB "8 May 2026" → en-US "May 8, 2026", DATE-04). FIX-4 predicted 3 drifting fixtures but only fixture-en drifted: Hebrew fixtures (he/he-mixed) are byte-identical because their fixture date is 2026-05-08 (May), where Hebrew long-month == short-month ("מאי") — D-08 short-month is live + engine-tested (Plan 03), just invisible for May. de/cs genuinely unchanged (both use month:'long'). Rule 1 fix: 30-export-stepper harness now evals date-format.js before pdf-export.js (Task 1 added a window.DateFormat dep the stale harness lacked). Full suite 120/121 (only 37-personalization RED, Plans 07/08 scope).
 
 ### Pending Todos
 
@@ -361,7 +363,7 @@ Recent decisions affecting current work:
 - LNCH-02: Requires Sapir to run generation on e-recht24.de or adsimple.de (interactive form)
 - LNCH-03: Requires Sapir to create/configure Lemon Squeezy account and product
 - ⚠️ [Phase 33] DE/CS i18n completion needs Sapir to supply the 13 export-modal translation strings (DE + CS) before the phase can ship — the dependency, not the wiring, is the blocker
-- 37-04 baseline regen blocked on human visual sign-off (Task 3 checkpoint); only fixture-en drifts, Hebrew fixtures byte-identical for May fixture date
+- ~~37-04 baseline regen blocked on human visual sign-off~~ RESOLVED 2026-07-03: Ben approved Option A (regenerate ONLY fixture-en; en-GB→en-US). Only fixture-en drifted (FIX-4 predicted 3; Hebrew fixtures byte-identical because their fixture date is May, where Hebrew long-month == short-month). Plan 37-04 complete (cc789b7).
 
 ### Quick Tasks Completed
 
@@ -384,7 +386,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-03T05:54:22.814Z
+**Last session:** 2026-07-03T07:00:08.433Z
 
 Last activity: 2026-07-02 — Completed quick task 260702-q5f (UAT F3): home-overview "view previous sessions" toggle relabelled — Feather eye icon + visible word pill + `aria-expanded`. After Ben reviewed the live app, follow-ups: label **Sessions→History** (4 langs; kills the duplicate "Sessions" vs the count column), added the missing **Actions** column `<th>` (borders now span full width), and fixed the expanded detail-row `colSpan` 4→5. Verified desktop/mobile/4 langs via headless-Chrome; 119/119 green. 5 code commits (979f20c, 9a677f7, bf891b8, 131bb08, 8730651). Ready to push.
 Stopped at: Completed 37-03-PLAN.md
