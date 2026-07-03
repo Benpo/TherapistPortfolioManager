@@ -21,9 +21,10 @@
 // DEPENDENCIES (window.* chain):
 //   window.App.{initCommon, t, showToast, confirmDialog, applyTranslations,
 //               formatDate, isSectionEnabled, getSectionLabel, installNavGuard,
-//               initBirthDatePicker, readFileAsDataURL, setSubmitLabel,
-//               createSeverityScale, getSeverityValue, lockBodyScroll,
-//               unlockBodyScroll}        — set by assets/app.js IIFE
+//               getSessionTypes, formatSessionType, readFileAsDataURL,
+//               setSubmitLabel, createSeverityScale, getSeverityValue,
+//               lockBodyScroll, unlockBodyScroll}   — set by assets/app.js IIFE
+//   window.DateFormat.{parseLocal, todayLocalISO}   — set by assets/date-format.js
 //   window.PortfolioDB.{getSession, addSession, updateSession, deleteSession,
 //               getSessionsByClient, getAllSessions, getClient, addClient,
 //               updateClient, getAllClients}  — set by assets/db.js IIFE
@@ -144,9 +145,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   let lastSavedSnapshot = null; // snapshot for revertSessionForm (Cancel/Revert)
   const NEW_CLIENT_VALUE = "__new__";
 
-  // Birth date pickers (three-dropdown replacement for native date inputs)
-  const inlineBirthDatePicker = App.initBirthDatePicker('inlineBirthDatePicker', 'inlineClientBirthDate');
-  const editBirthDatePicker = App.initBirthDatePicker('editBirthDatePicker', 'editClientBirthDate');
+  // Birthdate fields are native <input type="date"> (#inlineClientBirthDate /
+  // #editClientBirthDate), mirroring #sessionDate — populate/clear set .value,
+  // read-on-save reads .value; no custom picker, no data migration (PERS-06/D-12).
 
   const heartShieldToggle = document.getElementById("heartShieldToggle");
   const heartShieldConditional = document.getElementById("heartShieldConditional");
@@ -246,16 +247,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Kept inside DOMContentLoaded so inlineBirthDatePicker (declared `const`
-  //   above) is reachable via closure. If it were top-level, the bare
-  //   `inlineBirthDatePicker` reference would resolve to window.inlineBirthDatePicker
-  //   (the <div id="inlineBirthDatePicker"> via legacy named-element access) which
-  //   has no .clear() method → TypeError → the dropdown change handler would abort
-  //   before reaching populateSpotlight. Root cause of the spotlight bug.
   function resetInlineClientForm() {
     const fields = [
       "inlineClientFirstName",
       "inlineClientLastName",
+      "inlineClientBirthDate",
       "inlineClientEmail",
       "inlineClientPhone",
       "inlineClientNotes"
@@ -264,9 +260,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const el = document.getElementById(id);
       if (el) el.value = "";
     });
-    if (inlineBirthDatePicker && typeof inlineBirthDatePicker.clear === "function") {
-      inlineBirthDatePicker.clear();
-    }
     const photoInput = document.getElementById("inlineClientPhoto");
     if (photoInput) photoInput.value = "";
     const photoPreview = document.getElementById("inlineClientPhotoPreview");
@@ -341,11 +334,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const notesEl = document.getElementById("editClientNotes");
     if (fNameEl) fNameEl.value = firstName;
     if (lNameEl) lNameEl.value = lastName;
-    if (editBirthDatePicker && client.birthDate) {
-      editBirthDatePicker.setValue(client.birthDate);
-    } else if (editBirthDatePicker) {
-      editBirthDatePicker.clear();
-    }
+    const editBirthDateEl = document.getElementById("editClientBirthDate");
+    if (editBirthDateEl) editBirthDateEl.value = client.birthDate || "";
     if (emailEl) emailEl.value = client.email || "";
     if (phoneEl) phoneEl.value = client.phone || "";
     if (notesEl) notesEl.value = client.notes || "";
