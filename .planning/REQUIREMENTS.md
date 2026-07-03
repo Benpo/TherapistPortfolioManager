@@ -98,7 +98,7 @@ Formalized 2026-07-02 at plan time from the F6/F5/F4 UAT triage and two focused 
 - [ ] **PERS-05**: Backup export/restore carries `portfolioDateFormat` (scalar) and the session-type list (via `therapistSettings`) — verified round-trip, no backup manifest/schema version bump
 - [ ] **PERS-06**: The birthdate entry is swapped from 3 month/day/year `<select>` dropdowns to a single native `<input type="date">` (value `YYYY-MM-DD`, no data migration) across add-client and add-session (create + edit paths), mirroring the existing session-date field
 - [ ] **PERS-07**: New i18n keys (`settings.tab.*`, `settings.dateFormat.*`, `settings.sessionTypes.*`, `session.type.remote|proxy`) are added across en/he/de/cs
-- [ ] **PERS-08**: Behavior tests cover the surface — tab appears + deep-links; picker persists + survives reload; F4 add/rename/delete + locked-row delete rejection; global rename overrides label app-wide; unknown-type graceful fallback; backup round-trips the new keys; birthdate input persists + edits
+- [x] **PERS-08**: Behavior tests cover the surface — tab appears + deep-links; picker persists + survives reload; F4 add/rename/delete + locked-row delete rejection; global rename overrides label app-wide; unknown-type graceful fallback; backup round-trips the new keys; birthdate input persists + edits
 
 ## Future Requirements
 
@@ -191,7 +191,7 @@ Which phases cover which requirements. Status filled during execution.
 | PERS-05 | Phase 37 | Pending |
 | PERS-06 | Phase 37 | Pending |
 | PERS-07 | Phase 37 | Pending |
-| PERS-08 | Phase 37 | Pending |
+| PERS-08 | Phase 37 | Complete |
 
 **Coverage:**
 
