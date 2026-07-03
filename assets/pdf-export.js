@@ -667,26 +667,23 @@ window.PDFExport = (function () {
   // ---------------------------------------------------------------------------
 
   /**
-   * sessionDate may already be a pre-formatted display string (from the
-   * caller) or an ISO date. If it's an ISO date, format it for the UI
-   * language; otherwise pass through unchanged.
+   * The PDF card date is now owned entirely by the canonical date engine
+   * (window.DateFormat, assets/date-format.js) — loaded before pdf-export.js on
+   * every page and injected into the jsdom PDF test env (D-21). export-modal
+   * passes the RAW ISO sessionDate through, so this delegates to the engine,
+   * which parses the calendar date in LOCAL time (no UTC off-by-one) and formats
+   * it per the user's chosen portfolioDateFormat preference (D-05/D-08). The old
+   * inline en-GB / `T00:00:00` body is removed; the engine's `auto` rule now
+   * yields en-US ("Jul 2, 2026") and he short-month, matching the on-screen UI.
    */
   function formatDate(sessionDate, uiLang) {
     if (!sessionDate) return "";
-    // ISO YYYY-MM-DD detection
-    var iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(sessionDate);
-    if (!iso) return String(sessionDate);
-    try {
-      var d = new Date(sessionDate + "T00:00:00");
-      if (isNaN(d.getTime())) return String(sessionDate);
-      var locale = (uiLang === 'he') ? 'he-IL'
-                : (uiLang === 'de') ? 'de-DE'
-                : (uiLang === 'cs') ? 'cs-CZ'
-                : 'en-GB';
-      return d.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
-    } catch (_) {
-      return String(sessionDate);
+    var DF = (typeof window !== 'undefined') ? window.DateFormat : null;
+    if (DF && typeof DF.format === 'function') {
+      return DF.format(sessionDate, DF.getPreference(), uiLang);
     }
+    // Ultra-defensive pass-through if the engine somehow failed to load.
+    return String(sessionDate);
   }
 
   // ---------------------------------------------------------------------------

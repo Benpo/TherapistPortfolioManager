@@ -578,8 +578,10 @@
     //     resolvable — the renderer then draws no card number.
     //   • issues — the STRUCTURED {name,before,after} array (NOT markdown) so the
     //     render tier can draw the severity bars from data.
-    //   • exportedOn — today's date, localized via App.formatDate, distinct from
-    //     the card's session date.
+    //   • exportedOn — today's LOCAL calendar day (via DateFormat.todayLocalISO,
+    //     NOT `new Date()` which drags a wall-clock instant into a UTC parse),
+    //     localized via App.formatDate in the chosen format, distinct from the
+    //     card's session date (DATE-05).
     async function buildRenderInputs() {
       let sessionNumber;
       try {
@@ -599,7 +601,7 @@
         sessionNumber = undefined;
       }
       const issues = (typeof getIssuesPayload === "function") ? getIssuesPayload() : [];
-      const exportedOn = App.formatDate(new Date());
+      const exportedOn = App.formatDate(window.DateFormat.todayLocalISO());
 
       // Change 1 (owner revision): tell the render tier WHERE severity sits in
       // form order. The form DOM (add-session.html) places the issues/severity
@@ -643,7 +645,7 @@
         const renderInputs = await buildRenderInputs();
         const blob = await window.PDFExport.buildSessionPDF({
           clientName: data.clientName,
-          sessionDate: data.sessionDateFormatted,
+          sessionDate: data.sessionDateISO,
           sessionType: data.sessionTypeLabel,
           markdown: editor ? editor.value : "",
           sessionNumber: renderInputs.sessionNumber,
@@ -706,7 +708,7 @@
         const renderInputs = await buildRenderInputs();
         const blob = await window.PDFExport.buildSessionPDF({
           clientName: data.clientName,
-          sessionDate: data.sessionDateFormatted,
+          sessionDate: data.sessionDateISO,
           sessionType: data.sessionTypeLabel,
           markdown: editor.value,
           sessionNumber: renderInputs.sessionNumber,
