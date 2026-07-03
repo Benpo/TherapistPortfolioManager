@@ -426,7 +426,7 @@ Plans:
   4. The birthdate entry uses a native `<input type="date">` (no data migration), and both `portfolioDateFormat` and the session-type list survive a backup export→restore round-trip
   5. The Phase 30/34 test suite stays green — TZ-pinned date tests + F4/F5/backup behavior tests authored before implementation; changed PDF SHA-256 baselines regenerated with real-output visual review; all new UI strings translated across EN/HE/DE/CS
 
-**Plans:** 3/8 plans executed
+**Plans:** 4/8 plans executed
 
 Plans:
 **Wave 1**
@@ -438,7 +438,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [ ] 37-04-PLAN.md — Wave 2: PDF integration (delegate + raw-ISO chain + Hebrew LTR) + baseline regen (human sign-off)
-- [ ] 37-05-PLAN.md — Wave 2: overview UTC sweep + add-client native birthdate + backup dateFormat/local filenames
+- [x] 37-05-PLAN.md — Wave 2: overview UTC sweep + add-client native birthdate + backup dateFormat/local filenames
 - [ ] 37-06-PLAN.md — Wave 2: Personalization tab + F5 date-format picker + all new i18n keys (en/he/de/cs)
 
 **Wave 3** *(blocked on Wave 2 completion)*

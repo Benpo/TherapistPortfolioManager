@@ -86,7 +86,7 @@ Formalized 2026-07-02 at plan time from the F6/F5/F4 UAT triage and two focused 
 - [x] **DATE-03**: The 6 date-format options render correctly across en/he/de/cs — numeric formats use `/` separators (except `yyyy-mm-dd` which uses `-`); "Auto" reproduces each language's conventional output, with English → en-US ("Jul 2, 2026"), unifying the old en-US-UI / en-GB-PDF split
 - [x] **DATE-04**: Hebrew numeric dates render left-to-right within the RTL layout across all four consumption contexts (DOM display, `document.title`, PDF, markdown export) — no digit-group flipping
 - [ ] **DATE-05**: The PDF session-card date and footer "Exported on" date use the chosen format via `window.DateFormat`; `export-modal.js` stops pre-formatting and passes raw ISO to the PDF path
-- [ ] **DATE-06**: `countSessionsThisMonth` counts by **local** month boundary (dashboard miscount fixed) and the new-session date input defaults to **local** today (`add-session.js:516`)
+- [x] **DATE-06**: `countSessionsThisMonth` counts by **local** month boundary (dashboard miscount fixed) and the new-session date input defaults to **local** today (`add-session.js:516`)
 - [ ] **DATE-07**: TZ-pinned falsifiable behavior tests (authored before implementation, executed against the real module) prove the fix in `America/New_York`; `tests/34-date-locale.test.js` is rewritten to assert fixed behavior; changed PDF SHA-256 baselines are regenerated with real-output visual review — never blind `--regenerate` (per `reference-pdf-jsdom-inert-gates`)
 
 **Personalization surface (F5 picker + F4 session types + tab + birthdate):**
@@ -95,8 +95,8 @@ Formalized 2026-07-02 at plan time from the F6/F5/F4 UAT triage and two focused 
 - [ ] **PERS-02**: A date-format `<select>` (the 6 options) in the Personalization tab persists the chosen key to `localStorage["portfolioDateFormat"]` (default `"auto"`) and triggers an app-wide date re-render on change
 - [ ] **PERS-03**: A two-tier session-type editor (modeled on `settings-snippets.js`): 5 locked defaults (In-person/`clinic`, Online/`online`, Remote/`remote`, Proxy/`proxy`, Other/`other`) show a rename field + lock icon (no delete); custom types show rename + delete; add-new input at bottom; renames are global (one language-agnostic override per type, D-16)
 - [ ] **PERS-04**: The session-type list is stored durably (IndexedDB `therapistSettings`, `sectionKey:"sessionTypes"`); `App.formatSessionType` resolves the stored key against the list + global renames, falling back to the raw string for unknown/deleted types (D-18); the add/edit-session type cards render data-driven from the list; the 3 legacy keys (`clinic`/`online`/`other`) resolve forever (D-14)
-- [ ] **PERS-05**: Backup export/restore carries `portfolioDateFormat` (scalar) and the session-type list (via `therapistSettings`) — verified round-trip, no backup manifest/schema version bump
-- [ ] **PERS-06**: The birthdate entry is swapped from 3 month/day/year `<select>` dropdowns to a single native `<input type="date">` (value `YYYY-MM-DD`, no data migration) across add-client and add-session (create + edit paths), mirroring the existing session-date field
+- [x] **PERS-05**: Backup export/restore carries `portfolioDateFormat` (scalar) and the session-type list (via `therapistSettings`) — verified round-trip, no backup manifest/schema version bump
+- [x] **PERS-06**: The birthdate entry is swapped from 3 month/day/year `<select>` dropdowns to a single native `<input type="date">` (value `YYYY-MM-DD`, no data migration) across add-client and add-session (create + edit paths), mirroring the existing session-date field
 - [ ] **PERS-07**: New i18n keys (`settings.tab.*`, `settings.dateFormat.*`, `settings.sessionTypes.*`, `session.type.remote|proxy`) are added across en/he/de/cs
 - [x] **PERS-08**: Behavior tests cover the surface — tab appears + deep-links; picker persists + survives reload; F4 add/rename/delete + locked-row delete rejection; global rename overrides label app-wide; unknown-type graceful fallback; backup round-trips the new keys; birthdate input persists + edits
 
@@ -182,14 +182,14 @@ Which phases cover which requirements. Status filled during execution.
 | DATE-03 | Phase 37 | Complete |
 | DATE-04 | Phase 37 | Complete |
 | DATE-05 | Phase 37 | Pending |
-| DATE-06 | Phase 37 | Pending |
+| DATE-06 | Phase 37 | Complete |
 | DATE-07 | Phase 37 | Pending |
 | PERS-01 | Phase 37 | Pending |
 | PERS-02 | Phase 37 | Pending |
 | PERS-03 | Phase 37 | Pending |
 | PERS-04 | Phase 37 | Pending |
-| PERS-05 | Phase 37 | Pending |
-| PERS-06 | Phase 37 | Pending |
+| PERS-05 | Phase 37 | Complete |
+| PERS-06 | Phase 37 | Complete |
 | PERS-07 | Phase 37 | Pending |
 | PERS-08 | Phase 37 | Complete |
 
