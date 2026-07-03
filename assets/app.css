@@ -1058,7 +1058,13 @@ html[data-theme="dark"] .missing-birth-banner-icon{
   background-size: 1rem;
 }
 html[dir="rtl"] .select-modern {
-  padding-inline: 2.6rem 1rem;
+  /* Only the chevron needs flipping in RTL. The padding is `padding-inline`
+     (a LOGICAL property) so the base rule's 1rem/2.6rem already flip on their
+     own — the 2.6rem chevron-clearance lands on the left (where the chevron now
+     is) and the value text hugs the right (1rem), lined up under the RTL label.
+     A manual padding-inline swap here would DOUBLE-flip it — pushing the 2.6rem
+     to the right and shoving the selected value ~2.6rem off the right edge so it
+     no longer aligns with the title (RTL alignment bug, UAT 2026-07-03). */
   background-position: left 1rem center;
 }
 .select-modern:focus-visible {
