@@ -167,10 +167,16 @@
         <table class="table">
           <thead>
             <tr>
-              <th data-i18n="overview.table.name">Name</th>
+              <th class="sortable" data-sort-key="name" aria-sort="ascending" tabindex="0" scope="col">
+                <span class="sort-label"><span data-i18n="overview.table.name">Name</span><span class="sort-arrow" aria-hidden="true"></span></span>
+              </th>
               <th data-i18n="overview.table.type">Type</th>
-              <th data-i18n="overview.table.sessions">Sessions</th>
-              <th data-i18n="overview.table.lastSession">Last Session</th>
+              <th class="sortable" data-sort-key="sessions" aria-sort="none" tabindex="0" scope="col">
+                <span class="sort-label"><span data-i18n="overview.table.sessions">Sessions</span><span class="sort-arrow" aria-hidden="true"></span></span>
+              </th>
+              <th class="sortable" data-sort-key="lastSession" aria-sort="none" tabindex="0" scope="col">
+                <span class="sort-label"><span data-i18n="overview.table.lastSession">Last Session</span><span class="sort-arrow" aria-hidden="true"></span></span>
+              </th>
               <th class="col-actions" data-i18n="overview.table.actions">Actions</th>
             </tr>
           </thead>

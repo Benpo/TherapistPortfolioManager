@@ -230,12 +230,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   const clientFormatFilterToggle = document.getElementById("clientFormatFilterToggle");
   const clientFormatFilterPanel = document.getElementById("clientFormatFilterPanel");
 
+  // ── Shared sort state (D2b: header-sort <-> #clientSortSelect two-way sync) ──
+  // One key + direction drives BOTH the column-header click sort and the Sort
+  // dropdown. Per-key DEFAULT directions are pinned by
+  // tests/37-overview-sort.test.js and must not be unified: Name sorts ascending
+  // (A→Z), Sessions and Last Session sort DESCENDING first (most sessions /
+  // most recent on top, matching the shipped dropdown behavior).
+  const SORT_DEFAULT_DIR = { name: "ascending", sessions: "descending", lastSession: "descending" };
+  let _sortKey = (clientSortSelect && clientSortSelect.value) || "name";
+  let _sortDir = SORT_DEFAULT_DIR[_sortKey] || "ascending";
+  // Distinguishes the boot-default active key from a user-activated one: the
+  // FIRST click on any header (incl. the default "name") applies that key's
+  // default direction; only a repeat click on an already user-activated key
+  // flips direction. Without this, the very first click on the default Name
+  // header would immediately flip it to descending.
+  let _sortInteracted = false;
+
   function applyFiltersAndSort() {
     const query = (clientSearchInput ? clientSearchInput.value : "").trim().toLowerCase();
     const typeVal = clientTypeFilter ? clientTypeFilter.value : "";
     const heartWallOn = clientHeartWallToggle ? clientHeartWallToggle.checked : false;
     const yearVal = clientYearFilter ? clientYearFilter.value : "";
-    const sortVal = clientSortSelect ? clientSortSelect.value : "name";
+    const sortVal = _sortKey;
 
     let filtered = _allClients.filter(c => {
       // Missing-birth-year filter — uses the SAME predicate as the
@@ -270,21 +286,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       return true;
     });
 
-    // Sort
+    // Sort — one shared direction drives all three keys. Each branch computes
+    // its ASCENDING base comparison, then `dir` flips it for descending. With
+    // the per-key defaults (name→ascending, sessions/lastSession→descending),
+    // this reproduces the historical "most sessions / most recent first"
+    // ordering while a repeat header click (or the flipped state) reverses it.
+    const dir = _sortDir === "descending" ? -1 : 1;
     filtered.sort((a, b) => {
+      let base;
       if (sortVal === "lastSession") {
         const aSessions = _sessionsByClient.get(a.id) || [];
         const bSessions = _sessionsByClient.get(b.id) || [];
         const aLast = aSessions.length ? aSessions.reduce((max, s) => s.date > max ? s.date : max, "") : "";
         const bLast = bSessions.length ? bSessions.reduce((max, s) => s.date > max ? s.date : max, "") : "";
-        return bLast.localeCompare(aLast); // most recent first
-      }
-      if (sortVal === "sessions") {
+        base = aLast.localeCompare(bLast); // ascending: oldest first
+      } else if (sortVal === "sessions") {
         const aCount = (_sessionsByClient.get(a.id) || []).length;
         const bCount = (_sessionsByClient.get(b.id) || []).length;
-        return bCount - aCount; // most sessions first
+        base = aCount - bCount; // ascending: fewest first
+      } else {
+        base = getClientDisplayName(a).localeCompare(getClientDisplayName(b), undefined, { sensitivity: "base" }); // ascending: A→Z
       }
-      return getClientDisplayName(a).localeCompare(getClientDisplayName(b), undefined, { sensitivity: "base" });
+      return dir * base;
     });
 
     renderClientRows(filtered, _sessionsByClient);
@@ -402,12 +425,89 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  [clientSearchInput, clientTypeFilter, clientYearFilter, clientSortSelect].forEach(el => {
+  [clientSearchInput, clientTypeFilter, clientYearFilter].forEach(el => {
     if (el) el.addEventListener(el.tagName === "INPUT" ? "input" : "change", onFilterChange);
   });
   // The Heart-Wall toggle is a checkbox: listen for change (a text-INPUT would
   // fire on "input", but a checkbox toggles on "change").
   if (clientHeartWallToggle) clientHeartWallToggle.addEventListener("change", onFilterChange);
+
+  // ── Column-header sort <-> #clientSortSelect two-way sync (D2b) ────────────
+  const SORT_ARROW_NS = "http://www.w3.org/2000/svg";
+  function getSortHeaders() {
+    return Array.prototype.slice.call(
+      document.querySelectorAll('thead th.sortable[data-sort-key]')
+    );
+  }
+  // Reflect the shared state onto the DOM: the active header carries the
+  // directional aria-sort (the CSS rotates its arrow); every other sortable
+  // header resets to "none"; the dropdown value mirrors the active key.
+  function syncSortIndicators() {
+    getSortHeaders().forEach(th => {
+      const key = th.getAttribute("data-sort-key");
+      th.setAttribute("aria-sort", key === _sortKey ? _sortDir : "none");
+    });
+    if (clientSortSelect && clientSortSelect.value !== _sortKey) {
+      clientSortSelect.value = _sortKey;
+    }
+  }
+  // Build the arrow glyph once per header via createElementNS (never innerHTML,
+  // per T-37-15-01) — a downward chevron whose visual direction is driven by
+  // the [aria-sort] CSS rotation, so no per-click SVG rebuild is needed.
+  function buildSortArrows() {
+    getSortHeaders().forEach(th => {
+      const slot = th.querySelector("span.sort-arrow");
+      if (!slot || slot.querySelector("svg")) return;
+      const svg = document.createElementNS(SORT_ARROW_NS, "svg");
+      svg.setAttribute("viewBox", "0 0 12 12");
+      svg.setAttribute("aria-hidden", "true");
+      svg.setAttribute("focusable", "false");
+      const path = document.createElementNS(SORT_ARROW_NS, "path");
+      path.setAttribute("d", "M2.5 4.5 L6 8 L9.5 4.5");
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", "currentColor");
+      path.setAttribute("stroke-width", "1.6");
+      path.setAttribute("stroke-linecap", "round");
+      path.setAttribute("stroke-linejoin", "round");
+      svg.appendChild(path);
+      slot.appendChild(svg);
+    });
+  }
+  // Central sort mutator. A click on the ALREADY-active key flips direction; any
+  // other entry (new header key, or the dropdown) selects the key with its
+  // pinned per-key default direction. Then re-sync indicators + re-render.
+  function setSort(key, allowToggle) {
+    if (!SORT_DEFAULT_DIR.hasOwnProperty(key)) return;
+    if (allowToggle && key === _sortKey && _sortInteracted) {
+      _sortDir = _sortDir === "ascending" ? "descending" : "ascending";
+    } else {
+      _sortKey = key;
+      _sortDir = SORT_DEFAULT_DIR[key];
+    }
+    _sortInteracted = true;
+    syncSortIndicators();
+    applyFiltersAndSort();
+    updateClearButton();
+  }
+  getSortHeaders().forEach(th => {
+    const key = th.getAttribute("data-sort-key");
+    th.addEventListener("click", () => setSort(key, true));
+    // Keyboard a11y: Enter/Space activate the header like a click.
+    th.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        setSort(key, true);
+      }
+    });
+  });
+  // The dropdown drives the SAME state — always the key's default direction
+  // (no toggle), so choosing a key from the dropdown never lands on a flipped
+  // direction.
+  if (clientSortSelect) {
+    clientSortSelect.addEventListener("change", () => setSort(clientSortSelect.value, false));
+  }
+  buildSortArrows();
+  syncSortIndicators();
 
   document.addEventListener("app:language", async () => {
     renderGreeting();
