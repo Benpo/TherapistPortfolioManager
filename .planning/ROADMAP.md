@@ -417,7 +417,7 @@ Plans:
 
 **Goal:** Every calendar date in the app is parsed and formatted through one canonical local-time helper (killing the UTC-midnight off-by-one), the user can choose their date presentation from a new **Personalization** Settings tab, and session types become a Settings-managed two-tier list (5 locked defaults + custom) — all with Hebrew RTL correctness and PDF parity preserved.
 **Depends on:** Phase 36
-**Requirements**: DATE-01, DATE-02, DATE-03, DATE-04, DATE-05, DATE-06, DATE-07, PERS-01, PERS-02, PERS-03, PERS-04, PERS-05, PERS-06, PERS-07, PERS-08
+**Requirements**: DATE-01, DATE-02, DATE-03, DATE-04, DATE-05, DATE-06, DATE-07, PERS-01, PERS-02, PERS-03, PERS-04, PERS-05, PERS-06, PERS-07, PERS-08, TERM-01, TERM-02, FILT-01, FILT-02, FILT-03, FILT-04, LEGAL-01
 **Success Criteria** (what must be TRUE):
 
   1. Every date surface (session list, overview, browser title, PDF card + footer) shows the correct calendar day in a negative-UTC timezone — `App.formatDate('2026-07-02')` returns July 2, not July 1 — proven by a TZ-pinned behavior test; an app-wide sweep leaves **zero** `new Date("<calendar-date>")` UTC-parses, while wall-clock timestamps are untouched
@@ -426,7 +426,7 @@ Plans:
   4. The birthdate entry uses a native `<input type="date">` (no data migration), and both `portfolioDateFormat` and the session-type list survive a backup export→restore round-trip
   5. The Phase 30/34 test suite stays green — TZ-pinned date tests + F4/F5/backup behavior tests authored before implementation; changed PDF SHA-256 baselines regenerated with real-output visual review; all new UI strings translated across EN/HE/DE/CS
 
-**Plans:** 8/8 plans complete
+**Plans:** 14 plans (8 complete; 6 added 2026-07-05 for the terminology + Session Format / Heart-Wall filters work package)
 
 Plans:
 **Wave 1**
@@ -448,3 +448,21 @@ Plans:
 **Wave 4** *(blocked on Wave 3 completion)*
 
 - [x] 37-08-PLAN.md — Wave 4: add-session sweep + data-driven cards + native birthdate + initBirthDatePicker removal + app-wide sweep audit
+
+**Wave 5** *(terminology + filters work package — added 2026-07-05; TERM/FILT/LEGAL)*
+
+- [ ] 37-10-PLAN.md — Wave 5: RED behavior tests (Session Format multi-select predicate + Heart-Wall predicate + Overview header-sort↔dropdown sync) — pins the DOM/selector contract, fails RED until Waves 7–8
+
+**Wave 6**
+
+- [ ] 37-11-PLAN.md — Wave 6: terminology relabel (Heart-Wall + Session Format axis) across i18n ×4 + surviving HTML surfaces; new filter/toggle/sort i18n keys + all new filter/sort CSS classes (TERM-01, TERM-02)
+- [ ] 37-12-PLAN.md — Wave 6: trademark/affiliation disclaimer in disclaimer ×4 + impressum ×4 (drafted; external legal-native + challenger review before push) (LEGAL-01)
+
+**Wave 7** *(blocked on Waves 5–6)*
+
+- [ ] 37-13-PLAN.md — Wave 7: Overview — Session Format multi-select filter + Heart-Wall toggle (replaces #clientHeartShieldFilter) (FILT-01, FILT-02)
+- [ ] 37-14-PLAN.md — Wave 7: Sessions — Session Format multi-select filter + Heart-Wall toggle (replaces #sessionTypeFilter) (FILT-01, FILT-02)
+
+**Wave 8** *(blocked on Wave 7)*
+
+- [ ] 37-15-PLAN.md — Wave 8: Overview sort = BOTH (click-to-sort headers + #clientSortSelect, synced, RTL-aware arrows) + final headless-Chrome visual verification of all new controls LTR/RTL/mobile (FILT-03)
