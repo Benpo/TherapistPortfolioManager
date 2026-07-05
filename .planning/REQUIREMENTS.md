@@ -110,7 +110,7 @@ Formalized 2026-07-05 from the "Session Type means three things" UAT collision. 
 - [ ] **FILT-02**: The old heart dropdowns (`#clientHeartShieldFilter` on Overview, `#sessionTypeFilter` on Sessions) are removed and replaced by a **Heart-Wall toggle** using the existing `.toggle-switch`/`.toggle-slider` control (green when on, RTL-aware); toggle ON shows items where `isHeartShield === true` regardless of `shieldRemoved` (D2a); the old dropdown i18n keys are repurposed/retired explicitly (D2)
 - [ ] **FILT-03**: Overview sort is **BOTH** — click-to-sort on the `<table>` column headers (Name / Sessions / Last Session; direction arrow, RTL-aware, `aria-sort`) AND the existing `#clientSortSelect` dropdown, both driving the SAME sort state and staying in sync (D2b)
 - [x] **FILT-04**: Falsifiable behavior tests are authored **before** implementation for the new logic — Session Format multi-select predicate (custom types + legacy-undefined→`clinic` + multi-selection union), Heart-Wall predicate (`isHeartShield===true` regardless of `shieldRemoved`; false/absent excluded), and Overview header-sort ↔ dropdown sync — and pass after; all new DOM (checkbox-dropdown, toggle, sort arrows) is built via DOM APIs + `textContent` (SVG via `createElementNS`), never `innerHTML`, and a custom-label XSS-as-literal-text test guards the checkbox list
-- [ ] **LEGAL-01**: A short trademark/affiliation disclaimer ("Sessions Garden is independent, not affiliated with / endorsed by Discover Healing; Emotion Code®/Body Code™/Heart-Wall® are trademarks of Wellness Unmasked, Inc., used descriptively") is added to About/Legal (`disclaimer*`) + Impressum (`impressum*`) in all 4 languages; drafted for a separate legal-native-speaker + challenger phrasing review (Czech especially) at orchestrator level before Ben pushes (D4)
+- [x] **LEGAL-01**: A short trademark/affiliation disclaimer ("Sessions Garden is independent, not affiliated with / endorsed by Discover Healing; Emotion Code®/Body Code™/Heart-Wall® are trademarks of Wellness Unmasked, Inc., used descriptively") is added to About/Legal (`disclaimer*`) + Impressum (`impressum*`) in all 4 languages; drafted for a separate legal-native-speaker + challenger phrasing review (Czech especially) at orchestrator level before Ben pushes (D4)
 
 ## Future Requirements
 
@@ -210,7 +210,7 @@ Which phases cover which requirements. Status filled during execution.
 | FILT-02 | Phase 37 | Pending |
 | FILT-03 | Phase 37 | Pending |
 | FILT-04 | Phase 37 | Complete |
-| LEGAL-01 | Phase 37 | Pending |
+| LEGAL-01 | Phase 37 | Complete |
 
 **Coverage:**
 

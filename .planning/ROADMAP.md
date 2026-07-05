@@ -426,7 +426,7 @@ Plans:
   4. The birthdate entry uses a native `<input type="date">` (no data migration), and both `portfolioDateFormat` and the session-type list survive a backup export→restore round-trip
   5. The Phase 30/34 test suite stays green — TZ-pinned date tests + F4/F5/backup behavior tests authored before implementation; changed PDF SHA-256 baselines regenerated with real-output visual review; all new UI strings translated across EN/HE/DE/CS
 
-**Plans:** 10/14 plans executed
+**Plans:** 11/14 plans executed
 
 Plans:
 **Wave 1**
@@ -456,7 +456,7 @@ Plans:
 **Wave 6**
 
 - [x] 37-11-PLAN.md — Wave 6: terminology relabel (Heart-Wall + Session Format axis) across i18n ×4 + surviving HTML surfaces; new filter/toggle/sort i18n keys + all new filter/sort CSS classes (TERM-01, TERM-02)
-- [ ] 37-12-PLAN.md — Wave 6: trademark/affiliation disclaimer in disclaimer ×4 + impressum ×4 (drafted; external legal-native + challenger review before push) (LEGAL-01)
+- [x] 37-12-PLAN.md — Wave 6: trademark/affiliation disclaimer in disclaimer ×4 + impressum ×4 (drafted; external legal-native + challenger review before push) (LEGAL-01)
 
 **Wave 7** *(blocked on Waves 5–6)*
 
