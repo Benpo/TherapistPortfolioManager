@@ -21,8 +21,73 @@ document.addEventListener("DOMContentLoaded", async () => {
   const typeFilter = document.getElementById("sessionTypeFilter");
   const tableBody = document.getElementById("sessionsTableBody");
   const emptyState = document.getElementById("sessionsEmpty");
+  const formatFilter = document.getElementById("sessionFormatFilter");
+  const formatFilterToggle = document.getElementById("sessionFormatFilterToggle");
+  const formatFilterPanel = document.getElementById("sessionFormatFilterPanel");
 
   let clientCache = [];
+
+  // Session Format multi-select: the set of checked format keys is the SINGLE
+  // source of truth for the predicate + the pill summary. It persists across
+  // option-row rebuilds (e.g. a language switch) so the checked state is
+  // RESTORED when the rows are re-derived from App.getSessionTypes(). An empty
+  // set = no format filtering (every session passes).
+  const _selectedFormats = new Set();
+
+  // Rebuild the checkbox option rows from the CURRENT App.getSessionTypes() list
+  // (5 locked defaults + dynamic custom types). Custom labels are user data, so
+  // each label is set via textContent (never markup-string assignment), closing
+  // the T-37-14-SEC XSS surface. The panel is cleared by DOM node removal (not a
+  // markup-string reset) so the sessions.js markup-string-assignment count stays
+  // at its pre-plan baseline. Previously-checked keys are restored.
+  function buildFormatOptions() {
+    if (!formatFilterPanel || typeof App.getSessionTypes !== "function") return;
+    while (formatFilterPanel.firstChild) formatFilterPanel.removeChild(formatFilterPanel.firstChild);
+    const types = App.getSessionTypes() || [];
+    types.forEach((entry) => {
+      if (!entry || !entry.key) return;
+      const option = document.createElement("label");
+      option.className = "multi-select-option";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.setAttribute("data-format-key", entry.key);
+      input.checked = _selectedFormats.has(entry.key);
+      const text = document.createElement("span");
+      text.textContent = entry.label != null ? String(entry.label) : entry.key;
+      option.appendChild(input);
+      option.appendChild(text);
+      formatFilterPanel.appendChild(option);
+    });
+  }
+
+  // Re-render the pill summary from _selectedFormats. The summary text node
+  // carries NO data-i18n (applyTranslations does no interpolation and would
+  // clobber the count on a language switch), so it is set programmatically here
+  // and re-rendered inside the app:language handler. Caller-side interpolation
+  // mirrors the established add-session.js pattern (applyTranslations does not
+  // substitute {count}).
+  function renderFormatSummary() {
+    const summary = formatFilterToggle ? formatFilterToggle.querySelector(".multi-select-summary") : null;
+    if (!summary || typeof App.t !== "function") return;
+    const n = _selectedFormats.size;
+    summary.textContent = n === 0
+      ? App.t("filter.sessionFormat.all")
+      : String(App.t("filter.sessionFormat.count")).replace("{count}", String(n));
+  }
+
+  function isFormatPanelOpen() {
+    return !!(formatFilterPanel && !formatFilterPanel.classList.contains("is-hidden"));
+  }
+  function openFormatPanel() {
+    if (!formatFilterPanel) return;
+    formatFilterPanel.classList.remove("is-hidden");
+    if (formatFilterToggle) formatFilterToggle.setAttribute("aria-expanded", "true");
+  }
+  function closeFormatPanel() {
+    if (!formatFilterPanel) return;
+    formatFilterPanel.classList.add("is-hidden");
+    if (formatFilterToggle) formatFilterToggle.setAttribute("aria-expanded", "false");
+  }
 
   async function loadClients(selectedId) {
     clientCache = await PortfolioDB.getAllClients();
@@ -72,6 +137,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const filtered = sessions.filter((session) => {
       if (selectedClient && String(session.clientId) !== selectedClient) return false;
       if ((startDate || endDate) && !matchesDateRange(session.date, startDate, endDate)) return false;
+      // Session Format filter (multi-select): when >=1 format is checked, keep a
+      // session only if its RESOLVED format key (session.sessionType || "clinic",
+      // so a legacy/undefined session counts as clinic) is in the checked set.
+      // Empty selection = no format filtering.
+      if (_selectedFormats.size > 0 && !_selectedFormats.has(session.sessionType || "clinic")) return false;
       if (selectedType === "heartShield" && !session.isHeartShield) return false;
       if (selectedType === "regular" && session.isHeartShield) return false;
       return true;
@@ -201,11 +271,47 @@ document.addEventListener("DOMContentLoaded", async () => {
     typeFilter.addEventListener("change", renderSessions);
   }
 
+  // ── Session Format multi-select: panel open/close + checkbox wiring ──────
+  if (formatFilterToggle) {
+    formatFilterToggle.addEventListener("click", (e) => {
+      // Stop the click reaching the document-level outside-click handler, which
+      // would immediately re-close a panel we just opened.
+      e.stopPropagation();
+      if (isFormatPanelOpen()) closeFormatPanel(); else openFormatPanel();
+    });
+  }
+  if (formatFilterPanel) {
+    // Delegated change: the option rows are rebuilt on every language switch,
+    // but the panel element itself persists, so one delegated listener survives.
+    formatFilterPanel.addEventListener("change", (e) => {
+      const box = e.target;
+      if (!box || !box.matches || !box.matches('input[type="checkbox"][data-format-key]')) return;
+      const key = box.getAttribute("data-format-key");
+      if (box.checked) _selectedFormats.add(key); else _selectedFormats.delete(key);
+      renderFormatSummary();
+      renderSessions();
+    });
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isFormatPanelOpen()) closeFormatPanel();
+  });
+  document.addEventListener("click", (e) => {
+    if (isFormatPanelOpen() && formatFilter && !formatFilter.contains(e.target)) {
+      closeFormatPanel();
+    }
+  });
+
   await loadClients();
+  buildFormatOptions();
+  renderFormatSummary();
   await renderSessions();
 
   document.addEventListener("app:language", async () => {
     await loadClients(clientFilter ? clientFilter.value : "");
+    // Rebuild the option labels for the new language and RESTORE the checked set
+    // (_selectedFormats persists); re-render the summary (no data-i18n on it).
+    buildFormatOptions();
+    renderFormatSummary();
     await renderSessions();
   });
 });
