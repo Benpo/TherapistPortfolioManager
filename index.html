@@ -125,6 +125,15 @@
             </select>
           </div>
           <div class="filter-field">
+            <label class="label" data-i18n="filter.sessionFormat">Session Format</label>
+            <div class="multi-select" id="clientFormatFilter">
+              <button type="button" class="multi-select-toggle" id="clientFormatFilterToggle" aria-haspopup="true" aria-expanded="false">
+                <span class="multi-select-summary"></span>
+              </button>
+              <div class="multi-select-panel is-hidden" id="clientFormatFilterPanel" role="group"></div>
+            </div>
+          </div>
+          <div class="filter-field">
             <label class="label" data-i18n="overview.filter.heartShield">Session Type</label>
             <select class="select-field select-modern" id="clientHeartShieldFilter">
               <option value="" data-i18n="sessions.filter.type.all">All</option>
