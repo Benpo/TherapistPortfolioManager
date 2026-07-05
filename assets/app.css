@@ -4450,3 +4450,149 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   margin-inline-end: auto;
   min-width: 180px;
 }
+
+/* ==========================================================================
+   Phase 37 (Plan 37-11) — reusable filter & sort controls foundation.
+   Dead-but-valid until Waves 7-8 wire elements to them (Plans 37-13/37-14
+   consume .multi-select* + .filter-toggle; Plan 37-15 consumes th.sortable +
+   .sort-arrow). RTL-aware via LOGICAL properties (inset-inline/padding-inline),
+   tokens only, no new scale. The Heart-Wall toggle REUSES the existing
+   .toggle-switch/.toggle-slider (settings Fields tab) — not redefined here.
+   ========================================================================== */
+
+/* Session Format multi-select (checkbox dropdown). Drops into a .filter-field
+   so it lines up with the sibling .select-modern controls in the filter bar. */
+.multi-select {
+  position: relative;
+  display: inline-block;
+  inline-size: auto;
+  min-inline-size: 12rem;
+  max-inline-size: 100%;
+}
+
+/* Pill button mirroring .select-field.select-modern (border / radius / padding /
+   background / focus ring) with a trailing chevron on the inline-end that clears
+   the label text; hover + open affordance. */
+.multi-select-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  inline-size: 100%;
+  min-inline-size: 12rem;
+  padding-block: 0.6rem;
+  padding-inline: 1rem 2.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: start;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232d6a4f' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+/* Only the chevron flips in RTL; padding-inline flips on its own (see the
+   .select-modern note above — a manual padding swap would double-flip). */
+html[dir="rtl"] .multi-select-toggle {
+  background-position: left 1rem center;
+}
+.multi-select-toggle:hover {
+  border-color: var(--color-green-500);
+}
+.multi-select-toggle:focus-visible,
+.multi-select-toggle.is-open {
+  outline: none;
+  border-color: var(--color-green-500);
+  box-shadow: 0 0 0 3px var(--color-green-50);
+}
+
+/* Absolutely-positioned popover anchored under the toggle. Toggle display via
+   the shared .is-hidden utility. */
+.multi-select-panel {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: calc(100% + 0.35rem);
+  z-index: 40;
+  inline-size: max-content;
+  min-inline-size: 100%;
+  max-inline-size: min(20rem, 90vw);
+  max-block-size: 16rem;
+  overflow-y: auto;
+  padding: 0.35rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+}
+
+/* Flex label row: checkbox + text. Long custom labels wrap gracefully. */
+.multi-select-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+.multi-select-option:hover {
+  background: var(--color-surface-hover);
+}
+.multi-select-option input {
+  flex: 0 0 auto;
+}
+
+/* Heart-Wall toggle: a .filter-field variant that lays the label + the reused
+   .toggle-switch inline, matching the filter-bar baseline, RTL-safe. */
+.filter-toggle {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Sortable Overview headers: click-to-sort + arrow slot. */
+.table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  padding-inline-end: 1.4rem;
+}
+.table th.sortable:hover {
+  color: var(--color-text);
+}
+.table th.sortable > .sort-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* Arrow indicator; the SVG is injected by 37-15 via createElementNS. Direction
+   is driven by the th's aria-sort state; it follows the inline side because it
+   sits inside the inline-flex label after the header text. */
+.sort-arrow {
+  display: inline-flex;
+  align-items: center;
+  inline-size: 0.85em;
+  block-size: 0.85em;
+  opacity: 0.35;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.table th[aria-sort="none"] .sort-arrow {
+  opacity: 0.35;
+}
+.table th[aria-sort="ascending"] .sort-arrow {
+  opacity: 1;
+  transform: rotate(180deg);
+}
+.table th[aria-sort="descending"] .sort-arrow {
+  opacity: 1;
+  transform: rotate(0deg);
+}
