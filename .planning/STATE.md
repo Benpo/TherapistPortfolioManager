@@ -6,14 +6,14 @@ current_phase: 37
 current_phase_name: date-consistency-date-format-setting-f6-f5
 status: executing
 stopped_at: Completed 37-03-PLAN.md
-last_updated: "2026-07-05T20:04:43.051Z"
+last_updated: "2026-07-05T20:19:38.914Z"
 last_activity: 2026-07-05
 last_activity_desc: Phase 37 execution started
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 66
-  completed_plans: 61
+  completed_plans: 62
   percent: 80
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 37 (date-consistency-date-format-setting-f6-f5) — EXECUTING
-Plan: 2 of 14
+Plan: 3 of 14
 Status: Ready to execute
 Last activity: 2026-07-05 — Phase 37 execution started
 
@@ -162,6 +162,7 @@ Last activity: 2026-07-05 — Phase 37 execution started
 | Phase 37 P04 | 20min | 3 tasks | 5 files |
 | Phase 37 P08 | ~45 min | 3 tasks | 12 files |
 | Phase 37 P10 | ~20min | 3 tasks | 4 files |
+| Phase 37 P11 | 11min | 4 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -319,6 +320,7 @@ Recent decisions affecting current work:
 - [Phase 37]: Date engine: parseLocal regex-extracts leading YYYY-MM-DD -> local Date(y,m-1,d), centralizing local-vs-UTC in one place (D-01/D-02); App.formatDate delegates
 - [Phase 37]: 37-06: Personalization tab + F5 date-format picker; option labels engine-sourced, persists portfolioDateFormat + fires app:dateformat (no reload); F5+F4 i18n front-loaded across en/he/de/cs (he/de/cs ASSUMED, pending native review)
 - [Phase 37-04]: PDF date path unified on window.DateFormat (pdf-export.js formatDate delegates; export-modal.js passes raw ISO + footer exportedOn = App.formatDate(DateFormat.todayLocalISO())). Golden-baseline regen: Ben approved Option A — regenerate ONLY fixture-en (en-GB "8 May 2026" → en-US "May 8, 2026", DATE-04). FIX-4 predicted 3 drifting fixtures but only fixture-en drifted: Hebrew fixtures (he/he-mixed) are byte-identical because their fixture date is 2026-05-08 (May), where Hebrew long-month == short-month ("מאי") — D-08 short-month is live + engine-tested (Plan 03), just invisible for May. de/cs genuinely unchanged (both use month:'long'). Rule 1 fix: 30-export-stepper harness now evals date-format.js before pdf-export.js (Task 1 added a window.DateFormat dep the stale harness lacked). Full suite 120/121 (only 37-personalization RED, Plans 07/08 scope).
+- [Phase ?]: Phase 37-11: Heart term unified to Heart-Wall / חומת הלב (value-only, keys fenced); modality axis to Session Format / אופן הטיפול; new filter.sessionFormat keys + Heart-Wall toggle labels + reusable filter/sort CSS front-loaded for 37-13/14/15; no data migration, no PDF golden regen
 
 ### Pending Todos
 
@@ -389,7 +391,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-05T20:04:35.493Z
+**Last session:** 2026-07-05T20:18:35.774Z
 
 Last activity: 2026-07-03 — Completed quick task 260703-mp6 (Phase 37 handoff extension E1+E2). E1 feat(37) 89510fe: main-page filter dropdowns + session date inputs adopt the shipped `.select-modern`/`.input-pill` classes (dual-class, zero new CSS); verified LTR/RTL/mobile via headless-Chrome. E2 fix(37) 7b67670: date-format picker `REFERENCE_DATE` "2026-07-02"→"2000-01-31" so option labels show a neutral, unambiguous sample instead of a near-today/build date (SEAM preserved; regression guard added; count 17→18). Suite 121/121 green. **Phase 37 intentionally still PENDING** — Ben runs `/gsd-verify-work 37` after Sapir's translation review. Handoff file deleted. Ready to push.
 Stopped at: Completed 37-03-PLAN.md
