@@ -426,7 +426,7 @@ Plans:
   4. The birthdate entry uses a native `<input type="date">` (no data migration), and both `portfolioDateFormat` and the session-type list survive a backup export→restore round-trip
   5. The Phase 30/34 test suite stays green — TZ-pinned date tests + F4/F5/backup behavior tests authored before implementation; changed PDF SHA-256 baselines regenerated with real-output visual review; all new UI strings translated across EN/HE/DE/CS
 
-**Plans:** 12/14 plans executed
+**Plans:** 13/14 plans executed
 
 Plans:
 **Wave 1**
@@ -461,7 +461,7 @@ Plans:
 **Wave 7** *(blocked on Waves 5–6)*
 
 - [x] 37-13-PLAN.md — Wave 7: Overview — Session Format multi-select filter + Heart-Wall toggle (replaces #clientHeartShieldFilter) (FILT-01, FILT-02)
-- [ ] 37-14-PLAN.md — Wave 7: Sessions — Session Format multi-select filter + Heart-Wall toggle (replaces #sessionTypeFilter) (FILT-01, FILT-02)
+- [x] 37-14-PLAN.md — Wave 7: Sessions — Session Format multi-select filter + Heart-Wall toggle (replaces #sessionTypeFilter) (FILT-01, FILT-02)
 
 **Wave 8** *(blocked on Wave 7)*
 
