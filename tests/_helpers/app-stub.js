@@ -198,6 +198,58 @@ function createAppStub(overrides) {
     return record('refreshSnippetCache', arguments, p);
   };
 
+  // Phase 37 Plan 10 (STUB EXTENSION) — a default getSessionTypes() derived from
+  // the seeded localStorage['portfolioSessionTypes'] so the Session-Format filter
+  // tests' option-build assertions are NOT vacuous. Mirrors the real app.js:1329
+  // getSessionTypes shape: 5 locked defaults (in fixed order) with a resolved
+  // label (a non-empty override string wins, else the raw key — the filter tests
+  // assert the KEY set, so a non-i18n label default is sufficient) + the custom
+  // entries as { key, label, locked:false }.
+  //
+  // The localStorage source is the jsdom window's, passed explicitly via
+  // overrides.localStorage (captured live so a seed set before boot is visible at
+  // render time). ADDITIVE: an explicit overrides.getSessionTypes (e.g.
+  // tests/37-personalization.test.js's ()=>[]) still wins — it is invoked and
+  // spy-recorded here instead of being clobbered by the pass-through loop below.
+  var SESSION_TYPE_ORDER_STUB = ['clinic', 'online', 'remote', 'proxy', 'other'];
+  var _lsRef = overrides.localStorage ||
+    (typeof localStorage !== 'undefined' ? localStorage : null);
+  function _readSeededSessionTypes() {
+    var fallback = { overrides: {}, custom: [] };
+    try {
+      var raw = _lsRef && _lsRef.getItem('portfolioSessionTypes');
+      if (!raw) return fallback;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') return fallback;
+      return {
+        overrides: (parsed.overrides && typeof parsed.overrides === 'object') ? parsed.overrides : {},
+        custom: Array.isArray(parsed.custom) ? parsed.custom : [],
+      };
+    } catch (_) { return fallback; }
+  }
+  function _defaultGetSessionTypes() {
+    var data = _readSeededSessionTypes();
+    var list = SESSION_TYPE_ORDER_STUB.map(function (key) {
+      var ov = data.overrides[key];
+      var label = (typeof ov === 'string' && ov.trim().length > 0) ? ov : key;
+      return { key: key, label: label, locked: true };
+    });
+    data.custom.forEach(function (entry) {
+      if (entry && entry.key) {
+        list.push({ key: entry.key, label: entry.label != null ? String(entry.label) : entry.key, locked: false });
+      }
+    });
+    return list;
+  }
+  calls.set('getSessionTypes', []);
+  var gstOverride = overrides.getSessionTypes;
+  stub.getSessionTypes = function () {
+    var ret = (typeof gstOverride === 'function')
+      ? gstOverride.apply(this, arguments)
+      : _defaultGetSessionTypes();
+    return record('getSessionTypes', arguments, ret);
+  };
+
   // F-B: the severity pair is supplied ONLY via overrides (real app.js fns).
   // They are NOT spied — they ARE the real coupled widget pair. When absent,
   // both remain undefined so the smoke can assert it.
@@ -216,6 +268,9 @@ function createAppStub(overrides) {
     // Phase 30 Plan 07 (Task 0 / G2): the snippet-cache pair + its seed are
     // owned above — do not let the pass-through loop clobber them.
     if (k === 'getSnippets' || k === 'refreshSnippetCache' || k === 'snippets') { return; }
+    // Phase 37 Plan 10 (STUB EXTENSION): getSessionTypes is owned above (respects
+    // the override there); localStorage is a config source, not a stub method.
+    if (k === 'getSessionTypes' || k === 'localStorage') { return; }
     if (Object.prototype.hasOwnProperty.call(DEFAULT_RETURNS, k)) { return; }
     stub[k] = overrides[k];
   });
