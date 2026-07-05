@@ -73,13 +73,12 @@
               <div class="multi-select-panel is-hidden" id="sessionFormatFilterPanel" role="group"></div>
             </div>
           </div>
-          <div class="filter-field">
-            <label class="label" data-i18n="sessions.filter.type">Session Type</label>
-            <select class="select-field select-modern" id="sessionTypeFilter">
-              <option value="" data-i18n="sessions.filter.type.all">All Sessions</option>
-              <option value="heartShield" data-i18n="sessions.filter.type.heartShield">Heart Shield</option>
-              <option value="regular" data-i18n="sessions.filter.type.regular">Regular</option>
-            </select>
+          <div class="filter-field filter-toggle">
+            <label class="label" data-i18n="sessions.filter.type">Heart-Wall</label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="sessionHeartWallToggle" />
+              <span class="toggle-slider"></span>
+            </label>
           </div>
         </div>
         <div id="sessionsEmpty" class="helper-text" data-i18n="sessions.empty" style="display:none;"></div>

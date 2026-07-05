@@ -1,8 +1,9 @@
 // ────────────────────────────────────────────────────────────────────────
 // sessions.js — Sessions-list page: filterable table of all sessions.
 //
-// OWNS: the sessions list load, the client + date-range + type filter
-//   pipeline, and the session row render (date, client name, type, issues,
+// OWNS: the sessions list load, the client + date-range + Session-Format
+//   multi-select + Heart-Wall toggle filter pipeline, and the session row
+//   render (date, client name, type, issues,
 //   trapped emotions, Heart-Shield badge, view button).
 // PUBLIC SURFACE: none — self-boots on DOMContentLoaded, registers no global.
 // DEPENDENCIES: App.{initCommon, t, formatDate, formatSessionType}
@@ -18,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const clientFilter = document.getElementById("sessionClientFilter");
   const dateFrom = document.getElementById("sessionDateFrom");
   const dateTo = document.getElementById("sessionDateTo");
-  const typeFilter = document.getElementById("sessionTypeFilter");
+  const heartWallToggle = document.getElementById("sessionHeartWallToggle");
   const tableBody = document.getElementById("sessionsTableBody");
   const emptyState = document.getElementById("sessionsEmpty");
   const formatFilter = document.getElementById("sessionFormatFilter");
@@ -132,7 +133,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const selectedClient = clientFilter ? clientFilter.value : "";
     const startDate = dateFrom ? dateFrom.value : "";
     const endDate = dateTo ? dateTo.value : "";
-    const selectedType = typeFilter ? typeFilter.value : "";
+    const heartWallOn = heartWallToggle ? heartWallToggle.checked : false;
 
     const filtered = sessions.filter((session) => {
       if (selectedClient && String(session.clientId) !== selectedClient) return false;
@@ -142,8 +143,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       // so a legacy/undefined session counts as clinic) is in the checked set.
       // Empty selection = no format filtering.
       if (_selectedFormats.size > 0 && !_selectedFormats.has(session.sessionType || "clinic")) return false;
-      if (selectedType === "heartShield" && !session.isHeartShield) return false;
-      if (selectedType === "regular" && session.isHeartShield) return false;
+      // Heart-Wall toggle: when ON, keep only sessions where isHeartShield===true
+      // — regardless of shieldRemoved (D2a: a released Heart-Wall still counts as
+      // "the Heart-Wall was handled"). OFF = no heart filtering.
+      if (heartWallOn && session.isHeartShield !== true) return false;
       return true;
     });
 
@@ -267,8 +270,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (dateTo) {
     dateTo.addEventListener("change", renderSessions);
   }
-  if (typeFilter) {
-    typeFilter.addEventListener("change", renderSessions);
+  if (heartWallToggle) {
+    heartWallToggle.addEventListener("change", renderSessions);
   }
 
   // ── Session Format multi-select: panel open/close + checkbox wiring ──────
