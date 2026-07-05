@@ -133,13 +133,12 @@
               <div class="multi-select-panel is-hidden" id="clientFormatFilterPanel" role="group"></div>
             </div>
           </div>
-          <div class="filter-field">
-            <label class="label" data-i18n="overview.filter.heartShield">Session Type</label>
-            <select class="select-field select-modern" id="clientHeartShieldFilter">
-              <option value="" data-i18n="sessions.filter.type.all">All</option>
-              <option value="heartShield" data-i18n="sessions.filter.type.heartShield">Heart Shield</option>
-              <option value="regular" data-i18n="sessions.filter.type.regular">Regular</option>
-            </select>
+          <div class="filter-field filter-toggle">
+            <label class="label" data-i18n="overview.filter.heartShield">Heart-Wall</label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="clientHeartWallToggle" />
+              <span class="toggle-slider"></span>
+            </label>
           </div>
           <div class="filter-field">
             <label class="label" data-i18n="overview.filter.year">Year</label>

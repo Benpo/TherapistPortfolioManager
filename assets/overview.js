@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const clientSearchInput = document.getElementById("clientSearch");
   const clientTypeFilter = document.getElementById("clientTypeFilter");
-  const clientHeartShieldFilter = document.getElementById("clientHeartShieldFilter");
+  const clientHeartWallToggle = document.getElementById("clientHeartWallToggle");
   const clientYearFilter = document.getElementById("clientYearFilter");
   const clientSortSelect = document.getElementById("clientSortSelect");
   const clientFormatFilter = document.getElementById("clientFormatFilter");
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function applyFiltersAndSort() {
     const query = (clientSearchInput ? clientSearchInput.value : "").trim().toLowerCase();
     const typeVal = clientTypeFilter ? clientTypeFilter.value : "";
-    const shieldVal = clientHeartShieldFilter ? clientHeartShieldFilter.value : "";
+    const heartWallOn = clientHeartWallToggle ? clientHeartWallToggle.checked : false;
     const yearVal = clientYearFilter ? clientYearFilter.value : "";
     const sortVal = clientSortSelect ? clientSortSelect.value : "name";
 
@@ -254,12 +254,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         const hasFormat = sessions.some(s => _selectedFormats.has(s.sessionType || "clinic"));
         if (!hasFormat) return false;
       }
-      // Heart Shield filter
-      if (shieldVal) {
+      // Heart-Wall toggle: when ON, keep only clients with >=1 session whose
+      // isHeartShield===true — regardless of shieldRemoved (D2a: a released
+      // Heart-Wall still counts as "this client had a Heart-Wall handled").
+      if (heartWallOn) {
         const sessions = _sessionsByClient.get(c.id) || [];
-        const hasShield = sessions.some(s => s.isHeartShield);
-        if (shieldVal === "heartShield" && !hasShield) return false;
-        if (shieldVal === "regular" && hasShield) return false;
+        if (!sessions.some(s => s.isHeartShield === true)) return false;
       }
       // Year filter
       if (yearVal) {
@@ -296,7 +296,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!clearFiltersBtn) return;
     const hasFilters = (clientSearchInput && clientSearchInput.value) ||
       (clientTypeFilter && clientTypeFilter.value) ||
-      (clientHeartShieldFilter && clientHeartShieldFilter.value) ||
+      (clientHeartWallToggle && clientHeartWallToggle.checked) ||
       (clientYearFilter && clientYearFilter.value) ||
       _selectedFormats.size > 0 ||
       _missingBirthFilterActive ||
@@ -364,7 +364,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     clearFiltersBtn.addEventListener("click", () => {
       if (clientSearchInput) clientSearchInput.value = "";
       if (clientTypeFilter) clientTypeFilter.value = "";
-      if (clientHeartShieldFilter) clientHeartShieldFilter.value = "";
+      if (clientHeartWallToggle) clientHeartWallToggle.checked = false;
       if (clientYearFilter) clientYearFilter.value = "";
       if (clientSortSelect) clientSortSelect.value = "name";
       // Reset the Session Format multi-select: clear the set, uncheck every
@@ -402,9 +402,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  [clientSearchInput, clientTypeFilter, clientHeartShieldFilter, clientYearFilter, clientSortSelect].forEach(el => {
+  [clientSearchInput, clientTypeFilter, clientYearFilter, clientSortSelect].forEach(el => {
     if (el) el.addEventListener(el.tagName === "INPUT" ? "input" : "change", onFilterChange);
   });
+  // The Heart-Wall toggle is a checkbox: listen for change (a text-INPUT would
+  // fire on "input", but a checkbox toggles on "change").
+  if (clientHeartWallToggle) clientHeartWallToggle.addEventListener("change", onFilterChange);
 
   document.addEventListener("app:language", async () => {
     renderGreeting();
