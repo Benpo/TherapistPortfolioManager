@@ -1,7 +1,7 @@
 ---
 phase: 37-date-consistency-date-format-setting-f6-f5
 verified: 2026-07-06T12:00:00Z
-status: human_needed
+status: passed
 score: 12/12 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
@@ -12,13 +12,16 @@ re_verification:
   gaps_remaining: []
   regressions: []
   new_scope_added:
+
     - "37-10: RED test files (filter/sort specs)"
     - "37-11: Terminology relabeling + i18n/CSS foundation (TERM-01, TERM-02)"
     - "37-12: Trademark/non-affiliation legal disclaimers (LEGAL-01)"
     - "37-13: Overview Session Format multi-select + Heart-Wall toggle (FILT-01, FILT-02)"
     - "37-14: Sessions Session Format multi-select + Heart-Wall toggle (FILT-01, FILT-02)"
     - "37-15: Overview click-to-sort + dead sub-key removal + visual gate (FILT-03)"
+
 human_verification:
+
   - test: "HE/CS Personalization tab i18n — broader [ASSUMED] block native review"
     expected: |
       All strings under the '// Phase 37 — Personalization tab [translations ASSUMED]' comment
@@ -34,6 +37,7 @@ human_verification:
       confirm dialog strings for ALL CS keys remain machine-translated + unconfirmed.
       Ben confirmed HE/DE for D5 relabel tables; the full Personalization tab set in HE/CS
       needs a final human pass.
+
   - test: "WR-02: Backup restore null-vs-absent decision"
     expected: |
       Decide the intended behavior when a backup was taken on a device using DEFAULT (null)
@@ -47,6 +51,7 @@ human_verification:
       case warrants a follow-up before shipping. The round-trip test covers non-null values
       correctly; the null/absent distinction is behaviorally unverifiable by automated means
       without a device-migration simulation.
+
   - test: "Legal page he/de/cs + Czech external legal-native review"
     expected: |
       All 8 legal pages (disclaimer-{en,he,cs}.html + disclaimer.html(DE),
@@ -61,6 +66,7 @@ human_verification:
       mandated "external legal-native-speaker + challenger phrasing review before Ben
       pushes" — Czech especially. The challenger pass was done by the Claude executor,
       not an external Czech legal speaker. The EN text (canonical) can ship as-is.
+
   - test: "demo.html Phase 37 controls — add filter bar + sortable headers or leave as pre-37 overview?"
     expected: |
       Ben decides whether demo.html should gain the Phase 37 controls (Session Format
@@ -261,10 +267,12 @@ No `TBD`, `FIXME`, or `XXX` markers found in any phase-modified file.
 **Context:** The [ASSUMED] comment block at line 426 of i18n-he.js, i18n-de.js, and i18n-cs.js covers the entire Personalization tab (settings.tab.personalize, settings.dateFormat.*, settings.sessionTypes.*).
 
 **RESOLVED as of 2026-07-06 (commit 6bde07c):**
+
 - HE+DE relabel table values (D5) confirmed by Ben
 - settings.sessionTypes.* EN/DE/HE aligned to "Session formats" / "Sitzungsarten" / "אופני טיפול" vocabulary
 
 **STILL NEEDS NATIVE REVIEW:**
+
 - **HE:** settings.dateFormat.savedToast ("תבנית התאריך עודכנה."), settings.dateFormat.auto ("אוטומטי (לפי השפה)"), settings.tab.personalize ("התאמה אישית"), and the broader helper/confirm-dialog strings in settings.sessionTypes.* (Ben speaks Hebrew, can confirm)
 - **DE:** settings.dateFormat.* strings (Ben speaks German, can confirm). settings.sessionTypes.* was updated in 6bde07c and DE-reviewed.
 - **CS:** ALL Personalization tab strings remain [ASSUMED] — no CS speaker in-house. Includes settings.tab.personalize ("Přizpůsobení"), all settings.dateFormat.* ("Formát data", "Automaticky", etc.), AND settings.sessionTypes.* ("Typy sezení" family — note CS uses "Typy" not "Sitzungsarten" equivalent; the 6bde07c commit intentionally left CS unchanged since "Typ sezení" was already the correct CS axis term).
@@ -320,6 +328,7 @@ No `TBD`, `FIXME`, or `XXX` markers found in any phase-modified file.
 No blocking gaps. All 24 requirements (DATE-01 through LEGAL-01) and all 12 observable truths are verified against the actual codebase. The full test suite is 124/124 GREEN. The 8 anti-pattern warnings (WR-01 through WR-05, IN-01, and 2 pre-existing/intentional items) are quality notes from code review; none prevent the phase goal from being achieved.
 
 The 4 human verification items are quality-assurance items that should be resolved before shipping:
+
 1. CS i18n native review (critical — no CS speaker in-house)
 2. WR-02 backup null-vs-absent (decision required, fix is simple)
 3. Czech legal phrasing (critical — legal pages must be accurate before public push)
@@ -343,3 +352,19 @@ The 4 human verification items are quality-assurance items that should be resolv
 
 _Verified: 2026-07-06T12:00:00Z_
 _Verifier: Claude (gsd-verifier) — re-verification merging 37-VERIFICATION.md (2026-07-03) + 37-UAT.md + new scope 37-10..37-15_
+
+---
+
+## Post-verification resolution (2026-07-06 — UAT close-out, status → passed)
+
+The four `human_needed` items from the report above are all resolved; the two UAT issues that were open (tests 5 & 8) were closed by gap-closure plan **37-16**, deployed to live **v1.2.4** and verified by Ben on-device 2026-07-06:
+
+- **Item 2 — WR-02 backup null-vs-absent decision → RESOLVED.** Ben decided never-clobber; implemented in 37-16 GAP-2 (`5b23128`): backup.js reverted to plain truthiness guards (no `in`-check / `removeItem`), WR-02 comment rewritten, test #16 flipped. Maps to UAT test 8 (pass).
+- **UAT test 5 (restore silently reverts UI language) → RESOLVED.** 37-16 GAP-1 (`e2dcc85`): Overview `__afterBackupRestore` re-applies restored language + dir + translations + theme immediately (no navigation), reusing `App.setLanguage` + the extracted `App.applyTheme` seam; falsifiable behavior test drives the real hook (RED→GREEN). Date-format-in-export smoke (previously unreachable) now passes.
+- **Item 1 (HE/CS Personalization native review) → HE Ben-confirmed; CS accepted-skip** (no in-house Czech speaker now or going forward — Ben's standing decision; revisit only on a deliberate CS-market push).
+- **Item 3 (CS legal text native review) → accepted-skip** (same rationale).
+- **Item 4 (demo.html P37 controls) → already resolved earlier this phase** (`f0917db`, parity shipped).
+
+Automated safety net green throughout: `npm test` **124/124** (executor + independent post-merge run). Suite includes the new GAP-1 behavior test and the flipped test #16.
+
+_Resolution recorded by Claude at UAT close-out; canonical `status` set to `passed`._
