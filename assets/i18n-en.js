@@ -45,8 +45,6 @@ window.I18N.en = {
   "overview.filter.type": "Client Type",
   "overview.filter.type.all": "All Types",
   "overview.filter.heartShield": "Heart-Wall",
-  "overview.filter.year": "Year",
-  "overview.filter.year.all": "All Years",
   "overview.filter.sort": "Sort By",
   "overview.filter.sort.name": "Name",
   "overview.filter.sort.lastSession": "Last Session",

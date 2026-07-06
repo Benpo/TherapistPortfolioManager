@@ -230,7 +230,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const clientSearchInput = document.getElementById("clientSearch");
   const clientTypeFilter = document.getElementById("clientTypeFilter");
   const clientHeartWallToggle = document.getElementById("clientHeartWallToggle");
-  const clientYearFilter = document.getElementById("clientYearFilter");
   const clientSortSelect = document.getElementById("clientSortSelect");
   const clientFormatFilter = document.getElementById("clientFormatFilter");
   const clientFormatFilterToggle = document.getElementById("clientFormatFilterToggle");
@@ -250,7 +249,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const query = (clientSearchInput ? clientSearchInput.value : "").trim().toLowerCase();
     const typeVal = clientTypeFilter ? clientTypeFilter.value : "";
     const heartWallOn = clientHeartWallToggle ? clientHeartWallToggle.checked : false;
-    const yearVal = clientYearFilter ? clientYearFilter.value : "";
     const sortVal = _sortKey;
 
     let filtered = _allClients.filter(c => {
@@ -276,12 +274,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (heartWallOn) {
         const sessions = _sessionsByClient.get(c.id) || [];
         if (!sessions.some(s => s.isHeartShield === true)) return false;
-      }
-      // Year filter
-      if (yearVal) {
-        const sessions = _sessionsByClient.get(c.id) || [];
-        const hasSessionInYear = sessions.some(s => s.date && s.date.startsWith(yearVal));
-        if (!hasSessionInYear) return false;
       }
       return true;
     });
@@ -315,15 +307,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const clearFiltersBtn = document.getElementById("clearFiltersBtn");
 
+  // Sorting is deliberately NOT part of this predicate: sort is a view
+  // preference, not a filter — changing it must not summon the Clear button,
+  // and Clear must never touch it (UAT 2026-07-06).
   function updateClearButton() {
     if (!clearFiltersBtn) return;
     const hasFilters = (clientSearchInput && clientSearchInput.value) ||
       (clientTypeFilter && clientTypeFilter.value) ||
       (clientHeartWallToggle && clientHeartWallToggle.checked) ||
-      (clientYearFilter && clientYearFilter.value) ||
       _selectedFormats.size > 0 ||
-      _missingBirthFilterActive ||
-      (clientSortSelect && clientSortSelect.value !== "name");
+      _missingBirthFilterActive;
     clearFiltersBtn.classList.toggle("is-hidden", !hasFilters);
   }
 
@@ -388,8 +381,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (clientSearchInput) clientSearchInput.value = "";
       if (clientTypeFilter) clientTypeFilter.value = "";
       if (clientHeartWallToggle) clientHeartWallToggle.checked = false;
-      if (clientYearFilter) clientYearFilter.value = "";
-      if (clientSortSelect) clientSortSelect.value = "name";
       // Reset the Session Format multi-select: clear the set, uncheck every
       // rendered box, reset the pill summary.
       _selectedFormats.clear();
@@ -425,7 +416,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  [clientSearchInput, clientTypeFilter, clientYearFilter].forEach(el => {
+  [clientSearchInput, clientTypeFilter].forEach(el => {
     if (el) el.addEventListener(el.tagName === "INPUT" ? "input" : "change", onFilterChange);
   });
   // The Heart-Wall toggle is a checkbox: listen for change (a text-INPUT would
@@ -489,7 +480,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     syncSortIndicators();
     applyFiltersAndSort();
-    updateClearButton();
   }
   getSortHeaders().forEach(th => {
     const key = th.getAttribute("data-sort-key");
@@ -550,28 +540,6 @@ async function loadOverview() {
   // Clear search input on reload
   const searchInput = document.getElementById("clientSearch");
   if (searchInput) searchInput.value = "";
-
-  // Populate year filter from session dates
-  const yearSelect = document.getElementById("clientYearFilter");
-  if (yearSelect) {
-    const currentVal = yearSelect.value;
-    const years = new Set();
-    sessions.forEach(s => { if (s.date) years.add(s.date.substring(0, 4)); });
-    const sortedYears = [...years].sort().reverse();
-    yearSelect.innerHTML = "";
-    const allOpt = document.createElement("option");
-    allOpt.value = "";
-    allOpt.setAttribute("data-i18n", "overview.filter.year.all");
-    allOpt.textContent = App.t("overview.filter.year.all");
-    yearSelect.appendChild(allOpt);
-    sortedYears.forEach(y => {
-      const opt = document.createElement("option");
-      opt.value = y;
-      opt.textContent = y;
-      yearSelect.appendChild(opt);
-    });
-    if (currentVal) yearSelect.value = currentVal;
-  }
 
   // Build the Session Format option rows from the current getSessionTypes()
   // list (restoring the checked set) and re-render the pill summary. Rebuilding

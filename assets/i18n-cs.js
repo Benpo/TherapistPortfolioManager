@@ -45,8 +45,6 @@ window.I18N.cs = {
   "overview.filter.type": "Typ klienta",
   "overview.filter.type.all": "Vsechny typy",
   "overview.filter.heartShield": "Heart-Wall",
-  "overview.filter.year": "Rok",
-  "overview.filter.year.all": "Vsechny roky",
   "overview.filter.sort": "Seradit podle",
   "overview.filter.sort.name": "Jmeno",
   "overview.filter.sort.lastSession": "Posledni sezeni",

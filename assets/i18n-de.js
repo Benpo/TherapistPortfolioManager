@@ -45,8 +45,6 @@ window.I18N.de = {
   "overview.filter.type": "Kliententyp",
   "overview.filter.type.all": "Alle Typen",
   "overview.filter.heartShield": "Heart-Wall",
-  "overview.filter.year": "Jahr",
-  "overview.filter.year.all": "Alle Jahre",
   "overview.filter.sort": "Sortieren nach",
   "overview.filter.sort.name": "Name",
   "overview.filter.sort.lastSession": "Letzte Sitzung",

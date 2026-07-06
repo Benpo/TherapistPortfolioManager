@@ -129,11 +129,11 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
-          <div class="filter-field">
-            <label class="label" data-i18n="overview.filter.year">Year</label>
-            <select class="select-field select-modern" id="clientYearFilter">
-              <option value="" data-i18n="overview.filter.year.all">All Years</option>
-            </select>
+          <div class="filter-field" style="align-self:flex-end;">
+            <button class="button ghost clear-filters is-hidden" type="button" id="clearFiltersBtn">
+              <span class="clear-filters-x" aria-hidden="true">&#10005;</span>
+              <span data-i18n="overview.filter.clear">Clear Filters</span>
+            </button>
           </div>
           <div class="filter-field">
             <label class="label" data-i18n="overview.filter.sort">Sort By</label>
@@ -142,9 +142,6 @@
               <option value="lastSession" data-i18n="overview.filter.sort.lastSession">Last Session</option>
               <option value="sessions" data-i18n="overview.filter.sort.sessions">Number of Sessions</option>
             </select>
-          </div>
-          <div class="filter-field" style="align-self:flex-end;">
-            <button class="button ghost is-hidden" type="button" id="clearFiltersBtn" data-i18n="overview.filter.clear">Clear Filters</button>
           </div>
         </div>
         <div id="missingBirthBanner" class="missing-birth-banner is-hidden" role="status">

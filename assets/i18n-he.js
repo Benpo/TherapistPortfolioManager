@@ -45,8 +45,6 @@ window.I18N.he = {
   "overview.filter.type": "סוג לקוח",
   "overview.filter.type.all": "כל הסוגים",
   "overview.filter.heartShield": "חומת הלב",
-  "overview.filter.year": "שנה",
-  "overview.filter.year.all": "כל השנים",
   "overview.filter.sort": "מיון לפי",
   "overview.filter.sort.name": "שם",
   "overview.filter.sort.lastSession": "מפגש אחרון",

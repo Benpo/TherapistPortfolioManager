@@ -4568,6 +4568,25 @@ html[dir="rtl"] .multi-select-toggle {
 .table th.sortable:hover {
   color: var(--color-text);
 }
+
+/* Clear-filters is a RESET affordance, not another filter control — danger-
+   tinted ghost with a leading multiplication-x so it reads as "undo my
+   filtering" at a glance (UAT 2026-07-06). */
+.button.ghost.clear-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-danger, #ea4b4b);
+  border-color: var(--color-danger, #ea4b4b);
+}
+.button.ghost.clear-filters:hover {
+  background: var(--color-danger-bg, #f8d7da);
+  color: var(--color-danger-text, #721c24);
+}
+.clear-filters-x {
+  font-weight: 700;
+  line-height: 1;
+}
 .table th.sortable > .sort-label {
   display: inline-flex;
   align-items: center;
