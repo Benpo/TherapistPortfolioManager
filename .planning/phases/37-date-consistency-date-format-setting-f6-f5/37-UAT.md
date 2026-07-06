@@ -83,9 +83,11 @@ blocked: 0
       issue: "Restore writes portfolioLang/portfolioTheme/portfolioDateFormat to localStorage (lines 1224-1245) but does not trigger a live language/theme/direction re-apply."
     - path: "assets/backup-modal.js"
       issue: "Overview page uses the in-place __afterBackupRestore hook (lines 320-326) that refreshes list data without reload and without re-applying the restored language; other pages fall through to location.reload() (lines 327-329)."
+  direction: "Ben decided (2026-07-06): DIRECTION A — apply it, but visibly. Backups continue to carry language & theme; restore must APPLY them AND immediately reflect them in the live UI (no silent divergence). Direction B (stop restoring language/theme, treat as per-device like license/terms) was considered and REJECTED — moving to a new device should carry the user's language."
   missing:
-    - "After a successful restore, re-apply the restored language (re-run the language switch / applyTranslations + document dir) as part of the in-place refresh hook — OR force a reload on the Overview page too so restored language/theme/date-format all take effect consistently."
-    - "Consider surfacing that a restore may change the UI language, so a silent Hebrew switch isn't surprising."
+    - "After a successful restore, re-apply the restored language + document direction (re-run the same language-switch / applyTranslations + dir path the language toggle uses) as part of the in-place __afterBackupRestore refresh hook on the Overview page — OR make the Overview page reload like every other page (backup-modal.js:327-329) so restored language/theme/date-format all take effect immediately and consistently. Either satisfies Direction A; prefer the simpler/most-consistent of the two."
+    - "Apply the same visible re-application to THEME (restored at backup.js:1227-1228, same silent-lag risk)."
+    - "Add a behavior test: import a backup whose language differs from the current UI language on the Overview page → the visible language (and dir) updates immediately, without requiring a navigation."
   debug_session: ""
 
 - truth: "A backup that carries no explicit custom date-format / session-types (field absent OR present-null because the source used defaults) must NOT overwrite the target device's existing customization on restore. Only an explicit, non-default value applies."
