@@ -4592,7 +4592,14 @@ html[dir="rtl"] .multi-select-toggle {
   inline-size: 100%;
   block-size: 100%;
 }
+/* Only the ACTIVE sort column shows its arrow (Finder/Gmail convention);
+   unsorted columns reveal a faint one on hover/keyboard-focus so the
+   affordance stays discoverable without reading as "already sorted". */
 .table th[aria-sort="none"] .sort-arrow {
+  opacity: 0;
+}
+.table th.sortable[aria-sort="none"]:hover .sort-arrow,
+.table th.sortable[aria-sort="none"]:focus-visible .sort-arrow {
   opacity: 0.35;
 }
 .table th[aria-sort="ascending"] .sort-arrow {
