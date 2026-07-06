@@ -472,35 +472,22 @@ window.I18N.cs = {
   "settings.confirm.disable.confirm": "Ano, vypnout",
   "settings.confirm.disable.cancel": "Ponechat zapnut\u00E9",
   "settings.rename.locked.tooltip": "\u00DA\u010Del t\u00E9to sekce je pevn\u00FD \u2014 m\u016F\u017Eete ji vypnout, ale ne p\u0159ejmenovat.",
-  // TODO i18n: translate to Czech
-  "settings.saved.notice": "Settings saved",
-  // TODO i18n: translate to Czech
-  "settings.saved.dismiss": "Dismiss",
+  "settings.saved.notice": "Nastavení uloženo",
+  "settings.saved.dismiss": "Zavřít",
   // --- Phase 22 \u2014 Export modal ---
   "session.export": "Exportovat",
   "export.title": "Exportovat sezen\u00ED",
-  // TODO i18n: translate to Czech
-  "export.stepper.label.1": "Choose",
-  // TODO i18n: translate to Czech
-  "export.stepper.label.2": "Edit",
-  // TODO i18n: translate to Czech
-  "export.stepper.label.3": "Export",
-  // TODO i18n: translate to Czech \u2014 expanded copy from "Vyberte, kter\u00E9 sekce maj\u00ED b\u00FDt zahrnuty."
-  "export.step1.helper": "Step 1 of 3 \u2014 Choose which session sections to include in the export. Your selection here decides what shows up in the editable preview on the next step.",
-  // TODO i18n: translate to Czech
-  "export.step2.helper": "Step 2 of 3 \u2014 Edit your document on the left; the live preview on the right shows how it will look. Formatting tips appear below if you need them.",
-  // TODO i18n: translate to Czech \u2014 expanded copy from "Vyberte zp\u016Fsob doru\u010Den\u00ED dokumentu."
-  "export.step3.helper": "Step 3 of 3 \u2014 Choose how to deliver the document. PDF is best for printing or email; the text file works for any text editor; Share opens your device's share sheet (if supported).",
-  // TODO i18n: translate to Czech
-  "export.format.help.title": "Formatting tips (click to expand)",
-  // TODO i18n: translate to Czech
-  "export.format.help.bold": "surround text with two stars to make it bold",
-  // TODO i18n: translate to Czech
-  "export.format.help.italic": "surround text with one star to make it italic",
-  // TODO i18n: translate to Czech
-  "export.format.help.heading": "start a line with # for a heading; ## for a smaller heading",
-  // TODO i18n: translate to Czech
-  "export.format.help.list": "start a line with a dash and a space to create a bullet list",
+  "export.stepper.label.1": "Vybrat",
+  "export.stepper.label.2": "Upravit",
+  "export.stepper.label.3": "Exportovat",
+  "export.step1.helper": "Krok 1 ze 3 \u2014 Vyberte, kter\u00E9 sekce sezen\u00ED chcete zahrnout do exportu. V\u00E1\u0161 v\u00FDb\u011Br zde ur\u010Duje, co se zobraz\u00ED v upraviteln\u00E9m n\u00E1hledu v dal\u0161\u00EDm kroku.",
+  "export.step2.helper": "Krok 2 ze 3 \u2014 Vlevo upravujte sv\u016Fj dokument; \u017Eiv\u00FD n\u00E1hled vpravo ukazuje, jak bude vypadat. Tipy pro form\u00E1tov\u00E1n\u00ED se zobraz\u00ED n\u00ED\u017Ee, pokud je budete pot\u0159ebovat.",
+  "export.step3.helper": "Krok 3 ze 3 \u2014 Zvolte zp\u016Fsob doru\u010Den\u00ED dokumentu. PDF je nejvhodn\u011Bj\u0161\u00ED pro tisk nebo e-mail; textov\u00FD soubor funguje v jak\u00E9mkoli textov\u00E9m editoru; Sd\u00EDlet otev\u0159e panel sd\u00EDlen\u00ED va\u0161eho za\u0159\u00EDzen\u00ED (je-li podporov\u00E1no).",
+  "export.format.help.title": "Tipy pro formátování (kliknutím rozbalíte)",
+  "export.format.help.bold": "text obklopte dvěma hvězdičkami a zobrazí se tučně",
+  "export.format.help.italic": "text obklopte jednou hvězdičkou a zobrazí se kurzívou",
+  "export.format.help.heading": "řádek začněte znakem # pro nadpis; ## pro menší nadpis",
+  "export.format.help.list": "řádek začněte pomlčkou a mezerou a vytvoříte odrážkový seznam",
   "export.next1": "Dal\u0161\u00ED: Upravit dokument",
   "export.next2": "Dal\u0161\u00ED: Z\u00EDskat dokument",
   "export.done": "Hotovo",
