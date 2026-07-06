@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: complete
 phase: 37-date-consistency-date-format-setting-f6-f5
 source: [37-VERIFICATION.md, 2026-07-06_phase37-close-out-safari-stale-sw-and-push.md]
 started: 2026-07-06T09:01:59Z
-updated: 2026-07-06T10:27:55Z
+updated: 2026-07-06T11:44:07Z
 ---
 
 ## Current Test
@@ -30,10 +30,10 @@ result: pass
 
 ### 5. Save → export smoke on live
 expected: Log/save a session on the live deploy, then export. Session dates render in the chosen date format consistently in the UI and the export; no errors.
-result: issue
+result: pass
 reported: "Logged in in Hebrew, changed to English, imported the backup (clean app), imported successfully, then clicked Add session in the header — the Add-session screen was suddenly in Hebrew. Clicked the logo to go home — back on Hebrew. After changing language to English once more, it stayed on English. Wondering how to reconstruct this one."
 severity: major
-note: "Distinct from the date-format-export check test 5 was nominally about — the date-in-export verification was never reached because the language reverted mid-flow. Root cause traced during UAT (see Gaps). Date-format export smoke still needs a clean re-run after the fix."
+resolved: "Fixed by gap-closure plan 37-16 (GAP-1, commit e2dcc85): the Overview __afterBackupRestore hook now re-applies restored language + dir + translations + theme immediately (no navigation). Deployed to live v1.2.4 and verified by Ben 2026-07-06 — restore no longer reverts the UI language, and the date-format-in-export smoke (previously unreachable because language flipped mid-flow) now passes."
 
 ### 6. HE + DE Personalization-tab native review (Ben)
 expected: In HE and DE, all Personalization-tab strings read naturally — tab label (התאמה אישית / Personalisierung), date-format label/auto option/saved toast (HE "תבנית התאריך עודכנה.", "אוטומטי (לפי השפה)"), and the session-formats helper/confirm-dialog strings. No machine-translation artifacts. ([ASSUMED] flags can then be removed for HE/DE.)
@@ -52,9 +52,10 @@ expected: |
   Either (a) accept as documented known limitation, or (b) apply the
   2-line `'dateFormat' in manifest.settings` + removeItem-on-null fix
   so restore faithfully mirrors the source.
-result: issue
+result: pass
 reported: "Ben decided (2026-07-06): never-clobber. A backup with no explicit date-format / session-types (field absent OR present-null) must NOT overwrite the target's customization. Only an explicit non-default value applies. Reverts the currently-shipped faithful-mirror/removeItem behavior."
 severity: minor
+resolved: "Fixed by gap-closure plan 37-16 (GAP-2, commit 5b23128): backup.js restore reverted to plain never-clobber truthiness guards for dateFormat/sessionTypes (dropped the in-check + removeItem else-branch); WR-02 comment rewritten; test #16 flipped to assert retention. Deployed to live v1.2.4 and verified by Ben 2026-07-06."
 
 ### 9. CS native review — Personalization tab + legal text
 expected: An external Czech native (ideally with legal/business context) confirms the CS Personalization-tab strings (Přizpůsobení, Formát data, Typy sezení family) and the "Ochranné známky a nezávislost" legal text. No CS speaker in-house.
@@ -64,8 +65,8 @@ reason: "No Czech speaker in-house and none expected going forward. Ben (2026-07
 ## Summary
 
 total: 9
-passed: 6
-issues: 2
+passed: 8
+issues: 0
 pending: 0
 skipped: 1
 blocked: 0
@@ -73,7 +74,8 @@ blocked: 0
 ## Gaps
 
 - truth: "After a backup restore, the app's visible language stays consistent with what the user is looking at; a restored language preference is applied to the live UI immediately (or the user is told the app will switch), not silently on the next navigation."
-  status: failed
+  status: resolved
+  resolution: "Gap-closure plan 37-16 GAP-1 (commit e2dcc85), deployed to live v1.2.4, Ben-verified 2026-07-06. Overview __afterBackupRestore now re-applies App.setLanguage (lang+dir+translations) + App.applyTheme + renderGreeting before the list re-render — restored language takes visible effect immediately, no navigation. Falsifiable behavior test drives the real hook (RED→GREEN)."
   reason: "User reported: imported a Hebrew backup while viewing in English; the page stayed English, but navigating (Add session / logo) then rendered the whole app in Hebrew — the restored language was applied silently and only took visible effect on the next page load."
   severity: major
   test: 5
@@ -91,7 +93,8 @@ blocked: 0
   debug_session: ""
 
 - truth: "A backup that carries no explicit custom date-format / session-types (field absent OR present-null because the source used defaults) must NOT overwrite the target device's existing customization on restore. Only an explicit, non-default value applies."
-  status: failed
+  status: resolved
+  resolution: "Gap-closure plan 37-16 GAP-2 (commit 5b23128), deployed to live v1.2.4, Ben-verified 2026-07-06. backup.js restore reverted to plain never-clobber truthiness guards for both dateFormat and sessionTypes (no in-check, no removeItem else); WR-02 comment rewritten; test #16 flipped to assert the target retains its customization when the source field is null/absent."
   reason: "Ben decision (2026-07-06): the shipped faithful-mirror behavior (present-null RESETS the target to default via removeItem) is wrong for this product. Restore should never silently wipe a therapist's chosen date format. Switch to never-clobber — which is also the simpler code."
   severity: minor
   test: 8
