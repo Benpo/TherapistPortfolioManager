@@ -140,8 +140,14 @@
           return !!(el && el.value && el.value.trim().length > 0);
         }
         case "nextSession": {
+          // Content = note OR date (D-09/NEXT-06): a date-only session (empty
+          // #customerSummary note but a #nextSessionDate set) still counts as
+          // having data, so the export step-1 include-toggle defaults ON for it.
           const el = document.getElementById("customerSummary");
-          return !!(el && el.value && el.value.trim().length > 0);
+          const noteHasText = !!(el && el.value && el.value.trim().length > 0);
+          const dateEl = document.getElementById("nextSessionDate");
+          const dateHasValue = !!(dateEl && dateEl.value);
+          return noteHasText || dateHasValue;
         }
         case "heartShieldEmotions": {
           const el = document.getElementById("heartShieldEmotions");
@@ -271,8 +277,18 @@
       if (commentsValue.length > 0) {
         lines.push("", `## ${stripRequired(App.getSectionLabel("comments", "session.form.comments"))}`, commentsValue);
       }
-      if (summaryValue.length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("nextSession", "session.form.nextSession"))}`, summaryValue);
+      // Next Session (D-09/NEXT-06): render the formatted next-session date line
+      // (via App.formatDate — the same locale/RTL-aware engine the overview cell
+      // and PDF footer use, honoring portfolioDateFormat) alongside the note. The
+      // gate is now note-OR-date so a date-only session (empty note) still emits
+      // the block; whichever of date/note is present renders. Read straight from
+      // #nextSessionDate (the same source the save path reads at add-session.js).
+      const nextDateRaw = document.getElementById("nextSessionDate")?.value || "";
+      const nextDateFormatted = nextDateRaw ? App.formatDate(nextDateRaw) : "";
+      if (summaryValue.length > 0 || nextDateRaw) {
+        lines.push("", `## ${stripRequired(App.getSectionLabel("nextSession", "session.form.nextSession"))}`);
+        if (nextDateFormatted) lines.push(nextDateFormatted);
+        if (summaryValue.length > 0) lines.push(summaryValue);
       }
 
       return lines.join("\n");
@@ -408,8 +424,17 @@
         lines.push("", `## ${stripRequired(App.getSectionLabel("comments", "session.form.comments"))}`, commentsValue.trim());
       }
       const summaryValue = (customerSummaryInput ? customerSummaryInput.value : "").trim();
-      if (selected.has("nextSession") && summaryValue.length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("nextSession", "session.form.nextSession"))}`, summaryValue);
+      // Next Session (D-09/NEXT-06): the per-section include-toggle still gates
+      // BOTH note and date together — if nextSession is excluded, neither renders.
+      // When included, the gate is note-OR-date so a date-only session still emits
+      // the block, and the formatted date line (App.formatDate, honoring
+      // portfolioDateFormat) renders beside the note (whichever is present).
+      const nextDateRaw = document.getElementById("nextSessionDate")?.value || "";
+      const nextDateFormatted = nextDateRaw ? App.formatDate(nextDateRaw) : "";
+      if (selected.has("nextSession") && (summaryValue.length > 0 || nextDateRaw)) {
+        lines.push("", `## ${stripRequired(App.getSectionLabel("nextSession", "session.form.nextSession"))}`);
+        if (nextDateFormatted) lines.push(nextDateFormatted);
+        if (summaryValue.length > 0) lines.push(summaryValue);
       }
 
       return lines.join("\n");
@@ -427,6 +452,10 @@
         const hasData = sectionHasData(key);
         let defaultChecked = !!EXPORT_DEFAULT_CHECKED[key];
         if (key === "heartShieldEmotions") defaultChecked = defaultChecked && hasData;
+        // nextSession defaults ON only when it has data — note OR date (D-09/
+        // NEXT-06). sectionHasData("nextSession") counts either, so a date-only
+        // session defaults the toggle ON while a truly empty one defaults OFF.
+        if (key === "nextSession") defaultChecked = defaultChecked && hasData;
 
         const row = document.createElement("label");
         row.className = "export-section-row";
