@@ -6,14 +6,14 @@ current_phase: 38
 current_phase_name: next-session-date-field-with-overview-column
 status: executing
 stopped_at: Phase 38 UI-SPEC approved
-last_updated: "2026-07-06T23:16:56.903Z"
+last_updated: "2026-07-06T23:26:18.805Z"
 last_activity: 2026-07-06
 last_activity_desc: Phase 38 execution started
 progress:
   total_phases: 11
   completed_phases: 10
   total_plans: 77
-  completed_plans: 73
+  completed_plans: 74
   percent: 91
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 38 (next-session-date-field-with-overview-column) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-07-06 — Phase 38 execution started
 
@@ -174,6 +174,7 @@ Last activity: 2026-07-06 — Phase 38 execution started
 | Phase 33 P03 | 2min | 2 tasks | 2 files |
 | Phase 38 P01 | 20min | 2 tasks | 2 files |
 | Phase 38 P03 | 4 min | 1 tasks | 4 files |
+| Phase 38 P04 | 20min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -338,6 +339,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 33 D-06 gate: assert i18n key STRUCTURE + markers, not translation VALUE (cognates make value-equality unreliable; quality is the manual visual check)
 - [Phase ?]: Reuse tests/run-all.js auto-discovery + exit-0/1 contract for the new i18n gate — no new runner, no new dependency (fs+vm)
 - [Phase 38]: Phase 38: next-session i18n keys added across EN/HE/DE/CS with UI-SPEC values (Plan 38-03)
+- [Phase ?]: Phase 38-04: nextSessionDate wired end-to-end (save/add/populate/reset/snapshot); syncNextSessionMin() at column-0 top-level so populateSession (outside the DOMContentLoaded closure) reaches it; min tracks #sessionDate, removed when empty (never min=today, D-08); schemaless YYYY-MM-DD, no migration.
 
 ### Pending Todos
 
@@ -408,7 +410,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-06T23:16:18.217Z
+**Last session:** 2026-07-06T23:25:48.814Z
 
 Last activity: 2026-07-03 — Completed quick task 260703-mp6 (Phase 37 handoff extension E1+E2). E1 feat(37) 89510fe: main-page filter dropdowns + session date inputs adopt the shipped `.select-modern`/`.input-pill` classes (dual-class, zero new CSS); verified LTR/RTL/mobile via headless-Chrome. E2 fix(37) 7b67670: date-format picker `REFERENCE_DATE` "2026-07-02"→"2000-01-31" so option labels show a neutral, unambiguous sample instead of a near-today/build date (SEAM preserved; regression guard added; count 17→18). Suite 121/121 green. **Phase 37 intentionally still PENDING** — Ben runs `/gsd-verify-work 37` after Sapir's translation review. Handoff file deleted. Ready to push.
 Stopped at: Phase 38 UI-SPEC approved
