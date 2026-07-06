@@ -85,3 +85,8 @@ No new security-relevant surface beyond the plan's `<threat_model>`. T-37-16-02 
 ## Manual UAT Follow-up (not a code task)
 
 Per the plan's verification note: re-run original UAT test 5 (date-format-in-export smoke) on the live deploy — log/save a session, export, and confirm dates render in the chosen format in UI + export. This smoke was never reached originally because the language reverted mid-flow; it needs a clean manual re-run now that GAP-1 lands.
+
+## Self-Check: PASSED
+
+- Files verified on disk: assets/app.js, assets/overview.js, assets/backup.js, tests/37-personalization.test.js, 37-16-SUMMARY.md.
+- Commits verified in git log: e2dcc85 (Task 1 GAP-1), 5b23128 (Task 2 GAP-2), edba31c (summary).

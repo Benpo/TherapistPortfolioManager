@@ -412,7 +412,7 @@ Plans:
 | 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete    | 2026-06-30 |
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete   | 2026-07-02 |
-| 37. Date consistency + date-format + session types | v1.2 | 14/14 | In Progress — verify-work pending on v1.2.4 deploy | - |
+| 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete   | 2026-07-06 |
 
 ### Phase 37: Date consistency + date-format setting + session types (F6+F5+F4)
 
@@ -427,7 +427,7 @@ Plans:
   4. The birthdate entry uses a native `<input type="date">` (no data migration), and both `portfolioDateFormat` and the session-type list survive a backup export→restore round-trip
   5. The Phase 30/34 test suite stays green — TZ-pinned date tests + F4/F5/backup behavior tests authored before implementation; changed PDF SHA-256 baselines regenerated with real-output visual review; all new UI strings translated across EN/HE/DE/CS
 
-**Plans:** 14/14 plans complete
+**Plans:** 15/15 plans complete
 
 Plans:
 **Wave 1**
@@ -470,4 +470,4 @@ Plans:
 
 **Gap closure** *(UAT 2026-07-06 — test 5 major + test 8 minor; diagnosed against real code)*
 
-- [ ] 37-16-PLAN.md — GAP 1: restore re-applies restored language + dir + translations + theme immediately on the Overview in-place hook (Direction A, no navigation) + falsifiable behavior test; GAP 2: WR-02 restore → never-clobber (present-null/absent field never wipes a customized dateFormat/sessionTypes) + flipped test #16 (DATE-02, PERS-06)
+- [x] 37-16-PLAN.md — GAP 1: restore re-applies restored language + dir + translations + theme immediately on the Overview in-place hook (Direction A, no navigation) + falsifiable behavior test; GAP 2: WR-02 restore → never-clobber (present-null/absent field never wipes a customized dateFormat/sessionTypes) + flipped test #16 (DATE-02, PERS-06)
