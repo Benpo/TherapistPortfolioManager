@@ -64,7 +64,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 - [x] **Phase 30: Test Harness & Coverage** — fix the 7 PDF tests that can't run in Node (`jsdom` lacks `HTMLCanvasElement.getContext`; old-Node `blob.arrayBuffer`); add an RTL regression guard; add **behavior tests on the god modules before the refactor** (per `feedback-behavior-verification`). May introduce the project's first `package.json` + dev-dependency (decide at plan time). (completed 2026-06-26)
 - [x] **Phase 31: Refactor God Modules** — behavior-preserving extraction from `settings.js` (~2,827 lines) and `add-session.js` (~2,173 lines) using the existing IIFE pattern; guarded by the green suite from Phase 30. Opportunistic in touched code: `var`→`const`, `innerHTML`-i18n hardening, `openDB()` connection pooling, logging in silent catches. (completed 2026-06-28)
 - [x] **Phase 32: README + Code Comments** — project README (run/deploy/architecture) for Sapir as ongoing maintainer; code-level comments describing the *refactored* structure. (plans executed 2026-06-29; pending human UAT — see 32-UAT.md) (completed 2026-06-29)
-- [ ] **Phase 33: DE/CS i18n completion** — translate the 13 export-modal keys currently showing English to German/Czech users via the AI native-translation panel (D-01/D-02 — no human-translator dependency). Independent of the others — slot in whenever ready.
+- [x] **Phase 33: DE/CS i18n completion** — translate the 13 export-modal keys currently showing English to German/Czech users via the AI native-translation panel (D-01/D-02 — no human-translator dependency). Independent of the others — slot in whenever ready. (completed 2026-07-06)
 - [x] **Phase 34: Session PDF Export — Visual Polish** — make the exported session PDF (`pdf-export.js`, bidi-aware) look intentionally designed rather than default jsPDF output. **Design-led**: collaborative brainstorm/design pass to define the target look → SPEC → PLAN → exec. Success criteria drafted at design time. Hebrew RTL/bidi correctness must be preserved. (added 2026-06-29 — first of the v1.2 tail, by Ben's work order) (completed 2026-06-30)
 - [x] **Phase 35: Demo System Refresh / Version Parity** — bring the demo group (`demo.js`/`demo-seed.js`/`demo-hints.js`/`demo.html`) back in sync with the current app schema, features, and version (flagged "stale" in `32-COMMENT-COVERAGE-MAP.md`). Effort uncertain → **size via a discuss/spike before locking a plan**. (added 2026-06-29) (completed 2026-06-30)
 - [x] **Phase 36: Code Comments — Batch 2** — apply the Phase 32 banner convention to the remaining ~21 production modules, starting at the 3 lowest-staleness batch-1 modules (`db.js`/`overview.js`/`sessions.js`); seeded by `32-COMMENT-COVERAGE-MAP.md`. Guarded by green `npm test` + comments-only strip-and-compare gate. (added 2026-06-29) (completed 2026-07-02)
@@ -233,7 +233,7 @@ Plans:
   2. The 13 English-fallback keys in `assets/i18n-cs.js` (lines ~419–447) are translated to Czech, and no `// TODO i18n` markers remain
   3. A DE or CS user opening the export modal sees the stepper labels, step helpers, and markdown formatting tips in their own language rather than English
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 **Wave 1** *(parallel — separate files, no overlap)*
@@ -243,7 +243,7 @@ Plans:
 
 **Wave 2** *(blocked on 33-01 + 33-02)*
 
-- [ ] 33-03-PLAN.md — Parity + no-TODO test (`npm test`) + REQUIREMENTS.md AI-panel source note (D-06/D-02) [W2]
+- [x] 33-03-PLAN.md — Parity + no-TODO test (`npm test`) + REQUIREMENTS.md AI-panel source note (D-06/D-02) [W2]
 
 ### Phase 34: Session PDF Export — Visual Polish
 
@@ -420,7 +420,7 @@ Plans:
 | 30. Test Harness & Coverage | v1.2 | 13/13 | Complete    | 2026-06-27 |
 | 31. Refactor God Modules | v1.2 | 6/6 | Complete    | 2026-06-28 |
 | 32. README + Code Comments | v1.2 | 4/4 | Complete    | 2026-06-29 |
-| 33. DE/CS i18n completion | v1.2 | 2/3 | In Progress|  |
+| 33. DE/CS i18n completion | v1.2 | 3/3 | Complete   | 2026-07-06 |
 | 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete    | 2026-06-30 |
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete   | 2026-07-02 |
