@@ -472,35 +472,22 @@ window.I18N.de = {
   "settings.confirm.disable.confirm": "Ja, deaktivieren",
   "settings.confirm.disable.cancel": "Aktiviert lassen",
   "settings.rename.locked.tooltip": "Der Zweck dieses Abschnitts ist festgelegt \u2014 Sie k\u00F6nnen ihn deaktivieren, aber nicht umbenennen.",
-  // TODO i18n: translate to German
-  "settings.saved.notice": "Settings saved",
-  // TODO i18n: translate to German
-  "settings.saved.dismiss": "Dismiss",
+  "settings.saved.notice": "Einstellungen gespeichert",
+  "settings.saved.dismiss": "Schließen",
   // --- Phase 22 \u2014 Export modal ---
   "session.export": "Exportieren",
   "export.title": "Sitzung exportieren",
-  // TODO i18n: translate to German
-  "export.stepper.label.1": "Choose",
-  // TODO i18n: translate to German
-  "export.stepper.label.2": "Edit",
-  // TODO i18n: translate to German
-  "export.stepper.label.3": "Export",
-  // TODO i18n: translate to German \u2014 expanded copy from "W\u00e4hlen Sie, welche Abschnitte enthalten sein sollen."
-  "export.step1.helper": "Step 1 of 3 \u2014 Choose which session sections to include in the export. Your selection here decides what shows up in the editable preview on the next step.",
-  // TODO i18n: translate to German
-  "export.step2.helper": "Step 2 of 3 \u2014 Edit your document on the left; the live preview on the right shows how it will look. Formatting tips appear below if you need them.",
-  // TODO i18n: translate to German \u2014 expanded copy from "W\u00e4hlen Sie, wie das Dokument geliefert werden soll."
-  "export.step3.helper": "Step 3 of 3 \u2014 Choose how to deliver the document. PDF is best for printing or email; the text file works for any text editor; Share opens your device's share sheet (if supported).",
-  // TODO i18n: translate to German
-  "export.format.help.title": "Formatting tips (click to expand)",
-  // TODO i18n: translate to German
-  "export.format.help.bold": "surround text with two stars to make it bold",
-  // TODO i18n: translate to German
-  "export.format.help.italic": "surround text with one star to make it italic",
-  // TODO i18n: translate to German
-  "export.format.help.heading": "start a line with # for a heading; ## for a smaller heading",
-  // TODO i18n: translate to German
-  "export.format.help.list": "start a line with a dash and a space to create a bullet list",
+  "export.stepper.label.1": "Auswählen",
+  "export.stepper.label.2": "Bearbeiten",
+  "export.stepper.label.3": "Exportieren",
+  "export.step1.helper": "Schritt 1 von 3 \u2014 W\u00e4hlen Sie, welche Abschnitte der Sitzung in den Export aufgenommen werden sollen. Ihre Auswahl bestimmt, was im n\u00e4chsten Schritt in der bearbeitbaren Vorschau erscheint.",
+  "export.step2.helper": "Schritt 2 von 3 \u2014 Bearbeiten Sie Ihr Dokument links; die Live-Vorschau rechts zeigt, wie es aussehen wird. Formatierungshinweise erscheinen bei Bedarf darunter.",
+  "export.step3.helper": "Schritt 3 von 3 \u2014 W\u00e4hlen Sie, wie das Dokument bereitgestellt werden soll. PDF eignet sich am besten zum Drucken oder f\u00fcr E-Mail; die Textdatei funktioniert in jedem Texteditor; Teilen \u00f6ffnet das Teilen-Men\u00fc Ihres Ger\u00e4ts (sofern unterst\u00fctzt).",
+  "export.format.help.title": "Formatierungshinweise (zum Aufklappen klicken)",
+  "export.format.help.bold": "Text mit zwei Sternchen (**) umschließen, um ihn fett darzustellen",
+  "export.format.help.italic": "Text mit einem Sternchen (*) umschließen, um ihn kursiv darzustellen",
+  "export.format.help.heading": "Eine Zeile mit # beginnen für eine Überschrift; ## für eine kleinere Überschrift",
+  "export.format.help.list": "Eine Zeile mit einem Bindestrich und einem Leerzeichen (- ) beginnen, um eine Aufzählungsliste zu erstellen",
   "export.next1": "Weiter: Dokument bearbeiten",
   "export.next2": "Weiter: Dokument abrufen",
   "export.done": "Fertig",
