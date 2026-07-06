@@ -148,7 +148,7 @@ function sortSeed() {
     await boot(env);
     var win = env.win;
 
-    ['name', 'sessions', 'lastSession'].forEach(function (key) {
+    ['name', 'sessions', 'lastSession', 'nextSession'].forEach(function (key) {
       var th = headerByKey(win, key);
       assert.ok(th, 'a sortable header th[data-sort-key="' + key + '"] must exist');
       assert.ok(th.classList.contains('sortable'), 'the "' + key + '" header must carry the .sortable class');
@@ -161,8 +161,8 @@ function sortSeed() {
         'the "' + key + '" header sort-arrow slot must contain the injected chevron svg (buildSortArrows output)');
     });
 
-    assert.deepStrictEqual(allSortKeys(win), ['name', 'sessions', 'lastSession'],
-      'exactly the Name/Sessions/Last-Session columns are sortable (Type + Actions carry NO data-sort-key); got ' + JSON.stringify(allSortKeys(win)));
+    assert.deepStrictEqual(allSortKeys(win), ['name', 'sessions', 'lastSession', 'nextSession'],
+      'exactly the Name/Sessions/Last-Session/Next-Session columns are sortable (Type + Actions carry NO data-sort-key); got ' + JSON.stringify(allSortKeys(win)));
     assert.ok(win.document.getElementById('clientSortSelect'), 'the #clientSortSelect dropdown must stay present alongside the header-sort');
     env.dom.window.close();
   });
@@ -275,8 +275,103 @@ function sortSeed() {
     env.dom.window.close();
   });
 
+  // ─── 7-9. nextSession column sort (NEXT-03/04, D-01/D-03) — RED until 38-05 ─
+  // Fixtures where the MOST-RECENT session (date desc / createdAt desc / id desc,
+  // matching renderClientRows' :619-626 tiebreak) drives the sorted next-date:
+  //   Alice most-recent 2026-05-01 → next 2026-08-01
+  //   Bob   most-recent 2026-06-01 → next 2026-07-01 (soonest)
+  //   Carol most-recent 2026-04-01 → next BLANK, but an OLDER session (2026-02-01)
+  //         carries next 2026-06-01 — the reduce-max TRAP. A reduce-max across all
+  //         Carol's sessions would hand her 2026-06-01 (soonest of all) and sort
+  //         her FIRST under ascending; the correct most-recent derivation reads her
+  //         blank latest next-date and sorts her to the BOTTOM (D-01).
+  //   Ascending (soonest first), blanks last : Bob, Alice, Carol
+  //   Descending (latest first),  blanks last : Alice, Bob, Carol
+  function nextSeed() {
+    return {
+      clients: [
+        { id: 3, name: 'Carol Clark' },
+        { id: 1, name: 'Alice Adams' },
+        { id: 2, name: 'Bob Brown' },
+      ],
+      sessions: [
+        { id: 11, clientId: 1, date: '2026-05-01', nextSessionDate: '2026-08-01', issues: [] },
+        { id: 12, clientId: 1, date: '2026-03-01', nextSessionDate: '2026-04-01', issues: [] },
+        { id: 21, clientId: 2, date: '2026-06-01', nextSessionDate: '2026-07-01', issues: [] },
+        // Carol: most-recent session (2026-04-01) has NO nextSessionDate; the older
+        // 2026-02-01 session DOES (2026-06-01) — the reduce-max regression bait.
+        { id: 31, clientId: 3, date: '2026-04-01', issues: [] },
+        { id: 32, clientId: 3, date: '2026-02-01', nextSessionDate: '2026-06-01', issues: [] },
+      ],
+    };
+  }
+
+  await test('nextSession sort (via #clientSortSelect) defaults ASCENDING (soonest first) with blank most-recent next-dates LAST, deriving from the most-recent session not a reduce-max', async function () {
+    var env = buildOverviewEnv(nextSeed());
+    await boot(env);
+    var win = env.win;
+
+    var sel = win.document.getElementById('clientSortSelect');
+    assert.ok(sel, 'the #clientSortSelect dropdown must exist');
+    sel.value = 'nextSession';
+    sel.dispatchEvent(new win.Event('change', { bubbles: true }));
+    await settle();
+
+    // Soonest next-date first (ascending default for nextSession, opposite of
+    // lastSession's descending); Carol's most-recent next-date is BLANK so she is
+    // last — NOT hoisted by her older session's 2026-06-01 (the reduce-max guard).
+    assert.deepStrictEqual(renderedClientNames(win), ['Bob Brown', 'Alice Adams', 'Carol Clark'],
+      'nextSession must sort ascending (soonest most-recent next-date first) with the blank-most-recent client (Carol) LAST — a reduce-max would hoist Carol to the top; got ' + JSON.stringify(renderedClientNames(win)));
+    env.dom.window.close();
+  });
+
+  await test('nextSession blank most-recent next-dates stay LAST under DESCENDING too (blanks escape the dir*base multiply)', async function () {
+    var env = buildOverviewEnv(nextSeed());
+    await boot(env);
+    var win = env.win;
+
+    // Select nextSession (ascending), then click its header once to FLIP to
+    // descending — the assertion that fails if blanks ride through `dir * base`.
+    var sel = win.document.getElementById('clientSortSelect');
+    sel.value = 'nextSession';
+    sel.dispatchEvent(new win.Event('change', { bubbles: true }));
+    await settle();
+
+    var th = headerByKey(win, 'nextSession');
+    assert.ok(th, 'the nextSession sortable header must exist to flip the direction (RED until Plan 38-05)');
+    th.click(); // ascending → descending
+    await settle();
+
+    assert.strictEqual(th.getAttribute('aria-sort'), 'descending',
+      'clicking the active nextSession header must flip ascending → descending');
+    assert.deepStrictEqual(renderedClientNames(win), ['Alice Adams', 'Bob Brown', 'Carol Clark'],
+      'nextSession descending must order dated clients latest-first (Alice 2026-08-01, Bob 2026-07-01) while the blank-most-recent client (Carol) stays LAST in BOTH directions; got ' + JSON.stringify(renderedClientNames(win)));
+    env.dom.window.close();
+  });
+
+  await test('clicking th[data-sort-key="nextSession"] syncs #clientSortSelect=nextSession, aria-sort ascending, others none (header↔dropdown two-way sync)', async function () {
+    var env = buildOverviewEnv(nextSeed());
+    await boot(env);
+    var win = env.win;
+
+    var th = headerByKey(win, 'nextSession');
+    assert.ok(th, 'the nextSession sortable header must exist to click (RED until Plan 38-05)');
+    th.click();
+    await settle();
+
+    assert.strictEqual(win.document.getElementById('clientSortSelect').value, 'nextSession',
+      'clicking the Next-Session header must set #clientSortSelect.value to "nextSession" (two-way sync)');
+    assert.strictEqual(th.getAttribute('aria-sort'), 'ascending',
+      'first click on Next-Session must sort ascending (soonest first) per the pinned default');
+    assert.strictEqual(headerByKey(win, 'name').getAttribute('aria-sort'), 'none',
+      'the Name header aria-sort must reset to none when Next-Session becomes the active sort');
+    assert.strictEqual(headerByKey(win, 'lastSession').getAttribute('aria-sort'), 'none',
+      'the Last-Session header aria-sort must reset to none when Next-Session becomes the active sort');
+    env.dom.window.close();
+  });
+
   // ─── count guard (vacuous-skip trap) ──────────────────────────────────────
-  var EXPECTED_COUNT = 6;
+  var EXPECTED_COUNT = 9;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
