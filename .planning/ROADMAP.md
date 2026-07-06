@@ -69,7 +69,7 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 - [x] **Phase 35: Demo System Refresh / Version Parity** — bring the demo group (`demo.js`/`demo-seed.js`/`demo-hints.js`/`demo.html`) back in sync with the current app schema, features, and version (flagged "stale" in `32-COMMENT-COVERAGE-MAP.md`). Effort uncertain → **size via a discuss/spike before locking a plan**. (added 2026-06-29) (completed 2026-06-30)
 - [x] **Phase 36: Code Comments — Batch 2** — apply the Phase 32 banner convention to the remaining ~21 production modules, starting at the 3 lowest-staleness batch-1 modules (`db.js`/`overview.js`/`sessions.js`); seeded by `32-COMMENT-COVERAGE-MAP.md`. Guarded by green `npm test` + comments-only strip-and-compare gate. (added 2026-06-29) (completed 2026-07-02)
 - [x] **Phase 37: Date consistency + date-format setting + session types** — canonical local-time date engine (kills the UTC off-by-one), a Personalization Settings tab (6 date formats), and a two-tier session-type list; Hebrew RTL + PDF parity preserved. (added 2026-06-29 tail) (completed 2026-07-06)
-- [ ] **Phase 38: Next session date field with overview column** — optional native date-picker for the *next* session, stored on the session record + shown as its own overview column (mirrors last-session date). **Promoted from backlog 2026-07-06**; builds directly on the Phase 37 date engine, native date input, and overview column formatter. **Depends on: Phase 37.**
+- [x] **Phase 38: Next session date field with overview column** — optional native date-picker for the *next* session, stored on the session record + shown as its own overview column (mirrors last-session date). **Promoted from backlog 2026-07-06**; builds directly on the Phase 37 date engine, native date input, and overview column formatter. **Depends on: Phase 37.** (completed 2026-07-06)
 
 ### Phase 28: Update Reliability & Versioning
 
@@ -406,7 +406,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete   | 2026-07-02 |
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete    | 2026-07-06 |
-| 38. Next session date field + overview column | v1.2 | 6/7 | In Progress|  |
+| 38. Next session date field + overview column | v1.2 | 7/7 | Complete   | 2026-07-06 |
 
 ### Phase 37: Date consistency + date-format setting + session types (F6+F5+F4)
 
@@ -482,7 +482,7 @@ Plans:
 **Notes:** Likely small/immediate — ripened by Phase 37, which built every touch-point it needs. Trace during planning: the add/edit-session form (the next-session note section), the session data model/migration, and the overview table renderer + its date-column formatting (RTL/locale-aware, matching last-session). Not a launch/priority blocker — queued behind Ben's Simpl8-first freeze; plan when TPM work resumes.
 
 **Requirements:** NEXT-01, NEXT-02, NEXT-03, NEXT-04, NEXT-05, NEXT-06, NEXT-07, NEXT-08 (formalized 2026-07-06 from the 12 CONTEXT decisions; full text in REQUIREMENTS.md).
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans complete
 
 Plans:
 
@@ -497,4 +497,4 @@ Plans:
 - [x] 38-04-PLAN.md — Wave 2: Form field #nextSessionDate + dynamic session-relative min + snapshot capture (NEXT-01, NEXT-02)
 - [x] 38-05-PLAN.md — Wave 2: Overview "Next Session" column + ascending sort + subtle overdue cue (NEXT-03, NEXT-04, NEXT-05)
 - [x] 38-06-PLAN.md — Wave 2: Export date in markdown/PDF + note-or-date gate + golden-baseline unchanged guard (NEXT-06, NEXT-08)
-- [ ] 38-07-PLAN.md — Wave 2: Demo self-freshening seed (relative next-date) + backup round-trip spot-check (NEXT-07)
+- [x] 38-07-PLAN.md — Wave 2: Demo self-freshening seed (relative next-date) + backup round-trip spot-check (NEXT-07)
