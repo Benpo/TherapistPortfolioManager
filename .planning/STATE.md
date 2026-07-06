@@ -5,8 +5,8 @@ milestone_name: — Codebase Health & Reliability
 current_phase: 38
 current_phase_name: Next session date field with overview column
 status: planning
-stopped_at: Phase 38 context gathered
-last_updated: "2026-07-06T21:24:36.467Z"
+stopped_at: Phase 38 UI-SPEC approved
+last_updated: "2026-07-06T22:02:31.762Z"
 last_activity: 2026-07-06
 last_activity_desc: Promoted backlog item 999.1 → Phase 38 (v1.2)
 progress:
@@ -405,11 +405,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-06T21:24:36.458Z
+**Last session:** 2026-07-06T22:02:31.755Z
 
 Last activity: 2026-07-03 — Completed quick task 260703-mp6 (Phase 37 handoff extension E1+E2). E1 feat(37) 89510fe: main-page filter dropdowns + session date inputs adopt the shipped `.select-modern`/`.input-pill` classes (dual-class, zero new CSS); verified LTR/RTL/mobile via headless-Chrome. E2 fix(37) 7b67670: date-format picker `REFERENCE_DATE` "2026-07-02"→"2000-01-31" so option labels show a neutral, unambiguous sample instead of a near-today/build date (SEAM preserved; regression guard added; count 17→18). Suite 121/121 green. **Phase 37 intentionally still PENDING** — Ben runs `/gsd-verify-work 37` after Sapir's translation review. Handoff file deleted. Ready to push.
-Stopped at: Phase 38 context gathered
-Resume file: .planning/phases/38-next-session-date-field-with-overview-column/38-CONTEXT.md
+Stopped at: Phase 38 UI-SPEC approved
+Resume file: .planning/phases/38-next-session-date-field-with-overview-column/38-UI-SPEC.md
 Next: orchestrator runs Phase 35 verification, then phase.complete.
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
