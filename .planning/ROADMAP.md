@@ -481,7 +481,7 @@ Plans:
 
 **Notes:** Likely small/immediate — ripened by Phase 37, which built every touch-point it needs. Trace during planning: the add/edit-session form (the next-session note section), the session data model/migration, and the overview table renderer + its date-column formatting (RTL/locale-aware, matching last-session). Not a launch/priority blocker — queued behind Ben's Simpl8-first freeze; plan when TPM work resumes.
 
-**Requirements:** TBD — define via `/gsd-discuss-phase 38` → `/gsd-plan-phase 38`.
+**Requirements:** NEXT-01, NEXT-02, NEXT-03, NEXT-04, NEXT-05, NEXT-06, NEXT-07, NEXT-08 (formalized 2026-07-06 from the 12 CONTEXT decisions; full text in REQUIREMENTS.md).
 **Plans:** 0 plans
 
 Plans:
