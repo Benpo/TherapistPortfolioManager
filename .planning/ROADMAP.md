@@ -426,7 +426,7 @@ Plans:
   4. The birthdate entry uses a native `<input type="date">` (no data migration), and both `portfolioDateFormat` and the session-type list survive a backup export→restore round-trip
   5. The Phase 30/34 test suite stays green — TZ-pinned date tests + F4/F5/backup behavior tests authored before implementation; changed PDF SHA-256 baselines regenerated with real-output visual review; all new UI strings translated across EN/HE/DE/CS
 
-**Plans:** 13/14 plans executed
+**Plans:** 14/14 plans complete
 
 Plans:
 **Wave 1**
@@ -465,4 +465,4 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7)*
 
-- [ ] 37-15-PLAN.md — Wave 8: Overview sort = BOTH (click-to-sort headers + #clientSortSelect, synced, RTL-aware arrows) + final headless-Chrome visual verification of all new controls LTR/RTL/mobile (FILT-03)
+- [x] 37-15-PLAN.md — Wave 8: Overview sort = BOTH (click-to-sort headers + #clientSortSelect, synced, RTL-aware arrows) + final headless-Chrome visual verification of all new controls LTR/RTL/mobile (FILT-03)

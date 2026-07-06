@@ -5,16 +5,16 @@ milestone_name: — Codebase Health & Reliability
 current_phase: 37
 current_phase_name: date-consistency-date-format-setting-f6-f5
 status: executing
-stopped_at: Completed 37-14-PLAN.md
-last_updated: "2026-07-05T20:40:27.432Z"
-last_activity: 2026-07-05
-last_activity_desc: Phase 37 execution started
+stopped_at: Completed 37-15-PLAN.md (all 14 plans done; phase tail — verifier pending)
+last_updated: "2026-07-06T00:00:00.000Z"
+last_activity: 2026-07-06
+last_activity_desc: 37-15 closed (click-to-sort + visual gate, Ben checkpoint); disclaimer fixes + F4 vocabulary alignment + v1.2.4 bump committed
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 66
-  completed_plans: 65
-  percent: 80
+  completed_plans: 66
+  percent: 81
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 
 ## Current Position
 
-Phase: 37 (date-consistency-date-format-setting-f6-f5) — EXECUTING
-Plan: 5 of 14
-Status: Ready to execute
-Last activity: 2026-07-05 — Phase 37 execution started
+Phase: 37 (date-consistency-date-format-setting-f6-f5) — EXECUTING (all 14 plans complete; tail: verifier + Ben push)
+Plan: 14 of 14
+Status: Awaiting fresh 37-VERIFICATION (merge with existing human items); phase stays PENDING until Ben pushes and runs /gsd-verify-work 37
+Last activity: 2026-07-06 — 37-15 closed; disclaimer fixes, F4 alignment, v1.2.4 bump committed
 
 ## Performance Metrics
 
