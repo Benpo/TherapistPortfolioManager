@@ -29,7 +29,9 @@ findings:
   warning: 1
   info: 3
   total: 4
+  fixed: 1
 status: issues_found
+resolution: WR-01 fixed in 07a649a (note-OR-date mirror + mutation-checked jsdom visibility test); 3 Info items accepted as-is
 ---
 
 # Phase 38: Code Review Report
@@ -68,6 +70,8 @@ One consistency defect and three lower-severity notes below.
 ## Warnings
 
 ### WR-01: Form section-visibility content-check ignores the next-session DATE (diverges from the export builder)
+
+> **✓ FIXED in `07a649a`** — `sectionHasData("nextSession")` now mirrors the export builder's note-OR-date gate; falsifiable jsdom visibility case added to `tests/38-next-session.test.js` (case 6, count guard 5→6) and mutation-checked against the pre-fix code (fails there, passes post-fix). Suite 127/127.
 
 **File:** `assets/add-session.js:858-861`
 **Issue:** `sectionHasData("nextSession")` in the form controller only inspects the note field
