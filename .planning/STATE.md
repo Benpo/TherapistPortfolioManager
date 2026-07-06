@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
-current_phase: 999.1
-current_phase_name: BACKLOG
-status: executing
-stopped_at: Completed 37-14-PLAN.md
-last_updated: "2026-07-06T12:43:49.645Z"
+current_phase: 38
+current_phase_name: Next session date field with overview column
+status: planning
+stopped_at: Completed 37-16-PLAN.md
+last_updated: "2026-07-06"
 last_activity: 2026-07-06
-last_activity_desc: Phase 37 complete, transitioned to Phase 999.1
+last_activity_desc: Promoted backlog item 999.1 → Phase 38 (v1.2)
 progress:
-  total_phases: 10
+  total_phases: 11
   completed_phases: 10
   total_plans: 70
   completed_plans: 70
-  percent: 100
+  percent: 91
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 
 ## Current Position
 
-Phase: 999.1 — Next session date field with overview column (BACKLOG)
+Phase: 38 — Next session date field with overview column
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-06 — Phase 37 complete, transitioned to Phase 999.1
+Status: Promoted from backlog 2026-07-06 — ready to plan (`/gsd-discuss-phase 38` → `/gsd-plan-phase 38`). Depends on Phase 37. Not started; queued behind Simpl8-first freeze.
+Last activity: 2026-07-06 — Promoted backlog item 999.1 → Phase 38 (v1.2)
 
 ## Performance Metrics
 

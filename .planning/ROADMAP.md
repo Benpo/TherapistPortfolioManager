@@ -8,7 +8,7 @@ Transform the existing functional vanilla JS prototype into a sellable product f
 
 - ✅ **v1.0 MVP** — Phases 1–7 (shipped 2026-03-18)
 - ✅ **v1.1 Final Polish & Launch** — Phases 8–27 (shipped 2026-06-22) — full phase detail archived in `milestones/v1.1-ROADMAP.md`
-- 📋 **v1.2 Codebase Health & Reliability** — Phases 28–36 (core 28–33 co-designed & locked with Ben 2026-06-22; tail 34–36 added 2026-06-29)
+- 📋 **v1.2 Codebase Health & Reliability** — Phases 28–38 (core 28–33 co-designed & locked with Ben 2026-06-22; tail 34–37 added 2026-06-29; Phase 38 promoted from backlog 2026-07-06)
 
 ## Phases
 
@@ -55,7 +55,7 @@ Full goals, success criteria, and per-plan detail are archived in `milestones/v1
 
 </details>
 
-### 📋 v1.2 — Codebase Health & Reliability (Planned — Phases 28–36)
+### 📋 v1.2 — Codebase Health & Reliability (Phases 28–38)
 
 Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisions). A deliberate shift from feature work to maintainability and reliability. Phases run in **dependency order**: get updates reliably delivered + observable, build a test safety net, *then* refactor behind it, *then* document the result. No PLAN files yet — `/gsd-plan-phase` per phase in upcoming sessions.
 
@@ -68,6 +68,8 @@ Scope **co-designed and locked with Ben 2026-06-22** (see PROJECT.md Key Decisio
 - [x] **Phase 34: Session PDF Export — Visual Polish** — make the exported session PDF (`pdf-export.js`, bidi-aware) look intentionally designed rather than default jsPDF output. **Design-led**: collaborative brainstorm/design pass to define the target look → SPEC → PLAN → exec. Success criteria drafted at design time. Hebrew RTL/bidi correctness must be preserved. (added 2026-06-29 — first of the v1.2 tail, by Ben's work order) (completed 2026-06-30)
 - [x] **Phase 35: Demo System Refresh / Version Parity** — bring the demo group (`demo.js`/`demo-seed.js`/`demo-hints.js`/`demo.html`) back in sync with the current app schema, features, and version (flagged "stale" in `32-COMMENT-COVERAGE-MAP.md`). Effort uncertain → **size via a discuss/spike before locking a plan**. (added 2026-06-29) (completed 2026-06-30)
 - [x] **Phase 36: Code Comments — Batch 2** — apply the Phase 32 banner convention to the remaining ~21 production modules, starting at the 3 lowest-staleness batch-1 modules (`db.js`/`overview.js`/`sessions.js`); seeded by `32-COMMENT-COVERAGE-MAP.md`. Guarded by green `npm test` + comments-only strip-and-compare gate. (added 2026-06-29) (completed 2026-07-02)
+- [x] **Phase 37: Date consistency + date-format setting + session types** — canonical local-time date engine (kills the UTC off-by-one), a Personalization Settings tab (6 date formats), and a two-tier session-type list; Hebrew RTL + PDF parity preserved. (added 2026-06-29 tail) (completed 2026-07-06)
+- [ ] **Phase 38: Next session date field with overview column** — optional native date-picker for the *next* session, stored on the session record + shown as its own overview column (mirrors last-session date). **Promoted from backlog 2026-07-06**; builds directly on the Phase 37 date engine, native date input, and overview column formatter. **Depends on: Phase 37.**
 
 ### Phase 28: Update Reliability & Versioning
 
@@ -361,27 +363,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 - **Broader extraction + test-coverage health (post-v1.2 outlook — likely a "v1.3 Codebase Health II")** — surfaced during Phase 30 discussion (2026-06-26). v1.2 only char-tests + refactors the two god modules (`settings.js`, `add-session.js`); the rest of the `.js` landscape has two unaddressed risks: (a) **dangerous test-coverage gaps** in large files (`app.js` = 1,474 lines / only 6 tests; `license.js` 568/0; `overview.js`, `landing.js`), and (b) **further extraction candidates** among the 4-digit files (`backup.js`, `app.js`, `pdf-export.js`, `db.js` — triage god-module vs cohesive-large, don't assume) + an app-wide glue-duplication sweep (`t()` in 5 files, `showToast` in 2). Best done *after* v1.2 establishes the test harness (P30) + extraction pattern (P31) as the template. Full coverage map + scoping in todo: `todos/pending/2026-06-26-broader-extraction-and-test-coverage-health.md`. Decide promotion at v1.2 close.
 - **Other pending todos** — see `.planning/todos/pending/` (incl. deactivation data-loss warning, PWA install guidance, v12 IDB encryption, drag-sort settings, modality templates).
 
-### Phase 999.1: Next session date field with overview column (BACKLOG)
-
-**Goal:** Add an optional, real **date** field for the next session — stored on the session record alongside the existing free-text "information for the next session" note — and surface it in the overview table as its own column, mirroring how the last-session date is already shown.
-
-**Scope (as captured 2026-06-30):**
-
-- New optional "next session date" lives in the same "information for the next session" section that today holds only a text field.
-- Must be a proper **date input (date picker)**, not free text — a real date type so the value can't be malformed or exploited.
-- Saved directly within the session record.
-- Displayed on the overview table as a column, similar to the existing "last session date" column.
-- Optional — setting/flagging the date is never required; rows without one render empty as last-session does.
-
-**Notes:** Likely small/immediate. Touch points to trace during planning: the add/edit-session form (the next-session note section), the session data model/migration, and the overview table renderer + its date-column formatting (RTL/locale-aware, matching last-session).
-
-**Requirements:** TBD
-**Plans:** 0 plans
-
-Plans:
-
-- [ ] TBD (promote with /gsd-review-backlog when ready)
-
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -425,6 +406,7 @@ Plans:
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete   | 2026-07-02 |
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete    | 2026-07-06 |
+| 38. Next session date field + overview column | v1.2 | 0/0 | Planned | - |
 
 ### Phase 37: Date consistency + date-format setting + session types (F6+F5+F4)
 
@@ -483,3 +465,25 @@ Plans:
 **Gap closure** *(UAT 2026-07-06 — test 5 major + test 8 minor; diagnosed against real code)*
 
 - [x] 37-16-PLAN.md — GAP 1: restore re-applies restored language + dir + translations + theme immediately on the Overview in-place hook (Direction A, no navigation) + falsifiable behavior test; GAP 2: WR-02 restore → never-clobber (present-null/absent field never wipes a customized dateFormat/sessionTypes) + flipped test #16 (DATE-02, PERS-06)
+
+### Phase 38: Next session date field with overview column
+
+**Goal:** Add an optional, real **date** field for the next session — stored on the session record alongside the existing free-text "information for the next session" note — and surface it in the overview table as its own column, mirroring how the last-session date is already shown.
+**Depends on:** Phase 37 — reuses the canonical local-time date engine (`App.formatDate` / `window.DateFormat`), the native `<input type="date">` pattern, the `portfolioDateFormat` personalization setting, and the RTL/locale-aware overview date-column formatter that Phase 37 shipped.
+
+**Scope (captured 2026-06-30 · promoted from backlog 2026-07-06):**
+
+- New optional "next session date" lives in the same "information for the next session" section that today holds only a text field.
+- Must be a proper **date input (date picker)**, not free text — a real date type so the value can't be malformed or exploited.
+- Saved directly within the session record.
+- Displayed on the overview table as a column, similar to the existing "last session date" column.
+- Optional — setting/flagging the date is never required; rows without one render empty as last-session does.
+
+**Notes:** Likely small/immediate — ripened by Phase 37, which built every touch-point it needs. Trace during planning: the add/edit-session form (the next-session note section), the session data model/migration, and the overview table renderer + its date-column formatting (RTL/locale-aware, matching last-session). Not a launch/priority blocker — queued behind Ben's Simpl8-first freeze; plan when TPM work resumes.
+
+**Requirements:** TBD — define via `/gsd-discuss-phase 38` → `/gsd-plan-phase 38`.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD — plan with `/gsd-plan-phase 38`
