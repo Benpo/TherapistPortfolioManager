@@ -44,8 +44,8 @@ Requirements for the Codebase Health & Reliability milestone. Each maps to exact
 
 ### DE/CS i18n Completion (Phase 33)
 
-- [x] **I18N-01**: The 13 English-fallback keys in `assets/i18n-de.js` (lines ~419–447) are translated to German; no `// TODO i18n` markers remain _(needs Sapir's strings)_
-- [x] **I18N-02**: The 13 English-fallback keys in `assets/i18n-cs.js` (lines ~419–447) are translated to Czech; no `// TODO i18n` markers remain _(needs Sapir's strings)_
+- [x] **I18N-01**: The 13 export-modal keys in `assets/i18n-de.js` are translated to native German via the AI native-translation panel (D-01); no `// TODO i18n` markers remain
+- [x] **I18N-02**: The 13 export-modal keys in `assets/i18n-cs.js` are translated to native Czech via the AI native-translation panel (D-01); no `// TODO i18n` markers remain
 
 ### Session PDF Export — Visual Polish (Phase 34)
 
