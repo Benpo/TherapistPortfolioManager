@@ -22,8 +22,12 @@
  *     aria-sort to 'none', and reorders #clientTableBody rows. Setting the
  *     dropdown + dispatching change drives the SAME state (updates the matching
  *     header aria-sort, resets the others).
- *   - Default directions: first click on name -> ascending; first click on
- *     sessions or lastSession -> descending (most first); repeat click flips.
+ *   - Default directions: the BOOT render is already name-ascending with the
+ *     Name header lit (aria-sort=ascending, others none) — the indicator never
+ *     lies about the row order (UAT 2026-07-06). First click on an INACTIVE
+ *     header applies its pinned default (sessions/lastSession -> descending,
+ *     most first); a click on the ACTIVE header — including the very first
+ *     click on the boot-default Name — flips direction.
  *
  * METHOD: drive the REAL header clicks + real dropdown, read the REAL rendered
  * #clientTableBody row order and the REAL control values. No source-text asserts.
@@ -116,12 +120,15 @@ async function test(name, fn) {
 //   name asc          : Alice, Bob, Carol
 //   sessions desc     : Alice(3), Carol(2), Bob(1)
 //   lastSession desc  : Bob(2026-06-01), Alice(2026-05-01), Carol(2026-04-01)
+// Clients are deliberately inserted OUT of name order (Carol, Alice, Bob) so
+// the boot-render assertion proves the default sort actually ran — a raw
+// IDB-order paint would fail it instead of passing by coincidence.
 function sortSeed() {
   return {
     clients: [
+      { id: 3, name: 'Carol Clark' },
       { id: 1, name: 'Alice Adams' },
       { id: 2, name: 'Bob Brown' },
-      { id: 3, name: 'Carol Clark' },
     ],
     sessions: [
       { id: 11, clientId: 1, date: '2026-01-01', issues: [] },
@@ -231,8 +238,25 @@ function sortSeed() {
     env.dom.window.close();
   });
 
-  // ─── 5. Click Name header → dropdown sync + name order ────────────────────
-  await test('clicking th[data-sort-key="name"] sets #clientSortSelect=name and sorts by display name ascending', async function () {
+  // ─── 5. Boot render is REALLY sorted name-ascending (indicator never lies) ─
+  await test('boot renders rows name-ascending with the Name header aria-sort=ascending and the others none — WITHOUT any click (seed inserted out of order)', async function () {
+    var env = buildOverviewEnv(sortSeed());
+    await boot(env);
+    var win = env.win;
+
+    assert.deepStrictEqual(renderedClientNames(win), ['Alice Adams', 'Bob Brown', 'Carol Clark'],
+      'the default render must be name-ascending, not raw insertion order (Carol, Alice, Bob); got ' + JSON.stringify(renderedClientNames(win)));
+    assert.strictEqual(headerByKey(win, 'name').getAttribute('aria-sort'), 'ascending',
+      'the Name header must boot lit as the active ascending sort');
+    assert.strictEqual(headerByKey(win, 'sessions').getAttribute('aria-sort'), 'none',
+      'the Sessions header must boot with aria-sort none');
+    assert.strictEqual(headerByKey(win, 'lastSession').getAttribute('aria-sort'), 'none',
+      'the Last-Session header must boot with aria-sort none');
+    env.dom.window.close();
+  });
+
+  // ─── 6. First click on the boot-active Name header FLIPS to descending ────
+  await test('clicking the boot-active Name header flips it to descending and reverses the rows (no swallowed first click)', async function () {
     var env = buildOverviewEnv(sortSeed());
     await boot(env);
     var win = env.win;
@@ -243,16 +267,16 @@ function sortSeed() {
     await settle();
 
     assert.strictEqual(win.document.getElementById('clientSortSelect').value, 'name',
-      'clicking the Name header must set #clientSortSelect.value to "name"');
-    assert.strictEqual(nameTh.getAttribute('aria-sort'), 'ascending',
-      'first click on Name must sort ascending per the pinned default');
-    assert.deepStrictEqual(renderedClientNames(win), ['Alice Adams', 'Bob Brown', 'Carol Clark'],
-      'name-ascending must order rows Alice, Bob, Carol; got ' + JSON.stringify(renderedClientNames(win)));
+      'the dropdown must stay on "name" when the Name header direction flips');
+    assert.strictEqual(nameTh.getAttribute('aria-sort'), 'descending',
+      'the boot state IS name-ascending, so the FIRST click on Name must flip to descending (UAT 2026-07-06: the old guard swallowed this click)');
+    assert.deepStrictEqual(renderedClientNames(win), ['Carol Clark', 'Bob Brown', 'Alice Adams'],
+      'name-descending must order rows Carol, Bob, Alice; got ' + JSON.stringify(renderedClientNames(win)));
     env.dom.window.close();
   });
 
   // ─── count guard (vacuous-skip trap) ──────────────────────────────────────
-  var EXPECTED_COUNT = 5;
+  var EXPECTED_COUNT = 6;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {

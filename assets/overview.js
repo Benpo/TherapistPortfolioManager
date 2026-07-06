@@ -22,6 +22,12 @@
 let _allClients = [];
 let _sessionsByClient = new Map();
 
+// Set once the DOMContentLoaded closure has wired the filter/sort state; lets
+// loadOverview() re-renders (language switch, backup restore) go through the
+// full filter+sort pipeline instead of painting raw IDB order — which would
+// contradict the lit Name header AND silently drop active filters.
+let _applyFiltersAndSortRef = null;
+
 // The "missing birth year" warning is actionable: a module-level flag toggled
 // by the banner's "Show them" control and honored inside
 // applyFiltersAndSort()'s existing filter pipeline. The predicate below is the
@@ -239,12 +245,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const SORT_DEFAULT_DIR = { name: "ascending", sessions: "descending", lastSession: "descending" };
   let _sortKey = (clientSortSelect && clientSortSelect.value) || "name";
   let _sortDir = SORT_DEFAULT_DIR[_sortKey] || "ascending";
-  // Distinguishes the boot-default active key from a user-activated one: the
-  // FIRST click on any header (incl. the default "name") applies that key's
-  // default direction; only a repeat click on an already user-activated key
-  // flips direction. Without this, the very first click on the default Name
-  // header would immediately flip it to descending.
-  let _sortInteracted = false;
 
   function applyFiltersAndSort() {
     const query = (clientSearchInput ? clientSearchInput.value : "").trim().toLowerCase();
@@ -473,18 +473,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       slot.appendChild(svg);
     });
   }
-  // Central sort mutator. A click on the ALREADY-active key flips direction; any
-  // other entry (new header key, or the dropdown) selects the key with its
-  // pinned per-key default direction. Then re-sync indicators + re-render.
+  // Central sort mutator. A click on the ALREADY-active key flips direction —
+  // including the very first click on the boot-default Name header, since the
+  // boot render is genuinely name-sorted (UAT 2026-07-06: the old
+  // _sortInteracted guard made that first click a visible no-op). Any other
+  // entry (new header key, or the dropdown) selects the key with its pinned
+  // per-key default direction. Then re-sync indicators + re-render.
   function setSort(key, allowToggle) {
     if (!SORT_DEFAULT_DIR.hasOwnProperty(key)) return;
-    if (allowToggle && key === _sortKey && _sortInteracted) {
+    if (allowToggle && key === _sortKey) {
       _sortDir = _sortDir === "ascending" ? "descending" : "ascending";
     } else {
       _sortKey = key;
       _sortDir = SORT_DEFAULT_DIR[key];
     }
-    _sortInteracted = true;
     syncSortIndicators();
     applyFiltersAndSort();
     updateClearButton();
@@ -508,6 +510,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   buildSortArrows();
   syncSortIndicators();
+  // From here on, loadOverview() re-renders route through the full pipeline.
+  // Not needed for the boot paint above: at boot every filter is empty and the
+  // fallback in loadOverview() already applied the same name-ascending order.
+  _applyFiltersAndSortRef = applyFiltersAndSort;
 
   document.addEventListener("app:language", async () => {
     renderGreeting();
@@ -574,7 +580,19 @@ async function loadOverview() {
   buildFormatOptions();
   renderFormatSummary();
 
-  renderClientRows(clients, sessionsByClient);
+  if (_applyFiltersAndSortRef) {
+    // Re-render (language switch / backup restore): honor active filters +
+    // the current sort instead of clobbering them with raw IDB order.
+    _applyFiltersAndSortRef();
+  } else {
+    // First boot paint runs before the DOMContentLoaded closure wires the
+    // filter/sort state, but the markup already lights the Name header as
+    // ascending — render what the header claims (UAT 2026-07-06: raw IDB
+    // order shipped under a lit "sorted by Name" indicator).
+    const sorted = clients.slice().sort((a, b) =>
+      getClientDisplayName(a).localeCompare(getClientDisplayName(b), undefined, { sensitivity: "base" }));
+    renderClientRows(sorted, sessionsByClient);
+  }
 }
 
 function updateMissingBirthBanner(clients) {
