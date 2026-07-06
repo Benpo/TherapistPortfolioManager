@@ -4585,6 +4585,13 @@ html[dir="rtl"] .multi-select-toggle {
   opacity: 0.35;
   transition: opacity 0.15s, transform 0.15s;
 }
+/* The injected svg carries only a viewBox (no width/height attributes).
+   WebKit computes an unsized svg flex-item at 0x0 — invisible in Safari —
+   while Chromium stretches it to the container. Size it explicitly. */
+.sort-arrow svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
 .table th[aria-sort="none"] .sort-arrow {
   opacity: 0.35;
 }
