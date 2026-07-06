@@ -467,3 +467,7 @@ Plans:
 **Wave 8** *(blocked on Wave 7)*
 
 - [x] 37-15-PLAN.md — Wave 8: Overview sort = BOTH (click-to-sort headers + #clientSortSelect, synced, RTL-aware arrows) + final headless-Chrome visual verification of all new controls LTR/RTL/mobile (FILT-03)
+
+**Gap closure** *(UAT 2026-07-06 — test 5 major + test 8 minor; diagnosed against real code)*
+
+- [ ] 37-16-PLAN.md — GAP 1: restore re-applies restored language + dir + translations + theme immediately on the Overview in-place hook (Direction A, no navigation) + falsifiable behavior test; GAP 2: WR-02 restore → never-clobber (present-null/absent field never wipes a customized dateFormat/sessionTypes) + flipped test #16 (DATE-02, PERS-06)
