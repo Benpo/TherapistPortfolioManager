@@ -257,7 +257,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // tests/37-overview-sort.test.js and must not be unified: Name sorts ascending
   // (A→Z), Sessions and Last Session sort DESCENDING first (most sessions /
   // most recent on top, matching the shipped dropdown behavior).
-  const SORT_DEFAULT_DIR = { name: "ascending", sessions: "descending", lastSession: "descending" };
+  const SORT_DEFAULT_DIR = { name: "ascending", sessions: "descending", lastSession: "descending", nextSession: "ascending" };
   let _sortKey = (clientSortSelect && clientSortSelect.value) || "name";
   let _sortDir = SORT_DEFAULT_DIR[_sortKey] || "ascending";
 
@@ -302,7 +302,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     const dir = _sortDir === "descending" ? -1 : 1;
     filtered.sort((a, b) => {
       let base;
-      if (sortVal === "lastSession") {
+      if (sortVal === "nextSession") {
+        // Derive each row's next-date from its MOST-RECENT session (matching
+        // the displayed cell, D-01) — NOT a reduce-max across all sessions,
+        // which would read an older session's nextSessionDate. At sort time the
+        // per-client arrays are raw IDB order, so use mostRecentSession() rather
+        // than clientSessions[0] (which is only most-recent AFTER the render
+        // sort). Blanks sort to the BOTTOM under BOTH directions via early
+        // returns that bypass the shared `dir * base` flip (D-03).
+        const aNext = mostRecentSession(_sessionsByClient.get(a.id))?.nextSessionDate || "";
+        const bNext = mostRecentSession(_sessionsByClient.get(b.id))?.nextSessionDate || "";
+        if (!aNext && !bNext) return 0;
+        if (!aNext) return 1;
+        if (!bNext) return -1;
+        base = aNext.localeCompare(bNext); // ascending: soonest first
+      } else if (sortVal === "lastSession") {
         const aSessions = _sessionsByClient.get(a.id) || [];
         const bSessions = _sessionsByClient.get(b.id) || [];
         const aLast = aSessions.length ? aSessions.reduce((max, s) => s.date > max ? s.date : max, "") : "";
