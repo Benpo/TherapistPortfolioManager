@@ -856,8 +856,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         return !!(el && el.value && el.value.trim().length > 0);
       }
       case "nextSession": {
+        // Content = note OR date (D-09/NEXT-06), mirroring export-modal.js:
+        // a date-only session (empty note, #nextSessionDate set) must keep the
+        // section visible so the saved date stays viewable/editable.
         const el = document.getElementById("customerSummary");
-        return !!(el && el.value && el.value.trim().length > 0);
+        const noteHasText = !!(el && el.value && el.value.trim().length > 0);
+        const dateEl = document.getElementById("nextSessionDate");
+        const dateHasValue = !!(dateEl && dateEl.value);
+        return noteHasText || dateHasValue;
       }
       case "heartShieldEmotions": {
         const el = document.getElementById("heartShieldEmotions");

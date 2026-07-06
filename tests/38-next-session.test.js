@@ -297,8 +297,40 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // 6. SECTION VISIBILITY (D-09 note-OR-date, form side — code-review WR-01):
+  //    a DISABLED nextSession section on a PAST session that has ONLY a date
+  //    (empty note) must stay VISIBLE, so the saved date remains viewable and
+  //    editable. Pre-fix, sectionHasData("nextSession") checked only the note →
+  //    the wrapper got is-hidden. Mirrors export-modal.js's note-OR-date gate.
+  await test('SECTION VISIBILITY: disabled nextSession section stays visible on a past session that has a date but no note', async function () {
+    var env = buildEnv({
+      sessionId: SEEDED_SESSION_ID,
+      seededSession: {
+        id: SEEDED_SESSION_ID, clientId: SEEDED_CLIENT_ID, date: '2026-06-01',
+        sessionType: 'clinic', trappedEmotions: ORIGINAL_TRAPPED, comments: '',
+        insights: '', customerSummary: '', issues: [],
+        nextSessionDate: '2026-09-15', // date-only: note is empty
+      },
+    });
+    var win = env.win;
+    // Disable the nextSession section BEFORE boot — visibility is applied
+    // during the populate path (disabled + past session + hasData branch).
+    win.App.isSectionEnabled = function (key) { return key !== 'nextSession'; };
+    await boot(env);
+
+    var f = nextDateField(win);
+    assert.ok(f, '#nextSessionDate must exist on the add-session page');
+    assert.strictEqual(f.value, '2026-09-15', 'PRECONDITION: populate ran and set the date');
+    var wrapper = win.document.querySelector('[data-section-key="nextSession"]');
+    assert.ok(wrapper, 'the nextSession section wrapper must exist');
+    assert.strictEqual(wrapper.classList.contains('is-hidden'), false,
+      'a disabled nextSession section with a date-only past session must stay visible (note-OR-date, D-09) — hiding it makes the saved date invisible/uneditable');
+
+    env.dom.window.close();
+  });
+
   // ─── count guard (vacuous-green trap) ────────────────────────────────────────
-  var EXPECTED_COUNT = 5;
+  var EXPECTED_COUNT = 6;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
