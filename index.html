@@ -151,6 +151,7 @@
             <select class="select-field select-modern" id="clientSortSelect">
               <option value="name" data-i18n="overview.filter.sort.name">Name</option>
               <option value="lastSession" data-i18n="overview.filter.sort.lastSession">Last Session</option>
+              <option value="nextSession" data-i18n="overview.filter.sort.nextSession">Next Session</option>
               <option value="sessions" data-i18n="overview.filter.sort.sessions">Number of Sessions</option>
             </select>
           </div>
@@ -173,6 +174,9 @@
               </th>
               <th class="sortable" data-sort-key="lastSession" aria-sort="none" tabindex="0" scope="col">
                 <span class="sort-label"><span data-i18n="overview.table.lastSession">Last Session</span><span class="sort-arrow" aria-hidden="true"></span></span>
+              </th>
+              <th class="sortable" data-sort-key="nextSession" aria-sort="none" tabindex="0" scope="col">
+                <span class="sort-label"><span data-i18n="overview.table.nextSession">Next Session</span><span class="sort-arrow" aria-hidden="true"></span></span>
               </th>
               <th class="col-actions" data-i18n="overview.table.actions">Actions</th>
             </tr>

@@ -4629,3 +4629,19 @@ html[dir="rtl"] .multi-select-toggle {
   opacity: 1;
   transform: rotate(0deg);
 }
+
+/* Next Session overdue cue (Phase 38, D-04) — the one new visual treatment:
+   dimmed date text + a small amber dot marker. Reuses the shipped
+   --color-text-muted / --color-warning-text tokens (both light + dark). The
+   dot carries title/aria-label so the cue is not color-only (WCAG 1.4.1);
+   margin-inline-end is logical so it flips correctly in RTL. */
+.next-session-cell.is-overdue {
+  color: var(--color-text-muted);
+}
+.next-session-cell .next-overdue-dot {
+  color: var(--color-warning-text);
+  font-size: 0.6em;
+  line-height: 1;
+  margin-inline-end: 0.35em;
+  vertical-align: middle;
+}
