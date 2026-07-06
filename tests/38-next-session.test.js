@@ -243,6 +243,11 @@ async function test(name, fn) {
     // next-session date under test. sessionDate default is today; set explicitly.
     el(win, 'clientSelect').value = String(SEEDED_CLIENT_ID);
     setDateValue(win, sessionDateField(win), win.DateFormat.todayLocalISO());
+    // The save handler also requires >=1 NAMED issue (validateIssues > 0) — a
+    // pre-existing precondition unrelated to nextSessionDate. Mirror the sibling
+    // tests/30-save-redirect.js seedValidForm so submit reaches the addSession
+    // path instead of bailing at toast.issueMissing (Wave-1 setup gap).
+    win.document.querySelector('#issueList .issue-block input.input').value = 'Anxiety';
     var NEXT = '2026-10-20';
     f.value = NEXT;
 

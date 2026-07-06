@@ -512,6 +512,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     sessionDate.focus();
   }
 
+  // Next-session date (D-05/D-08): reset to empty on a new session, seed the
+  // dynamic min from the just-defaulted session date, and keep min in sync on
+  // every session-date change. syncNextSessionMin is top-level so populateSession
+  // (edit branch) can reuse it. Guarded so a missing element never throws.
+  const nextSessionDateEl = document.getElementById("nextSessionDate");
+  if (nextSessionDateEl && !sessionIdParam) {
+    nextSessionDateEl.value = "";
+  }
+  syncNextSessionMin();
+  if (sessionDate) {
+    sessionDate.addEventListener("change", syncNextSessionMin);
+  }
+
   // Render the session-type cards from the managed list BEFORE wiring the
   // generic toggle-group click delegation (PERS-04). setupToggleGroup uses
   // event delegation on the group, so dynamically (re)rendered cards stay
@@ -723,6 +736,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const commentsEl = document.getElementById("sessionComments");
     const insightsEl = document.getElementById("sessionInsights");
     const customerSummaryEl = document.getElementById("customerSummary");
+    const nextSessionDateEl = document.getElementById("nextSessionDate");
     const limitingBeliefsEl = document.getElementById("limitingBeliefs");
     const additionalTechEl = document.getElementById("additionalTech");
     const heartShieldToggleEl = document.getElementById("heartShieldToggle");
@@ -737,6 +751,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       comments: commentsEl ? commentsEl.value : "",
       insights: insightsEl ? insightsEl.value : "",
       customerSummary: customerSummaryEl ? customerSummaryEl.value : "",
+      nextSessionDate: nextSessionDateEl ? nextSessionDateEl.value : "",
       limitingBeliefs: limitingBeliefsEl ? limitingBeliefsEl.value : "",
       additionalTech: additionalTechEl ? additionalTechEl.value : "",
       isHeartShield: heartShieldToggleEl ? !!heartShieldToggleEl.checked : false,
@@ -1112,6 +1127,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const limitingBeliefs = (document.getElementById("limitingBeliefs") || {}).value?.trim() || "";
     const additionalTech = (document.getElementById("additionalTech") || {}).value?.trim() || "";
     const customerSummary = customerSummaryInput ? customerSummaryInput.value.trim() : "";
+    // Native date value is already a clean YYYY-MM-DD (or ""); no .trim() needed.
+    const nextSessionDate = document.getElementById("nextSessionDate")?.value || "";
 
     const isNew = !editingSession;
     let savedId;
@@ -1134,6 +1151,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           limitingBeliefs,
           additionalTech,
           customerSummary,
+          nextSessionDate,
           comments,
           isHeartShield,
           shieldRemoved,
@@ -1153,6 +1171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           limitingBeliefs,
           additionalTech,
           customerSummary,
+          nextSessionDate,
           comments,
           isHeartShield,
           shieldRemoved,
@@ -1648,6 +1667,24 @@ function updateSessionTitle(session) {
   }
 }
 
+// Dynamic min for #nextSessionDate: the next-session date may not precede the
+// session's own date (same-day allowed, D-08). Reads #sessionDate.value via
+// getElementById (NOT a closure const) so it is safe to call from populateSession,
+// which lives OUTSIDE the DOMContentLoaded closure. When #sessionDate is empty the
+// min attribute is REMOVED entirely — never set to today. Must stay at column-0
+// top-level scope so populateSession can reach it without a ReferenceError.
+function syncNextSessionMin() {
+  const nextEl = document.getElementById("nextSessionDate");
+  if (!nextEl) return;
+  const sessionDateEl = document.getElementById("sessionDate");
+  const v = sessionDateEl ? sessionDateEl.value : "";
+  if (v) {
+    nextEl.min = v;
+  } else {
+    nextEl.removeAttribute("min");
+  }
+}
+
 function populateSession(session, issues, createIssueBlock) {
   const clientSelect = document.getElementById("clientSelect");
   const sessionDate = document.getElementById("sessionDate");
@@ -1655,6 +1692,7 @@ function populateSession(session, issues, createIssueBlock) {
   const comments = document.getElementById("sessionComments");
   const insights = document.getElementById("sessionInsights");
   const customerSummary = document.getElementById("customerSummary");
+  const nextSessionDate = document.getElementById("nextSessionDate");
 
   if (clientSelect) clientSelect.value = String(session.clientId);
   if (sessionDate) sessionDate.value = session.date || "";
@@ -1662,6 +1700,9 @@ function populateSession(session, issues, createIssueBlock) {
   if (comments) comments.value = session.comments || "";
   if (insights) insights.value = session.insights || "";
   if (customerSummary) customerSummary.value = session.customerSummary || "";
+  if (nextSessionDate) nextSessionDate.value = session.nextSessionDate || "";
+  // Re-apply the dynamic min now that the session date is populated (D-08).
+  syncNextSessionMin();
   const limitingBeliefsEl = document.getElementById("limitingBeliefs");
   if (limitingBeliefsEl) limitingBeliefsEl.value = session.limitingBeliefs || "";
   const additionalTechEl = document.getElementById("additionalTech");
