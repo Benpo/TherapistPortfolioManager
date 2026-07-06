@@ -95,19 +95,78 @@
           </label>
         </div>
         <h2 class="section-title" data-i18n="overview.clients.title">Clients</h2>
-        <div class="search-wrapper" style="margin-bottom:1rem;">
-          <input type="text" id="clientSearch" class="input search-input"
-            data-i18n-placeholder="overview.search.placeholder" placeholder="Search by name..." />
+        <!-- Phase 37 parity: this block mirrors index.html's Clients filter bar +
+             sortable table verbatim so the demo shows the real app's controls
+             (overview.js drives both pages identically). -->
+        <div class="filter-bar">
+          <div class="filter-field" style="flex:1;min-width:200px;">
+            <input type="text" id="clientSearch" class="input search-input"
+              data-i18n-placeholder="overview.search.placeholder" placeholder="Search by name..." />
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="overview.filter.type">Client Type</label>
+            <select class="select-field select-modern" id="clientTypeFilter">
+              <option value="" data-i18n="overview.filter.type.all">All Types</option>
+              <option value="child" data-i18n="common.type.child">Child</option>
+              <option value="adult" data-i18n="common.type.adult">Adult</option>
+              <option value="animal" data-i18n="common.type.animal">Animal</option>
+              <option value="other" data-i18n="common.type.other">Other</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="filter.sessionFormat">Session Format</label>
+            <div class="multi-select" id="clientFormatFilter">
+              <button type="button" class="multi-select-toggle" id="clientFormatFilterToggle" aria-haspopup="true" aria-expanded="false">
+                <span class="multi-select-summary"></span>
+              </button>
+              <div class="multi-select-panel is-hidden" id="clientFormatFilterPanel" role="group"></div>
+            </div>
+          </div>
+          <div class="filter-field filter-toggle">
+            <label class="label" data-i18n="overview.filter.heartShield">Heart-Wall</label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="clientHeartWallToggle" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="overview.filter.year">Year</label>
+            <select class="select-field select-modern" id="clientYearFilter">
+              <option value="" data-i18n="overview.filter.year.all">All Years</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label class="label" data-i18n="overview.filter.sort">Sort By</label>
+            <select class="select-field select-modern" id="clientSortSelect">
+              <option value="name" data-i18n="overview.filter.sort.name">Name</option>
+              <option value="lastSession" data-i18n="overview.filter.sort.lastSession">Last Session</option>
+              <option value="sessions" data-i18n="overview.filter.sort.sessions">Number of Sessions</option>
+            </select>
+          </div>
+          <div class="filter-field" style="align-self:flex-end;">
+            <button class="button ghost is-hidden" type="button" id="clearFiltersBtn" data-i18n="overview.filter.clear">Clear Filters</button>
+          </div>
+        </div>
+        <div id="missingBirthBanner" class="missing-birth-banner is-hidden" role="status">
+          <span class="missing-birth-banner-icon" aria-hidden="true">!</span>
+          <span class="missing-birth-banner-text" id="missingBirthBannerText"></span>
+          <button class="button ghost" type="button" id="missingBirthFilterBtn" data-i18n="overview.missingBirth.showThem">Show them</button>
         </div>
         <div id="emptyState" class="helper-text" data-i18n="overview.clients.empty" style="display:none;"></div>
         <table class="table">
           <thead>
             <tr>
-              <th data-i18n="overview.table.name">Name</th>
+              <th class="sortable" data-sort-key="name" aria-sort="ascending" tabindex="0" scope="col">
+                <span class="sort-label"><span data-i18n="overview.table.name">Name</span><span class="sort-arrow" aria-hidden="true"></span></span>
+              </th>
               <th data-i18n="overview.table.type">Type</th>
-              <th data-i18n="overview.table.sessions">Sessions</th>
-              <th data-i18n="overview.table.lastSession">Last Session</th>
-              <th data-i18n="overview.table.actions">Actions</th>
+              <th class="sortable" data-sort-key="sessions" aria-sort="none" tabindex="0" scope="col">
+                <span class="sort-label"><span data-i18n="overview.table.sessions">Sessions</span><span class="sort-arrow" aria-hidden="true"></span></span>
+              </th>
+              <th class="sortable" data-sort-key="lastSession" aria-sort="none" tabindex="0" scope="col">
+                <span class="sort-label"><span data-i18n="overview.table.lastSession">Last Session</span><span class="sort-arrow" aria-hidden="true"></span></span>
+              </th>
+              <th class="col-actions" data-i18n="overview.table.actions">Actions</th>
             </tr>
           </thead>
           <tbody id="clientTableBody"></tbody>
