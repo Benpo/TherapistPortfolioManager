@@ -596,6 +596,29 @@ function updateMissingBirthBanner(clients) {
   syncMissingBirthButton();
 }
 
+// Return the SINGLE most-recent session from an array, using the SAME tiebreak
+// the row render applies at :619-626 (date desc, then createdAt desc, then id
+// desc). Used by BOTH the Next Session cell render and the nextSession sort
+// branch (overview.js applyFiltersAndSort). Sort must derive most-recent this
+// way — NOT via lastSession's reduce-max across all sessions, which would pick
+// an OLDER session's nextSessionDate and drift from the displayed value (D-01).
+function mostRecentSession(sessions) {
+  if (!sessions || !sessions.length) return null;
+  let best = null;
+  for (const s of sessions) {
+    if (best === null) { best = s; continue; }
+    const cmp = String(s.date || "").localeCompare(String(best.date || ""));
+    if (cmp > 0) { best = s; continue; }
+    if (cmp < 0) continue;
+    const cs = new Date(s.createdAt || 0).getTime();
+    const cb = new Date(best.createdAt || 0).getTime();
+    if (cs > cb) { best = s; continue; }
+    if (cs < cb) continue;
+    if ((s.id || 0) > (best.id || 0)) best = s;
+  }
+  return best;
+}
+
 function renderClientRows(clients, sessionsByClient) {
   const tableBody = document.getElementById("clientTableBody");
   const emptyState = document.getElementById("emptyState");
@@ -667,6 +690,32 @@ function renderClientRows(clients, sessionsByClient) {
     const lastSessionCell = document.createElement("td");
     lastSessionCell.textContent = lastSession;
     lastSessionCell.setAttribute("data-label", App.t("overview.table.lastSession"));
+    // Next Session cell (D-01, D-04) — reads the MOST-RECENT session's
+    // nextSessionDate (clientSessions[0] is already most-recent post-sort).
+    // Empty/missing → literal dash exactly like Last Session. Overdue (strictly
+    // before today-local) dims the text + prepends an amber accessible-named
+    // dot. Built via textContent/createTextNode/createElement only — never
+    // innerHTML with data (locked by tests/31-overview-render-hardening.test.js).
+    const nextSessionCell = document.createElement("td");
+    nextSessionCell.className = "next-session-cell";
+    nextSessionCell.setAttribute("data-label", App.t("overview.table.nextSession"));
+    const nextRaw = clientSessions[0]?.nextSessionDate || "";
+    if (!nextRaw) {
+      nextSessionCell.textContent = "-";
+    } else {
+      const todayLocal = window.DateFormat.parseLocal(window.DateFormat.todayLocalISO());
+      const nextLocal = window.DateFormat.parseLocal(nextRaw);
+      if (nextLocal && todayLocal && nextLocal < todayLocal) {
+        nextSessionCell.classList.add("is-overdue");
+        const dot = document.createElement("span");
+        dot.className = "next-overdue-dot";
+        dot.textContent = "●"; // ● filled dot, bidi-neutral
+        dot.title = App.t("overview.table.nextSession.overdue");
+        dot.setAttribute("aria-label", App.t("overview.table.nextSession.overdue"));
+        nextSessionCell.appendChild(dot);
+      }
+      nextSessionCell.appendChild(document.createTextNode(App.formatDate(nextRaw)));
+    }
     const actionCell = document.createElement("td");
     const actionsWrap = document.createElement("div");
     actionsWrap.className = "row-actions";
@@ -694,12 +743,13 @@ function renderClientRows(clients, sessionsByClient) {
     row.appendChild(typeCell);
     row.appendChild(sessionsCell);
     row.appendChild(lastSessionCell);
+    row.appendChild(nextSessionCell);
     row.appendChild(actionCell);
 
     const detailRow = document.createElement("tr");
     detailRow.className = "detail-row";
     const detailCell = document.createElement("td");
-    detailCell.colSpan = 5;
+    detailCell.colSpan = 6;
 
     if (!clientSessions.length) {
       // Build the empty-state node via textContent instead
