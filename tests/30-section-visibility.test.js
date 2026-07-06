@@ -223,6 +223,65 @@ async function buildRealReaderEnv(therapistSettings) {
   return { dom: dom, win: win, docHandlers: docHandlers, realApp: realApp };
 }
 
+/**
+ * Export-flow env (NEXT-06 / D-09): boot add-session on a CLEAN, already-saved
+ * ?sessionId=1 session (empty content) so the export trigger takes the "clean AND
+ * saved → open directly" path (no save-before-export prompt), then drive the REAL
+ * export dialog step-1 rows + filtered builder. Mirrors tests/30-export-markdown.js
+ * buildEnv. Used only by the nextSession toggle-default + exclusion cases below.
+ */
+function buildExportEnv() {
+  var html = readAsset('add-session.html');
+  var dom = new JSDOM(html, {
+    url: 'https://localhost/add-session.html?sessionId=1',
+    runScripts: 'outside-only',
+    pretendToBeVisual: false,
+  });
+  var win = dom.window;
+
+  var captured = [];
+  var realAdd = win.document.addEventListener.bind(win.document);
+  win.document.addEventListener = function (type, fn, opts) {
+    if (type === 'DOMContentLoaded') { captured.push(fn); return; }
+    return realAdd(type, fn, opts);
+  };
+
+  win.App = createAppStub({
+    createSeverityScale: function () { return win.document.createElement('div'); },
+    getSeverityValue: function () { return null; },
+  });
+  win.PortfolioDB = createMockPortfolioDB({
+    clients: [{ id: 1, name: 'Test Client' }],
+    sessions: [{
+      id: 1, clientId: 1, date: '', sessionType: 'clinic', issues: [],
+      trappedEmotions: '', heartShieldEmotions: '', insights: '',
+      limitingBeliefs: '', additionalTech: '', customerSummary: '', comments: '',
+      isHeartShield: false, shieldRemoved: null
+    }]
+  });
+  win.matchMedia = function () {
+    return {
+      matches: false,
+      addEventListener: function () {}, removeEventListener: function () {},
+      addListener: function () {}, removeListener: function () {},
+    };
+  };
+
+  win.eval(readAsset('assets/export-modal.js'));
+  win.eval(readAsset('assets/date-format.js'));
+  win.eval(readAsset('assets/add-session.js'));
+
+  if (captured.length !== 1) {
+    throw new Error('expected add-session.js to register exactly 1 DOMContentLoaded handler; got ' + captured.length);
+  }
+  return { dom: dom, win: win, domHandler: captured[0] };
+}
+
+// The rendered step-1 checkbox for a section key (null until the dialog is open).
+function step1Checkbox(win, key) {
+  return win.document.querySelector('#exportStep1Rows input[data-section-key="' + key + '"]');
+}
+
 var passed = 0;
 var failed = 0;
 async function test(name, fn) {
@@ -350,8 +409,114 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── Case 5: nextSession content-check keys off note OR date (NEXT-06/D-09) ───
+  // The export step-1 nextSession toggle must default ON when ONLY a date is
+  // present (content = note OR date), and OFF when NEITHER is present. Today the
+  // content-check (export-modal.js:142-144) keys off #customerSummary (the note)
+  // only, and nextSession's default-checked is not data-gated, so an empty session
+  // shows it CHECKED → the "empty ⇒ unchecked" assertion is RED until Plan 38-06
+  // gates the default on hasData(note OR date). The #nextSessionDate field itself
+  // is RED until Plan 38-04.
+  await test('nextSession export toggle defaults ON for a date-only session and OFF when neither note nor date is present (content-check = note OR date)', async function () {
+    // (a) date-only session → nextSession toggle CHECKED.
+    var envA = buildExportEnv();
+    var winA = envA.win;
+    await envA.domHandler();
+    await settle();
+
+    var dateFieldA = winA.document.getElementById('nextSessionDate');
+    assert.ok(dateFieldA, '#nextSessionDate must exist on the add-session page (RED until Plan 38-04 wires the field)');
+    winA.document.getElementById('customerSummary').value = ''; // note empty
+    dateFieldA.value = '2026-09-15';                            // date present
+
+    winA.document.getElementById('exportSessionBtn').click();
+    await settle();
+    var cbA = step1Checkbox(winA, 'nextSession');
+    assert.ok(cbA, 'the nextSession step-1 checkbox must render');
+    assert.strictEqual(cbA.checked, true,
+      'a date-only session must default the nextSession export toggle ON (content-check counts the date)');
+    envA.dom.window.close();
+
+    // (b) neither note nor date → nextSession toggle UNCHECKED (RED today: it is
+    //     checked unconditionally until the default is gated on hasData at 38-06).
+    var envB = buildExportEnv();
+    var winB = envB.win;
+    await envB.domHandler();
+    await settle();
+
+    var dateFieldB = winB.document.getElementById('nextSessionDate');
+    assert.ok(dateFieldB, '#nextSessionDate must exist on the add-session page (RED until Plan 38-04 wires the field)');
+    winB.document.getElementById('customerSummary').value = ''; // note empty
+    dateFieldB.value = '';                                       // date empty
+
+    winB.document.getElementById('exportSessionBtn').click();
+    await settle();
+    var cbB = step1Checkbox(winB, 'nextSession');
+    assert.ok(cbB, 'the nextSession step-1 checkbox must render');
+    assert.strictEqual(cbB.checked, false,
+      'a session with NEITHER a note NOR a date must default the nextSession export toggle OFF (content-check drives the default)');
+    envB.dom.window.close();
+  });
+
+  // ─── Case 6: excluding nextSession drops BOTH the note AND the date (D-09) ─────
+  // With a note AND a date, the default (checked) filtered export includes BOTH;
+  // unticking the section drops BOTH. The date half is RED until Plan 38-06
+  // appends the date line; the field is RED until Plan 38-04.
+  await test('the filtered export includes BOTH the note and the date when nextSession is checked, and drops BOTH when it is unticked', async function () {
+    var NOTE = 'NOTE_MARK_X';
+    var NEXT_ISO = '2026-10-20';
+
+    // (a) checked (default) → filtered markdown carries BOTH note and formatted date.
+    var envA = buildExportEnv();
+    var winA = envA.win;
+    await envA.domHandler();
+    await settle();
+
+    var dateFieldA = winA.document.getElementById('nextSessionDate');
+    assert.ok(dateFieldA, '#nextSessionDate must exist on the add-session page (RED until Plan 38-04 wires the field)');
+    winA.document.getElementById('customerSummary').value = NOTE;
+    dateFieldA.value = NEXT_ISO;
+
+    winA.document.getElementById('exportSessionBtn').click();
+    await settle();
+    winA.document.getElementById('exportNextBtn').click();
+    await settle();
+
+    var mdChecked = winA.document.getElementById('exportEditor').value;
+    var formattedA = winA.App.formatDate(NEXT_ISO);
+    assert.ok(mdChecked.indexOf(NOTE) !== -1, 'the note must be present when nextSession is checked');
+    assert.ok(mdChecked.indexOf(formattedA) !== -1,
+      'the formatted date (App.formatDate("' + NEXT_ISO + '") = "' + formattedA + '") must be present when nextSession is checked');
+    envA.dom.window.close();
+
+    // (b) unticked → filtered markdown carries NEITHER the note NOR the date.
+    var envB = buildExportEnv();
+    var winB = envB.win;
+    await envB.domHandler();
+    await settle();
+
+    var dateFieldB = winB.document.getElementById('nextSessionDate');
+    assert.ok(dateFieldB, '#nextSessionDate must exist on the add-session page (RED until Plan 38-04 wires the field)');
+    winB.document.getElementById('customerSummary').value = NOTE;
+    dateFieldB.value = NEXT_ISO;
+
+    winB.document.getElementById('exportSessionBtn').click();
+    await settle();
+    var cb = step1Checkbox(winB, 'nextSession');
+    assert.ok(cb, 'the nextSession step-1 checkbox must render');
+    cb.checked = false; // exclude the section
+    winB.document.getElementById('exportNextBtn').click();
+    await settle();
+
+    var mdUnticked = winB.document.getElementById('exportEditor').value;
+    var formattedB = winB.App.formatDate(NEXT_ISO);
+    assert.ok(mdUnticked.indexOf(NOTE) === -1, 'unticking nextSession must drop the note');
+    assert.ok(mdUnticked.indexOf(formattedB) === -1, 'unticking nextSession must drop the date too (both, per D-09)');
+    envB.dom.window.close();
+  });
+
   // ─── F-A end-of-file count guard ─────────────────────────────────────────────
-  var EXPECTED_COUNT = 4;
+  var EXPECTED_COUNT = 6;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {

@@ -309,8 +309,84 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── D. Next-session DATE line in the full builder (NEXT-06, D-09) — RED ──────
+  // A session with BOTH a note and a nextSessionDate must render the note AND a
+  // formatted date line under the "Information for Next Session" heading. Asserted
+  // against the REAL full builder (clipboard path). RED until Plan 38-04 wires the
+  // #nextSessionDate field and Plan 38-06 appends the date line to the builders.
+  await test('FULL builder: a session with a note AND a #nextSessionDate renders the note AND the formatted next-session date line', async function () {
+    var env = buildEnv();
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    setVal(win, 'customerSummary', 'NEXT_NOTE_X');
+    var nextDate = win.document.getElementById('nextSessionDate');
+    assert.ok(nextDate, '#nextSessionDate must exist on the add-session page (RED until Plan 38-04 wires the field)');
+    var NEXT_ISO = '2026-09-15';
+    nextDate.value = NEXT_ISO;
+
+    Object.defineProperty(win, 'isSecureContext', { value: true, configurable: true });
+    var captured = null;
+    Object.defineProperty(win.navigator, 'clipboard', {
+      value: { writeText: function (s) { captured = s; return Promise.resolve(); } },
+      configurable: true,
+    });
+
+    win.document.getElementById('copySessionBtn').click();
+    await settle();
+
+    assert.strictEqual(typeof captured, 'string',
+      'copySessionBtn must route the full markdown through navigator.clipboard.writeText under a secure context');
+    assert.ok(captured.indexOf('## nextSession') !== -1, 'the nextSession heading must be present when a date is set');
+    assert.ok(captured.indexOf('NEXT_NOTE_X') !== -1, 'the next-session NOTE must still render alongside the date');
+    // The date renders through the SAME App.formatDate path the export uses.
+    var formatted = win.App.formatDate(NEXT_ISO);
+    assert.ok(captured.indexOf(formatted) !== -1,
+      'the formatted next-session date (App.formatDate("' + NEXT_ISO + '") = "' + formatted + '") must appear in the export markdown');
+
+    env.dom.window.close();
+  });
+
+  // ─── E. Date-only session still renders the nextSession block (D-09) — RED ────
+  // note empty + nextSessionDate present → the block must STILL render with the
+  // date. The current builders gate on note length only, so a date-only session
+  // emits nothing → RED until Plan 38-06 flips the gate to (note OR date).
+  await test('FULL builder: a date-only session (empty note, #nextSessionDate set) still emits the nextSession heading + date line', async function () {
+    var env = buildEnv();
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    setVal(win, 'customerSummary', ''); // note empty
+    var nextDate = win.document.getElementById('nextSessionDate');
+    assert.ok(nextDate, '#nextSessionDate must exist on the add-session page (RED until Plan 38-04 wires the field)');
+    var NEXT_ISO = '2026-10-20';
+    nextDate.value = NEXT_ISO;
+
+    Object.defineProperty(win, 'isSecureContext', { value: true, configurable: true });
+    var captured = null;
+    Object.defineProperty(win.navigator, 'clipboard', {
+      value: { writeText: function (s) { captured = s; return Promise.resolve(); } },
+      configurable: true,
+    });
+
+    win.document.getElementById('copySessionBtn').click();
+    await settle();
+
+    assert.strictEqual(typeof captured, 'string',
+      'copySessionBtn must route the full markdown through navigator.clipboard.writeText under a secure context');
+    assert.ok(captured.indexOf('## nextSession') !== -1,
+      'a date-only session must STILL emit the nextSession heading (D-09 note-OR-date gate)');
+    var formatted = win.App.formatDate(NEXT_ISO);
+    assert.ok(captured.indexOf(formatted) !== -1,
+      'the formatted date (App.formatDate("' + NEXT_ISO + '") = "' + formatted + '") must render even when the note is empty');
+
+    env.dom.window.close();
+  });
+
   // ─── F-A end-of-file count guard ─────────────────────────────────────────────
-  var EXPECTED_COUNT = 3;
+  var EXPECTED_COUNT = 5;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
