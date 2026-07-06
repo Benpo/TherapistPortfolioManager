@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 38
-current_phase_name: Next session date field with overview column
-status: planning
+current_phase_name: next-session-date-field-with-overview-column
+status: executing
 stopped_at: Phase 38 UI-SPEC approved
-last_updated: "2026-07-06T22:02:31.762Z"
+last_updated: "2026-07-06T23:00:55.371Z"
 last_activity: 2026-07-06
-last_activity_desc: Promoted backlog item 999.1 → Phase 38 (v1.2)
+last_activity_desc: Phase 38 execution started
 progress:
   total_phases: 11
   completed_phases: 10
-  total_plans: 70
-  completed_plans: 70
+  total_plans: 77
+  completed_plans: 71
   percent: 91
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-29)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 37 — date-consistency-date-format-setting-f6-f5
+**Current focus:** Phase 38 — next-session-date-field-with-overview-column
 
 ## Current Position
 
-Phase: 38 — Next session date field with overview column
-Plan: Not started
-Status: Promoted from backlog 2026-07-06 — ready to plan (`/gsd-discuss-phase 38` → `/gsd-plan-phase 38`). Depends on Phase 37. Not started; queued behind Simpl8-first freeze.
-Last activity: 2026-07-06 — Promoted backlog item 999.1 → Phase 38 (v1.2)
+Phase: 38 (next-session-date-field-with-overview-column) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
+Last activity: 2026-07-06 — Phase 38 execution started
 
 ## Performance Metrics
 
@@ -172,6 +172,7 @@ Last activity: 2026-07-06 — Promoted backlog item 999.1 → Phase 38 (v1.2)
 | Phase 33 P01 | 12min | 1 tasks | 1 files |
 | Phase 33 P02 | 8min | 1 tasks | 1 files |
 | Phase 33 P03 | 2min | 2 tasks | 2 files |
+| Phase 38 P01 | 20min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -405,7 +406,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-06T22:02:31.755Z
+**Last session:** 2026-07-06T23:00:30.011Z
 
 Last activity: 2026-07-03 — Completed quick task 260703-mp6 (Phase 37 handoff extension E1+E2). E1 feat(37) 89510fe: main-page filter dropdowns + session date inputs adopt the shipped `.select-modern`/`.input-pill` classes (dual-class, zero new CSS); verified LTR/RTL/mobile via headless-Chrome. E2 fix(37) 7b67670: date-format picker `REFERENCE_DATE` "2026-07-02"→"2000-01-31" so option labels show a neutral, unambiguous sample instead of a near-today/build date (SEAM preserved; regression guard added; count 17→18). Suite 121/121 green. **Phase 37 intentionally still PENDING** — Ben runs `/gsd-verify-work 37` after Sapir's translation review. Handoff file deleted. Ready to push.
 Stopped at: Phase 38 UI-SPEC approved

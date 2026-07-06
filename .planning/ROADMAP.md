@@ -406,7 +406,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete   | 2026-07-02 |
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete    | 2026-07-06 |
-| 38. Next session date field + overview column | v1.2 | 0/0 | Planned | - |
+| 38. Next session date field + overview column | v1.2 | 1/7 | In Progress|  |
 
 ### Phase 37: Date consistency + date-format setting + session types (F6+F5+F4)
 
@@ -482,13 +482,13 @@ Plans:
 **Notes:** Likely small/immediate — ripened by Phase 37, which built every touch-point it needs. Trace during planning: the add/edit-session form (the next-session note section), the session data model/migration, and the overview table renderer + its date-column formatting (RTL/locale-aware, matching last-session). Not a launch/priority blocker — queued behind Ben's Simpl8-first freeze; plan when TPM work resumes.
 
 **Requirements:** NEXT-01, NEXT-02, NEXT-03, NEXT-04, NEXT-05, NEXT-06, NEXT-07, NEXT-08 (formalized 2026-07-06 from the 12 CONTEXT decisions; full text in REQUIREMENTS.md).
-**Plans:** 7 plans (2 waves; reuse-only, additive — tests-first before implementation)
+**Plans:** 1/7 plans executed
 
 Plans:
 
 **Wave 1** *(tests-first + i18n foundation; parallel, no file overlap)*
 
-- [ ] 38-01-PLAN.md — Wave 1: New behavior tests — nextSessionDate save/populate/reset + dynamic min + TZ-pinned overdue boundary (NEXT-01, NEXT-02, NEXT-05, NEXT-08)
+- [x] 38-01-PLAN.md — Wave 1: New behavior tests — nextSessionDate save/populate/reset + dynamic min + TZ-pinned overdue boundary (NEXT-01, NEXT-02, NEXT-05, NEXT-08)
 - [ ] 38-02-PLAN.md — Wave 1: Extend suites — overview sort (blanks-to-bottom/most-recent), export date + date-only, demo seed, snapshot-revert capture (NEXT-03, NEXT-04, NEXT-06, NEXT-07, NEXT-08)
 - [ ] 38-03-PLAN.md — Wave 1: i18n keys ×4 languages — table/sort/form/overdue (NEXT-01, NEXT-03, NEXT-04, NEXT-05)
 

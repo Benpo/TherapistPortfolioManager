@@ -116,14 +116,14 @@ Formalized 2026-07-05 from the "Session Type means three things" UAT collision. 
 
 Formalized 2026-07-06 at plan time from the 12 locked decisions (D-01..D-12) in `.planning/phases/38-next-session-date-field-with-overview-column/38-CONTEXT.md` (phase promoted from backlog 2026-07-06). Builds directly on the Phase 37 date engine (`window.DateFormat` / `App.formatDate`), the native `<input type="date">` pattern, the `portfolioDateFormat` setting, and the RTL/locale-aware overview date-column formatter. **No data migration** — `nextSessionDate` is an additive optional field on the schemaless IndexedDB session record.
 
-- [ ] **NEXT-01**: An optional `nextSessionDate` field is added to the session record — a native `<input type="date">` (`YYYY-MM-DD`, never free text) placed **below** the `#customerSummary` note inside the existing "Information for Next Session" section — wired into the add/edit save payloads (`add-session.js`), populated on edit, and reset on new/clear. The schemaless IndexedDB session store takes it additively with **no migration**; existing sessions simply lack the key and render blank (D-05/D-06/D-07)
-- [ ] **NEXT-02**: The date input's `min` attribute is set **dynamically** to the session's own date (`#sessionDate`) so a next-session date can never precede the session it belongs to (same-day allowed, `>=`); `min` is (re)applied at populate time and on every `#sessionDate` change, and left unset until a session date is chosen — relative to the session record's own date, **not** `min=today` (D-08)
+- [x] **NEXT-01**: An optional `nextSessionDate` field is added to the session record — a native `<input type="date">` (`YYYY-MM-DD`, never free text) placed **below** the `#customerSummary` note inside the existing "Information for Next Session" section — wired into the add/edit save payloads (`add-session.js`), populated on edit, and reset on new/clear. The schemaless IndexedDB session store takes it additively with **no migration**; existing sessions simply lack the key and render blank (D-05/D-06/D-07)
+- [x] **NEXT-02**: The date input's `min` attribute is set **dynamically** to the session's own date (`#sessionDate`) so a next-session date can never precede the session it belongs to (same-day allowed, `>=`); `min` is (re)applied at populate time and on every `#sessionDate` change, and left unset until a session date is chosen — relative to the session record's own date, **not** `min=today` (D-08)
 - [ ] **NEXT-03**: A new "Next Session" column is added to the client overview table in **both** `index.html` and `demo.html`, immediately after "Last Session" (order Name · Type · Sessions · Last Session · **Next Session** · Actions), showing the **most-recent** session's value (`clientSessions[0].nextSessionDate`), formatted via `App.formatDate` (inherits `portfolioDateFormat`, RTL/locale-aware); a blank/missing value renders `-`, exactly mirroring Last Session (D-01/D-02)
 - [ ] **NEXT-04**: The Next Session column is sortable via a new `nextSession` sort key defaulting to **ascending** (soonest-due floats to the top — opposite of Last Session's descending), wired into the column-header ↔ `#clientSortSelect` two-way sync with a matching select option; **empty/missing next-dates always sort to the bottom regardless of direction** (special-cased, since blank strings otherwise sort first under ascending `localeCompare`) (D-03)
-- [ ] **NEXT-05**: A subtle, RTL/locale-safe **overdue cue** (muted text and/or marker) is shown when a row's `nextSessionDate` is **strictly before today** (local time, via `window.DateFormat`); today itself is **not** overdue, and empty cells render `-` with no hint (D-04)
+- [x] **NEXT-05**: A subtle, RTL/locale-safe **overdue cue** (muted text and/or marker) is shown when a row's `nextSessionDate` is **strictly before today** (local time, via `window.DateFormat`); today itself is **not** overdue, and empty cells render `-` with no hint (D-04)
 - [ ] **NEXT-06**: The next-session date is rendered in the **PDF and markdown export** alongside the `customerSummary` note, formatted via `window.DateFormat` (locale/RTL-aware, honoring `portfolioDateFormat`), gated by the **same per-section `nextSession` include-toggle** as the note (export-modal Step 1) — if the section is excluded both note and date are omitted; if only one of note/date is present, the present one still renders (D-09)
 - [ ] **NEXT-07**: **Demo + backup parity** — `demo.html` gets the same Next Session column, `assets/demo-seed-data.json` seeds a few **near-future** `nextSessionDate` values on recent seeded sessions (so the demo column reads naturally, not all-overdue), and backup/restore carries the field **automatically** as part of the whole session object in the ZIP export/import (spot-check wholesale session export; expect **no** `backup.js` change) (D-11/D-12)
-- [ ] **NEXT-08**: **Falsifiable behavior tests authored before implementation** and executed against the real modules cover the new logic — the **TZ-pinned** overdue `< today` comparison (including the today-is-not-overdue boundary), empty-dates-sort-to-bottom under both sort directions, and the dynamic-`min` constraint; changed PDF/markdown **SHA-256 golden baselines are regenerated deliberately with real-output verification** (never blind `--regenerate`, force-pass, or exit-code-only), per `feedback-behavior-verification` + `reference-pdf-jsdom-inert-gates` (D-03/D-04/D-08/D-10)
+- [x] **NEXT-08**: **Falsifiable behavior tests authored before implementation** and executed against the real modules cover the new logic — the **TZ-pinned** overdue `< today` comparison (including the today-is-not-overdue boundary), empty-dates-sort-to-bottom under both sort directions, and the dynamic-`min` constraint; changed PDF/markdown **SHA-256 golden baselines are regenerated deliberately with real-output verification** (never blind `--regenerate`, force-pass, or exit-code-only), per `feedback-behavior-verification` + `reference-pdf-jsdom-inert-gates` (D-03/D-04/D-08/D-10)
 
 ## Future Requirements
 
@@ -224,14 +224,14 @@ Which phases cover which requirements. Status filled during execution.
 | FILT-03 | Phase 37 | Complete |
 | FILT-04 | Phase 37 | Complete |
 | LEGAL-01 | Phase 37 | Complete |
-| NEXT-01 | Phase 38 | Pending |
-| NEXT-02 | Phase 38 | Pending |
+| NEXT-01 | Phase 38 | Complete |
+| NEXT-02 | Phase 38 | Complete |
 | NEXT-03 | Phase 38 | Pending |
 | NEXT-04 | Phase 38 | Pending |
-| NEXT-05 | Phase 38 | Pending |
+| NEXT-05 | Phase 38 | Complete |
 | NEXT-06 | Phase 38 | Pending |
 | NEXT-07 | Phase 38 | Pending |
-| NEXT-08 | Phase 38 | Pending |
+| NEXT-08 | Phase 38 | Complete |
 
 **Coverage:**
 
