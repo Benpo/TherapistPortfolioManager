@@ -1229,26 +1229,19 @@ window.BackupManager = (function () {
       }
       // Restore the date-format preference and the session-type list (both
       // additive-optional localStorage scalars, mirroring the snippetPrefix
-      // guard). A backup is a FAITHFUL MIRROR (WR-02): distinguish "field
-      // absent" (old backup that predates these fields — backward-compat skip)
-      // from "field present but null" (new backup whose source used the DEFAULT).
-      // A present-null field must RESET the target to default (removeItem) so a
-      // customized target does not silently retain its own value after restoring
-      // from a source that never customized. The session-type list round-trips
-      // here via localStorage — NOT the therapistSettings loop (37-PATTERNS.md A2).
-      if ("dateFormat" in manifest.settings) {
-        if (manifest.settings.dateFormat) {
-          localStorage.setItem("portfolioDateFormat", manifest.settings.dateFormat);
-        } else {
-          localStorage.removeItem("portfolioDateFormat");
-        }
+      // guard). NEVER-CLOBBER (WR-02): a backup that carries no explicit custom
+      // value — the field is absent (old backup that predates these fields) OR
+      // present-null (a newer backup whose source used the DEFAULT) — must NEVER
+      // overwrite the target device's existing customization. Only an explicit
+      // non-default value is applied; an empty/absent value leaves the target's
+      // own chosen date format / session-type list untouched. The session-type
+      // list round-trips here via localStorage — NOT the therapistSettings loop
+      // (37-PATTERNS.md A2).
+      if (manifest.settings.dateFormat) {
+        localStorage.setItem("portfolioDateFormat", manifest.settings.dateFormat);
       }
-      if ("sessionTypes" in manifest.settings) {
-        if (manifest.settings.sessionTypes) {
-          localStorage.setItem("portfolioSessionTypes", manifest.settings.sessionTypes);
-        } else {
-          localStorage.removeItem("portfolioSessionTypes");
-        }
+      if (manifest.settings.sessionTypes) {
+        localStorage.setItem("portfolioSessionTypes", manifest.settings.sessionTypes);
       }
       // Restore the custom snippet prefix. Older backups have no snippetPrefix —
       // in that case leave the existing prefix untouched (backward-compat).
