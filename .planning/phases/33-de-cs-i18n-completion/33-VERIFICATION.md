@@ -1,11 +1,12 @@
 ---
 phase: 33-de-cs-i18n-completion
 verified: 2026-07-06T12:48:22Z
-status: human_needed
+status: passed
 score: 7/7 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 human_verification:
+
   - test: "Switch app locale to German, then to Czech; open the export modal and step through 1→2→3."
     expected: "Stepper-label chips show the short translated labels without overflow/wrapping; step helper text is fully visible without clipping; the four formatting-tips lines render correctly (heading tip still shows literal # / ##)."
     why_human: "Visual layout fit (chip width, text wrap, clipping) in the live rendered UI cannot be verified via static grep/file inspection — requires observing the actual rendered DOM."
