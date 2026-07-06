@@ -62,6 +62,10 @@ var ALLOWED_SESSION_KEYS = {
   trappedEmotions: true, insights: true, limitingBeliefs: true, additionalTech: true,
   customerSummary: true, comments: true, isHeartShield: true, shieldRemoved: true,
   createdAt: true, updatedAt: true, id: true,
+  // Phase 38 (NEXT-07): the relative next-appointment offset the seed carries so
+  // the demo "Next Session" column self-freshens. applyRelativeDates converts it
+  // to a computed nextSessionDate (near-future) at load and deletes the helper key.
+  nextSessionDaysAgo: true, nextSessionDate: true,
 };
 var ALLOWED_ISSUE_KEYS = { name: true, before: true, after: true };
 var ALLOWED_SESSION_TYPES = { clinic: true, online: true, other: true };
@@ -266,8 +270,59 @@ test('DEMO-07: every seed session conforms to the v6 schema (key union, sessionT
   });
 });
 
+// ─── NEXT-07: relative next-appointment self-freshens near-future (RED until 38-07) ─
+test('NEXT-07: recent seeded sessions carry an integer nextSessionDaysAgo that applyRelativeDates converts to a near-future nextSessionDate (>= the session\'s own date, not all overdue)', function () {
+  var seed = loadSeed();
+  var sessions = seed.sessions || [];
+  assert.ok(sessions.length > 0, 'the seed must contain sessions');
+
+  // At least a couple of seeded sessions carry the relative next-appointment
+  // offset (the JSON ships NO nextSessionDaysAgo today → RED until 38-07).
+  var withNext = sessions.filter(function (s) {
+    return typeof s.nextSessionDaysAgo === 'number' && Number.isInteger(s.nextSessionDaysAgo);
+  });
+  assert.ok(withNext.length >= 2,
+    'at least a couple of seeded sessions must carry an integer nextSessionDaysAgo (relative next-appointment model → 38-07)');
+
+  // Drive the REAL seam. Anchor "now" at local noon to dodge the tz month-edge
+  // (Pitfall 5), and derive todayISO from the SAME engine the transform uses.
+  var env = buildSeamEnv();
+  var win = env.win;
+  var helpers = win.__demoSeedHelpers;
+  assert.ok(helpers && typeof helpers.applyRelativeDates === 'function' && typeof helpers.isoDaysAgo === 'function',
+    'demo-seed.js must expose window.__demoSeedHelpers.applyRelativeDates + isoDaysAgo');
+
+  var now = new Date();
+  now.setHours(12, 0, 0, 0);
+  var todayISO = helpers.isoDaysAgo(0, now);
+
+  var transformed = helpers.applyRelativeDates(JSON.parse(JSON.stringify(sessions)), now);
+  var checked = 0;
+  var pastTodayCount = 0;
+  transformed.forEach(function (s, idx) {
+    // Only the sessions that carried the relative offset (read from the ORIGINAL,
+    // since the seam deletes the helper key on the copy).
+    if (typeof sessions[idx].nextSessionDaysAgo !== 'number') return;
+    checked++;
+    assert.ok(!Object.prototype.hasOwnProperty.call(s, 'nextSessionDaysAgo'),
+      'session[' + idx + '] must NOT retain the nextSessionDaysAgo helper key after applyRelativeDates (it is converted like daysAgo)');
+    assert.ok(typeof s.nextSessionDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.nextSessionDate),
+      'session[' + idx + '] must carry a computed YYYY-MM-DD nextSessionDate after the seam');
+    // Near-future: the next appointment is on/after the session's own computed
+    // date, so the demo column is not all-overdue (D-12, self-freshening).
+    assert.ok(s.nextSessionDate >= s.date,
+      'session[' + idx + '] nextSessionDate (' + s.nextSessionDate + ') must be >= its own computed date (' + s.date + ') — near-future, not backwards');
+    if (s.nextSessionDate < todayISO) pastTodayCount++;
+  });
+  assert.ok(checked >= 2, 'the transform must have exercised >=2 sessions that carried nextSessionDaysAgo');
+  assert.ok(pastTodayCount <= 1,
+    'at most ONE seeded next-date may be past today (a single deliberate overdue-cue showcase, not all-overdue); got ' + pastTodayCount);
+
+  env.dom.window.close();
+});
+
 // ─── count guard (no case silently skipped) ──────────────────────────────────
-var EXPECTED_COUNT = 3;
+var EXPECTED_COUNT = 4;
 if (passed + failed !== EXPECTED_COUNT) {
   console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases to execute, but ' +
     (passed + failed) + ' ran — a case was silently skipped.');

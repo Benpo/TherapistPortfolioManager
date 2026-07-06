@@ -69,6 +69,7 @@ var T = { 'session.discard': 'DISCARD_LABEL', 'confirm.cancel': 'CANCEL_LABEL' }
 var SEEDED_SESSION_ID = 42;
 var SEEDED_CLIENT_ID = 7;
 var ORIGINAL_TRAPPED = 'ORIGINAL trapped emotions text';
+var SEEDED_NEXT_DATE = '2026-09-15';
 
 /**
  * Build a jsdom add-session.html page booted on a SEEDED ?sessionId= editing
@@ -132,6 +133,7 @@ function buildEnv() {
       comments: 'orig comments',
       insights: '',
       customerSummary: '',
+      nextSessionDate: SEEDED_NEXT_DATE,
       issues: [],
     }],
   });
@@ -275,8 +277,43 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // E. snapshotFormState must CAPTURE nextSessionDate so Cancel→Discard restores
+  //    it (research Pitfall 2). Edit the field, revert, assert it is restored to
+  //    the last-saved snapshot value. RED until Plan 38-04 wires the field +
+  //    adds nextSessionDate to snapshotFormState/populateSession.
+  await test('editing #nextSessionDate flips dirty; revert restores it to the last-saved value (snapshotFormState captures nextSessionDate — Pitfall 2)', async function () {
+    var env = buildEnv();
+    var win = env.win;
+    await boot(env);
+    assert.strictEqual(win.PortfolioFormDirty(), false, 'precondition: clean before edit');
+
+    var field = win.document.getElementById('nextSessionDate');
+    assert.ok(field, '#nextSessionDate must exist on the add-session page (RED until Plan 38-04 wires the field)');
+    assert.strictEqual(field.value, SEEDED_NEXT_DATE,
+      'PRECONDITION: populateSession must load the seeded nextSessionDate into the field');
+
+    // Leave read mode, edit the next-session date, dispatch a bubbling input so the
+    // form's dirty-tracking listener fires.
+    editBtn(win).click();
+    field.value = '2027-01-01';
+    field.dispatchEvent(new win.Event('input', { bubbles: true, cancelable: false }));
+    await settle();
+    assert.strictEqual(win.PortfolioFormDirty(), true,
+      'editing #nextSessionDate (value change + input) must flip the dirty flag true');
+
+    cancelBtn(win).click();
+    await settle();
+
+    assert.strictEqual(field.value, SEEDED_NEXT_DATE,
+      'revert must restore #nextSessionDate to its last-saved snapshot value — proves snapshotFormState captured it (Pitfall 2 guard)');
+    assert.strictEqual(win.PortfolioFormDirty(), false,
+      'revert must flip the dirty flag back to false');
+
+    env.dom.window.close();
+  });
+
   // ─── F-A end-of-file count guard ─────────────────────────────────────────────
-  var EXPECTED_COUNT = 4;
+  var EXPECTED_COUNT = 5;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
