@@ -152,7 +152,8 @@
       "comments": "During this session, we focused on Ben's neck and shoulder tension, which intensifies during stressful periods, as well as his difficulty maintaining emotional closeness in relationships.\n\nThrough muscle testing, several trapped emotions were identified and released, including responsibility overload, frustration, and self-criticism — all of which appear to have contributed to chronic muscular tension in the neck and shoulder area.\n\nWe also explored deeper emotional patterns related to fear of rejection and heartache, which may be creating barriers to emotional intimacy in his relationships.\n\nRecommended:\n- Drink water and rest\n- Light stretching for the neck and shoulders\n- Observe emotional shifts over the next 24-72 hours",
       "createdAt": "2026-03-14T15:38:29.078Z",
       "id": 44,
-      "daysAgo": 72
+      "daysAgo": 72,
+      "nextSessionDaysAgo": -10
     },
     {
       "clientId": 25,
@@ -172,7 +173,8 @@
       "comments": "",
       "createdAt": "2026-03-15T20:38:13.698Z",
       "id": 45,
-      "daysAgo": 23
+      "daysAgo": 23,
+      "nextSessionDaysAgo": 4
     },
     {
       "clientId": 26,
@@ -212,7 +214,8 @@
       "comments": "",
       "createdAt": "2026-03-15T20:39:24.913Z",
       "id": 47,
-      "daysAgo": 12
+      "daysAgo": 12,
+      "nextSessionDaysAgo": -12
     },
     {
       "clientId": 27,
@@ -302,6 +305,7 @@
     {
       "clientId": 29,
       "daysAgo": 0,
+      "nextSessionDaysAgo": -7,
       "sessionType": "online",
       "issues": [
         {
@@ -339,7 +343,8 @@
       "comments": "During the session, Adam shared that he has been experiencing recurring headaches linked to feelings of self-doubt and emotional overwhelm. Through muscle testing, we identified several trapped emotions — including shock and panic — that appear connected to significant life events around age 40.\n\nA crown chakra imbalance was also addressed. After releasing the identified emotions, Adam reported the headache intensity dropping significantly.\n\nRecommended:\n- Stay hydrated\n- Rest and allow processing over the next 24–72 hours\n- Journal any emotional shifts or memories that surface",
       "createdAt": "2026-03-17T12:49:43.005Z",
       "id": 55,
-      "daysAgo": 7
+      "daysAgo": 7,
+      "nextSessionDaysAgo": -10
     }
   ]
 }

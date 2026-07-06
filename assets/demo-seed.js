@@ -32,6 +32,16 @@ window.demoSeedReady = (function() {
       var copy = Object.assign({}, s);
       copy.date = isoDaysAgo(s.daysAgo, now);
       delete copy.daysAgo;
+      // Phase 38 (NEXT-07): an optional relative next-appointment offset, mirroring
+      // the daysAgo->date conversion above. NEGATIVE values yield a FUTURE date
+      // (isoDaysAgo(-6) is 6 days ahead of `now`), so the demo "Next Session"
+      // column self-freshens and reads mostly-upcoming instead of drifting
+      // all-overdue over time (D-12). Sessions without the helper are untouched
+      // (no nextSessionDate injected). Reuses isoDaysAgo — no new date math.
+      if (s.nextSessionDaysAgo !== null && s.nextSessionDaysAgo !== undefined) {
+        copy.nextSessionDate = isoDaysAgo(s.nextSessionDaysAgo, now);
+        delete copy.nextSessionDaysAgo;
+      }
       return copy;
     });
   }
