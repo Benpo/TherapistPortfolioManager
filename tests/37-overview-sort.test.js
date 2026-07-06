@@ -147,6 +147,11 @@ function sortSeed() {
       assert.ok(th.classList.contains('sortable'), 'the "' + key + '" header must carry the .sortable class');
       assert.ok(th.hasAttribute('aria-sort'), 'the "' + key + '" header must carry an aria-sort attribute');
       assert.ok(th.querySelector('span.sort-arrow'), 'the "' + key + '" header must contain a child span.sort-arrow');
+      // The slot alone is invisible — buildSortArrows() must have INJECTED the
+      // chevron svg into it, or the sorted state renders with no icon at all
+      // (UAT 2026-07-06: an empty slot passed this test while looking broken).
+      assert.ok(th.querySelector('span.sort-arrow svg path'),
+        'the "' + key + '" header sort-arrow slot must contain the injected chevron svg (buildSortArrows output)');
     });
 
     assert.deepStrictEqual(allSortKeys(win), ['name', 'sessions', 'lastSession'],
