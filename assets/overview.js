@@ -146,8 +146,24 @@ if (typeof window !== 'undefined') {
 // overview.js only registers the post-restore refresh hook so an in-place
 // restore re-renders the overview list without a full page reload (other
 // pages reload via backup-modal.js's fallback).
+//
+// GAP-1 (Direction A, LOCKED 2026-07-06 — "apply it, but visibly"): a restore
+// writes the restored portfolioLang/portfolioTheme to localStorage, but because
+// the Overview refresh is IN-PLACE (no reload, unlike every other page), the
+// live UI never re-runs the language/dir/translate + theme path — so the visible
+// language silently diverged from localStorage. Re-apply the restored prefs here
+// FIRST, reusing the EXACT runtime functions the language toggle already uses
+// (App.setLanguage re-runs language + documentElement.dir + applyTranslations;
+// App.applyTheme is the shared theme seam; renderGreeting re-reads portfolioLang
+// for the imperatively-rendered greeting + daily quote). Ordering is load-bearing:
+// language + theme apply BEFORE the list re-render so they take visible effect
+// even if loadOverview() is slow or throws. No location.reload() — the in-place
+// no-navigation flip is the whole point (Direction A).
 if (typeof window !== 'undefined') {
   window.__afterBackupRestore = function () {
+    App.setLanguage(localStorage.getItem('portfolioLang') || 'en');
+    App.applyTheme(localStorage.getItem('portfolioTheme'));
+    renderGreeting();
     return Promise.resolve()
       .then(function () { return loadOverview(); })
       .then(function () {

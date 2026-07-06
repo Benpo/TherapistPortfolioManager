@@ -159,6 +159,23 @@ window.App = (() => {
    * Initialize the dark/light theme toggle button and mount it into .header-actions.
    * Reads initial theme from the data-theme attribute on <html>.
    */
+  /**
+   * Apply a theme to the document by toggling the data-theme attribute \u2014 the
+   * single DOM-apply seam shared by the header theme toggle AND the Overview
+   * post-restore hook (assets/overview.js). Only the exact value 'dark' enables
+   * dark mode; any other value (including an arbitrary/untrusted restored string)
+   * removes the attribute, so a tampered backup theme can never inject markup or
+   * an unexpected attribute value (T-37-16-02).
+   * @param {string} theme - 'dark' enables dark mode; anything else = light.
+   */
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }
+
   function initThemeToggle() {
     var actions = document.getElementById('headerActions') || document.querySelector('.header-actions');
     if (!actions) return;
@@ -171,11 +188,7 @@ window.App = (() => {
     updateIcon();
     btn.addEventListener('click', function() {
       var next = isDark() ? 'light' : 'dark';
-      if (next === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-      }
+      applyTheme(next);
       localStorage.setItem('portfolioTheme', next);
       updateIcon();
     });
@@ -1465,6 +1478,7 @@ window.App = (() => {
     initCommon,
     renderNav,
     initThemeToggle,
+    applyTheme,
     initLicenseLink,
     redirectDemoBrandLink: redirectDemoBrandLink,
     mountBackupCloudButton: mountBackupCloudButton,

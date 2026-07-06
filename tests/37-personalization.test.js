@@ -866,8 +866,82 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── 18. GAP-1: restore re-applies language + dir + translations + theme ──
+  // Direction A (LOCKED 2026-07-06): on the Overview page, importing a backup
+  // whose stored language/theme differ from the current UI must IMMEDIATELY flip
+  // the visible language, document text-direction, translated strings, and theme
+  // — with no navigation. The in-place window.__afterBackupRestore hook re-runs
+  // the REAL App.setLanguage (lang + dir + applyTranslations) + App.applyTheme +
+  // renderGreeting BEFORE the list re-render. This drives the REAL hook (no stub
+  // of setLanguage / applyTheme / the hook itself); the .catch only absorbs the
+  // loadOverview() rejection in this minimal DOM (the re-apply runs first, so it
+  // is applied regardless). Falsifiable: against the pre-fix hook (loadOverview +
+  // renderLastBackupSubtitle only) dir stays ltr, lang en, text English, and
+  // data-theme is unset — every assertion fails BEFORE the fix.
+  await test('restore (Overview): __afterBackupRestore re-applies restored language + dir + translations + theme immediately, no navigation (GAP-1)', async function () {
+    var dom = new JSDOM(
+      '<!doctype html><html><body><span data-i18n="nav.overview">PLACEHOLDER</span></body></html>',
+      { url: 'https://localhost/index.html', runScripts: 'outside-only', pretendToBeVisual: false }
+    );
+    var win = dom.window;
+    win.matchMedia = function () {
+      return { matches: false, media: '', addEventListener: function () {}, removeEventListener: function () {}, addListener: function () {}, removeListener: function () {} };
+    };
+    win.BroadcastChannel = function () {
+      return { postMessage: function () {}, close: function () {}, addEventListener: function () {} };
+    };
+    try { win.localStorage.setItem('portfolioLang', 'en'); } catch (_) {}
+    // Minimal PortfolioDB stub so the Overview DOMContentLoaded boot (which calls
+    // loadOverview) settles cleanly instead of throwing — we let the boot run and
+    // settle on the English baseline FIRST, so the hook (below) is the SOLE driver
+    // of the he/dark flip we assert (removes a boot-vs-localStorage timing confound).
+    win.PortfolioDB = {
+      getAllClients: function () { return Promise.resolve([]); },
+      getAllSessions: function () { return Promise.resolve([]); },
+    };
+    ['assets/i18n-en.js', 'assets/i18n-he.js', 'assets/i18n.js', 'assets/app.js', 'assets/overview.js']
+      .forEach(function (f) { win.eval(readAsset(f)); });
+    await settle(); // let the Overview boot handler run to completion on the en baseline
+
+    var i18nEl = win.document.querySelector('[data-i18n="nav.overview"]');
+    assert.ok(i18nEl, 'the data-i18n="nav.overview" probe element must exist');
+
+    // English baseline via the REAL toggle path (dir=ltr, lang=en, EN text).
+    win.App.setLanguage('en');
+    assert.strictEqual(win.document.documentElement.getAttribute('dir'), 'ltr', 'baseline dir must be ltr');
+    assert.strictEqual(win.document.documentElement.lang, 'en', 'baseline lang must be en');
+    var enText = i18nEl.textContent;
+    assert.strictEqual(enText, win.I18N.en['nav.overview'], 'baseline text must be the English nav.overview string');
+
+    // Emulate the EXACT localStorage delta backup.js writes on restore
+    // (assets/backup.js:1224-1229). No navigation has happened yet.
+    win.localStorage.setItem('portfolioLang', 'he');
+    win.localStorage.setItem('portfolioTheme', 'dark');
+
+    // Drive the REAL hook. The .catch absorbs loadOverview()'s rejection in this
+    // minimal DOM (no PortfolioDB); the language/theme re-apply runs first, so it
+    // is applied regardless of the list re-render outcome.
+    await Promise.resolve(win.__afterBackupRestore()).catch(function () {});
+
+    // Test 1 — language + document direction flip immediately.
+    assert.strictEqual(win.document.documentElement.getAttribute('dir'), 'rtl',
+      'restore must flip document dir to rtl for the restored he language (no navigation)');
+    assert.strictEqual(win.document.documentElement.lang, 'he',
+      'restore must set documentElement.lang to the restored he language');
+    // Test 2 — visible re-translate of a data-i18n element.
+    assert.strictEqual(i18nEl.textContent, win.I18N.he['nav.overview'],
+      'restore must re-translate the data-i18n element to the Hebrew string (was English)');
+    assert.notStrictEqual(i18nEl.textContent, enText,
+      'the translated text must have visibly changed from the English baseline');
+    // Test 3 — theme applied to documentElement.
+    assert.strictEqual(win.document.documentElement.getAttribute('data-theme'), 'dark',
+      'restore must apply the restored dark theme to documentElement immediately');
+
+    win.close();
+  });
+
   // ─── end-of-file count guard (vacuous-green trap) ─────────────────────────
-  var EXPECTED_COUNT = 18; // +1: picker neutral-sample-date regression guard (E2, 2026-07-03)
+  var EXPECTED_COUNT = 19; // +1: GAP-1 restore re-apply language/theme behavior test (37-16)
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
