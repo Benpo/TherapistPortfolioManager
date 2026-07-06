@@ -5,10 +5,10 @@ milestone_name: — Codebase Health & Reliability
 current_phase: 37
 current_phase_name: date-consistency-date-format-setting-f6-f5
 status: executing
-stopped_at: Completed 37-15-PLAN.md (all 14 plans done; phase tail — verifier pending)
-last_updated: "2026-07-06T00:00:00.000Z"
+stopped_at: UAT round 3 signed off by Ben (5 fix commits 80f5608..febd3be); pushed for CF deploy v1.2.4; next /gsd-verify-work 37 on the live site
+last_updated: "2026-07-06T12:00:00.000Z"
 last_activity: 2026-07-06
-last_activity_desc: 37-15 closed (click-to-sort + visual gate, Ben checkpoint); disclaimer fixes + F4 vocabulary alignment + v1.2.4 bump committed
+last_activity_desc: UAT round 3 — WebKit 0x0 sort-arrow fix, active-column-only arrows, real boot sort + first-click flip, Clear-Filters/sort decoupling + Year filter removed; suite 124/124; Ben sign-off
 progress:
   total_phases: 10
   completed_phases: 8
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 
 ## Current Position
 
-Phase: 37 (date-consistency-date-format-setting-f6-f5) — EXECUTING (all 14 plans complete; tail: verifier + Ben push)
+Phase: 37 (date-consistency-date-format-setting-f6-f5) — EXECUTING (14/14 plans + verification c812bd9 human_needed + UAT round 3 done; pushed)
 Plan: 14 of 14
-Status: Awaiting fresh 37-VERIFICATION (merge with existing human items); phase stays PENDING until Ben pushes and runs /gsd-verify-work 37
-Last activity: 2026-07-06 — 37-15 closed; disclaimer fixes, F4 alignment, v1.2.4 bump committed
+Status: All local work closed (verification merged c812bd9, 12/12 human_needed; UAT rounds 1-3 fixes committed). Phase flips Complete after /gsd-verify-work 37 on the v1.2.4 deploy
+Last activity: 2026-07-06 — UAT round 3 fixes (WebKit arrows, boot sort, clear-filters/Year); push to deploy v1.2.4
 
 ## Performance Metrics
 
