@@ -6,14 +6,14 @@ current_phase: 999.1
 current_phase_name: BACKLOG
 status: executing
 stopped_at: Completed 37-14-PLAN.md
-last_updated: "2026-07-06T12:31:49.952Z"
+last_updated: "2026-07-06T12:38:34.721Z"
 last_activity: 2026-07-06
 last_activity_desc: Phase 37 complete, transitioned to Phase 999.1
 progress:
   total_phases: 10
   completed_phases: 9
   total_plans: 70
-  completed_plans: 68
+  completed_plans: 69
   percent: 90
 ---
 
@@ -170,6 +170,7 @@ Last activity: 2026-07-06 — Phase 37 complete, transitioned to Phase 999.1
 | Phase 37 P14 | 8m | 2 tasks | 2 files |
 | Phase 37 P16 | 20min | 2 tasks | 4 files |
 | Phase 33 P01 | 12min | 1 tasks | 1 files |
+| Phase 33 P02 | 8min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -330,6 +331,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 37-11: Heart term unified to Heart-Wall / חומת הלב (value-only, keys fenced); modality axis to Session Format / אופן הטיפול; new filter.sessionFormat keys + Heart-Wall toggle labels + reusable filter/sort CSS front-loaded for 37-13/14/15; no data migration, no PDF golden regen
 - [Phase 37]: 37-12: D4 trademark + non-affiliation disclaimer added to all 8 static legal pages (4 disclaimer + 4 impressum), EN canonical verbatim; he/de/cs shipped as flagged DRAFT pending external legal-native + challenger review before Ben pushes; Heart-Wall(R) kept as Latin trademark name (not the in-app HE label); assets/disclaimer.js stays dead code (grep guard clean)
 - [Phase 37]: 37-14: Sessions Session-Format multi-select + Heart-Wall toggle replace the mislabeled #sessionTypeFilter dropdown (D2/D2a); mirrors 37-13 Overview DOM
+- [Phase 33]: CS export-modal i18n (33-02): settings.saved.dismiss=Zavřít (close, not discard); stepper labels Vybrat/Upravit/Exportovat; helper vocab reuses shipped CS export terms; heading keeps literal #/## per D-05
 
 ### Pending Todos
 
@@ -400,7 +402,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-06T11:12:38.747Z
+**Last session:** 2026-07-06T12:37:47.590Z
 
 Last activity: 2026-07-03 — Completed quick task 260703-mp6 (Phase 37 handoff extension E1+E2). E1 feat(37) 89510fe: main-page filter dropdowns + session date inputs adopt the shipped `.select-modern`/`.input-pill` classes (dual-class, zero new CSS); verified LTR/RTL/mobile via headless-Chrome. E2 fix(37) 7b67670: date-format picker `REFERENCE_DATE` "2026-07-02"→"2000-01-31" so option labels show a neutral, unambiguous sample instead of a near-today/build date (SEAM preserved; regression guard added; count 17→18). Suite 121/121 green. **Phase 37 intentionally still PENDING** — Ben runs `/gsd-verify-work 37` after Sapir's translation review. Handoff file deleted. Ready to push.
 Stopped at: Completed 37-14-PLAN.md

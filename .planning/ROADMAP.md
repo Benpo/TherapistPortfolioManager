@@ -233,13 +233,13 @@ Plans:
   2. The 13 English-fallback keys in `assets/i18n-cs.js` (lines ~419–447) are translated to Czech, and no `// TODO i18n` markers remain
   3. A DE or CS user opening the export modal sees the stepper labels, step helpers, and markdown formatting tips in their own language rather than English
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 **Wave 1** *(parallel — separate files, no overlap)*
 
 - [x] 33-01-PLAN.md — German: translate the 13 export-modal keys in `i18n-de.js` via the D-01 native panel (D-03/D-04/D-05) [W1]
-- [ ] 33-02-PLAN.md — Czech: translate the 13 export-modal keys in `i18n-cs.js` via the D-01 native panel (D-03/D-04/D-05) [W1]
+- [x] 33-02-PLAN.md — Czech: translate the 13 export-modal keys in `i18n-cs.js` via the D-01 native panel (D-03/D-04/D-05) [W1]
 
 **Wave 2** *(blocked on 33-01 + 33-02)*
 
@@ -420,7 +420,7 @@ Plans:
 | 30. Test Harness & Coverage | v1.2 | 13/13 | Complete    | 2026-06-27 |
 | 31. Refactor God Modules | v1.2 | 6/6 | Complete    | 2026-06-28 |
 | 32. README + Code Comments | v1.2 | 4/4 | Complete    | 2026-06-29 |
-| 33. DE/CS i18n completion | v1.2 | 1/3 | In Progress|  |
+| 33. DE/CS i18n completion | v1.2 | 2/3 | In Progress|  |
 | 34. Session PDF Export — Visual Polish | v1.2 | 10/10 | Complete    | 2026-06-30 |
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete   | 2026-07-02 |

@@ -45,7 +45,7 @@ Requirements for the Codebase Health & Reliability milestone. Each maps to exact
 ### DE/CS i18n Completion (Phase 33)
 
 - [x] **I18N-01**: The 13 English-fallback keys in `assets/i18n-de.js` (lines ~419–447) are translated to German; no `// TODO i18n` markers remain _(needs Sapir's strings)_
-- [ ] **I18N-02**: The 13 English-fallback keys in `assets/i18n-cs.js` (lines ~419–447) are translated to Czech; no `// TODO i18n` markers remain _(needs Sapir's strings)_
+- [x] **I18N-02**: The 13 English-fallback keys in `assets/i18n-cs.js` (lines ~419–447) are translated to Czech; no `// TODO i18n` markers remain _(needs Sapir's strings)_
 
 ### Session PDF Export — Visual Polish (Phase 34)
 
@@ -173,7 +173,7 @@ Which phases cover which requirements. Status filled during execution.
 | DOCS-01 | Phase 32 | Complete |
 | DOCS-02 | Phase 32 | Complete |
 | I18N-01 | Phase 33 | Complete |
-| I18N-02 | Phase 33 | Pending |
+| I18N-02 | Phase 33 | Complete |
 | PDFX-01 | Phase 34 | Complete |
 | PDFX-02 | Phase 34 | Complete |
 | PDFX-03 | Phase 34 | Descoped (invalid premise — export only reachable in read mode) |
