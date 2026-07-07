@@ -1,9 +1,9 @@
 ---
-status: resolved
+status: complete
 phase: 38-next-session-date-field-with-overview-column
 source: [38-VERIFICATION.md]
 started: 2026-07-07T12:00:00Z
-updated: 2026-07-07T11:38:50Z
+updated: 2026-07-07T12:15:25Z
 ---
 
 ## Current Test
@@ -40,21 +40,24 @@ history: Originally failed 2026-07-07: "when editing the date manually it become
 
 ### 6. Hebrew RTL — native date inputs render segments reversed (found during 38-09 retest; pre-existing)
 expected: In Hebrew mode the native date inputs (#sessionDate, #nextSessionDate) keep the browser-native segment order (mm/dd/yyyy in Ben's Safari, dd/mm/yyyy in Chrome — the accepted native-locale compromise); the app's RTL styling must not visually reverse the numeric runs.
-result: issue
+result: pass
+resolution: Fixed by gap plan 38-10 (direction-based CSS: input[type=date]{direction:ltr} + html[dir=rtl] right-align, ::-webkit-datetime-edit{direction:ltr}). Ben confirmed on-device in real Safari 2026-07-07 ("38.10 looks good now") and again in this manual retest — PASS. Gap status: resolved.
 reported: "Hebrew RTL is wrong! not only in this phase, I believe it was like this already from phase 37 or something. cant be that date field shown as yyyy/mm/dd in hebrew, it must be a bug. funny enough, its exactly the type of field you said is dependent on the OS native locale, so the date formatter isnt even affecting these boxes in english - its always mm/dd/yyyy in my Safari but dd/mm/yyyy in my Chrome (which I accepted as compromise) - so I expected hebrew to still behave with same mm/dd/yyyy in Safari. also now in the bottom with next session date I see yyyy/dd/mm all of a sudden, which seems like a perfect reversing of the expected value."
 severity: major
 note: Screenshot shows placeholder "2026/16/05" (yyyy/dd/mm) on תאריך מפגש for May 16 — a perfect VISUAL reversal of Safari's native mm/dd/yyyy, consistent with the RTL base direction reordering the LTR numeric runs (bidi), not a formatter bug. Ben: don't attribute origin phase, just fix it.
 
 ### 7. Hebrew RTL — LTR client name + Hebrew month-name date scramble each other (pre-existing)
 expected: A line combining a Latin-script client name with a Hebrew month-name date reads in correct order in Hebrew mode (e.g. "dgh • 16 במאי 2026" — name isolated, date parts in order).
-result: issue
+result: pass
+resolution: Fixed by gap plan 38-11 (shared First-Strong-Isolate helper wrapping clientName + dateText at the heading, tab title, and overview mixed runs). Ben confirmed on-device 2026-07-07 ("38.11 is fine") and again in this manual retest — PASS. Gap status: resolved.
 reported: "another bug preexisting: in hebrew mode, when the month format is chosen to show the name of the month in hebrew, and the customer has english name, it reverses each other and displayed like this: '2026 במאי dgh • 16' (example is for customer 'dgh' for May 16th)."
 severity: major
 note: Classic missing bidi isolation around the LTR name adjacent to Hebrew text with numeric runs.
 
 ### 8. Block-message visibility — warning indistinguishable from success toast, far from the field (found during 38-09 retest)
 expected: When a save is blocked for an incomplete next-session date, the warning is clearly visible, visually distinct from the success toast, and physically close to the offending field.
-result: issue
+result: pass
+resolution: Fixed by gap plan 38-12 (showToast error tone — distinct dark-safe styling, 4000ms dwell, auto scroll-to/focus of the offending field; plus a rangeUnderflow guard blocking too-early typed dates). Ben confirmed on-device in real Safari 2026-07-07 and again in this manual retest — PASS. Gap status: resolved.
 reported: "incomplete date worked but the toast looks not visibale enough. its the same like 'completed successfully' so no one really sees it in the corner. I thought such warnings will be more visible and clear, and physically close."
 severity: minor
 note: Self-diagnosed (no debug agent needed): App.showToast (app.js:838) is single-style — success and error render identically, corner placement, 1.8s auto-dismiss; codebase has NO error toast variant and NO inline field-error pattern (no aria-invalid/field-error CSS anywhere). Fix direction to be confirmed with Ben.
@@ -62,8 +65,8 @@ note: Self-diagnosed (no debug agent needed): App.showToast (app.js:838) is sing
 ## Summary
 
 total: 8
-passed: 5
-issues: 3
+passed: 8
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
