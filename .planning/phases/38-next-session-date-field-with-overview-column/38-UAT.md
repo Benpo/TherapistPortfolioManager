@@ -1,23 +1,14 @@
 ---
-status: testing
+status: diagnosed
 phase: 38-next-session-date-field-with-overview-column
 source: [38-VERIFICATION.md]
 started: 2026-07-07T12:00:00Z
-updated: 2026-07-07T09:33:07Z
+updated: 2026-07-07T09:55:00Z
 ---
 
 ## Current Test
 
-number: 5
-name: Partial typed date entry blocked with clear message (RETEST after 38-09)
-expected: |
-  In real Safari (localhost or installed PWA — make sure the NEW bundle is served, not a stale SW cache):
-  1. Edit a session and type into the next-session date field changing only ONE segment (only the day, or only the month). Press Save/Update.
-     → The save is BLOCKED: a toast shows "Next session date is incomplete — complete it or clear it" (in the active language), no success toast fires, and the session record is unchanged (the partial date is NOT silently discarded).
-  2. Type a COMPLETE date → saves normally with the date.
-  3. CLEAR the field entirely → saves normally (empty is legal, never blocked).
-  4. Optional: repeat step 1 once in Hebrew — the RTL toast wording reads naturally.
-awaiting: user response
+[testing complete — 3 diagnosed gaps awaiting fix planning: tests 6, 7 (RTL bidi) + test 8 (warning visibility, direction pending Ben)]
 
 ## Tests
 
@@ -43,7 +34,8 @@ note: Initially reported as an issue (PDF export, saved/past session). Ben retes
 
 ### 5. Partial typed date entry blocked with clear message (RETEST after 38-09 — validity.badInput guard)
 expected: In real Safari, typing a PARTIAL next-session date (only day or only month changed) and pressing Save/Update BLOCKS the save with a localized "incomplete date" toast — no success toast, session record unchanged. A COMPLETE typed date saves normally; a CLEARED field saves normally (empty is legal). Hebrew RTL toast reads naturally.
-result: [pending]
+result: pass
+note: RETESTED 2026-07-07 in real Safari — "incomplete date worked": partial entry BLOCKS the save, no silent discard (NEXT-01/UAT-5 functional truth closed; review WR-02's Safari premise PROVEN — badInput does fire at submit time). Complete-date save confirmed in the original report ("editing all 3 parts works great"); empty-allowed covered by unit tests. Toast VISIBILITY complaint spun out to test 8.
 history: Originally failed 2026-07-07: "when editing the date manually it becomes black instead of being greyed out. when editing all 3 parts - it works great. but when changing only the day or only month - it doesnt save it despite showing that it was saved successfully." Root-caused: native date input exposes value='' until all segments complete → partial entry saved as '' with generic success toast. The "becomes black" part is native Safari segment rendering (entered segment = black, placeholder = grey) — not an app defect. Fix 38-09 (2026-07-07): validity.badInput guard at the saveSessionForm() choke point + toast.nextSessionDateIncomplete in 4 languages; guard unit test 5/5 GREEN; code review WR-02 defines what this retest must prove (real Safari badInput at submit time — jsdom/Chromium cannot).
 
 ### 6. Hebrew RTL — native date inputs render segments reversed (found during 38-09 retest; pre-existing)
@@ -60,12 +52,19 @@ reported: "another bug preexisting: in hebrew mode, when the month format is cho
 severity: major
 note: Classic missing bidi isolation around the LTR name adjacent to Hebrew text with numeric runs.
 
+### 8. Block-message visibility — warning indistinguishable from success toast, far from the field (found during 38-09 retest)
+expected: When a save is blocked for an incomplete next-session date, the warning is clearly visible, visually distinct from the success toast, and physically close to the offending field.
+result: issue
+reported: "incomplete date worked but the toast looks not visibale enough. its the same like 'completed successfully' so no one really sees it in the corner. I thought such warnings will be more visible and clear, and physically close."
+severity: minor
+note: Self-diagnosed (no debug agent needed): App.showToast (app.js:838) is single-style — success and error render identically, corner placement, 1.8s auto-dismiss; codebase has NO error toast variant and NO inline field-error pattern (no aria-invalid/field-error CSS anywhere). Fix direction to be confirmed with Ben.
+
 ## Summary
 
-total: 7
-passed: 4
-issues: 2
-pending: 1
+total: 8
+passed: 5
+issues: 3
+pending: 0
 skipped: 0
 blocked: 0
 
@@ -151,4 +150,21 @@ blocked: 0
     - "Treat overview.js:799 and :958-961 in the same pass (same mechanism, lower severity)"
     - "Verify-only: PDF export header (pdf-export.js own UAX#9 HL2 bidi at :285) renders he month-name date + Latin client name correctly — confirm, don't change"
   debug_session: .planning/debug/rtl-client-name-date-line-scrambled.md
+
+- truth: "The incomplete-date block warning is clearly visible, visually distinct from the success toast, and physically close to the #nextSessionDate field"
+  status: failed
+  reason: "User reported: toast not visible enough — same look as 'completed successfully', corner placement, nobody sees it; expected warnings more visible, clear, and physically close"
+  severity: minor
+  test: 8
+  root_cause: "App.showToast (app.js:838) is single-style: identical rendering for success and error, fixed corner position (.toast, app.css:1268), 1.8s auto-dismiss. No error/warning toast variant exists; the codebase has NO inline field-error pattern at all (no aria-invalid / field-error CSS). The 38-09 guard reused the generic toast (add-session.js:1167), so the block warning inherits success styling and corner placement."
+  artifacts:
+    - path: "assets/add-session.js"
+      issue: "guard at :1167 surfaces the block via the generic success-styled corner toast"
+    - path: "assets/app.js"
+      issue: "showToast has no tone/variant support (single style, 1.8s auto-dismiss)"
+    - path: "assets/app.css"
+      issue: "single .toast style; no error variant; no inline field-error styles"
+  missing:
+    - "(fix direction pending Ben's choice) inline error message adjacent to #nextSessionDate and/or a distinct error toast tone"
+  debug_session: ""
 
