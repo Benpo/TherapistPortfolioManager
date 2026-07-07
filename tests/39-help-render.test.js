@@ -109,6 +109,12 @@ function buildEnv() {
     bodyText.indexOf(expectedLabel) !== -1);
   ok('no literal {ui:...} token leaks into the rendered card',
     bodyText.indexOf('{ui:') === -1);
+
+  // Resolved labels render inside a .ui-label chip (visually distinct app
+  // phrasing, 39-06 UAT) — and the chip carries the label via textContent.
+  var chips = Array.prototype.slice.call(card.querySelectorAll('.ui-label'));
+  ok('resolved label is wrapped in a .ui-label chip',
+    chips.some(function (c) { return c.textContent === expectedLabel; }));
 })();
 
 // ── (3) T-39-06: no-match term echo is textContent, not innerHTML ─────────────
@@ -144,7 +150,7 @@ function buildEnv() {
 
 // ── F-A: vacuous-green guard ──────────────────────────────────────────────────
 // 11 assertions run above (4 + 2 + 4 + 1); this guard is the 12th.
-var EXPECTED_CASES = 11;
+var EXPECTED_CASES = 12;
 ok('all ' + EXPECTED_CASES + ' assertions executed (no silent skip)', CASES === EXPECTED_CASES);
 
 console.log('\n' + PASS + '/' + CASES + ' checks passed');

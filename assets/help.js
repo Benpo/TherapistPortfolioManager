@@ -88,24 +88,45 @@
     });
   }
 
+  // Same resolution as interpolateUiLabels, but returns a DocumentFragment in
+  // which each resolved label is wrapped in a .ui-label chip, so the app's
+  // real phrasings read as distinct from the surrounding help prose. Built
+  // with textNode/createElement only — labels never pass through innerHTML.
+  function interpolateUiNodes(text) {
+    var frag = document.createDocumentFragment();
+    var s = text == null ? "" : String(text);
+    var re = /\{ui:([^}]+)\}/g;
+    var last = 0;
+    var m;
+    while ((m = re.exec(s)) !== null) {
+      if (m.index > last) frag.appendChild(textNode(s.slice(last, m.index)));
+      var chip = el("span", "ui-label");
+      chip.textContent = t(m[1].trim());
+      frag.appendChild(chip);
+      last = m.index + m[0].length;
+    }
+    if (last < s.length) frag.appendChild(textNode(s.slice(last)));
+    return frag;
+  }
+
   // ── body-block rendering ───────────────────────────────────────────────────
   function renderBlock(block) {
     if (!block || !block.type) return null;
     if (block.type === "p") {
       var p = el("p");
-      p.textContent = interpolateUiLabels(block.text);
+      p.appendChild(interpolateUiNodes(block.text));
       return p;
     }
     if (block.type === "note") {
       var note = el("p", "note");
-      note.textContent = interpolateUiLabels(block.text);
+      note.appendChild(interpolateUiNodes(block.text));
       return note;
     }
     if (block.type === "steps") {
       var ol = el("ol");
       (block.items || []).forEach(function (item) {
         var li = el("li");
-        li.textContent = interpolateUiLabels(item);
+        li.appendChild(interpolateUiNodes(item));
         ol.appendChild(li);
       });
       return ol;
