@@ -3,7 +3,7 @@ status: diagnosed
 phase: 38-next-session-date-field-with-overview-column
 source: [38-VERIFICATION.md]
 started: 2026-07-07T12:00:00Z
-updated: 2026-07-07T11:14:00Z
+updated: 2026-07-07T11:15:00Z
 ---
 
 ## Current Test
@@ -132,8 +132,8 @@ blocked: 0
   debug_session: .planning/debug/rtl-date-input-segments-reversed.md
 
 - truth: "A line combining a Latin-script client name with a Hebrew month-name date reads in correct order in Hebrew mode (name bidi-isolated; date parts not scrambled)"
-  status: failed
-  reason: "User reported: in Hebrew with month-name format and an English client name, name and date 'reverse each other' — displays '2026 במאי dgh • 16' for customer dgh, May 16 2026. Pre-existing."
+  status: resolved
+  reason: "Fixed by gap plan 38-11 (shared window.DateFormat.isolate First-Strong-Isolate helper, U+2068 … U+2069, empty-safe; wraps both clientName and dateText in updateSessionTitle heading + document.title, plus the overview session-meta and client-modal mixed runs — all textContent-only). RED-first helper test + per-call-site source gates GREEN; suite 130/130. Ben approved on-device 2026-07-07: '38.11 is fine' — heading, tab title, and overview read correctly in Hebrew; the verify-only PDF export header was confirmed OK (NOT flagged, no follow-up). Original report: in Hebrew with month-name format and an English client name, name and date reversed into '2026 במאי dgh • 16' for customer dgh, May 16 2026. Pre-existing."
   severity: major
   test: 7
   root_cause: "Missing bidi isolation at the string-composition site. updateSessionTitle (add-session.js:1698) builds `${clientName} • ${dateText}` as ONE un-isolated text node written to BOTH titleEl.textContent and document.title. date-format.js maybeWrapLtr intentionally LRI/PDI-wraps ONLY numeric formats; month-name Hebrew dates return as bare mixed-direction strings ('16 במאי 2026'). Un-isolated LTR name + bare mixed date under html[dir=rtl] get reordered by the Unicode Bidi Algorithm → '2026 במאי dgh • 16'. Only reproduces with month-name format because the numeric path is already isolated — matches the repro exactly. Same un-isolated ' • ' composition class also at overview.js:799 (date • sessionType) and overview.js:958-961 (age • type)."
