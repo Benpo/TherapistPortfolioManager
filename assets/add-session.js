@@ -73,12 +73,30 @@ function growAllSessionTextareas() {
   document.querySelectorAll(".session-textarea").forEach((el) => autoGrow(el));
 }
 
-// Expose the pure hook for falsifiable behavior testing (the window.__*TestHooks
+// ────────────────────────────────────────────────────────────────────────
+// Partial next-session date guard (NEXT-01 / UAT test 5).
+//
+// A native <input type="date"> reports value="" for BOTH an empty field AND a
+// PARTIALLY typed / unparseable entry (e.g. the user changed only the day
+// segment in Safari and never completed the date). The ONLY signal that
+// distinguishes these two states is validity.badInput — true ONLY for the
+// partial/unparseable case. Empty is LEGAL because the next-session date is
+// optional, so we key STRICTLY on badInput and never on value emptiness.
+//
+// isNextSessionDateIncomplete is PURE over the element's validity object (no DOM
+// mutation, no reads beyond el.validity.badInput), so it is unit-testable with a
+// stubbed validity object — jsdom/Chromium cannot raise badInput on a real date
+// input, so the falsifiable test drives this function directly (Plan 38-09).
+function isNextSessionDateIncomplete(el) {
+  return !!(el && el.validity && el.validity.badInput);
+}
+
+// Expose the pure hooks for falsifiable behavior testing (the window.__*TestHooks
 // convention). Guarded so module eval is safe under a vm sandbox.
 if (typeof window !== "undefined") {
   window.__addSessionTestHooks = Object.assign(
     window.__addSessionTestHooks || {},
-    { computeGrowHeight }
+    { computeGrowHeight, isNextSessionDateIncomplete }
   );
 }
 
@@ -1133,8 +1151,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     const limitingBeliefs = (document.getElementById("limitingBeliefs") || {}).value?.trim() || "";
     const additionalTech = (document.getElementById("additionalTech") || {}).value?.trim() || "";
     const customerSummary = customerSummaryInput ? customerSummaryInput.value.trim() : "";
+    // Partial next-session date guard (NEXT-01 / UAT test 5). This is the SINGLE
+    // DB-persist choke point (addSession + updateSession both live below, and
+    // BOTH the submit handler and the save-then-export trigger route through
+    // saveSessionForm and abort on a null result), so this one placement guards
+    // every user-triggerable save. Mirror the heartShieldRequired guard above:
+    // validate → toast → return null. A partial typed entry reports value="" but
+    // validity.badInput=true; without this check it would silently persist "" and
+    // still fire a success toast. Empty (badInput=false) is a LEGAL optional date
+    // and passes through. NOTE: snapshotFormState() (revert-only, no DB write) is
+    // intentionally NOT guarded — an empty snapshot value there is harmless — and
+    // export-modal.js reads only happen after a now-guarded successful save.
+    const nextSessionDateEl = document.getElementById("nextSessionDate");
+    if (isNextSessionDateIncomplete(nextSessionDateEl)) {
+      App.showToast("", "toast.nextSessionDateIncomplete");
+      return null;
+    }
     // Native date value is already a clean YYYY-MM-DD (or ""); no .trim() needed.
-    const nextSessionDate = document.getElementById("nextSessionDate")?.value || "";
+    const nextSessionDate = nextSessionDateEl?.value || "";
 
     const isNew = !editingSession;
     let savedId;
