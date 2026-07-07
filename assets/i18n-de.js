@@ -179,6 +179,7 @@ window.I18N.de = {
   "toast.issueMissing": "Mindestens ein Thema hinzufügen",
   "toast.heartShieldRequired": "Bitte auswählen, ob die Heart-Wall aufgelöst wurde",
   "toast.nextSessionDateIncomplete": "Unvollständiges Datum der nächsten Sitzung — bitte vervollständigen oder löschen",
+  "toast.nextSessionDateTooEarly": "Das Datum der nächsten Sitzung darf nicht vor dem Sitzungsdatum liegen — bitte korrigieren oder löschen",
   "toast.importSuccess": "Daten importiert",
   "toast.importError": "Import fehlgeschlagen",
   "overview.autoBackup": "Backup-Ordner festlegen",

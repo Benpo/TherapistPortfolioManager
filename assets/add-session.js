@@ -91,12 +91,24 @@ function isNextSessionDateIncomplete(el) {
   return !!(el && el.validity && el.validity.badInput);
 }
 
+// Plan 38-12 (NEXT-08): a next-session date TYPED earlier than the session's own
+// date bypasses the calendar-only `min` (syncNextSessionMin) — the picker honors
+// min but a typed too-early value only sets validity.rangeUnderflow, which the
+// badInput-only guard above never checks, so it saved silently. This pure sibling
+// keys STRICTLY on validity.rangeUnderflow (the browser sets it when value < min).
+// Empty (no value ⇒ no underflow) and same-day (value == min, D-08) both return
+// false ⇒ ALLOW. Pure over the validity object, so unit-testable with a stub AND
+// simulatable in jsdom (min + earlier value raises rangeUnderflow natively).
+function isNextSessionDateTooEarly(el) {
+  return !!(el && el.validity && el.validity.rangeUnderflow);
+}
+
 // Expose the pure hooks for falsifiable behavior testing (the window.__*TestHooks
 // convention). Guarded so module eval is safe under a vm sandbox.
 if (typeof window !== "undefined") {
   window.__addSessionTestHooks = Object.assign(
     window.__addSessionTestHooks || {},
-    { computeGrowHeight, isNextSessionDateIncomplete }
+    { computeGrowHeight, isNextSessionDateIncomplete, isNextSessionDateTooEarly }
   );
 }
 
@@ -1169,6 +1181,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const nextSessionDateEl = document.getElementById("nextSessionDate");
     if (isNextSessionDateIncomplete(nextSessionDateEl)) {
       App.showToast("", "toast.nextSessionDateIncomplete", { tone: "error", focus: nextSessionDateEl });
+      return null;
+    }
+    // A typed date earlier than the session's own date (validity.rangeUnderflow
+    // against the dynamic min) bypasses the calendar-only min — block it at save
+    // so a too-early date is never silently persisted (D-08 enforced here too).
+    if (isNextSessionDateTooEarly(nextSessionDateEl)) {
+      App.showToast("", "toast.nextSessionDateTooEarly", { tone: "error", focus: nextSessionDateEl });
       return null;
     }
     // Native date value is already a clean YYYY-MM-DD (or ""); no .trim() needed.

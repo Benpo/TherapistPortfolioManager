@@ -179,6 +179,7 @@ window.I18N.en = {
   "toast.issueMissing": "Add at least one issue",
   "toast.heartShieldRequired": "Select whether the Heart-Wall was cleared",
   "toast.nextSessionDateIncomplete": "Incomplete next-session date — complete it or clear it",
+  "toast.nextSessionDateTooEarly": "The next-session date can't be before the session date — fix or clear it",
   "toast.importSuccess": "Data imported",
   "toast.importError": "Import failed",
   "overview.autoBackup": "Set backup folder",

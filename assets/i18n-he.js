@@ -179,6 +179,7 @@ window.I18N.he = {
   "toast.issueMissing": "יש להוסיף לפחות בעיה אחת",
   "toast.heartShieldRequired": "יש לבחור אם חומת הלב נוקתה או לא",
   "toast.nextSessionDateIncomplete": "תאריך המפגש הבא אינו שלם — יש להשלים אותו או לנקות אותו",
+  "toast.nextSessionDateTooEarly": "תאריך המפגש הבא אינו יכול להיות לפני תאריך המפגש — יש לתקן אותו או לנקות אותו",
   "toast.importSuccess": "הנתונים יובאו",
   "toast.importError": "ייבוא נכשל",
   "overview.autoBackup": "\u05d1\u05d7\u05e8 \u05ea\u05d9\u05e7\u05d9\u05d9\u05ea \u05d2\u05d9\u05d1\u05d5\u05d9",
