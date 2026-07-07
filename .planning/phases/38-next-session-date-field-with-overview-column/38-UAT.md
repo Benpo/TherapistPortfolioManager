@@ -1,14 +1,14 @@
 ---
-status: diagnosed
+status: resolved
 phase: 38-next-session-date-field-with-overview-column
 source: [38-VERIFICATION.md]
 started: 2026-07-07T12:00:00Z
-updated: 2026-07-07T11:15:00Z
+updated: 2026-07-07T11:38:50Z
 ---
 
 ## Current Test
 
-[testing complete — 3 diagnosed gaps awaiting fix planning: tests 6, 7 (RTL bidi) + test 8 (warning visibility, direction pending Ben)]
+[testing complete — all gaps resolved: tests 6, 7 (RTL bidi, 38-10/38-11) + test 8 (warning visibility, 38-12) closed on-device 2026-07-07]
 
 ## Tests
 
@@ -152,8 +152,8 @@ blocked: 0
   debug_session: .planning/debug/rtl-client-name-date-line-scrambled.md
 
 - truth: "The incomplete-date block warning is clearly visible, visually distinct from the success toast, and physically close to the #nextSessionDate field"
-  status: failed
-  reason: "User reported: toast not visible enough — same look as 'completed successfully', corner placement, nobody sees it; expected warnings more visible, clear, and physically close"
+  status: resolved
+  reason: "Fixed by gap plan 38-12: showToast gained a backward-compatible third options param ({ tone, focus }) — an error tone (dark-safe .toast--error via --color-warning-* tokens, distinct from the success toast) with a longer 4000ms dwell (vs 1800ms success) plus auto scroll-to/focus of the offending field. Migrated the add-session.js incomplete-date guard + session/client form error toasts onto it (field-bound ones focus their control; DB/network errorGeneric tone-only); success/info toasts untouched. Ben-approved scope addition (2026-07-07): the same #nextSessionDate save guard now also blocks validity.rangeUnderflow (a typed too-early next-session date) with the new 4-language toast.nextSessionDateTooEarly key, closing the manual-entry bypass of the calendar-only min (D-08 enforced at save). 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131 green. Ben approved on-device in real Safari 2026-07-07: warning distinct + longer + scrolls-to-field, too-early typed date blocked then valid date saves, other form errors behave the same, success toasts unchanged, error toast legible in dark mode and reads naturally in Hebrew RTL. Original report: toast not visible enough — same look as 'completed successfully', corner placement, nobody sees it; expected warnings more visible, clear, and physically close."
   severity: minor
   test: 8
   root_cause: "App.showToast (app.js:838) is single-style: identical rendering for success and error, fixed corner position (.toast, app.css:1268), 1.8s auto-dismiss. No error/warning toast variant exists; the codebase has NO inline field-error pattern at all (no aria-invalid / field-error CSS). The 38-09 guard reused the generic toast (add-session.js:1167), so the block warning inherits success styling and corner placement."
