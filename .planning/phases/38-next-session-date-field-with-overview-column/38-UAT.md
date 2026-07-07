@@ -165,6 +165,9 @@ blocked: 0
     - path: "assets/app.css"
       issue: "single .toast style; no error variant; no inline field-error styles"
   missing:
-    - "(fix direction pending Ben's choice) inline error message adjacent to #nextSessionDate and/or a distinct error toast tone"
+    - "showToast error-tone support: visually distinct (warning/red) styling + longer duration than the 1.8s success toast, so errors never look like 'completed successfully'"
+    - "Auto-focus mechanism: an error toast tied to a field scrolls to + focuses the problematic field — Ben's confirmed direction 2026-07-07: 'ideally with auto focus to the problematic field. for all error toasts this is relevant' — design the API generalized, not a one-off"
+    - "Guard call site add-session.js:1167 migrated: error tone + auto-focus #nextSessionDate"
+    - "Existing error-class showToast call sites adopt the error tone; those with an unambiguous target field (e.g. toast.errorRequired, toast.selectClient, toast.issueMissing, toast.heartShieldRequired in the session/client forms) also pass the focus target — success/info toasts unchanged"
   debug_session: ""
 
