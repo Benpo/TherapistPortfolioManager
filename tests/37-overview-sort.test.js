@@ -285,8 +285,10 @@ function sortSeed() {
   //         Carol's sessions would hand her 2026-06-01 (soonest of all) and sort
   //         her FIRST under ascending; the correct most-recent derivation reads her
   //         blank latest next-date and sorts her to the BOTTOM (D-01).
-  //   Ascending (soonest first), blanks last : Bob, Alice, Carol
-  //   Descending (latest first),  blanks last : Alice, Bob, Carol
+  //   Ascending (soonest first), blanks last  : Bob, Alice, Carol
+  //   Descending (latest first), blanks FIRST : Carol, Alice, Bob
+  //   (revised D-03, 2026-07-07: blank next-dates travel WITH the direction —
+  //    bottom on ascending, top on descending — mirroring Last Session.)
   function nextSeed() {
     return {
       clients: [
@@ -325,13 +327,15 @@ function sortSeed() {
     env.dom.window.close();
   });
 
-  await test('nextSession blank most-recent next-dates stay LAST under DESCENDING too (blanks escape the dir*base multiply)', async function () {
+  await test('nextSession blank most-recent next-dates travel to the TOP under DESCENDING (blanks ride the dir*base flip via a far-future sentinel, mirroring Last Session — revised D-03)', async function () {
     var env = buildOverviewEnv(nextSeed());
     await boot(env);
     var win = env.win;
 
     // Select nextSession (ascending), then click its header once to FLIP to
-    // descending — the assertion that fails if blanks ride through `dir * base`.
+    // descending. Under revised D-03 a blank next-date is a far-future sentinel,
+    // so it rides the shared `dir * base` flip: bottom on ascending, top on
+    // descending — exactly like Last Session's empty-string localeCompare.
     var sel = win.document.getElementById('clientSortSelect');
     sel.value = 'nextSession';
     sel.dispatchEvent(new win.Event('change', { bubbles: true }));
@@ -344,8 +348,8 @@ function sortSeed() {
 
     assert.strictEqual(th.getAttribute('aria-sort'), 'descending',
       'clicking the active nextSession header must flip ascending → descending');
-    assert.deepStrictEqual(renderedClientNames(win), ['Alice Adams', 'Bob Brown', 'Carol Clark'],
-      'nextSession descending must order dated clients latest-first (Alice 2026-08-01, Bob 2026-07-01) while the blank-most-recent client (Carol) stays LAST in BOTH directions; got ' + JSON.stringify(renderedClientNames(win)));
+    assert.deepStrictEqual(renderedClientNames(win), ['Carol Clark', 'Alice Adams', 'Bob Brown'],
+      'nextSession descending must float the blank-most-recent client (Carol) to the TOP, then dated clients latest-first (Alice 2026-08-01 before Bob 2026-07-01) — blanks now travel WITH the direction (revised D-03); got ' + JSON.stringify(renderedClientNames(win)));
     env.dom.window.close();
   });
 
