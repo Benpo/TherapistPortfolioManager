@@ -122,16 +122,33 @@ blocked: 0
   reason: "User reported: date field shown as 2026/16/05 (yyyy/dd/mm) in Hebrew Safari for May 16 — 'a perfect reversing of the expected value'; seen on both the session date field and the next-session date field. Pre-existing (believed since ~Phase 37); Ben: don't attribute origin, just fix."
   severity: major
   test: 6
-  artifacts: []  # Filled by diagnosis
-  missing: []    # Filled by diagnosis
-  debug_session: ""
+  root_cause: "Native date inputs have no direction of their own; in Hebrew, html[dir=rtl] (app.js:124) + app.css:1289 `html[dir=rtl]{direction:rtl}` cascade direction:rtl into them, and WebKit lays out the ::-webkit-datetime-edit sub-fields in the inherited direction — visually reversing mm/dd/yyyy → yyyy/dd/mm. NO input[type=date] rule or direction reset exists anywhere in the CSS. Reproduced pixel-for-pixel in Playwright WebKit ('2026/16/05'); injecting input[type=date]{direction:ltr} restores '05/16/2026'. ALL 7 native date inputs are affected (sessionDate, nextSessionDate, inlineClientBirthDate, editClientBirthDate, clientBirthDate, sessionDateFrom, sessionDateTo), not just the two reported. Pure CSS-cascade/bidi defect — not a formatter bug."
+  artifacts:
+    - path: "assets/app.css"
+      issue: "no input[type='date'] rule exists; html[dir=rtl]{direction:rtl} (line ~1289) cascades into all 7 native date inputs, reversing WebKit's datetime-edit sub-field order"
+  missing:
+    - "Shared CSS rule forcing direction:ltr on native date inputs (input[type='date']) so segments always render in browser-native order regardless of document RTL"
+    - "RTL-appropriate alignment under html[dir=rtl] (text-align toward the label side) so the LTR value sits naturally under the right-aligned Hebrew label — esp. the full-width #nextSessionDate"
+    - "Real-Safari field verification (headless WebKit validated the order fix; label alignment + calendar-icon side need on-device check per reference-rtl-select-value-alignment-headless)"
+  debug_session: .planning/debug/rtl-date-input-segments-reversed.md
 
 - truth: "A line combining a Latin-script client name with a Hebrew month-name date reads in correct order in Hebrew mode (name bidi-isolated; date parts not scrambled)"
   status: failed
   reason: "User reported: in Hebrew with month-name format and an English client name, name and date 'reverse each other' — displays '2026 במאי dgh • 16' for customer dgh, May 16 2026. Pre-existing."
   severity: major
   test: 7
-  artifacts: []  # Filled by diagnosis
-  missing: []    # Filled by diagnosis
-  debug_session: ""
+  root_cause: "Missing bidi isolation at the string-composition site. updateSessionTitle (add-session.js:1698) builds `${clientName} • ${dateText}` as ONE un-isolated text node written to BOTH titleEl.textContent and document.title. date-format.js maybeWrapLtr intentionally LRI/PDI-wraps ONLY numeric formats; month-name Hebrew dates return as bare mixed-direction strings ('16 במאי 2026'). Un-isolated LTR name + bare mixed date under html[dir=rtl] get reordered by the Unicode Bidi Algorithm → '2026 במאי dgh • 16'. Only reproduces with month-name format because the numeric path is already isolated — matches the repro exactly. Same un-isolated ' • ' composition class also at overview.js:799 (date • sessionType) and overview.js:958-961 (age • type)."
+  artifacts:
+    - path: "assets/add-session.js"
+      issue: "line 1698 updateSessionTitle concatenates un-isolated clientName + dateText into textContent AND document.title (plain text — <bdi>/CSS cannot cover document.title; needs string-level Unicode isolates)"
+    - path: "assets/overview.js"
+      issue: "same bug class: line 799 `${formatDate} • ${sessionType}` session-meta; lines 958-961 age + Hebrew type joined by ' • ' — un-isolated mixed runs"
+    - path: "assets/date-format.js"
+      issue: "maybeWrapLtr isolates only numeric formats by design (D-07); month-name output is a bare mixed run relying on call sites to isolate — call sites don't"
+  missing:
+    - "Shared bidi-isolate helper using First-Strong Isolate (U+2068 … U+2069 PDI) — FSI so Hebrew-named clients stay RTL and Latin-named clients stay LTR"
+    - "Wrap BOTH clientName and dateText at add-session.js:1698 (covers heading + document.title)"
+    - "Treat overview.js:799 and :958-961 in the same pass (same mechanism, lower severity)"
+    - "Verify-only: PDF export header (pdf-export.js own UAX#9 HL2 bidi at :285) renders he month-name date + Latin client name correctly — confirm, don't change"
+  debug_session: .planning/debug/rtl-client-name-date-line-scrambled.md
 
