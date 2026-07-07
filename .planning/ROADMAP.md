@@ -406,7 +406,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete   | 2026-07-02 |
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete    | 2026-07-06 |
-| 38. Next session date field + overview column | v1.2 | 8/8 | Complete    | 2026-07-06 |
+| 38. Next session date field + overview column | v1.2 | 9/9 | Complete   | 2026-07-06 |
 
 ### Phase 37: Date consistency + date-format setting + session types (F6+F5+F4)
 
@@ -482,7 +482,7 @@ Plans:
 **Notes:** Likely small/immediate — ripened by Phase 37, which built every touch-point it needs. Trace during planning: the add/edit-session form (the next-session note section), the session data model/migration, and the overview table renderer + its date-column formatting (RTL/locale-aware, matching last-session). Not a launch/priority blocker — queued behind Ben's Simpl8-first freeze; plan when TPM work resumes.
 
 **Requirements:** NEXT-01, NEXT-02, NEXT-03, NEXT-04, NEXT-05, NEXT-06, NEXT-07, NEXT-08 (formalized 2026-07-06 from the 12 CONTEXT decisions; full text in REQUIREMENTS.md).
-**Plans:** 8/8 plans complete
+**Plans:** 9/9 plans complete
 
 Plans:
 
@@ -502,4 +502,4 @@ Plans:
 **Gap closure** *(from Phase 38 UAT test 3 — D-03 decision revision, 2026-07-07)*
 
 - [x] 38-08-PLAN.md — Gap: nextSession blank-date sort now travels WITH the direction (bottom on ascending, top on descending), mirroring Last Session; revises D-03/NEXT-04 (NEXT-04, NEXT-08)
-- [ ] 38-09-PLAN.md — Gap: block save on a PARTIAL typed #nextSessionDate (native validity.badInput) with a clear 4-language toast — no silent discard; falsifiable pure-guard test + real-Safari field-verify (UAT test 5) (NEXT-01, NEXT-08)
+- [x] 38-09-PLAN.md — Gap: block save on a PARTIAL typed #nextSessionDate (native validity.badInput) with a clear 4-language toast — no silent discard; falsifiable pure-guard test + real-Safari field-verify (UAT test 5) (NEXT-01, NEXT-08)
