@@ -5,15 +5,15 @@ milestone_name: — Codebase Health & Reliability
 current_phase: 38
 current_phase_name: next-session-date-field-with-overview-column
 status: executing
-stopped_at: "Wave-1 gap closure complete: 38-10 (UAT test 6, RTL date-input) + 38-11 (UAT test 7, bidi isolation) both approved by Ben on-device in real Safari 2026-07-07 and closed out (SUMMARYs, UAT gaps resolved, debug files moved to resolved/). Next: 38-12 (UAT test 8 — warning-toast visibility / error tone + auto-focus)"
-last_updated: "2026-07-07T11:33:51.823Z"
+stopped_at: "All 12 Phase 38 plans complete (7 core + 5 gap-closure). Wave-2 gap closure 38-12 (UAT test 8 — warning-toast visibility) closed out: error-tone showToast API + dark-safe .toast--error + auto-focus/scroll, migrated session/client form error toasts, plus Ben-approved rangeUnderflow save guard (typed too-early next-session date). Approved by Ben on-device in real Safari 2026-07-07; UAT test 8 resolved — the last open Phase 38 UAT gap. Next: Phase 38 verification, then phase.complete."
+last_updated: "2026-07-07T11:38:50Z"
 last_activity: 2026-07-07
-last_activity_desc: 38-10 + 38-11 approved on-device and closed out; next 38-12 (UAT test 8)
+last_activity_desc: 38-12 approved on-device and closed out; all Phase 38 plans done; next Phase 38 verification
 progress:
   total_phases: 11
   completed_phases: 10
   total_plans: 82
-  completed_plans: 81
+  completed_plans: 82
   percent: 91
 ---
 
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 
 ## Current Position
 
-Phase: 38 (next-session-date-field-with-overview-column) — EXECUTING
-Plan: 11 of 12 (wave-1 gap closure 38-10 + 38-11 complete; 38-12 remaining)
-Status: Executing Phase 38 — gap closure
-Last activity: 2026-07-07 — 38-10 + 38-11 approved on-device and closed out; next 38-12 (UAT test 8)
+Phase: 38 (next-session-date-field-with-overview-column) — EXECUTING (all plans complete, verification pending)
+Plan: 12 of 12 (all gap-closure plans 38-08…38-12 complete)
+Status: Executing Phase 38 — gap closure complete, awaiting phase verification
+Last activity: 2026-07-07 — 38-12 approved on-device and closed out; all Phase 38 plans done; next Phase 38 verification
 
 ## Performance Metrics
 
@@ -420,12 +420,12 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-07T11:33:51.813Z
+**Last session:** 2026-07-07T11:38:50Z
 
-Last activity: 2026-07-03 — Completed quick task 260703-mp6 (Phase 37 handoff extension E1+E2). E1 feat(37) 89510fe: main-page filter dropdowns + session date inputs adopt the shipped `.select-modern`/`.input-pill` classes (dual-class, zero new CSS); verified LTR/RTL/mobile via headless-Chrome. E2 fix(37) 7b67670: date-format picker `REFERENCE_DATE` "2026-07-02"→"2000-01-31" so option labels show a neutral, unambiguous sample instead of a near-today/build date (SEAM preserved; regression guard added; count 17→18). Suite 121/121 green. **Phase 37 intentionally still PENDING** — Ben runs `/gsd-verify-work 37` after Sapir's translation review. Handoff file deleted. Ready to push.
-Stopped at: Phase 38 executed (7/7 plans, 127/127 tests, review WR-01 fixed) — awaiting UAT on 2 visual items
+Last activity: 2026-07-07 — Closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
+Stopped at: All 12 Phase 38 plans complete (7 core + 5 gap-closure 38-08…38-12); all UAT gaps resolved.
 Resume file: .planning/phases/38-next-session-date-field-with-overview-column/38-UAT.md
-Next: orchestrator runs Phase 35 verification, then phase.complete.
+Next: Phase 38 verification, then phase.complete.
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
 
