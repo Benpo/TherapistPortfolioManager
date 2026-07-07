@@ -308,14 +308,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         // which would read an older session's nextSessionDate. At sort time the
         // per-client arrays are raw IDB order, so use mostRecentSession() rather
         // than clientSessions[0] (which is only most-recent AFTER the render
-        // sort). Blanks sort to the BOTTOM under BOTH directions via early
-        // returns that bypass the shared `dir * base` flip (D-03).
-        const aNext = mostRecentSession(_sessionsByClient.get(a.id))?.nextSessionDate || "";
-        const bNext = mostRecentSession(_sessionsByClient.get(b.id))?.nextSessionDate || "";
-        if (!aNext && !bNext) return 0;
-        if (!aNext) return 1;
-        if (!bNext) return -1;
-        base = aNext.localeCompare(bNext); // ascending: soonest first
+        // sort). Blank next-dates sort as a FAR-FUTURE sentinel (9999-12-31)
+        // so they TRAVEL WITH the sort direction — bottom under ascending (the
+        // default resting view, so blanks never bury dated rows) and top under
+        // descending — riding the shared `dir * base` flip, mirroring the Last
+        // Session experience (revised D-03 / NEXT-04, 2026-07-07; supersedes the
+        // original early-return blanks-to-bottom-under-both-directions rule).
+        const BLANK_SENTINEL = "9999-12-31"; // sorts after every real YYYY-MM-DD
+        const aNext = mostRecentSession(_sessionsByClient.get(a.id))?.nextSessionDate || BLANK_SENTINEL;
+        const bNext = mostRecentSession(_sessionsByClient.get(b.id))?.nextSessionDate || BLANK_SENTINEL;
+        base = aNext.localeCompare(bNext); // ascending: soonest first, blanks last
       } else if (sortVal === "lastSession") {
         const aSessions = _sessionsByClient.get(a.id) || [];
         const bSessions = _sessionsByClient.get(b.id) || [];
