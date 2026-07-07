@@ -52,6 +52,12 @@
         <div class="helper-text" data-i18n="reporting.subtitle">Key Metrics</div>
       </section>
 
+      <!-- Phase 39 Plan 05 (HELP-05, D-21): first-run no-data coaching. Hidden by
+           default; reporting.js populates + shows it (calm sentence + soft
+           "Show me how" deep-link) only when there are zero sessions to
+           aggregate, and hides the stat grid. -->
+      <div id="reportingEmpty" class="helper-text empty-coach" style="display:none; margin-top:1.5rem;"></div>
+
       <section class="stat-grid" style="margin-top:1.5rem;">
         <div class="stat-card">
           <div class="stat-value" id="reportTotalClients">0</div>

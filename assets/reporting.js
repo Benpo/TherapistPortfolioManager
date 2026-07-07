@@ -4,12 +4,52 @@
 document.addEventListener("DOMContentLoaded", async () => {
   await App.initCommon();
 
+  // Phase 39 Plan 05 (HELP-05, D-21/D-22): build the first-run no-data coaching
+  // block into #reportingEmpty once — calm help.deeplink.readDashboard sentence +
+  // a soft "Show me how" deep-link into ./help.html#overview (matches
+  // window.HELP_DEEPLINKS.readDashboard, Plan 01/04). Both nodes carry data-i18n
+  // so the app:language handler's applyTranslations() re-localizes them. Non-
+  // accent .button.ghost (D-22); createElement + textContent, no innerHTML.
+  function buildReportingCoach(container) {
+    if (!container || document.getElementById("reportingCoachBtn")) return;
+    container.textContent = "";
+    const sentence = document.createElement("div");
+    sentence.className = "empty-coach-sentence";
+    sentence.setAttribute("data-i18n", "help.deeplink.readDashboard");
+    sentence.textContent = App.t("help.deeplink.readDashboard");
+    const btn = document.createElement("a");
+    btn.id = "reportingCoachBtn";
+    btn.className = "button ghost empty-coach-btn";
+    btn.style.display = "inline-block";
+    btn.style.marginTop = "0.75rem";
+    btn.setAttribute("href", "./help.html#overview");
+    btn.setAttribute("data-i18n", "help.deeplink.cta");
+    btn.textContent = App.t("help.deeplink.cta");
+    container.appendChild(sentence);
+    container.appendChild(btn);
+  }
+
   async function renderReporting() {
     const clients = await PortfolioDB.getAllClients();
     const sessions = await PortfolioDB.getAllSessions();
 
     const totalClients = clients.length;
     const totalSessions = sessions.length;
+
+    // "No data" for the dashboard === zero sessions to aggregate: every stat is
+    // session-derived, so with no sessions there is nothing to chart. On that
+    // first-run state show the coaching block and hide the empty stat grid;
+    // otherwise render stats as before.
+    const reportingEmpty = document.getElementById("reportingEmpty");
+    const statGrid = document.querySelector(".stat-grid");
+    if (totalSessions === 0) {
+      buildReportingCoach(reportingEmpty);
+      if (reportingEmpty) reportingEmpty.style.display = "block";
+      if (statGrid) statGrid.style.display = "none";
+      return;
+    }
+    if (reportingEmpty) reportingEmpty.style.display = "none";
+    if (statGrid) statGrid.style.display = "";
 
     let totalIssues = 0;
     let beforeSum = 0;
