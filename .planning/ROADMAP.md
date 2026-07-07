@@ -502,3 +502,4 @@ Plans:
 **Gap closure** *(from Phase 38 UAT test 3 — D-03 decision revision, 2026-07-07)*
 
 - [x] 38-08-PLAN.md — Gap: nextSession blank-date sort now travels WITH the direction (bottom on ascending, top on descending), mirroring Last Session; revises D-03/NEXT-04 (NEXT-04, NEXT-08)
+- [ ] 38-09-PLAN.md — Gap: block save on a PARTIAL typed #nextSessionDate (native validity.badInput) with a clear 4-language toast — no silent discard; falsifiable pure-guard test + real-Safari field-verify (UAT test 5) (NEXT-01, NEXT-08)
