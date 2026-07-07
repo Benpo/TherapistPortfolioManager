@@ -80,35 +80,38 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HELP-01 | — | Pending |
-| HELP-02 | — | Pending |
-| HELP-03 | — | Pending |
-| HELP-04 | — | Pending |
-| HELP-05 | — | Pending |
-| HELP-06 | — | Pending |
-| HELP-07 | — | Pending |
-| ONBD-01 | — | Pending |
-| ONBD-02 | — | Pending |
-| ONBD-03 | — | Pending |
-| ONBD-04 | — | Pending |
-| TOUR-01 | — | Pending |
-| TOUR-02 | — | Pending |
-| TOUR-03 | — | Pending |
-| TOUR-04 | — | Pending |
-| CHLG-01 | — | Pending |
-| CHLG-02 | — | Pending |
-| CHLG-03 | — | Pending |
-| CHLG-04 | — | Pending |
-| GATE-01 | — | Pending |
-| GATE-02 | — | Pending |
-| GATE-03 | — | Pending |
-| GATE-04 | — | Pending |
+| HELP-01 | Phase 39 | Pending |
+| HELP-02 | Phase 39 | Pending |
+| HELP-03 | Phase 39 | Pending |
+| HELP-04 | Phase 39 | Pending |
+| HELP-05 | Phase 39 | Pending |
+| HELP-06 | Phase 39 | Pending |
+| HELP-07 | Phase 39 | Pending |
+| ONBD-01 | Phase 40 | Pending |
+| ONBD-02 | Phase 40 | Pending |
+| ONBD-03 | Phase 40 | Pending |
+| ONBD-04 | Phase 40 | Pending |
+| TOUR-01 | Phase 41 | Pending |
+| TOUR-02 | Phase 41 | Pending |
+| TOUR-03 | Phase 41 | Pending |
+| TOUR-04 | Phase 41 | Pending |
+| CHLG-01 | Phase 42 | Pending |
+| CHLG-02 | Phase 42 | Pending |
+| CHLG-03 | Phase 42 | Pending |
+| CHLG-04 | Phase 42 | Pending |
+| GATE-01 | Phase 43 | Pending |
+| GATE-02 | Phase 43 | Pending |
+| GATE-03 | Phase 43 | Pending |
+| GATE-04 | Phase 43 | Pending |
 
 **Coverage:**
 - v1 requirements: 23 total
-- Mapped to phases: 0
-- Unmapped: 23 ⚠️ (roadmap pending)
+- Mapped to phases: 23 ✓
+- Unmapped: 0 ✓
+
+Per-phase requirement counts: Phase 39 (7) · Phase 40 (4) · Phase 41 (4) · Phase 42 (4) · Phase 43 (4).
 
 ---
 *Requirements defined: 2026-07-07*
-*Last updated: 2026-07-07 after initial definition*
+*Last updated: 2026-07-07 — traceability mapped during roadmap creation (Phases 39–43)*
+</content>

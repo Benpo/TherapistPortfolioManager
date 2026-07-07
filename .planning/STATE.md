@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: In-App Help, Onboarding & Changelog
 status: planning
-last_updated: "2026-07-07T13:55:27.338Z"
+last_updated: "2026-07-07T14:30:00.000Z"
 last_activity: 2026-07-07
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution review)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Awaiting next milestone — v1.3 sketched (Help + in-app Changelog) in `.planning/MILESTONE-CONTEXT.md`; run `/gsd-new-milestone` to formalize.
+**Current focus:** v1.3 In-App Help, Onboarding & Changelog — roadmap created (Phases 39–43, 23/23 requirements mapped). Next: discuss + plan Phase 39 (Help Center & "?" Entry Point).
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-07-07 — Milestone v1.3 started
+Phase: 39 — Help Center & "?" Entry Point (first v1.3 phase)
+Plan: — (not yet planned)
+Status: Planning
+Last activity: 2026-07-07 — v1.3 roadmap created (Phases 39–43); 23/23 requirements mapped
 
 ## Performance Metrics
 
@@ -421,7 +421,7 @@ Recent decisions affecting current work:
 Last activity: 2026-07-07 — Closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
 Stopped at: v1.2 milestone closed and archived 2026-07-07 (ROADMAP/REQUIREMENTS/AUDIT → milestones/v1.2-*; phase dirs → milestones/v1.2-phases/).
 Resume file: .planning/milestones/v1.2-phases/38-next-session-date-field-with-overview-column/38-UAT.md (historical — v1.2 is closed)
-Next: /gsd-new-milestone to formalize v1.3 (sketch: .planning/MILESTONE-CONTEXT.md).
+Next: /gsd-discuss-phase 39 then /gsd-plan-phase 39 (Help Center & "?" Entry Point). v1.3 roadmap live in ROADMAP.md (Phases 39–43, gate-last).
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
 
@@ -449,4 +449,6 @@ Pre-close artifact audit flagged 16 open items. Ben reviewed the triage and chos
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- v1.3 roadmap created 2026-07-07 (Phases 39–43): 39 Help Center → 40 Welcome & Coordinator → 41 Guided Tour → 42 Changelog & What's-New → 43 Docs Hard Gate (last). 23/23 requirements mapped; standard granularity.
+- Discuss-phase carries the 16 open questions from `.planning/milestones/v1.3-CONTEXT.md` §8 — do NOT let a planner invent answers.
+- Start with /gsd-discuss-phase 39, then /gsd-plan-phase 39.

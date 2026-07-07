@@ -9,6 +9,7 @@ Transform the existing functional vanilla JS prototype into a sellable product f
 - ✅ **v1.0 MVP** — Phases 1–7 (shipped 2026-03-18)
 - ✅ **v1.1 Final Polish & Launch** — Phases 8–27 (shipped 2026-06-22) — full phase detail archived in `milestones/v1.1-ROADMAP.md`
 - ✅ **v1.2 Codebase Health & Reliability** — Phases 28–38 (shipped 2026-07-07) — full phase detail archived in `milestones/v1.2-ROADMAP.md`
+- 🚧 **v1.3 In-App Help, Onboarding & Changelog** — Phases 39–43 (ACTIVE, started 2026-07-07)
 
 ## Phases
 
@@ -74,20 +75,93 @@ Full goals, success criteria, and per-plan detail are archived in `milestones/v1
 
 </details>
 
+### 🚧 v1.3 In-App Help, Onboarding & Changelog (Phases 39–43) — ACTIVE
+
+Every practitioner can learn the whole app *inside* the app (welcome, replayable tour, help center) and hears about every release *inside* the app (What's-New popup + changelog page) — with a hard process gate guaranteeing both stay current with every future user-facing change. Zero new production dependencies; fully offline; EN copy canonical (DE/CS/HE deferred). Design seed: the approved Phase 26 `26-UI-SPEC.md`, reconciled against the current (v1.2.x) app. Run dependency-ordered: **help center first** (everything links into it), coordinator-governed onboarding next, then the fragile tour, then the changelog, then the docs gate **last** (so it doesn't block its own milestone's sibling commits).
+
+- [ ] **Phase 39: Help Center & "?" Entry Point** — persistent "?" on every app page, offline `help.html` help center (workflow-spine IA + personalization + technical track), full EN content, empty-state deep-links, per-browser install instructions
+- [ ] **Phase 40: First-Run Welcome & Onboarding Coordinator** — first-run coordinator (single precedence order), branded welcome overlay (tour / explore myself), re-openable from "?", non-nagging install nudge
+- [ ] **Phase 41: Replayable Guided Tour** — bespoke ~6–9-step spine tour, graceful degradation (spotlight ↔ modal + "Take me there"), cross-page resume, language re-render
+- [ ] **Phase 42: In-App Changelog & What's-New** — once-per-version What's-New popup + persistent changelog page in the help center, one structured data source, v1.3's own notes as first entry
+- [ ] **Phase 43: Docs-Maintenance Hard Gate** — layered blocking gate (git hook + unbypassable CI step + GSD DoD) so no user-facing change ships without a changelog entry + updated help topics; validated against v1.3's own ship
+
+## Phase Details (v1.3)
+
+### Phase 39: Help Center & "?" Entry Point
+**Goal**: A practitioner can open a comprehensive, offline, workflow-organized help center from a persistent "?" on any app page, and empty states coach them into the right topic.
+**Depends on**: Nothing new (first v1.3 phase). Built on the existing `initCommon()` chrome, `renderNav()`, `data-i18n`/4-locale plumbing, and `sw.js` precache.
+**Requirements**: HELP-01, HELP-02, HELP-03, HELP-04, HELP-05, HELP-06, HELP-07
+**Success Criteria** (what must be TRUE):
+  1. A "?" icon appears in the header (beside cloud + gear, RTL-flipped, dark-aware, `.is-active`) on every app page and opens the help center.
+  2. `help.html` is browsable any time via a nav entry, organized along the 7-step workflow spine with a "make it yours" personalization section led early and a clearly separated technical-tips track, and its topics are anchor deep-linkable.
+  3. EN help content covers every current-app feature (session formats incl. custom, date-format personalization, filters/sorting, next-session date, report-a-problem, updates, backups, activation/2-device transfer, troubleshooting) in current terminology (Heart-Wall, Session Format), verified by a native-speaker agent review and reviewed by Sapir.
+  4. A practitioner hitting an empty state (e.g. no clients yet) sees coaching copy that deep-links into the matching help topic.
+  5. Help opens fully offline on an installed PWA (new pages/assets added to `sw.js` precache, static-test + real offline-navigation verified), and per-browser PWA install instructions (Chrome/Edge, iOS Safari, Android) are available in Help — never a fake universal install button.
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 40: First-Run Welcome & Onboarding Coordinator
+**Goal**: On first launch a practitioner sees exactly one welcoming surface — a branded welcome offering "take the tour" / "I'll explore myself" — governed by a single first-run coordinator that prevents competing surfaces from stacking, plus a non-nagging install nudge; all re-openable from "?".
+**Depends on**: Phase 39 (welcome's "take the tour" / "learn more" CTAs point at the help center and, later, the tour). The coordinator is built first within this phase and is the shared decision point the Phase 42 What's-New popup registers into.
+**Requirements**: ONBD-01, ONBD-02, ONBD-03, ONBD-04
+**Success Criteria** (what must be TRUE):
+  1. The first app launch after activation shows a full-screen branded welcome overlay with two first-class choices ("Take the guided tour" / "I'll explore myself"); it fires exactly once (one-shot flag; either choice or tour completion sets it), and Esc dismisses.
+  2. A practitioner can re-open the welcome/tour any time from the "?" entry, and it never auto-re-fires.
+  3. On any single launch, only one attention surface appears — a written precedence order across welcome, What's-New, security note, install nudge, and the iOS banner is enforced, with explicit fresh-install-vs-upgrader handling (no competing surfaces stack).
+  4. A practitioner who hasn't installed the PWA sees one friendly, dismissable, non-nagging, per-browser-aware install affordance (dismissal remembered) that replaces/reconciles the existing per-session iOS banner.
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 41: Replayable Guided Tour
+**Goal**: A practitioner can take a replayable, in-voice guided tour along the workflow spine that survives cross-page navigation and language switches and never silently skips a step.
+**Depends on**: Phase 39 (tour fallbacks and completion link into the help center — the "Take me there" target) and Phase 40 (launched from the welcome CTA / "?"). Highest technical fragility in the milestone — bespoke engine, no template (`demo-hints.js` deleted); reference is `.planning/sketches/003-tour-fallback/`.
+**Requirements**: TOUR-01, TOUR-02, TOUR-03, TOUR-04
+**Success Criteria** (what must be TRUE):
+  1. A practitioner can launch a ~6–9-step guided tour along the workflow spine only by explicit choice (welcome CTA or "?") — it never auto-runs — and its copy speaks in the app's calm, warm, garden-branded voice (native-speaker-agent verified).
+  2. Every tour step degrades gracefully: anchor present & visible → spotlight + tooltip; anchor missing/hidden → centered modal with the same text and a working "Take me there" link — never a silent skip (removing any anchor renders the fallback; an anchor-presence test guards rot).
+  3. The tour survives cross-page navigation — steps that live on another page navigate there and resume (sessionStorage state).
+  4. Switching language mid-tour re-renders the tour cleanly in the new language and direction (RTL mirroring verified in real WebKit, not jsdom alone).
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 42: In-App Changelog & What's-New
+**Goal**: A practitioner hears about every release inside the app — a once-per-version "What's New" popup plus a persistent, benefit-led changelog page in the help center — driven by one structured data source, with v1.3's own notes as the first entry.
+**Depends on**: Phase 40 (the coordinator governs the popup; What's-New must never fire on the same launch as the first-run welcome) and Phase 39 (the changelog page lives inside the help center). Keys off `window.AppVersion.APP_VERSION`, never the SW/integrity-token layer; must coexist with the existing footer update nudge without double-signalling.
+**Requirements**: CHLG-01, CHLG-02, CHLG-03, CHLG-04
+**Success Criteria** (what must be TRUE):
+  1. Opening the app after a version change shows a "What's New in vX.Y.Z" popup exactly once (keyed on `APP_VERSION` vs a stored last-seen version, suppressed on the very first-ever launch, works fully offline); dismissing records the version so it does not reappear until the next change.
+  2. A persistent changelog page inside the help center shows reverse-chronological, version-and-date-grouped, plain-language benefit-led entries (New / Improved / Fixed register, no dev jargon).
+  3. One structured, i18n-capable in-app data source drives both the popup (latest entry) and the page (history) — never forked, never scraped from git, no second version constant.
+  4. v1.3's own release notes ship as the first changelog entry (self-hosting proof of the pipeline).
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 43: Docs-Maintenance Hard Gate
+**Goal**: No user-facing change can ship without a changelog entry and updated help topics — enforced by a layered, hard (blocking) gate, validated against v1.3's own release.
+**Depends on**: Phase 42 (needs the `changelog-data.js` shape to parse against). Deliberately landed **last** in the milestone so v1.3's own help/changelog edits are already in place — otherwise the gate would block its own sibling commits. (§11.4 sequencing note: a scaffold-early / enforce-at-close middle path is a discuss-phase option; the requirement is only that final enforcement is HARD and validated on a live ship.) This is repo-tooling, not app code.
+**Requirements**: GATE-01, GATE-02, GATE-03, GATE-04
+**Success Criteria** (what must be TRUE):
+  1. A phase/ship containing user-facing changes cannot complete until a changelog entry exists for those changes AND affected help topics were updated or explicitly marked unaffected — the gate blocks loudly, it does not merely warn.
+  2. Enforcement is layered: a fast local git hook (committed `.githooks/`, shared script) + a CI step in the deploy workflow (the unbypassable layer) + a GSD definition-of-done gate.
+  3. A written, checkable path-based definition of "user-facing change" governs the gate, with a logged escape hatch for genuine emergencies (never a silent `--no-verify` culture).
+  4. The gate hooks the existing release habit — the hand-set `APP_VERSION` bump in `assets/version.js` is the release moment a changelog entry must exist for — and the gate is validated against v1.3's own ship.
+**Plans**: TBD
+**UI hint**: no
+
 ## Backlog
 
 Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage (2026-06-22) is complete.
 
 - **Mobile — `21-03`** — crop bug fix (shared module), overlay-close, body scroll lock, iPhone device checkpoint. Archived: `milestones/v1.1-phases/21-comprehensive-mobile-responsiveness-audit-and-fix-all-app-screens-for-iphone-mobile-viewport/`.
-- **Help / onboarding build (Phase 26)** — design complete (`26-UI-SPEC.md`), build deferred. Start from the archived UI-SPEC. Todo: `todos/pending/2026-05-15-in-app-onboarding-overview-help.md`.
+- **Help / onboarding build (Phase 26)** — design complete (`26-UI-SPEC.md`); **build now IN PROGRESS as v1.3 (Phases 39–43)**. Start from the archived UI-SPEC. Todo: `todos/pending/2026-05-15-in-app-onboarding-overview-help.md` (closes at v1.3 ship).
 - **LNCH-04** — landing page DE/CS translation verification. Todo: `todos/pending/2026-03-18-verify-landing-page-translations.md`.
 - **LNCH-06 (mobile QA)** — folded into the mobile backlog item above.
 - **Codebase-map concerns — triaged with Ben 2026-06-22** (`.planning/codebase/CONCERNS.md`):
   - *Folded into v1.2:* error telemetry (P29), IDB escape hatch (P29), CSP→header + cache TTL (P28), RTL guard (P30), `openDB`/`innerHTML`/`var` cleanup (P31), DE/CS i18n (P33).
   - *Deferred to backlog:* license re-validation (adds a phone-home — revisit only if piracy is observed), table pagination, PDF→Web Worker, sequential photo-optimize loop, backup import size cap, jsPDF version pin, a11y (table `aria-rowindex`, export-stepper `aria-current`, toast/demo), landing-page `innerHTML`, license-key-in-localStorage note, IDB record caps.
   - *Won't-do for v1.2:* build step / bundler, full ES-module system, multi-device sync, removing `unsafe-inline` from `script-src` — all conflict with the zero-build / local-only constraints; revisit only if forced.
-- **Broader extraction + test-coverage health (post-v1.2 outlook — likely a "v1.3 Codebase Health II")** — surfaced during Phase 30 discussion (2026-06-26). v1.2 only char-tests + refactors the two god modules (`settings.js`, `add-session.js`); the rest of the `.js` landscape has two unaddressed risks: (a) **dangerous test-coverage gaps** in large files (`app.js` = 1,474 lines / only 6 tests; `license.js` 568/0; `overview.js`, `landing.js`), and (b) **further extraction candidates** among the 4-digit files (`backup.js`, `app.js`, `pdf-export.js`, `db.js` — triage god-module vs cohesive-large, don't assume) + an app-wide glue-duplication sweep (`t()` in 5 files, `showToast` in 2). Best done *after* v1.2 establishes the test harness (P30) + extraction pattern (P31) as the template. Full coverage map + scoping in todo: `todos/pending/2026-06-26-broader-extraction-and-test-coverage-health.md`. Decide promotion at v1.2 close.
-- **Other pending todos** — see `.planning/todos/pending/` (incl. deactivation data-loss warning, PWA install guidance, v12 IDB encryption, drag-sort settings, modality templates).
+- **Broader extraction + test-coverage health ("Codebase Health II", candidate for a later milestone)** — surfaced during Phase 30 discussion (2026-06-26); **superseded for the v1.3 slot by the Help/Changelog milestone**, still a valid later-milestone candidate. v1.2 only char-tests + refactors the two god modules (`settings.js`, `add-session.js`); the rest of the `.js` landscape has two unaddressed risks: (a) **dangerous test-coverage gaps** in large files (`app.js` = 1,474 lines / only 6 tests; `license.js` 568/0; `overview.js`, `landing.js`), and (b) **further extraction candidates** among the 4-digit files (`backup.js`, `app.js`, `pdf-export.js`, `db.js` — triage god-module vs cohesive-large, don't assume) + an app-wide glue-duplication sweep (`t()` in 5 files, `showToast` in 2). Full coverage map + scoping in todo: `todos/pending/2026-06-26-broader-extraction-and-test-coverage-health.md`.
+- **Other pending todos** — see `.planning/todos/pending/` (incl. deactivation data-loss warning, PWA install guidance [absorbed into v1.3 H-9], v12 IDB encryption, drag-sort settings, modality templates).
 - **1-interactive-demo-on-landing-page-embedde** — an old landing-page interactive-demo iframe idea (`quick/1-interactive-demo-on-landing-page-embedde/1-PLAN.md`), never executed; superseded by the Phase 35 demo/chrome convergence work. Acknowledged and deferred at v1.2 close (2026-07-07) — revisit only if a prospective-buyer live demo becomes a priority.
 
 ## Progress
@@ -134,4 +208,10 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete | 2026-07-02 |
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete | 2026-07-06 |
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
+| 39. Help Center & "?" Entry Point | v1.3 | 0/TBD | Not started | - |
+| 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 0/TBD | Not started | - |
+| 41. Replayable Guided Tour | v1.3 | 0/TBD | Not started | - |
+| 42. In-App Changelog & What's-New | v1.3 | 0/TBD | Not started | - |
+| 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |
 </content>
+</invoke>
