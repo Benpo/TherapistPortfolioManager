@@ -406,7 +406,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete   | 2026-07-02 |
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete    | 2026-07-06 |
-| 38. Next session date field + overview column | v1.2 | 12/12 | Complete   | 2026-07-07 |
+| 38. Next session date field + overview column | v1.2 | 12/12 | Complete    | 2026-07-07 |
 
 ### Phase 37: Date consistency + date-format setting + session types (F6+F5+F4)
 

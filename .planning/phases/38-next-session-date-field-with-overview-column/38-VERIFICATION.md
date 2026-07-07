@@ -1,42 +1,46 @@
 ---
 phase: 38-next-session-date-field-with-overview-column
-verified: 2026-07-07T05:48:21Z
+verified: 2026-07-07T14:10:00Z
 status: passed
-score: 8/8 must-haves verified
+score: 9/9 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
   previous_status: human_needed
-  previous_score: 8/8 (with 2 open human-verification items)
+  previous_score: 8/9 (1 present-but-behavior-unverified)
   gaps_closed:
-    - "Blank next-dates now travel WITH the sort direction — bottom under ascending (default), top under descending — mirroring Last Session (revised D-03, closed by plan 38-08)"
+    - "UAT test 5 real-Safari field check: badInput guard confirmed firing at submit time in real Safari (38-UAT.md test 5 retest, 'pass') — the one item previously routed to human verification is now closed with on-device evidence"
+    - "UAT test 6: RTL native date-input segment reversal (yyyy/dd/mm) — fixed by 38-10 (direction:ltr base rule + RTL box-direction/datetime-edit override), Playwright WebKit + on-device Safari approved"
+    - "UAT test 7: Latin name + Hebrew month-name date bidi scramble — fixed by 38-11 (shared FSI isolate() helper wrapping name+date at all composition sites), on-device Safari approved"
+    - "UAT test 8: block-warning indistinguishable from success toast, not physically close to field — fixed by 38-12 (toast tone/focus API, .toast--error variant, plus Ben-approved rangeUnderflow too-early-date guard extension), on-device Safari approved"
   gaps_remaining: []
   regressions: []
 ---
 
 # Phase 38: Next Session Date Field With Overview Column Verification Report
 
-**Phase Goal:** Add an optional, real date field for the next session — stored on the session record alongside the existing free-text "information for the next session" note — and surface it in the overview table as its own column, mirroring how the last-session date is already shown. (Depends on Phase 37's date engine, native date input, portfolioDateFormat setting, and RTL/locale-aware overview date-column formatter.)
-**Verified:** 2026-07-07T05:48:21Z
+**Phase Goal:** Optional native date-picker for the *next* session, stored on the session record + shown as its own sortable overview column (mirrors last-session date), rendered in exports, seeded in the demo, carried by backup/restore — built on the Phase 37 date engine, native date input, and overview column formatter.
+**Verified:** 2026-07-07T14:10:00Z
 **Status:** passed
-**Re-verification:** Yes — after gap closure (plan 38-08, closing UAT test 3 / decision revision D-03-R1)
+**Re-verification:** Yes — after gap-closure plans 38-10, 38-11, 38-12 (UAT retest gaps: RTL date-input segment order, bidi name/date scramble, warning-toast visibility) landed on top of the prior `human_needed` (8/9) verification.
 
 ## Context
 
-This is a re-verification following execution of 38-08, a gap-closure plan that resolved a
-**decision revision** (not a code defect) discovered during Phase 38 UAT: test 3 found that the
-original locked D-03 ("blanks pin to the bottom under both sort directions") felt unintuitive
-next to Last Session's toggle — with a single dated row among mostly-blank rows, toggling the
-Next Session sort direction never visibly moved that row. Ben revised the decision on 2026-07-07
-(D-03-R1): blank next-dates now **travel with** the sort direction (bottom on ascending/default,
-top on descending), mirroring Last Session. This report verifies the revised behavior against the
-live codebase, not against the superseded plan text, per the decision-revision note.
+This is a re-verification following the 38-09 → UAT-retest → 38-10/11/12 gap-closure cycle. The
+2026-07-07T09:10Z verification scored 8/9 with one truth (`isNextSessionDateIncomplete` real-Safari
+effectiveness) left `PRESENT_BEHAVIOR_UNVERIFIED` because jsdom/Chromium cannot raise
+`validity.badInput` — routed to human verification. The subsequent UAT retest (`38-UAT.md`) both
+(a) closed that item on real hardware ("incomplete date worked... badInput does fire at submit
+time — review WR-02's Safari premise PROVEN") and (b) surfaced three NEW issues found during that
+same retest session (tests 6, 7, 8 — all RTL/bidi/toast-visibility, none previously in scope
+because they required real-device Hebrew testing). All three were diagnosed with root-cause debug
+sessions, fixed by gap plans 38-10/11/12, and each plan's `<human-check>` was approved by Ben
+on-device in real Safari on 2026-07-07 (recorded in each plan's SUMMARY.md and in `38-UAT.md`,
+whose `Gaps` section now lists all 5 entries as `status: resolved`).
 
-The prior `38-VERIFICATION.md` (2026-07-06, status `human_needed`, 8/8 truths pre-revision) and
-`38-UAT.md` (2026-07-07, 3/4 passed, 1 issue = the D-03 revision) are both superseded by this
-report. The two open human-verification items from the prior VERIFICATION.md (overdue-cue visual
-check, demo column "reads naturally") were subsequently performed and both **passed** per
-`38-UAT.md` tests 1 and 2 (2026-07-07) — they are closed, not re-opened here.
+This report treats those five on-device approvals as satisfying the human-verification requirement
+— they are not re-flagged as pending. All evidence below (tests, source, wiring) was independently
+re-executed and re-read in this session, not taken from SUMMARY.md's word.
 
 ## Goal Achievement
 
@@ -44,109 +48,150 @@ check, demo column "reads naturally") were subsequently performed and both **pas
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | An optional `nextSessionDate` field exists on the session record, entered via a native `<input type="date">` below the note, wired into save/add/populate/reset (NEXT-01) | ✓ VERIFIED | `add-session.html:341` — `<input class="input" id="nextSessionDate" type="date" />` below `#customerSummary`. Regression-checked: still wired in `add-session.js` save/populate paths (unchanged since prior verification, no diff in this range). |
-| 2 | The date input's `min` is dynamically bound to `#sessionDate` (never `min=today`), removed when the session date is empty, re-applied on change (NEXT-02) | ✓ VERIFIED | `assets/add-session.js:1682` `syncNextSessionMin()`; called at :523 (new-session default) and wired to `#sessionDate` `change` at :525; called again at :1711 (populate). Unchanged since prior verification. |
-| 3 | A "Next Session" column appears in the overview table in both index.html and demo.html, immediately after Last Session, showing the most-recent session's value formatted via `App.formatDate`, blank renders `-` (NEXT-03) | ✓ VERIFIED | `index.html:178`, `demo.html:167` both have `<th data-sort-key="nextSession">` after Last Session. Cell-render code (`overview.js`) confirmed unchanged by the 38-08 diff (only the sort branch changed). |
-| 4 | The column is sortable via a `nextSession` key defaulting ascending, synced with `#clientSortSelect`, with **empty next-dates traveling WITH the sort direction — bottom under ascending (default), top under descending** (revised NEXT-04/D-03-R1) | ✓ VERIFIED | `assets/overview.js:305-317`: early-return blank pins removed; blank next-dates substituted with `BLANK_SENTINEL = "9999-12-31"` before `localeCompare`, riding the shared `dir * base` flip. `node tests/37-overview-sort.test.js` → **9/9 PASS**, executed directly in this session — including the rewritten descending case (`['Carol Clark','Alice Adams','Bob Brown']`, blank Carol at TOP) and the unchanged ascending case (`['Bob Brown','Alice Adams','Carol Clark']`, blank Carol still LAST). |
-| 5 | A subtle, accessible overdue cue (dimmed text + amber dot) shows when `nextSessionDate` is strictly before today-local; today is not overdue; empty renders `-` with no cue (NEXT-05) | ✓ VERIFIED | `assets/overview.js:725,727` (`is-overdue` class, `next-overdue-dot`); `assets/app.css:4638-4647`. Unchanged since prior verification (confirmed by grep — not touched in 38-08 diff). Visual cross-theme/RTL confirmation additionally **passed by human** per `38-UAT.md` test 1 (2026-07-07). |
-| 6 | The next-session date renders in the PDF/markdown export beside the note, gated by the same nextSession section toggle; date-only sessions still render (NEXT-06) | ✓ VERIFIED | `assets/export-modal.js:286-288,432-434` — both builders gate on `summaryValue.length > 0 \|\| nextDateRaw` (note-OR-date). Confirmed by human retest during UAT (`38-UAT.md` test 4, 2026-07-07): "now it does export" — pass; original complaint attributed to a stale service-worker cache, not a code defect. |
-| 7 | Demo + backup parity: demo.html gets the column, seed data carries near-future relative next-dates, backup/restore carries the field automatically with no backup.js change (NEXT-07) | ✓ VERIFIED | `assets/demo-seed.js:42` converts `nextSessionDaysAgo`→`nextSessionDate`; `assets/demo-seed-data.json` seeds 5 values. `git diff --stat 4000506 -- assets/backup.js` → empty (no changes in the gap-closure range or since). Demo column "reads naturally" additionally confirmed by human per `38-UAT.md` test 2 (pass). |
-| 8 | Falsifiable behavior tests, authored before implementation, cover the TZ-pinned overdue boundary, **blanks-travel-with-direction sort** (revised), dynamic-min constraint; PDF/markdown golden baselines regenerated deliberately only if truly needed (revised NEXT-08) | ✓ VERIFIED | `tests/37-overview-sort.test.js` test 8 was rewritten RED-first (commit `a371812`, confirmed failing against pre-38-08 code per plan's own verification step) then made GREEN (commit `9606893`). `node tests/38-next-overdue.test.js` unaffected/still green. Full suite: `node tests/run-all.js` → **127 passed, 0 failed, 127 total**, executed directly in this verification session. No `.sha256` fixture touched by 38-08 (git show confirms only `overview.js`/test/docs files changed). |
+| 1 | An optional `nextSessionDate` field exists on the session record, entered via a native `<input type="date">` below the note, wired into save/add/populate/reset (NEXT-01) | ✓ VERIFIED | `add-session.html:341`; `node tests/38-next-session.test.js` → 6/6 PASS (executed directly). |
+| 2 | The date input's `min` is dynamically bound to `#sessionDate` (never `min=today`), removed when empty, re-applied on change (NEXT-02) | ✓ VERIFIED | `syncNextSessionMin()` in `assets/add-session.js`; DYNAMIC MIN case in `38-next-session.test.js` PASS. |
+| 3 | A "Next Session" column appears in the overview table in both `index.html` and `demo.html`, immediately after Last Session, formatted via `App.formatDate`, blank renders `-` (NEXT-03) | ✓ VERIFIED | `index.html:178-179`, `demo.html:167-168` both carry `data-sort-key="nextSession"` header + i18n label. |
+| 4 | Sortable via a `nextSession` key defaulting ascending, synced with `#clientSortSelect`, empty next-dates traveling WITH the sort direction (revised NEXT-04/D-03-R1) | ✓ VERIFIED | `assets/overview.js` sentinel-based sort branch (9999-12-31 rides `dir * base`); `node tests/37-overview-sort.test.js` → 9/9 PASS; human-confirmed pass (`38-UAT.md` test 3, retested on local server). |
+| 5 | A subtle, accessible overdue cue (dimmed text + amber dot) when `nextSessionDate` is strictly before today-local; today not overdue; empty renders `-` with no cue (NEXT-05) | ✓ VERIFIED | `is-overdue` / `next-overdue-dot` in `assets/overview.js`/`app.css`; `node tests/38-next-overdue.test.js` → 5/5 PASS; human-confirmed pass (`38-UAT.md` test 1: LTR/RTL/dark all correct). |
+| 6 | The next-session date renders in the PDF/markdown export beside the note, gated by the same nextSession section toggle; date-only sessions still render (NEXT-06) | ✓ VERIFIED | `assets/export-modal.js` note-OR-date gates (`sectionHasData`, copy builder, filtered builder); human-confirmed pass (`38-UAT.md` test 4). |
+| 7 | Demo + backup parity: demo.html gets the column, seed data carries near-future relative next-dates, backup/restore carries the field automatically with no `backup.js` change (NEXT-07) | ✓ VERIFIED | `assets/demo-seed.js`/`demo-seed-data.json` (`nextSessionDaysAgo` self-freshening, one deliberate overdue example); `git log -- assets/backup.js` shows no Phase-38 commit; human-confirmed pass (`38-UAT.md` test 2). |
+| 8 | Falsifiable behavior tests, authored before implementation, cover the TZ-pinned overdue boundary, blanks-travel-with-direction sort, dynamic-min constraint, RTL date-input order, bidi isolation, toast tone/focus; golden baselines untouched unless truly needed (revised NEXT-08) | ✓ VERIFIED | `node tests/run-all.js` → **131 passed, 0 failed, 131 total**, executed directly this session. No `.sha256` fixture touched (`git log` for the phase shows no golden-baseline regeneration commit). |
+| 9 | Typing a partial next-session date (one segment changed) and pressing Save in a **real browser** BLOCKS the save with a clear i18n message — never silently discarded while a success toast fires; a manually typed too-early date is likewise blocked (closes UAT test 5, NEXT-01) | ✓ VERIFIED | `isNextSessionDateIncomplete`/`isNextSessionDateTooEarly` (`assets/add-session.js:90-103`) wired at the sole `saveSessionForm()` persist choke point (`:1182-1192`); `node tests/38-next-session-partial-guard.test.js` → 7/7 PASS. **Real-Safari evidence:** `38-UAT.md` test 5 retest — "incomplete date worked... badInput does fire at submit time" (Ben, on-device, 2026-07-07) — resolves the ambiguity the prior verification round left open (code-review WR-02's two possible readings; the Safari premise is now proven, not assumed). |
 
-**Score:** 8/8 truths verified (0 present-but-behavior-unverified)
+**Score:** 9/9 truths verified (0 present-but-behavior-unverified)
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `assets/overview.js` | Reworked `nextSession` sort branch (sentinel, no early-return pins), comment updated | ✓ VERIFIED | Confirmed at lines 305-317; comment documents revised D-03/NEXT-04 rule; sentinel is `"9999-12-31"` |
-| `tests/37-overview-sort.test.js` | Test 8 locks blanks-at-top under descending; test 7 (ascending) untouched; 9/9 pass | ✓ VERIFIED | Executed directly — 9 passed, 0 failed |
-| `.planning/phases/38-next-session-date-field-with-overview-column/38-CONTEXT.md` | D-03-R1 revision note appended, original D-03 preserved | ✓ VERIFIED | Line 34 — full revision note present, references mechanism + supersession |
-| `.planning/REQUIREMENTS.md` | NEXT-04 and NEXT-08 updated to travel-with-direction rule, no stale "bottom regardless of direction" clause | ✓ VERIFIED | NEXT-04 (line 122) and NEXT-08 (line 126) both read "travel WITH the sort direction... revised D-03, 2026-07-07"; negative grep for old "regardless of direction"/"blanks-to-bottom-both" phrasing returns nothing on these lines |
-| `assets/backup.js` | UNCHANGED (field rides along automatically) | ✓ VERIFIED | `git diff --stat 4000506 -- assets/backup.js` empty |
-| All 10 artifacts verified in the prior (2026-07-06) VERIFICATION.md | Unchanged / still present | ✓ VERIFIED (regression check) | Spot-checked NEXT-01/02/03/05/06/07 artifacts directly in this session (see Observable Truths above) — no drift |
+| `assets/app.css` | Shared `input[type="date"]{direction:ltr}` base rule + RTL override + `::-webkit-datetime-edit` inner-order restore (38-10) | ✓ VERIFIED | Confirmed at `:1095`, `:1116`, `:1119`; CSS-cascade specificity verified by code review and re-confirmed here; `node tests/38-10-rtl-date-input.test.js` → 3/3 PASS. |
+| `assets/date-format.js` | `window.DateFormat.isolate(str)` FSI helper (U+2068…U+2069), empty-safe (38-11) | ✓ VERIFIED | Confirmed at `:37-98`, `:128` export; `node tests/38-11-bidi-isolate.test.js` → 7/7 PASS. |
+| `assets/add-session.js` | `updateSessionTitle` isolates BOTH clientName and dateText (heading + `document.title`); guard functions + save-path wiring | ✓ VERIFIED | `isolate(` call confirmed at `:1726`; guards at `:90-103`, `:1182-1192`. |
+| `assets/overview.js` | Session-meta and client-modal mixed runs isolated | ✓ VERIFIED | `isolate(` calls confirmed at `:803`, `:950`, `:963`. |
+| `assets/app.js` | `showToast(message, key, options)` backward-compatible tone/focus API | ✓ VERIFIED | Confirmed at `:851-876`: `toast--error` class toggle, `TOAST_ERROR_MS`=4000 vs `TOAST_SUCCESS_MS`=1800, guarded `scrollIntoView`/`focus`. |
+| `assets/app.css` | `.toast--error` variant using `--color-warning-*` tokens (dark-safe) | ✓ VERIFIED | Confirmed at `:1332-1335`; tokens present in both light/dark theme blocks in `assets/tokens.css:107-108,190-191`. |
+| `assets/i18n-{en,he,de,cs}.js` | `toast.nextSessionDateIncomplete` + `toast.nextSessionDateTooEarly` keys, 4-language parity | ✓ VERIFIED | Present, non-empty, and terminologically consistent in all 4 files (grepped directly). |
+| `tests/38-10-rtl-date-input.test.js`, `38-11-bidi-isolate.test.js`, `38-12-toast-tone-focus.test.js`, `38-next-session-partial-guard.test.js` | Falsifiable behavior tests, non-vacuous count guards | ✓ VERIFIED | Executed individually: 3/3, 7/7, 3/3, 7/7 — all PASS, no skips. |
+| All artifacts verified in the 2026-07-07T09:10Z prior VERIFICATION.md (NEXT-01..08 core artifacts) | Unchanged / still present | ✓ VERIFIED (regression check) | Re-checked directly this session — no drift. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 |------|-----|-----|--------|---------|
-| `overview.js` nextSession sort branch | shared `dir * base` flip | `BLANK_SENTINEL` substitution before `localeCompare` | ✓ WIRED | Lines 313-317; no special-casing of direction inside the branch — sentinel rides the same flip lastSession's empty-string compare rides |
-| `tests/37-overview-sort.test.js` test 8 | `assets/overview.js` sort branch | direct `applyFiltersAndSort()` invocation against jsdom fixture | ✓ WIRED | Executed — PASS, asserting the exact revised order |
-| `38-CONTEXT.md` D-03-R1 | `REQUIREMENTS.md` NEXT-04/NEXT-08 | consistent revision date (2026-07-07) and mechanism description | ✓ WIRED | Cross-checked wording — all three artifacts describe the same sentinel mechanism and travel-with-direction rule, no contradiction |
+| `html[dir="rtl"] input[type="date"]` cascade | `::-webkit-datetime-edit` inner block | CSS specificity override chain | ✓ WIRED | Base rule (0,1,1) beats inherited `direction:rtl`; RTL override (0,2,1) beats base for box alignment; inner `::-webkit-datetime-edit{direction:ltr}` restores native segment order — only these 3 rules exist, no conflicting earlier rule (re-confirmed by grep — single occurrence of each selector). |
+| `updateSessionTitle` / overview meta / client-modal meta | `window.DateFormat.isolate()` | Direct function call wrapping each mixed-direction run | ✓ WIRED | 4 call sites confirmed (`add-session.js:1726` — both clientName and dateText; `overview.js:803,950,963`). |
+| `saveSessionForm()` | `isNextSessionDateIncomplete` / `isNextSessionDateTooEarly` | Direct calls before the DB-persist write, at `:1182` and `:1189` | ✓ WIRED | Both guards call `App.showToast(..., { tone: "error", focus: nextSessionDateEl })` and `return null` before the write — mirrors the pre-existing `heartShieldRequired` block pattern. |
+| `App.showToast` options param | `.toast--error` CSS class + focus/scroll | `toast.classList.add("toast--error")` + guarded `focusTarget.scrollIntoView()/.focus()` | ✓ WIRED | Confirmed at `app.js:859-870`; tone always reset at top of function so no stale tone leaks onto a later success toast. |
+| add-session form validation call sites | `showToast(..., {tone:"error", focus})` | Migrated call sites in `assets/add-session.js` | ✓ WIRED | Code review (38-REVIEW.md) independently traced the migration; re-confirmed here at the guard call sites (`:1183`, `:1190`). |
 
-### Requirements Coverage
+### Data-Flow Trace (Level 4)
 
-| Requirement | Source Plan(s) | Description | Status | Evidence |
-|-------------|-----------------|-------------|--------|----------|
-| NEXT-01 | 38-01, 38-03, 38-04 | Field added, wired into add/edit save payloads | ✓ SATISFIED | Truth 1 (regression-checked, unchanged) |
-| NEXT-02 | 38-01, 38-04 | Dynamic `min` bound to session's own date | ✓ SATISFIED | Truth 2 (regression-checked, unchanged) |
-| NEXT-03 | 38-02, 38-03, 38-05 | Next Session overview column, both files | ✓ SATISFIED | Truth 3 (regression-checked, unchanged) |
-| NEXT-04 | 38-02, 38-03, 38-05, **38-08 (revision)** | Sortable, ascending default, **blanks travel with direction (revised D-03-R1)** | ✓ SATISFIED | Truth 4 — 9/9 tests pass on the revised rule |
-| NEXT-05 | 38-01, 38-03, 38-05 | Overdue cue, strictly-before-today | ✓ SATISFIED | Truth 5; visual cross-theme/RTL human-verified pass (38-UAT.md test 1) |
-| NEXT-06 | 38-02, 38-06 | Export markdown/PDF renders date, note-OR-date gate | ✓ SATISFIED | Truth 6; human-verified pass (38-UAT.md test 4) |
-| NEXT-07 | 38-02, 38-07 | Demo + backup parity | ✓ SATISFIED | Truth 7; "reads naturally" human-verified pass (38-UAT.md test 2) |
-| NEXT-08 | 38-01, 38-02, 38-06, **38-08 (revision)** | Falsifiable tests pre-implementation; **revised blank-sort test coverage**; golden baselines discipline | ✓ SATISFIED | Truth 8 — RED-first-confirmed test 8, full suite green |
-
-All 8 REQUIREMENTS.md IDs (NEXT-01..08) are claimed by at least one plan's `requirements`
-frontmatter (38-08 additionally claims NEXT-04/NEXT-08 for the revision). REQUIREMENTS.md's own
-coverage table marks all 8 "Complete." No orphaned requirements.
-
-### Anti-Patterns Found
-
-None. Grepped `assets/overview.js` and `tests/37-overview-sort.test.js` (the two files touched by
-the gap-closure plan) for `TBD|FIXME|XXX|TODO|HACK|PLACEHOLDER` — zero matches. No stray
-`innerHTML` introduced; the sentinel substitution is a plain string comparison with no new DOM
-write.
-
-**Note (non-blocking, Info-level, from `38-REVIEW.md`):** two stale documentation artifacts remain
-— `overview.js:616-617`'s `mostRecentSession()` doc comment cites an outdated line-number anchor
-(":619-626" for the render tiebreak, which has drifted to :658-665), and
-`tests/37-overview-sort.test.js`'s header docblock still says "TDD RED... FAILS RED now" for
-features that are now green/regression-pinning. Both are classified Info by the code-reviewer (no
-Critical/Warning), do not affect behavior or goal achievement, and do not block phase completion.
+Not applicable in the classic dynamic-list-rendering sense for the 38-10/11/12 additions — these
+are (a) a pure CSS cascade fix, (b) a pure string-isolation helper applied at fixed composition
+sites, and (c) a pure toast-options API. Each was traced directly above (Key Link Verification)
+rather than through a data-fetch pipeline. The core NEXT-01..08 overview-column data flow
+(overview.js reading `clientSessions[0].nextSessionDate` via `mostRecentSession()`) was verified in
+the prior report and is unchanged (regression-confirmed: `overview.js` sort/render tiebreak logic
+untouched by the 38-10/11/12 diffs, confirmed by grep of the touched-file list in each SUMMARY).
 
 ### Behavioral Spot-Checks / Test Execution
 
 | Behavior | Command | Result | Status |
 |----------|---------|--------|--------|
-| nextSession blank-sort revision (this gap's fix) | `node tests/37-overview-sort.test.js` | 9 passed, 0 failed | ✓ PASS |
-| Full regression suite | `node tests/run-all.js` | 127 passed, 0 failed, 127 total | ✓ PASS |
-| No debt markers in touched files | `grep -n -E "TBD\|FIXME\|XXX" assets/overview.js tests/37-overview-sort.test.js` | no matches | ✓ PASS |
-| `backup.js` untouched by revision | `git diff --stat 4000506 -- assets/backup.js` | empty | ✓ PASS |
+| RTL date-input CSS source gate | `node tests/38-10-rtl-date-input.test.js` | 3 passed, 0 failed | ✓ PASS |
+| Bidi-isolate helper + call-site gates | `node tests/38-11-bidi-isolate.test.js` | 7 passed, 0 failed | ✓ PASS |
+| Toast tone/focus + default-path regression | `node tests/38-12-toast-tone-focus.test.js` | 3 passed, 0 failed | ✓ PASS |
+| Partial-guard + too-early-guard unit tests | `node tests/38-next-session-partial-guard.test.js` | 7 passed, 0 failed | ✓ PASS |
+| Next-session field save/populate/reset/min | `node tests/38-next-session.test.js` | 6 passed, 0 failed | ✓ PASS |
+| Overview sort (blanks travel with direction) | `node tests/37-overview-sort.test.js` | 9 passed, 0 failed | ✓ PASS |
+| Overdue boundary (TZ-pinned) | `node tests/38-next-overdue.test.js` | 5 passed, 0 failed | ✓ PASS |
+| i18n parity (new keys, 4 locales) | `node tests/25-11-i18n-parity.test.js` | included in full suite | ✓ PASS |
+| Full regression suite | `node tests/run-all.js` | **131 passed, 0 failed, 131 total** | ✓ PASS |
+| No debt markers in phase-38-touched files | `grep -n -E "TBD\|FIXME\|XXX" assets/app.css assets/app.js assets/add-session.js assets/overview.js assets/date-format.js tests/38-1*.js tests/38-next-session-partial-guard.test.js` | no matches | ✓ PASS |
+| Scope containment (38-10/11/12 commits) | `git log --oneline` review of 18 commits spanning 38-10 through 38-12 | test-first sequencing confirmed (RED commit precedes GREEN commit in each plan) | ✓ PASS |
 
 All tests executed directly in this verification session (not taken on SUMMARY.md's word).
 
-### Code Review Follow-up (38-REVIEW.md, scoped re-review of the 38-08 diff)
+### Requirements Coverage
 
-- Scoped re-review of commits `a371812`/`9606893` found 0 Critical, 0 Warning, 2 Info (documentation
-  staleness only — see Anti-Patterns above). Sentinel correctness, edge cases (zero-session client,
-  `""` vs `undefined`, blank-vs-blank tie, reduce-max trap guard, cross-file wiring) were all traced
-  and confirmed correct by the reviewer and independently spot-checked by this agent.
-- The prior full-phase review (commit `9a4a198` scope) is preserved in git history; its WR-01
-  finding was already fixed (07a649a) and its IN-01..IN-03 items were accepted as non-blocking —
-  unaffected by this revision.
+| Requirement | Source Plan(s) | Description | Status | Evidence |
+|-------------|-----------------|-------------|--------|----------|
+| NEXT-01 | 38-01, 38-03, 38-04, 38-09, 38-10, 38-12 | Field added, wired into add/edit save payloads; partial/too-early-entry saves guarded; RTL segment order fixed | ✓ SATISFIED | Truths 1, 9 — real-Safari confirmed (`38-UAT.md` tests 5, 6, 8 all `pass`/`resolved`) |
+| NEXT-02 | 38-01, 38-04, 38-10 | Dynamic `min` bound to session's own date; RTL rendering doesn't break it | ✓ SATISFIED | Truth 2 (regression-checked, unchanged) |
+| NEXT-03 | 38-02, 38-03, 38-05, 38-11 | Next Session overview column, both files; mixed-direction meta line isolated | ✓ SATISFIED | Truth 3; `38-UAT.md` test 7 resolved |
+| NEXT-04 | 38-02, 38-03, 38-05, 38-08 | Sortable, blanks travel with direction | ✓ SATISFIED | Truth 4; human-verified pass (`38-UAT.md` test 3) |
+| NEXT-05 | 38-01, 38-03, 38-05 | Overdue cue, strictly-before-today | ✓ SATISFIED | Truth 5; human-verified pass (`38-UAT.md` test 1) |
+| NEXT-06 | 38-02, 38-06 | Export markdown/PDF renders date, note-OR-date gate | ✓ SATISFIED | Truth 6; human-verified pass (`38-UAT.md` test 4) |
+| NEXT-07 | 38-02, 38-07 | Demo + backup parity | ✓ SATISFIED | Truth 7; human-verified pass (`38-UAT.md` test 2) |
+| NEXT-08 | 38-01, 38-02, 38-06, 38-08, 38-09, 38-10, 38-11, 38-12 | Falsifiable tests pre-implementation across all gap-closure work | ✓ SATISFIED | Truth 8; full suite green (131/131); RED-first sequencing confirmed for each gap plan's commits |
+
+All 8 REQUIREMENTS.md IDs (NEXT-01..08) are claimed by at least one plan's `requirements`
+frontmatter. REQUIREMENTS.md's own coverage table marks all 8 "Complete" — this is now accurate at
+both the code level AND the real-device human-verification level (all 5 UAT gap entries resolved).
+No orphaned requirements.
+
+### Anti-Patterns Found
+
+| File | Line | Pattern | Severity | Impact |
+|------|------|---------|----------|--------|
+| `assets/add-session.js` | 1172-1174, 1202 | Stale comment claims a nonexistent second "save-then-export trigger" caller (carried-forward code-review IN-06) | Info | Documentation staleness only; `saveSessionForm()` has exactly one caller; does not affect behavior |
+| `tests/38-next-session-partial-guard.test.js`, `tests/37-overview-sort.test.js`, `tests/38-11-bidi-isolate.test.js`, `tests/38-12-toast-tone-focus.test.js` | various | Docblocks/assertion messages still describe suites as "RED-by-design" / "RED until Plan X lands" even though everything is GREEN (code-review IN-13, carries IN-05/IN-07) | Info | Documentation staleness only; does not affect behavior; all suites confirmed GREEN by direct execution this session |
+| `assets/overview.js` | 682 | `allRemoved` variable name contradicts its `.some()` (ANY) implementation (code-review IN-08) | Info | Pre-existing, in phase-38 scope file; naming clarity only, behavior is intentional |
+| `assets/overview.js` | 943-957, plus `add-session.js` 4 sites | Age-0 falsy-check bug + duplicated age math (code-review IN-09) | Info | Pre-existing; edge case for clients under 1 year; not introduced by Phase 38 |
+| `assets/overview.js` | 163-175 | Backup restore triggers two concurrent full re-renders (code-review IN-10) | Info | Waste, not corruption; latent interleaving hazard only if render stops being idempotent |
+| `assets/demo-seed.js` | 30-47 | `applyRelativeDates` would emit "NaN-NaN-NaN" for a seed session missing `daysAgo` (code-review IN-11) | Info | Latent; all 11 current seed sessions carry the key, so not currently triggered |
+| `assets/overview.js` | 799-803 | Session-meta isolates only the date run, not the session-type run (code-review IN-12) | Info | Cosmetic-only residual exposure for custom mixed-direction session-type labels; the 38-11 gate still passes |
+
+No `TBD`/`FIXME`/`XXX`/`HACK`/`PLACEHOLDER` debt markers found in any phase-38-touched file
+(re-grepped directly this session). No Critical anti-patterns. All Info items above are
+pre-existing/cosmetic and do not block the phase goal; none are new blockers introduced by the
+38-10/11/12 gap-closure work.
+
+### Code Review Follow-up (38-REVIEW.md, full-scope review incl. gap-closure work)
+
+- 0 Critical, 2 Warning, 6 new Info, 4 carried-forward Info.
+- **WR-03** (advisory, not a phase-goal blocker): the 38-12 error-toast auto-focus mechanism
+  silently no-ops when the offending field's mobile accordion is collapsed — the toast fires but
+  the field is never revealed on a phone. This is a real UX gap on mobile Safari specifically, but
+  it does not invalidate the phase goal (desktop is unaffected; the feature works as verified
+  on-device in the reported desktop-Safari retest). Recommend tracking as a fast-follow.
+- **WR-04** (advisory, not a phase-goal blocker): the reusable error-tone API landed and was
+  adopted on add-session's validation toasts (in scope for Phase 38 / UAT test 8), but sibling
+  pages (add-client, export-modal, backup-modal) still render their own error toasts with the
+  success style. Out of Phase 38's declared scope (NEXT-01..08 concern the next-session-date
+  feature specifically); flagged for a future sweep, does not block this phase's goal.
+- Both warnings are pre-existing gaps in a broader "error visibility" concern that Phase 38 started
+  (via UAT test 8) but did not scope to fully complete across the whole app — this is consistent
+  with the phase's declared goal (next-session-date field + overview column), which does not
+  promise app-wide error-toast consistency.
 
 ## Human Verification Required
 
-None outstanding. The two items open in the prior VERIFICATION.md (overdue-cue visual
-LTR/RTL/dark-theme check; demo column "reads naturally") were performed and both **passed** during
-UAT (`38-UAT.md`, 2026-07-07, tests 1 and 2). UAT test 3 (the sort-toggle complaint) is the gap
-this re-verification closes; UAT test 4 (export date-only) also passed on retest.
+None. All items requiring human/on-device verification were resolved during the UAT retest cycle:
+
+- Overdue visual cue (LTR/RTL/dark) — `38-UAT.md` test 1, pass.
+- Demo column readability — `38-UAT.md` test 2, pass.
+- Sort direction with blanks — `38-UAT.md` test 3, pass (retested after 38-08).
+- Export date-only rendering — `38-UAT.md` test 4, pass.
+- Partial-date save guard, real Safari — `38-UAT.md` test 5, pass (retested after 38-09; badInput fires at submit time, confirmed).
+- RTL native date-input segment order — `38-UAT.md` test 6, resolved (38-10, on-device approved: "38.10 looks good now").
+- Latin name + Hebrew month-name date bidi scramble — `38-UAT.md` test 7, resolved (38-11, on-device approved: "38.11 is fine").
+- Warning-toast visibility/focus/too-early-date guard — `38-UAT.md` test 8, resolved (38-12, on-device approved).
+
+`38-UAT.md` frontmatter status is `resolved`; all 5 `Gaps` entries carry `status: resolved` with
+on-device evidence quoted from Ben directly.
 
 ## Gaps Summary
 
-No gaps found. The single gap identified by Phase 38 UAT (test 3 — a decision revision of D-03, not
-a code defect) was closed by gap-closure plan 38-08: `assets/overview.js`'s `nextSession` sort
-branch now substitutes a far-future sentinel for blank next-dates so they travel with the sort
-direction (bottom on ascending/default, top on descending), mirroring Last Session. This was
-verified directly in this session: the revised test 8 passes (9/9 total), the full 127-file suite
-is green, the decision-revision is recorded consistently across `38-CONTEXT.md` (D-03-R1) and
-`REQUIREMENTS.md` (NEXT-04, NEXT-08), no stale "blanks pin to the bottom under both directions"
-language remains in any source artifact, and a scoped code review found no Critical/Warning issues
-(2 Info-level doc-staleness notes, non-blocking). All other NEXT-01..08 truths from the prior
-verification were regression-checked and remain intact with no drift. Phase 38 goal is achieved.
+No gaps. All 9 observable truths verified, all required artifacts present/substantive/wired, all
+key links confirmed, the full 131-file regression suite is green, no new debt markers, and every
+item that previously required human/on-device verification has been closed with quoted real-Safari
+approval from Ben (2026-07-07). The two advisory code-review warnings (WR-03 mobile-accordion focus
+edge case; WR-04 error-tone adoption gap on other pages) are legitimate follow-up items but are
+outside this phase's declared NEXT-01..08 scope and do not block goal achievement — recommend
+capturing them as backlog items for a future phase.
 
 ---
 
-_Verified: 2026-07-07T05:48:21Z_
+_Verified: 2026-07-07T14:10:00Z_
 _Verifier: Claude (gsd-verifier)_

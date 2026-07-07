@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 38
-current_phase_name: next-session-date-field-with-overview-column
 status: executing
-stopped_at: "All 12 Phase 38 plans complete (7 core + 5 gap-closure). Wave-2 gap closure 38-12 (UAT test 8 — warning-toast visibility) closed out: error-tone showToast API + dark-safe .toast--error + auto-focus/scroll, migrated session/client form error toasts, plus Ben-approved rangeUnderflow save guard (typed too-early next-session date). Approved by Ben on-device in real Safari 2026-07-07; UAT test 8 resolved — the last open Phase 38 UAT gap. Next: Phase 38 verification, then phase.complete."
-last_updated: "2026-07-07T11:38:50Z"
+stopped_at: All 12 Phase 38 plans complete (7 core + 5 gap-closure 38-08…38-12); all UAT gaps resolved.
+last_updated: "2026-07-07T12:01:30.120Z"
 last_activity: 2026-07-07
-last_activity_desc: 38-12 approved on-device and closed out; all Phase 38 plans done; next Phase 38 verification
+last_activity_desc: Phase 38 complete
 progress:
   total_phases: 11
-  completed_phases: 10
+  completed_phases: 11
   total_plans: 82
   completed_plans: 82
-  percent: 91
+  percent: 100
+current_phase_name: next-session-date-field-with-overview-column
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 
 ## Current Position
 
-Phase: 38 (next-session-date-field-with-overview-column) — EXECUTING (all plans complete, verification pending)
-Plan: 12 of 12 (all gap-closure plans 38-08…38-12 complete)
+Phase: 38
+Plan: Not started
 Status: Executing Phase 38 — gap closure complete, awaiting phase verification
-Last activity: 2026-07-07 — 38-12 approved on-device and closed out; all Phase 38 plans done; next Phase 38 verification
+Last activity: 2026-07-07 — Phase 38 complete
 
 ## Performance Metrics
 
@@ -55,7 +55,7 @@ Last activity: 2026-07-07 — 38-12 approved on-device and closed out; all Phase
 | 34 | 10 | - | - |
 | 35 | 6 | - | - |
 | 37 | 15 | - | - |
-| 38 | 8 | - | - |
+| 38 | 12 | - | - |
 
 **Recent Trend:**
 
