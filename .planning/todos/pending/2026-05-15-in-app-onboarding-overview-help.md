@@ -8,6 +8,7 @@ target_phase: 26
 related_todos:
   - 2026-03-24-pwa-install-guidance-and-user-manual.md (PWA install + user manual — folds into this)
 source: User request 2026-05-15 (alongside Phase 25 backup rework discussion)
+resolves_phase: 41
 ---
 
 ## Why this is critical

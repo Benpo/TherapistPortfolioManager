@@ -3,6 +3,7 @@ title: PWA install guidance + user manual
 priority: medium
 source: Phase 19 discuss-phase session
 created: 2026-03-24
+resolves_phase: 40
 ---
 
 ## Problem
