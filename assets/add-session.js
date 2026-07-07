@@ -453,7 +453,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, false);
       } catch (err) {
         console.error("Photo read failed:", err);
-        App.showToast("", "toast.errorGeneric");
+        App.showToast("", "toast.errorGeneric", { tone: "error" });
       }
     });
   }
@@ -473,7 +473,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     editClientSaveBtn.addEventListener("click", async () => {
       const firstName = (document.getElementById("editClientFirstName") || {}).value?.trim() || "";
       if (!firstName) {
-        App.showToast("", "toast.errorRequired");
+        App.showToast("", "toast.errorRequired", { tone: "error", focus: document.getElementById("editClientFirstName") });
         return;
       }
       const lastName = (document.getElementById("editClientLastName") || {}).value?.trim() || "";
@@ -1059,7 +1059,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     inlineSave.addEventListener("click", async () => {
       const firstName = document.getElementById("inlineClientFirstName").value.trim();
       if (!firstName) {
-        App.showToast("", "toast.errorRequired");
+        App.showToast("", "toast.errorRequired", { tone: "error", focus: document.getElementById("inlineClientFirstName") });
         return;
       }
       const lastName = document.getElementById("inlineClientLastName").value.trim();
@@ -1115,18 +1115,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function saveSessionForm() {
     const clientId = Number.parseInt(clientSelect.value, 10);
     if (!clientId) {
-      App.showToast("", "toast.selectClient");
+      App.showToast("", "toast.selectClient", { tone: "error", focus: clientSelect });
       return null;
     }
     const date = sessionDate.value;
     if (!date) {
-      App.showToast("", "toast.errorRequired");
+      App.showToast("", "toast.errorRequired", { tone: "error", focus: sessionDate });
       return null;
     }
 
     const issuesPayload = getIssuesPayload();
     if (!validateIssues(issuesPayload)) {
-      App.showToast("", "toast.issueMissing");
+      // No named issue exists yet — send the user to the first issue's name field
+      // (or the issues list container if no row is available) so they know where
+      // to fill in the missing data.
+      const issueFocus = (issues[0] && issues[0].nameInput) || document.getElementById("issueList");
+      App.showToast("", "toast.issueMissing", { tone: "error", focus: issueFocus });
       return null;
     }
 
@@ -1136,7 +1140,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (isHeartShield) {
       const shieldRemovedInput = document.querySelector("input[name='shieldRemoved']:checked");
       if (!shieldRemovedInput) {
-        App.showToast("", "toast.heartShieldRequired");
+        App.showToast("", "toast.heartShieldRequired", { tone: "error", focus: document.querySelector("input[name='shieldRemoved']") });
         return null;
       }
       shieldRemoved = shieldRemovedInput.value === "yes";
@@ -1164,7 +1168,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // export-modal.js reads only happen after a now-guarded successful save.
     const nextSessionDateEl = document.getElementById("nextSessionDate");
     if (isNextSessionDateIncomplete(nextSessionDateEl)) {
-      App.showToast("", "toast.nextSessionDateIncomplete");
+      App.showToast("", "toast.nextSessionDateIncomplete", { tone: "error", focus: nextSessionDateEl });
       return null;
     }
     // Native date value is already a clean YYYY-MM-DD (or ""); no .trim() needed.
@@ -1222,7 +1226,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (err) {
       console.error("Session save failed:", err);
-      App.showToast("", "toast.errorGeneric");
+      App.showToast("", "toast.errorGeneric", { tone: "error" });
       return null;
     }
     return { savedId, isNew };
