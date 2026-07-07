@@ -3,7 +3,7 @@ status: diagnosed
 phase: 38-next-session-date-field-with-overview-column
 source: [38-VERIFICATION.md]
 started: 2026-07-07T12:00:00Z
-updated: 2026-07-07T09:55:00Z
+updated: 2026-07-07T11:14:00Z
 ---
 
 ## Current Test
@@ -117,8 +117,8 @@ blocked: 0
   debug_session: ""
 
 - truth: "In Hebrew mode the native date inputs (#sessionDate, #nextSessionDate) keep the browser-native segment order — the app's RTL styling must not visually reverse the numeric runs (yyyy/dd/mm observed instead of Safari's mm/dd/yyyy)"
-  status: failed
-  reason: "User reported: date field shown as 2026/16/05 (yyyy/dd/mm) in Hebrew Safari for May 16 — 'a perfect reversing of the expected value'; seen on both the session date field and the next-session date field. Pre-existing (believed since ~Phase 37); Ben: don't attribute origin, just fix."
+  status: resolved
+  reason: "Fixed by gap plan 38-10 (final direction-based mechanism: html[dir=rtl] input[type=date]{direction:rtl} pins the LTR value block to the right edge + ::-webkit-datetime-edit{direction:ltr} restores native segment order; base input[type=date]{direction:ltr}). A first on-device round used text-align, which WebKit ignores on the shrink-wrapped datetime-edit; the direction-based fix corrected both segment order AND right-alignment. Playwright WebKit validated (RTL native order + right-aligned, LTR unchanged, no Chromium regression); source gate + suite 130/130 green. Ben approved on-device in real Safari 2026-07-07: '38.10 looks good now'. Original report: date field shown as 2026/16/05 (yyyy/dd/mm) in Hebrew Safari for May 16 — a perfect reversal; seen on session + next-session date fields. Pre-existing; Ben: don't attribute origin, just fix."
   severity: major
   test: 6
   root_cause: "Native date inputs have no direction of their own; in Hebrew, html[dir=rtl] (app.js:124) + app.css:1289 `html[dir=rtl]{direction:rtl}` cascade direction:rtl into them, and WebKit lays out the ::-webkit-datetime-edit sub-fields in the inherited direction — visually reversing mm/dd/yyyy → yyyy/dd/mm. NO input[type=date] rule or direction reset exists anywhere in the CSS. Reproduced pixel-for-pixel in Playwright WebKit ('2026/16/05'); injecting input[type=date]{direction:ltr} restores '05/16/2026'. ALL 7 native date inputs are affected (sessionDate, nextSessionDate, inlineClientBirthDate, editClientBirthDate, clientBirthDate, sessionDateFrom, sessionDateTo), not just the two reported. Pure CSS-cascade/bidi defect — not a formatter bug."
