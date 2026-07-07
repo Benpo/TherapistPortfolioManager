@@ -831,17 +831,48 @@ window.App = (() => {
   // ---------------------------------------------------------------------------
 
   /**
-   * Show a temporary toast notification that auto-dismisses after ~1.8 seconds.
+   * Show a temporary toast notification that auto-dismisses.
+   *
+   * Backward compatible: the (message, key) positional signature is UNCHANGED, so
+   * every existing 2-arg caller behaves exactly as before — single success style,
+   * 1800ms auto-dismiss, no focus side effect. The error tone + focus are strictly
+   * opt-in via the third options param (Plan 38-12), reusable by any error toast.
+   *
    * @param {string} message - Text to display (used if key is not provided)
    * @param {string} [key] - i18n key to look up instead of using message directly
+   * @param {Object} [options] - Opt-in error-toast behavior (Plan 38-12).
+   * @param {string} [options.tone] - "error" renders the visually distinct
+   *   `.toast--error` variant and lingers longer (TOAST_ERROR_MS) than the success
+   *   default; any other/absent value keeps the single success style + 1800ms.
+   * @param {Element} [options.focus] - When provided, the element is scrolled into
+   *   view and focused so the offending form field is brought to the user. Guarded:
+   *   a missing or non-element target is a safe no-op (never throws).
    */
-  function showToast(message, key) {
+  function showToast(message, key, options) {
     const toast = document.getElementById("toast");
     if (!toast) return;
+    const TOAST_SUCCESS_MS = 1800;
+    const TOAST_ERROR_MS = 4000;
+    const isError = !!(options && options.tone === "error");
+    // Always reset the error tone first so a prior error toast never leaves its
+    // tone stuck on a later success toast (they share the single #toast node).
+    toast.classList.remove("toast--error");
     toast.textContent = key ? t(key) : message;
     toast.classList.add("is-visible");
+    if (isError) toast.classList.add("toast--error");
+    // Bring the offending field into view and focus it (opt-in; success callers
+    // never pass a focus target). Every access is guarded so a missing element or
+    // a non-element focus target cannot throw.
+    const focusTarget = options && options.focus;
+    if (focusTarget) {
+      if (typeof focusTarget.scrollIntoView === "function") focusTarget.scrollIntoView();
+      if (typeof focusTarget.focus === "function") focusTarget.focus();
+    }
     clearTimeout(showToast._timer);
-    showToast._timer = setTimeout(() => toast.classList.remove("is-visible"), 1800);
+    showToast._timer = setTimeout(
+      () => toast.classList.remove("is-visible"),
+      isError ? TOAST_ERROR_MS : TOAST_SUCCESS_MS
+    );
   }
 
   /**

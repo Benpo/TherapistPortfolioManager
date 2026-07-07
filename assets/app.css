@@ -1324,6 +1324,17 @@ html[dir="rtl"] input[type="date"]::-webkit-datetime-edit {
   transform: translateY(0);
 }
 
+/* Error-tone toast variant (Plan 38-12). Visually distinct from the base
+   success toast (which uses --color-toast-bg) so a blocking warning is
+   unmistakable. Uses ONLY the --color-warning-* tokens — they carry dark-mode
+   overrides (tokens.css light #fff3cd/#856404, dark #3a2f00/#ffd966, WCAG-checked).
+   NOT --color-danger-* (light-only, reserved for the confirm dialog). */
+.toast--error {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border: 1px solid var(--color-warning-text);
+}
+
 html[dir="rtl"] {
   direction: rtl;
 }
