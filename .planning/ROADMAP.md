@@ -79,7 +79,7 @@ Full goals, success criteria, and per-plan detail are archived in `milestones/v1
 
 Every practitioner can learn the whole app *inside* the app (welcome, replayable tour, help center) and hears about every release *inside* the app (What's-New popup + changelog page) — with a hard process gate guaranteeing both stay current with every future user-facing change. Zero new production dependencies; fully offline; EN copy canonical (DE/CS/HE deferred). Design seed: the approved Phase 26 `26-UI-SPEC.md`, reconciled against the current (v1.2.x) app. Run dependency-ordered: **help center first** (everything links into it), coordinator-governed onboarding next, then the fragile tour, then the changelog, then the docs gate **last** (so it doesn't block its own milestone's sibling commits).
 
-- [ ] **Phase 39: Help Center & "?" Entry Point** — persistent "?" on every app page, offline `help.html` help center (workflow-spine IA + personalization + technical track), full EN content, empty-state deep-links, per-browser install instructions
+- [x] **Phase 39: Help Center & "?" Entry Point** — persistent "?" on every app page, offline `help.html` help center (workflow-spine IA + personalization + technical track), full EN content, empty-state deep-links, per-browser install instructions (completed 2026-07-07)
 - [ ] **Phase 40: First-Run Welcome & Onboarding Coordinator** — first-run coordinator (single precedence order), branded welcome overlay (tour / explore myself), re-openable from "?", non-nagging install nudge
 - [ ] **Phase 41: Replayable Guided Tour** — bespoke ~6–9-step spine tour, graceful degradation (spotlight ↔ modal + "Take me there"), cross-page resume, language re-render
 - [ ] **Phase 42: In-App Changelog & What's-New** — once-per-version What's-New popup + persistent changelog page in the help center, one structured data source, v1.3's own notes as first entry
@@ -100,7 +100,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
   4. A practitioner hitting an empty state (e.g. no clients yet) sees coaching copy that deep-links into the matching help topic.
   5. Help opens fully offline on an installed PWA (new pages/assets added to `sw.js` precache, static-test + real offline-navigation verified), and per-browser PWA install instructions (Chrome/Edge, iOS Safari, Android) are available in Help — never a fake universal install button.
 
-**Plans**: 5/6 plans executed
+**Plans**: 6/6 plans complete
 **Wave 1**
 
 - [x] 39-01-PLAN.md — Help content model + full EN content ({ui:key} interpolation, covers metadata, deep-link registry) + D-25 integrity test [wave 1]
@@ -114,7 +114,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 39-06-PLAN.md — SW precache + CACHE_NAME/version chore + real-offline & Sapir/DNA/WebKit verification checkpoints [wave 3]
+- [x] 39-06-PLAN.md — SW precache + CACHE_NAME/version chore + real-offline & Sapir/DNA/WebKit verification checkpoints [wave 3]
 
 **UI hint**: yes
 
@@ -238,7 +238,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete | 2026-07-02 |
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete | 2026-07-06 |
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
-| 39. Help Center & "?" Entry Point | v1.3 | 5/6 | In Progress|  |
+| 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete   | 2026-07-07 |
 | 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 0/TBD | Not started | - |
 | 41. Replayable Guided Tour | v1.3 | 0/TBD | Not started | - |
 | 42. In-App Changelog & What's-New | v1.3 | 0/TBD | Not started | - |

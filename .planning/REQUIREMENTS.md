@@ -19,7 +19,7 @@ Content quality bar (Ben, 2026-07-07): ALL new user-facing copy (help, welcome, 
 - [x] **HELP-04**: User can read EN help content covering every leaf of the Phase 32 topic tree plus the post-inventory delta (session formats incl. custom, date-format personalization, filters/sorting, next-session date, report-a-problem, updates) — drafted by Claude from real app behavior, verified by a native-speaker agent review, reviewed by Sapir, in current terminology
 - [x] **HELP-05**: User hitting an empty state (e.g. no clients yet) sees coaching copy with a deep-link into the matching Help topic
 - [x] **HELP-06**: User can find per-browser PWA install instructions in Help (Chrome/Edge address-bar icon; iOS Safari Share → Add to Home Screen, illustrated; Android menu → Install) — never a fake universal install button
-- [ ] **HELP-07**: User can open Help fully offline on an installed PWA (new pages/assets added to `sw.js` precache, verified by a static test + real offline navigation)
+- [x] **HELP-07**: User can open Help fully offline on an installed PWA (new pages/assets added to `sw.js` precache, verified by a static test + real offline navigation)
 
 ### Onboarding & First-Run (ONBD)
 
@@ -88,7 +88,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HELP-04 | Phase 39 | Complete |
 | HELP-05 | Phase 39 | Complete |
 | HELP-06 | Phase 39 | Complete |
-| HELP-07 | Phase 39 | Pending |
+| HELP-07 | Phase 39 | Complete |
 | ONBD-01 | Phase 40 | Pending |
 | ONBD-02 | Phase 40 | Pending |
 | ONBD-03 | Phase 40 | Pending |
