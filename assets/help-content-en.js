@@ -346,9 +346,199 @@
           ]
         }
       ]
+    },
+
+    // ═══ THE TECHNICAL BITS ════════════════════════════════════════════════
+    {
+      id: "backups",
+      title: "Backups and your data",
+      group: "technical",
+      featured: false,
+      topics: [
+        {
+          id: "topic-data-local",
+          title: "Data never leaves your browser",
+          priority: 1,
+          covers: ["assets/db.js"],
+          body: [
+            { type: "p", text: "Everything you record in Sessions Garden lives on this device only, inside this browser. Nothing is ever sent to a server — that privacy is the whole point of the app." },
+            { type: "p", text: "It also means you are the only backup. If this browser's data is ever cleared, the sessions go with it, so keeping your own backup matters." }
+          ]
+        },
+        {
+          id: "topic-backup-restore",
+          title: "Backing up and restoring",
+          priority: 1,
+          covers: ["settings.html", "assets/backup.js", "assets/backup-modal.js"],
+          body: [
+            { type: "p", text: "A backup is a single file that holds all your clients and sessions. Making one takes under a minute." },
+            { type: "steps", items: [
+              "Open {ui:overview.backupRestore}.",
+              "Under {ui:backup.export.heading}, choose {ui:backup.action.export} to save a backup file — you can protect it with a passphrase.",
+              "Keep that file somewhere safe, like an external drive or your own cloud storage.",
+              "To bring your data back, open the same panel, choose {ui:backup.action.import}, and pick your backup file."
+            ] },
+            { type: "note", text: "The cloud icon in the header shows how recently you last backed up — a gentle nudge when it is time again." }
+          ]
+        },
+        {
+          id: "topic-working-offline",
+          title: "Working offline",
+          priority: 2,
+          covers: ["sw.js"],
+          body: [
+            { type: "p", text: "Once Sessions Garden is open in your browser, it keeps working with no internet at all — recording sessions, exporting, everything except the one-time license activation." }
+          ]
+        },
+        {
+          id: "topic-updates",
+          title: "Getting updates",
+          priority: 3,
+          covers: ["sw.js"],
+          body: [
+            { type: "note", text: "When a new version is ready, Sessions Garden updates itself quietly the next time you open it online. There is nothing to install by hand." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "installing",
+      title: "Installing the app",
+      group: "technical",
+      featured: false,
+      topics: [
+        {
+          id: "topic-install-chrome",
+          title: "Chrome and Edge",
+          priority: 1,
+          covers: ["sw.js", "manifest.json"],
+          body: [
+            { type: "glyph", name: "install-chrome" },
+            { type: "p", text: "On a computer, Chrome and Edge let you install Sessions Garden as its own app in a few clicks." },
+            { type: "steps", items: [
+              "Open Sessions Garden in Chrome or Edge on your computer.",
+              "Look at the end of the address bar for the small install icon — a monitor with a downward arrow.",
+              "Click it, then choose Install.",
+              "The app opens in its own window and gets a desktop shortcut — open it like any other program from now on."
+            ] }
+          ]
+        },
+        {
+          id: "topic-install-safari",
+          title: "Safari on a Mac",
+          priority: 1,
+          covers: ["sw.js", "manifest.json"],
+          body: [
+            { type: "glyph", name: "install-safari" },
+            { type: "p", text: "On a Mac, Safari can add Sessions Garden straight to your Dock." },
+            { type: "steps", items: [
+              "Open Sessions Garden in Safari on your Mac.",
+              "In the menu bar, open the File menu (or the Share menu) and choose Add to Dock.",
+              "Confirm the name and click Add.",
+              "Sessions Garden now lives in your Dock — click it to open the app in its own window."
+            ] }
+          ]
+        },
+        {
+          id: "topic-install-mobile-note",
+          title: "A note about phones",
+          priority: 2,
+          covers: ["manifest.json"],
+          body: [
+            { type: "p", text: "Sessions Garden is built for your computer, where you do your session work." },
+            { type: "note", text: "You can open it in a phone browser, but your clients and sessions live on each device separately — there is no sync between your computer and your phone. Keep your real work on the computer where you installed the app." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "license",
+      title: "License and devices",
+      group: "technical",
+      featured: false,
+      topics: [
+        {
+          id: "topic-activation",
+          title: "Activating your license",
+          priority: 1,
+          covers: ["license.html", "assets/license.js"],
+          body: [
+            { type: "p", text: "A license key unlocks the full app. You enter it once." },
+            { type: "steps", items: [
+              "Open {ui:nav.license}.",
+              "Paste the license key from your purchase email.",
+              "Activate — this is the one moment Sessions Garden needs the internet.",
+              "Once activated, the whole app works offline from then on."
+            ] }
+          ]
+        },
+        {
+          id: "topic-trial",
+          title: "What the trial allows",
+          priority: 1,
+          covers: ["license.html", "landing.html"],
+          body: [
+            { type: "p", text: "Before you activate, you can explore Sessions Garden and see how it works. When the trial ends, activating your license opens the full app — your data is always kept safe in the meantime." }
+          ]
+        },
+        {
+          id: "topic-two-devices",
+          title: "Moving to a new computer",
+          priority: 2,
+          covers: ["license.html", "assets/license.js"],
+          body: [
+            { type: "p", text: "Your license covers two computers." },
+            { type: "note", text: "Moving to a new computer? Deactivate on the old one first, then activate on the new one, so you stay within the two-device limit. Remember to carry your data across with a backup file." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "troubleshooting",
+      title: "Troubleshooting",
+      group: "technical",
+      featured: false,
+      topics: [
+        {
+          id: "topic-missing-clients",
+          title: "\"I don't see my clients\"",
+          priority: 1,
+          covers: ["index.html", "assets/db.js"],
+          body: [
+            { type: "p", text: "Your clients and sessions are stored inside this browser on this computer. If they seem to have vanished, they are almost always hidden, not lost." },
+            { type: "steps", items: [
+              "Check you are in the same browser and profile you normally use — data does not move between browsers.",
+              "Make sure you have not cleared site data or history for this site.",
+              "If you switched computers, restore your latest backup from {ui:overview.backupRestore}."
+            ] }
+          ]
+        },
+        {
+          id: "topic-report-problem",
+          title: "Reporting a problem",
+          priority: 2,
+          covers: ["settings.html", "report.html", "assets/crashlog.js"],
+          body: [
+            { type: "p", text: "If something is not working right, you can send us a diagnostic report — but nothing is ever sent automatically." },
+            { type: "steps", items: [
+              "Open Settings and find {ui:settings.report.label}.",
+              "Choose {ui:report.action.copy} to copy a diagnostic report.",
+              "Paste it into an email to contact@sessionsgarden.app and tell us what happened."
+            ] },
+            { type: "note", text: "Still stuck? Write to us at contact@sessionsgarden.app — a real person reads every message." }
+          ]
+        }
+      ]
     }
-    // >>> TECHNICAL-TRACK SECTIONS APPENDED IN TASK 2
   ];
 
   window.HELP_CONTENT_EN = SECTIONS;
+
+  // Empty-state coaching trio anchor contract (Plan 05) — each maps to a real
+  // section id above. The integrity test verifies every value resolves.
+  window.HELP_DEEPLINKS = {
+    addClient: "adding-a-client",
+    startSession: "starting-a-session",
+    readDashboard: "overview"
+  };
 })();
