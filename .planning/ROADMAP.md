@@ -100,11 +100,11 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
   4. A practitioner hitting an empty state (e.g. no clients yet) sees coaching copy that deep-links into the matching help topic.
   5. Help opens fully offline on an installed PWA (new pages/assets added to `sw.js` precache, static-test + real offline-navigation verified), and per-browser PWA install instructions (Chrome/Edge, iOS Safari, Android) are available in Help — never a fake universal install button.
 
-**Plans**: 1/6 plans executed
+**Plans**: 2/6 plans executed
 **Wave 1**
 
 - [x] 39-01-PLAN.md — Help content model + full EN content ({ui:key} interpolation, covers metadata, deep-link registry) + D-25 integrity test [wave 1]
-- [ ] 39-02-PLAN.md — New UI-chrome i18n keys (nav/entry/search/deep-link), 4-locale parity [wave 1]
+- [x] 39-02-PLAN.md — New UI-chrome i18n keys (nav/entry/search/deep-link), 4-locale parity [wave 1]
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -238,7 +238,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete | 2026-07-02 |
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete | 2026-07-06 |
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
-| 39. Help Center & "?" Entry Point | v1.3 | 1/6 | In Progress|  |
+| 39. Help Center & "?" Entry Point | v1.3 | 2/6 | In Progress|  |
 | 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 0/TBD | Not started | - |
 | 41. Replayable Guided Tour | v1.3 | 0/TBD | Not started | - |
 | 42. In-App Changelog & What's-New | v1.3 | 0/TBD | Not started | - |

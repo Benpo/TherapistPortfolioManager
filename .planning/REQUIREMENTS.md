@@ -13,8 +13,8 @@ Content quality bar (Ben, 2026-07-07): ALL new user-facing copy (help, welcome, 
 
 ### Help Center (HELP)
 
-- [ ] **HELP-01**: User can reach Help from any app page via a persistent "?" icon in the header (beside cloud + gear; mirrors the settings-gear mount pattern: 44×44 target, RTL auto-flip, dark-aware, `.is-active` state)
-- [ ] **HELP-02**: User can browse a standalone help-center page (`help.html`, per-page pattern with nav entry + shared footer) any time, with anchor deep-links to individual topics
+- [x] **HELP-01**: User can reach Help from any app page via a persistent "?" icon in the header (beside cloud + gear; mirrors the settings-gear mount pattern: 44×44 target, RTL auto-flip, dark-aware, `.is-active` state)
+- [x] **HELP-02**: User can browse a standalone help-center page (`help.html`, per-page pattern with nav entry + shared footer) any time, with anchor deep-links to individual topics
 - [x] **HELP-03**: User finds help organized by workflow (7-step spine: add client → start session → capture emotions → Heart-Wall → severity → review & export → overview), with a "make it yours" personalization section led early and a clearly separated technical-tips track
 - [x] **HELP-04**: User can read EN help content covering every leaf of the Phase 32 topic tree plus the post-inventory delta (session formats incl. custom, date-format personalization, filters/sorting, next-session date, report-a-problem, updates) — drafted by Claude from real app behavior, verified by a native-speaker agent review, reviewed by Sapir, in current terminology
 - [x] **HELP-05**: User hitting an empty state (e.g. no clients yet) sees coaching copy with a deep-link into the matching Help topic
@@ -82,8 +82,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HELP-01 | Phase 39 | Pending |
-| HELP-02 | Phase 39 | Pending |
+| HELP-01 | Phase 39 | Complete |
+| HELP-02 | Phase 39 | Complete |
 | HELP-03 | Phase 39 | Complete |
 | HELP-04 | Phase 39 | Complete |
 | HELP-05 | Phase 39 | Complete |
