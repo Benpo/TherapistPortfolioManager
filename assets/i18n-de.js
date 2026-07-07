@@ -178,6 +178,7 @@ window.I18N.de = {
   "toast.selectClient": "Klienten auswählen",
   "toast.issueMissing": "Mindestens ein Thema hinzufügen",
   "toast.heartShieldRequired": "Bitte auswählen, ob die Heart-Wall aufgelöst wurde",
+  "toast.nextSessionDateIncomplete": "Unvollständiges Datum der nächsten Sitzung — bitte vervollständigen oder löschen",
   "toast.importSuccess": "Daten importiert",
   "toast.importError": "Import fehlgeschlagen",
   "overview.autoBackup": "Backup-Ordner festlegen",

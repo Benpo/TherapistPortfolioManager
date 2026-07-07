@@ -178,6 +178,7 @@ window.I18N.cs = {
   "toast.selectClient": "Vyberte klienta",
   "toast.issueMissing": "Přidejte alespoň jeden problém",
   "toast.heartShieldRequired": "Vyberte, zda byla Heart-Wall odstraněna",
+  "toast.nextSessionDateIncomplete": "Neúplné datum příštího sezení — doplňte je, nebo je vymažte",
   "toast.importSuccess": "Data importována",
   "toast.importError": "Import selhal",
   "overview.autoBackup": "Nastavit slo\u017eku z\u00e1loh",
