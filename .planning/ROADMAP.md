@@ -238,7 +238,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete | 2026-07-02 |
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete | 2026-07-06 |
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
-| 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete   | 2026-07-07 |
+| 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
 | 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 0/TBD | Not started | - |
 | 41. Replayable Guided Tour | v1.3 | 0/TBD | Not started | - |
 | 42. In-App Changelog & What's-New | v1.3 | 0/TBD | Not started | - |
