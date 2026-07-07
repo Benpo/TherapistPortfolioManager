@@ -6,14 +6,14 @@ current_phase: 38
 current_phase_name: next-session-date-field-with-overview-column
 status: executing
 stopped_at: "Wave-1 gap closure complete: 38-10 (UAT test 6, RTL date-input) + 38-11 (UAT test 7, bidi isolation) both approved by Ben on-device in real Safari 2026-07-07 and closed out (SUMMARYs, UAT gaps resolved, debug files moved to resolved/). Next: 38-12 (UAT test 8 — warning-toast visibility / error tone + auto-focus)"
-last_updated: "2026-07-07T11:16:00.000Z"
+last_updated: "2026-07-07T11:33:51.823Z"
 last_activity: 2026-07-07
-last_activity_desc: Phase 38 wave-1 gap closure (38-10, 38-11) completed and closed out
+last_activity_desc: 38-10 + 38-11 approved on-device and closed out; next 38-12 (UAT test 8)
 progress:
   total_phases: 11
   completed_phases: 10
   total_plans: 82
-  completed_plans: 79
+  completed_plans: 81
   percent: 91
 ---
 
@@ -420,7 +420,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-07T11:05:04.605Z
+**Last session:** 2026-07-07T11:33:51.813Z
 
 Last activity: 2026-07-03 — Completed quick task 260703-mp6 (Phase 37 handoff extension E1+E2). E1 feat(37) 89510fe: main-page filter dropdowns + session date inputs adopt the shipped `.select-modern`/`.input-pill` classes (dual-class, zero new CSS); verified LTR/RTL/mobile via headless-Chrome. E2 fix(37) 7b67670: date-format picker `REFERENCE_DATE` "2026-07-02"→"2000-01-31" so option labels show a neutral, unambiguous sample instead of a near-today/build date (SEAM preserved; regression guard added; count 17→18). Suite 121/121 green. **Phase 37 intentionally still PENDING** — Ben runs `/gsd-verify-work 37` after Sapir's translation review. Handoff file deleted. Ready to push.
 Stopped at: Phase 38 executed (7/7 plans, 127/127 tests, review WR-01 fixed) — awaiting UAT on 2 visual items
