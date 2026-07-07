@@ -503,3 +503,9 @@ Plans:
 
 - [x] 38-08-PLAN.md — Gap: nextSession blank-date sort now travels WITH the direction (bottom on ascending, top on descending), mirroring Last Session; revises D-03/NEXT-04 (NEXT-04, NEXT-08)
 - [x] 38-09-PLAN.md — Gap: block save on a PARTIAL typed #nextSessionDate (native validity.badInput) with a clear 4-language toast — no silent discard; falsifiable pure-guard test + real-Safari field-verify (UAT test 5) (NEXT-01, NEXT-08)
+
+**Gap closure** *(from Phase 38 UAT retest — RTL/bidi + toast visibility, 2026-07-07)*
+
+- [ ] 38-10-PLAN.md — Wave 1: RTL native date-input segment order — `input[type="date"]{direction:ltr}` + RTL text-align so Hebrew stops reversing mm/dd/yyyy → yyyy/dd/mm; source gate + real-Safari verify (UAT test 6) (NEXT-01, NEXT-02, NEXT-08)
+- [ ] 38-11-PLAN.md — Wave 1: Bidi-isolate mixed name+date composition — shared `DateFormat.isolate` (FSI…PDI) wrapping name AND date at updateSessionTitle + overview meta so Latin name + Hebrew month-name date read in order; behavior test + per-site gates + Hebrew/PDF verify (UAT test 7) (NEXT-03, NEXT-08)
+- [ ] 38-12-PLAN.md — Wave 2: Error-tone toast + auto-focus — backward-compatible `showToast(message, key, options)` (warning tone, longer duration, scroll/focus field) + `.toast--error` (dark-safe warning tokens); migrate session/client form error toasts; behavior test + on-device verify (UAT test 8) (NEXT-01, NEXT-08)
