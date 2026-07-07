@@ -482,7 +482,7 @@ Plans:
 **Notes:** Likely small/immediate — ripened by Phase 37, which built every touch-point it needs. Trace during planning: the add/edit-session form (the next-session note section), the session data model/migration, and the overview table renderer + its date-column formatting (RTL/locale-aware, matching last-session). Not a launch/priority blocker — queued behind Ben's Simpl8-first freeze; plan when TPM work resumes.
 
 **Requirements:** NEXT-01, NEXT-02, NEXT-03, NEXT-04, NEXT-05, NEXT-06, NEXT-07, NEXT-08 (formalized 2026-07-06 from the 12 CONTEXT decisions; full text in REQUIREMENTS.md).
-**Plans:** 7/7 plans complete
+**Plans:** 8 plans (7/7 core complete + 1 gap-closure from UAT, planned 2026-07-07)
 
 Plans:
 
@@ -498,3 +498,7 @@ Plans:
 - [x] 38-05-PLAN.md — Wave 2: Overview "Next Session" column + ascending sort + subtle overdue cue (NEXT-03, NEXT-04, NEXT-05)
 - [x] 38-06-PLAN.md — Wave 2: Export date in markdown/PDF + note-or-date gate + golden-baseline unchanged guard (NEXT-06, NEXT-08)
 - [x] 38-07-PLAN.md — Wave 2: Demo self-freshening seed (relative next-date) + backup round-trip spot-check (NEXT-07)
+
+**Gap closure** *(from Phase 38 UAT test 3 — D-03 decision revision, 2026-07-07)*
+
+- [ ] 38-08-PLAN.md — Gap: nextSession blank-date sort now travels WITH the direction (bottom on ascending, top on descending), mirroring Last Session; revises D-03/NEXT-04 (NEXT-04, NEXT-08)
