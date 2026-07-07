@@ -127,7 +127,7 @@
           body: [
             { type: "p", text: "A client is the person, child, or animal you work with. Adding one takes a moment." },
             { type: "steps", items: [
-              "Open {ui:nav.addClient} from the main menu.",
+              "Choose {ui:nav.addClient} from the main menu.",
               "Enter the {ui:client.form.name} — this is the only detail you truly need to start.",
               "Choose a {ui:client.form.type}, then add anything else that helps, like a birth date or notes.",
               "Press {ui:client.form.save}, or {ui:client.form.saveAndSession} to jump straight into your first session."
