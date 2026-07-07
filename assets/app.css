@@ -1081,6 +1081,29 @@ html[dir="rtl"] .select-modern {
   max-inline-size: 100%;
 }
 
+/* Native date-input segment order in RTL (Phase 38-10, UAT test 6).
+   In Hebrew the document sets `direction: rtl` on <html> (app.css:~1289,
+   toggled by app.js), which cascades into every native <input type="date">.
+   WebKit then lays out the internal ::-webkit-datetime-edit sub-fields in that
+   inherited RTL direction, visually reversing the browser-native mm/dd/yyyy run
+   into yyyy/dd/mm ("2026/16/05"). Forcing `direction: ltr` on the control
+   restores native/OS segment order regardless of the page's base direction.
+   This is a pure bidi/cascade fix — no ::-webkit-datetime-edit override, no
+   date-formatter change. One shared attribute selector covers all seven native
+   date inputs at once (#sessionDate, #nextSessionDate, #inlineClientBirthDate,
+   #editClientBirthDate, #clientBirthDate, #sessionDateFrom, #sessionDateTo). */
+input[type="date"] {
+  direction: ltr;
+}
+
+/* With direction forced to ltr the value block would default to the left edge;
+   in RTL we pin it right so it sits under the right-aligned Hebrew label. This
+   override adds ONLY text-align — it must NOT re-declare direction (that would
+   reintroduce the segment reversal above). */
+html[dir="rtl"] input[type="date"] {
+  text-align: right;
+}
+
 .textarea {
   min-height: 140px;
   resize: vertical;
