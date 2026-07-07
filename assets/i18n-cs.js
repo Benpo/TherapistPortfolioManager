@@ -595,9 +595,9 @@ window.I18N.cs = {
   "help.search.placeholder": "Hledat v n\u00e1pov\u011bd\u011b\u2026",
   "help.search.noMatch": "Zat\u00edm tomu nic neodpov\u00edd\u00e1. R\u00e1di v\u00e1m pom\u016f\u017eeme p\u0159\u00edmo \u2014",
   "help.search.writeToUs": "napi\u0161te n\u00e1m",
-  "help.deeplink.cta": "Uka\u017ete mi jak",
+  "help.deeplink.cta": "Uka\u017ete mi, jak",
   "help.deeplink.startSession": "Zat\u00edm \u017e\u00e1dn\u00e1 sezen\u00ed \u2014 za\u010dn\u011bte sv\u00fdm prvn\u00edm sezen\u00edm.",
-  "help.deeplink.readDashboard": "Zat\u00edm \u017e\u00e1dn\u00e1 data. Jakmile zaznamen\u00e1te sezen\u00ed, zde se zapln\u00ed v\u00e1\u0161 p\u0159ehled."
+  "help.deeplink.readDashboard": "Zat\u00edm \u017e\u00e1dn\u00e1 data. Jakmile zaznamen\u00e1te sezen\u00ed, zde se zapln\u00ed va\u0161e p\u0159ehledy."
 };
 
 window.QUOTES.cs = [

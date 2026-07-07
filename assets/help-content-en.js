@@ -77,7 +77,7 @@
           priority: 2,
           covers: ["settings.html", "assets/settings.js"],
           body: [
-            { type: "p", text: "In {ui:settings.tab.fields} you can rename any session section to the exact words you use with your clients, so the form speaks your language." }
+            { type: "p", text: "In {ui:settings.tab.fields} you can rename most session sections to the exact words you use with your clients, so the form speaks your language. A few fixed sections keep their names, but you can still switch them off." }
           ]
         },
         {
@@ -106,7 +106,7 @@
           priority: 2,
           covers: ["settings.html", "assets/settings.js"],
           body: [
-            { type: "p", text: "Beyond the built-in {ui:session.type.clinic}, {ui:session.type.online}, and {ui:session.type.other} formats, you can add your own under {ui:settings.sessionTypes.heading} in {ui:settings.tab.personalize} — so a session is always labelled the way you think about it." }
+            { type: "p", text: "Beyond the built-in {ui:session.type.clinic}, {ui:session.type.online}, {ui:session.type.remote}, {ui:session.type.proxy}, and {ui:session.type.other} formats, you can add your own under {ui:settings.sessionTypes.heading} in {ui:settings.tab.personalize} — so a session is always labeled the way you think about it." }
           ]
         }
       ]
@@ -128,11 +128,11 @@
             { type: "p", text: "A client is the person, child, or animal you work with. Adding one takes a moment." },
             { type: "steps", items: [
               "Choose {ui:nav.addClient} from the main menu.",
-              "Enter the {ui:client.form.name} — this is the only detail you truly need to start.",
+              "Enter the {ui:client.form.firstName} — this is the only detail you truly need to start.",
               "Choose a {ui:client.form.type}, then add anything else that helps, like a birth date or notes.",
               "Press {ui:client.form.save}, or {ui:client.form.saveAndSession} to jump straight into your first session."
             ] },
-            { type: "note", text: "In a hurry? While starting a session you can choose {ui:session.form.addClientInline} to create the client without leaving the page." }
+            { type: "note", text: "In a hurry? While starting a session you can choose {ui:session.form.client.new} to create the client without leaving the page." }
           ]
         },
         {
@@ -141,7 +141,7 @@
           priority: 2,
           covers: ["add-client.html"],
           body: [
-            { type: "p", text: "Pick a {ui:client.form.type} when you add someone — {ui:client.form.type.adult}, {ui:client.form.type.child}, {ui:client.form.type.animal}, or {ui:client.form.type.other}. The form gently adapts to each." }
+            { type: "p", text: "Pick a {ui:client.form.type} when you add someone — {ui:client.form.type.adult}, {ui:client.form.type.child}, {ui:client.form.type.animal}, or {ui:client.form.type.other}." }
           ]
         },
         {
@@ -169,8 +169,8 @@
           body: [
             { type: "p", text: "There are two calm ways to open a new session — use whichever fits the moment." },
             { type: "steps", items: [
-              "From your overview, open a client and choose {ui:overview.table.newSession}.",
-              "Or open {ui:nav.addSession} and pick the client there.",
+              "From your overview, press + ({ui:overview.table.newSession}) on the client's row.",
+              "Or choose {ui:nav.addSession} and pick the client there.",
               "Set the {ui:session.form.date}, and you are ready to begin recording."
             ] }
           ]
@@ -181,7 +181,7 @@
           priority: 2,
           covers: ["sessions.html"],
           body: [
-            { type: "p", text: "Open {ui:nav.sessions} to see everything you have recorded, or use {ui:overview.table.viewSessions} on a client to scan their history before you begin." }
+            { type: "p", text: "Open {ui:nav.sessions} to see everything you have recorded, or choose {ui:overview.table.viewSessions} on a client to see what happened last time." }
           ]
         }
       ]
@@ -220,7 +220,7 @@
               "Give it a {ui:snippets.editor.trigger.label} — one short word you will remember, like closing. A trigger cannot contain spaces, so join two words with a hyphen, like physical-trauma.",
               "Write the full text the trigger should expand into, then press {ui:common.save}."
             ] },
-            { type: "p", text: "Using a snippet is just as simple. While writing in a session, type your trigger prefix — a semicolon, unless you change it — then the trigger word, then a space. So typing ;betrayal and a space replaces itself with the full meaning of betrayal, right where your cursor is." },
+            { type: "p", text: "Using a snippet is just as simple. While writing in a session, type your trigger prefix (a semicolon, unless you changed it), then the trigger word, then a space. Type ;betrayal and a space, and it expands into the full meaning of betrayal — right where your cursor is." },
             { type: "p", text: "Cannot remember the exact word? Type the prefix and the first letter or two, and a small list of matching snippets appears at your cursor — move through it with the arrow keys and press Enter to insert, or Escape to dismiss. Typing a tag name after the prefix works too, listing the snippets you have grouped under that tag." },
             { type: "p", text: "Where it shines: if you close most sessions with a similar note — what was released, what to notice in the days ahead — save it once under a trigger like closing, and every session can end with one short word instead of a paragraph retyped from memory." },
             { type: "note", text: "Snippets expand in every note area of the session form — emotions, insights, comments, and the rest — and in the export editor too, so your client summaries can use them as well." },
@@ -287,7 +287,7 @@
           priority: 2,
           covers: ["add-session.html"],
           body: [
-            { type: "p", text: "Working on more than one thing in a session? Choose {ui:session.form.addIssue} to track another issue, each with its own before-and-after ratings." }
+            { type: "p", text: "Working on more than one thing in a session? Choose {ui:session.form.addIssue} to track another issue — up to three per session, each with its own before-and-after ratings." }
           ]
         },
         {
@@ -317,7 +317,7 @@
             { type: "steps", items: [
               "Open the saved session and choose {ui:session.export}.",
               "Review — and lightly edit — what will be shared.",
-              "Pick {ui:export.download.pdf} for a polished document, or {ui:export.download.text} to copy plain text."
+              "Pick {ui:export.download.pdf} for a polished document, or {ui:export.download.text} to save the notes as a plain text file."
             ] }
           ]
         },
@@ -327,7 +327,7 @@
           priority: 2,
           covers: ["assets/export-modal.js"],
           body: [
-            { type: "p", text: "PDF is best for sending a finished, good-looking document to your client. Plain text is best when you want to paste the notes into your own records or another app." }
+            { type: "p", text: "PDF is best for sending a finished, good-looking document to your client. Plain text is best when you want to keep the notes in your own records or bring them into another app." }
           ]
         }
       ]
@@ -340,7 +340,7 @@
       topics: [
         {
           id: "topic-dashboard",
-          title: "Reading your dashboard",
+          title: "Reading your overview",
           priority: 2,
           covers: ["index.html", "assets/overview.js"],
           body: [
@@ -363,7 +363,7 @@
           priority: 2,
           covers: ["index.html", "add-session.html"],
           body: [
-            { type: "p", text: "Set {ui:session.form.nextSessionDate} on a session and it appears in your overview under {ui:overview.table.nextSession} — turning to {ui:overview.table.nextSession.overdue} once the date has passed, so no one slips through the cracks." }
+            { type: "p", text: "Set {ui:session.form.nextSessionDate} on a session and it appears in your overview under {ui:overview.table.nextSession} — marked {ui:overview.table.nextSession.overdue} once the date has passed, so no one slips through the cracks." }
           ]
         }
       ]
@@ -395,9 +395,9 @@
             { type: "p", text: "A backup is a single file that holds all your clients and sessions. Making one takes under a minute." },
             { type: "steps", items: [
               "Open {ui:overview.backupRestore}.",
-              "Under {ui:backup.export.heading}, choose {ui:backup.action.export} to save a backup file — you can protect it with a passphrase.",
+              "In the {ui:backup.export.heading} section, choose {ui:backup.action.export} to save a backup file — you can protect it with a passphrase.",
               "Keep that file somewhere safe, like an external drive or your own cloud storage.",
-              "To bring your data back, open the same panel, choose {ui:backup.action.import}, and pick your backup file."
+              "To bring your data back, open the same panel, press {ui:backup.action.import}, and pick your backup file."
             ] },
             { type: "note", text: "The cloud icon in the header shows how recently you last backed up — a gentle nudge when it is time again." }
           ]
@@ -408,7 +408,7 @@
           priority: 2,
           covers: ["sw.js"],
           body: [
-            { type: "p", text: "Once Sessions Garden is open in your browser, it keeps working with no internet at all — recording sessions, exporting, everything except the one-time license activation." }
+            { type: "p", text: "Once Sessions Garden is open in your browser, it keeps working with no internet at all — recording sessions, exporting, everything except license activation (and deactivation, when you move computers)." }
           ]
         },
         {
@@ -495,11 +495,11 @@
         },
         {
           id: "topic-trial",
-          title: "What the trial allows",
+          title: "Trying it out first",
           priority: 1,
           covers: ["license.html", "landing.html"],
           body: [
-            { type: "p", text: "Before you activate, you can explore Sessions Garden and see how it works. When the trial ends, activating your license opens the full app — your data is always kept safe in the meantime." }
+            { type: "p", text: "Want to explore first? The live demo on the welcome page lets you try Sessions Garden with sample data — it resets each time, and nothing you enter there is saved. The full app opens once you activate a license key; from that moment everything you record is kept safely on your computer." }
           ]
         },
         {
@@ -508,8 +508,8 @@
           priority: 2,
           covers: ["license.html", "assets/license.js"],
           body: [
-            { type: "p", text: "Your license covers two computers." },
-            { type: "note", text: "Moving to a new computer? Deactivate on the old one first, then activate on the new one, so you stay within the two-device limit. Remember to carry your data across with a backup file." }
+            { type: "p", text: "Your license covers two activations — two browsers or computers." },
+            { type: "note", text: "Moving to a new computer? Deactivate on the old one first, then activate on the new one, so you stay within the two-activation limit. Remember to carry your data across with a backup file." }
           ]
         }
       ]

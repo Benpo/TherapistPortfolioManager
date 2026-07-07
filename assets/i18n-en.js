@@ -601,8 +601,8 @@ window.I18N.en = {
   "help.search.noMatch": "Nothing here matches your search yet. We’re happy to help directly —",
   "help.search.writeToUs": "write to us",
   "help.deeplink.cta": "Show me how",
-  "help.deeplink.startSession": "No sessions yet — start your first session to begin.",
-  "help.deeplink.readDashboard": "No data yet. Once you record sessions, your dashboard fills in here."
+  "help.deeplink.startSession": "No sessions yet — start your first session.",
+  "help.deeplink.readDashboard": "No data yet. Once you record sessions, your reports fill in here."
 };
 
 window.QUOTES.en = [

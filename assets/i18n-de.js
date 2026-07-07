@@ -595,9 +595,9 @@ window.I18N.de = {
   "help.search.placeholder": "Hilfe durchsuchen\u2026",
   "help.search.noMatch": "Dazu passt bisher nichts. Wir helfen Ihnen gerne direkt \u2014",
   "help.search.writeToUs": "schreiben Sie uns",
-  "help.deeplink.cta": "Zeigen Sie mir wie",
-  "help.deeplink.startSession": "Noch keine Sitzungen \u2014 starten Sie Ihre erste Sitzung, um zu beginnen.",
-  "help.deeplink.readDashboard": "Noch keine Daten. Sobald Sie Sitzungen erfassen, f\u00FCllt sich hier Ihr Dashboard."
+  "help.deeplink.cta": "Zeigen Sie mir, wie",
+  "help.deeplink.startSession": "Noch keine Sitzungen \u2014 starten Sie Ihre erste Sitzung.",
+  "help.deeplink.readDashboard": "Noch keine Daten. Sobald Sie Sitzungen erfassen, f\u00FCllen sich hier Ihre Statistiken."
 };
 
 window.QUOTES.de = [

@@ -596,8 +596,8 @@ window.I18N.he = {
   "help.search.noMatch": "לא נמצאה התאמה לחיפוש שלכם עדיין. נשמח לעזור לכם ישירות —",
   "help.search.writeToUs": "כתבו לנו",
   "help.deeplink.cta": "הראו לי איך",
-  "help.deeplink.startSession": "אין מפגשים עדיין. יש להתחיל את המפגש הראשון כדי להתחיל.",
-  "help.deeplink.readDashboard": "אין נתונים עדיין. לאחר תיעוד מפגשים, לוח המחוונים יתמלא כאן."
+  "help.deeplink.startSession": "אין מפגשים עדיין. יש להוסיף מפגש ראשון כדי להתחיל.",
+  "help.deeplink.readDashboard": "אין נתונים עדיין. לאחר תיעוד מפגשים, הדוחות יתמלאו כאן."
 };
 
 window.QUOTES.he = [
