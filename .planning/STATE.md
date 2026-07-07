@@ -2,9 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: In-App Help, Onboarding & Changelog
+current_phase: 39
+current_phase_name: first v1.3 phase
 status: planning
-last_updated: "2026-07-07T14:30:00.000Z"
+stopped_at: Phase 39 context gathered
+last_updated: "2026-07-07T17:34:49.977Z"
 last_activity: 2026-07-07
+last_activity_desc: v1.3 roadmap created (Phases 39–43); 23/23 requirements mapped
 progress:
   total_phases: 5
   completed_phases: 0
@@ -416,11 +420,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-07T11:38:50Z
+**Last session:** 2026-07-07T17:34:49.967Z
 
 Last activity: 2026-07-07 — Closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
-Stopped at: v1.2 milestone closed and archived 2026-07-07 (ROADMAP/REQUIREMENTS/AUDIT → milestones/v1.2-*; phase dirs → milestones/v1.2-phases/).
-Resume file: .planning/milestones/v1.2-phases/38-next-session-date-field-with-overview-column/38-UAT.md (historical — v1.2 is closed)
+Stopped at: Phase 39 context gathered
+Resume file: .planning/phases/39-help-center-entry-point/39-CONTEXT.md
 Next: /gsd-discuss-phase 39 then /gsd-plan-phase 39 (Help Center & "?" Entry Point). v1.3 roadmap live in ROADMAP.md (Phases 39–43, gate-last).
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
