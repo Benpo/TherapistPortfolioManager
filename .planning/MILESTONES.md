@@ -1,5 +1,26 @@
 # Milestones
 
+## v1.2 Codebase Health & Reliability (Shipped: 2026-07-07)
+
+**Phases completed:** 11 phases, 82 plans, 108 tasks
+**Timeline:** 2026-06-22 → 2026-07-07 (15 days) · **Commits:** 550 · **Diff:** 495 files, +78,008 / -6,463
+
+**Key accomplishments:**
+
+- **Reliable updates & self-check (P28):** a single `version.js` source of truth now drives the footer, the SW `CACHE_NAME`, and a runtime integrity self-check that detects a stale/mismatched build — field-verified fix for installed-Safari PWA update delivery (the v209 failure mode can no longer happen silently), shipped as v1.2.1.
+- **Observability & recovery (P29):** zero-network crash logging to IndexedDB, a "Report a problem" copy-to-clipboard screen, and a "reset & recover" escape hatch so a failed IndexedDB migration can no longer trap a user in an infinite refresh loop.
+- **Test safety net (P30):** the project's first `package.json` + `npm test`, the 7 previously-broken PDF tests fixed, an RTL regression guard, and behavior tests characterizing `settings.js`/`add-session.js` before refactoring — all executing real code, not source-slicing fakes.
+- **God-module refactor (P31):** `settings.js` (2,827→~1,000 lines) and `add-session.js` (2,173→~1,500 lines) decomposed into cohesive IIFE modules (SnippetsUI, Photos/StorageUsage, export-modal) behind the green Phase 30 suite, plus `openDB()` connection pooling and `innerHTML`→DOM hardening.
+- **Maintainer docs (P32) + DE/CS i18n (P33):** an in-repo, agent-readable README (no longer published to the product URL) with four-slot code-comment banners piloted on the refactored modules, and the last 13 English-fallback export-modal keys translated to native German and Czech.
+- **PDF visual redesign (P34):** the client-facing session-export PDF rebuilt in the Sessions Garden brand (header band, client card, two-bar severity, derived chronological session ordinal) with Hebrew RTL/bidi fully preserved.
+- **Demo refresh (P35) + full comment coverage (P36):** the demo app brought back to schema/version parity with the real app (Heart-Wall arc, self-freshening dates, locked-down export/license controls), and banner comments extended to all remaining core production modules.
+- **Canonical date engine + personalization (P37):** one local-time date parser kills the UTC off-by-one bug app-wide, a new Personalization Settings tab adds 6 date formats and a two-tier session-type list, and a terminology/filter pass relabels Session Format / Heart-Wall with new Overview/Sessions filters and sortable columns.
+- **Next-session date (P38):** an optional native date-picker for the next session, its own sortable/overdue-aware Overview column, PDF/markdown export, and demo/backup parity — closed out through two UAT gap-closure rounds (partial-date save guard, Hebrew RTL date-segment order, bidi name+date isolation, error-tone toasts), all approved on-device in real Safari.
+
+Full per-plan detail: `milestones/v1.2-ROADMAP.md`. Requirements: 64/65 complete, 1 deliberately descoped (PDFX-03 — invalid premise, see `milestones/v1.2-REQUIREMENTS.md`). Full audit: `milestones/v1.2-MILESTONE-AUDIT.md`.
+
+---
+
 ## v1.1 Final Polish & Launch (Shipped: 2026-06-22)
 
 **Phases completed:** 20 phases, 90 plans, 130 tasks
@@ -79,6 +100,7 @@
 v1.1 shipped; the app is live and sold. The following were consciously deferred, not lost:
 
 **Real deferrals → backlog** (see ROADMAP "Backlog" + `.planning/todos/pending/`):
+
 - **Phase 21 — mobile (`21-03`)**: crop bug fix (shared module), overlay-close, body scroll lock, iPhone device checkpoint. Parked on physical iOS testing; mobile is not a launch blocker.
 - **Phase 26 — help/onboarding build**: design contract approved (`26-UI-SPEC.md`, 6/6 PASS), implementation deferred. The build phase must start from the archived UI-SPEC, not a fresh design.
 - **LNCH-04**: landing-page DE/CS translation verification (todo `2026-03-18-verify-landing-page-translations.md`).

@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: — Codebase Health & Reliability
-current_phase: 38
-status: executing
+current_phase: 2
+status: Awaiting next milestone
 stopped_at: All 12 Phase 38 plans complete (7 core + 5 gap-closure 38-08…38-12); all UAT gaps resolved.
-last_updated: "2026-07-07T12:16:56.038Z"
+last_updated: "2026-07-07T13:11:53.425Z"
 last_activity: 2026-07-07
-last_activity_desc: Phase 38 complete
+last_activity_desc: Milestone v1.2 completed and archived
 progress:
   total_phases: 11
   completed_phases: 11
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 
 ## Current Position
 
-Phase: 38
-Plan: Not started
-Status: Executing Phase 38 — gap closure complete, awaiting phase verification
-Last activity: 2026-07-07 — Phase 38 complete
+Phase: Milestone v1.2 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-07 — Milestone v1.2 completed and archived
 
 ## Performance Metrics
 
@@ -439,8 +439,18 @@ Full detail in `MILESTONES.md` → "Known deferred items at v1.1 close". Summary
 | requirement | LNCH-06 mobile QA | Folded into 21-03 |
 | bookkeeping | ~11 UAT + 5 verification statuses, 9 quick-tasks | Acknowledged — work shipped/live, status fields only |
 
+## Deferred Items (acknowledged at v1.2 close, 2026-07-07)
+
+Pre-close artifact audit flagged 16 open items. Ben reviewed the triage and chose "Acknowledge all, proceed" — none are new v1.2 gaps.
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | pdf-harness-loadscript-hang | Bookkeeping only — file has a full Resolution section (root cause, fix, verification: 108/112 green with the 4 remaining failures being the expected Phase 34 owner-list); frontmatter `status: fixing` was never flipped |
+| quick_task | 260324-oh5, 260516-1f5, 260516-g7p, 260516-rna, 260522-iwr, 260608-c8x, 260608-cx5, 260620-q8m (8 tasks) | Bookkeeping only — each has a completed SUMMARY.md; audit-open's status parser reads "unknown" because these predate a status-field convention |
+| quick_task | 260630-sa8 (client age/birthdate) | Closed — "Won't fix (reverted by design)" per the task's own SUMMARY.md; Ben's call, recorded 2026-07-01 |
+| quick_task | 1-interactive-demo-on-landing-page-embedde | Genuinely never executed (PLAN.md only, no SUMMARY.md) — an old landing-page interactive-demo idea superseded by the Phase 35 demo/chrome work; left in backlog, not scoped into v1.2 |
+| todos | 5 pending todos (translations verify, deactivation warning, PWA install guidance, terms notification, v12 IDB encryption) | Pre-existing backlog items, already listed in ROADMAP.md's Backlog section and PROJECT.md; not new v1.2 gaps |
+
 ## Operator Next Steps
 
-- v1.2 scope is locked AND formalized (REQUIREMENTS.md + roadmap detail sections committed 2026-06-22, 1a014d0). Per-phase flow now: `/gsd-discuss-phase N` → `/gsd-plan-phase N`, in dependency order 28 → 33.
-- **Next: Phase 28 (Update Reliability & Versioning)** — run `/gsd-discuss-phase 28` to capture HOW decisions (Safari field-verification, integrity-check design, cache TTL) before planning.
-- Heads-up for plan-phase: research is disabled project-wide, so the plan-checker may raise a false VALIDATION.md/Nyquist blocker — dismiss it (see memory `feedback-checker-nyquist-false-positive`).
+- Start the next milestone with /gsd-new-milestone

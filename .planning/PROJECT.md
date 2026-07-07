@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A browser-based session management app for Emotion Code / Body Code practitioners. Tracks clients, sessions, trapped emotions, severity ratings, Heart Shield (מגננת הלב) progress, and generates reports. Vanilla HTML/JS/CSS app with IndexedDB storage, garden-themed design, dark mode, 4-language support (EN/HE/DE/CS), AES-256-GCM encrypted `.sgbackup` backups, legal compliance, and a marketing landing page. Live and sold since v1.1 (2026-06-22).
+A browser-based session management app for Emotion Code / Body Code practitioners. Tracks clients, sessions, trapped emotions, severity ratings, Heart-Wall (חומת הלב) progress, and generates reports, including a brand-redesigned client-facing PDF export. Vanilla HTML/JS/CSS app with IndexedDB storage, garden-themed design, dark mode, 4-language support (EN/HE/DE/CS), AES-256-GCM encrypted `.sgbackup` backups, legal compliance, and a marketing landing page. A canonical local-time date engine (no UTC off-by-one) drives every date surface, with a Personalization tab for date format + session types. Now backed by a `package.json`/`npm test` suite (131 tests) and a decomposed, self-documenting `assets/*.js` codebase. Live and sold since v1.1 (2026-06-22); v1.2 Codebase Health & Reliability shipped 2026-07-07.
 
 ## Core Value
 
@@ -58,27 +58,34 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - ✓ Cloudflare Pages deployment (live) — v1.1
 - ✓ In-app onboarding/help — design contract only (`26-UI-SPEC.md`); build deferred — v1.1
 
-<!-- v1.2 — Codebase Health & Reliability (in progress; validated as phases ship) -->
+<!-- v1.2 — Codebase Health & Reliability (shipped 2026-07-07) -->
 
-- ✓ DOCS-01 — In-repo maintainer README (operational-first, truth-checked recipes, repo-only/not published) — Phase 32
-- ✓ DOCS-02 — Code-comment pilot on the 5 refactored modules (four-slot responsibility banners + de-phase-numbering, comments-only-proven) — Phase 32
+- ✓ VER-01..06 — Verified Safari PWA update fix; single `version.js` source → footer + SW cache + runtime integrity self-check; CSP→HTTP header; cache TTL raised; fully offline — v1.2 (Phase 28, shipped v1.2.1)
+- ✓ OBS-01..03 — Zero-network IndexedDB crash log; "Report a problem" copy-to-clipboard flow; IDB migration reset & recover escape hatch — v1.2 (Phase 29)
+- ✓ TEST-01..04 — First `package.json` + `npm test`; 7 PDF tests fixed; RTL regression guard; pre-refactor behavior tests on the god modules — v1.2 (Phase 30)
+- ✓ RFCT-01..03 — `settings.js` (2,827→~1,000L) and `add-session.js` (2,173→~1,500L) decomposed into IIFE modules behind the green test net; `openDB()` pooling + `innerHTML`→DOM hardening — v1.2 (Phase 31)
+- ✓ DOCS-01 — In-repo maintainer README (operational-first, truth-checked recipes, repo-only/not published) — v1.2 (Phase 32)
+- ✓ DOCS-02 — Code-comment pilot on the 5 refactored modules (four-slot responsibility banners + de-phase-numbering, comments-only-proven) — v1.2 (Phase 32)
+- ✓ I18N-01/02 — 13 export-modal keys translated to native German/Czech via the AI native-translation panel — v1.2 (Phase 33)
+- ✓ PDFX-01/02 — Client-facing session PDF redesigned in the Sessions Garden brand; session number is a derived chronological ordinal (renumber-safe); Hebrew RTL/bidi preserved — v1.2 (Phase 34)
+- — PDFX-03 — DESCOPED (invalid premise: export is only reachable in read mode on an already-saved session, so no dirty-export path exists to guard) — v1.2 (Phase 34)
+- ✓ DEMO-01..11 — Demo home chrome/seed/version brought back to parity with the shipped app; demo-hints.js removed; export/license controls locked down in demo mode — v1.2 (Phase 35)
+- ✓ DOCS-03 — Four-slot comment banners extended to ~22 core production modules (3 giants — `backup.js`/`app.js`/`pdf-export.js` — deferred to a future batch-3) — v1.2 (Phase 36)
+- ✓ DATE-01..07, PERS-01..08 — Canonical local-time `window.DateFormat` engine (kills the UTC off-by-one); Personalization Settings tab with 6 date formats; two-tier session-type list (5 locked + custom) — v1.2 (Phase 37)
+- ✓ TERM-01/02, FILT-01..04, LEGAL-01 — "Session Type"→Session Format / "Heart Shield"→Heart-Wall relabel; Session Format multi-select + Heart-Wall toggle filters on Overview/Sessions; header-sort↔dropdown sync; trademark/affiliation disclaimer — v1.2 (Phase 37)
+- ✓ NEXT-01..08 — Optional next-session date field (native date input, session-relative `min`), sortable/overdue-aware Overview column, PDF/markdown export, demo + backup parity — v1.2 (Phase 38)
 
 ### Active
 
-<!-- v1.1 shipped 2026-06-22. v1.2 scope co-designed & locked with Ben 2026-06-22 (Phases 28–33). -->
+<!-- v1.1 shipped 2026-06-22. v1.2 shipped 2026-07-07 (Phases 28–38, full detail in milestones/v1.2-ROADMAP.md). No committed scope yet for the next milestone. -->
 
-- [ ] **v1.2 — Codebase Health & Reliability** (scope locked 2026-06-22 — Phases 28–33, dependency order):
-  - [x] P28 Update Reliability & Versioning — verified Safari PWA update fix; single version source → footer + SW cache + runtime integrity self-check; CSP→header; cache TTL ✓ complete & live 2026-06-22 (shipped v1.2.1)
-  - [x] P29 Reliability & Observability — local crash log + "Report a problem" copy flow (zero network); IDB migration escape hatch ✓ complete & live 2026-06-23
-  - [x] P30 Test Harness & Coverage — fix 7 PDF tests; RTL guard; behavior tests on god modules pre-refactor ✓ complete 2026-06-26, safety-net hardened 2026-06-27 (first `package.json` + `npm test` runner; 103 test files green; source-slicing fakes removed → executing jsdom characterization with recorded mutation-kills; permanent fake-test-detector gate)
-  - [x] P31 Refactor God Modules — extract from `settings.js` / `add-session.js`; opportunistic cleanups behind the test net ✓ complete 2026-06-28 (settings.js 2,969→1,014; add-session.js 1,863→1,518; 3 new page-private IIFE modules: settings-snippets / settings-photos / export-modal; openDB pooling + i18n innerHTML hardening; suite green throughout; D-08 UAT passed; review regression CR-01 fixed test-first)
-  - [x] P32 README + Code Comments — maintainer README + comments on the refactored code ✓ complete 2026-06-29 (maintainer-audience README rewrite with 6 truth-checked how-do-I recipes + file-map; comment pilot on the 5 P31-touched files — four-slot responsibility banners + de-phase-numbering, proven comments-only via strip-and-compare + green suite; stopped shipping README publicly — `cp README.md` removed from deploy.yml, D-04; two `.planning/` seed artifacts: comment-coverage map → comments batch-2 phase, help-content inventory → future help/onboarding phase)
-  - [x] P33 DE/CS i18n completion — 13 export-modal keys ✓ complete 2026-07-06
-  - [x] P34–P38 tail — PDF export polish (06-30), demo refresh (06-30), comments batch 2 (07-02), date consistency + date-format + session types (07-06), next-session date field + overview column (07-07, incl. 38-08 gap closure) ✓ all complete — see `ROADMAP.md`
+_(none — awaiting next milestone; run `/gsd-new-milestone`)_
 
-**Deferred to backlog (v1.1 close + 2026-06-22 concerns triage):** mobile `21-03`; help/onboarding build (Phase 26 — design done); landing DE/CS verify (LNCH-04); license re-validation; pagination; PDF→Web Worker; and other triaged concerns — see ROADMAP "Backlog" for the full list.
+**Sketched but not yet formalized — v1.3 (Ben's decision, 2026-07-06, see `.planning/MILESTONE-CONTEXT.md` + `.claude/context/session-prompts/2026-07-06_v1.3-help-changelog-milestone-context-handoff.md`):** v1.3 = "In-App Help, Onboarding & Changelog" — implement the archived Phase 26 `26-UI-SPEC.md` design contract (welcome + replayable tour + help center) plus an in-app Changelog/What's-New surface plus a docs-maintenance hard-gate. This explicitly **supersedes** the "v1.3 Codebase Health II" pencil-in below. Rich-text editing is deferred to v1.4. Run `/gsd-new-milestone` to formalize.
 
-**Candidate phases surfaced during P32 (NOT yet sequenced via `/gsd-phase` — note only):** (1) **comments — batch 2** (apply the P32 comment pilot to the next module group; batch-1 = `db.js`/`overview.js`/`sessions.js`; driven by `32-COMMENT-COVERAGE-MAP.md`; stays within v1.2); (2) **vendor-dependency pinning** (HARD-02 + `jszip`/`bidi` integrity/version pinning); (3) **demo refresh** (the stale `demo.html`/`demo-*.js` group). These are candidates pending Ben's sequencing decision, not committed scope.
+**Deferred to backlog (v1.1 close + 2026-06-22 concerns triage + v1.2 close):** mobile `21-03`; landing DE/CS verify (LNCH-04); license re-validation; pagination; PDF→Web Worker; an abandoned landing-page interactive-demo iframe idea (superseded by Phase 35); and other triaged concerns — see ROADMAP "Backlog" for the full list.
+
+**Backlog candidate — "Codebase Health II" (surfaced during Phase 30, 2026-06-26; superseded for the v1.3 slot by Help/Changelog above, still valid as a later milestone):** broader test-coverage gaps in large untouched files (`app.js` 1,474L/6 tests, `license.js` 568L/0 tests) and further extraction candidates among the remaining 4-digit files (`backup.js`, `app.js`, `pdf-export.js`, `db.js`) + an app-wide glue-duplication sweep. Full scoping in `todos/pending/2026-06-26-broader-extraction-and-test-coverage-health.md`.
 
 ### Out of Scope
 
@@ -103,6 +110,8 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 **Two audiences, kept separate** (P32 D-01): (1) **Customers / product users** = non-technical Emotion Code / Body Code practitioners — the product UX stays approachable for them (unchanged). (2) **Maintainer / developer** = Ben (drives Claude Code; comfortable with terminal/git/architecture-at-concept, not a daily JS author) + AI agents. Sapir is the **business / Gewerbe / domain / legal owner**, not a hands-on developer.
 
 **Business model**: One-time purchase (EUR 119). Hosted on Cloudflare Pages (free). Payments via Lemon Squeezy (MoR, 5% + $0.50/sale). Sold under Sapir's Gewerbe.
+
+**Codebase state after v1.2 (2026-07-07)**: ~29.4k LOC across `assets/*.js`/`*.css` + ~5.5k LOC root HTML. First-ever `package.json` (devDeps-only, jsdom) backs a 131-test `npm test` suite (behavior/characterization tests executing real modules, not source-slicing). `settings.js`/`add-session.js` decomposed from god-modules into page-private IIFE extractions (`settings-snippets.js`, `settings-photos.js`, `export-modal.js`). ~22 core production modules carry four-slot banner comments (the 3 largest — `backup.js`/`app.js`/`pdf-export.js` — deferred to a future batch-3). A canonical `assets/date-format.js` engine is the single date-parsing/formatting choke point app-wide. Zero runtime npm dependencies in production still holds.
 
 ## Constraints
 
@@ -140,19 +149,19 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 | README is repo-only maintainer guide, not published | Removed `cp README.md` from deploy.yml (D-04) so deploy/maintenance detail never reaches the product URL; the CF copy was unlinked, no loss. Only production-adjacent change in P32 | ✓ Shipped Phase 32 |
 | Code-comments done as a tight 5-file pilot + coverage map, not an all-files sweep | A blanket sweep risks staleness/accuracy errors on untouched files; the pilot establishes the reusable convention (four-slot banner + de-phase-numbering, comments-only-diff guardrail) and a coverage map makes a templated "comments batch-2" phase plannable. Ends the comment-topic drag carried since ~P29 | ✓ Shipped Phase 32 — batch-2 deferred within v1.2 |
 | Maintainer reframe to Ben + agents (D-01/D-02) | Docs/dev are calibrated for Ben (drives Claude Code) + AI agents, not a non-technical Sapir; README rewritten in-repo as agent context (D-03) and no longer published at the product URL (D-04). Product UX stays approachable for non-technical customers (two audiences kept separate) | ✓ Decided 2026-06-28 (P32 discuss); PROJECT.md reframed 2026-06-29 |
+| v1.2 tail added after the initial lock (P34–P38) | PDF export visual polish, demo refresh, comments batch 2, date-engine/personalization, and next-session-date were all surfaced as real needs (UAT + Ben work orders) during v1.2 execution, not scope creep from a stalled milestone | ✓ Added 2026-06-29 (P34–37) / 2026-07-06 (P38, promoted from backlog) — all shipped |
+| "Session Type"→Session Format / "Heart Shield"→Heart-Wall terminology relabel folded into Phase 37 | UAT surfaced "Session Type" meaning 3 different things (modality axis, filter, DB field); Heart-Wall is closer to Discover Healing's own branding. Values/keys unchanged — labels only, no data migration | ✓ Shipped Phase 37, 2026-07-05 decision |
+| Trademark/affiliation disclaimer added (LEGAL-01) | Sessions Garden references Emotion Code®/Body Code™/Heart-Wall® descriptively; a short non-affiliation notice reduces trademark risk with Discover Healing / Wellness Unmasked, Inc. | ✓ Shipped Phase 37 (EN canonical; he/de/cs flagged DRAFT pending native-speaker review) |
+| v1.2 close: acknowledge 16 pre-close audit items rather than resolve each individually | All 16 (1 debug session, 10 quick tasks, 5 todos) were either done-but-unflagged bookkeeping, an explicit won't-fix, a genuinely abandoned pre-v1.2 idea, or already-tracked backlog — none were new v1.2 gaps. Resolving each would have re-litigated already-closed work | ✓ Ben chose "Acknowledge all, proceed" 2026-07-07 — detail in STATE.md "Deferred Items (acknowledged at v1.2 close)" |
+| v1.3 = Help + Changelog (not "Codebase Health II") | The app is feature-large with zero in-app teaching surface and no release-announcement channel; Phase 26's UI-SPEC is already approved and ready to build. Codebase Health II remains a valid later-milestone backlog candidate | ✓ Decided 2026-07-06, see `.planning/MILESTONE-CONTEXT.md` |
 
-## Current Milestone: v1.2 Codebase Health & Reliability (scope locked — planning per phase)
+## Current State
 
-**Status:** v1.1 shipped and archived 2026-06-22 (Phases 8–27; see `milestones/v1.1-*`). v1.2 scope was **co-designed and locked with Ben on 2026-06-22** — a deliberate shift from feature work to **maintainability and reliability** — then extended with a tail (P34–P37, added 2026-06-29) and P38 (promoted from backlog 2026-07-06). **Progress: all 11 phases P28–P38 complete as of 2026-07-07**, including the P38 UAT gap-closure round (38-08…38-12, all approved on-device). Next: v1.2 milestone close-out.
+**v1.2 Codebase Health & Reliability shipped 2026-07-07** (Phases 28–38, 11 phases / 82 plans / 108 tasks, 15 days, 550 commits). Full detail archived in `milestones/v1.2-ROADMAP.md` / `milestones/v1.2-REQUIREMENTS.md` / `milestones/v1.2-MILESTONE-AUDIT.md`. Milestone audit passed: 64/65 requirements complete (1 deliberately descoped), 11/11 phases verified, zero broken cross-phase wiring, 131/131 tests green. The app is live and sold (since v1.1, 2026-06-22) and is now backed by a real test safety net, a decomposed codebase, self-documenting core modules, and a canonical date engine — the maintainability debt that motivated v1.2 is substantially paid down (3 giant files still await a future comment/extraction pass, tracked as backlog).
 
-**Committed scope (Phases 28–33, dependency order):**
-- **P28 Update Reliability & Versioning** ✓ — verified Safari PWA update fix; single version source → footer + SW `CACHE_NAME` + runtime integrity self-check; CSP→header; cache TTL
-- **P29 Reliability & Observability** ✓ — local crash log + "Report a problem" copy flow (zero network); IDB migration escape hatch
-- **P30 Test Harness & Coverage** ✓ — fix the 7 PDF tests; RTL guard; behavior tests on god modules before the refactor
-- **P31 Refactor God Modules** ✓ — `settings.js` (~2.8k) / `add-session.js` (~2.2k) extraction, behind the test net
-- **P32 README + Code Comments** ✓ — maintainer docs describing the refactored structure
-- **P33 DE/CS i18n completion** ✓ — 13 export-modal keys (completed 2026-07-06)
-- **Tail phases (added after the lock):** P34 PDF export visual polish ✓ (06-30) · P35 demo system refresh ✓ (06-30) · P36 code comments batch 2 ✓ (07-02) · P37 date consistency + date-format + session types ✓ (07-06) · P38 next-session date field + overview column ✓ (07-07, incl. 38-08 gap closure) — per-phase goals in `ROADMAP.md`
+## Next Milestone Goals
+
+v1.3 is sketched (not yet formalized) as **"In-App Help, Onboarding & Changelog"** — see `.planning/MILESTONE-CONTEXT.md` for the full brief. Run `/gsd-new-milestone` to formalize scope, requirements, and roadmap. Candidates for the *next* milestone slot after that: "Codebase Health II" (broader test coverage + further extraction, backlog-tracked).
 
 ---
-*Last updated: 2026-07-07 — Phase 38 gap closure complete (38-09…38-12), re-closing the final v1.2 phase. The UAT retest surfaced 4 gaps, all fixed and Ben-approved on-device in real Safari: partial-date save guard (38-09), Hebrew RTL date-input segment order + right-alignment via box-direction CSS (38-10 — WebKit ignores `text-align` on the shrink-wrapped `::-webkit-datetime-edit`), FSI/PDI bidi isolation of the name•date composition sites incl. `document.title` (38-11), and a generalized error-tone toast API (`showToast` `{tone, focus}`: dark-safe warning tokens, 4s dwell, scroll-to/focus the offending field) wired to the session-form error toasts, plus a Ben-approved rangeUnderflow guard blocking typed too-early next-session dates (38-12). Full suite 131/131; full-phase code review 0 Critical / 2 advisory Warnings recorded as follow-ups (WR-03 mobile-accordion focus clipping, WR-04 error-tone adoption beyond the session form); re-verification passed 9/9 must-haves; all 38-UAT gaps resolved. v1.2 phases P28–P38 all complete. Next: v1.2 milestone close-out (`/gsd-audit-milestone`, then `/gsd-complete-milestone`); v1.3 scope already sketched (Help + in-app Changelog per `.planning/MILESTONE-CONTEXT.md`).*
+*Last updated: 2026-07-07 — v1.2 Codebase Health & Reliability milestone closed and archived (`/gsd-complete-milestone v1.2`). Milestone audit (2026-07-07) passed clean: 64/65 requirements complete (1 deliberately descoped — PDFX-03, invalid premise), 11/11 phases verified, zero broken cross-phase wiring, 131/131 tests green. Pre-close artifact audit flagged 16 open items (1 debug session, 10 quick tasks, 5 todos); Ben reviewed and chose "Acknowledge all, proceed" — all were stale bookkeeping, an explicit won't-fix, one genuinely abandoned pre-v1.2 idea, or already-tracked backlog, detailed in STATE.md. ROADMAP.md/REQUIREMENTS.md archived to `milestones/v1.2-*`; REQUIREMENTS.md removed (fresh for next milestone). Next: formalize v1.3 via `/gsd-new-milestone` (sketch already exists in `.planning/MILESTONE-CONTEXT.md` — Help + in-app Changelog + docs hard-gate).*
