@@ -399,22 +399,27 @@ const ids = new Set(topics.map(t => t.id));
 
 **Note:** The core design is fully locked upstream (CONTEXT + UI-SPEC + approved mockup), so assumptions are few and low-risk.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **True-empty vs filter-empty detection on Sessions (D-21 note)**
+> All three questions were resolved at planning time — each recommendation below was adopted by the Phase 39 plans (verified by gsd-plan-checker).
+
+1. **True-empty vs filter-empty detection on Sessions (D-21 note)** — RESOLVED
    - What we know: `sessions.js` shows one empty string (`sessions.empty`, a filter-empty) when `!filtered.length`.
    - What's unclear: cleanest signal for "zero sessions ever" — total count from the DB layer vs a pre-filter length check.
    - Recommendation: Planner picks (Claude's discretion, D-21); simplest is comparing unfiltered session count to 0 before the filter runs. Reporting's no-data state needs the same treatment (its only empty strings today are `report.empty.*` for the crash-report page, not the reporting dashboard — confirm the reporting.html dashboard empty path).
+   - RESOLVED: Plan 39-05 compares the unfiltered session count to 0 before filters run; coaching fires only on true zero-sessions (filter-empty asserted as a negative in its test). The reporting dashboard empty path gets the same treatment.
 
-2. **Exact `help-content-en.js` topic-object schema and global name**
+2. **Exact `help-content-en.js` topic-object schema and global name** — RESOLVED
    - What we know: minimum fields are id/section/title/body/priority/covers (D-18/D-24); global name is Claude's discretion.
    - What's unclear: whether `body` is a single string with `{ui:key}` + a light markup convention, or an array of blocks (steps/notes/SVG-glyph refs).
    - Recommendation: Choose a block-capable `body` (array of typed nodes) so P1 numbered steps, install-SVG glyphs, and prose coexist without an HTML-in-string smell; keep it flat enough for the integrity test to scan `{ui:key}` tokens and anchor refs.
+   - RESOLVED: Plan 39-01 defines a block-capable `body` (array of typed nodes) under the global `window.HELP_CONTENT_EN`, plus the `HELP_DEEPLINKS` topic-id registry; the D-25 integrity test scans `{ui:key}` tokens and anchor refs across it.
 
-3. **Where help CSS lives**
+3. **Where help CSS lives** — RESOLVED
    - What we know: soft-type help surfaces (D-05) need their own rules.
    - What's unclear: new `assets/help.css` vs a scoped block appended to `app.css`.
    - Recommendation: A dedicated `assets/help.css` (added to precache) keeps the soft-type amendment isolated to help surfaces and avoids leaking the 3-weight exception into the rest of the app.
+   - RESOLVED: Plan 39-04 ships a dedicated `assets/help.css` (soft-type D-05 exception isolated to help surfaces); Plan 39-06 adds it to the `sw.js` precache.
 
 ## Environment Availability
 
