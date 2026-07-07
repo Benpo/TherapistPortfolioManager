@@ -163,6 +163,8 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 
 **Goal:** Every practitioner can learn the whole app inside the app (welcome, replayable tour, help center) and hears about every release inside the app (What's-New popup + changelog page) — with a hard process gate guaranteeing both stay current with every future user-facing change.
 
+**Progress:** Phase 39 (Help Center & "?" Entry Point) complete 2026-07-07 — HELP-01..07 validated in Phase 39: offline `help.html` (12-section workflow-spine IA, live-label `{ui:key}` chips), persistent "?" popover on every page, empty-state coaching deep-links, SW-precached with the APP_VERSION 1.3.0 cache roll, D-19 content gates run with all findings applied (Sapir's final rendered-page read pinned as a tracked todo). Next: Phase 40 (First-Run Welcome & Onboarding Coordinator).
+
 **Target features:**
 - Help system: "?" header entry on all app pages, `help.html` help center (workflow-spine IA + personalization + technical track), first-run welcome overlay, replayable ~6–9-step tour with graceful degradation, empty-state deep-links, per-browser PWA install nudge, full EN help content covering the current (v1.2.x) feature set
 - In-app changelog: What's-New popup keyed on `APP_VERSION` change + persistent changelog page in the help center; structured in-app data source; v1.3's own release notes ship as the first entry
@@ -188,4 +190,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-07 — Milestone v1.3 "In-App Help, Onboarding & Changelog" started via `/gsd-new-milestone`. Scope confirmed by Ben: three pillars (help system, in-app changelog, docs-maintenance hard gate), with the Phase 26 design treated as a reconciled seed rather than a verbatim contract. Supersedes the old "v1.3 Codebase Health II" pencil-in (that work stays backlog). Rich-text editor deferred to v1.4.*
+*Last updated: 2026-07-08 — Phase 39 complete: help center + "?" entry shipped and verified (9/9 must-haves, HELP-01..07). One pinned residual: Sapir's rendered-page content read (tracked todo). Prior: Milestone v1.3 "In-App Help, Onboarding & Changelog" started 2026-07-07 via `/gsd-new-milestone`; three pillars (help system, in-app changelog, docs-maintenance hard gate); Phase 26 design treated as a reconciled seed rather than a verbatim contract; rich-text editor deferred to v1.4.*
