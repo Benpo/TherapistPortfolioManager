@@ -1,14 +1,23 @@
 ---
-status: diagnosed
+status: testing
 phase: 38-next-session-date-field-with-overview-column
 source: [38-VERIFICATION.md]
 started: 2026-07-07T12:00:00Z
-updated: 2026-07-07T06:40:00Z
+updated: 2026-07-07T09:33:07Z
 ---
 
 ## Current Test
 
-[testing complete]
+number: 5
+name: Partial typed date entry blocked with clear message (RETEST after 38-09)
+expected: |
+  In real Safari (localhost or installed PWA — make sure the NEW bundle is served, not a stale SW cache):
+  1. Edit a session and type into the next-session date field changing only ONE segment (only the day, or only the month). Press Save/Update.
+     → The save is BLOCKED: a toast shows "Next session date is incomplete — complete it or clear it" (in the active language), no success toast fires, and the session record is unchanged (the partial date is NOT silently discarded).
+  2. Type a COMPLETE date → saves normally with the date.
+  3. CLEAR the field entirely → saves normally (empty is legal, never blocked).
+  4. Optional: repeat step 1 once in Hebrew — the RTL toast wording reads naturally.
+awaiting: user response
 
 ## Tests
 
@@ -32,19 +41,31 @@ result: pass
 reported: "exporting didn't export it if there was no text in 'next session info'. this is not expected. I want to be able to show only the next date in the export even if there is no free text."
 note: Initially reported as an issue (PDF export, saved/past session). Ben retested during UAT 2026-07-07: "now it does export" — PASS. Code verification: PDF consumes the export editor's markdown (export-modal.js:679) with no next-session gate of its own; all modal gates (sectionHasData :142-148, copy builder :286, filtered builder :432-434, toggle default :455-458) are note-OR-date; 30-section-visibility + 30-export-markdown date-only cases GREEN by execution. Original failure most likely the stale SW-cache bundle (pre-38-06) — the documented failure mode in reference-pwa-sw-cache-updates.
 
-### 5. Manual typed date entry — partial edit silently discarded (found during retest)
-expected: Editing the next-session date by typing works; a partially-entered date (only day or only month changed) is never silently dropped — the session either saves a complete date or clearly refuses.
+### 5. Partial typed date entry blocked with clear message (RETEST after 38-09 — validity.badInput guard)
+expected: In real Safari, typing a PARTIAL next-session date (only day or only month changed) and pressing Save/Update BLOCKS the save with a localized "incomplete date" toast — no success toast, session record unchanged. A COMPLETE typed date saves normally; a CLEARED field saves normally (empty is legal). Hebrew RTL toast reads naturally.
+result: [pending]
+history: Originally failed 2026-07-07: "when editing the date manually it becomes black instead of being greyed out. when editing all 3 parts - it works great. but when changing only the day or only month - it doesnt save it despite showing that it was saved successfully." Root-caused: native date input exposes value='' until all segments complete → partial entry saved as '' with generic success toast. The "becomes black" part is native Safari segment rendering (entered segment = black, placeholder = grey) — not an app defect. Fix 38-09 (2026-07-07): validity.badInput guard at the saveSessionForm() choke point + toast.nextSessionDateIncomplete in 4 languages; guard unit test 5/5 GREEN; code review WR-02 defines what this retest must prove (real Safari badInput at submit time — jsdom/Chromium cannot).
+
+### 6. Hebrew RTL — native date inputs render segments reversed (found during 38-09 retest; pre-existing)
+expected: In Hebrew mode the native date inputs (#sessionDate, #nextSessionDate) keep the browser-native segment order (mm/dd/yyyy in Ben's Safari, dd/mm/yyyy in Chrome — the accepted native-locale compromise); the app's RTL styling must not visually reverse the numeric runs.
 result: issue
-reported: "when editing the date manually it becomes black instead of being greyed out. when editing all 3 parts - it works great. but when changing only the day or only month - it doesnt save it despite showing that it was saved successfully."
+reported: "Hebrew RTL is wrong! not only in this phase, I believe it was like this already from phase 37 or something. cant be that date field shown as yyyy/mm/dd in hebrew, it must be a bug. funny enough, its exactly the type of field you said is dependent on the OS native locale, so the date formatter isnt even affecting these boxes in english - its always mm/dd/yyyy in my Safari but dd/mm/yyyy in my Chrome (which I accepted as compromise) - so I expected hebrew to still behave with same mm/dd/yyyy in Safari. also now in the bottom with next session date I see yyyy/dd/mm all of a sudden, which seems like a perfect reversing of the expected value."
 severity: major
-note: Root-caused same session (see Gaps). The "becomes black" part is native Safari segment rendering (entered segment = black, placeholder segments = grey) — not an app defect. Fix direction confirmed with Ben 2026-07-07 — block save + message, #nextSessionDate only.
+note: Screenshot shows placeholder "2026/16/05" (yyyy/dd/mm) on תאריך מפגש for May 16 — a perfect VISUAL reversal of Safari's native mm/dd/yyyy, consistent with the RTL base direction reordering the LTR numeric runs (bidi), not a formatter bug. Ben: don't attribute origin phase, just fix it.
+
+### 7. Hebrew RTL — LTR client name + Hebrew month-name date scramble each other (pre-existing)
+expected: A line combining a Latin-script client name with a Hebrew month-name date reads in correct order in Hebrew mode (e.g. "dgh • 16 במאי 2026" — name isolated, date parts in order).
+result: issue
+reported: "another bug preexisting: in hebrew mode, when the month format is chosen to show the name of the month in hebrew, and the customer has english name, it reverses each other and displayed like this: '2026 במאי dgh • 16' (example is for customer 'dgh' for May 16th)."
+severity: major
+note: Classic missing bidi isolation around the LTR name adjacent to Hebrew text with numeric runs.
 
 ## Summary
 
-total: 5
+total: 7
 passed: 4
-issues: 1
-pending: 0
+issues: 2
+pending: 1
 skipped: 0
 blocked: 0
 
@@ -94,5 +115,23 @@ blocked: 0
   root_cause: "No live defect. PDF consumes the export editor's markdown (export-modal.js:679) with no next-session gate of its own; all modal gates are note-OR-date per 38-06 and date-only behavior tests pass by execution. Original failure most likely a stale service-worker-cached pre-38-06 bundle (reference-pwa-sw-cache-updates failure mode)."
   artifacts: []
   missing: []
+  debug_session: ""
+
+- truth: "In Hebrew mode the native date inputs (#sessionDate, #nextSessionDate) keep the browser-native segment order — the app's RTL styling must not visually reverse the numeric runs (yyyy/dd/mm observed instead of Safari's mm/dd/yyyy)"
+  status: failed
+  reason: "User reported: date field shown as 2026/16/05 (yyyy/dd/mm) in Hebrew Safari for May 16 — 'a perfect reversing of the expected value'; seen on both the session date field and the next-session date field. Pre-existing (believed since ~Phase 37); Ben: don't attribute origin, just fix."
+  severity: major
+  test: 6
+  artifacts: []  # Filled by diagnosis
+  missing: []    # Filled by diagnosis
+  debug_session: ""
+
+- truth: "A line combining a Latin-script client name with a Hebrew month-name date reads in correct order in Hebrew mode (name bidi-isolated; date parts not scrambled)"
+  status: failed
+  reason: "User reported: in Hebrew with month-name format and an English client name, name and date 'reverse each other' — displays '2026 במאי dgh • 16' for customer dgh, May 16 2026. Pre-existing."
+  severity: major
+  test: 7
+  artifacts: []  # Filled by diagnosis
+  missing: []    # Filled by diagnosis
   debug_session: ""
 
