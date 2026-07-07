@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketch 002 — Hybrid A+C (rail + collapsed cards)</title>
+<link rel="stylesheet" href="../themes/default.css">
+<style>
+  /* Real app fonts — the sketch theme names Rubik but never loads it */
+  @font-face {
+    font-family: 'Rubik'; font-weight: 400; font-display: swap;
+    src: url('../../../assets/fonts/Rubik-Regular.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Rubik'; font-weight: 600; font-display: swap;
+    src: url('../../../assets/fonts/Rubik-SemiBold.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Rubik'; font-weight: 700; font-display: swap;
+    src: url('../../../assets/fonts/Rubik-Bold.woff2') format('woff2');
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--lh-body);
+    color: var(--color-text);
+    background: linear-gradient(180deg, var(--color-background-gradient-start), var(--color-background-gradient-end));
+    min-height: 100vh;
+  }
+
+  /* ---- sketch chrome (not part of the design) ---- */
+  .sketch-tools {
+    position: fixed; inset-block-end: 12px; inset-inline-end: 12px; z-index: 90;
+    display: flex; gap: 6px; padding: 8px 10px; border-radius: var(--radius-full);
+    background: #1a1825; color: #fff; opacity: .35; transition: opacity .2s;
+    font-size: .75rem; align-items: center;
+  }
+  .sketch-tools:hover { opacity: 1; }
+  .sketch-tools span { opacity: .6; margin-inline-end: 2px; }
+  .sketch-tools button {
+    font: inherit; color: #fff; background: rgba(255,255,255,.12); border: none;
+    border-radius: var(--radius-full); padding: 4px 10px; cursor: pointer;
+  }
+  .sketch-tools button:hover { background: rgba(255,255,255,.25); }
+
+  /* ---- page shell ---- */
+  .viewport { margin-inline: auto; transition: max-width .2s; }
+  .viewport[data-width="375"] { max-width: 375px; }
+  .viewport[data-width="768"] { max-width: 768px; }
+
+  .page-head {
+    padding: var(--space-xl) var(--space-lg) var(--space-lg);
+    max-width: 62rem; margin-inline: auto;
+    position: relative;
+  }
+  .page-head h1 {
+    font-size: var(--text-display); font-weight: var(--weight-bold); line-height: var(--lh-display);
+    color: var(--color-primary-deeper);
+  }
+  .page-head p {
+    margin-block-start: var(--space-sm); color: var(--color-text-muted); max-width: 40rem;
+  }
+  .page-head .botanical {
+    position: absolute; inset-block-start: var(--space-sm); inset-inline-end: var(--space-lg);
+    inline-size: 110px; opacity: .45; pointer-events: none; user-select: none;
+  }
+  [data-theme="dark"] .page-head .botanical { filter: invert(1); mix-blend-mode: screen; opacity: .3; }
+  @media (max-width: 767px) { .page-head .botanical { inline-size: 72px; opacity: .3; } }
+
+  /* ---- soft type mode (calmer help-surface typography, Rubik 400 headings) ---- */
+  .soft-type .page-head h1 { font-weight: var(--weight-regular); letter-spacing: .01em; }
+  .soft-type .card-head h2 { font-weight: 400; font-size: 1.3rem; letter-spacing: .015em; color: var(--color-primary-deeper); }
+  .soft-type .card-body h3 { font-weight: 600; }
+  .soft-type .card-body p { color: var(--color-text-muted); }
+  .soft-type .card-body { padding-block-start: var(--space-xs); }
+  .soft-type .help-card .card-head { padding-block: 1.15rem; }
+
+  /* ---- search / filter box ---- */
+  .help-search { position: relative; margin-block-end: var(--space-sm); }
+  .help-search input {
+    inline-size: 100%; padding: 10px var(--space-md) 10px 2.2rem;
+    font: inherit; font-size: var(--text-label); color: var(--color-text);
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-full); outline: none;
+  }
+  [dir="rtl"] .help-search input { padding: 10px 2.2rem 10px var(--space-md); }
+  .help-search input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary-soft); }
+  .help-search input::placeholder { color: var(--color-text-muted); }
+  .help-search svg {
+    position: absolute; inset-block-start: 50%; transform: translateY(-50%);
+    inset-inline-start: 12px; color: var(--color-text-muted); pointer-events: none;
+  }
+  .search-empty {
+    display: none; text-align: center; padding: var(--space-xl) var(--space-lg);
+    background: var(--color-surface); border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md); color: var(--color-text-muted);
+  }
+  .search-empty a { color: var(--color-primary-dark); font-weight: var(--weight-bold); }
+  body.searching .spine-group-label { display: none; }
+
+  /* ---- "still need help?" contact band ---- */
+  .contact-band {
+    margin-block-start: var(--space-lg); text-align: center;
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border-soft); border-radius: var(--radius-lg);
+    padding: var(--space-xl) var(--space-lg);
+  }
+  .contact-band h2 {
+    font-size: var(--text-heading); font-weight: var(--weight-bold); line-height: var(--lh-heading);
+    color: var(--color-primary-deeper); margin-block-end: var(--space-sm);
+  }
+  .soft-type .contact-band h2 { font-weight: 400; font-size: 1.3rem; }
+  .contact-band p { color: var(--color-text-muted); max-inline-size: 34rem; margin-inline: auto; margin-block-end: var(--space-sm); }
+  .contact-band a.mail {
+    display: inline-block; margin-block-start: var(--space-xs);
+    font-weight: var(--weight-bold); font-size: var(--text-body);
+    color: var(--color-primary-dark); text-decoration: none;
+    background: var(--color-primary-soft); border-radius: var(--radius-full);
+    padding: 10px var(--space-lg); min-block-size: var(--tap-target-min);
+  }
+  .contact-band a.mail:hover { filter: brightness(.97); }
+  .contact-band .report-hint { font-size: var(--text-label); margin-block-start: var(--space-md); margin-block-end: 0; }
+
+  .layout {
+    display: grid; grid-template-columns: 15.5rem 1fr; gap: var(--space-xl);
+    max-width: 62rem; margin-inline: auto; padding: 0 var(--space-lg) var(--space-3xl);
+    align-items: start;
+  }
+
+  /* ---- rail (A's menu, unnumbered, with in-rail expansion) ---- */
+  .rail {
+    position: sticky; inset-block-start: var(--space-md);
+    max-height: calc(100vh - 2rem); overflow-y: auto;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-soft);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-nav);
+    padding: var(--space-sm);
+  }
+  .rail-group-label {
+    font-size: .72rem; font-weight: var(--weight-bold); letter-spacing: .06em;
+    text-transform: uppercase; color: var(--color-text-muted);
+    padding: var(--space-sm) var(--space-sm) var(--space-xs);
+  }
+  .rail-divider { border: none; border-block-start: 1px solid var(--color-border-soft); margin: var(--space-sm) var(--space-xs); }
+  .rail-item { border-radius: var(--radius-sm); }
+  .rail-row { display: flex; align-items: stretch; }
+  .rail-link {
+    flex: 1; display: block; padding: 7px var(--space-sm);
+    font-size: var(--text-label); font-weight: var(--weight-regular); line-height: var(--lh-label);
+    color: var(--color-text); text-decoration: none; border-radius: var(--radius-sm);
+    cursor: pointer; border: none; background: none; text-align: start; font-family: inherit;
+  }
+  .rail-link:hover { background: var(--color-surface-hover); }
+  .rail-item.is-active > .rail-row .rail-link {
+    background: var(--color-primary-soft); color: var(--color-primary-dark); font-weight: var(--weight-bold);
+  }
+  .rail-item.is-featured > .rail-row .rail-link { color: var(--color-primary-deeper); font-weight: var(--weight-bold); }
+  .rail-item.is-featured > .rail-row .rail-link::before { content: "❋ "; color: var(--color-primary); }
+  .rail-toggle {
+    inline-size: 28px; display: grid; place-items: center; cursor: pointer;
+    background: none; border: none; color: var(--color-text-muted); border-radius: var(--radius-sm);
+  }
+  .rail-toggle:hover { background: var(--color-surface-hover); color: var(--color-primary); }
+  .rail-toggle svg { transition: transform .18s; }
+  .rail-item.is-expanded .rail-toggle svg { transform: rotate(90deg); }
+  .rail-sub { display: none; padding-inline-start: var(--space-md); padding-block: 2px 4px; }
+  .rail-item.is-expanded .rail-sub { display: block; }
+  .rail-sub a {
+    display: block; padding: 4px var(--space-sm); font-size: .8rem; color: var(--color-text-muted);
+    text-decoration: none; border-inline-start: 2px solid var(--color-border-soft); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+  .rail-sub a:hover { color: var(--color-primary-dark); background: var(--color-surface-hover); }
+
+  /* focus-visible per UI-SPEC */
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--color-primary); outline-offset: 2px;
+  }
+
+  /* ---- content cards (C's collapsed rows) ---- */
+  .content { display: flex; flex-direction: column; gap: var(--space-md); min-inline-size: 0; }
+
+  .help-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-soft);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-nav);
+    scroll-margin-block-start: var(--space-md);
+    overflow: hidden;
+  }
+  .card-head {
+    inline-size: 100%; display: flex; align-items: center; gap: var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    background: none; border: none; cursor: pointer; text-align: start; font-family: inherit;
+    min-block-size: var(--tap-target-min);
+  }
+  .card-head:hover { background: var(--color-surface-hover); }
+  .card-head h2 {
+    flex: 1; font-size: var(--text-heading); font-weight: var(--weight-bold); line-height: var(--lh-heading);
+    color: var(--color-text);
+  }
+  .card-head .chev { color: var(--color-text-muted); transition: transform .18s; flex: none; }
+  .help-card.is-open .card-head .chev { transform: rotate(90deg); }
+  .card-body { display: none; padding: 0 var(--space-lg) var(--space-lg); }
+  .help-card.is-open .card-body { display: block; }
+  .card-body h3 {
+    font-size: var(--text-body); font-weight: var(--weight-bold);
+    margin-block: var(--space-md) var(--space-xs); color: var(--color-primary-deeper);
+    scroll-margin-block-start: var(--space-md);
+  }
+  .card-body p { margin-block-end: var(--space-sm); color: var(--color-text); }
+  .card-body p.muted { color: var(--color-text-muted); }
+
+  /* featured personalization card (C's raised treatment) */
+  .help-card.featured {
+    border: 1.5px solid var(--color-primary); box-shadow: var(--shadow-card);
+    background: var(--color-surface);
+  }
+  .help-card.featured .card-head h2::before { content: "❋ "; color: var(--color-primary); }
+  .featured-tag {
+    font-size: .72rem; font-weight: var(--weight-bold); letter-spacing: .05em; text-transform: uppercase;
+    color: var(--color-primary-dark); background: var(--color-primary-soft);
+    border-radius: var(--radius-full); padding: 3px 10px; flex: none;
+  }
+
+  /* technical track band */
+  .tech-band {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    display: flex; flex-direction: column; gap: var(--space-sm);
+    margin-block-start: var(--space-md);
+  }
+  .tech-band-label {
+    font-size: var(--text-label); font-weight: var(--weight-bold); color: var(--color-text-meta);
+    padding-inline: var(--space-sm); padding-block-start: var(--space-xs);
+  }
+  .tech-band .help-card { box-shadow: none; }
+
+  .spine-group-label {
+    font-size: .72rem; font-weight: var(--weight-bold); letter-spacing: .06em; text-transform: uppercase;
+    color: var(--color-text-muted); padding-inline: var(--space-xs); margin-block-start: var(--space-xs);
+  }
+
+  /* ---- mobile: rail becomes a sticky "jump to" strip (strawman for discussion) ---- */
+  .jump-strip { display: none; }
+  @media (max-width: 767px) { .rail-holder { display: none; } }
+  .viewport[data-width="375"] .rail-holder { display: none; }
+  @media (max-width: 767px) {
+    .layout { grid-template-columns: 1fr; gap: var(--space-md); }
+    .jump-strip { display: block; }
+  }
+  .viewport[data-width="375"] .layout { grid-template-columns: 1fr; gap: var(--space-md); }
+  .viewport[data-width="375"] .jump-strip { display: block; }
+  .jump-strip {
+    position: sticky; inset-block-start: 8px; z-index: 50;
+  }
+  .jump-strip details {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); box-shadow: var(--shadow-nav);
+  }
+  .jump-strip summary {
+    list-style: none; cursor: pointer; padding: 10px var(--space-md);
+    font-size: var(--text-label); font-weight: var(--weight-bold); color: var(--color-primary-dark);
+    display: flex; justify-content: space-between; align-items: center; min-block-size: var(--tap-target-min);
+  }
+  .jump-strip summary::-webkit-details-marker { display: none; }
+  .jump-strip nav { padding: 0 var(--space-sm) var(--space-sm); max-block-size: 50vh; overflow-y: auto; }
+  .jump-strip nav a {
+    display: block; padding: 8px var(--space-sm); font-size: var(--text-label);
+    color: var(--color-text); text-decoration: none; border-radius: var(--radius-sm);
+  }
+  .jump-strip nav a:hover { background: var(--color-surface-hover); }
+</style>
+</head>
+<body>
+<div class="viewport" data-width="full">
+
+  <header class="page-head">
+    <img class="botanical" src="../../../assets/illustrations/watering-can.png" alt="">
+    <h1>Help &amp; guided tour</h1>
+    <p>A walk through running a session in Sessions Garden, end to end — and the technical bits, in plain language.</p>
+  </header>
+
+  <div class="layout">
+
+    <!-- =========== RAIL (A's menu: unnumbered, expandable in place) =========== -->
+    <div class="rail-holder">
+    <nav class="rail" id="rail" aria-label="Help sections">
+      <div class="help-search">
+        <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="6" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.4 9.4L13 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input type="search" id="searchDesk" placeholder="Find a topic…" autocomplete="off">
+      </div>
+      <div class="rail-group-label">The session loop</div>
+
+      <div class="rail-item is-featured" data-target="make-it-yours">
+        <div class="rail-row">
+          <button class="rail-link">Making Sessions Garden yours</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-sections-on-off">Sections on &amp; off</a>
+          <a href="#topic-renaming">Renaming sections</a>
+          <a href="#topic-date-format">Your date format</a>
+          <a href="#topic-session-formats">Custom session formats</a>
+        </div>
+      </div>
+
+      <div class="rail-item" data-target="adding-a-client">
+        <div class="rail-row">
+          <button class="rail-link">Adding a client</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-first-client">Your first client</a>
+          <a href="#topic-client-types">Client types</a>
+          <a href="#topic-client-photo">Client photos</a>
+        </div>
+      </div>
+
+      <div class="rail-item" data-target="starting-a-session">
+        <div class="rail-row">
+          <button class="rail-link">Starting a session</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-new-session">Two ways to begin</a>
+          <a href="#topic-past-sessions">A client's past sessions</a>
+        </div>
+      </div>
+
+      <div class="rail-item" data-target="capturing-emotions">
+        <div class="rail-row">
+          <button class="rail-link">Capturing emotions</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-quick-paste">Capturing emotions fast</a>
+          <a href="#topic-snippets">Snippets — type less</a>
+        </div>
+      </div>
+
+      <div class="rail-item" data-target="heart-wall">
+        <div class="rail-row">
+          <button class="rail-link">The Heart-Wall</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-heartwall-workflow">The Heart-Wall workflow</a>
+          <a href="#topic-heartwall-removal">Tracking removal</a>
+        </div>
+      </div>
+
+      <div class="rail-item" data-target="severity">
+        <div class="rail-row">
+          <button class="rail-link">Severity tracking</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-before-after">Before &amp; after ratings</a>
+          <a href="#topic-multiple-issues">Multiple issues</a>
+          <a href="#topic-reversal">Understanding reversal</a>
+        </div>
+      </div>
+
+      <div class="rail-item" data-target="review-export">
+        <div class="rail-row">
+          <button class="rail-link">Review &amp; export</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-single-export">Exporting one session</a>
+          <a href="#topic-export-formats">Choosing a format</a>
+        </div>
+      </div>
+
+      <div class="rail-item" data-target="overview">
+        <div class="rail-row">
+          <button class="rail-link">Your overview</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-dashboard">Reading your dashboard</a>
+          <a href="#topic-filters">Searching &amp; filtering</a>
+        </div>
+      </div>
+
+      <hr class="rail-divider">
+      <div class="rail-group-label">The technical bits</div>
+
+      <div class="rail-item" data-target="backups">
+        <div class="rail-row">
+          <button class="rail-link">Backups &amp; your data</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-data-local">Data never leaves your browser</a>
+          <a href="#topic-backup-restore">Backing up &amp; restoring</a>
+        </div>
+      </div>
+
+      <div class="rail-item" data-target="installing">
+        <div class="rail-row">
+          <button class="rail-link">Installing the app</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-install-ios">iPhone &amp; iPad (Safari)</a>
+          <a href="#topic-install-chrome">Chrome &amp; Edge</a>
+          <a href="#topic-install-android">Android</a>
+        </div>
+      </div>
+
+      <div class="rail-item" data-target="license">
+        <div class="rail-row">
+          <button class="rail-link">License &amp; devices</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-activation">Activating your license</a>
+          <a href="#topic-two-devices">Moving to a new computer</a>
+        </div>
+      </div>
+
+      <div class="rail-item" data-target="troubleshooting">
+        <div class="rail-row">
+          <button class="rail-link">Troubleshooting</button>
+          <button class="rail-toggle" aria-label="Show topics">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rail-sub">
+          <a href="#topic-missing-clients">"I don't see my clients"</a>
+          <a href="#topic-report-problem">Reporting a problem</a>
+        </div>
+      </div>
+    </nav>
+    </div>
+
+    <!-- =========== CONTENT (C's collapsed cards, multiple can stay open) =========== -->
+    <main class="content">
+
+      <!-- mobile strawman: rail collapses into this sticky strip -->
+      <div class="jump-strip">
+        <div class="help-search">
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="6" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.4 9.4L13 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <input type="search" id="searchMob" placeholder="Find a topic…" autocomplete="off">
+        </div>
+        <details>
+          <summary>Jump to a section <span>▾</span></summary>
+          <nav>
+            <a href="#make-it-yours">❋ Making Sessions Garden yours</a>
+            <a href="#adding-a-client">Adding a client</a>
+            <a href="#starting-a-session">Starting a session</a>
+            <a href="#capturing-emotions">Capturing emotions</a>
+            <a href="#heart-wall">The Heart-Wall</a>
+            <a href="#severity">Severity tracking</a>
+            <a href="#review-export">Review &amp; export</a>
+            <a href="#overview">Your overview</a>
+            <a href="#backups">Backups &amp; your data</a>
+            <a href="#installing">Installing the app</a>
+            <a href="#license">License &amp; devices</a>
+            <a href="#troubleshooting">Troubleshooting</a>
+          </nav>
+        </details>
+      </div>
+
+      <!-- featured personalization card (C treatment, led early per D-04) -->
+      <section class="help-card featured is-open" id="make-it-yours">
+        <button class="card-head" aria-expanded="true">
+          <h2>Making Sessions Garden yours</h2>
+          <span class="featured-tag">Start here</span>
+          <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <div class="card-body">
+          <p>Every practitioner runs sessions a little differently. Sessions Garden is built to match <em>your</em> way of working — not the other way around.</p>
+          <h3 id="topic-sections-on-off">Sections on &amp; off</h3>
+          <p>In Settings, switch any session section on or off so the session form shows only what you actually use.</p>
+          <h3 id="topic-renaming">Renaming sections</h3>
+          <p>Rename any section to the words you use with your clients.</p>
+          <h3 id="topic-date-format">Your date format</h3>
+          <p class="muted">Pick the date style you're used to — it applies everywhere, including exports.</p>
+          <h3 id="topic-session-formats">Custom session formats</h3>
+          <p class="muted">Add your own session formats alongside the built-in ones.</p>
+        </div>
+      </section>
+
+      <div class="spine-group-label">The session loop — from first client to finished session</div>
+
+      <section class="help-card" id="adding-a-client">
+        <button class="card-head" aria-expanded="false">
+          <h2>Adding a client</h2>
+          <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <div class="card-body">
+          <h3 id="topic-first-client">Your first client</h3>
+          <p>Add a client from the Add Client page, or create one inline while starting a session — whichever fits the moment.</p>
+          <h3 id="topic-client-types">Client types</h3>
+          <p class="muted">Adult, child, animal, or other — the form adapts to each.</p>
+          <h3 id="topic-client-photo">Client photos</h3>
+          <p class="muted">A photo helps the energetic connection in remote work. Crop and reposition after upload.</p>
+        </div>
+      </section>
+
+      <section class="help-card" id="starting-a-session">
+        <button class="card-head" aria-expanded="false">
+          <h2>Starting a session</h2>
+          <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <div class="card-body">
+          <h3 id="topic-new-session">Two ways to begin</h3>
+          <p>Start from a client's card, or from the Add Session page and choose the client there.</p>
+          <h3 id="topic-past-sessions">A client's past sessions</h3>
+          <p class="muted">Scan everything you've recorded for a client before you begin.</p>
+        </div>
+      </section>
+
+      <section class="help-card" id="capturing-emotions">
+        <button class="card-head" aria-expanded="false">
+          <h2>Capturing emotions</h2>
+          <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <div class="card-body">
+          <h3 id="topic-quick-paste">Capturing emotions fast</h3>
+          <p>Record emotions mid-session without breaking your flow.</p>
+          <h3 id="topic-snippets">Snippets — type less</h3>
+          <p class="muted">Reusable text snippets with autocomplete, managed in Settings.</p>
+        </div>
+      </section>
+
+      <section class="help-card" id="heart-wall">
+        <button class="card-head" aria-expanded="false">
+          <h2>The Heart-Wall</h2>
+          <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <div class="card-body">
+          <h3 id="topic-heartwall-workflow">The Heart-Wall workflow</h3>
+          <p>Mark a session as Heart-Wall work and track it across visits.</p>
+          <h3 id="topic-heartwall-removal">Tracking removal</h3>
+          <p class="muted">The client list shows Heart-Wall status computed from their sessions.</p>
+        </div>
+      </section>
+
+      <section class="help-card" id="severity">
+        <button class="card-head" aria-expanded="false">
+          <h2>Severity tracking</h2>
+          <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <div class="card-body">
+          <h3 id="topic-before-after">Before &amp; after ratings</h3>
+          <p>Rate each issue 0–10 before and after the session.</p>
+          <h3 id="topic-multiple-issues">Multiple issues</h3>
+          <p class="muted">Track several issues in one session, each with its own ratings.</p>
+          <h3 id="topic-reversal">Understanding reversal</h3>
+          <p class="muted">What it means when a rating moves the "wrong" way — and why that's information, not failure.</p>
+        </div>
+      </section>
+
+      <section class="help-card" id="review-export">
+        <button class="card-head" aria-expanded="false">
+          <h2>Review &amp; export</h2>
+          <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <div class="card-body">
+          <h3 id="topic-single-export">Exporting one session</h3>
+          <p>Send a beautifully formatted session to your client, or file it in your own records.</p>
+          <h3 id="topic-export-formats">Choosing a format</h3>
+          <p class="muted">PDF for sharing, text for pasting — when to use each.</p>
+        </div>
+      </section>
+
+      <section class="help-card" id="overview">
+        <button class="card-head" aria-expanded="false">
+          <h2>Your overview</h2>
+          <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <div class="card-body">
+          <h3 id="topic-dashboard">Reading your dashboard</h3>
+          <p>What the overview numbers tell you about your practice.</p>
+          <h3 id="topic-filters">Searching &amp; filtering</h3>
+          <p class="muted">Find any client fast; filter by session format or Heart-Wall status.</p>
+        </div>
+      </section>
+
+      <!-- technical track: clearly separated band -->
+      <div class="tech-band" aria-label="The technical bits">
+        <div class="tech-band-label">The technical bits, in plain language</div>
+
+        <section class="help-card" id="backups">
+          <button class="card-head" aria-expanded="false">
+            <h2>Backups &amp; your data</h2>
+            <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+          <div class="card-body">
+            <h3 id="topic-data-local">Data never leaves your browser</h3>
+            <p>Everything you record lives on this device only. Nothing is sent anywhere — that's the whole point. It also means you are the only backup.</p>
+            <h3 id="topic-backup-restore">Backing up &amp; restoring</h3>
+            <p class="muted">Export a backup file (optionally encrypted), and restore it on this or another device.</p>
+          </div>
+        </section>
+
+        <section class="help-card" id="installing">
+          <button class="card-head" aria-expanded="false">
+            <h2>Installing the app</h2>
+            <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+          <div class="card-body">
+            <h3 id="topic-install-ios">iPhone &amp; iPad (Safari)</h3>
+            <p>Open the Share menu, then choose Add to Home Screen. (Illustrated steps in the real page.)</p>
+            <h3 id="topic-install-chrome">Chrome &amp; Edge</h3>
+            <p class="muted">Look for the install icon at the end of the address bar.</p>
+            <h3 id="topic-install-android">Android</h3>
+            <p class="muted">Open the browser menu and choose Install app.</p>
+          </div>
+        </section>
+
+        <section class="help-card" id="license">
+          <button class="card-head" aria-expanded="false">
+            <h2>License &amp; devices</h2>
+            <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+          <div class="card-body">
+            <h3 id="topic-activation">Activating your license</h3>
+            <p>Enter your license key once — it needs internet just for that moment.</p>
+            <h3 id="topic-two-devices">Moving to a new computer</h3>
+            <p class="muted">Your license covers two devices; deactivate before you transfer.</p>
+          </div>
+        </section>
+
+        <section class="help-card" id="troubleshooting">
+          <button class="card-head" aria-expanded="false">
+            <h2>Troubleshooting</h2>
+            <svg class="chev" width="14" height="14" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+          <div class="card-body">
+            <h3 id="topic-missing-clients">"I don't see my clients"</h3>
+            <p>Your data is stored in this browser. Clearing site data or switching browsers hides it — here's how to check and restore.</p>
+            <h3 id="topic-report-problem">Reporting a problem</h3>
+            <p class="muted">Copy a diagnostic report to paste into an email. Nothing is ever sent automatically.</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- shown only when a search matches nothing -->
+      <div class="search-empty" id="searchEmpty">
+        <p>Nothing here matches "<span id="searchTerm"></span>".</p>
+        <p>We're happy to help directly — <a href="mailto:contact@sessionsgarden.app">write to us</a>.</p>
+      </div>
+
+      <!-- calm closing band: the human fallback -->
+      <section class="contact-band" id="contact" data-search-keep>
+        <h2>Still need help?</h2>
+        <p>If you didn't find what you were looking for, write to us — a real person reads every message.</p>
+        <a class="mail" href="mailto:contact@sessionsgarden.app">contact@sessionsgarden.app</a>
+        <p class="report-hint">Something not working right? Use <strong>Report a problem</strong> in Settings to copy a diagnostic report into your email — nothing is ever sent automatically.</p>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="sketch-tools">
+  <span>sketch tools</span>
+  <button id="typeBtn">Type: Soft</button>
+  <button id="themeBtn">Dark</button>
+  <button id="dirBtn">RTL</button>
+  <button data-w="375">375</button>
+  <button data-w="768">768</button>
+  <button data-w="full">Full</button>
+</div>
+
+<script>
+  // --- sketch chrome ---
+  var root = document.documentElement;
+  // soft type is the proposed default; toggle back to the original UI-SPEC contract to compare
+  root.classList.add('soft-type');
+  document.getElementById('typeBtn').onclick = function () {
+    var soft = root.classList.toggle('soft-type');
+    this.textContent = soft ? 'Type: Soft' : 'Type: Contract';
+  };
+  document.getElementById('themeBtn').onclick = function () {
+    var dark = root.getAttribute('data-theme') === 'dark';
+    if (dark) { root.removeAttribute('data-theme'); this.textContent = 'Dark'; }
+    else { root.setAttribute('data-theme', 'dark'); this.textContent = 'Light'; }
+  };
+  document.getElementById('dirBtn').onclick = function () {
+    var rtl = root.getAttribute('dir') === 'rtl';
+    root.setAttribute('dir', rtl ? 'ltr' : 'rtl');
+    this.textContent = rtl ? 'RTL' : 'LTR';
+  };
+  document.querySelectorAll('.sketch-tools [data-w]').forEach(function (b) {
+    b.onclick = function () { document.querySelector('.viewport').setAttribute('data-width', b.dataset.w); };
+  });
+
+  // --- card open/close (multiple may stay open) ---
+  function setOpen(card, open) {
+    card.classList.toggle('is-open', open);
+    card.querySelector('.card-head').setAttribute('aria-expanded', String(open));
+  }
+  document.querySelectorAll('.help-card .card-head').forEach(function (head) {
+    head.addEventListener('click', function () {
+      var card = head.closest('.help-card');
+      setOpen(card, !card.classList.contains('is-open'));
+    });
+  });
+
+  // --- rail: label click => scroll to card AND open it ---
+  document.querySelectorAll('.rail-item').forEach(function (item) {
+    item.querySelector('.rail-link').addEventListener('click', function () {
+      var card = document.getElementById(item.dataset.target);
+      setOpen(card, true);
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    // chevron => expand sub-list in the rail only (no jump)
+    item.querySelector('.rail-toggle').addEventListener('click', function (e) {
+      e.stopPropagation();
+      item.classList.toggle('is-expanded');
+    });
+  });
+
+  // --- rail sub-topic + deep-links: open the owning card, then scroll to the topic ---
+  function openForHash(hash) {
+    if (!hash) return;
+    var target = document.querySelector(hash);
+    if (!target) return;
+    var card = target.closest('.help-card');
+    if (card) setOpen(card, true);
+  }
+  document.querySelectorAll('.rail-sub a, .jump-strip nav a').forEach(function (a) {
+    a.addEventListener('click', function () { openForHash(a.getAttribute('href')); });
+  });
+  // simulate an empty-state deep-link arrival (help.html#topic-first-client)
+  openForHash(location.hash);
+  if (location.hash) {
+    var t = document.querySelector(location.hash);
+    if (t) setTimeout(function () { t.scrollIntoView({ block: 'start' }); }, 50);
+  }
+
+  // --- search: live filter over card titles, topic headings, and body text ---
+  var allCards = Array.prototype.slice.call(document.querySelectorAll('.help-card'));
+  var railItems = Array.prototype.slice.call(document.querySelectorAll('.rail-item'));
+  var searchEmpty = document.getElementById('searchEmpty');
+  var searchTerm = document.getElementById('searchTerm');
+  var techBand = document.querySelector('.tech-band');
+  var railDivider = document.querySelector('.rail-divider');
+
+  // group each rail-group-label with the rail-items that follow it (until the next label)
+  var railGroups = [];
+  (function () {
+    var current = null;
+    Array.prototype.forEach.call(document.getElementById('rail').children, function (el) {
+      if (el.classList.contains('rail-group-label')) { current = { label: el, items: [] }; railGroups.push(current); }
+      else if (el.classList.contains('rail-item') && current) { current.items.push(el); }
+    });
+  })();
+
+  function applySearch(q) {
+    q = q.trim().toLowerCase();
+    document.body.classList.toggle('searching', !!q);
+    var hits = 0;
+    allCards.forEach(function (card) {
+      if (!q) { card.style.display = ''; setOpen(card, card.id === 'make-it-yours'); return; }
+      var match = card.textContent.toLowerCase().indexOf(q) !== -1;
+      card.style.display = match ? '' : 'none';
+      if (match) { setOpen(card, true); hits++; }
+    });
+    railItems.forEach(function (item) {
+      if (!q) { item.style.display = ''; return; }
+      var card = document.getElementById(item.dataset.target);
+      item.style.display = (card && card.style.display !== 'none') ? '' : 'none';
+    });
+    // hide a rail group's label when none of its items survived the filter
+    railGroups.forEach(function (g) {
+      var any = g.items.some(function (i) { return i.style.display !== 'none'; });
+      g.label.style.display = (!q || any) ? '' : 'none';
+    });
+    if (railDivider) {
+      var bothGroups = railGroups.every(function (g) { return g.label.style.display !== 'none'; });
+      railDivider.style.display = (!q || bothGroups) ? '' : 'none';
+    }
+    if (techBand) {
+      var anyTech = techBand.querySelector('.help-card:not([style*="none"])');
+      techBand.style.display = (!q || anyTech) ? '' : 'none';
+    }
+    searchEmpty.style.display = (q && hits === 0) ? 'block' : 'none';
+    if (q) searchTerm.textContent = q;
+  }
+  ['searchDesk', 'searchMob'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', function () { applySearch(el.value); });
+  });
+
+  // --- scroll-spy: highlight the rail item of the section in view ---
+  var cards = document.querySelectorAll('.help-card');
+  var byId = {};
+  document.querySelectorAll('.rail-item').forEach(function (i) { byId[i.dataset.target] = i; });
+  var spy = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting) {
+        document.querySelectorAll('.rail-item.is-active').forEach(function (i) { i.classList.remove('is-active'); });
+        var item = byId[en.target.id];
+        if (item) item.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-10% 0px -70% 0px' });
+  cards.forEach(function (c) { spy.observe(c); });
+</script>
+</body>
+</html>
