@@ -10,6 +10,7 @@ window.I18N.he = {
   "nav.addClient": "הוספת לקוח",
   "nav.addSession": "הוספת מפגש",
   "nav.license": "רישיון",
+  "nav.help": "עזרה",
   "overview.title": "סקירה",
   "overview.stats.clients": "סה\"כ לקוחות",
   "overview.stats.sessions": "סה\"כ מפגשים",
@@ -586,7 +587,17 @@ window.I18N.he = {
   "snippets.confirm.resetSeed.confirm": "איפוס",
   "snippets.confirm.resetAll.title": "איפוס כל ההשלמות שעודכנו?",
   "snippets.confirm.resetAll.body": "כל השינויים שביצעת על השלמות ברירת מחדל יוחזרו למקור.",
-  "snippets.confirm.resetAll.confirm": "איפוס הכל"
+  "snippets.confirm.resetAll.confirm": "איפוס הכל",
+  "help.entry.label": "עזרה",
+  "help.entry.center": "מרכז העזרה",
+  "help.entry.contact": "צרו קשר",
+  "help.page.title": "מרכז העזרה",
+  "help.search.placeholder": "חיפוש בעזרה…",
+  "help.search.noMatch": "לא נמצאה התאמה לחיפוש שלכם עדיין. נשמח לעזור לכם ישירות —",
+  "help.search.writeToUs": "כתבו לנו",
+  "help.deeplink.cta": "הראו לי איך",
+  "help.deeplink.startSession": "אין מפגשים עדיין. יש להתחיל את המפגש הראשון כדי להתחיל.",
+  "help.deeplink.readDashboard": "אין נתונים עדיין. לאחר תיעוד מפגשים, לוח המחוונים יתמלא כאן."
 };
 
 window.QUOTES.he = [

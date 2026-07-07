@@ -10,6 +10,7 @@ window.I18N.cs = {
   "nav.addClient": "Přidat klienta",
   "nav.addSession": "Přidat sezení",
   "nav.license": "Licence",
+  "nav.help": "Nápověda",
   "overview.title": "Přehled",
   "overview.stats.clients": "Celkem klientů",
   "overview.stats.sessions": "Celkem sezení",
@@ -586,7 +587,17 @@ window.I18N.cs = {
   "snippets.confirm.resetSeed.confirm": "Obnovit",
   "snippets.confirm.resetAll.title": "Obnovit v\u0161echny upraven\u00E9 \u00FAryvky?",
   "snippets.confirm.resetAll.body": "V\u0161echny \u00FApravy v\u00FDchoz\u00EDch \u00FAryvk\u016F budou obnoveny.",
-  "snippets.confirm.resetAll.confirm": "Obnovit v\u0161e"
+  "snippets.confirm.resetAll.confirm": "Obnovit v\u0161e",
+  "help.entry.label": "N\u00e1pov\u011bda",
+  "help.entry.center": "Centrum n\u00e1pov\u011bdy",
+  "help.entry.contact": "Kontaktujte n\u00e1s",
+  "help.page.title": "Centrum n\u00e1pov\u011bdy",
+  "help.search.placeholder": "Hledat v n\u00e1pov\u011bd\u011b\u2026",
+  "help.search.noMatch": "Zat\u00edm tomu nic neodpov\u00edd\u00e1. R\u00e1di v\u00e1m pom\u016f\u017eeme p\u0159\u00edmo \u2014",
+  "help.search.writeToUs": "napi\u0161te n\u00e1m",
+  "help.deeplink.cta": "Uka\u017ete mi jak",
+  "help.deeplink.startSession": "Zat\u00edm \u017e\u00e1dn\u00e1 sezen\u00ed \u2014 za\u010dn\u011bte sv\u00fdm prvn\u00edm sezen\u00edm.",
+  "help.deeplink.readDashboard": "Zat\u00edm \u017e\u00e1dn\u00e1 data. Jakmile zaznamen\u00e1te sezen\u00ed, zde se zapln\u00ed v\u00e1\u0161 p\u0159ehled."
 };
 
 window.QUOTES.cs = [

@@ -10,6 +10,7 @@ window.I18N.de = {
   "nav.addClient": "Neuer Klient",
   "nav.addSession": "Neue Sitzung",
   "nav.license": "Lizenz",
+  "nav.help": "Hilfe",
   "overview.title": "Übersicht",
   "overview.stats.clients": "Klienten gesamt",
   "overview.stats.sessions": "Sitzungen gesamt",
@@ -586,7 +587,17 @@ window.I18N.de = {
   "snippets.confirm.resetSeed.confirm": "Zur\u00FCcksetzen",
   "snippets.confirm.resetAll.title": "Alle ge\u00E4nderten Bausteine zur\u00FCcksetzen?",
   "snippets.confirm.resetAll.body": "Alle Ihre \u00C4nderungen an Bausteinen werden auf den Originaltext zur\u00FCckgesetzt.",
-  "snippets.confirm.resetAll.confirm": "Alle zur\u00FCcksetzen"
+  "snippets.confirm.resetAll.confirm": "Alle zur\u00FCcksetzen",
+  "help.entry.label": "Hilfe",
+  "help.entry.center": "Hilfe-Center",
+  "help.entry.contact": "Kontakt",
+  "help.page.title": "Hilfe-Center",
+  "help.search.placeholder": "Hilfe durchsuchen\u2026",
+  "help.search.noMatch": "Dazu passt bisher nichts. Wir helfen Ihnen gerne direkt \u2014",
+  "help.search.writeToUs": "schreiben Sie uns",
+  "help.deeplink.cta": "Zeigen Sie mir wie",
+  "help.deeplink.startSession": "Noch keine Sitzungen \u2014 starten Sie Ihre erste Sitzung, um zu beginnen.",
+  "help.deeplink.readDashboard": "Noch keine Daten. Sobald Sie Sitzungen erfassen, f\u00FCllt sich hier Ihr Dashboard."
 };
 
 window.QUOTES.de = [
