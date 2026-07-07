@@ -213,7 +213,10 @@ async function test(name, fn) {
     await boot(env);
 
     // App.formatDate stub returns String(date), so the title is "Name • date".
-    var expected = 'Maya Cohen • 2026-04-10';
+    // Plan 38-11: updateSessionTitle now FSI-isolates BOTH runs (bidi scramble
+    // fix), so each run is wrapped in U+2068…U+2069 — assert against the real
+    // window.DateFormat.isolate helper rather than the bare composed string.
+    var expected = win.DateFormat.isolate('Maya Cohen') + ' • ' + win.DateFormat.isolate('2026-04-10');
     var titleEl = win.document.querySelector('.section-title');
     assert.ok(titleEl, '.section-title element must exist');
     assert.strictEqual(titleEl.textContent, expected,

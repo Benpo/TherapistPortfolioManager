@@ -1695,7 +1695,12 @@ function updateSessionTitle(session) {
   const clientName = client ? getClientDisplayName(client) : null;
   const dateText = App.formatDate(session.date);
   if (clientName && dateText) {
-    const titleText = `${clientName} • ${dateText}`;
+    // Bidi: FSI-isolate BOTH runs so a Latin client name next to a bare
+    // month-name Hebrew date ("16 במאי 2026") does not scramble under
+    // html[dir=rtl]. Bare-string isolate (not <bdi>) because document.title is
+    // plain text and cannot carry markup. clientName-only / fallback branches
+    // are single strong runs and need no isolation against a neighbour.
+    const titleText = `${window.DateFormat.isolate(clientName)} • ${window.DateFormat.isolate(dateText)}`;
     titleEl.textContent = titleText;
     document.title = titleText;
   } else if (clientName) {

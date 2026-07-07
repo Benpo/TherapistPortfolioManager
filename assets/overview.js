@@ -796,7 +796,11 @@ function renderClientRows(clients, sessionsByClient) {
           .join(", ");
         const meta = document.createElement("div");
         meta.className = "session-meta";
-        meta.textContent = `${App.formatDate(session.date)} • ${App.formatSessionType(session.sessionType)}`;
+        // Bidi: FSI-isolate the formatted date run so it cannot reorder against
+        // the neighbouring session-type run across the " • " separator under
+        // html[dir=rtl] (same class as the add-session heading scramble).
+        // textContent-only — no innerHTML (31-overview-render-hardening lock).
+        meta.textContent = `${window.DateFormat.isolate(App.formatDate(session.date))} • ${App.formatSessionType(session.sessionType)}`;
         const issueText = document.createElement("div");
         issueText.className = "session-issues";
         issueText.textContent = issues || App.t("overview.sessions.none");
@@ -941,7 +945,9 @@ function openClientModal(client, sessions) {
       : client.age;
     if (displayAge) {
       const ageEl = document.createElement("span");
-      ageEl.textContent = `${displayAge}`;
+      // Bidi: FSI-isolate the age/date run so it keeps its own direction when
+      // joined to the localized type run by " • " under html[dir=rtl].
+      ageEl.textContent = window.DateFormat.isolate(`${displayAge}`);
       parts.push(ageEl);
     } else {
       const link = document.createElement("a");
@@ -952,7 +958,9 @@ function openClientModal(client, sessions) {
     }
     if (client.type) {
       const typeEl = document.createElement("span");
-      typeEl.textContent = App.t(`common.type.${client.type}`) || client.type;
+      // Bidi: FSI-isolate the localized type run so it renders in its own
+      // direction next to the age/date run across the " • " separator.
+      typeEl.textContent = window.DateFormat.isolate(App.t(`common.type.${client.type}`) || client.type);
       parts.push(typeEl);
     }
     parts.forEach((el, i) => {

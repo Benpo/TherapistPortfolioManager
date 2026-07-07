@@ -70,6 +70,9 @@ function buildEnv() {
     };
   };
 
+  // overview.js reaches window.DateFormat at call time (parseLocal for age math,
+  // isolate for bidi-safe meta lines), so load the real engine first.
+  win.eval(readAsset('assets/date-format.js'));
   win.eval(readAsset('assets/overview.js'));
 
   // Key-returning App stub: App.t(k) === k, so an asserted textContent equals

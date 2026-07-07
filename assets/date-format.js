@@ -34,6 +34,13 @@ window.DateFormat = (function () {
   var LRI = '⁦';
   var PDI = '⁩';
 
+  // U+2068 FIRST STRONG ISOLATE — used by isolate() below. FSI (not LRI) lets a
+  // wrapped run keep its OWN base direction from its first strong character: a
+  // Latin client name stays LTR, a Hebrew name stays RTL, a month-name Hebrew
+  // date (first strong char Hebrew) renders RTL while an English month renders
+  // LTR. LRI/PDI above stay reserved for the numeric-format path in maybeWrapLtr.
+  var FSI = '⁨';
+
   // Extract a LOCAL Date from the leading YYYY-MM-DD of any isoish input.
   // Handles bare "2026-07-02" AND legacy full-ISO "2026-07-02T00:00:00.000Z"
   // (the regex grabs only the leading date part -> never a UTC-midnight shift).
@@ -83,6 +90,16 @@ window.DateFormat = (function () {
     return str;
   }
 
+  // First-Strong-Isolate an arbitrary run so it cannot reorder against adjacent
+  // runs under the Unicode Bidi Algorithm at a string-composition site (e.g. a
+  // Latin client name next to a bare month-name Hebrew date under html[dir=rtl]).
+  // Bare-string (not <bdi>) so it is safe for .textContent AND document.title.
+  // Empty/nullish returns "" — never a pair of bare isolate characters.
+  function isolate(value) {
+    if (value === null || value === undefined || value === '') return '';
+    return FSI + String(value) + PDI;
+  }
+
   // input: isoish string | Date ; formatKey: one of VALID_KEYS ; lang: 'en'|'he'|'de'|'cs'
   function format(input, formatKey, lang) {
     var d = parseLocal(input);
@@ -107,6 +124,7 @@ window.DateFormat = (function () {
     format: format,
     parseLocal: parseLocal,
     todayLocalISO: todayLocalISO,
-    getPreference: getPreference
+    getPreference: getPreference,
+    isolate: isolate
   };
 })();
