@@ -1,152 +1,96 @@
 ---
 phase: 38-next-session-date-field-with-overview-column
+scope: 38-08 gap closure (scoped re-review — NOT a full-phase review)
 reviewed: 2026-07-07T00:00:00Z
 depth: standard
-files_reviewed: 20
+diff_base: 4000506960380687db30bd09baff5a3512fe63f9
+files_reviewed: 2
 files_reviewed_list:
-  - add-session.html
-  - assets/add-session.js
-  - assets/app.css
-  - assets/demo-seed-data.json
-  - assets/demo-seed.js
-  - assets/export-modal.js
-  - assets/i18n-cs.js
-  - assets/i18n-de.js
-  - assets/i18n-en.js
-  - assets/i18n-he.js
   - assets/overview.js
-  - demo.html
-  - index.html
-  - tests/30-export-markdown.test.js
-  - tests/30-form-dirty-revert.test.js
-  - tests/30-section-visibility.test.js
-  - tests/35-demo-seed.test.js
   - tests/37-overview-sort.test.js
-  - tests/38-next-overdue.test.js
-  - tests/38-next-session.test.js
 findings:
   critical: 0
-  warning: 1
-  info: 3
-  total: 4
-  fixed: 1
+  warning: 0
+  info: 2
+  total: 2
 status: issues_found
-resolution: WR-01 fixed in 07a649a (note-OR-date mirror + mutation-checked jsdom visibility test); 3 Info items accepted as-is
+prior_review: full 20-file phase review (commit 9a4a198 scope) fully triaged — WR-01 fixed in 07a649a (annotated b9ecf67), IN-01..IN-03 accepted as-is; that review is preserved in git history and is SUPERSEDED here where it described the old blanks-to-bottom-under-both-directions sort (revised by D-03-R1 / plan 38-08)
 ---
 
-# Phase 38: Code Review Report
+# Phase 38: Code Review Report (scoped re-review — 38-08 gap closure)
 
-**Reviewed:** 2026-07-07T00:00:00Z
+**Reviewed:** 2026-07-07
 **Depth:** standard
-**Files Reviewed:** 20
-**Status:** issues_found
+**Files Reviewed:** 2 (`assets/overview.js`, `tests/37-overview-sort.test.js`)
+**Status:** issues_found (Info-only — no Critical, no Warning)
 
 ## Summary
 
-Reviewed the Phase 38 change set that adds an optional `nextSessionDate` field to the session
-record, a sortable "Next Session" overview column with an overdue cue, export-markdown gating,
-relative demo seeding, and 4 i18n keys × 4 languages.
+Scoped re-review of the 38-08 change (commits a371812, 9606893): the overview `nextSession` sort
+branch now substitutes a far-future sentinel (`"9999-12-31"`) for blank next-dates so blanks ride
+the shared `dir * base` flip — bottom under ascending (default), top under descending (revised
+D-03 / D-03-R1, NEXT-04). This supersedes the prior review's description of the early-return
+blanks-to-bottom-under-both-directions rule.
 
-The core mechanics are sound and well-guarded:
+The change was traced adversarially and holds:
 
-- The overview sort (`overview.js` `applyFiltersAndSort` nextSession branch) derives the row's
-  next-date from `mostRecentSession()` — the SAME (date desc → createdAt desc → id desc) tiebreak
-  that `renderClientRows` uses for `clientSessions[0]` — so the sorted key never drifts from the
-  displayed cell (D-01). Blanks sort to the bottom in BOTH directions via early returns that bypass
-  the shared `dir * base` flip (verified against `tests/37-overview-sort.test.js` cases 7-9).
-- The overdue predicate (`nextLocal < todayLocal`, strict, local wall-clock via `DateFormat`)
-  matches the boundary spec in `tests/38-next-overdue.test.js` exactly (today is NOT overdue).
-- Rendering discipline holds: the cell is built with `textContent` / `createTextNode` /
-  `createElement` only; the overdue dot carries a non-color `title`/`aria-label` (WCAG 1.4.1).
-- `detailCell.colSpan` was correctly bumped 5 → 6 to match the new column.
-- `snapshotFormState` / `populateSession` capture and restore `nextSessionDate` (Cancel→Discard,
-  `tests/30-form-dirty-revert.test.js` case E), and the save path persists it.
-- Demo relative seeding negates correctly (`nextSessionDaysAgo: -N` → +N days future), the JSON
-  keeps ≤1 overdue showcase and every next-date ≥ its own session date.
-- All 4 new i18n keys are present in en/de/he/cs.
+- **Sentinel correctness:** `"9999-12-31"` lexicographically sorts after every real `YYYY-MM-DD`
+  value the app can store (HTML date inputs cap at year 9999), so `localeCompare` on the sentinel
+  yields blanks-last under ascending and blanks-first under descending via the shared
+  `dir * base` multiply. Verified by execution — `tests/37-overview-sort.test.js` passes 9/9,
+  including both direction cases (7 and 8).
+- **Edge cases traced:**
+  - Client with **zero sessions**: `mostRecentSession(undefined)` → `null` →
+    `null?.nextSessionDate` → `undefined` → sentinel. Collapses into the same blank group as a
+    blank most-recent next-date, matching the displayed `-` cell in both cases. Consistent.
+  - `nextSessionDate === ""` vs `undefined`: both falsy → sentinel via `||`. Consistent.
+  - **Blank-vs-blank tie:** both sentinel → `base = 0` → stable sort preserves prior order —
+    the same tie semantics as the `lastSession` branch's empty-string compare. The comparator is
+    deterministic (`mostRecentSession` is a pure derivation), so no inconsistent-comparator risk.
+  - **Dated ordering under descending:** latest-first confirmed (fixture: Alice 2026-08-01 before
+    Bob 2026-07-01).
+- **Reduce-max trap still guarded (D-01):** the fixture keeps Carol's older session carrying a
+  next-date while her most-recent is blank; test 7 fails if the sort regresses to a reduce-max
+  derivation.
+- **Test revision is a legitimate D-03 revision, not a weakened test:** the old
+  blanks-last-under-both assertion was inverted deliberately per revised D-03/NEXT-04. No other
+  test pins the superseded behavior — grepped `tests/`; `38-next-session.test.js` and
+  `38-next-overdue.test.js` contain no sort assertions and both pass (6/6, 5/5).
+- **Count guard intact:** `EXPECTED_COUNT = 9` matches the 9 executed cases.
+- **Cross-file wiring confirmed:** `index.html` carries the `nextSession` dropdown option
+  (line 154) and sortable header (lines 178-179); `SORT_DEFAULT_DIR` includes
+  `nextSession: "ascending"`.
 
-One consistency defect and three lower-severity notes below.
-
-## Warnings
-
-### WR-01: Form section-visibility content-check ignores the next-session DATE (diverges from the export builder)
-
-> **✓ FIXED in `07a649a`** — `sectionHasData("nextSession")` now mirrors the export builder's note-OR-date gate; falsifiable jsdom visibility case added to `tests/38-next-session.test.js` (case 6, count guard 5→6) and mutation-checked against the pre-fix code (fails there, passes post-fix). Suite 127/127.
-
-**File:** `assets/add-session.js:858-861`
-**Issue:** `sectionHasData("nextSession")` in the form controller only inspects the note field
-(`#customerSummary`):
-
-```js
-case "nextSession": {
-  const el = document.getElementById("customerSummary");
-  return !!(el && el.value && el.value.trim().length > 0);
-}
-```
-
-Phase 38 added a second data-bearing input (`#nextSessionDate`) to that same
-`data-section-key="nextSession"` wrapper, but this predicate was not updated. The parallel helper in
-`assets/export-modal.js:142-151` WAS updated to gate on note-OR-date — proving the intended
-semantics — so the two now disagree.
-
-Consequence: if a therapist disables the "Next Session" section in Settings and then opens a PAST
-session that carries only a next-session date (no note), `applySectionVisibility(true)` calls
-`sectionHasData("nextSession")` → `false` → the wrapper gets `is-hidden`. The date the therapist
-saved is now invisible and un-editable, and no disabled-indicator badge is shown — even though the
-export flow (and the overview column) both treat that same session as having next-session data. It
-is not silent data loss (the hidden input remains in the DOM, so `saveSessionForm` still reads and
-persists `#nextSessionDate.value`), but it is a real UX/behavior inconsistency introduced by this
-phase and not covered by `tests/30-section-visibility.test.js` (which exercises only trapped/comments).
-
-**Fix:** Mirror the export builder's note-OR-date check:
-
-```js
-case "nextSession": {
-  const el = document.getElementById("customerSummary");
-  const noteHasText = !!(el && el.value && el.value.trim().length > 0);
-  const dateEl = document.getElementById("nextSessionDate");
-  const dateHasValue = !!(dateEl && dateEl.value);
-  return noteHasText || dateHasValue;
-}
-```
+No incorrect behavior, security surface, or data-loss risk found in the diff. Two Info-level
+documentation-staleness items below (IDs continue the phase sequence; IN-01..IN-03 from the prior
+full review were accepted as-is and are not restated).
 
 ## Info
 
-### IN-01: Dynamic `min` on #nextSessionDate is advisory only — not enforced at save
+### IN-04: Stale hardcoded line references to the render tiebreak comparator
 
-**File:** `assets/add-session.js:311` (`sessionForm.noValidate = true`), `:1676-1686` (`syncNextSessionMin`)
-**Issue:** `syncNextSessionMin()` keeps `#nextSessionDate.min` in sync with the session date (D-08),
-but the form sets `noValidate = true`, so `min` only greys out earlier days in the native picker; it
-does not block a keyboard-typed or programmatically-set earlier value at submit. `saveSessionForm`
-persists whatever `#nextSessionDate.value` holds with no `>= sessionDate` guard. This matches the
-current tests (which assert the `min` attribute, not save-time rejection) and is likely the intended
-"soft hint" design, but a next-session date strictly before the session date can still be saved.
-**Fix:** If a hard guarantee is desired, add an explicit check in `saveSessionForm` (e.g. reject or
-clamp when `nextSessionDate && nextSessionDate < date`) rather than relying on the `min` attribute.
+**File:** `assets/overview.js:616-617` (also `tests/37-overview-sort.test.js:281`)
+**Issue:** The `mostRecentSession()` doc comment says the tiebreak matches "the row render applies
+at :619-626", and the test's fixture comment repeats ":619-626". The render-side comparator
+actually lives at `assets/overview.js:658-665` today (and drifts further with every edit above
+it). A future reader following ":619-626" lands mid-file on unrelated code.
+**Fix:** Replace the line-number citations with a stable anchor, e.g. "the same tiebreak
+`renderClientRows()` applies in its `clientSessions.sort(...)` (date desc → createdAt desc →
+id desc)".
 
-### IN-02: Overview overdue-CELL rendering has no direct behavior test
+### IN-05: Test docblock still claims RED state for landed features
 
-**File:** `assets/overview.js:713-732`, `tests/38-next-overdue.test.js`
-**Issue:** `tests/38-next-overdue.test.js` validates the overdue PREDICATE in isolation, and
-`tests/37-overview-sort.test.js` validates the sort, but no test drives `renderClientRows` and
-asserts the observable cell output (the `.is-overdue` class, the `.next-overdue-dot` node, or the
-`"-"` empty case). The render logic re-implements the same `parseLocal(...) < todayLocal` comparison
-the predicate test locks, so risk is low, but per the project's behavior-verification norm a
-runtime-behavior cell like this warrants a falsifiable DOM assertion.
-**Fix:** Add a thin jsdom case that calls `renderClientRows` with a yesterday/today/blank fixture and
-asserts `.next-session-cell.is-overdue` + `.next-overdue-dot` presence/absence.
-
-### IN-03: Per-row recomputation of "today" in the render loop
-
-**File:** `assets/overview.js:720`
-**Issue:** `window.DateFormat.parseLocal(window.DateFormat.todayLocalISO())` is recomputed for every
-rendered row inside the `clients.forEach` loop. Purely a micro-inefficiency (performance is out of
-v1 review scope and correctness is unaffected), noted only because hoisting it above the loop is a
-trivial, zero-risk cleanup.
-**Fix:** Compute `todayLocal` once before `clients.forEach(...)` and reuse it.
+**File:** `tests/37-overview-sort.test.js:11-13,345,362`
+**Issue:** The header docblock says "TDD RED: the sortable-header contract DOES NOT EXIST YET …
+It FAILS RED now", and two assertions still say "(RED until Plan 38-05)". All 9 cases are GREEN
+against current source (verified by execution). The stale RED framing misdescribes the suite's
+current role (regression pin, not RED spec) and could mislead a future session into treating a
+real failure as "expected RED".
+**Fix:** Update the docblock status to note the suite is now GREEN/regression-pinning (keeping
+the historical contract description) and drop the two "(RED until Plan 38-05)" parentheticals.
 
 ---
 
-_Reviewed: 2026-07-07T00:00:00Z_
+_Reviewed: 2026-07-07_
 _Reviewer: Claude (gsd-code-reviewer)_
-_Depth: standard_
+_Depth: standard (scoped re-review of the 38-08 diff since 4000506)_
