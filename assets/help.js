@@ -448,9 +448,17 @@
     wireScrollSpy();
     openForHash(typeof location !== "undefined" ? location.hash : "");
 
-    // re-render on language switch so {ui:key} labels + chrome flip live
+    // re-render on language switch so {ui:key} labels + chrome flip live.
+    // Re-apply any active search afterwards — render() rebuilds the cards
+    // un-filtered, which would otherwise strand a stale no-match box and
+    // body.searching state on top of the fresh content (WR-01).
     if (!_langWired) {
-      document.addEventListener("app:language", function () { render(); });
+      document.addEventListener("app:language", function () {
+        render();
+        var desk = document.getElementById("searchDesk");
+        var mob = document.getElementById("searchMob");
+        applySearch((desk && desk.value) || (mob && mob.value) || "");
+      });
       _langWired = true;
     }
   }
