@@ -81,6 +81,16 @@
           ]
         },
         {
+          id: "topic-snippet-library",
+          title: "Your snippet library",
+          priority: 2,
+          covers: ["settings.html", "assets/settings-snippets.js", "assets/snippets-seed.js"],
+          body: [
+            { type: "p", text: "Snippets turn the text you write again and again — emotion meanings, technique explanations, your usual closing note — into short trigger words that expand as you type. Sessions Garden arrives with a built-in library of emotion snippets, and you can reshape it into your own under {ui:settings.tab.snippets} in Settings." },
+            { type: "note", text: "The full guide — creating snippets and expanding them mid-session — is under Capturing emotions." }
+          ]
+        },
+        {
           id: "topic-date-format",
           title: "Your date format",
           priority: 2,
@@ -199,11 +209,22 @@
         {
           id: "topic-snippets",
           title: "Snippets — type less",
-          priority: 2,
-          covers: ["add-session.html", "assets/snippets.js"],
+          priority: 1,
+          covers: ["add-session.html", "settings.html", "assets/snippets.js", "assets/settings-snippets.js", "assets/snippets-seed.js"],
           body: [
-            { type: "p", text: "Snippets are short triggers that expand into text you write often, so you type less mid-session and stay present with your client." },
-            { type: "note", text: "Create and edit them in Settings under {ui:settings.tab.snippets}." }
+            { type: "p", text: "Snippets are short trigger words that expand into text you write often — the meaning of an emotion, a technique explanation, the closing note you add to most sessions. You save the text once; after that, a single word brings it back, so you type less mid-session and stay present with your client." },
+            { type: "p", text: "Sessions Garden arrives with a built-in library of emotion snippets, ready to use. Adding your own takes a minute:" },
+            { type: "steps", items: [
+              "Open Settings and go to {ui:settings.tab.snippets}.",
+              "Choose {ui:snippets.action.add} — or select any snippet in the library to edit it, including the built-in ones.",
+              "Give it a {ui:snippets.editor.trigger.label} — one short word you will remember, like closing. A trigger cannot contain spaces, so join two words with a hyphen, like physical-trauma.",
+              "Write the full text the trigger should expand into, then press {ui:common.save}."
+            ] },
+            { type: "p", text: "Using a snippet is just as simple. While writing in a session, type your trigger prefix — a semicolon, unless you change it — then the trigger word, then a space. So typing ;betrayal and a space replaces itself with the full meaning of betrayal, right where your cursor is." },
+            { type: "p", text: "Cannot remember the exact word? Type the prefix and the first letter or two, and a small list of matching snippets appears at your cursor — move through it with the arrow keys and press Enter to insert, or Escape to dismiss. Typing a tag name after the prefix works too, listing the snippets you have grouped under that tag." },
+            { type: "p", text: "Where it shines: if you close most sessions with a similar note — what was released, what to notice in the days ahead — save it once under a trigger like closing, and every session can end with one short word instead of a paragraph retyped from memory." },
+            { type: "note", text: "Snippets expand in every note area of the session form — emotions, insights, comments, and the rest — and in the export editor too, so your client summaries can use them as well." },
+            { type: "note", text: "Make them fully yours in {ui:settings.tab.snippets}: change the {ui:snippets.prefix.label} there, and give any snippet its text in more than one app language with {ui:snippets.editor.translations.toggle}." }
           ]
         }
       ]
