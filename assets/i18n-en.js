@@ -10,6 +10,7 @@ window.I18N.en = {
   "nav.addClient": "Add Client",
   "nav.addSession": "Add Session",
   "nav.license": "License",
+  "nav.help": "Help",
   "overview.title": "Overview",
   "overview.stats.clients": "Total Clients",
   "overview.stats.sessions": "Total Sessions",
@@ -590,7 +591,18 @@ window.I18N.en = {
   "snippets.confirm.resetSeed.confirm": "Reset",
   "snippets.confirm.resetAll.title": "Reset all modified snippets?",
   "snippets.confirm.resetAll.body": "All your changes to default snippets will be reverted to the original text.",
-  "snippets.confirm.resetAll.confirm": "Reset all"
+  "snippets.confirm.resetAll.confirm": "Reset all",
+  // Help center — UI-chrome only (topic/body copy lives EN-only in help-content-en.js, D-18)
+  "help.entry.label": "Help",
+  "help.entry.center": "Help center",
+  "help.entry.contact": "Contact us",
+  "help.page.title": "Help center",
+  "help.search.placeholder": "Search help…",
+  "help.search.noMatch": "Nothing here matches your search yet. We’re happy to help directly —",
+  "help.search.writeToUs": "write to us",
+  "help.deeplink.cta": "Show me how",
+  "help.deeplink.startSession": "No sessions yet — start your first session to begin.",
+  "help.deeplink.readDashboard": "No data yet. Once you record sessions, your dashboard fills in here."
 };
 
 window.QUOTES.en = [
