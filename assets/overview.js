@@ -635,6 +635,40 @@ function mostRecentSession(sessions) {
   return best;
 }
 
+// Phase 39 Plan 05 (HELP-05, D-21/D-22): first-run empty-state coaching. When
+// the portfolio has zero clients we keep the calm overview.clients.empty
+// sentence (#emptyState, unchanged) and add a soft "Show me how" deep-link into
+// the "Adding a client" help topic. The <a> is a SIBLING of #emptyState — never
+// a child — because #emptyState carries data-i18n and applyTranslations()
+// overwrites its textContent on every language switch, which would wipe a nested
+// button. The link itself carries data-i18n="help.deeplink.cta" so the same
+// applyTranslations pass re-localizes it. href hash ./help.html#adding-a-client
+// matches window.HELP_DEEPLINKS.addClient (Plan 01) and auto-expands that card
+// (Plan 04). Style is the non-accent .button.ghost so it never competes with the
+// app accent (D-22). Toggled (created once, then show/hide) so re-renders and
+// language switches don't double-append.
+function syncOverviewCoachButton(show) {
+  const emptyState = document.getElementById("emptyState");
+  if (!emptyState || !emptyState.parentNode) return;
+  let btn = document.getElementById("overviewCoachBtn");
+  if (show) {
+    if (!btn) {
+      btn = document.createElement("a");
+      btn.id = "overviewCoachBtn";
+      btn.className = "button ghost empty-coach-btn";
+      btn.style.display = "inline-block";
+      btn.style.marginTop = "0.75rem";
+      btn.setAttribute("href", "./help.html#adding-a-client");
+      btn.setAttribute("data-i18n", "help.deeplink.cta");
+      btn.textContent = App.t("help.deeplink.cta");
+      emptyState.parentNode.insertBefore(btn, emptyState.nextSibling);
+    }
+    btn.style.display = "inline-block";
+  } else if (btn) {
+    btn.style.display = "none";
+  }
+}
+
 function renderClientRows(clients, sessionsByClient) {
   const tableBody = document.getElementById("clientTableBody");
   const emptyState = document.getElementById("emptyState");
@@ -643,9 +677,11 @@ function renderClientRows(clients, sessionsByClient) {
 
   if (!clients.length) {
     if (emptyState) emptyState.style.display = "block";
+    syncOverviewCoachButton(true);
     return;
   }
   if (emptyState) emptyState.style.display = "none";
+  syncOverviewCoachButton(false);
 
   clients.forEach((client) => {
     const clientSessions = sessionsByClient.get(client.id) || [];

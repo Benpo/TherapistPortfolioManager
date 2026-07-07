@@ -127,6 +127,47 @@ document.addEventListener("DOMContentLoaded", async () => {
     return client ? client.name || "-" : "-";
   }
 
+  // Phase 39 Plan 05 (HELP-05, D-21/D-22, Pitfall 3): first-run empty-state
+  // coaching for Sessions. CRITICAL distinction — the existing #sessionsEmpty
+  // (sessions.empty = "No sessions match your filters.") is a FILTER-empty
+  // message and must stay untouched. Coaching fires ONLY on TRUE-empty (zero
+  // sessions in the DB, before any filter). The coaching block is a SIBLING of
+  // #sessionsEmpty carrying the calm help.deeplink.startSession sentence + a soft
+  // "Show me how" deep-link into ./help.html#starting-a-session (matches
+  // window.HELP_DEEPLINKS.startSession, Plan 01/04). Both nodes carry data-i18n
+  // so applyTranslations() re-localizes them on language switch; visibility is
+  // re-toggled by renderSessions on the app:language re-render. Non-accent
+  // .button.ghost (D-22). Created once, then show/hide — no double-append.
+  function syncSessionsCoach(show) {
+    if (!emptyState || !emptyState.parentNode) return;
+    let block = document.getElementById("sessionsCoach");
+    if (show) {
+      if (!block) {
+        block = document.createElement("div");
+        block.id = "sessionsCoach";
+        block.className = "helper-text empty-coach";
+        const sentence = document.createElement("div");
+        sentence.className = "empty-coach-sentence";
+        sentence.setAttribute("data-i18n", "help.deeplink.startSession");
+        sentence.textContent = App.t("help.deeplink.startSession");
+        const btn = document.createElement("a");
+        btn.id = "sessionsCoachBtn";
+        btn.className = "button ghost empty-coach-btn";
+        btn.style.display = "inline-block";
+        btn.style.marginTop = "0.75rem";
+        btn.setAttribute("href", "./help.html#starting-a-session");
+        btn.setAttribute("data-i18n", "help.deeplink.cta");
+        btn.textContent = App.t("help.deeplink.cta");
+        block.appendChild(sentence);
+        block.appendChild(btn);
+        emptyState.parentNode.insertBefore(block, emptyState.nextSibling);
+      }
+      block.style.display = "block";
+    } else if (block) {
+      block.style.display = "none";
+    }
+  }
+
   async function renderSessions() {
     if (!tableBody) return;
     const sessions = await PortfolioDB.getAllSessions();
@@ -134,6 +175,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const startDate = dateFrom ? dateFrom.value : "";
     const endDate = dateTo ? dateTo.value : "";
     const heartWallOn = heartWallToggle ? heartWallToggle.checked : false;
+
+    // TRUE-empty signal derived from the UNFILTERED source (Pitfall 3): zero
+    // sessions in the DB means first-run coaching, NOT a filter miss.
+    const totalSessions = sessions.length;
 
     const filtered = sessions.filter((session) => {
       if (selectedClient && String(session.clientId) !== selectedClient) return false;
@@ -166,10 +211,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     tableBody.innerHTML = "";
 
     if (!filtered.length) {
-      if (emptyState) emptyState.style.display = "block";
+      if (totalSessions === 0) {
+        // TRUE-empty: first-run coaching, hide the filter-empty message.
+        if (emptyState) emptyState.style.display = "none";
+        syncSessionsCoach(true);
+      } else {
+        // FILTER-empty: existing sessions.empty message only, no coaching.
+        if (emptyState) emptyState.style.display = "block";
+        syncSessionsCoach(false);
+      }
       return;
     }
     if (emptyState) emptyState.style.display = "none";
+    syncSessionsCoach(false);
 
     filtered.forEach((session) => {
       const row = document.createElement("tr");
