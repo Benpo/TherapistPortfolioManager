@@ -85,7 +85,14 @@ const PRECACHE_URLS = [
   '/assets/fonts/heebo-bold-base64.js',
   '/assets/snippets-seed.js',
   '/assets/snippets.js',
-  '/assets/report.js'
+  '/assets/report.js',
+  // Help center (Phase 39): the page shell (assets/help.js), its content data
+  // (assets/help-content-en.js) and its scoped styles (assets/help.css). The
+  // Rubik faces + watering-can.png help.html also uses are already precached
+  // above, so these three are the only new offline dependencies.
+  '/assets/help.js',
+  '/assets/help-content-en.js',
+  '/assets/help.css'
 ];
 
 /**
@@ -124,7 +131,8 @@ const PRECACHE_HTML = [
   '/impressum-he',
   '/impressum-cs',
   '/settings',
-  '/report'
+  '/report',
+  '/help'
 ];
 
 /**

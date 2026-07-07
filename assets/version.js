@@ -7,7 +7,9 @@
  *
  * Two values are exposed:
  *   - APP_VERSION    : the hand-set semver. Touched only at a release
- *                      boundary. This milestone ships as v1.2.0.
+ *                      boundary. This milestone (v1.3, In-App Help) ships as
+ *                      v1.3.0 — the bump also rolls the SW cache for installed
+ *                      PWAs so the new help assets re-precache.
  *   - INTEGRITY_TOKEN: a deploy-stamped git short-hash. The deploy
  *                      GitHub Action sed-replaces the placeholder below with
  *                      ${GITHUB_SHA::7}. When unreplaced (local / file:// open
@@ -22,7 +24,7 @@
 var AppVersion = (function() {
   'use strict';
 
-  var APP_VERSION = '1.2.5';
+  var APP_VERSION = '1.3.0';
 
   // Deploy-stamped at build time by .github/workflows/deploy.yml. The literal
   // below is the placeholder the sed step replaces; if it is still its
