@@ -5,10 +5,10 @@ milestone_name: — Codebase Health & Reliability
 current_phase: 38
 current_phase_name: next-session-date-field-with-overview-column
 status: executing
-stopped_at: "Plan 38-10 executed to blocking checkpoint (RTL date-input direction:ltr fix + source gate, 129/129 tests) — awaiting Ben real-Safari verify of UAT test 6"
-last_updated: "2026-07-07T11:05:04.616Z"
+stopped_at: "Wave-1 gap closure complete: 38-10 (UAT test 6, RTL date-input) + 38-11 (UAT test 7, bidi isolation) both approved by Ben on-device in real Safari 2026-07-07 and closed out (SUMMARYs, UAT gaps resolved, debug files moved to resolved/). Next: 38-12 (UAT test 8 — warning-toast visibility / error tone + auto-focus)"
+last_updated: "2026-07-07T11:16:00.000Z"
 last_activity: 2026-07-07
-last_activity_desc: Phase 38 execution started
+last_activity_desc: Phase 38 wave-1 gap closure (38-10, 38-11) completed and closed out
 progress:
   total_phases: 11
   completed_phases: 10
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 38 (next-session-date-field-with-overview-column) — EXECUTING
-Plan: 1 of 12
-Status: Executing Phase 38
-Last activity: 2026-07-07 — Phase 38 execution started
+Plan: 11 of 12 (wave-1 gap closure 38-10 + 38-11 complete; 38-12 remaining)
+Status: Executing Phase 38 — gap closure
+Last activity: 2026-07-07 — 38-10 + 38-11 approved on-device and closed out; next 38-12 (UAT test 8)
 
 ## Performance Metrics
 

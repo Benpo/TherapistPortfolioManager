@@ -406,7 +406,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 35. Demo System Refresh / Version Parity | v1.2 | 6/6 | Complete    | 2026-06-30 |
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete   | 2026-07-02 |
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete    | 2026-07-06 |
-| 38. Next session date field + overview column | v1.2 | 9/9 | Complete   | 2026-07-06 |
+| 38. Next session date field + overview column | v1.2 | 11/12 | In Progress|  |
 
 ### Phase 37: Date consistency + date-format setting + session types (F6+F5+F4)
 
@@ -482,7 +482,7 @@ Plans:
 **Notes:** Likely small/immediate — ripened by Phase 37, which built every touch-point it needs. Trace during planning: the add/edit-session form (the next-session note section), the session data model/migration, and the overview table renderer + its date-column formatting (RTL/locale-aware, matching last-session). Not a launch/priority blocker — queued behind Ben's Simpl8-first freeze; plan when TPM work resumes.
 
 **Requirements:** NEXT-01, NEXT-02, NEXT-03, NEXT-04, NEXT-05, NEXT-06, NEXT-07, NEXT-08 (formalized 2026-07-06 from the 12 CONTEXT decisions; full text in REQUIREMENTS.md).
-**Plans:** 9/9 plans complete
+**Plans:** 11/12 plans executed
 
 Plans:
 
@@ -506,6 +506,6 @@ Plans:
 
 **Gap closure** *(from Phase 38 UAT retest — RTL/bidi + toast visibility, 2026-07-07)*
 
-- [ ] 38-10-PLAN.md — Wave 1: RTL native date-input segment order — `input[type="date"]{direction:ltr}` + RTL text-align so Hebrew stops reversing mm/dd/yyyy → yyyy/dd/mm; source gate + real-Safari verify (UAT test 6) (NEXT-01, NEXT-02, NEXT-08)
-- [ ] 38-11-PLAN.md — Wave 1: Bidi-isolate mixed name+date composition — shared `DateFormat.isolate` (FSI…PDI) wrapping name AND date at updateSessionTitle + overview meta so Latin name + Hebrew month-name date read in order; behavior test + per-site gates + Hebrew/PDF verify (UAT test 7) (NEXT-03, NEXT-08)
+- [x] 38-10-PLAN.md — Wave 1: RTL native date-input segment order — `input[type="date"]{direction:ltr}` + RTL text-align so Hebrew stops reversing mm/dd/yyyy → yyyy/dd/mm; source gate + real-Safari verify (UAT test 6) (NEXT-01, NEXT-02, NEXT-08)
+- [x] 38-11-PLAN.md — Wave 1: Bidi-isolate mixed name+date composition — shared `DateFormat.isolate` (FSI…PDI) wrapping name AND date at updateSessionTitle + overview meta so Latin name + Hebrew month-name date read in order; behavior test + per-site gates + Hebrew/PDF verify (UAT test 7) (NEXT-03, NEXT-08)
 - [ ] 38-12-PLAN.md — Wave 2: Error-tone toast + auto-focus — backward-compatible `showToast(message, key, options)` (warning tone, longer duration, scroll/focus field) + `.toast--error` (dark-safe warning tokens); migrate session/client form error toasts; behavior test + on-device verify (UAT test 8) (NEXT-01, NEXT-08)
