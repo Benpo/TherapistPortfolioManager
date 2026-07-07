@@ -5,8 +5,8 @@ milestone_name: — Codebase Health & Reliability
 current_phase: 38
 current_phase_name: next-session-date-field-with-overview-column
 status: executing
-stopped_at: Plan 38-10 executed to blocking checkpoint (RTL date-input direction:ltr fix + source gate, 129/129 tests) — awaiting Ben real-Safari verify of UAT test 6
-last_updated: "2026-07-07T10:26:20.841Z"
+stopped_at: "Plan 38-10 executed to blocking checkpoint (RTL date-input direction:ltr fix + source gate, 129/129 tests) — awaiting Ben real-Safari verify of UAT test 6"
+last_updated: "2026-07-07T10:35:06.755Z"
 last_activity: 2026-07-07
 last_activity_desc: Phase 38 execution started
 progress:
@@ -379,7 +379,8 @@ Recent decisions affecting current work:
 
 **Bugs (found during UAT):**
 
-- _(none open)_ — backup-not-preserving-snippet-prefix FIXED 2026-06-26 (snippetPrefix added to backup manifest + restore; falsifiable round-trip test). Phase 29 code-review INFO items IN-01/02/03 also closed 2026-06-26.
+- client-birthdate-can-be-set-to-a-future-date (2026-07-07) — no `max`/validation on the native date inputs
+- _(previously)_ backup-not-preserving-snippet-prefix FIXED 2026-06-26 (snippetPrefix added to backup manifest + restore; falsifiable round-trip test). Phase 29 code-review INFO items IN-01/02/03 also closed 2026-06-26.
 
 ### Roadmap Evolution
 
@@ -419,7 +420,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-07T06:39:07.837Z
+**Last session:** 2026-07-07T10:35:06.746Z
 
 Last activity: 2026-07-03 — Completed quick task 260703-mp6 (Phase 37 handoff extension E1+E2). E1 feat(37) 89510fe: main-page filter dropdowns + session date inputs adopt the shipped `.select-modern`/`.input-pill` classes (dual-class, zero new CSS); verified LTR/RTL/mobile via headless-Chrome. E2 fix(37) 7b67670: date-format picker `REFERENCE_DATE` "2026-07-02"→"2000-01-31" so option labels show a neutral, unambiguous sample instead of a near-today/build date (SEAM preserved; regression guard added; count 17→18). Suite 121/121 green. **Phase 37 intentionally still PENDING** — Ben runs `/gsd-verify-work 37` after Sapir's translation review. Handoff file deleted. Ready to push.
 Stopped at: Phase 38 executed (7/7 plans, 127/127 tests, review WR-01 fixed) — awaiting UAT on 2 visual items
