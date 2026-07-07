@@ -1081,27 +1081,43 @@ html[dir="rtl"] .select-modern {
   max-inline-size: 100%;
 }
 
-/* Native date-input segment order in RTL (Phase 38-10, UAT test 6).
+/* Native date-input segment order + RTL alignment (Phase 38-10, UAT test 6).
    In Hebrew the document sets `direction: rtl` on <html> (app.css:~1289,
    toggled by app.js), which cascades into every native <input type="date">.
    WebKit then lays out the internal ::-webkit-datetime-edit sub-fields in that
    inherited RTL direction, visually reversing the browser-native mm/dd/yyyy run
-   into yyyy/dd/mm ("2026/16/05"). Forcing `direction: ltr` on the control
-   restores native/OS segment order regardless of the page's base direction.
-   This is a pure bidi/cascade fix — no ::-webkit-datetime-edit override, no
-   date-formatter change. One shared attribute selector covers all seven native
-   date inputs at once (#sessionDate, #nextSessionDate, #inlineClientBirthDate,
-   #editClientBirthDate, #clientBirthDate, #sessionDateFrom, #sessionDateTo). */
+   into yyyy/dd/mm ("2026/16/05"). One shared attribute selector covers all seven
+   native date inputs at once (#sessionDate, #nextSessionDate,
+   #inlineClientBirthDate, #editClientBirthDate, #clientBirthDate,
+   #sessionDateFrom, #sessionDateTo). No date-formatter change.
+
+   Base: force LTR so segments render in native order by default. */
 input[type="date"] {
   direction: ltr;
 }
 
-/* With direction forced to ltr the value block would default to the left edge;
-   in RTL we pin it right so it sits under the right-aligned Hebrew label. This
-   override adds ONLY text-align — it must NOT re-declare direction (that would
-   reintroduce the segment reversal above). */
+/* RTL alignment mechanism (revised after on-device Safari verification,
+   38-10 checkpoint round 2). The original fix paired `direction: ltr` with
+   `text-align: right`, but real Safari does NOT honour `text-align` on the
+   shrink-wrapped ::-webkit-datetime-edit block — the (LTR) value stayed pinned
+   to the LEFT edge under the right-aligned Hebrew label (reproduced headlessly
+   in Playwright WebKit: value hugged the left edge, leftGap≈17px). text-align
+   is the wrong lever for this pseudo-element.
+
+   Instead we position the field via BOX layout, which every WebKit/Safari
+   version honours: in RTL let the control's own direction be `rtl` so its
+   shrink-to-fit datetime-edit block lays out at the inline-start = RIGHT edge,
+   under the Hebrew label. Then force ONLY the inner ::-webkit-datetime-edit to
+   `direction: ltr` so the sub-fields still render in native mm/dd/yyyy order.
+   The datetime-edit override is what keeps the segment-order fix intact while
+   the outer rtl direction supplies the right-edge alignment — verified in
+   Playwright WebKit: native order preserved ("12/31/2026") AND right-aligned
+   (rightGap≈18px). English/LTR is untouched (base rule keeps direction: ltr). */
 html[dir="rtl"] input[type="date"] {
-  text-align: right;
+  direction: rtl;
+}
+html[dir="rtl"] input[type="date"]::-webkit-datetime-edit {
+  direction: ltr;
 }
 
 .textarea {
