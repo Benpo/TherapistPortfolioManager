@@ -97,7 +97,13 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
   3. EN help content covers every current-app feature (session formats incl. custom, date-format personalization, filters/sorting, next-session date, report-a-problem, updates, backups, activation/2-device transfer, troubleshooting) in current terminology (Heart-Wall, Session Format), verified by a native-speaker agent review and reviewed by Sapir.
   4. A practitioner hitting an empty state (e.g. no clients yet) sees coaching copy that deep-links into the matching help topic.
   5. Help opens fully offline on an installed PWA (new pages/assets added to `sw.js` precache, static-test + real offline-navigation verified), and per-browser PWA install instructions (Chrome/Edge, iOS Safari, Android) are available in Help — never a fake universal install button.
-**Plans**: TBD
+**Plans**: 6 plans (3 waves)
+- [ ] 39-01-PLAN.md — Help content model + full EN content ({ui:key} interpolation, covers metadata, deep-link registry) + D-25 integrity test [wave 1]
+- [ ] 39-02-PLAN.md — New UI-chrome i18n keys (nav/entry/search/deep-link), 4-locale parity [wave 1]
+- [ ] 39-03-PLAN.md — "?" header popover entry + Help nav entry in app.js + jsdom mount test [wave 2]
+- [ ] 39-04-PLAN.md — help.html + help.js renderer + soft-type help.css (hybrid A+C IA, search, deep-links, computer-only install glyphs) [wave 2]
+- [ ] 39-05-PLAN.md — Empty-state coaching deep-links (first-run trio; Sessions true-empty vs filter-empty) [wave 2]
+- [ ] 39-06-PLAN.md — SW precache + CACHE_NAME/version chore + real-offline & Sapir/DNA/WebKit verification checkpoints [wave 3]
 **UI hint**: yes
 
 ### Phase 40: First-Run Welcome & Onboarding Coordinator
