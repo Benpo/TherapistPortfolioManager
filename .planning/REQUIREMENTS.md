@@ -15,10 +15,10 @@ Content quality bar (Ben, 2026-07-07): ALL new user-facing copy (help, welcome, 
 
 - [ ] **HELP-01**: User can reach Help from any app page via a persistent "?" icon in the header (beside cloud + gear; mirrors the settings-gear mount pattern: 44×44 target, RTL auto-flip, dark-aware, `.is-active` state)
 - [ ] **HELP-02**: User can browse a standalone help-center page (`help.html`, per-page pattern with nav entry + shared footer) any time, with anchor deep-links to individual topics
-- [ ] **HELP-03**: User finds help organized by workflow (7-step spine: add client → start session → capture emotions → Heart-Wall → severity → review & export → overview), with a "make it yours" personalization section led early and a clearly separated technical-tips track
-- [ ] **HELP-04**: User can read EN help content covering every leaf of the Phase 32 topic tree plus the post-inventory delta (session formats incl. custom, date-format personalization, filters/sorting, next-session date, report-a-problem, updates) — drafted by Claude from real app behavior, verified by a native-speaker agent review, reviewed by Sapir, in current terminology
-- [ ] **HELP-05**: User hitting an empty state (e.g. no clients yet) sees coaching copy with a deep-link into the matching Help topic
-- [ ] **HELP-06**: User can find per-browser PWA install instructions in Help (Chrome/Edge address-bar icon; iOS Safari Share → Add to Home Screen, illustrated; Android menu → Install) — never a fake universal install button
+- [x] **HELP-03**: User finds help organized by workflow (7-step spine: add client → start session → capture emotions → Heart-Wall → severity → review & export → overview), with a "make it yours" personalization section led early and a clearly separated technical-tips track
+- [x] **HELP-04**: User can read EN help content covering every leaf of the Phase 32 topic tree plus the post-inventory delta (session formats incl. custom, date-format personalization, filters/sorting, next-session date, report-a-problem, updates) — drafted by Claude from real app behavior, verified by a native-speaker agent review, reviewed by Sapir, in current terminology
+- [x] **HELP-05**: User hitting an empty state (e.g. no clients yet) sees coaching copy with a deep-link into the matching Help topic
+- [x] **HELP-06**: User can find per-browser PWA install instructions in Help (Chrome/Edge address-bar icon; iOS Safari Share → Add to Home Screen, illustrated; Android menu → Install) — never a fake universal install button
 - [ ] **HELP-07**: User can open Help fully offline on an installed PWA (new pages/assets added to `sw.js` precache, verified by a static test + real offline navigation)
 
 ### Onboarding & First-Run (ONBD)
@@ -54,9 +54,11 @@ Content quality bar (Ben, 2026-07-07): ALL new user-facing copy (help, welcome, 
 Deferred to future releases. Tracked but not in the current roadmap.
 
 ### Localization
+
 - **L10N-01**: HE/DE/CS translation of all help/tour/welcome/changelog copy (EN stabilizes first; native review — Phase 26 D-12 path)
 
 ### Help depth
+
 - **HDEP-01**: Troubleshooting decision tree ("I don't see my clients" → cache vs truly lost) beyond the plain troubleshooting topics shipping in HELP-04
 
 ## Out of Scope
@@ -82,10 +84,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | HELP-01 | Phase 39 | Pending |
 | HELP-02 | Phase 39 | Pending |
-| HELP-03 | Phase 39 | Pending |
-| HELP-04 | Phase 39 | Pending |
-| HELP-05 | Phase 39 | Pending |
-| HELP-06 | Phase 39 | Pending |
+| HELP-03 | Phase 39 | Complete |
+| HELP-04 | Phase 39 | Complete |
+| HELP-05 | Phase 39 | Complete |
+| HELP-06 | Phase 39 | Complete |
 | HELP-07 | Phase 39 | Pending |
 | ONBD-01 | Phase 40 | Pending |
 | ONBD-02 | Phase 40 | Pending |
@@ -105,6 +107,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GATE-04 | Phase 43 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 23 total
 - Mapped to phases: 23 ✓
 - Unmapped: 0 ✓
