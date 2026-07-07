@@ -145,6 +145,7 @@ window.App = (() => {
       <span class="nav-divider" aria-hidden="true"></span>
       <a href="./add-client.html" data-nav="addClient" data-i18n="nav.addClient">Add Client</a>
       <a href="./add-session.html" data-nav="addSession" data-i18n="nav.addSession">Add Session</a>
+      <a href="./help.html" data-nav="help" data-i18n="nav.help">Help</a>
     </nav>`;
     const navKey = document.body.dataset.nav;
     if (navKey) {
@@ -455,6 +456,117 @@ window.App = (() => {
   }
 
   /**
+   * Phase 39 (HELP-01 / HELP-02) — mount the persistent "?" help entry into
+   * #headerActions on every SW-registered app page, beside the cloud + gear
+   * controls.
+   *
+   * Composition of two already-shipped chrome patterns:
+   *   • initSettingsLink  — the icon-button MOUNT shape: idempotent double-mount
+   *     guard, aria-label/title from t(), compile-time-literal inline SVG,
+   *     `.is-active` on body[data-nav], and an install-once app:language
+   *     re-translate listener (initHelpEntry._listenerInstalled).
+   *   • initLanguagePopover — the RTL-safe POPOVER: hidden-attribute toggle,
+   *     aria-expanded kept in sync, and outside-click / (globe-pattern) dismiss.
+   *
+   * The popover items come from an ADDABLE array (D-09) so Phases 40–42 can
+   * append "Replay welcome / Take tour / What's new" with no rewrite. Item
+   * labels are set via textContent from the i18n dict (never innerHTML) — the
+   * inline "?" glyph SVG is the ONLY compile-time-literal innerHTML here, with
+   * no user-interpolated markup (T-39-04 / T-39-05).
+   */
+  function initHelpEntry() {
+    var actions = document.getElementById('headerActions') || document.querySelector('.header-actions');
+    if (!actions) return;
+    // Idempotent double-mount guard (mirrors initSettingsLink).
+    if (actions.querySelector('.help-entry-btn')) return;
+
+    var label = (typeof t === 'function' ? t('help.entry.label') : '') || 'Help';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'header-control-btn help-entry-btn';
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('title', label);
+    btn.setAttribute('aria-haspopup', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+
+    // Inline "?" glyph SVG — compile-time literal, no user input (T-39-04).
+    // 20x20 rendered in a 24x24 viewBox, stroke=currentColor (RTL-neutral).
+    btn.innerHTML = ''
+      + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + '<circle cx="12" cy="12" r="10"></circle>'
+      + '<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>'
+      + '<line x1="12" y1="17" x2="12.01" y2="17"></line>'
+      + '</svg>';
+
+    // Active state when viewing the help page (mirrors the gear's is-active).
+    if (document.body && document.body.dataset && document.body.dataset.nav === 'help') {
+      btn.classList.add('is-active');
+    }
+
+    var popover = document.createElement('div');
+    popover.className = 'help-entry-popover';
+    popover.setAttribute('role', 'menu');
+    popover.setAttribute('aria-label', label);
+    popover.hidden = true;
+
+    // ADDABLE item list (D-09 / D-10) — day-one entries. Phases 40–42 append
+    // "Replay welcome / Take tour / What's new" here without touching the rest.
+    var items = [
+      { labelKey: 'help.entry.center', href: './help.html' },
+      { labelKey: 'help.entry.contact', href: 'mailto:contact@sessionsgarden.app' }
+    ];
+    items.forEach(function (item) {
+      var a = document.createElement('a');
+      a.className = 'help-entry-item';
+      a.setAttribute('role', 'menuitem');
+      a.setAttribute('data-label-key', item.labelKey);
+      a.href = item.href;
+      // Label via textContent from the i18n dict — never innerHTML (T-39-05).
+      a.textContent = (typeof t === 'function' ? t(item.labelKey) : '') || item.labelKey;
+      popover.appendChild(a);
+    });
+
+    // Popover open/close + outside-click dismiss + aria-expanded sync,
+    // copied from initLanguagePopover (D-09 globe pattern).
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      popover.hidden = !popover.hidden;
+      btn.setAttribute('aria-expanded', String(!popover.hidden));
+    });
+    document.addEventListener('click', function (e) {
+      if (!popover.hidden && !btn.contains(e.target) && !popover.contains(e.target)) {
+        popover.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    var container = document.createElement('div');
+    container.className = 'help-entry';
+    container.appendChild(btn);
+    container.appendChild(popover);
+    actions.appendChild(container);
+
+    // Re-translate the button label + item labels on language switch —
+    // registered exactly once (mirrors initSettingsLink._listenerInstalled).
+    if (!initHelpEntry._listenerInstalled) {
+      document.addEventListener('app:language', function () {
+        var existingBtn = document.querySelector('.help-entry-btn');
+        if (existingBtn) {
+          var newLabel = (typeof t === 'function' ? t('help.entry.label') : '') || 'Help';
+          existingBtn.setAttribute('aria-label', newLabel);
+          existingBtn.setAttribute('title', newLabel);
+        }
+        document.querySelectorAll('.help-entry-item').forEach(function (a) {
+          var key = a.getAttribute('data-label-key');
+          a.textContent = (typeof t === 'function' ? t(key) : '') || key;
+        });
+      });
+      initHelpEntry._listenerInstalled = true;
+    }
+  }
+
+  /**
    * Initialize page: render nav, apply translations, set up theme toggle, license link, backup
    * reminder, and persistent storage request. Call this in DOMContentLoaded on every app page.
    *
@@ -652,6 +764,7 @@ window.App = (() => {
     initLanguagePopover();
     mountBackupCloudButton(); // Phase 25 Plan 02 (D-08) — cloud icon entry point to the Backup & Restore modal
     initSettingsLink(); // Phase 22 — gear-icon entry point to ./settings.html
+    initHelpEntry(); // Phase 39 (HELP-01/02) — "?" help entry + addable popover
     initBrandLinkGuard(); // Phase 24 Plan 08 — protect against logo-click data loss on dirty form
 
     // Phase 25 Plan 04 (D-13 / D-14) — refresh cloud icon state on initial load,
@@ -1510,6 +1623,10 @@ window.App = (() => {
     renderNav,
     initThemeToggle,
     applyTheme,
+    // Phase 39 (HELP-01/02) — test seam for tests/39-help-entry.test.js. Still
+    // called internally from initCommon; exposing the reference lets the jsdom
+    // mount/idempotency/popover test drive it directly without the full boot.
+    initHelpEntry,
     initLicenseLink,
     redirectDemoBrandLink: redirectDemoBrandLink,
     mountBackupCloudButton: mountBackupCloudButton,
