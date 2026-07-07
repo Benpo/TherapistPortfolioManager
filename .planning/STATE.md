@@ -4,16 +4,16 @@ milestone: v1.2
 milestone_name: — Codebase Health & Reliability
 current_phase: 38
 current_phase_name: next-session-date-field-with-overview-column
-status: verifying
+status: executing
 stopped_at: Phase 38 executed (7/7 plans, 127/127 tests, review WR-01 fixed) — awaiting UAT on 2 visual items
-last_updated: "2026-07-07T00:00:09.765Z"
-last_activity: 2026-07-06
+last_updated: "2026-07-07T05:38:20.712Z"
+last_activity: 2026-07-07
 last_activity_desc: Phase 38 execution started
 progress:
   total_phases: 11
   completed_phases: 11
-  total_plans: 77
-  completed_plans: 77
+  total_plans: 78
+  completed_plans: 78
   percent: 100
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 38 (next-session-date-field-with-overview-column) — EXECUTING
-Plan: 7 of 7
-Status: Phase complete — ready for verification
-Last activity: 2026-07-06 — Phase 38 execution started
+Plan: 2 of 8
+Status: Ready to execute
+Last activity: 2026-07-07 — Phase 38 execution started
 
 ## Performance Metrics
 
@@ -178,6 +178,7 @@ Last activity: 2026-07-06 — Phase 38 execution started
 | Phase 38 P05 | 15min | 3 tasks | 4 files |
 | Phase 38 P06 | 15min | 2 tasks | 1 files |
 | Phase 38 P07 | 8min | 2 tasks | 2 files |
+| Phase 38 P08 | 8min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -344,6 +345,7 @@ Recent decisions affecting current work:
 - [Phase 38]: Phase 38: next-session i18n keys added across EN/HE/DE/CS with UI-SPEC values (Plan 38-03)
 - [Phase ?]: Phase 38-04: nextSessionDate wired end-to-end (save/add/populate/reset/snapshot); syncNextSessionMin() at column-0 top-level so populateSession (outside the DOMContentLoaded closure) reaches it; min tracks #sessionDate, removed when empty (never min=today, D-08); schemaless YYYY-MM-DD, no migration.
 - [Phase 38]: 38-07: demo next-dates are RELATIVE (nextSessionDaysAgo, negative=future) via the isoDaysAgo seam so the Next Session column self-freshens mostly-upcoming (D-12); backup carries nextSessionDate automatically (whole-object export/restore), zero backup.js change (D-11)
+- [Phase ?]: D-03-R1 (2026-07-07): nextSession blank next-dates travel WITH sort direction (bottom ascending, top descending) via 9999-12-31 sentinel, mirroring Last Session
 
 ### Pending Todos
 
@@ -414,7 +416,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-07T00:00:09.756Z
+**Last session:** 2026-07-07T05:37:44.657Z
 
 Last activity: 2026-07-03 — Completed quick task 260703-mp6 (Phase 37 handoff extension E1+E2). E1 feat(37) 89510fe: main-page filter dropdowns + session date inputs adopt the shipped `.select-modern`/`.input-pill` classes (dual-class, zero new CSS); verified LTR/RTL/mobile via headless-Chrome. E2 fix(37) 7b67670: date-format picker `REFERENCE_DATE` "2026-07-02"→"2000-01-31" so option labels show a neutral, unambiguous sample instead of a near-today/build date (SEAM preserved; regression guard added; count 17→18). Suite 121/121 green. **Phase 37 intentionally still PENDING** — Ben runs `/gsd-verify-work 37` after Sapir's translation review. Handoff file deleted. Ready to push.
 Stopped at: Phase 38 executed (7/7 plans, 127/127 tests, review WR-01 fixed) — awaiting UAT on 2 visual items
