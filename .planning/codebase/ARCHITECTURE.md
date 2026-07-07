@@ -1,7 +1,10 @@
-<!-- refreshed: 2026-06-28 -->
+---
+last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
+---
+<!-- refreshed: 2026-07-07 -->
 # Architecture
 
-**Analysis Date:** 2026-06-28
+**Analysis Date:** 2026-07-07
 
 ## System Overview
 
@@ -233,4 +236,4 @@
 
 ---
 
-*Architecture analysis: 2026-06-28*
+*Architecture analysis: 2026-07-07*

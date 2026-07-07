@@ -1,6 +1,10 @@
+---
+last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
+---
+
 # Coding Conventions
 
-**Analysis Date:** 2026-06-28
+**Analysis Date:** 2026-07-07
 
 ## Language & Module Pattern
 
@@ -154,4 +158,4 @@ traceability mechanism — do not omit.
 
 ---
 
-*Convention analysis: 2026-06-28*
+*Convention analysis: 2026-07-07 (incremental remap, scope: root-level static files — no source changes)*

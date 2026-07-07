@@ -1,6 +1,10 @@
+---
+last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
+---
+
 # Codebase Concerns
 
-**Analysis Date:** 2026-06-28
+**Analysis Date:** 2026-07-07
 
 ## Tech Debt
 
@@ -163,4 +167,4 @@
 
 ---
 
-*Concerns audit: 2026-06-28*
+*Concerns audit: 2026-07-07*

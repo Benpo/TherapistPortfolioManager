@@ -1,6 +1,9 @@
+---
+last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
+---
 # Codebase Structure
 
-**Analysis Date:** 2026-06-28
+**Analysis Date:** 2026-07-07
 
 ## Directory Layout
 
@@ -222,4 +225,4 @@ TherapistPortfolioManager_app/
 
 ---
 
-*Structure analysis: 2026-06-28*
+*Structure analysis: 2026-07-07*
