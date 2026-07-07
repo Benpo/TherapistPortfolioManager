@@ -1,161 +1,281 @@
 ---
 phase: 38-next-session-date-field-with-overview-column
-scope: 38-09 gap closure (scoped re-review — NOT a full-phase review)
-reviewed: 2026-07-07T00:00:00Z
+scope: full Phase 38 review including gap-closure work (38-09/10/11/12) — supersedes the 38-09 scoped re-review
+reviewed: 2026-07-07T12:00:00Z
 depth: standard
-diff_base: 27ae29ff3383d48f2517f13b10eda90f15d7e1fc
-files_reviewed: 6
+files_reviewed: 26
 files_reviewed_list:
+  - add-session.html
   - assets/add-session.js
+  - assets/app.css
+  - assets/app.js
+  - assets/date-format.js
+  - assets/demo-seed-data.json
+  - assets/demo-seed.js
+  - assets/export-modal.js
+  - assets/i18n-cs.js
+  - assets/i18n-de.js
   - assets/i18n-en.js
   - assets/i18n-he.js
-  - assets/i18n-de.js
-  - assets/i18n-cs.js
+  - assets/overview.js
+  - demo.html
+  - index.html
+  - tests/30-export-markdown.test.js
+  - tests/30-form-dirty-revert.test.js
+  - tests/30-section-visibility.test.js
+  - tests/35-demo-seed.test.js
+  - tests/37-overview-sort.test.js
+  - tests/38-10-rtl-date-input.test.js
+  - tests/38-11-bidi-isolate.test.js
+  - tests/38-12-toast-tone-focus.test.js
+  - tests/38-next-overdue.test.js
+  - tests/38-next-session.test.js
   - tests/38-next-session-partial-guard.test.js
 findings:
   critical: 0
-  warning: 1
-  info: 2
-  total: 3
+  warning: 2
+  info: 6
+  total: 8
 status: issues_found
-carried_forward: "IN-04, IN-05 (Info, from the 38-08 scoped re-review) — still open; their files (assets/overview.js, tests/37-overview-sort.test.js) were untouched by the 38-09 diff"
-prior_review: "full 20-file phase review (commit 9a4a198 scope) fully triaged — WR-01 fixed in 07a649a (annotated b9ecf67), IN-01..IN-03 accepted as-is; the 38-08 scoped re-review (preserved in git history, superseded by this file) found IN-04/IN-05 (Info, doc/comment staleness in assets/overview.js and tests/37-overview-sort.test.js), both restated below as still open"
+carried_forward: "IN-04, IN-05, IN-06, IN-07 (all Info, doc/comment staleness) — re-verified still open in current source; restated in the Carried-Forward section"
+prior_review: "38-09 scoped re-review (this file's predecessor, preserved in git history): WR-02 (Safari badInput premise) RESOLVED — UAT test 5 field-verified in real Safari (commit a7b06e8) and the 38-12 error-tone + rangeUnderflow guard approved on-device (commit bff5cca); its IN-06/IN-07 remain open and are carried forward below"
 ---
 
-# Phase 38: Code Review Report (scoped re-review — 38-09 gap closure)
+# Phase 38: Code Review Report
 
 **Reviewed:** 2026-07-07
 **Depth:** standard
-**Files Reviewed:** 6 (`assets/add-session.js`, 4× `assets/i18n-*.js`, `tests/38-next-session-partial-guard.test.js`)
-**Status:** issues_found (1 Warning, 2 new Info, 2 carried-forward Info — no Critical)
+**Files Reviewed:** 26 (full Phase 38 scope incl. gap-closure plans 38-09/10/11/12)
+**Status:** issues_found (0 Critical, 2 Warning, 6 new Info, 4 carried-forward Info)
 
-## Summary
+## Narrative Findings (AI reviewer)
 
-Scoped re-review of the 38-09 change (partial next-session date save guard, NEXT-01 / UAT
-test 5): a new pure guard `isNextSessionDateIncomplete(el)` in `assets/add-session.js` keyed
-strictly on `validity.badInput`, wired into `saveSessionForm()` before the DB write
-(toast + `return null` on block), a `toast.nextSessionDateIncomplete` key in all four locales,
-and a new unit test suite driving the pure guard against stubbed validity objects.
+### Summary
 
-The diff was traced adversarially:
+Full-scope adversarial review of the Phase 38 next-session-date feature plus the just-landed
+gap-closure work: the RTL date-input direction rules in `assets/app.css` (38-10), the
+`DateFormat.isolate` FSI helper and its call sites (38-11), the `showToast` tone/focus options
++ `.toast--error` variant (38-12), and the `#nextSessionDate` badInput/rangeUnderflow save
+guards (38-09/38-12).
 
-- **Guard logic is correct and fail-open in the right direction:** `!!(el && el.validity &&
-  el.validity.badInput)` blocks ONLY the partial/unparseable state; empty (`badInput=false`,
-  `value=""`) and complete dates pass, a missing `#nextSessionDate` element or missing
-  `validity` object (jsdom, exotic engines) returns `false` — the optional field can never be
-  spuriously locked. Pure over the argument; no DOM mutation.
-- **Choke-point claim verified against source:** `saveSessionForm()` is the only session
-  persist path on the page (`PortfolioDB.addSession`/`updateSession` both live inside it), and
-  it has exactly ONE caller — the form-submit handler at `assets/add-session.js:1237`
-  (grep across `assets/` and root HTML). The export flow never saves
-  (`assets/export-modal.js:915-916`: reachable only in read mode on a saved session), and
-  `snapshotFormState()` (revert-only, no DB write) is correctly left unguarded. One caveat on
-  the comment's wording — see IN-06.
-- **Guard placement:** after the existing client/date/issues/Heart-Shield validations, directly
-  before the `nextSessionDate` read and DB write, mirroring the `heartShieldRequired`
-  validate → toast → return-null pattern. The blocked path leaves the form editable with the
-  user's partial segments intact.
-- **No regression in the save path, verified by execution:** new suite 5/5
-  (`tests/38-next-session-partial-guard.test.js`), plus `30-save-redirect` 3/3,
-  `38-next-session` 6/6, `38-next-overdue` 5/5 — jsdom's `badInput` is always false, so all
-  existing jsdom saves pass through the guard untouched.
-- **Test quality:** count guard (`EXPECTED_COUNT = 5`) matches executed cases; test 1 rejects a
-  value-only implementation, test 2 rejects a block-on-empty mistake, test 4 pins the fail-open
-  null-element contract; harness mirrors the established `buildEnv` idiom and evals the real
-  `assets/add-session.js`. One staleness item — see IN-07.
-- **i18n:** key present in all 4 locales at parity (executed `25-11-i18n-parity` 23/23 and
-  `33-i18n-de-cs-completion` 4/4); terminology consistent with sibling next-session keys
-  ("nächsten Sitzung", "příští sezení", "המפגש הבא"). No injection surface —
-  `App.showToast` renders via `textContent` (`assets/app.js:841`).
-- **No debug artifacts, secrets, or dead code introduced.**
+What was traced and verified against real source + execution (not assumed):
 
-One Warning: the fix's effectiveness rests on an as-yet-unverified real-Safari premise, and the
-UAT evidence itself leaves room for the guard being inert in the exact reported scenario
-(WR-02). This is already tracked as the plan's human-check; the warning sharpens what that
-check must prove before NEXT-01/UAT-5 is closed.
+- **All 11 test suites in scope executed GREEN** (38-10 3/3, 38-11 7/7, 38-12 3/3,
+  38-next-overdue 5/5, 38-next-session 6/6, 38-next-session-partial-guard 7/7,
+  30-export-markdown 5/5, 30-form-dirty-revert 5/5, 30-section-visibility 6/6,
+  35-demo-seed 4/4, 37-overview-sort 9/9). Every suite carries a non-vacuous count guard.
+- **Bidi codepoints verified at byte level** (`perl -CSD` over `assets/date-format.js`):
+  LRI U+2066 / PDI U+2069 (numeric-format path) and FSI U+2068 (`isolate()`) are the correct
+  characters — the invisible-character hazard class from the Phase-29 clipboard incident does
+  not recur here (FSI/PDI are format characters, not control characters; safe in
+  `textContent` and `document.title`).
+- **`isolate()` contract is correct**: nullish/empty → `""` (never a bare isolate pair);
+  nesting over an already-LRI-wrapped Hebrew numeric date is legal under UBA (depth ≪ 125).
+  Call sites (`updateSessionTitle` both runs, overview session-meta date, client-modal
+  age/type runs) match the 38-11 spec.
+- **Save guards are fail-open in the right direction**: `isNextSessionDateIncomplete` keys
+  strictly on `validity.badInput`, `isNextSessionDateTooEarly` strictly on
+  `validity.rangeUnderflow`; null element / missing validity → allow. Both sit at the single
+  DB-persist choke point in `saveSessionForm()` (grep-verified: the submit listener is its
+  only caller; export is read-mode-only and never saves). `sessionForm.noValidate = true`
+  (`assets/add-session.js:340-342`) guarantees the submit event reaches the guards instead of
+  a native validation bubble. Same-day (`value == min`) correctly passes (D-08).
+- **`min` sync is race-free at save time**: `syncNextSessionMin` runs on boot, on
+  `#sessionDate` change, and inside `populateSession`; clicking Save blurs the date input so
+  `change` fires before submit. Empty session date removes `min` entirely (never min=today),
+  and the empty-date save is blocked earlier by the required-date check.
+- **CSS direction cascade verified**: base `input[type="date"] { direction: ltr }` (0,1,1)
+  beats the inherited `html[dir="rtl"]` direction; the RTL override (0,2,1) beats the base;
+  the `::-webkit-datetime-edit { direction: ltr }` inner rule restores native segment order.
+  Only these three `input[type="date"]` rules exist in app.css — no conflicting earlier rule.
+  On-device Safari approval recorded (commits 1838dea, bff5cca).
+- **`.toast--error` tokens exist in both themes** (`assets/tokens.css:107-108` light,
+  `:190-191` dark); the variant overrides both `background` and `color`, and `showToast`
+  removes the error class at the top of every call so a stale tone can never leak onto a
+  later success toast. The shared `_timer` is cleared before rescheduling.
+- **i18n parity executed**: all four locale files carry exactly 561 keys, zero duplicates,
+  zero missing/extra keys vs en (scripted set-diff). `toast.nextSessionDateIncomplete` /
+  `toast.nextSessionDateTooEarly` present and terminologically consistent in all 4.
+- **Demo seed self-freshening verified by data extraction**: 5 sessions carry
+  `nextSessionDaysAgo`; exactly one (client 25, `+4` = 4 days ago) is deliberately overdue —
+  matching the 35-demo-seed `pastTodayCount <= 1` gate; every computed next-date ≥ its own
+  session date.
+- **Overview sort/cell consistency**: the `nextSession` sort branch derives the next-date via
+  `mostRecentSession()` with the identical date-desc/createdAt-desc/id-desc tiebreak the cell
+  render uses, so the sorted value always equals the displayed value (D-01). The
+  `9999-12-31` blank sentinel rides `dir * base` so blanks land bottom-ascending /
+  top-descending (revised D-03) — pinned by the updated 37-overview-sort cases.
+- **Overdue predicate**: strictly `<` today-local via `parseLocal(todayLocalISO())` — the
+  UTC-midnight off-by-one class is dead here; TZ-pinned test proves the boundary.
+- **No injection surfaces introduced**: every new render site (`nextSessionCell`, overdue
+  dot, session-meta, modal meta) is `textContent`/`createTextNode`-only; no innerHTML with
+  data. No secrets, no debug artifacts (the one `console.log` in `requestPersistentStorage`
+  is deliberate and commented).
+
+Two Warnings stand: the 38-12 focus mechanism silently degrades inside collapsed mobile
+accordions (the exact "warning visibility" UX this plan set out to fix), and the error-tone
+API landed but its adoption stopped at add-session, leaving the same i18n key rendered as a
+success pill on one page and an error toast on another — with backup import/export failures
+still success-styled.
 
 ## Warnings
 
-### WR-02: Guard effectiveness rests on an unverified Safari premise — the UAT evidence is also consistent with `badInput=false` at submit time
+### WR-03: Error-toast focus target is invisible when its mobile accordion is collapsed — the 38-12 "bring the field to the user" mechanism silently no-ops there
 
-**File:** `assets/add-session.js:1165-1169` (interaction with `add-session.html:67`)
-**Issue:** The guard fires only when `validity.badInput === true` at the moment
-`saveSessionForm()` runs. `#sessionForm` (`add-session.html:67`) has NO `novalidate`
-attribute, so in a browser that both sets `badInput` and enforces interactive constraint
-validation, an invalid date input would block submission BEFORE the submit event — yet the UAT
-reproduction saw the SUCCESS toast fire, i.e. the submit event did run. That observation is
-consistent with two worlds jsdom/Chromium cannot distinguish (neither can raise `badInput` on a
-date input):
+**File:** `assets/app.js:866-870` (showToast focus block), `assets/add-session.js:1181-1192`
+(guard call sites), `assets/app.css:2247-2255` (accordion collapse)
+**Issue:** `#nextSessionDate` (and the `shieldRemoved` radios) live inside the "Session
+Notes" accordion (`add-session.html:312-359`). On mobile (≤768px) a collapsed
+`.accordion-section .accordion-body` is `max-height: 0; overflow: hidden` — the element stays
+in layout but is clip-hidden. `showToast`'s `scrollIntoView() + focus()` on such a target
+scrolls to the collapsed section and focuses an element the user cannot see; the accordion
+does not open on focus. Repro: on a phone, type a partial/too-early next-session date in the
+Notes accordion, tap another accordion header (Notes auto-closes — the accordion is
+exclusive), tap Save at the form bottom. The error toast fires, but the offending field is
+never revealed — recreating the "nobody notices the block" defect 38-12 was built to fix,
+on the platform (mobile Safari) where the badInput scenario originates. Desktop is unaffected
+(accordions forced open ≥769px).
+**Fix:** Before focusing, expand the owning accordion. Either in `showToast`'s focus block
+(generic) or at the add-session call sites (scoped):
 
-1. Safari sets `badInput=true` for the one-segment edit but does not interactively block the
-   submit → the new guard fires, toast shows, bug fixed.
-2. Safari reports `badInput=false` at submit time (e.g. the partial entry is normalized/cleared
-   when focus moves to the Save button) → the guard is inert, the session still silently saves
-   `""` with a success toast, and UAT test 5 is NOT actually closed.
+```js
+// assets/app.js — inside the focusTarget block, before scrollIntoView:
+if (typeof focusTarget.closest === "function") {
+  const section = focusTarget.closest(".accordion-section");
+  if (section && !section.classList.contains("is-active")) {
+    section.classList.add("is-active"); // matches the accordion-header click behavior
+  }
+}
+```
 
-The code cannot decide this; only the plan's pending real-Safari field check can
-(38-09-SUMMARY explicitly holds NEXT-01 open "awaiting the real-Safari field check").
-**Fix:** Before closing NEXT-01/UAT-5, run the tracked human-check with these specific
-assertions: (a) a one-segment edit followed by clicking Save is BLOCKED, (b) the block is the
-localized toast — not a native validation bubble and not a silent non-submit, (c) the session
-record is unchanged in IndexedDB. If (a) fails because `badInput` is false at submit time,
-the mechanism needs a fallback (e.g. detect the partially-edited state via the input's
-focus/`input`-event lifecycle rather than `validity` alone). No code change required if the
-field check passes — annotate the human-check result and close.
+(If exclusive-accordion behavior must hold, also remove `is-active` from siblings, mirroring
+the header-click handler at `assets/add-session.js:1348-1358`.) Add a jsdom case asserting the
+closest `.accordion-section` carries `is-active` after an error toast with a focus target.
+
+### WR-04: Error-tone adoption is inconsistent — the same error key renders success-styled on other pages, and backup/export failures still look like success
+
+**File:** `assets/add-client.js:125,214` · `assets/export-modal.js:666,698` ·
+`assets/backup-modal.js:292,345` (contrast: `assets/add-session.js:488,1074,1130-1190`)
+**Issue:** 38-12 added the reusable `{ tone: "error", focus }` API and adopted it on every
+add-session validation toast, but every other genuine error toast still renders as the
+success pill with the 1800 ms dismiss: `toast.errorRequired` is error-toned on add-session
+(`add-session.js:1074`) yet success-styled on add-client (`add-client.js:214`) — the SAME
+message, two contradictory visual treatments depending on page. Worse, the failures with the
+highest cost of being missed — `export.pdf.failed` (export-modal.js:666,698) and the backup
+`toast.exportError` / import-failure toasts (backup-modal.js:292,345) — still look identical
+to "saved successfully" and vanish in 1.8 s. The exact UAT-test-8 defect ("the block warning
+looks exactly like success, nobody notices") remains live at every error site outside
+add-session. The showToast docblock itself promises the option is "reusable by any error
+toast".
+**Fix:** Sweep the remaining error-path call sites and pass `{ tone: "error" }` (plus a
+`focus` target where a specific field is at fault, e.g. `#addClientFirstName` for
+add-client's `toast.errorRequired`). Mechanical change; the 38-12 test already pins that the
+default path is untouched. If deferring, capture it as a tracked backlog item so the
+inconsistency doesn't fossilize.
 
 ## Info
 
-### IN-06: New guard comment repeats a nonexistent "save-then-export trigger" second caller
+### IN-08: `allRemoved` name contradicts its `.some()` implementation
 
-**File:** `assets/add-session.js:1156-1157` (same stale claim pre-existing at :1179, from Phase 34)
-**Issue:** The new choke-point comment asserts "BOTH the submit handler and the save-then-export
-trigger route through saveSessionForm". There is no save-then-export trigger in the codebase:
-`saveSessionForm` has exactly one caller (the submit listener, :1237), and the export flow is
-reachable only in read mode on an already-saved session (`assets/export-modal.js:915-916`).
-The claim was copied forward from the Phase-34-era comment at :1179. A future reader auditing
-save entry points will hunt for a caller that does not exist — or worse, assume the export path
-performs a save.
-**Fix:** Reword both comments to the verifiable fact: "the submit handler is the SOLE caller of
-saveSessionForm (export is read-mode-only and never saves), so this one placement guards every
-user-triggerable save."
+**File:** `assets/overview.js:682`
+**Issue:** `const allRemoved = heartShieldSessions.some(s => s.shieldRemoved === true)` —
+the behavior ("show ✅ if ANY session removed the shield") is intentional per commit 79b7674
+("heart badge shows removed if any session has shield removed"), but the name asserts the
+opposite quantifier. A future reader "fixing" the name-to-logic mismatch in either direction
+would flip clinical-status display semantics. Pre-existing; file is in Phase 38 scope.
+**Fix:** Rename to `anyRemoved` (or `shieldRemovedInAnySession`) and add a one-line comment
+citing the intent.
 
-### IN-07: New test docblock hard-codes stale RED framing for a landed guard
+### IN-09: Age 0 is treated as "missing birth year"; age math duplicated at four sites
 
-**File:** `tests/38-next-session-partial-guard.test.js:4,29-34,45,135`
-**Issue:** The header says "Authored BEFORE the guard lands — RED-BY-DESIGN", has a "WHY IT IS
-RED TODAY" section, and the run comment plus the first assertion message both say "(RED until
-Plan 38-09 Step B lands)". The guard has landed; the suite is GREEN 5/5 (verified by
-execution). Same failure class as IN-05: the stale RED framing misdescribes the suite's current
-role (regression pin, not RED spec) and could lead a future session to treat a real failure as
-"expected RED".
-**Fix:** Update the docblock to note the suite is now GREEN/regression-pinning (keep the
-historical RED-first contract description), change "WHY IT IS RED TODAY" to past tense, and
-drop the two "(RED until Plan 38-09 Step B lands)" parentheticals.
+**File:** `assets/overview.js:943-957`, `assets/add-session.js:494,1080,1651-1654`
+**Issue:** `if (displayAge)` is falsy for a valid age of 0 (client under 1 year — plausible
+for the `child`/`animal` types), so the modal shows the "add birth year" link despite a valid
+`birthDate`. The `Math.floor((Date.now() - birthDateParsed) / (365.25 * 24 * 60 * 60 * 1000))`
+expression is copy-pasted at four sites across two files.
+**Fix:** Extract a shared `App.computeAge(birthDate)` (returns `number | null`) and test
+`displayAge != null` instead of truthiness.
 
-## Carried-Forward Open Findings (from the 38-08 scoped re-review)
+### IN-10: Backup restore triggers two concurrent full overview re-renders
 
-These two Info findings from the prior review remain open — their files were not touched by the
-38-09 diff. Restated compactly so they survive this file replacing the 38-08 report; full text
-in git history.
+**File:** `assets/overview.js:163-175` (with the `app:language` listener at :540-544)
+**Issue:** `__afterBackupRestore` calls `App.setLanguage(...)` — which dispatches
+`app:language`, whose listener already calls `loadOverview()` — and then explicitly calls
+`loadOverview()` again. Two concurrent IDB reads + row renders race; the outcome is identical
+data so this is waste, not corruption, but it doubles restore-time work and is a latent
+interleaving hazard if the render ever stops being idempotent.
+**Fix:** Either drop the explicit `loadOverview()` (the language event covers it) or have
+`__afterBackupRestore` set a one-shot flag the `app:language` listener checks. Document
+whichever path renders.
 
-### IN-04: Stale hardcoded line references to the render tiebreak comparator (still open)
+### IN-11: `applyRelativeDates` emits "NaN-NaN-NaN" dates for a seed session missing `daysAgo`
 
-**File:** `assets/overview.js:616-617` (also `tests/37-overview-sort.test.js:281`)
-**Issue:** `mostRecentSession()` doc comment and the test fixture cite the render comparator at
-":619-626"; it actually lives around `assets/overview.js:658-665` and drifts with every edit.
-**Fix:** Replace line-number citations with a stable anchor (name the `renderClientRows()`
-`clientSessions.sort(...)` tiebreak: date desc → createdAt desc → id desc).
+**File:** `assets/demo-seed.js:30-47`
+**Issue:** `copy.date = isoDaysAgo(s.daysAgo, now)` runs unconditionally; a future seed edit
+that omits the integer `daysAgo` yields `setDate(getDate() - undefined)` → Invalid Date →
+`"NaN-NaN-NaN"` silently seeded into the demo DB (the `nextSessionDaysAgo` branch guards
+null/undefined; the `daysAgo` branch does not). All 11 current sessions carry the key, so
+this is latent, and the 35-demo-seed schema gate would not catch it (the key union allows a
+string `date`).
+**Fix:** Mirror the next-date guard: `if (Number.isInteger(s.daysAgo)) { … } ` else keep/skip
+with a `console.warn`, or add a `/^\d{4}-\d{2}-\d{2}$/` assertion on the computed date in the
+seed test.
 
-### IN-05: Test docblock still claims RED state for landed features (still open)
+### IN-12: Overview session-meta isolates only the date run, not the session-type run
 
-**File:** `tests/37-overview-sort.test.js:11-13,345,362`
-**Issue:** Header docblock claims "TDD RED … It FAILS RED now" and two assertions say "(RED
-until Plan 38-05)"; all 9 cases are GREEN against current source.
-**Fix:** Update the docblock to GREEN/regression-pinning status and drop the two RED
-parentheticals.
+**File:** `assets/overview.js:799-803`
+**Issue:** `meta.textContent = isolate(formatDate(date)) + " • " + formatSessionType(type)` —
+the date can no longer scramble (isolated), but a user-defined custom session-type label with
+mixed direction (e.g. `"Zoom מרחוק"`) is still a bare run against the bullet under
+`html[dir=rtl]`. The sibling sites (client modal :950/:963, `updateSessionTitle`) isolate
+both runs. Residual, cosmetic-only exposure; the 38-11 gate (B2, `>= 2` isolate calls) passes
+without it.
+**Fix:** `meta.textContent = \`${isolate(...date...)} • ${isolate(App.formatSessionType(session.sessionType))}\``.
+
+### IN-13: Stale "RED until Plan 38-XX lands" framing across the four landed 38-x test suites
+
+**File:** `tests/38-next-session.test.js:4,39,183,210,225,240,275` ·
+`tests/38-11-bidi-isolate.test.js:23,67,89` · `tests/38-12-toast-tone-focus.test.js:3,26-30,41,159` ·
+`tests/38-next-session-partial-guard.test.js:4,29-33,45,249,301,308`
+**Issue:** Same failure class as the carried-forward IN-05/IN-07: docblocks and assertion
+messages still describe these suites as RED-by-design pending plans that have all landed
+(everything is GREEN 21/21 across the four files, verified by execution). A future session
+hitting a real regression in one of these could misread the failure as "expected RED".
+**Fix:** One sweep: reword headers to "regression pin (originally authored RED-first)", move
+"WHY IT IS RED TODAY" sections to past tense, drop the "(RED until …)" parentheticals from
+assertion messages. No assertion logic changes.
+
+## Carried-Forward Open Findings (re-verified still open in current source)
+
+### IN-04: Stale hardcoded line references to the render tiebreak comparator
+
+**File:** `assets/overview.js:616-618`, `tests/37-overview-sort.test.js:280`
+**Issue:** Both still cite the render comparator at ":619-626"; it lives at
+`assets/overview.js:658-665` and drifts with every edit.
+**Fix:** Replace line-number citations with the stable anchor (the `renderClientRows()`
+`clientSessions.sort` tiebreak: date desc → createdAt desc → id desc).
+
+### IN-05: 37-overview-sort docblock still claims RED state for landed features
+
+**File:** `tests/37-overview-sort.test.js:2,6,11,39,278,345,362`
+**Issue:** Header still says "TDD RED … It FAILS RED now"; all 9 cases GREEN (executed).
+**Fix:** Same sweep as IN-13.
+
+### IN-06: `saveSessionForm` comments still claim a nonexistent "save-then-export trigger" caller
+
+**File:** `assets/add-session.js:1172-1174,1202`
+**Issue:** Both comments assert a second caller that does not exist — the submit listener is
+the sole caller (grep-verified again this review); export is read-mode-only and never saves.
+**Fix:** Reword to "the submit handler is the SOLE caller of saveSessionForm".
+
+### IN-07: Partial-guard test docblock hard-codes stale RED framing
+
+**File:** `tests/38-next-session-partial-guard.test.js:4,29-33,45`
+**Issue:** Landed and GREEN 7/7; subsumed by the IN-13 sweep.
+**Fix:** Include in the IN-13 sweep.
 
 ---
 
 _Reviewed: 2026-07-07_
 _Reviewer: Claude (gsd-code-reviewer)_
-_Depth: standard (scoped re-review of the 38-09 diff since 27ae29f)_
+_Depth: standard (full Phase 38 scope, 26 files, all in-scope test suites executed)_
