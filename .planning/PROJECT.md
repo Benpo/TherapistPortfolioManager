@@ -77,11 +77,11 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 
 ### Active
 
-<!-- v1.1 shipped 2026-06-22. v1.2 shipped 2026-07-07 (Phases 28–38, full detail in milestones/v1.2-ROADMAP.md). No committed scope yet for the next milestone. -->
+<!-- v1.3 In-App Help, Onboarding & Changelog — scope confirmed 2026-07-07. Full brief: .planning/MILESTONE-CONTEXT consumed into REQUIREMENTS.md/ROADMAP.md. -->
 
-_(none — awaiting next milestone; run `/gsd-new-milestone`)_
-
-**Sketched but not yet formalized — v1.3 (Ben's decision, 2026-07-06, see `.planning/MILESTONE-CONTEXT.md` + `.claude/context/session-prompts/2026-07-06_v1.3-help-changelog-milestone-context-handoff.md`):** v1.3 = "In-App Help, Onboarding & Changelog" — implement the archived Phase 26 `26-UI-SPEC.md` design contract (welcome + replayable tour + help center) plus an in-app Changelog/What's-New surface plus a docs-maintenance hard-gate. This explicitly **supersedes** the "v1.3 Codebase Health II" pencil-in below. Rich-text editing is deferred to v1.4. Run `/gsd-new-milestone` to formalize.
+- [ ] Help system — "?" entry point, help center page, welcome overlay, replayable guided tour, empty-state coaching, install nudge, full EN help content for the current feature set (Phase 26 design as the seed, reconciled against the current app — not blindly implemented)
+- [ ] In-app changelog — "What's New" popup on version change + persistent changelog page in the help center, structured in-app data, v1.3's own release notes as the first entry
+- [ ] Docs-maintenance hard gate — a blocking process guardrail (hook and/or GSD definition-of-done gate) so no user-facing change ships without an updated changelog entry + help topics
 
 **Deferred to backlog (v1.1 close + 2026-06-22 concerns triage + v1.2 close):** mobile `21-03`; landing DE/CS verify (LNCH-04); license re-validation; pagination; PDF→Web Worker; an abandoned landing-page interactive-demo iframe idea (superseded by Phase 35); and other triaged concerns — see ROADMAP "Backlog" for the full list.
 
@@ -159,9 +159,33 @@ _(none — awaiting next milestone; run `/gsd-new-milestone`)_
 
 **v1.2 Codebase Health & Reliability shipped 2026-07-07** (Phases 28–38, 11 phases / 82 plans / 108 tasks, 15 days, 550 commits). Full detail archived in `milestones/v1.2-ROADMAP.md` / `milestones/v1.2-REQUIREMENTS.md` / `milestones/v1.2-MILESTONE-AUDIT.md`. Milestone audit passed: 64/65 requirements complete (1 deliberately descoped), 11/11 phases verified, zero broken cross-phase wiring, 131/131 tests green. The app is live and sold (since v1.1, 2026-06-22) and is now backed by a real test safety net, a decomposed codebase, self-documenting core modules, and a canonical date engine — the maintainability debt that motivated v1.2 is substantially paid down (3 giant files still await a future comment/extraction pass, tracked as backlog).
 
-## Next Milestone Goals
+## Current Milestone: v1.3 In-App Help, Onboarding & Changelog
 
-v1.3 is sketched (not yet formalized) as **"In-App Help, Onboarding & Changelog"** — see `.planning/MILESTONE-CONTEXT.md` for the full brief. Run `/gsd-new-milestone` to formalize scope, requirements, and roadmap. Candidates for the *next* milestone slot after that: "Codebase Health II" (broader test coverage + further extraction, backlog-tracked).
+**Goal:** Every practitioner can learn the whole app inside the app (welcome, replayable tour, help center) and hears about every release inside the app (What's-New popup + changelog page) — with a hard process gate guaranteeing both stay current with every future user-facing change.
+
+**Target features:**
+- Help system: "?" header entry on all app pages, `help.html` help center (workflow-spine IA + personalization + technical track), first-run welcome overlay, replayable ~6–9-step tour with graceful degradation, empty-state deep-links, per-browser PWA install nudge, full EN help content covering the current (v1.2.x) feature set
+- In-app changelog: What's-New popup keyed on `APP_VERSION` change + persistent changelog page in the help center; structured in-app data source; v1.3's own release notes ship as the first entry
+- Docs-maintenance hard gate: a BLOCKING mechanism (git hook and/or GSD DoD gate) — no phase/ship containing user-facing changes completes until the changelog entry + affected help topics are updated; slower dev accepted
+
+**Key context:** Phase 26's `26-UI-SPEC.md` + D-01..D-15 are the design seed, verified and adapted against the current app (terminology renames, deleted tour-engine template, post-P26 features, first-run collisions — full reconciliation was done 2026-07-06). Open design questions (help-page IA variant, tour anchors, popup mechanics, gate mechanism, first-run precedence, etc.) are decided in discuss-phase, not pre-answered. Hard constraints hold: zero-network/offline, zero production deps (bespoke tour engine), 4 languages + RTL (EN content canonical; DE/CS/HE translation deferred). Two pending todos are absorbed and close at ship: `2026-03-24-pwa-install-guidance-and-user-manual`, `2026-05-15-in-app-onboarding-overview-help`.
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
 
 ---
-*Last updated: 2026-07-07 — v1.2 Codebase Health & Reliability milestone closed and archived (`/gsd-complete-milestone v1.2`). Milestone audit (2026-07-07) passed clean: 64/65 requirements complete (1 deliberately descoped — PDFX-03, invalid premise), 11/11 phases verified, zero broken cross-phase wiring, 131/131 tests green. Pre-close artifact audit flagged 16 open items (1 debug session, 10 quick tasks, 5 todos); Ben reviewed and chose "Acknowledge all, proceed" — all were stale bookkeeping, an explicit won't-fix, one genuinely abandoned pre-v1.2 idea, or already-tracked backlog, detailed in STATE.md. ROADMAP.md/REQUIREMENTS.md archived to `milestones/v1.2-*`; REQUIREMENTS.md removed (fresh for next milestone). Next: formalize v1.3 via `/gsd-new-milestone` (sketch already exists in `.planning/MILESTONE-CONTEXT.md` — Help + in-app Changelog + docs hard-gate).*
+*Last updated: 2026-07-07 — Milestone v1.3 "In-App Help, Onboarding & Changelog" started via `/gsd-new-milestone`. Scope confirmed by Ben: three pillars (help system, in-app changelog, docs-maintenance hard gate), with the Phase 26 design treated as a reconciled seed rather than a verbatim contract. Supersedes the old "v1.3 Codebase Health II" pencil-in (that work stays backlog). Rich-text editor deferred to v1.4.*

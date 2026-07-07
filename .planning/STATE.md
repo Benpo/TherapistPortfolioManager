@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: none
-milestone_name: —
-current_phase: null
-status: Awaiting next milestone
-stopped_at: v1.2 archived (milestones/v1.2-*); next milestone not yet formalized.
-last_updated: "2026-07-07T15:20:00.000Z"
+milestone: v1.3
+milestone_name: In-App Help, Onboarding & Changelog
+status: planning
+last_updated: "2026-07-07T13:55:27.338Z"
 last_activity: 2026-07-07
-last_activity_desc: Milestone v1.2 completed and archived; phase directories moved to milestones/v1.2-phases/
 progress:
   total_phases: 0
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
   percent: 0
-current_phase_name: —
 ---
 
 # Project State
@@ -28,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 
 ## Current Position
 
-Phase: — (no active phase)
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-07 — Milestone v1.2 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-07 — Milestone v1.3 started
 
 ## Performance Metrics
 
