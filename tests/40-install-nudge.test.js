@@ -89,9 +89,15 @@ function buildWindow(opts) {
     url: 'https://localhost/index.html',
     runScripts: 'outside-only',
     pretendToBeVisual: false,
-    userAgent: opts.ua || UA.chromeWin,
   });
   var win = dom.window;
+
+  // jsdom 29 ignores the constructor `userAgent` option, so override the instance
+  // getter directly — the per-browser gate (isMacSafari) reads navigator.userAgent.
+  Object.defineProperty(win.navigator, 'userAgent', {
+    value: opts.ua || UA.chromeWin,
+    configurable: true,
+  });
 
   win.matchMedia = function (q) {
     var matches = false;

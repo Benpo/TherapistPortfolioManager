@@ -214,6 +214,120 @@ var AttentionCoordinator = (function () {
     window.addEventListener('appinstalled', function () { deferredPrompt = null; });
   } catch (e) {}
 
+  // ── shared DOM helper ───────────────────────────────────────────────────────
+  // Build an element and (optionally) resolve i18n copy into it via textContent —
+  // never variable-interpolated markup (the surfaces' only trust boundary, T-40-03-XSS).
+  function makeEl(tag, cls, key) {
+    var el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (key) { el.setAttribute('data-i18n', key); el.textContent = t(key); }
+    return el;
+  }
+
+  // ── phone-class detection (capability probe, D-16) ──────────────────────────
+  // A phone-class device gets the mobile expectation hint instead of the desktop
+  // install nudge, so the two surfaces are mutually exclusive by device class in
+  // practice. We probe CAPABILITY, never iOS-only UA strings: the modern hint
+  // (userAgentData.mobile) OR a coarse pointer on a narrow viewport. 820px is the
+  // phone / small-tablet boundary (Open Question 1) — a 7–8" tablet in portrait
+  // still reads as a small touch device for this calm one-shot hint.
+  function isPhoneClass() {
+    try {
+      var uad = navigator.userAgentData;
+      if (uad && uad.mobile) return true;
+      return window.matchMedia('(pointer: coarse)').matches
+          && window.matchMedia('(max-width: 820px)').matches;
+    } catch (e) { return false; }
+  }
+
+  // ── macOS Safari detection (per-browser install-copy gate, D-12) ────────────
+  // The ONLY environment where the "File → Add to Dock" pointer copy is correct.
+  // Chromium (Chrome/Edge/Opera/CriOS) and Firefox are excluded so the single ask
+  // is never burned on wrong-browser copy or a dead button.
+  function isMacSafari() {
+    try {
+      var ua = navigator.userAgent || '';
+      return /Macintosh/.test(ua)
+          && /Safari\//.test(ua)
+          && !/Chrome|Chromium|CriOS|Edg|OPR/.test(ua);
+    } catch (e) { return false; }
+  }
+
+  // ── install-nudge surface (D-12 / D-13 / D-14 / ONBD-04) ────────────────────
+  var INSTALL_DISMISSED = 'sg.installNudgeDismissed';
+
+  function installEligible() {
+    // Never when already installed (standalone) — D-12.
+    try { if (window.matchMedia('(display-mode: standalone)').matches) return false; } catch (e) {}
+    // Gone forever once dismissed — D-14 (localStorage, NOT session; Pitfall 4).
+    if (lsGet(INSTALL_DISMISSED) === '1') return false;
+    // Phone-class gets the mobile hint instead.
+    if (isPhoneClass()) return false;
+    // Per-browser gate (D-12): render only when we can show CORRECT copy — a
+    // captured beforeinstallprompt (Chromium) OR real macOS Safari. Any other
+    // no-event env (desktop Firefox, or Chromium where run() beat the late-firing
+    // event — Pitfall 1) is ineligible; the slot passes on and the nudge competes
+    // again a later session. D-13 needs no bookkeeping: 'install-nudge' sits below
+    // 'welcome' in PRECEDENCE, so welcome naturally wins launch 1.
+    return !!deferredPrompt || isMacSafari();
+  }
+
+  function installShow() {
+    var doc = document;
+    var card = doc.createElement('div');
+    card.className = 'install-nudge-card';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-labelledby', 'install-nudge-title');
+
+    var title = makeEl('h2', 'install-nudge-title', 'onboard.install.title');
+    title.id = 'install-nudge-title';
+    card.appendChild(title);
+    card.appendChild(makeEl('p', 'install-nudge-body', 'onboard.install.body'));
+
+    function removeCard() { if (card.parentNode) card.parentNode.removeChild(card); }
+
+    // Platform branch on the captured deferredPrompt. eligible() guarantees the
+    // only other reachable env is real macOS Safari, so the else-branch copy is
+    // always correct (never a dead/fake button on the wrong browser).
+    if (deferredPrompt) {
+      // Chromium: the single filled accent element — a REAL [Install app] button.
+      var install = makeEl('button', 'install-nudge-install', 'onboard.install.ctaInstall');
+      install.setAttribute('type', 'button');
+      install.addEventListener('click', function () {
+        if (!deferredPrompt) return;           // one-shot — Pitfall 2
+        var dp = deferredPrompt;
+        deferredPrompt = null;                 // clear BEFORE firing (no re-entrant double-prompt)
+        try { dp.prompt(); } catch (e) {}
+        if (install.parentNode) install.parentNode.removeChild(install);
+      });
+      card.appendChild(install);
+    } else {
+      // macOS Safari: no button — the File → Add to Dock pointer + a neutral help
+      // link into the Phase 39 Safari install topic.
+      card.appendChild(makeEl('p', 'install-nudge-safari-hint', 'onboard.install.safariHint'));
+      var link = makeEl('a', 'install-nudge-safari-link', 'onboard.install.safariLink');
+      link.setAttribute('href', './help.html#topic-install-safari');
+      card.appendChild(link);
+    }
+
+    // Neutral dismiss ('No thanks') + a muted reassurance line.
+    var actions = doc.createElement('div');
+    actions.className = 'install-nudge-actions';
+    var dismiss = makeEl('button', 'install-nudge-dismiss', 'onboard.install.dismiss');
+    dismiss.setAttribute('type', 'button');
+    dismiss.addEventListener('click', function () {
+      lsSet(INSTALL_DISMISSED, '1');           // persistent, gone forever — D-14
+      removeCard();
+    });
+    actions.appendChild(dismiss);
+    card.appendChild(actions);
+    card.appendChild(makeEl('p', 'install-nudge-later', 'onboard.install.laterHint'));
+
+    doc.body.appendChild(card);
+  }
+
+  register({ id: 'install-nudge', eligible: installEligible, show: installShow });
+
   return {
     register: register,
     run: run,
@@ -223,6 +337,8 @@ var AttentionCoordinator = (function () {
     // stable public contract).
     _getDeferredPrompt: function () { return deferredPrompt; },
     _clearDeferredPrompt: function () { deferredPrompt = null; },
+    // Test seam — reach a registered surface's { eligible, show } directly.
+    _getSurface: function (id) { return registry[id]; },
   };
 })();
 
