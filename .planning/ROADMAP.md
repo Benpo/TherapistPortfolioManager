@@ -190,7 +190,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
 **Scope notes:** Translation happens AFTER the EN corpus stabilizes (post-P42) — one pass, no double-translation. Pipeline per the D-12/D-19 precedent: agent translation grounded in the shipped EN + each locale's existing i18n register conventions (HE infinitive/plural-imperative house style, DE Sie, CS formal) → native-speaker agent gates (Sonnet) → Sapir human read for Hebrew (CS ships on the Phase-37 accepted-risk precedent; external review only on a deliberate CS push). Per-locale integrity tests mirroring `tests/39-help-integrity.test.js` ({ui:key} resolution against each locale file, forbidden-words, structure parity with EN). Scope decision: Ben 2026-07-08 — L10N-01 moved from v2 deferral into v1.3 (EN-only help was never his intent for a Hebrew-first user base). Must land BEFORE Phase 43 so the docs hard-gate covers translated content from day one.
 **Requirements**: L10N-01
 **Depends on:** Phase 42
-**Plans:** 0 plans
+**Plans:** 8/8 plans complete
 
 Plans:
 
@@ -272,7 +272,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete | 2026-07-06 |
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
 | 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
-| 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 8/8 | Complete   | 2026-07-08 |
+| 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 8/8 | Complete    | 2026-07-08 |
 | 41. Replayable Guided Tour | v1.3 | 0/TBD | Not started | - |
 | 42. In-App Changelog & What's-New | v1.3 | 0/TBD | Not started | - |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |

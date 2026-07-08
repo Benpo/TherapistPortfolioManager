@@ -1,8 +1,9 @@
 ---
 phase: 40-first-run-welcome-onboarding-coordinator
-verified: 2026-07-08T13:15:00Z
-status: human_needed
+verified: 2026-07-08T14:28:13Z
+status: passed
 score: 4/4 must-haves verified
+human_verification_result: "passed — both narrowed on-device items (real-browser visual + dark-mode; real Chromium install flow) confirmed pass by Ben, 2026-07-08"
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
