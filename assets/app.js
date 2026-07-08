@@ -523,8 +523,21 @@ window.App = (() => {
       { labelKey: 'help.entry.replayWelcome', action: function () {
         if (typeof AttentionCoordinator !== 'undefined') AttentionCoordinator.showWelcome(true);
       } },
+      // Phase 41 Plan 05 (TOUR-01) — "Take the tour" action row launches the
+      // replayable guided tour via window.Tour.start() (an explicit user click,
+      // never auto-run). Slotted after Replay welcome (P40 D-17 ordering).
+      // typeof-guarded so a page that mounts chrome without tour.js never throws.
+      { labelKey: 'help.entry.takeTour', action: function () {
+        if (typeof window.Tour !== 'undefined') window.Tour.start();
+      } },
       { labelKey: 'help.entry.contact', href: 'mailto:contact@sessionsgarden.app' }
     ];
+    // Demo gate (D-16): the sales demo never offers the tour — filter the row out
+    // BEFORE the mount loop so no dead row renders. window.name==='demo-mode' is
+    // the established demo seam (initDemoMode / mountBackupCloudButton).
+    if (typeof window !== 'undefined' && window.name === 'demo-mode') {
+      items = items.filter(function (item) { return item.labelKey !== 'help.entry.takeTour'; });
+    }
     items.forEach(function (item) {
       // href → <a> link row (unchanged path); action → <button> row.
       var el;
@@ -890,6 +903,13 @@ window.App = (() => {
 
     const savedLang = localStorage.getItem("portfolioLang") || window.I18N_DEFAULT || "en";
     setLanguage(savedLang);
+    // Phase 41 Plan 05 (TOUR-03 / architect-gate A7) — resume a cross-page tour
+    // run on load. Placed IMMEDIATELY AFTER setLanguage(savedLang) on purpose: a
+    // resuming RTL-preference (Hebrew) user must render in the correct direction
+    // on the first paint. If resume() ran before setLanguage, the tooltip would
+    // flash one tick LTR before the app:language re-render (TOUR-04). typeof-
+    // guarded so a page that mounts chrome without tour.js never throws (A1).
+    if (typeof window.Tour !== 'undefined' && window.Tour.resume) window.Tour.resume();
     checkBackupReminder();
 
     // Phase 25 Plan 05 (D-17) — foreground schedule check. When a backup
