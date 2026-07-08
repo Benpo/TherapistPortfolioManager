@@ -23,10 +23,10 @@ Content quality bar (Ben, 2026-07-07): ALL new user-facing copy (help, welcome, 
 
 ### Onboarding & First-Run (ONBD)
 
-- [ ] **ONBD-01**: User sees a full-screen branded welcome overlay on first app launch after activation, offering two first-class choices — "Take the guided tour" / "I'll explore myself" — firing exactly once (one-shot localStorage flag; Esc dismisses; either choice or tour completion sets it)
-- [ ] **ONBD-02**: User can re-open the welcome/tour any time from the "?" entry — it never auto-re-fires
+- [x] **ONBD-01**: User sees a full-screen branded welcome overlay on first app launch after activation, offering two first-class choices — "Take the guided tour" / "I'll explore myself" — firing exactly once (one-shot localStorage flag; Esc dismisses; either choice or tour completion sets it)
+- [x] **ONBD-02**: User can re-open the welcome/tour any time from the "?" entry — it never auto-re-fires
 - [ ] **ONBD-03**: User never sees competing surfaces stack on one launch — a single first-run coordinator enforces a written precedence order across welcome, What's-New, security note, install nudge, and the iOS banner (exact order + upgrader-vs-fresh-install handling decided in discuss-phase)
-- [ ] **ONBD-04**: User who hasn't installed the PWA gets one friendly, dismissable, non-nagging install affordance (dismissal remembered; per-browser aware; replaces/reconciles the existing per-session iOS banner)
+- [x] **ONBD-04**: User who hasn't installed the PWA gets one friendly, dismissable, non-nagging install affordance (dismissal remembered; per-browser aware; replaces/reconciles the existing per-session iOS banner)
 
 ### Guided Tour (TOUR)
 
@@ -89,10 +89,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HELP-05 | Phase 39 | Complete |
 | HELP-06 | Phase 39 | Complete |
 | HELP-07 | Phase 39 | Complete |
-| ONBD-01 | Phase 40 | Pending |
-| ONBD-02 | Phase 40 | Pending |
+| ONBD-01 | Phase 40 | Complete |
+| ONBD-02 | Phase 40 | Complete |
 | ONBD-03 | Phase 40 | Pending |
-| ONBD-04 | Phase 40 | Pending |
+| ONBD-04 | Phase 40 | Complete |
 | TOUR-01 | Phase 41 | Pending |
 | TOUR-02 | Phase 41 | Pending |
 | TOUR-03 | Phase 41 | Pending |
