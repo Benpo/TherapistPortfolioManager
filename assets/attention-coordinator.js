@@ -235,6 +235,20 @@ var AttentionCoordinator = (function () {
     window.addEventListener('beforeinstallprompt', function (e) {
       if (e && e.preventDefault) e.preventDefault();
       deferredPrompt = e;
+      // Pitfall-1 re-arm: run() executes once at DOMContentLoaded, BEFORE Chrome's
+      // late-firing beforeinstallprompt, so at that first run() deferredPrompt is
+      // null and installEligible() is false — the nudge could never win the slot on
+      // any session. Now that we've captured the prompt, re-invoke arbitration so the
+      // nudge can surface THIS session. No external session/precedence guard is
+      // needed: run() already early-returns on isDemo() (D-09) and on the one-per-
+      // session marker (D-02), and iterates PRECEDENCE in order (D-01) — so calling
+      // run() directly preserves one-per-session and precedence by construction. The
+      // call is wrapped in its own try/catch so a throw can never break capture.
+      // Environmental caveat: Chrome fires beforeinstallprompt only when PWA install
+      // criteria + engagement heuristics are met, so the real browser-mediated flow
+      // stays a human UAT check — the jsdom harness proves the re-arm wiring, not
+      // Chrome's heuristics.
+      try { run(); } catch (reErr) {}
     });
     window.addEventListener('appinstalled', function () { deferredPrompt = null; });
   } catch (e) {}
@@ -294,11 +308,13 @@ var AttentionCoordinator = (function () {
     // Phone-class gets the mobile hint instead.
     if (isPhoneClass()) return false;
     // Per-browser gate (D-12): render only when we can show CORRECT copy — a
-    // captured beforeinstallprompt (Chromium) OR real macOS Safari. Any other
-    // no-event env (desktop Firefox, or Chromium where run() beat the late-firing
-    // event — Pitfall 1) is ineligible; the slot passes on and the nudge competes
-    // again a later session. D-13 needs no bookkeeping: 'install-nudge' sits below
-    // 'welcome' in PRECEDENCE, so welcome naturally wins launch 1.
+    // captured beforeinstallprompt (Chromium) OR real macOS Safari. Desktop Firefox
+    // (no event, non-Safari) stays ineligible so the one-ask is never burned on wrong
+    // copy. On Chromium the initial DOMContentLoaded run() beats the late-firing
+    // event (Pitfall 1), but the beforeinstallprompt handler re-runs arbitration the
+    // moment it captures the prompt — so the nudge can surface THIS session (subject
+    // to D-02 one-per-session and PRECEDENCE). D-13 needs no bookkeeping: 'install-
+    // nudge' sits below 'welcome' in PRECEDENCE, so welcome naturally wins launch 1.
     return !!deferredPrompt || isMacSafari();
   }
 
