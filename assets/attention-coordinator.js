@@ -18,7 +18,7 @@
  *                        page load, Plan 04). Demo-off + one-per-session gated.
  *     showWelcome(isReplay) — direct-open path for the welcome overlay. The
  *                        "Replay welcome" row (Plan 04) calls showWelcome(true).
- *     PRECEDENCE       — the five governed ids, in order (D-01).
+ *     PRECEDENCE       — the six governed ids, in order (D-01).
  *
  * STORAGE KEYS
  *   sessionStorage 'sg.surfaceShownThisSession' — one-per-session marker (D-02).
@@ -40,9 +40,11 @@
 var AttentionCoordinator = (function () {
   'use strict';
 
-  // The five governed surface ids, in precedence order (D-01). 'whats-new' has
+  // The six governed surface ids, in precedence order (D-01). 'whats-new' has
   // no registered surface until Phase 42 — run() skips unregistered ids.
-  var PRECEDENCE = ['welcome', 'whats-new', 'security-note', 'install-nudge', 'mobile-hint'];
+  // 'tour-reminder' (Phase 41, D-08) is appended LAST — the lowest slot — so a
+  // future Phase-42 whats-new surface is never starved by the re-entry offer.
+  var PRECEDENCE = ['welcome', 'whats-new', 'security-note', 'install-nudge', 'mobile-hint', 'tour-reminder'];
 
   var SESSION_MARKER = 'sg.surfaceShownThisSession';
   var WELCOME_SEEN = 'sg.welcomeSeen';
@@ -175,8 +177,11 @@ var AttentionCoordinator = (function () {
 
     var actions = doc.createElement('div');
     actions.className = 'welcome-actions';
-    // Primary CTA — an anchor to ./help.html (interim guided-tour wiring, D-11;
-    // Phase 41 rewires this one target). It is the single accent element.
+    // Primary CTA — the single accent element. Phase 41 (D-12) rewired it from
+    // an interim ./help.html nav into an in-place tour launch: activating it runs
+    // dismiss() (recording the welcome one-shot on the non-replay path) then
+    // Tour.start(). Kept as an <a> (focusable/tabbable for the focus trap) with a
+    // preventDefault-guarded href fallback — the click never navigates.
     var primary = buildCta('a', 'welcome-cta--primary', 'help.welcome.ctaTour');
     primary.setAttribute('href', './help.html');
     // Secondary CTA — first-class but neutral (therapist autonomy, D-10).
@@ -226,9 +231,16 @@ var AttentionCoordinator = (function () {
       }
     }
 
-    // The primary CTA dismisses (writing the keys) and then navigates via its
-    // href; the secondary CTA and Esc dismiss in place.
-    primary.addEventListener('click', function () { dismiss(); });
+    // The primary CTA dismisses (writing the keys on the non-replay path —
+    // Pitfall 8) and then launches the real tour IN PLACE; it never navigates to
+    // ./help.html (D-12). preventDefault neutralizes the retained href fallback.
+    // Tour.start() is typeof-guarded (A1 defense-in-depth). The secondary CTA and
+    // Esc dismiss in place.
+    primary.addEventListener('click', function (e) {
+      if (e && e.preventDefault) e.preventDefault();
+      dismiss();
+      if (typeof window.Tour !== 'undefined') window.Tour.start();
+    });
     secondary.addEventListener('click', function () { dismiss(); });
     doc.addEventListener('keydown', onKeydown);
 
@@ -424,6 +436,58 @@ var AttentionCoordinator = (function () {
   }
 
   register({ id: 'mobile-hint', eligible: mobileEligible, show: mobileShow });
+
+  // ── tour-reminder surface (D-08 / TOUR-01) ──────────────────────────────────
+  // The lowest-precedence re-entry offer. When a prior session's tour exit choice
+  // set sg.tourRemindLater (and the tour is neither completed nor never-remind),
+  // this OFFERS to finish next session. It NEVER auto-runs: show() only mounts an
+  // offer card, and Tour.start() is reachable ONLY from the Start button handler
+  // (TOUR-01 / T-41-06). run()'s one-per-session + demo-off gating is inherited —
+  // not re-implemented here. The sg.tour* flags (set by the Plan 04 exit choice)
+  // are deliberately disjoint from any security-note key (D-08 / T-41-05).
+  function tourReminderEligible() {
+    return lsGet('sg.tourRemindLater') === '1'
+        && lsGet('sg.tourCompleted') !== '1'
+        && lsGet('sg.tourNeverRemind') !== '1';
+  }
+
+  function tourReminderShow() {
+    var doc = document;
+    var card = doc.createElement('div');
+    card.className = 'tour-reminder-card';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-labelledby', 'tour-reminder-title');
+
+    var title = makeEl('h2', 'tour-reminder-title', 'help.tour.reminder.title');
+    title.id = 'tour-reminder-title';
+    card.appendChild(title);
+
+    function removeCard() { if (card.parentNode) card.parentNode.removeChild(card); }
+
+    var actions = doc.createElement('div');
+    actions.className = 'tour-reminder-actions';
+
+    // Start — the ONLY path from this surface to Tour.start() (TOUR-01).
+    var start = makeEl('button', 'tour-reminder-start', 'help.tour.reminder.start');
+    start.setAttribute('type', 'button');
+    start.addEventListener('click', function () {
+      removeCard();
+      if (typeof window.Tour !== 'undefined') window.Tour.start();
+    });
+    actions.appendChild(start);
+
+    // Dismiss — remove the offer card only; writes no flag, so the remind-later
+    // offer returns next session until the tour is completed or never-remind.
+    var dismiss = makeEl('button', 'tour-reminder-dismiss', 'help.tour.reminder.dismiss');
+    dismiss.setAttribute('type', 'button');
+    dismiss.addEventListener('click', function () { removeCard(); });
+    actions.appendChild(dismiss);
+
+    card.appendChild(actions);
+    doc.body.appendChild(card);
+  }
+
+  register({ id: 'tour-reminder', eligible: tourReminderEligible, show: tourReminderShow });
 
   return {
     register: register,
