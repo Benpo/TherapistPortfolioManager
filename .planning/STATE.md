@@ -6,14 +6,14 @@ current_phase: 41
 current_phase_name: replayable-guided-tour
 status: executing
 stopped_at: Phase 41 UI-SPEC approved
-last_updated: "2026-07-08T18:53:35.001Z"
+last_updated: "2026-07-08T18:59:41.656Z"
 last_activity: 2026-07-08
 last_activity_desc: Phase 41 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 21
-  completed_plans: 15
+  completed_plans: 16
   percent: 33
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 ## Current Position
 
 Phase: 41 (replayable-guided-tour) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-07-08 — Phase 41 execution started
 
@@ -196,6 +196,7 @@ Last activity: 2026-07-08 — Phase 41 execution started
 | Phase 40 P07 | 6min | 2 tasks | 3 files |
 | Phase 40 P08 | ~12min | 3 tasks | 7 files |
 | Phase 41 P01 | 14min | 2 tasks | 5 files |
+| Phase 41 P02 | ~10min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -370,6 +371,7 @@ Recent decisions affecting current work:
 - [Phase 40]: Phase 40-06: re-arm coordinator run() inside the beforeinstallprompt handler (no external session guard) — run()'s D-02/D-01 checks make it redundant
 - [Phase ?]: [Phase 40-08]: EN welcome overlay split into two paragraphs — help.welcome.subtitle (P1 value-first) + new help.welcome.subtitle2 (P2 privacy); second <p> mounts via textContent guarded on non-empty!=key so non-EN empty stubs render nothing; help.entry.replayWelcome renamed 'Onboarding screen'; HE/DE/CS translation deferred to 42.1
 - [Phase ?]: [Phase 41-01]: Full tour-copy contract (39 help.tour.* keys) authored in all 4 locales this phase (D-11); EN canonical, HE/DE/CS flagged for TOUR-01 native-speaker pass
+- [Phase 41]: Phase 41-02: 10 data-tour anchors on always-present chrome (D-02); backup/help set via setAttribute in app.js; 41-anchor-presence rot guard allowlisted in fake-test-detector (reads assets/app.js by design)
 
 ### Pending Todos
 
@@ -442,7 +444,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-08T18:53:11.468Z
+**Last session:** 2026-07-08T18:59:12.999Z
 
 Last activity: 2026-07-07 — Closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
 Stopped at: Phase 41 UI-SPEC approved
