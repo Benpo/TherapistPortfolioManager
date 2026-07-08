@@ -3,8 +3,10 @@
  * guard for the persistent "?" help entry mounted by App.initHelpEntry().
  *
  * WHAT THIS PINS (observable DOM behavior, not source shape):
- *   1. renderNav() emits the Help nav anchor (href ./help.html, data-nav=help,
- *      data-i18n=nav.help resolved to its EN label).
+ *   1. renderNav() emits NO Help nav anchor — the "?" help entry is the only help
+ *      affordance in the header. Removal-regression guard (Phase 40-07): the
+ *      redundant nav pill was deleted; renderNav() must not re-emit an
+ *      a[data-nav="help"] anchor.
  *   2. A single .help-entry-btn mounts into #headerActions, carries .is-active
  *      when body[data-nav]='help', and its aria-label equals t('help.entry.label').
  *   3. The popover holds the two day-one items whose textContent equals
@@ -80,16 +82,13 @@ function test(name, fn) {
   catch (err) { console.log('  FAIL  ' + name); console.log('        ' + (err && err.message || err)); failed++; }
 }
 
-// ── 1. renderNav Help anchor ────────────────────────────────────────────────
-test('renderNav() emits a Help anchor (href ./help.html, data-nav=help, i18n label)', function () {
+// ── 1. renderNav emits NO Help nav anchor (removal-regression guard) ─────────
+test('renderNav() emits NO Help nav anchor — the "?" entry is the only help affordance', function () {
   var env = buildWindow('help');
   env.App.renderNav();
   var a = env.win.document.querySelector('#nav-placeholder a[data-nav="help"]');
-  assert.ok(a, 'a Help nav anchor with data-nav="help" must exist');
-  assert.strictEqual(a.getAttribute('href'), './help.html', 'nav href must be ./help.html');
-  assert.strictEqual(a.getAttribute('data-i18n'), 'nav.help', 'nav anchor must carry data-i18n=nav.help');
-  assert.strictEqual(a.textContent, env.App.t('nav.help'),
-    'applyTranslations must resolve nav.help to its EN label');
+  assert.strictEqual(a, null,
+    'renderNav() must NOT emit a Help nav anchor — the redundant pill was removed in Phase 40-07; the "?" help entry is the sole help affordance');
   env.dom.window.close();
 });
 

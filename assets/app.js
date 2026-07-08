@@ -145,7 +145,6 @@ window.App = (() => {
       <span class="nav-divider" aria-hidden="true"></span>
       <a href="./add-client.html" data-nav="addClient" data-i18n="nav.addClient">Add Client</a>
       <a href="./add-session.html" data-nav="addSession" data-i18n="nav.addSession">Add Session</a>
-      <a href="./help.html" data-nav="help" data-i18n="nav.help">Help</a>
     </nav>`;
     const navKey = document.body.dataset.nav;
     if (navKey) {
