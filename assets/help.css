@@ -349,6 +349,19 @@ body.searching .help-root .spine-group-label { display: none; }
   display: none;
   padding: var(--space-xs) var(--space-lg) var(--space-lg);
 }
+/* Interim until Phase 42.1 ships translated content: the help BODY corpus is
+   EN-only (D-18), so inside an RTL page render the prose LTR — otherwise Latin
+   punctuation scrambles to the wrong edge (periods jump left, step numbers sit
+   right). Chrome (nav, page title, search, no-match, contact band) stays RTL;
+   Hebrew chip labels inside the LTR prose are inline-block, so they bidi-isolate
+   cleanly. When per-language content files land, key this off the loaded
+   content language instead of [dir]. */
+[dir="rtl"] .help-root .card-body,
+[dir="rtl"] .help-root .card-head h2,
+[dir="rtl"] .help-root .page-head > p {
+  direction: ltr;
+  text-align: start;
+}
 .help-root .help-card.is-open .card-body { display: block; }
 .help-root .card-body h3 {
   /* sub-topic emphasis: SemiBold 600 */
