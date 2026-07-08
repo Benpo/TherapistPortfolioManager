@@ -130,7 +130,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
   3. On any single launch, only one attention surface appears — a written precedence order across welcome, What's-New, security note, install nudge, and the iOS banner is enforced, with explicit fresh-install-vs-upgrader handling (no competing surfaces stack).
   4. A practitioner who hasn't installed the PWA sees one friendly, dismissable, non-nagging, per-browser-aware install affordance (dismissal remembered) that replaces/reconciles the existing per-session iOS banner.
 
-**Plans**: 3/5 plans executed
+**Plans**: 4/5 plans executed
 
 **Wave 1**
 
@@ -143,7 +143,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
 **Wave 3** *(blocked on Wave 2; parallel, no file overlap)*
 
 - [x] 40-03-PLAN.md — Install-nudge surface (Chromium real Install button / macOS Safari pointer) + all-mobile expectation hint (iOS-banner successor) + CSS [wave 3]
-- [ ] 40-04-PLAN.md — app.js wiring: `initCommon` → coordinator `run()`, security-note registered as governed surface, "Replay welcome" "?" row [wave 3]
+- [x] 40-04-PLAN.md — app.js wiring: `initCommon` → coordinator `run()`, security-note registered as governed surface, "Replay welcome" "?" row [wave 3]
 - [ ] 40-05-PLAN.md — Coordinator `<script>` on 8 app pages + iOS banner deletion + SW precache + static gates [wave 3]
 
 **UI hint**: yes
@@ -266,7 +266,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete | 2026-07-06 |
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
 | 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
-| 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 3/5 | In Progress|  |
+| 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 4/5 | In Progress|  |
 | 41. Replayable Guided Tour | v1.3 | 0/TBD | Not started | - |
 | 42. In-App Changelog & What's-New | v1.3 | 0/TBD | Not started | - |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |
