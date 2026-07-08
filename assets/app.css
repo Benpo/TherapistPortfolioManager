@@ -4839,6 +4839,13 @@ html[dir="rtl"] .multi-select-toggle {
   color: var(--color-text-muted);
 }
 
+/* Comfortable gap between the two stacked subtitle paragraphs (value + privacy).
+   Only the second paragraph gets top spacing; the first keeps margin 0. Logical
+   property so it stays correct under RTL. */
+.welcome-subtitle + .welcome-subtitle {
+  margin-block-start: var(--space-sm);
+}
+
 .welcome-actions {
   display: flex;
   flex-direction: column;

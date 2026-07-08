@@ -159,6 +159,20 @@ var AttentionCoordinator = (function () {
     sub.setAttribute('data-i18n', 'help.welcome.subtitle');
     sub.textContent = t('help.welcome.subtitle');
 
+    // Second subtitle paragraph (privacy, softened). Mounted only when the
+    // resolved value is a real non-empty string — t() echoes the raw key when a
+    // locale lacks the entry, and non-EN locales carry an empty parity stub
+    // (Phase 42.1 translation-pending), so both cases must render nothing.
+    // textContent ONLY — never innerHTML (overlay XSS trust boundary, T-40-03).
+    var sub2Text = t('help.welcome.subtitle2');
+    var sub2 = null;
+    if (typeof sub2Text === 'string' && sub2Text !== '' && sub2Text !== 'help.welcome.subtitle2') {
+      sub2 = doc.createElement('p');
+      sub2.className = 'welcome-subtitle';
+      sub2.setAttribute('data-i18n', 'help.welcome.subtitle2');
+      sub2.textContent = sub2Text;
+    }
+
     var actions = doc.createElement('div');
     actions.className = 'welcome-actions';
     // Primary CTA — an anchor to ./help.html (interim guided-tour wiring, D-11;
@@ -173,6 +187,7 @@ var AttentionCoordinator = (function () {
 
     copy.appendChild(h1);
     copy.appendChild(sub);
+    if (sub2) copy.appendChild(sub2);
     copy.appendChild(actions);
     panel.appendChild(art);
     panel.appendChild(copy);
