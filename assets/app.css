@@ -214,6 +214,17 @@ a {
   min-width: 160px;
 }
 .help-entry-item {
+  /* Native-<button> reset so <button> action rows render identically to the
+     <a> link rows (no UA grey box/border that reads as "preselected"). The
+     -webkit- prefix is required for Safari/WebKit. font: inherit must precede
+     font-size so the shorthand doesn't clobber the row's 0.9rem size. */
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  cursor: pointer;
+  font: inherit;
   display: block;
   padding: 0.5rem 0.75rem;
   border-radius: 0.375rem;
