@@ -166,7 +166,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
   3. The tour survives cross-page navigation — steps that live on another page navigate there and resume (sessionStorage state).
   4. Switching language mid-tour re-renders the tour cleanly in the new language and direction (RTL mirroring verified in real WebKit, not jsdom alone).
 
-**Plans**: 6/7 plans executed
+**Plans**: 6/13 plans executed (plans 01–06 done; 07 paused at its blocking checkpoint; 08–13 are gap-closure remediation for the 8 UAT gaps per the Ben-approved 41-STORYLINE.md)
 
 Plans:
 **Wave 1**
@@ -190,6 +190,21 @@ Plans:
 **Wave 5** *(blocked on Wave 4 completion)*
 
 - [ ] 41-07-PLAN.md — Playwright-WebKit RTL/geometry gate + real-Safari UAT checkpoint [wave 5]
+
+**Wave 6** *(gap-closure — UAT remediation per 41-STORYLINE.md, parallel; build on the shipped tour)*
+
+- [ ] 41-08-PLAN.md — RTL blocker + first-paint geometry fix + strengthened WebKit probe (UAT gaps 2/3/4) [wave 6]
+- [ ] 41-09-PLAN.md — Anchor recomposition: begin / nav-sessions / nav-reporting / settings + heart re-anchor + rot guard (gaps 1/2/6) [wave 6]
+- [ ] 41-11-PLAN.md — Storyline copy in 4 locales + parity gate realign (gaps 1/5/6/7) [wave 6]
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [ ] 41-10-PLAN.md — STEPS[] recomposition to the storyline spine + save-step export glyph + resume-state realign (gaps 5/6/7) [wave 7]
+- [ ] 41-12-PLAN.md — "?" menu trim to 3 items + relabel + ONBD-02/D-17 reversal note (gap 8) [wave 7]
+
+**Wave 8** *(blocked on Wave 7)*
+
+- [ ] 41-13-PLAN.md — Full-suite + WebKit probe green + storyline EN/HE human-verify (re-run of the failed UAT) [wave 8]
 
 **UI hint**: yes
 
