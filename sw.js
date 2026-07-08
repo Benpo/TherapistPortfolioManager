@@ -93,7 +93,13 @@ const PRECACHE_URLS = [
   // above, so these three are the only new offline dependencies.
   '/assets/help.js',
   '/assets/help-content-en.js',
-  '/assets/help.css'
+  '/assets/help.css',
+  // Replayable guided tour (Phase 41, TOUR-03/04): the bespoke tour engine
+  // (assets/tour.js) and its styles (assets/tour.css). Both load on all 8
+  // app-chrome pages (architect-gate A1), so they must be offline-available or
+  // the tour 404s for installed-PWA users (Pitfall 7, HELP-07 precedent).
+  '/assets/tour.js',
+  '/assets/tour.css'
 ];
 
 /**
