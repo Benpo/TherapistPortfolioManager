@@ -243,13 +243,18 @@ var AttentionCoordinator = (function () {
   // ── macOS Safari detection (per-browser install-copy gate, D-12) ────────────
   // The ONLY environment where the "File → Add to Dock" pointer copy is correct.
   // Chromium (Chrome/Edge/Opera/CriOS) and Firefox are excluded so the single ask
-  // is never burned on wrong-browser copy or a dead button.
+  // is never burned on wrong-browser copy or a dead button. iPadOS Safari 13+
+  // also reports a Macintosh (desktop-mode) UA, but installs via Share → Add to
+  // Home Screen — it exposes maxTouchPoints > 1 (real Macs, trackpads included,
+  // report 0), so touch devices are excluded to keep the copy correct.
   function isMacSafari() {
     try {
       var ua = navigator.userAgent || '';
+      var touch = navigator.maxTouchPoints > 1;   // iPadOS desktop-mode tell
       return /Macintosh/.test(ua)
           && /Safari\//.test(ua)
-          && !/Chrome|Chromium|CriOS|Edg|OPR/.test(ua);
+          && !/Chrome|Chromium|CriOS|Edg|OPR/.test(ua)
+          && !touch;
     } catch (e) { return false; }
   }
 
