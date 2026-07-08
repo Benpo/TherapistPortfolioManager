@@ -49,13 +49,13 @@ Content quality bar (Ben, 2026-07-07): ALL new user-facing copy (help, welcome, 
 - [ ] **GATE-03**: A written, checkable definition of "user-facing change" (path-based heuristic) governs the gate, with a logged escape hatch for genuine emergencies (never silent `--no-verify` culture)
 - [ ] **GATE-04**: The gate hooks the existing release habit — the hand-set `APP_VERSION` bump in `assets/version.js` is the release moment a changelog entry must exist for; the gate is validated against v1.3's own ship
 
+### Localization (L10N)
+
+- [ ] **L10N-01**: All v1.3-authored user-facing copy (help body, welcome overlay, tour, changelog/What's-New) reads natively in HE/DE/CS — agent translation after the EN corpus stabilizes (post-P42, one pass) → native-speaker agent gates (Sonnet) → Sapir human read for Hebrew (CS ships on the Phase-37 accepted-risk precedent); per-locale integrity tests mirror `tests/39-help-integrity.test.js`. *(Moved from v2 deferral into v1.3 scope by Ben, 2026-07-08 — EN-only help was never the intent for a Hebrew-first user base. Phase 42.1.)*
+
 ## v2 Requirements
 
 Deferred to future releases. Tracked but not in the current roadmap.
-
-### Localization
-
-- **L10N-01**: HE/DE/CS translation of all help/tour/welcome/changelog copy (EN stabilizes first; native review — Phase 26 D-12 path)
 
 ### Help depth
 
@@ -101,6 +101,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CHLG-02 | Phase 42 | Pending |
 | CHLG-03 | Phase 42 | Pending |
 | CHLG-04 | Phase 42 | Pending |
+| L10N-01 | Phase 42.1 | Pending |
 | GATE-01 | Phase 43 | Pending |
 | GATE-02 | Phase 43 | Pending |
 | GATE-03 | Phase 43 | Pending |

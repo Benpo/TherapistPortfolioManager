@@ -163,6 +163,18 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
 **Plans**: TBD
 **UI hint**: yes
 
+### Phase 42.1: Help & Onboarding Translation (HE/DE/CS) (INSERTED)
+
+**Goal:** Every v1.3-authored user-facing string reads natively in all four locales — the help body (`help-content-he/de/cs.js` + per-language loader in help.html/help.js with EN fallback), welcome overlay copy, tour copy, and changelog/What's-New entries — so Hebrew-first practitioners get the help center in their own language before the milestone ships.
+**Scope notes:** Translation happens AFTER the EN corpus stabilizes (post-P42) — one pass, no double-translation. Pipeline per the D-12/D-19 precedent: agent translation grounded in the shipped EN + each locale's existing i18n register conventions (HE infinitive/plural-imperative house style, DE Sie, CS formal) → native-speaker agent gates (Sonnet) → Sapir human read for Hebrew (CS ships on the Phase-37 accepted-risk precedent; external review only on a deliberate CS push). Per-locale integrity tests mirroring `tests/39-help-integrity.test.js` ({ui:key} resolution against each locale file, forbidden-words, structure parity with EN). Scope decision: Ben 2026-07-08 — L10N-01 moved from v2 deferral into v1.3 (EN-only help was never his intent for a Hebrew-first user base). Must land BEFORE Phase 43 so the docs hard-gate covers translated content from day one.
+**Requirements**: L10N-01
+**Depends on:** Phase 42
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 42.1 to break down)
+
 ### Phase 43: Docs-Maintenance Hard Gate
 
 **Goal**: No user-facing change can ship without a changelog entry and updated help topics — enforced by a layered, hard (blocking) gate, validated against v1.3's own release.

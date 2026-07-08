@@ -6,15 +6,15 @@ current_phase: 40
 current_phase_name: First-Run Welcome & Onboarding Coordinator
 status: verifying
 stopped_at: Phase 39 UI-SPEC approved
-last_updated: "2026-07-07T22:33:38.306Z"
+last_updated: "2026-07-08T04:39:53.787Z"
 last_activity: 2026-07-07
 last_activity_desc: Phase 39 complete, transitioned to Phase 40
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 1
   total_plans: 6
   completed_plans: 6
-  percent: 20
+  percent: 17
 ---
 
 # Project State
@@ -396,6 +396,7 @@ Recent decisions affecting current work:
 - Phase 15 added: Architecture and UI audit (dual-mode: Opus subagents for arch review + /gsd:ui-review for frontend)
 - Phase 22 added: Session Workflow Loop — pre-session context card, editable section titles, session-to-document email export (bundles 3 todos from 2026-04-26)
 - Phase 37 added: Date consistency + date-format setting (F6+F5)
+- Phase 42.1 inserted after Phase 42: Help & Onboarding Translation (HE/DE/CS) — L10N-01 moved from v2 deferral into v1.3 (Ben 2026-07-08: EN-only help was never the intent for a Hebrew-first user base); one translation pass after EN stabilizes, before the P43 gate
 
 ### Blockers/Concerns
 
