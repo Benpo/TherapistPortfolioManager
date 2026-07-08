@@ -8,7 +8,7 @@ updated: 2026-07-08T21:28:46Z
 
 ## Current Test
 
-[testing complete — 7 gaps found and diagnosed; remediation spec approved by Ben in 41-STORYLINE.md (all 4 decisions accepted, D-01 composition change re-approved 2026-07-08)]
+[testing complete — 8 gaps found and diagnosed; narrative gaps (1,6,7) resolved by the Ben-approved 41-STORYLINE.md (all 4 decisions accepted, D-01 re-approved 2026-07-08); gaps 2,3,4,5,8 are code/copy fixes]
 
 ## Tests
 
@@ -54,11 +54,17 @@ result: issue
 reported: "the fact that the hello is step 1 is maybe nice but not really making sense if we write on the hello section 'Let's walk through running a session, end to end'. its a bit confusing, I was expecting to see a session. We need to really build the story here in a better way."
 severity: major
 
+### 8. Help ("?") menu — item count + labels
+expected: The "?" menu is a small, non-redundant set of entries; the replayable onboarding is the guided tour
+result: issue
+reported: "menu shows help center, onboarding screen, take the tour, contact us but it should only be 3 items. the onboarding screen should not be visible after the first time. only the guided tour should be. so probably its just 'Onboarding Tour' or similar and the screen link should be removed."
+severity: minor
+
 ## Summary
 
-total: 7
+total: 8
 passed: 0
-issues: 7
+issues: 8
 pending: 0
 skipped: 0
 blocked: 0
@@ -158,3 +164,20 @@ blocked: 0
       issue: "STEPS[] composition"
   missing:
     - "Implement the approved 41-STORYLINE.md arc ('the path a session travels') end-to-end: step 1 reframe, merged home beat, re-anchored heart/nav steps, settings step, honest finish. D-01 composition change re-approved by Ben 2026-07-08."
+
+- truth: "The '?' menu is a small, non-redundant set — the replayable onboarding is the guided tour, not a welcome-screen replay"
+  status: failed
+  reason: "User reported: menu has 4 items (Help center / Onboarding screen / Take the tour / Contact us); should be 3 — remove the welcome-screen replay, keep the tour"
+  severity: minor
+  test: 8
+  root_cause: "initHelpEntry adds a 'Replay welcome' action (help.entry.replayWelcome -> AttentionCoordinator.showWelcome(true); Phase 40 Plan 04 / ONBD-02 / D-17) alongside the Phase 41 'Take the tour' row — two redundant onboarding-replay entries"
+  artifacts:
+    - path: "assets/app.js:518-533"
+      issue: "help-entry items[] includes both replayWelcome and takeTour"
+    - path: "assets/i18n-en.js:599,647"
+      issue: "help.entry.replayWelcome ('Onboarding screen') to remove; help.entry.takeTour label to revise"
+  missing:
+    - "Remove the help.entry.replayWelcome item from initHelpEntry items[] (and retire the key x4 locales); the showWelcome(true) menu caller goes away — first-run welcome behavior unchanged"
+    - "Relabel help.entry.takeTour to fit the app's existing 'guided tour' voice (Ben suggested 'Onboarding Tour'; the welcome CTA already says 'the guided tour' — align, avoid jargon) x4 locales"
+    - "Result: Help center / <guided tour> / Contact us = 3 items"
+    - "REVERSES Phase 40 D-17 / ONBD-02 (help-menu welcome replay) per Ben's decision 2026-07-08 — note in REQUIREMENTS traceability during gap-closure"
