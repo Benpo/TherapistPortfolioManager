@@ -1,0 +1,434 @@
+/**
+ * tour.js — the bespoke replayable guided-tour engine (Phase 41, Plan 03;
+ * TOUR-01 / TOUR-02 / TOUR-03). window.Tour.
+ *
+ * WHY THIS EXISTS
+ *   The tour walks a therapist through the full session spine (10 steps across
+ *   index / add-session / sessions / reporting) as a spotlight + tethered
+ *   tooltip. It runs ONLY on an explicit start() (no auto-run — TOUR-01), it
+ *   NEVER silently skips a step whose anchor is missing (it degrades to a
+ *   centered fallback modal that names where the thing lives and offers a
+ *   working "Take me there" link — TOUR-02), and it carries a single run across
+ *   page navigations via a sessionStorage resume tier, always restarting from
+ *   step 1 on a fresh launch (TOUR-03 / D-09). Render loop ported from the
+ *   validated sketch .planning/sketches/003-tour-fallback/index.html, adapted to
+ *   the cross-page route. Language re-render / exit choice / finish card /
+ *   bottom-sheet arrive in Plan 04; launch-surface + coordinator wiring in Plan 05.
+ *
+ * PUBLIC SURFACE (one namespaced global, mirroring assets/attention-coordinator.js):
+ *   window.Tour = { start, resume, isActive, next, prev, ...seams }
+ *     start()  — PAGE-AWARE explicit launch. On step-1's page it renders in
+ *                place; off it, it persists sg.tourResume {stepIndex:0} and
+ *                navigates to STEPS[0].page so resume() renders step 1 there
+ *                (a launch from any page reaches step 1's SPOTLIGHT, never a
+ *                fallback — D-02 / architect-gate A2).
+ *     resume() — read-and-continue from sg.tourResume when it matches the
+ *                current page; otherwise no-op (fresh launch → start() at step 1).
+ *     next()/prev() — advance/retreat; a page-crossing next() persists resume
+ *                then navigates (D-06).
+ *     isActive() — is a run currently mounted on this page.
+ *   Injectable seams (exposed for jsdom tests / recovery; `_`-prefixed):
+ *     _isAnchorVisible(el) — default el && el.offsetParent !== null (A5). render()
+ *                calls THIS seam, never an inline offsetParent check, so tests can
+ *                force both branches (jsdom hardcodes offsetParent === null).
+ *     _navigate(href), _currentPage(), _render(), _endTour(),
+ *     _getSteps(), _getStepIndex(), _setStepIndex(i).
+ *
+ * STORAGE
+ *   sessionStorage 'sg.tourResume' — JSON {tourId, stepIndex}; the ONLY resume
+ *                tier (D-09 / Pitfall 6). Cleared on finish and on mid-tour close.
+ *   localStorage 'sg.tourCompleted' — set by the Plan 04 finish card, NOT here.
+ *
+ * INERTNESS WITHOUT SCROLL FREEZE (architect-gate A4)
+ *   A full-viewport fixed overlay intercepts pointer events so the underlying
+ *   page is inert (D-07). The engine does NOT call App.lockBodyScroll for
+ *   spotlight steps — its .is-modal-open position:fixed would freeze the viewport
+ *   and defeat scrollIntoView for below-the-fold anchors (steps 5-6). Scroll
+ *   stays free: the engine scrollIntoView's each anchor then repositions
+ *   spotlight+tooltip on scroll/resize (rAF-debounced). App.lockBodyScroll is
+ *   reused ONLY for the centered fallback modal (no anchor to track).
+ *
+ * TRUST BOUNDARY (T-41-01 / V5)
+ *   All tour copy is injected via textContent — never assigned as raw markup.
+ *   (No inline SVG is used in this plan, so there is zero raw-markup assignment.)
+ *
+ * Zero dependencies, zero network. Modern evergreen baseline, no legacy shims (D-15).
+ */
+var Tour = (function () {
+  'use strict';
+
+  var TOUR_ID = 'main';
+  var RESUME_KEY = 'sg.tourResume';
+
+  // ── storage helpers (private-mode / quota safe — attention-coordinator idiom) ─
+  function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { window.localStorage.setItem(k, v); } catch (e) {} }
+  function ssGet(k) { try { return window.sessionStorage.getItem(k); } catch (e) { return null; } }
+  function ssSet(k, v) { try { window.sessionStorage.setItem(k, v); } catch (e) {} }
+  function ssRemove(k) { try { window.sessionStorage.removeItem(k); } catch (e) {} }
+
+  // ── i18n resolution for dynamically-mounted nodes (coordinator idiom) ─────────
+  // The tour mounts chrome AFTER applyTranslations() walked the static DOM, so it
+  // resolves copy itself, and stamps data-i18n so a later language switch (Plan 04)
+  // can re-translate through the shared App pipeline.
+  function t(key) {
+    try {
+      var lang = lsGet('portfolioLang') || window.I18N_DEFAULT || 'en';
+      var dict = (window.I18N && (window.I18N[lang] || window.I18N.en)) || {};
+      return (dict[key] != null) ? dict[key] : key;
+    } catch (e) { return key; }
+  }
+
+  // ── the declarative 10-step full-spine route (Pattern 1) ──────────────────────
+  // Each entry: { id, page, anchor, i18nKey, screenName, takeMeThereHref }. The
+  // anchor values match the Plan 02 data-tour contract exactly; i18nKey resolves
+  // <key>.title / <key>.body against the Plan 01 help.tour.step.* keys. The render
+  // loop never changes when steps are added/reordered.
+  var STEPS = [
+    { id: 'overview',      page: 'index.html',       anchor: '[data-tour="overview"]',      i18nKey: 'help.tour.step.overview',     screenName: 'Overview',   takeMeThereHref: './index.html' },
+    { id: 'add-client',    page: 'index.html',       anchor: '[data-tour="add-client"]',    i18nKey: 'help.tour.step.addClient',    screenName: 'Overview',   takeMeThereHref: './index.html' },
+    { id: 'add-session',   page: 'index.html',       anchor: '[data-tour="add-session"]',   i18nKey: 'help.tour.step.startSession', screenName: 'Overview',   takeMeThereHref: './index.html' },
+    { id: 'session-setup', page: 'add-session.html', anchor: '[data-tour="session-setup"]', i18nKey: 'help.tour.step.setup',         screenName: 'Session',    takeMeThereHref: './add-session.html' },
+    { id: 'session-heart', page: 'add-session.html', anchor: '[data-tour="session-heart"]', i18nKey: 'help.tour.step.heart',         screenName: 'Session',    takeMeThereHref: './add-session.html' },
+    { id: 'session-save',  page: 'add-session.html', anchor: '[data-tour="session-save"]',  i18nKey: 'help.tour.step.save',          screenName: 'Session',    takeMeThereHref: './add-session.html' },
+    { id: 'sessions',      page: 'sessions.html',    anchor: '[data-tour="sessions"]',      i18nKey: 'help.tour.step.sessions',     screenName: 'Sessions',   takeMeThereHref: './sessions.html' },
+    { id: 'reporting',     page: 'reporting.html',   anchor: '[data-tour="reporting"]',     i18nKey: 'help.tour.step.reporting',    screenName: 'Reporting',  takeMeThereHref: './reporting.html' },
+    { id: 'backup',        page: 'reporting.html',   anchor: '[data-tour="backup"]',        i18nKey: 'help.tour.step.backup',       screenName: 'Reporting',  takeMeThereHref: './reporting.html' },
+    { id: 'help',          page: 'reporting.html',   anchor: '[data-tour="help"]',          i18nKey: 'help.tour.step.help',         screenName: 'Reporting',  takeMeThereHref: './reporting.html' }
+  ];
+
+  // ── run state ─────────────────────────────────────────────────────────────────
+  var stepIndex = 0;
+  var active = false;
+  var root = null;          // the mounted .sg-tour-root container (or null)
+  var spotlightEl = null;   // the spotlight ring (spotlight branch only)
+  var tooltipEl = null;     // the tethered tooltip (spotlight branch only)
+  var currentEl = null;     // the anchor currently spotlit (for reposition)
+  var reflowRAF = 0;
+  var reflowHandler = null; // scroll/resize reposition listener (spotlight only)
+  var fallbackLocked = false; // did we App.lockBodyScroll for a fallback modal?
+
+  var raf = (typeof window !== 'undefined' && window.requestAnimationFrame)
+    ? function (cb) { return window.requestAnimationFrame(cb); }
+    : function (cb) { return setTimeout(cb, 0); };
+
+  // ── DOM helper — textContent only (never raw markup: XSS trust boundary) ──────
+  function makeEl(tag, cls, key) {
+    var el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (key != null) { el.setAttribute('data-i18n', key); el.textContent = t(key); }
+    return el;
+  }
+
+  function counterText(idx, total) {
+    return t('help.tour.counter').replace('{n}', idx + 1).replace('{total}', total);
+  }
+
+  // Build the Close / Previous / Next(Done) control row (shared by both branches).
+  function buildRow(isFinal) {
+    var row = document.createElement('div');
+    row.className = 'sg-tour-row';
+
+    var closeBtn = makeEl('button', 'sg-tour-btn sg-tour-btn-close', 'help.tour.close');
+    closeBtn.setAttribute('type', 'button');
+    closeBtn.onclick = function () { endTour(); };
+
+    var backBtn = makeEl('button', 'sg-tour-btn sg-tour-btn-neutral', 'help.tour.back');
+    backBtn.setAttribute('type', 'button');
+    backBtn.disabled = stepIndex === 0;
+    backBtn.onclick = function () { if (stepIndex > 0) prev(); };
+
+    var fwdBtn = makeEl('button', 'sg-tour-btn sg-tour-btn-fwd', isFinal ? 'help.tour.done' : 'help.tour.next');
+    fwdBtn.setAttribute('type', 'button');
+    fwdBtn.onclick = function () { if (isFinal) endTour(); else next(); };
+
+    row.appendChild(closeBtn);
+    row.appendChild(backBtn);
+    row.appendChild(fwdBtn);
+    return row;
+  }
+
+  // ── reposition (spotlight branch only) — rAF-debounced on scroll + resize ─────
+  function positionSpotlight(el) {
+    if (!spotlightEl || !el) return;
+    var r = el.getBoundingClientRect();
+    var pad = 8;
+    spotlightEl.style.insetBlockStart = (r.top - pad) + 'px';
+    spotlightEl.style.insetInlineStart = (r.left - pad) + 'px';
+    spotlightEl.style.width = (r.width + pad * 2) + 'px';
+    spotlightEl.style.height = (r.height + pad * 2) + 'px';
+
+    if (!tooltipEl) return;
+    var below = (window.innerHeight - r.bottom) > 220;
+    tooltipEl.setAttribute('data-arrow', below ? 'top' : 'bottom');
+    var tw = tooltipEl.offsetWidth || 0;
+    var th = tooltipEl.offsetHeight || 0;
+    var top = below ? (r.bottom + 14) : (r.top - th - 14);
+    var anchorCenter = r.left + r.width / 2;
+    var left = Math.max(12, Math.min(anchorCenter - tw / 2, window.innerWidth - tw - 12));
+    tooltipEl.style.insetBlockStart = top + 'px';
+    tooltipEl.style.insetInlineStart = left + 'px';
+    tooltipEl.style.setProperty('--arrow-x', Math.max(14, Math.min(anchorCenter - left - 7, tw - 28)) + 'px');
+  }
+
+  function onReflow() {
+    if (reflowRAF) return;
+    reflowRAF = raf(function () {
+      reflowRAF = 0;
+      if (active && currentEl) positionSpotlight(currentEl);
+    });
+  }
+
+  function installReflow() {
+    if (reflowHandler) return;
+    reflowHandler = onReflow;
+    try {
+      window.addEventListener('scroll', reflowHandler, true);
+      window.addEventListener('resize', reflowHandler);
+    } catch (e) {}
+  }
+
+  function removeReflow() {
+    if (!reflowHandler) return;
+    try {
+      window.removeEventListener('scroll', reflowHandler, true);
+      window.removeEventListener('resize', reflowHandler);
+    } catch (e) {}
+    reflowHandler = null;
+  }
+
+  // ── teardown of any mounted chrome (cleanup-then-replace) ─────────────────────
+  function clearTourChrome() {
+    removeReflow();
+    if (fallbackLocked) {
+      try { if (window.App && window.App.unlockBodyScroll) window.App.unlockBodyScroll(); } catch (e) {}
+      fallbackLocked = false;
+    }
+    if (root && root.parentNode) root.parentNode.removeChild(root);
+    root = null;
+    spotlightEl = null;
+    tooltipEl = null;
+    currentEl = null;
+  }
+
+  // ── render the current step: spotlight (anchor visible) OR fallback modal ─────
+  function render() {
+    clearTourChrome();
+    active = true;
+
+    var step = STEPS[stepIndex];
+    var total = STEPS.length;
+    var isFinal = stepIndex === total - 1;
+
+    root = document.createElement('div');
+    root.className = 'sg-tour-root';
+    root.setAttribute('data-tour-chrome', '');
+
+    // A4: a full-viewport pointer-events overlay makes the underlying page inert
+    // (D-07) WITHOUT freezing scroll. The spotlight is pointer-events:none above it.
+    var overlay = document.createElement('div');
+    overlay.className = 'sg-tour-overlay';
+    overlay.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); });
+    root.appendChild(overlay);
+
+    var el = document.querySelector(step.anchor);
+    // A5: branch selection goes through the injectable seam, never inline offsetParent.
+    var visible = api._isAnchorVisible(el);
+
+    if (visible) {
+      renderSpotlight(step, el, isFinal, total);
+    } else {
+      renderFallback(step, isFinal, total);
+    }
+
+    document.body.appendChild(root);
+  }
+
+  function renderSpotlight(step, el, isFinal, total) {
+    currentEl = el;
+
+    spotlightEl = document.createElement('div');
+    spotlightEl.className = 'sg-tour-spotlight';
+    spotlightEl.setAttribute('aria-hidden', 'true');
+    root.appendChild(spotlightEl);
+
+    tooltipEl = document.createElement('div');
+    tooltipEl.className = 'sg-tour-tooltip';
+    tooltipEl.setAttribute('role', 'dialog');
+    tooltipEl.setAttribute('aria-modal', 'false');
+    tooltipEl.setAttribute('data-arrow', 'top');
+
+    var arrow = document.createElement('span');
+    arrow.className = 'sg-tour-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    tooltipEl.appendChild(arrow);
+
+    var counter = document.createElement('p');
+    counter.className = 'sg-tour-counter';
+    counter.textContent = counterText(stepIndex, total);
+    tooltipEl.appendChild(counter);
+
+    tooltipEl.appendChild(makeEl('h3', 'sg-tour-title', step.i18nKey + '.title'));
+    tooltipEl.appendChild(makeEl('p', 'sg-tour-body', step.i18nKey + '.body'));
+    tooltipEl.appendChild(buildRow(isFinal));
+
+    root.appendChild(tooltipEl);
+
+    // Bring below-the-fold anchors into view, then position + track (A4). Scroll
+    // stays free (NO App.lockBodyScroll on the spotlight path).
+    try { if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({ block: 'center', inline: 'nearest' }); } catch (e) {}
+    positionSpotlight(el);
+    installReflow();
+  }
+
+  function renderFallback(step, isFinal, total) {
+    // Centered modal — NEVER blank, NEVER a silent skip (TOUR-02). No anchor to
+    // track, so App.lockBodyScroll MAY be reused here (A4) — freezing is harmless.
+    var scrim = document.createElement('div');
+    scrim.className = 'sg-tour-modal-scrim';
+
+    var card = document.createElement('div');
+    card.className = 'sg-tour-tooltip sg-tour-fallback-card';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('data-arrow', 'none');
+
+    var counter = document.createElement('p');
+    counter.className = 'sg-tour-counter';
+    counter.textContent = counterText(stepIndex, total);
+    card.appendChild(counter);
+
+    card.appendChild(makeEl('h3', 'sg-tour-title', step.i18nKey + '.title'));
+    card.appendChild(makeEl('p', 'sg-tour-body', step.i18nKey + '.body'));
+
+    // "This is on the {screen} screen." — names where it lives (soft landing).
+    var loc = document.createElement('p');
+    loc.className = 'sg-tour-fallback-loc';
+    loc.textContent = t('help.tour.fallbackBody').replace('{screen}', step.screenName);
+    card.appendChild(loc);
+
+    // Working "Take me there" — A3: persist sg.tourResume {current stepIndex}
+    // BEFORE navigating, so resume() re-renders the SAME step on the target page
+    // (anchor present there → spotlight). Never navigate without persisting.
+    var takeMe = makeEl('a', 'sg-tour-takeme', 'help.tour.takeMeThere');
+    takeMe.setAttribute('href', step.takeMeThereHref);
+    takeMe.onclick = function (e) {
+      if (e && e.preventDefault) e.preventDefault();
+      ssSet(RESUME_KEY, JSON.stringify({ tourId: TOUR_ID, stepIndex: stepIndex }));
+      api._navigate(step.takeMeThereHref);
+    };
+    card.appendChild(takeMe);
+
+    card.appendChild(buildRow(isFinal));
+
+    scrim.appendChild(card);
+    root.appendChild(scrim);
+
+    try {
+      if (window.App && window.App.lockBodyScroll) { window.App.lockBodyScroll(); fallbackLocked = true; }
+    } catch (e) {}
+  }
+
+  // ── navigation-aware advance / retreat ────────────────────────────────────────
+  function next() {
+    var nextIndex = stepIndex + 1;
+    if (nextIndex >= STEPS.length) { endTour(); return; }
+    var nextStep = STEPS[nextIndex];
+    if (nextStep.page !== api._currentPage()) {
+      // Cross-page: persist resume then navigate; resume() continues on arrival.
+      ssSet(RESUME_KEY, JSON.stringify({ tourId: TOUR_ID, stepIndex: nextIndex }));
+      api._navigate(nextStep.takeMeThereHref);
+      return;
+    }
+    stepIndex = nextIndex;
+    render();
+  }
+
+  function prev() {
+    if (stepIndex <= 0) return;
+    var prevStep = STEPS[stepIndex - 1];
+    if (prevStep.page !== api._currentPage()) {
+      // Cross-page back-step mirrors next(): persist + navigate.
+      stepIndex = stepIndex - 1;
+      ssSet(RESUME_KEY, JSON.stringify({ tourId: TOUR_ID, stepIndex: stepIndex }));
+      api._navigate(prevStep.takeMeThereHref);
+      return;
+    }
+    stepIndex = stepIndex - 1;
+    render();
+  }
+
+  // ── explicit, page-aware launch (A2) ──────────────────────────────────────────
+  function start() {
+    stepIndex = 0;
+    if (STEPS[0].page !== api._currentPage()) {
+      // Off step-1's page: persist resume {stepIndex:0} then navigate so resume()
+      // renders step 1's SPOTLIGHT on arrival (never a fallback drop — D-02).
+      ssSet(RESUME_KEY, JSON.stringify({ tourId: TOUR_ID, stepIndex: 0 }));
+      api._navigate(STEPS[0].takeMeThereHref);
+      return;
+    }
+    render();
+  }
+
+  // ── read-and-continue resume (single tier: sessionStorage) ────────────────────
+  function resume() {
+    var raw = ssGet(RESUME_KEY);
+    if (!raw) return;                       // absent → fresh launch handles step 1 (D-09)
+    var data;
+    try { data = JSON.parse(raw); } catch (e) { return; }   // parse error → no-op
+    if (!data || typeof data.stepIndex !== 'number') return;
+    if (data.stepIndex < 0 || data.stepIndex >= STEPS.length) return;
+    if (STEPS[data.stepIndex].page !== api._currentPage()) return;  // page mismatch → no-op
+    stepIndex = data.stepIndex;
+    render();
+  }
+
+  // ── finish / close — clear the resume tier so the next launch restarts (D-09) ─
+  function endTour() {
+    clearTourChrome();
+    active = false;
+    stepIndex = 0;
+    ssRemove(RESUME_KEY);
+  }
+
+  function isActive() { return active; }
+
+  // ── current-page seam — last path segment, default index.html ─────────────────
+  function currentPage() {
+    try {
+      var p = (window.location && window.location.pathname) || '';
+      var seg = p.split('/').pop();
+      return seg || 'index.html';
+    } catch (e) { return 'index.html'; }
+  }
+
+  // ── the public object + injectable seams (mutating a seam affects internal
+  //    calls because the engine references api.* — architect-gate A5) ────────────
+  var api = {
+    start: start,
+    resume: resume,
+    isActive: isActive,
+    next: next,
+    prev: prev,
+
+    // A5: default visibility test — el present AND laid out (offsetParent non-null).
+    // render() calls this seam so tests can force BOTH branches (jsdom hardcodes
+    // offsetParent === null for every element).
+    _isAnchorVisible: function (el) { return !!(el && el.offsetParent !== null); },
+
+    // Navigation seam — default assigns window.location.href; tests override to
+    // capture the target without a real page load.
+    _navigate: function (href) { try { window.location.href = href; } catch (e) {} },
+
+    _currentPage: currentPage,
+    _render: render,
+    _endTour: endTour,
+    _getSteps: function () { return STEPS; },
+    _getStepIndex: function () { return stepIndex; },
+    _setStepIndex: function (i) { stepIndex = i; }
+  };
+
+  return api;
+})();
+
+if (typeof window !== 'undefined') window.Tour = Tour;
