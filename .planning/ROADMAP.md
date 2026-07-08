@@ -80,7 +80,7 @@ Full goals, success criteria, and per-plan detail are archived in `milestones/v1
 Every practitioner can learn the whole app *inside* the app (welcome, replayable tour, help center) and hears about every release *inside* the app (What's-New popup + changelog page) — with a hard process gate guaranteeing both stay current with every future user-facing change. Zero new production dependencies; fully offline; EN copy canonical (DE/CS/HE deferred). Design seed: the approved Phase 26 `26-UI-SPEC.md`, reconciled against the current (v1.2.x) app. Run dependency-ordered: **help center first** (everything links into it), coordinator-governed onboarding next, then the fragile tour, then the changelog, then the docs gate **last** (so it doesn't block its own milestone's sibling commits).
 
 - [x] **Phase 39: Help Center & "?" Entry Point** — persistent "?" on every app page, offline `help.html` help center (workflow-spine IA + personalization + technical track), full EN content, empty-state deep-links, per-browser install instructions (completed 2026-07-07)
-- [ ] **Phase 40: First-Run Welcome & Onboarding Coordinator** — first-run coordinator (single precedence order), branded welcome overlay (tour / explore myself), re-openable from "?", non-nagging install nudge
+- [x] **Phase 40: First-Run Welcome & Onboarding Coordinator** — first-run coordinator (single precedence order), branded welcome overlay (tour / explore myself), re-openable from "?", non-nagging install nudge (completed 2026-07-08)
 - [ ] **Phase 41: Replayable Guided Tour** — bespoke ~6–9-step spine tour, graceful degradation (spotlight ↔ modal + "Take me there"), cross-page resume, language re-render
 - [ ] **Phase 42: In-App Changelog & What's-New** — once-per-version What's-New popup + persistent changelog page in the help center, one structured data source, v1.3's own notes as first entry
 - [ ] **Phase 43: Docs-Maintenance Hard Gate** — layered blocking gate (git hook + unbypassable CI step + GSD DoD) so no user-facing change ships without a changelog entry + updated help topics; validated against v1.3's own ship
@@ -130,7 +130,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
   3. On any single launch, only one attention surface appears — a written precedence order across welcome, What's-New, security note, install nudge, and the iOS banner is enforced, with explicit fresh-install-vs-upgrader handling (no competing surfaces stack).
   4. A practitioner who hasn't installed the PWA sees one friendly, dismissable, non-nagging, per-browser-aware install affordance (dismissal remembered) that replaces/reconciles the existing per-session iOS banner.
 
-**Plans**: 4/5 plans executed
+**Plans**: 5/5 plans complete
 
 **Wave 1**
 
@@ -144,7 +144,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
 
 - [x] 40-03-PLAN.md — Install-nudge surface (Chromium real Install button / macOS Safari pointer) + all-mobile expectation hint (iOS-banner successor) + CSS [wave 3]
 - [x] 40-04-PLAN.md — app.js wiring: `initCommon` → coordinator `run()`, security-note registered as governed surface, "Replay welcome" "?" row [wave 3]
-- [ ] 40-05-PLAN.md — Coordinator `<script>` on 8 app pages + iOS banner deletion + SW precache + static gates [wave 3]
+- [x] 40-05-PLAN.md — Coordinator `<script>` on 8 app pages + iOS banner deletion + SW precache + static gates [wave 3]
 
 **UI hint**: yes
 
@@ -266,7 +266,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete | 2026-07-06 |
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
 | 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
-| 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 4/5 | In Progress|  |
+| 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 5/5 | Complete   | 2026-07-08 |
 | 41. Replayable Guided Tour | v1.3 | 0/TBD | Not started | - |
 | 42. In-App Changelog & What's-New | v1.3 | 0/TBD | Not started | - |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |
