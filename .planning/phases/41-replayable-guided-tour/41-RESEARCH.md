@@ -56,7 +56,7 @@
 
 Phase 41 builds the single most technically fragile surface in the milestone: a bespoke ~10-step guided tour with no vendored library (`demo-hints.js` was deleted in Phase 35; Shepherd/Intro are AGPL-rejected). The good news is that the hard problems are already **solved in the reference sketch** (`.planning/sketches/003-tour-fallback/index.html`) — a working prototype with spotlight animation, tethered-tooltip + RTL-flipping arrow, the D-11 break-anchor fallback, and a cleanup-then-replace language re-render. The engineering work is porting those rendering patterns into a production IIFE module (Phase 31 extraction pattern), wiring it to real DOM anchors that **do not yet exist** in the app pages, and integrating with three existing seams: the `app:language` event (TOUR-04), the `AttentionCoordinator` registry (D-08 reminder), and the `initHelpEntry` popover + welcome CTA (launch surfaces).
 
-The verified reality: `data-tour="…"` anchors are **absent** from `index.html`, `add-session.html`, `sessions.html`, `reporting.html` — every one of the 10 chrome anchors must be added to real markup. The tour engine script must be added to all 4 pages' `<script>` blocks (they already load `attention-coordinator.js` then `app.js` in a consistent order) and to `sw.js` PRECACHE_URLS. The project is zero-dependency vanilla JS with a custom Node test runner (`tests/run-all.js`, jsdom v29 the only devDep). Playwright 1.61.1 + WebKit browser binaries **are** installed locally, so the D-14 Playwright-WebKit RTL/geometry gate is feasible as an ad-hoc verification step (Phase 37 precedent) — but it is NOT part of `npm test` and must be documented as a manual gate.
+The verified reality: `data-tour="…"` anchors are **absent** from `index.html`, `add-session.html`, `sessions.html`, `reporting.html` — every one of the 10 chrome anchors must be added to those four step-pages' real markup (Plan 02, unchanged). The tour engine script/style, however, must load on **all eight app-chrome pages** that run `initCommon` + `attention-coordinator.js` (index, add-client, add-session, sessions, reporting, report, settings, help — demo.html excluded per D-16) and be added to `sw.js` PRECACHE_URLS — because the launch surfaces (welcome CTA, "?" row, reminder Start) render on every chrome page, so `window.Tour` must be present wherever a launch can fire or those surfaces are dead UI (architect-gate A1; Plan 06). The project is zero-dependency vanilla JS with a custom Node test runner (`tests/run-all.js`, jsdom v29 the only devDep). WebKit browser binaries **are** cached locally (`~/Library/Caches/ms-playwright`), and Playwright 1.61.1 exists at the pinned path `TPM_Docs/video-pipeline/node_modules/playwright` (there is **no global** playwright — architect-gate A6), so the D-14 Playwright-WebKit RTL/geometry gate is feasible as an ad-hoc verification step (Phase 37 precedent) that resolves Playwright from that pinned path — but it is NOT part of `npm test` and must be documented as a manual gate.
 
 **Primary recommendation:** Port the sketch 003 render loop verbatim into a new `assets/tour.js` IIFE (`window.Tour`), driven by a declarative `STEPS` array of `{id, page, anchor, i18nKey, takeMeThereHref, screenName}`. Add `data-tour` anchors to real markup first (they are the contract), write the anchor-presence rot-guard test BEFORE implementation (project rule), reuse the coordinator/`app:language`/modal-scroll-lock seams rather than rebuilding them, and gate RTL geometry through Playwright-WebKit.
 
@@ -87,7 +87,7 @@ The verified reality: `data-tour="…"` anchors are **absent** from `index.html`
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
 | jsdom | ^29.1.1 | DOM tests via `tests/run-all.js` | `[VERIFIED: package.json]` Behavior tests for step logic, anchor resolution, resume state. Note: jsdom has NO layout engine (`getBoundingClientRect` → 0s), so geometry/RTL-visual assertions CANNOT run here (Phase 37 lesson). |
-| Playwright | 1.61.1 (global) | WebKit RTL + geometry gate (D-14) | `[VERIFIED: npx playwright --version + ~/Library/Caches/ms-playwright/webkit-2311]` Ad-hoc verification only — NOT a project devDependency, NOT in `npm test`. Phase 37 precedent (`reference-webkit-chromium-svg-visual-verification`). |
+| Playwright | 1.61.1 (pinned local, NOT global) | WebKit RTL + geometry + spotlight-branch gate (D-14; architect-gate A5/A6) | `[VERIFIED: no global playwright; installed at TPM_Docs/video-pipeline/node_modules/playwright@1.61.1; WebKit binaries ~/Library/Caches/ms-playwright/webkit-2311+2248]` The probe resolves it from the pinned path via `createRequire` (there is NO global playwright — architect-gate A6). Ad-hoc verification only — NOT a project devDependency, NOT in `npm test`. Phase 37 precedent (`reference-webkit-chromium-svg-visual-verification`). |
 | Node `vm` module | built-in | Load production JS into sandbox | `[VERIFIED: TESTING.md]` Many tests eval real source via `vm` — the tour engine's pure logic (step advance, resume parse) can be tested this way. |
 
 ### Alternatives Considered
@@ -101,7 +101,7 @@ The verified reality: `data-tour="…"` anchors are **absent** from `index.html`
 
 ## Package Legitimacy Audit
 
-> This phase installs **no external packages**. The engine is bespoke vanilla JS; the only devDependency (`jsdom`) is already present and unchanged. Playwright is used ad-hoc from the global install, not added to `package.json`.
+> This phase installs **no external packages**. The engine is bespoke vanilla JS; the only devDependency (`jsdom`) is already present and unchanged. Playwright is used ad-hoc from the **pinned local install** at `TPM_Docs/video-pipeline/node_modules/playwright` (v1.61.1) resolved via `createRequire` — there is NO global playwright (architect-gate A6), and it is NOT added to `package.json`.
 
 | Package | Registry | Age | Downloads | Source Repo | Verdict | Disposition |
 |---------|----------|-----|-----------|-------------|---------|-------------|
@@ -164,16 +164,22 @@ CROSS-CUT: document.addEventListener('app:language', …) → cleanup-then-repla
 ```
 assets/
 ├── tour.js          # NEW — bespoke engine IIFE (window.Tour). Ported from sketch 003.
-├── tour.css         # NEW (or a scoped block appended to help.css) — spotlight,
-│                    #   tooltip, arrow, fallback modal, bottom-sheet, finish card.
-│                    #   Reuses .help-root local scale; scoped to a tour root class.
+├── tour.css         # NEW (dedicated file — RESOLVED) — spotlight, tooltip, arrow,
+│                    #   fallback modal, bottom-sheet, finish card. Scoped to a tour
+│                    #   root class. Must DEFINE its own local scale block (--space-*,
+│                    #   --radius-md, --tap-target-min, --text-display + --z-tour-* tokens):
+│                    #   help.css's .help-root is absent on 7 of 8 load pages, so the
+│                    #   scale can't be "reused" — it is re-declared (architect-gate A8/A10).
 ├── attention-coordinator.js  # EDIT — register the D-08 reminder surface
 ├── app.js           # EDIT — initHelpEntry: append "Take the tour" row (demo-gated)
 ├── i18n-en.js / -he.js / -de.js / -cs.js  # EDIT — ~30 new help.tour.* keys, ALL 4 locales
 index.html / add-session.html / sessions.html / reporting.html  # EDIT —
-                     #   (a) add data-tour anchors to real chrome
-                     #   (b) add <script src="./assets/tour.js"> after app.js
-sw.js                # EDIT — PRECACHE_URLS += /assets/tour.js (+ tour.css if separate)
+                     #   (a) add data-tour anchors to real chrome (Plan 02 — these 4 only)
+index.html / add-client.html / add-session.html / sessions.html /
+reporting.html / report.html / settings.html / help.html         # EDIT —
+                     #   (b) add <link href="./assets/tour.css"> + <script src="./assets/tour.js">
+                     #       after app.js on ALL 8 chrome pages (Plan 06; demo.html excluded, D-16, architect-gate A1)
+sw.js                # EDIT — PRECACHE_URLS += /assets/tour.js + /assets/tour.css
 tests/
 ├── 41-*-anchor-presence.test.js   # NEW — the TOUR-02 rot guard (write FIRST)
 ├── 41-*-resume-state.test.js      # NEW — sessionStorage parse/relaunch semantics
@@ -196,17 +202,23 @@ var STEPS = [
 ```
 
 ### Pattern 2: Anchor degradation resolution (the rot guard — TOUR-02)
-**What:** `visible = el && el.offsetParent !== null` decides spotlight-vs-fallback. NEVER a silent skip.
+**What:** An INJECTABLE visibility seam decides spotlight-vs-fallback. NEVER a silent skip.
 **When to use:** Every `render()`.
 **Example:**
 ```javascript
-// Source: sketch 003 index.html:919-921, 953-1021
+// Source: sketch 003 index.html:919-921, 953-1021 — adapted to an injectable seam (architect-gate A5)
+Tour._isAnchorVisible = function (el) { return !!(el && el.offsetParent !== null); }; // default; test-stubbable
 var el = document.querySelector(step.anchor);
-var visible = el && el.offsetParent !== null;   // present AND rendered
-if (visible) { spotlightAndTooltip(el, step); }
-else         { centeredFallbackModal(step); }   // names where it lives + "Take me there"
+if (Tour._isAnchorVisible(el)) { spotlightAndTooltip(el, step); }
+else {
+  centeredFallbackModal(step);   // names where it lives + "Take me there"
+  // A3: the "Take me there" link persists sg.tourResume {stepIndex:<current>} BEFORE
+  //     navigating to step.takeMeThereHref, so resume() re-renders the SAME step
+  //     on the target page (anchor present → spotlight) — never terminates the tour.
+}
 ```
-**Caveat (see Pitfall 3):** `offsetParent` is `null` for `position: fixed` elements even when visible. All 10 chrome anchors are nav links / buttons / form sections in normal flow (D-02), so this is safe — but if any anchor is ever a `position: fixed` element, switch that check to a `getBoundingClientRect().width > 0 && getComputedStyle(el).visibility !== 'hidden'` test.
+**Why a seam (architect-gate A5):** jsdom hardcodes `offsetParent === null` for EVERY element, so the raw check always takes the fallback path in the Node suite — the spotlight branch is structurally unexercisable and a branch-selection regression would stay green. Exposing `Tour._isAnchorVisible(el)` lets jsdom tests force BOTH branches; the real-layout spotlight-branch assertion is the Plan 41-07 WebKit gate.
+**Caveat (see Pitfall 3):** `offsetParent` is `null` for `position: fixed` elements even when visible. All 10 chrome anchors are nav links / buttons / form sections in normal flow (D-02), so the default seam impl is safe — but if any anchor is ever a `position: fixed` element, swap the seam's default to `getBoundingClientRect().width > 0 && getComputedStyle(el).visibility !== 'hidden'`.
 
 ### Pattern 3: Cleanup-then-replace language re-render (TOUR-04)
 **What:** On `app:language`, tear down all tour chrome then re-`render()` the current step in the new language/direction. Logical properties flip the arrow/tether automatically.
@@ -253,7 +265,7 @@ AttentionCoordinator.register({
 | "Show at most one greeting surface" | A new session-gate for the reminder | `AttentionCoordinator.register()` | `[VERIFIED: attention-coordinator.js]` Already does per-session + demo-off + precedence (D-08 was designed for exactly this Phase-42-style extension). |
 | Language-change re-render trigger | A MutationObserver / polling | `document.addEventListener('app:language', …)` | `[VERIFIED: app.js:126]` Established CustomEvent with ~8 existing listeners; fired by `App.setLanguage`. |
 | "?" popover menu row | A second popover | `initHelpEntry` items array | `[VERIFIED: app.js:519-527]` Documented extension slot; append one `{labelKey, action}` — no rewrite. |
-| Page inert / scroll lock during tour | Custom overlay + scroll math | app.js modal scroll-lock idiom (~1591) | `[CITED: 41-CONTEXT.md]` Reused by every existing modal; consistent behavior. |
+| Page inert during tour (spotlight steps) | Custom overlay + scroll math | Full-viewport pointer-events overlay (NOT App.lockBodyScroll) | `[architect-gate A4]` App.lockBodyScroll applies `.is-modal-open { position: fixed }` (app.css:14-19), which FREEZES the viewport and would stop `scrollIntoView` from reaching below-the-fold anchors (steps 5-6). Use a pointer-events overlay for inertness + free scroll + reposition-on-scroll/resize. lockBodyScroll MAY be reused only for the centered FALLBACK modal (no anchor to track). |
 | Spotlight/tooltip/arrow/fallback rendering | From scratch | Port sketch 003 `render()` | `[VERIFIED: sketch 003 index.html:910-1022]` Working, token-parity prototype including RTL arrow flip and fallback. |
 | Copy verification | Ship draft EN | Phase 39 D-19/D-20 wording pipeline | `[CITED: 41-CONTEXT.md]` writer→factual gate→native-speaker gate→DNA gate (TOUR-01 "native-speaker-agent verified"). |
 
@@ -393,7 +405,7 @@ takeMe.onclick = function (e) {
 | A1 | The `sg.tour*` flag names and sessionStorage resume key shape are planner's discretion following `sg.*` convention | Runtime State / Pattern 4 | Low — CONTEXT explicitly grants this discretion; only convention matters |
 | A2 | `'tour-reminder'` slots into `PRECEDENCE` after `'security-note'` (low precedence) | Pattern 4 | Low-Med — UI-SPEC says "below security note"; exact position is documented planner's discretion; must coordinate with Phase 42's future `whats-new` surface which is registered but higher |
 | A3 | Bottom-sheet breakpoint ~600–640px | (UI-SPEC recommendation) | Low — planner's discretion per UI-SPEC; no correct single value |
-| A4 | Reusing the app.js modal scroll-lock idiom (~1591) is compatible with a full-page inert overlay + optional form scroll | Don't Hand-Roll | Med — the scroll interaction for steps 4–6 is explicitly planner's discretion (D); verify inert overlay doesn't block the scroll needed to reveal a form zone |
+| A4 | ~~Reusing the app.js modal scroll-lock idiom is compatible with a full-page inert overlay + form scroll~~ **CORRECTED (architect-gate A4):** App.lockBodyScroll (`.is-modal-open { position: fixed }`) is INCOMPATIBLE with the spotlight steps' `scrollIntoView` (it freezes the viewport). Page-inertness for spotlight steps comes from a pointer-events overlay + free scroll + reposition listeners; lockBodyScroll is reused only for the centered fallback modal | Don't Hand-Roll | Med — resolved in Plan 41-03 Task 2 |
 | A5 | Draft EN copy in UI-SPEC is a starting point; final wording passes the TOUR-01 pipeline before ship | Copy | Low — explicitly a draft; Sapir + native-speaker-agent are the gates |
 
 **Note:** No assumed package names, versions, or compliance claims — the phase installs nothing and touches no regulated data.
@@ -406,7 +418,7 @@ takeMe.onclick = function (e) {
    - What we know: D-07 makes the page inert (blocks clicks); steps 4–6 target session-form zones that may be below the fold.
    - What's unclear: whether the engine programmatically `scrollIntoView`s each zone (with the overlay still blocking clicks) or allows native page scroll under the dim.
    - Recommendation: engine-driven `scrollIntoView` on the anchor before measuring, keeping clicks inert — deterministic and avoids desync (D-07's intent). Planner decides and documents.
-   - **RESOLVED:** Engine-driven `scrollIntoView` on the anchor before measuring, with the overlay keeping page clicks inert — adopted in **Plan 41-03 Task 2** (render/next path scrolls each below-the-fold form zone into view for steps 4–6).
+   - **RESOLVED:** Engine-driven `scrollIntoView` on the anchor before measuring, with a **pointer-events overlay** keeping page clicks inert while leaving scroll FREE — adopted in **Plan 41-03 Task 2** (render/next path scrolls each below-the-fold form zone into view for steps 4–6). **Critical correction (architect-gate A4):** the earlier idea of reusing `App.lockBodyScroll` for inertness is INVALID for spotlight steps — its `position: fixed` freezes the viewport and defeats `scrollIntoView`; inertness is delivered by the overlay's pointer-event capture instead, and lockBodyScroll is reused only for the centered fallback modal.
 
 2. **`tour-reminder` precedence vs. Phase 42 `whats-new`**
    - What we know: `PRECEDENCE = ['welcome','whats-new','security-note','install-nudge','mobile-hint']`; whats-new has no registered surface until Phase 42.
@@ -415,10 +427,10 @@ takeMe.onclick = function (e) {
    - **RESOLVED:** `tour-reminder` appended at the LOWEST precedence slot (after `mobile-hint`) so no future Phase-42 `whats-new` surface is starved — adopted in **Plan 41-05 Task 2**, documented in the coordinator.
 
 3. **tour.css: separate file vs. appended `.tour-root` block in help.css**
-   - What we know: help.css already redeclares the `.help-root` local scale the tour reuses.
-   - What's unclear: a separate `assets/tour.css` (needs its own precache + `<link>` on 4 pages) vs. a scoped block appended to help.css (already loaded where help is).
-   - Recommendation: verify help.css loads on all 4 tour pages; if not, a dedicated tour.css is cleaner (one precache entry, explicit). Planner decides.
-   - **RESOLVED:** Dedicated `assets/tour.css` — help.css does NOT load on the four tour pages (only tokens.css + app.css do, verified in Plan 06), so a scoped block in help.css would never be present on those pages. Authored in **Plan 41-03** (core surfaces), extended in **Plan 41-04**, with its own `<link>` on all four pages + a PRECACHE_URLS entry in **Plan 41-06**.
+   - What we know: help.css redeclares the `.help-root` local scale, but help.css is absent on almost every chrome page.
+   - What's unclear: a separate `assets/tour.css` (needs its own precache + `<link>`) vs. a scoped block appended to help.css (only loaded on help.html).
+   - Recommendation: a dedicated tour.css is cleaner (one precache entry, explicit) and MUST define its own local scale. Planner decides.
+   - **RESOLVED:** Dedicated `assets/tour.css` — help.css loads only on help.html, not on the other 7 chrome pages tour.css must cover (only tokens.css + app.css do, verified), so a scoped block in help.css would be absent on those pages. tour.css therefore DEFINES its own local token scale (--space-*, --radius-md, --tap-target-min, --text-display + --z-tour-* z-index tokens — architect-gate A8/A10), not "reused" from .help-root. Authored in **Plan 41-03** (core surfaces), extended in **Plan 41-04**, with its own `<link>` on all EIGHT chrome pages + a PRECACHE_URLS entry in **Plan 41-06** (architect-gate A1).
 
 ## Environment Availability
 
@@ -426,12 +438,12 @@ takeMe.onclick = function (e) {
 |------------|------------|-----------|---------|----------|
 | Node.js | Test runner | ✓ | ≥18.0.0 (engines floor) | — |
 | jsdom | DOM/logic tests | ✓ | ^29.1.1 (devDep) | — |
-| Playwright | D-14 WebKit RTL/geometry gate | ✓ | 1.61.1 (global) | Real-Safari manual UAT (still required regardless) |
+| Playwright | D-14 WebKit RTL/geometry gate | ✓ | 1.61.1 (pinned local: TPM_Docs/video-pipeline/node_modules; NOT global) | Real-Safari manual UAT (still required regardless) |
 | WebKit browser binary | D-14 gate | ✓ | webkit-2311 / webkit-2248 cached | `npx playwright install webkit` if stale |
 | Chromium (dev loop) | D-14 Chromium-first iteration | ✓ (via Playwright) | 1.61.1 | Any local Chrome |
 
 **Missing dependencies with no fallback:** none.
-**Missing dependencies with fallback:** Playwright is a **global** tool, not a project devDependency — the WebKit gate is an ad-hoc verification step (Phase 37 precedent), not part of `npm test`. The planner should encode it as an explicit manual/scripted verification task, not assume `npm test` covers RTL geometry (jsdom has no layout engine and cannot).
+**Missing dependencies with fallback:** Playwright is NOT global (architect-gate A6) — it lives at the pinned path `TPM_Docs/video-pipeline/node_modules/playwright` and the probe resolves it via `createRequire`; the WebKit gate is an ad-hoc verification step (Phase 37 precedent), not part of `npm test`. The planner should encode it as an explicit manual/scripted verification task, not assume `npm test` covers RTL geometry (jsdom has no layout engine and cannot).
 
 ## Validation Architecture
 
@@ -515,7 +527,7 @@ takeMe.onclick = function (e) {
 - `41-CONTEXT.md` — locked decisions D-01..D-16
 
 ### Secondary (MEDIUM confidence)
-- Local tool probes: `npx playwright --version` → 1.61.1; `~/Library/Caches/ms-playwright/` → webkit-2248/2311 cached
+- Local tool probes: no global playwright (`npm ls -g playwright` empty); pinned install `TPM_Docs/video-pipeline/node_modules/playwright` → 1.61.1; `~/Library/Caches/ms-playwright/` → webkit-2248/2311 cached (architect-gate A6)
 - `.planning/REQUIREMENTS.md` — TOUR-01..04 contracts, AGPL rejection of Shepherd/Intro
 
 ### Tertiary (LOW confidence)
