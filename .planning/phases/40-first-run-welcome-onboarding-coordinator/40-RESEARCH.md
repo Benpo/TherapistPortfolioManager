@@ -499,7 +499,7 @@ asserting index.html no longer contains 'ios-install-banner'.
 | ONBD-03 | Coordinator shows exactly one governed surface per session; precedence order enforced; demo mode shows none; unrenderable security note skips to next | unit (jsdom) | `node tests/40-coordinator.test.js` | ❌ Wave 0 |
 | ONBD-01 | Welcome fires once (`sg.welcomeSeen`); Esc + either CTA dismiss; first-run writes last-seen-version (D-03) | unit (jsdom) | `node tests/40-welcome-overlay.test.js` | ❌ Wave 0 |
 | ONBD-02 | "Replay welcome" reopens overlay via direct `show()`; does NOT re-arm `sg.welcomeSeen`/session marker | unit (jsdom) | `node tests/40-welcome-overlay.test.js` | ❌ Wave 0 |
-| ONBD-04 | Install nudge: platform branch (deferredPrompt→button / no-event→Safari pointer); `standalone`→ineligible; dismissed-forever persists; mobile hint one-shot all-mobile | unit (jsdom, mocked matchMedia/navigator) | `node tests/40-install-nudge.test.js` | ❌ Wave 0 |
+| ONBD-04 | Install nudge: platform branch (deferredPrompt→button / real macOS Safari→pointer; no-event non-Safari→ineligible, slot passes); `standalone`→ineligible; dismissed-forever persists; mobile hint one-shot all-mobile | unit (jsdom, mocked matchMedia/navigator) | `node tests/40-install-nudge.test.js` | ❌ Wave 0 |
 | D-15 | iOS banner removed from `index.html` | static grep | `node tests/40-ios-banner-removed.test.js` | ❌ Wave 0 |
 | Precache | coordinator file listed in `sw.js` PRECACHE_URLS | static | mirror `tests/39-help-precache.test.js` | ❌ Wave 0 |
 
