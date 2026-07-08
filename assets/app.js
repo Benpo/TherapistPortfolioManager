@@ -889,7 +889,11 @@ window.App = (() => {
     }
 
     requestPersistentStorage();
-    showFirstLaunchSecurityNote();
+    // Phase 40 Plan 04 (ONBD-03) — arbitrate governed attention surfaces via the
+    // coordinator instead of firing the security note directly. bootAttentionSurfaces
+    // registers the security-note surface then calls AttentionCoordinator.run()
+    // (typeof-guarded for pages without the coordinator, Pitfall 7).
+    bootAttentionSurfaces();
     initPersistentSecuritySection();
     // Render shared footer
     if (typeof SharedChrome !== 'undefined' && SharedChrome.renderFooter) {
@@ -1383,6 +1387,54 @@ window.App = (() => {
   }
 
   /**
+   * Phase 40 Plan 04 (ONBD-03 / D-05 / D-08) — eligibility gate for the
+   * security note as a GOVERNED coordinator surface. Returns the existing
+   * showFirstLaunchSecurityNote() gates as a boolean (return-false-early rather
+   * than rendering) so an ineligible winner never consumes the one-per-session
+   * slot:
+   *   - false when the Overview-only #security-guidance-container is absent
+   *     (D-08 — so the security note never claims the session slot on a page
+   *     that could not render it, e.g. add-session);
+   *   - false when the license is not activated;
+   *   - false when securityGuidanceDismissed is a timestamp within the last
+   *     7 days (mirrors the renderer's daysSince<7 logic; the legacy '1' value
+   *     counts as expired → eligible).
+   * show() calls the EXISTING renderer unchanged (same copy, cadence, container,
+   * dismissal write — D-05).
+   */
+  function securityNoteEligible() {
+    // D-08 — an unrenderable winner never consumes the session slot.
+    if (!document.getElementById('security-guidance-container')) return false;
+    if (localStorage.getItem('portfolioLicenseActivated') !== '1') return false;
+    var dismissedAt = localStorage.getItem('securityGuidanceDismissed');
+    if (dismissedAt && dismissedAt !== '1') {
+      var daysSince = (Date.now() - new Date(dismissedAt).getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSince < 7) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Phase 40 Plan 04 (ONBD-03) — the initCommon seam that replaces the former
+   * unconditional showFirstLaunchSecurityNote() call. Registers the security
+   * note as a governed surface (so it participates in arbitration) then runs the
+   * coordinator once. Guarded by a typeof check so demo.html and any page that
+   * does not load attention-coordinator.js never throws (Pitfall 7). The backup
+   * reminder banner and footer integrity nudge stay INDEPENDENT (D-04) — they are
+   * NOT routed through the coordinator.
+   */
+  function bootAttentionSurfaces() {
+    if (typeof AttentionCoordinator === 'undefined') return;
+    // Register BEFORE run() so the security note participates in arbitration.
+    AttentionCoordinator.register({
+      id: 'security-note',
+      eligible: securityNoteEligible,
+      show: showFirstLaunchSecurityNote,
+    });
+    AttentionCoordinator.run();
+  }
+
+  /**
    * Apply i18n translations to the persistent privacy section.
    * Always visible, never dismissable.
    */
@@ -1663,6 +1715,11 @@ window.App = (() => {
     // Security guidance
     showFirstLaunchSecurityNote,
     initPersistentSecuritySection,
+    // Phase 40 Plan 04 (ONBD-03) — test seam for tests/40-app-wiring.test.js.
+    // Still called internally from initCommon; exposing it lets the jsdom wiring
+    // test drive the register+run() path (and inspect the security-note
+    // eligible() gate) without the full async boot.
+    bootAttentionSurfaces,
 
     // Phase 22 — therapist settings cache getters
     getSectionLabel,
