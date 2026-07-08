@@ -4725,3 +4725,184 @@ html[dir="rtl"] .multi-select-toggle {
   margin-inline-end: 0.35em;
   vertical-align: middle;
 }
+
+/* ===================================================================
+   Welcome overlay — first-run Variant-B split (Phase 40, Plan 02; ONBD-01).
+   A full-screen fixed dialog mounted by AttentionCoordinator.showWelcome().
+   The sketch-001 spacing / type / radius scale lived in the throwaway sketch
+   theme, NOT in tokens.css — it is redeclared here scoped to .welcome-overlay
+   so it can never leak into the shared app chrome (same convention as
+   help.css / .help-root). Semantic color / shadow / border tokens come from
+   tokens.css. Every property uses logical (block/inline) directions, so the
+   split flips for free under RTL — zero JS. No literal hex; weights 400/700.
+   =================================================================== */
+.welcome-overlay {
+  /* Spacing scale (sketch-001 values; shipped tokens.css omits these) */
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  /* Typography scale */
+  --text-body: 1rem;
+  --text-label: 0.9rem;
+  --text-display: 1.75rem;
+  --lh-body: 1.6;
+  --lh-label: 1.4;
+  --lh-display: 1.2;
+  /* Radii + interactive floor */
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+  --tap-target-min: 44px;
+
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background-color: var(--color-background);
+  /* soft garden radial glow — gradient tokens only */
+  background-image: radial-gradient(120% 90% at 50% 0%,
+      var(--color-background-gradient-start) 0%,
+      var(--color-background-gradient-end) 55%,
+      var(--color-background) 100%);
+  overflow-y: auto;
+}
+
+.welcome-panel {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.welcome-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl);
+  background: var(--color-surface-alt);
+  border-inline-end: 1px solid var(--color-border-soft);
+}
+
+.welcome-art-img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  opacity: 0.9;
+}
+
+.welcome-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-lg);
+  padding-inline: var(--space-2xl);
+  padding-block: var(--space-3xl);
+  text-align: start;
+}
+
+.welcome-title {
+  margin: 0;
+  font-size: var(--text-display);
+  line-height: var(--lh-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+.welcome-subtitle {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  align-items: stretch;
+  max-width: 320px;
+}
+
+.welcome-cta {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-target-min);
+  padding-block: var(--space-md);
+  padding-inline: var(--space-xl);
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-family: inherit;
+  font-size: var(--text-label);
+  line-height: var(--lh-label);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+/* Primary — the single accent element on the surface */
+.welcome-cta--primary {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-button);
+}
+.welcome-cta--primary:hover {
+  background: var(--color-primary-dark);
+  box-shadow: var(--shadow-brand);
+  transform: translateY(-1px);
+}
+.welcome-cta--primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary — first-class but NEUTRAL (therapist autonomy, D-10 / UI-SPEC) */
+.welcome-cta--secondary {
+  background: var(--color-surface-secondary-btn);
+  color: var(--color-text);
+  border: 1px solid var(--color-border-subtle);
+}
+.welcome-cta--secondary:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border);
+}
+
+.welcome-cta:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Phone widths: collapse to one column, art-side on top; the divider flips
+   from border-inline-end to border-block-end (logical, RTL-safe, zero JS). */
+@media (max-width: 720px) {
+  .welcome-panel {
+    grid-template-columns: 1fr;
+  }
+  .welcome-art {
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--color-border-soft);
+    padding: var(--space-xl);
+  }
+  .welcome-copy {
+    padding-inline: var(--space-xl);
+    padding-block: var(--space-2xl);
+  }
+  .welcome-title {
+    font-size: calc(var(--text-display) * 0.82);
+  }
+}
