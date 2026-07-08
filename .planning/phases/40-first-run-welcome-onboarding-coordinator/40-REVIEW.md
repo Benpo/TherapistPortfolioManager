@@ -1,8 +1,8 @@
 ---
 phase: 40-first-run-welcome-onboarding-coordinator
-reviewed: 2026-07-08T10:53:55Z
+reviewed: 2026-07-08T00:00:00Z
 depth: standard
-files_reviewed: 23
+files_reviewed: 9
 files_reviewed_list:
   - assets/app.css
   - assets/app.js
@@ -12,178 +12,100 @@ files_reviewed_list:
   - assets/i18n-en.js
   - assets/i18n-he.js
   - tests/39-help-entry.test.js
-  - tests/40-app-wiring.test.js
-  - tests/40-coordinator.test.js
-  - tests/40-i18n-parity.test.js
-  - tests/40-install-nudge.test.js
-  - tests/40-ios-banner-removed.test.js
-  - tests/40-precache.test.js
-  - tests/40-welcome-overlay.test.js
-  - index.html
-  - add-client.html
-  - add-session.html
-  - report.html
-  - reporting.html
-  - sessions.html
-  - settings.html
-  - help.html
-  - sw.js
+  - tests/40-install-nudge-rearm.test.js
 findings:
   critical: 0
-  warning: 2
-  info: 4
-  total: 6
+  warning: 0
+  info: 3
+  total: 3
 status: issues_found
 ---
 
-# Phase 40: Code Review Report
+# Phase 40: Code Review Report (Gap-Closure Re-Review)
 
-**Reviewed:** 2026-07-08T10:53:55Z
+**Reviewed:** 2026-07-08
 **Depth:** standard
-**Files Reviewed:** 23
-**Status:** issues_found
+**Files Reviewed:** 9
+**Status:** issues_found (Info only — no blockers, no warnings)
 
 ## Summary
 
-Phase 40 adds a data-driven `AttentionCoordinator` (a one-per-session precedence
-registry) plus four governed surfaces (welcome overlay, security note,
-install-nudge, mobile-hint), wires it into `app.js`, deletes the legacy iOS
-install banner, and precaches the new module. The implementation is unusually
-disciplined: arbitration is correct (marker claimed only on real show,
-demo/one-per-session gating, throw→false eligibility), i18n parity holds across
-all four locales, script load order (coordinator before `app.js`) is correct on
-all 8 app pages, the SW precache entry is present with an auto-derived
-`CACHE_NAME`, and all eight Phase 40 test files pass (plus the Phase 39
-regression). Copy is set via `textContent`/`data-i18n` on the new surfaces,
-honoring the stated XSS trust boundary.
+Adversarial re-review of the Phase 40 gap-closure delta (`ba41f65..HEAD`) covering plans
+40-06 (beforeinstallprompt re-arm), 40-07 (redundant Help nav removal + native-button CSS
+reset), and 40-08 (two-paragraph EN welcome copy). I read the full diff, traced the changed
+control paths through `attention-coordinator.js`, `app.js`, and `app.css`, and executed both
+behavior guards.
 
-No blockers. Two correctness/robustness defects are worth fixing before ship:
-an iPadOS Safari install-copy mismatch, and a missing focus contract on a
-surface that declares `aria-modal="true"`. Four lower-severity items round out
-the list.
+The delta holds up under scrutiny. I specifically tried to break the three named invariants
+and could not:
 
-Note: no `<structural_findings>` block was provided, so this review is entirely
-narrative.
+- **Re-arm (40-06).** `deferredPrompt` is assigned *before* the re-invoked `run()` (line 252
+  vs 266), and the `run()` call sits in its own `try/catch` — so a throw in arbitration can
+  never destroy the captured prompt. The re-arm routes through `run()`, which still
+  early-returns on `isDemo()` (D-09) and the `sg.surfaceShownThisSession` marker (D-02) and
+  iterates `PRECEDENCE` in order (D-01). One-per-session and precedence are preserved *by
+  construction*, not by ad-hoc guards. The `install-nudge` surface is registered (line 390)
+  before any real dispatch can occur (events are async; eval is synchronous), so the registry
+  is always populated when the listener fires. Cross-page D-02 also holds — `sessionStorage`
+  persists across MPA navigations while `deferredPrompt` resets per page.
+- **XSS boundary (40-08 / T-40-03).** The new second subtitle is set via `textContent` only
+  (line 173); no `innerHTML` anywhere in the changed regions. The render guard
+  (`typeof === 'string' && !== '' && !== 'help.welcome.subtitle2'`) correctly suppresses both
+  the empty non-EN parity stubs and the raw-key echo when a locale lacks the entry.
+- **Nav removal (40-07).** The active-nav marker loop (`a[data-nav]`) simply finds no help
+  anchor now; `.is-active` is carried by the `.help-entry-btn` instead. The `.help-entry-item`
+  reset is complete — `text-align: start` (line 234) overrides the UA `<button>` centering, so
+  `<button>` action rows do render identically to `<a>` link rows, and `font: inherit`
+  correctly precedes `font-size: 0.9rem`.
 
-## Narrative Findings (AI reviewer)
-
-## Warnings
-
-### WR-01: iPadOS Safari receives incorrect macOS "Add to Dock" install copy
-
-**File:** `assets/attention-coordinator.js:247-254, 259-273, 304-311`
-**Issue:** `isMacSafari()` matches on `/Macintosh/ && /Safari\// && !Chromium`.
-Since iPadOS 13, iPad Safari reports a `Macintosh` user-agent by default (desktop
-mode), so `isMacSafari()` returns `true` on iPad. The mobile-vs-desktop split is
-governed only by `isPhoneClass()` (`pointer: coarse` **and** `max-width: 820px`).
-An iPad in landscape (~1024px wide, coarse pointer) is therefore **not**
-phone-class, flows into `install-nudge`, passes `installEligible()` via the
-`isMacSafari()` branch, and `installShow()` renders the else-branch copy
-`onboard.install.safariHint` — the macOS "File → Add to Dock" pointer. That
-instruction is wrong for iPadOS (iPad installs via Share → Add to Home Screen).
-Because the nudge is a deliberate "single ask," it is burned on incorrect copy —
-exactly the failure the per-browser gate (D-12) was built to prevent. The
-comment on line 244 even asserts macOS Safari is "the ONLY environment where the
-File → Add to Dock pointer copy is correct," which iPad violates.
-**Fix:** Exclude iPadOS from `isMacSafari()` by also requiring a non-touch
-pointer, e.g.:
-```javascript
-function isMacSafari() {
-  try {
-    var ua = navigator.userAgent || '';
-    var touch = navigator.maxTouchPoints > 1;   // iPadOS reports >1; Mac trackpads report 0
-    return /Macintosh/.test(ua)
-        && /Safari\//.test(ua)
-        && !/Chrome|Chromium|CriOS|Edg|OPR/.test(ua)
-        && !touch;
-  } catch (e) { return false; }
-}
-```
-(Or widen `isPhoneClass()`/add an iPad branch so large touch devices get the
-mobile hint instead.)
-
-### WR-02: Welcome overlay declares `aria-modal="true"` but never moves focus into the dialog or traps it
-
-**File:** `assets/attention-coordinator.js:124-202` (esp. 128-131, 196-201)
-**Issue:** `showWelcome()` mounts an overlay with `role="dialog"` and
-`aria-modal="true"` and locks body scroll, but it never moves focus into the
-dialog on mount and installs no focus trap. Focus remains on whatever element
-was active in the background page (for the replay path, the Help menu button),
-which `aria-modal="true"` tells assistive tech is now inert — a false promise.
-Keyboard users can Tab straight back into the (visually covered) page, and screen
-readers are not moved to the dialog. This is a WCAG 2.4.3 (Focus Order) /
-2.1.2 (No Keyboard Trap contract) gap. Note the sibling `confirmDialog()` in
-`app.js:1137-1139` *does* focus its confirm button on open, so the app has an
-established pattern this surface diverges from.
-**Fix:** On mount, focus the panel or primary CTA, and restore focus to the
-opener on dismiss:
-```javascript
-// after doc.body.appendChild(overlay);
-var opener = doc.activeElement;
-primary.focus();
-// inside dismiss():
-try { if (opener && opener.focus) opener.focus(); } catch (e) {}
-```
-Optionally add a minimal Tab-wrap between `primary` and `secondary` so focus
-cannot escape the dialog while it is open.
+Both guards pass: `40-install-nudge-rearm` (3/3) and `39-help-entry` (6/6). No correctness,
+security, or data-loss defects found in the delta. The three Info items below are content /
+robustness follow-ups, not blockers.
 
 ## Info
 
-### IN-01: Security note renders via `innerHTML` with interpolated `t()` values, diverging from the surfaces' documented textContent-only trust boundary
+### IN-01: `help.entry.replayWelcome` EN copy diverged from all non-EN locales
 
-**File:** `assets/app.js:1398-1403`
-**Issue:** `showFirstLaunchSecurityNote()` builds its markup with
-`container.innerHTML = '...' + t('security.note.heading') + '...'`. The
-coordinator's header comment (attention-coordinator.js:37-38) states all copy is
-set via `textContent`/`data-i18n` and "never variable-interpolated markup — the
-overlay's only trust boundary." This surface, now governed by the same
-coordinator, is the lone exception. The interpolated values are developer-owned
-i18n strings, so this is **not** currently exploitable, but it is the one
-governed surface where a translation containing markup would render as HTML.
-**Fix:** Build the note with `document.createElement` + `textContent` (mirroring
-`makeEl`/`buildCta` in the coordinator), or at minimum set the three text nodes
-via `textContent` after inserting a static skeleton.
+**File:** `assets/i18n-en.js:599` (vs `i18n-he.js:598`, `i18n-de.js`, `i18n-cs.js`)
+**Issue:** Plan 40-08 re-worded the EN label from "Replay welcome" to **"Onboarding screen"**,
+but the three other locales still resolve to the original "replay" phrasing
+(HE `צפייה חוזרת בפתיחה`, DE `Begrüßung erneut ansehen`, CS `Přehrát uvítání znovu`). The
+popover row is now framed as a noun ("Onboarding screen") in EN and as a verb ("Replay the
+welcome") elsewhere — a semantic split, not just untranslated text. This is inside the
+Phase 42.1 L10N deferral, but unlike `subtitle2` it was *not* stubbed, so it will silently
+ship inconsistent framing to non-EN users. The internal key name `replayWelcome` also no
+longer matches the EN label.
+**Fix:** Add the three non-EN re-translations to the Phase 42.1 translation batch (or a
+tracking note) so the "Onboarding screen" framing lands consistently. No code change required.
 
-### IN-02: Public accessors `_getDeferredPrompt` / `_clearDeferredPrompt` have no runtime consumer (dead surface)
+### IN-02: Empty `subtitle2` paragraph can persist as a blank gap after a language switch
 
-**File:** `assets/attention-coordinator.js:374-375`
-**Issue:** The module exposes `_getDeferredPrompt()` and
-`_clearDeferredPrompt()`, and the header comments (lines 35, 53) claim the Plan
-03 install-nudge surface "consumes the captured beforeinstallprompt via
-`_getDeferredPrompt()`." In the shipped code, `installEligible()` and
-`installShow()` read the closure variable `deferredPrompt` directly (lines 272,
-292-299). A repo-wide search finds these two accessors referenced only in
-comments, planning summaries, and a test *docstring* — never called. Harmless,
-but they are dead public API whose doc comment misdescribes the actual data flow.
-**Fix:** Remove both accessors (and correct the header comment), or route
-`installShow`/`installEligible` through them if a single access seam is desired.
+**File:** `assets/attention-coordinator.js:167-174`; `assets/app.css:4844-4848`
+**Issue:** The `sub2` node is created only for locales with non-empty copy (EN). But its
+`data-i18n="help.welcome.subtitle2"` means `App.applyTranslations()` (app.js:23-27, invoked by
+`setLanguage`) will later set `sub2.textContent = t('help.welcome.subtitle2')` = `""` if the
+user switches to HE/DE/CS *while the overlay is open*. The node stays in the DOM, and
+`.welcome-subtitle + .welcome-subtitle { margin-block-start: var(--space-sm) }` still applies —
+leaving a visible empty-margin gap. Likelihood is low (the overlay is `aria-modal` + focus-
+trapped and visually covers the header language switcher, so reaching it mid-overlay is
+contrived), which is why this is Info, not Warning.
+**Fix:** If hardening is desired, either remove `data-i18n` from `sub2` (it is resolved once at
+mount and never needs live re-translation for the first-run flow), or have the language
+re-translate hide/remove `.welcome-subtitle` nodes whose resolved value is empty. Otherwise
+document as accepted.
 
-### IN-03: Empty `else if` branch in the security-note renderer
+### IN-03: `nav.help` i18n key is now orphaned in all four locale dicts
 
-**File:** `assets/app.js:1391-1393`
-**Issue:** `} else if (dismissedAt === '1') { /* Legacy boolean value — treat as
-expired, show again */ }` is an empty block. The legacy `'1'` case is already
-handled correctly by falling through (the guard `dismissedAt && dismissedAt !==
-'1'` skips the 7-day check), so the branch is a pure no-op kept only for a
-comment. It reads as an unfinished conditional.
-**Fix:** Delete the empty `else if` and move the explanatory comment to the
-guard on line 1388, e.g. `// legacy '1' value falls through as expired`.
-
-### IN-04: Chromium install branch leaves an orphaned card after the prompt fires
-
-**File:** `assets/attention-coordinator.js:296-302`
-**Issue:** In the Chromium `[Install app]` click handler, after firing
-`dp.prompt()` only the button is removed (`install.parentNode.removeChild(install)`).
-The card itself (title, body, `No thanks` dismiss, "later" reassurance line)
-remains mounted. Whether the user accepts or declines the browser's native
-install dialog, the leftover card lingers with a now-dead-ended layout until they
-also click dismiss. Minor UX wart, not a correctness bug.
-**Fix:** Call `removeCard()` after `dp.prompt()` (the card has served its
-purpose once the native prompt is shown), and/or remove it on the `appinstalled`
-event.
+**File:** `assets/i18n-en.js:13` (and `i18n-he.js:13`, `i18n-de.js:13`, `i18n-cs.js:13`)
+**Issue:** Plan 40-07 removed the only consumer of `nav.help` (the `data-i18n="nav.help"`
+anchor in `renderNav()`). The key remains defined in all four dictionaries with no element
+referencing it — dead translation entries. Harmless, but it is now unused surface area.
+**Fix:** Optional cleanup — drop `"nav.help"` from the four dicts, or leave it if a future nav
+affordance may re-use it. Note: `help.html`'s `<body data-nav="help">` is unrelated and still
+correctly drives `.is-active` on the `.help-entry-btn`.
 
 ---
 
-_Reviewed: 2026-07-08T10:53:55Z_
+_Reviewed: 2026-07-08_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
