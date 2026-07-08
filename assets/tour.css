@@ -1,0 +1,250 @@
+/**
+ * tour.css — visual surfaces for the guided-tour engine (Phase 41, Plan 03).
+ *
+ * Scope: the spotlight ring, the pointer-events inert overlay (A4), the tethered
+ * tooltip + RTL-safe arrow, and the centered fallback modal. Bottom-sheet, finish
+ * card, and exit-choice surfaces arrive in Plan 04.
+ *
+ * TOKENS
+ *   Colors + shadows come GLOBALLY from assets/tokens.css semantic vars
+ *   (--color-* / --shadow-*), auto-resolving in [data-theme="dark"] — nothing
+ *   dark-specific is authored here, and there is no literal hex anywhere.
+ *   The spacing / type / radius / tap-target scale is NOT in tokens.css (it lives
+ *   locally in help.css / app.css, and help.css is absent on most chrome pages the
+ *   tour loads on), so this file redeclares that scale on the .sg-tour-root class
+ *   (architect-gate A8), mirroring help.css's .help-root block.
+ *
+ * COLOR DISCIPLINE (hard rule): --color-primary is reserved to the spotlight ring
+ *   and the single forward (Next/Done) button only. Every other control — Previous
+ *   step, Close tour, "Take me there" — stays neutral.
+ *
+ * Logical properties only (inset-inline-*, padding-inline/block, border-inline-*)
+ * so the tether + arrow flip for free under RTL. No physical left/right.
+ */
+
+.sg-tour-root {
+  /* Spacing scale (mirrors help.css .help-root; tokens.css omits these) */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  /* Typography scale */
+  --font-sans: 'Rubik', system-ui, -apple-system, sans-serif;
+  --text-body: 1rem;
+  --text-label: 0.9rem;
+  --text-heading: 1.25rem;
+  --text-display: 1.75rem;  /* Plan 04 finish headline */
+  --lh-body: 1.6;
+  --lh-label: 1.4;
+  --lh-heading: 1.3;
+  --weight-regular: 400;
+  --weight-bold: 700;
+  /* Radii */
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-full: 9999px;
+  /* Minimum interactive size (UI-SPEC accessibility constraint, not a rhythm step) */
+  --tap-target-min: 44px;
+  /* Z-index tokens (architect-gate A10): intentionally ABOVE the app.css --z-*
+     scale (max --z-banner:500) because the tour must overlay ALL app chrome —
+     banners and modals included. This deliberate departure is documented here. */
+  --z-tour-overlay: 9000;
+  --z-tour-tooltip: 9100;
+
+  font-family: var(--font-sans);
+}
+
+.sg-tour-root *,
+.sg-tour-root *::before,
+.sg-tour-root *::after { box-sizing: border-box; }
+
+/* ── A4 inert overlay: full-viewport, captures all pointer events so the page
+   underneath is inert (D-07). Transparent — the dim comes from the spotlight's
+   9999px box-shadow. Does NOT freeze scroll. ─────────────────────────────────── */
+.sg-tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-tour-overlay);
+  pointer-events: auto;
+}
+
+/* ── Spotlight: a transparent hole with a primary ring + dim everywhere else,
+   via a giant box-shadow so the cut-out is precise and animatable. Purely
+   visual — pointer-events:none. ─────────────────────────────────────────────── */
+.sg-tour-spotlight {
+  position: fixed;
+  border-radius: var(--radius-md);
+  pointer-events: none;
+  z-index: var(--z-tour-overlay);
+  box-shadow:
+    0 0 0 4px var(--color-primary),
+    0 0 0 9999px var(--color-modal-overlay-bg);
+  transition: all 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Tethered tooltip (D-04): rounded surface card, logical-property padding,
+   soft shadow. Positioned via inset-inline-start / inset-block-start (RTL-safe). ── */
+.sg-tour-tooltip {
+  position: fixed;
+  z-index: var(--z-tour-tooltip);
+  min-width: 16rem;
+  max-width: 22rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-modal);
+  padding-block: var(--space-md);
+  padding-inline: var(--space-md);
+  transition:
+    inset-block-start 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    inset-inline-start 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── RTL-safe arrow: a rotated square positioned with logical props so it flips
+   for free under RTL. ───────────────────────────────────────────────────────── */
+.sg-tour-arrow {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--color-surface);
+  border-inline-start: 1px solid var(--color-border);
+  border-block-start: 1px solid var(--color-border);
+  transform: rotate(45deg);
+}
+.sg-tour-tooltip[data-arrow="top"] .sg-tour-arrow {
+  inset-block-start: -7px;
+  inset-inline-start: var(--arrow-x, 24px);
+}
+.sg-tour-tooltip[data-arrow="bottom"] .sg-tour-arrow {
+  inset-block-end: -7px;
+  inset-inline-start: var(--arrow-x, 24px);
+  transform: rotate(225deg);
+}
+.sg-tour-tooltip[data-arrow="none"] .sg-tour-arrow { display: none; }
+
+/* ── Tooltip text roles ─────────────────────────────────────────────────────── */
+.sg-tour-counter {
+  font-size: var(--text-label);
+  line-height: var(--lh-label);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-muted);
+  margin-block: 0 var(--space-xs);
+}
+.sg-tour-title {
+  font-size: var(--text-heading);
+  line-height: var(--lh-heading);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+  margin-block: 0 var(--space-sm);
+}
+.sg-tour-body {
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  font-weight: var(--weight-regular);
+  color: var(--color-text);
+  margin: 0;
+}
+.sg-tour-fallback-loc {
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  color: var(--color-text-muted);
+  margin-block: var(--space-sm) var(--space-md);
+}
+
+/* ── Control row + buttons ──────────────────────────────────────────────────── */
+.sg-tour-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-block-start: var(--space-md);
+}
+
+.sg-tour-btn {
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  line-height: var(--lh-label);
+  font-weight: var(--weight-bold);
+  min-height: var(--tap-target-min);
+  min-width: var(--tap-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+.sg-tour-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+/* Forward action — the ONLY accent-colored control per step */
+.sg-tour-btn-fwd {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-button);
+  margin-inline-start: auto;
+}
+.sg-tour-btn-fwd:hover { filter: brightness(1.06); }
+/* Back — strictly neutral, never accent */
+.sg-tour-btn-neutral {
+  background: var(--color-surface-secondary-btn);
+  color: var(--color-text);
+  border-color: var(--color-border-soft);
+}
+.sg-tour-btn-neutral:hover { background: var(--color-surface-hover); }
+.sg-tour-btn-neutral:disabled { opacity: 0.45; cursor: default; }
+/* Close — quiet neutral */
+.sg-tour-btn-close {
+  background: transparent;
+  color: var(--color-text-muted);
+  padding-inline: var(--space-sm);
+}
+.sg-tour-btn-close:hover { background: var(--color-surface-hover); }
+
+/* ── "Take me there" — a working link, neutral tone (never accent) ──────────── */
+.sg-tour-takeme {
+  font-size: var(--text-label);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  background: var(--color-surface-secondary-btn);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-full);
+  min-height: var(--tap-target-min);
+  display: inline-flex;
+  align-items: center;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  margin-block-start: var(--space-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.sg-tour-takeme:hover { background: var(--color-surface-hover); }
+.sg-tour-takeme:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ── Fallback modal — centered, NOT tethered. Uses the modal overlay token. ──── */
+.sg-tour-modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-tour-tooltip);
+  background: var(--color-modal-overlay-bg);
+  display: grid;
+  place-items: center;
+  padding: var(--space-lg);
+  pointer-events: auto;
+}
+.sg-tour-modal-scrim .sg-tour-tooltip {
+  position: relative;
+  inset: auto;
+}
+.sg-tour-modal-scrim .sg-tour-arrow { display: none; }
