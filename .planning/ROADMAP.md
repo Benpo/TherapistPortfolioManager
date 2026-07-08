@@ -169,12 +169,26 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
 **Plans**: 7 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 41-01-PLAN.md — Tour copy: ~30 help.tour.* keys in all 4 locales + RED parity gate [wave 1]
 - [ ] 41-02-PLAN.md — 10 data-tour anchors on real chrome + anchor-presence rot-guard test [wave 1]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 41-03-PLAN.md — Tour engine core: tour.js/tour.css render + degradation + cross-page resume (+ 3 behavior tests) [wave 2]
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 41-04-PLAN.md — Engine polish: language re-render + exit choice + finish card + bottom-sheet [wave 3]
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 41-05-PLAN.md — Launch wiring: "?" tour row (demo-gated) + welcome CTA rewire + coordinator reminder + resume hook [wave 4]
 - [ ] 41-06-PLAN.md — Offline: tour.js/tour.css script/link on 4 pages + sw.js precache [wave 4]
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 41-07-PLAN.md — Playwright-WebKit RTL/geometry gate + real-Safari UAT checkpoint [wave 5]
 
 **UI hint**: yes
