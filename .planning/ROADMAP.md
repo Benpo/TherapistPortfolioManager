@@ -166,7 +166,17 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
   3. The tour survives cross-page navigation — steps that live on another page navigate there and resume (sessionStorage state).
   4. Switching language mid-tour re-renders the tour cleanly in the new language and direction (RTL mirroring verified in real WebKit, not jsdom alone).
 
-**Plans**: TBD
+**Plans**: 7 plans
+
+Plans:
+- [ ] 41-01-PLAN.md — Tour copy: ~30 help.tour.* keys in all 4 locales + RED parity gate [wave 1]
+- [ ] 41-02-PLAN.md — 10 data-tour anchors on real chrome + anchor-presence rot-guard test [wave 1]
+- [ ] 41-03-PLAN.md — Tour engine core: tour.js/tour.css render + degradation + cross-page resume (+ 3 behavior tests) [wave 2]
+- [ ] 41-04-PLAN.md — Engine polish: language re-render + exit choice + finish card + bottom-sheet [wave 3]
+- [ ] 41-05-PLAN.md — Launch wiring: "?" tour row (demo-gated) + welcome CTA rewire + coordinator reminder + resume hook [wave 4]
+- [ ] 41-06-PLAN.md — Offline: tour.js/tour.css script/link on 4 pages + sw.js precache [wave 4]
+- [ ] 41-07-PLAN.md — Playwright-WebKit RTL/geometry gate + real-Safari UAT checkpoint [wave 5]
+
 **UI hint**: yes
 
 ### Phase 42: In-App Changelog & What's-New
@@ -273,7 +283,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
 | 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
 | 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 8/8 | Complete    | 2026-07-08 |
-| 41. Replayable Guided Tour | v1.3 | 0/TBD | Not started | - |
+| 41. Replayable Guided Tour | v1.3 | 0/7 | Not started | - |
 | 42. In-App Changelog & What's-New | v1.3 | 0/TBD | Not started | - |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |
 </content>
