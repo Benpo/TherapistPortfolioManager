@@ -12,8 +12,11 @@
  *   page navigations via a sessionStorage resume tier, always restarting from
  *   step 1 on a fresh launch (TOUR-03 / D-09). Render loop ported from the
  *   validated sketch .planning/sketches/003-tour-fallback/index.html, adapted to
- *   the cross-page route. Language re-render / exit choice / finish card /
- *   bottom-sheet arrive in Plan 04; launch-surface + coordinator wiring in Plan 05.
+ *   the cross-page route. Plan 04 adds: mid-tour LANGUAGE re-render on the
+ *   document 'app:language' event (cleanup-then-replace, subscribed once —
+ *   TOUR-04); a concise two-option EXIT CHOICE on Close (D-08); the FINISH card
+ *   with the help-center handoff (D-10); and a small-screen BOTTOM-SHEET branch
+ *   (D-05). Launch-surface + coordinator wiring arrive in Plan 05.
  *
  * PUBLIC SURFACE (one namespaced global, mirroring assets/attention-coordinator.js):
  *   window.Tour = { start, resume, isActive, next, prev, ...seams }
@@ -37,7 +40,12 @@
  * STORAGE
  *   sessionStorage 'sg.tourResume' — JSON {tourId, stepIndex}; the ONLY resume
  *                tier (D-09 / Pitfall 6). Cleared on finish and on mid-tour close.
- *   localStorage 'sg.tourCompleted' — set by the Plan 04 finish card, NOT here.
+ *   localStorage 'sg.tourCompleted'  — set when the finish card mounts (D-10).
+ *   localStorage 'sg.tourRemindLater' — set by the exit choice "Remind me later".
+ *   localStorage 'sg.tourNeverRemind' — set by the exit choice "I'll explore myself".
+ *                These three sg.tour* flags are the decoupling seam the Plan 05
+ *                coordinator reminder reads; they are tour-scoped and share NO key
+ *                with the security-note cadence-backoff todo (D-08 constraint).
  *
  * INERTNESS WITHOUT SCROLL FREEZE (architect-gate A4)
  *   A full-viewport fixed overlay intercepts pointer events so the underlying
@@ -107,6 +115,16 @@ var Tour = (function () {
   var reflowRAF = 0;
   var reflowHandler = null; // scroll/resize reposition listener (spotlight only)
   var fallbackLocked = false; // did we App.lockBodyScroll for a fallback modal?
+  var _langListenerInstalled = false; // once-only guard for the app:language listener (D-08/TOUR-04)
+
+  // ── D-05 bottom-sheet breakpoint ──────────────────────────────────────────────
+  // Below this viewport width the tooltip becomes a bottom-pinned sheet: no
+  // tooltip-collision math on cramped screens (the spotlight still tracks the
+  // anchor). CSS pins it via inset-inline:0 (see tour.css @media ≤640px).
+  var BOTTOM_SHEET_MAX = 640;
+  function isBottomSheet() {
+    try { return (window.innerWidth || Infinity) <= BOTTOM_SHEET_MAX; } catch (e) { return false; }
+  }
 
   var raf = (typeof window !== 'undefined' && window.requestAnimationFrame)
     ? function (cb) { return window.requestAnimationFrame(cb); }
@@ -131,7 +149,9 @@ var Tour = (function () {
 
     var closeBtn = makeEl('button', 'sg-tour-btn sg-tour-btn-close', 'help.tour.close');
     closeBtn.setAttribute('type', 'button');
-    closeBtn.onclick = function () { endTour(); };
+    // D-08: closing mid-tour ends the run (clears resume, inactive) then offers a
+    // concise two-option exit choice for what happens next session.
+    closeBtn.onclick = function () { openExitChoice(); };
 
     var backBtn = makeEl('button', 'sg-tour-btn sg-tour-btn-neutral', 'help.tour.back');
     backBtn.setAttribute('type', 'button');
@@ -140,7 +160,9 @@ var Tour = (function () {
 
     var fwdBtn = makeEl('button', 'sg-tour-btn sg-tour-btn-fwd', isFinal ? 'help.tour.done' : 'help.tour.next');
     fwdBtn.setAttribute('type', 'button');
-    fwdBtn.onclick = function () { if (isFinal) endTour(); else next(); };
+    // D-10: the last step's forward action mounts the finish card (help-center
+    // handoff + first-action buttons) instead of a bare endTour().
+    fwdBtn.onclick = function () { if (isFinal) mountFinish(); else next(); };
 
     row.appendChild(closeBtn);
     row.appendChild(backBtn);
@@ -159,6 +181,9 @@ var Tour = (function () {
     spotlightEl.style.height = (r.height + pad * 2) + 'px';
 
     if (!tooltipEl) return;
+    // D-05 bottom-sheet: the tooltip is CSS-pinned to the viewport bottom — skip
+    // all tooltip-collision math (the spotlight above still tracks the anchor).
+    if (tooltipEl.classList.contains('sg-tour-bottom-sheet')) return;
     var below = (window.innerHeight - r.bottom) > 220;
     tooltipEl.setAttribute('data-arrow', below ? 'top' : 'bottom');
     var tw = tooltipEl.offsetWidth || 0;
@@ -257,6 +282,13 @@ var Tour = (function () {
     tooltipEl.setAttribute('role', 'dialog');
     tooltipEl.setAttribute('aria-modal', 'false');
     tooltipEl.setAttribute('data-arrow', 'top');
+
+    // D-05: on a cramped viewport, become a bottom-pinned sheet (no arrow, no
+    // collision math). Evaluated at render time; the spotlight still highlights.
+    if (isBottomSheet()) {
+      tooltipEl.classList.add('sg-tour-bottom-sheet');
+      tooltipEl.setAttribute('data-arrow', 'none');
+    }
 
     var arrow = document.createElement('span');
     arrow.className = 'sg-tour-arrow';
@@ -391,6 +423,127 @@ var Tour = (function () {
     ssRemove(RESUME_KEY);
   }
 
+  // ── mid-tour exit choice (D-08) ───────────────────────────────────────────────
+  // Close ends the run (endTour clears resume + goes inactive — the Plan-03
+  // resume-state contract) THEN mounts a concise two-option prompt. Neither
+  // option auto-runs anything: the tour still only RUNS on an explicit start()
+  // (TOUR-01). The two flags are the seam the Plan 05 coordinator reminder reads.
+  function openExitChoice() {
+    endTour();
+
+    var r = document.createElement('div');
+    r.className = 'sg-tour-root sg-tour-exit-root';
+    r.setAttribute('data-tour-chrome', '');
+
+    var scrim = document.createElement('div');
+    scrim.className = 'sg-tour-modal-scrim';
+
+    var card = document.createElement('div');
+    card.className = 'sg-tour-tooltip sg-tour-exit-card';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('data-arrow', 'none');
+
+    card.appendChild(makeEl('h3', 'sg-tour-title', 'help.tour.exit.title'));
+
+    var row = document.createElement('div');
+    row.className = 'sg-tour-row sg-tour-exit-row';
+
+    var laterBtn = makeEl('button', 'sg-tour-btn sg-tour-btn-neutral', 'help.tour.exit.remindLater');
+    laterBtn.setAttribute('type', 'button');
+    laterBtn.onclick = function () { lsSet('sg.tourRemindLater', '1'); teardown(r); };
+
+    var exploreBtn = makeEl('button', 'sg-tour-btn sg-tour-btn-neutral', 'help.tour.exit.exploreMyself');
+    exploreBtn.setAttribute('type', 'button');
+    exploreBtn.onclick = function () { lsSet('sg.tourNeverRemind', '1'); teardown(r); };
+
+    row.appendChild(laterBtn);
+    row.appendChild(exploreBtn);
+    card.appendChild(row);
+    scrim.appendChild(card);
+    r.appendChild(scrim);
+    document.body.appendChild(r);
+  }
+
+  // ── finish card (D-10) ────────────────────────────────────────────────────────
+  // Mounts on the last step's forward action: a garden-voice card with the
+  // help-center handoff plus first-action buttons. ONE accent control only
+  // ("Add your first client"); the other two stay neutral. Sets sg.tourCompleted
+  // and clears the resume tier as it mounts.
+  function mountFinish() {
+    clearTourChrome();
+    active = false;
+    stepIndex = 0;
+    lsSet('sg.tourCompleted', '1');
+    ssRemove(RESUME_KEY);
+
+    var r = document.createElement('div');
+    r.className = 'sg-tour-root sg-tour-finish-root';
+    r.setAttribute('data-tour-chrome', '');
+
+    var scrim = document.createElement('div');
+    scrim.className = 'sg-tour-modal-scrim';
+
+    var card = document.createElement('div');
+    card.className = 'sg-tour-tooltip sg-tour-finish-card';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('data-arrow', 'none');
+
+    card.appendChild(makeEl('h3', 'sg-tour-finish-title', 'help.tour.finish.title'));
+    card.appendChild(makeEl('p', 'sg-tour-body', 'help.tour.finish.body'));
+
+    var actions = document.createElement('div');
+    actions.className = 'sg-tour-finish-actions';
+
+    // Single accent action (mirrors the forward-button treatment).
+    var addClient = makeEl('a', 'sg-tour-btn sg-tour-btn-fwd sg-tour-finish-primary', 'help.tour.finish.addClient');
+    addClient.setAttribute('href', './add-client.html');
+
+    // Neutral secondary action.
+    var startSession = makeEl('a', 'sg-tour-btn sg-tour-btn-neutral', 'help.tour.finish.startSession');
+    startSession.setAttribute('href', './add-session.html');
+
+    // Neutral help-center handoff link.
+    var helpCenter = makeEl('a', 'sg-tour-takeme sg-tour-finish-help', 'help.tour.finish.helpCenter');
+    helpCenter.setAttribute('href', './help.html');
+
+    actions.appendChild(addClient);
+    actions.appendChild(startSession);
+    actions.appendChild(helpCenter);
+    card.appendChild(actions);
+
+    var closeBtn = makeEl('button', 'sg-tour-btn sg-tour-btn-close sg-tour-finish-close', 'help.tour.close');
+    closeBtn.setAttribute('type', 'button');
+    closeBtn.onclick = function () { teardown(r); };
+    card.appendChild(closeBtn);
+
+    scrim.appendChild(card);
+    r.appendChild(scrim);
+    document.body.appendChild(r);
+  }
+
+  // Remove a standalone (exit / finish) surface — main-tour chrome is torn down by
+  // clearTourChrome(); these post-run surfaces own their own node.
+  function teardown(node) {
+    try { if (node && node.parentNode) node.parentNode.removeChild(node); } catch (e) {}
+  }
+
+  // ── mid-tour language re-render (TOUR-04) ─────────────────────────────────────
+  // Subscribe ONCE to the document 'app:language' event App dispatches (app.js
+  // line 126), guarded like initHelpEntry._listenerInstalled. On fire, if a tour
+  // is active, re-render the CURRENT step: render() does cleanup-then-replace, so
+  // every string re-resolves via t() in the new locale and geometry/arrow re-flip
+  // for RTL (logical props flip for free). Inactive → no-op. Post-run finish/exit
+  // surfaces are static (active === false) so they are intentionally untouched.
+  function onLanguageChange() {
+    if (!active) return;
+    render();
+  }
+  function installLangListener() {
+    if (_langListenerInstalled) return;
+    try { document.addEventListener('app:language', onLanguageChange); } catch (e) {}
+    _langListenerInstalled = true;
+  }
+
   function isActive() { return active; }
 
   // ── current-page seam — last path segment, default index.html ─────────────────
@@ -423,10 +576,15 @@ var Tour = (function () {
     _currentPage: currentPage,
     _render: render,
     _endTour: endTour,
+    _openExitChoice: openExitChoice,
+    _mountFinish: mountFinish,
     _getSteps: function () { return STEPS; },
     _getStepIndex: function () { return stepIndex; },
     _setStepIndex: function (i) { stepIndex = i; }
   };
+
+  // Subscribe to language changes exactly once at load (TOUR-04 / D-08).
+  installLangListener();
 
   return api;
 })();
