@@ -130,7 +130,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
   3. On any single launch, only one attention surface appears — a written precedence order across welcome, What's-New, security note, install nudge, and the iOS banner is enforced, with explicit fresh-install-vs-upgrader handling (no competing surfaces stack).
   4. A practitioner who hasn't installed the PWA sees one friendly, dismissable, non-nagging, per-browser-aware install affordance (dismissal remembered) that replaces/reconciles the existing per-session iOS banner.
 
-**Plans**: 5/5 complete + 3 gap-closure plans (UAT 2026-07-08)
+**Plans**: 6/8 plans executed
 
 **Wave 1**
 
@@ -148,7 +148,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
 
 **Gap closure** *(UAT 2026-07-08 — 5 gaps: 1 major, 1 cosmetic, 3 minor)*
 
-- [ ] 40-06-PLAN.md — Install-nudge re-arm: `beforeinstallprompt` handler re-runs coordinator arbitration (Pitfall-1 fix, preserves D-02/precedence) + behavior test [wave 1]
+- [x] 40-06-PLAN.md — Install-nudge re-arm: `beforeinstallprompt` handler re-runs coordinator arbitration (Pitfall-1 fix, preserves D-02/precedence) + behavior test [wave 1]
 - [ ] 40-07-PLAN.md — Remove redundant Help nav pill (+ removal-regression test) + `.help-entry-item` native-button reset (no more "preselected" row) [wave 1]
 - [ ] 40-08-PLAN.md — Approved two-paragraph EN welcome copy (`subtitle` P1 + new `subtitle2` P2) + "Onboarding screen" menu label + he/de/cs empty parity stubs (translation deferred to 42.1) [wave 2]
 
@@ -272,7 +272,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete | 2026-07-06 |
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
 | 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
-| 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 5/5 | Complete   | 2026-07-08 |
+| 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 6/8 | In Progress|  |
 | 41. Replayable Guided Tour | v1.3 | 0/TBD | Not started | - |
 | 42. In-App Changelog & What's-New | v1.3 | 0/TBD | Not started | - |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |

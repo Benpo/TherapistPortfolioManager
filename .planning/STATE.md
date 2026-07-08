@@ -4,16 +4,16 @@ milestone: v1.3
 milestone_name: In-App Help, Onboarding & Changelog
 current_phase: 40
 current_phase_name: first-run-welcome-onboarding-coordinator
-status: executing
+status: verifying
 stopped_at: Completed 40-03-PLAN.md
-last_updated: "2026-07-08T10:38:24.926Z"
+last_updated: "2026-07-08T13:54:23.646Z"
 last_activity: 2026-07-08
 last_activity_desc: Phase 40 execution started
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 11
-  completed_plans: 10
+  total_plans: 14
+  completed_plans: 12
   percent: 17
 ---
 
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 
 Phase: 40 (first-run-welcome-onboarding-coordinator) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-08 — Phase 40 execution started
 
 ## Performance Metrics
@@ -191,6 +191,7 @@ Last activity: 2026-07-08 — Phase 40 execution started
 | Phase 40 P02 | 6min | 3 tasks | 4 files |
 | Phase 40 P03 | 20min | 3 tasks | 3 files |
 | Phase 40 P04 | 15min | 3 tasks | 3 files |
+| Phase 40 P06 | 15m | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -362,6 +363,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 39-04]: help.html renders the hybrid A+C IA from window.HELP_CONTENT_EN (D-18, zero hardcoded topic copy); {ui:key} tokens resolve to live App.t() labels (D-23); help.css scale tokens scoped to .help-root so the mockup port never leaks into shared app chrome; soft type always-on; search no-match term echoed via textContent (T-39-06)
 - [Phase 40]: P40-01: onboarding i18n key contract — 15 UI-chrome keys authored in en/he/de/cs behind a RED-first parity gate; HE/DE/CS flagged for native-speaker review
 - [Phase 40]: P40-04: security note routed through AttentionCoordinator.run() (bootAttentionSurfaces seam, typeof-guarded); governed 'security-note' surface with D-08 container gate + unchanged renderer (D-05); '?' popover 'Replay welcome' action button calls showWelcome(true) with no re-arm (ONBD-02); backup/footer nudge stay independent (D-04)
+- [Phase 40]: Phase 40-06: re-arm coordinator run() inside the beforeinstallprompt handler (no external session guard) — run()'s D-02/D-01 checks make it redundant
 
 ### Pending Todos
 
@@ -434,7 +436,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-08T10:37:56.505Z
+**Last session:** 2026-07-08T13:53:44.475Z
 
 Last activity: 2026-07-07 — Closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
 Stopped at: Completed 40-03-PLAN.md
