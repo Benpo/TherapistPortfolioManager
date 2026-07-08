@@ -455,19 +455,19 @@ asserting index.html no longer contains 'ios-install-banner'.
 
 **Note:** No `[ASSUMED]` claims here concern compliance, retention, security standards, or performance targets. All are mechanical/naming assumptions with clear verification paths for the planner.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Phone-class detection threshold for the mobile hint (D-16, Claude's discretion)**
+1. **Phone-class detection threshold for the mobile hint (D-16, Claude's discretion)** — RESOLVED: plans use `uaMobile || (pointer:coarse && max-width:820px)` (40-03)
    - What we know: must be all-mobile (not iOS-only UA sniffing); `pointer:coarse` + a width query + optional `userAgentData.mobile` is the modern composite.
    - What's unclear: the exact width breakpoint (820px suggested) and whether a touch-laptop false-positive matters for this audience.
    - Recommendation: ship `uaMobile || (coarse && narrow@820px)`; document the choice inline (D-16 requires documenting the approach). Low blast radius — the hint is calm and dismissed-forever.
 
-2. **Does the coordinator file also *host* the welcome/install/mobile-hint surface impls, or do they live in separate files?**
+2. **Does the coordinator file also *host* the welcome/install/mobile-hint surface impls, or do they live in separate files?** — RESOLVED: single `assets/attention-coordinator.js` hosts registry + all three new surfaces; security note stays in `app.js` (40-02/40-03)
    - What we know: D-06 wants a registry module; surfaces register `{id, eligible, show}`.
    - What's unclear: file granularity is unspecified.
    - Recommendation: keep all three new surface impls + the registry in the single `attention-coordinator.js` for this phase (one new precache entry, one new `<script>` per page). Split later only if it grows. The security note stays in `app.js` and registers itself.
 
-3. **Welcome hero illustration choice (Claude's discretion, D-10).**
+3. **Welcome hero illustration choice (Claude's discretion, D-10).** — RESOLVED: existing repo art per 40-02; final visual confirmed at phase UAT in real WebKit + dark
    - What we know: reuse existing repo art only (`watering-can.png`, `garden.png`/`garden-2.png`, `hero-left/right.png`); must fit Variant B split panel + dark mode (`invert+screen`).
    - Recommendation: `hero-left.png` or `garden.png` at the art-side; verify in real WebKit + dark (MEMORY `reference-webkit-chromium-svg-visual-verification` — Chromium-only gates miss Safari bugs). This is a UI decision to confirm at UAT, not a blocker.
 
