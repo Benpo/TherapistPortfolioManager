@@ -4803,12 +4803,25 @@ html[dir="rtl"] .multi-select-toggle {
   padding: var(--space-2xl);
   background: var(--color-surface-alt);
   border-inline-end: 1px solid var(--color-border-soft);
+  /* WebKit hardening: as a grid item its automatic minimum size (min-width:auto)
+     otherwise reflects the intrinsic width of the large art PNG, letting the
+     1fr/1fr panel grow past its 960px cap in shipping Safari. Pair with the
+     min-width:0 on .welcome-art-img below so max-width truly governs. */
+  min-width: 0;
+  overflow: hidden;
 }
 
 .welcome-art-img {
   width: 100%;
   max-width: 200px;
   height: auto;
+  /* WebKit fix: as a flex item, its automatic minimum size (min-width/min-height:
+     auto) resolves to the PNG's 1536×1024 intrinsic size, so WebKit ignores
+     max-width for the MINIMUM and blows the 1fr/1fr panel past the viewport — both
+     scrollbars, oversized, Safari-only (Chrome clamps to max-width without this).
+     Zeroing the automatic minimum lets max-width govern in every engine. */
+  min-width: 0;
+  min-height: 0;
   opacity: 0.9;
 }
 
