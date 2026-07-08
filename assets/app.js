@@ -510,21 +510,43 @@ window.App = (() => {
     popover.setAttribute('aria-label', label);
     popover.hidden = true;
 
-    // ADDABLE item list (D-09 / D-10) — day-one entries. Phases 40–42 append
-    // "Replay welcome / Take tour / What's new" here without touching the rest.
+    // ADDABLE item list (D-09 / D-10). Each item is either an { href } link row
+    // or an { action } button row. Phase 40 (this plan) adds the "Replay welcome"
+    // action row (D-17: after Help center, before Contact us); Phase 41 later
+    // appends its own "Take the tour" action row the same way (no rename churn).
     var items = [
       { labelKey: 'help.entry.center', href: './help.html' },
+      // Phase 40 Plan 04 (ONBD-02) — replays the welcome overlay DIRECTLY via
+      // showWelcome(true): a one-off open that bypasses run() and never re-arms
+      // sg.welcomeSeen or the session marker (Pitfall 5). typeof-guarded so a
+      // page without the coordinator never throws.
+      { labelKey: 'help.entry.replayWelcome', action: function () {
+        if (typeof AttentionCoordinator !== 'undefined') AttentionCoordinator.showWelcome(true);
+      } },
       { labelKey: 'help.entry.contact', href: 'mailto:contact@sessionsgarden.app' }
     ];
     items.forEach(function (item) {
-      var a = document.createElement('a');
-      a.className = 'help-entry-item';
-      a.setAttribute('role', 'menuitem');
-      a.setAttribute('data-label-key', item.labelKey);
-      a.href = item.href;
+      // href → <a> link row (unchanged path); action → <button> row.
+      var el;
+      if (item.href) {
+        el = document.createElement('a');
+        el.href = item.href;
+      } else {
+        el = document.createElement('button');
+        el.type = 'button';
+        el.addEventListener('click', function () {
+          // Close the popover (mirror the outside-click dismiss) then act.
+          popover.hidden = true;
+          btn.setAttribute('aria-expanded', 'false');
+          if (typeof item.action === 'function') item.action();
+        });
+      }
+      el.className = 'help-entry-item';
+      el.setAttribute('role', 'menuitem');
+      el.setAttribute('data-label-key', item.labelKey);
       // Label via textContent from the i18n dict — never innerHTML (T-39-05).
-      a.textContent = (typeof t === 'function' ? t(item.labelKey) : '') || item.labelKey;
-      popover.appendChild(a);
+      el.textContent = (typeof t === 'function' ? t(item.labelKey) : '') || item.labelKey;
+      popover.appendChild(el);
     });
 
     // Popover open/close + outside-click dismiss + aria-expanded sync,

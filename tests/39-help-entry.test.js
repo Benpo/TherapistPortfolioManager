@@ -7,9 +7,11 @@
  *      data-i18n=nav.help resolved to its EN label).
  *   2. A single .help-entry-btn mounts into #headerActions, carries .is-active
  *      when body[data-nav]='help', and its aria-label equals t('help.entry.label').
- *   3. The popover holds exactly the two day-one items whose textContent equals
+ *   3. The popover holds the two day-one items whose textContent equals
  *      t('help.entry.center') / t('help.entry.contact') with hrefs ./help.html
- *      and mailto:contact@sessionsgarden.app.
+ *      and mailto:contact@sessionsgarden.app. (Selected by data-label-key so the
+ *      assertion stays valid as Phase 40+ append additive action rows — e.g. the
+ *      "Replay welcome" row — between them; it pins the day-one rows, not a count.)
  *   4. Idempotency — a second initHelpEntry() does NOT mount a second button.
  *   5. Clicking the button flips aria-expanded to "true"; an outside document
  *      click dismisses it back to "false" (D-09 globe-pattern popover).
@@ -111,16 +113,20 @@ test('initHelpEntry() mounts exactly one .help-entry-btn with .is-active + i18n 
 test('popover holds the two day-one items with correct textContent + hrefs', function () {
   var env = buildWindow('help');
   env.App.initHelpEntry();
-  var items = env.win.document.querySelectorAll('.help-entry-item');
-  assert.strictEqual(items.length, 2, 'popover must hold exactly two day-one items');
-  assert.strictEqual(items[0].textContent, env.App.t('help.entry.center'),
-    'item 0 label must be t(help.entry.center) via textContent');
-  assert.strictEqual(items[0].getAttribute('href'), './help.html',
-    'item 0 must navigate to ./help.html');
-  assert.strictEqual(items[1].textContent, env.App.t('help.entry.contact'),
-    'item 1 label must be t(help.entry.contact) via textContent');
-  assert.strictEqual(items[1].getAttribute('href'), 'mailto:contact@sessionsgarden.app',
-    'item 1 must be the contact mailto');
+  // Select the day-one rows by data-label-key (identity), not by an exact count
+  // or index — Phase 40 inserts a "Replay welcome" action row between them.
+  var center = env.win.document.querySelector('.help-entry-item[data-label-key="help.entry.center"]');
+  var contact = env.win.document.querySelector('.help-entry-item[data-label-key="help.entry.contact"]');
+  assert.ok(center, 'the Help center day-one row must mount');
+  assert.strictEqual(center.textContent, env.App.t('help.entry.center'),
+    'Help center label must be t(help.entry.center) via textContent');
+  assert.strictEqual(center.getAttribute('href'), './help.html',
+    'Help center must navigate to ./help.html');
+  assert.ok(contact, 'the Contact us day-one row must mount');
+  assert.strictEqual(contact.textContent, env.App.t('help.entry.contact'),
+    'Contact us label must be t(help.entry.contact) via textContent');
+  assert.strictEqual(contact.getAttribute('href'), 'mailto:contact@sessionsgarden.app',
+    'Contact us must be the contact mailto');
   env.dom.window.close();
 });
 
