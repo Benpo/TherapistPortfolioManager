@@ -398,22 +398,27 @@ takeMe.onclick = function (e) {
 
 **Note:** No assumed package names, versions, or compliance claims — the phase installs nothing and touches no regulated data.
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All three questions were resolved during planning; each carries an inline **RESOLVED** marker with the plan reference that adopted the answer.
 
 1. **Inert overlay vs. required form scroll (steps 4–6)**
    - What we know: D-07 makes the page inert (blocks clicks); steps 4–6 target session-form zones that may be below the fold.
    - What's unclear: whether the engine programmatically `scrollIntoView`s each zone (with the overlay still blocking clicks) or allows native page scroll under the dim.
    - Recommendation: engine-driven `scrollIntoView` on the anchor before measuring, keeping clicks inert — deterministic and avoids desync (D-07's intent). Planner decides and documents.
+   - **RESOLVED:** Engine-driven `scrollIntoView` on the anchor before measuring, with the overlay keeping page clicks inert — adopted in **Plan 41-03 Task 2** (render/next path scrolls each below-the-fold form zone into view for steps 4–6).
 
 2. **`tour-reminder` precedence vs. Phase 42 `whats-new`**
    - What we know: `PRECEDENCE = ['welcome','whats-new','security-note','install-nudge','mobile-hint']`; whats-new has no registered surface until Phase 42.
    - What's unclear: whether the tour reminder should sit below `mobile-hint` (absolute lowest) or just below `security-note`.
    - Recommendation: append at the end (lowest) so no future surface is starved by it; document the choice in the coordinator.
+   - **RESOLVED:** `tour-reminder` appended at the LOWEST precedence slot (after `mobile-hint`) so no future Phase-42 `whats-new` surface is starved — adopted in **Plan 41-05 Task 2**, documented in the coordinator.
 
 3. **tour.css: separate file vs. appended `.tour-root` block in help.css**
    - What we know: help.css already redeclares the `.help-root` local scale the tour reuses.
    - What's unclear: a separate `assets/tour.css` (needs its own precache + `<link>` on 4 pages) vs. a scoped block appended to help.css (already loaded where help is).
    - Recommendation: verify help.css loads on all 4 tour pages; if not, a dedicated tour.css is cleaner (one precache entry, explicit). Planner decides.
+   - **RESOLVED:** Dedicated `assets/tour.css` — help.css does NOT load on the four tour pages (only tokens.css + app.css do, verified in Plan 06), so a scoped block in help.css would never be present on those pages. Authored in **Plan 41-03** (core surfaces), extended in **Plan 41-04**, with its own `<link>` on all four pages + a PRECACHE_URLS entry in **Plan 41-06**.
 
 ## Environment Availability
 
@@ -447,10 +452,12 @@ takeMe.onclick = function (e) {
 | TOUR-02 | Every step anchor resolves on its page (rot guard) | unit (jsdom) | `node tests/41-anchor-presence.test.js` | ❌ Wave 0 (write FIRST) |
 | TOUR-02 | Missing/hidden anchor → fallback modal renders with "Take me there" (never silent skip) | unit (jsdom) | `node tests/41-fallback-degradation.test.js` | ❌ Wave 0 |
 | TOUR-03 | Cross-page step persists `{tourId,stepIndex}` to sessionStorage + resumes on load | unit (jsdom/vm) | `node tests/41-resume-state.test.js` | ❌ Wave 0 |
-| TOUR-03 | Relaunch always restarts step 1 (no cross-launch resume, D-09) | unit (jsdom) | `node tests/41-relaunch-restart.test.js` | ❌ Wave 0 |
+| TOUR-03 | Relaunch always restarts step 1 (no cross-launch resume, D-09) | unit (jsdom) | `node tests/41-resume-state.test.js` (consolidated — see note) | ❌ Wave 0 |
 | TOUR-04 | `app:language` re-renders copy in new language (text-level, jsdom) | unit (jsdom) | `node tests/41-lang-rerender.test.js` | ❌ Wave 0 |
 | TOUR-04 | RTL mirroring + tooltip/arrow geometry in real WebKit | **manual/scripted (Playwright-WebKit)** | `node tests/webkit/41-rtl-geometry.mjs` (ad-hoc; NOT in npm test) | ❌ Wave 0 |
 | (offline) | `/assets/tour.js` in sw.js PRECACHE_URLS | static | `node tests/41-precache.test.js` (extend `sw-precache-*` pattern) | ❌ Wave 0 |
+
+> **Consolidation note (D-09 relaunch-restart):** the planned test set folds the D-09 "relaunch always restarts from step 1" behavior into `tests/41-resume-state.test.js` rather than a separate `tests/41-relaunch-restart.test.js`. That file's contract (Plan 41-03 Task 1) already asserts both the sessionStorage cross-page round-trip AND the absent-key → step-1 relaunch semantics + clear-on-end, so a dedicated relaunch file would be redundant. No `41-relaunch-restart.test.js` is created.
 
 ### Sampling Rate
 - **Per task commit:** `node tests/41-<touched>.test.js` (the file(s) the task affects)
@@ -460,7 +467,7 @@ takeMe.onclick = function (e) {
 ### Wave 0 Gaps
 - [ ] `tests/41-anchor-presence.test.js` — TOUR-02 rot guard (behavior test BEFORE implementation — project rule)
 - [ ] `tests/41-fallback-degradation.test.js` — covers TOUR-02 fallback path
-- [ ] `tests/41-resume-state.test.js` + `tests/41-relaunch-restart.test.js` — TOUR-03 / D-09
+- [ ] `tests/41-resume-state.test.js` — TOUR-03 / D-09 (consolidated: covers BOTH the cross-page sessionStorage round-trip AND the relaunch-from-step-1 + clear-on-end semantics; no separate `41-relaunch-restart.test.js`)
 - [ ] `tests/41-lang-rerender.test.js` — TOUR-04 text-level
 - [ ] `tests/41-tour-i18n-parity.test.js` — 4-locale key parity (mirror `25-11-i18n-parity` / `33` structure gate)
 - [ ] `tests/41-demo-gate.test.js` + `tests/41-launch-explicit.test.js` — TOUR-01
