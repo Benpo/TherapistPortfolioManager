@@ -595,6 +595,8 @@ window.I18N.he = {
   // Welcome overlay — UI chrome (Phase 40); HE flagged for native-speaker review
   "help.welcome.title": "ברוכים הבאים לגן שלכם",
   "help.welcome.subtitle": "Sessions Garden שומר על עבודת הלקוחות שלכם פרטית, במכשיר הזה, ומאורגנת סביב האופן שבו אתם באמת מנהלים מפגש.",
+  // Phase 42.1: translation pending — empty parity stub (P2 privacy paragraph)
+  "help.welcome.subtitle2": "",
   "help.welcome.ctaTour": "לצאת לסיור מודרך",
   "help.welcome.ctaExplore": "אחקור בעצמי",
   // Onboarding surfaces — UI chrome (Phase 40); HE flagged for native-speaker review

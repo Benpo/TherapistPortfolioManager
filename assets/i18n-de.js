@@ -595,6 +595,8 @@ window.I18N.de = {
   // Welcome overlay — UI chrome (Phase 40); DE (Sie) flagged for native-speaker review
   "help.welcome.title": "Willkommen in Ihrem Garten",
   "help.welcome.subtitle": "Sessions Garden hält Ihre Klientenarbeit privat, auf diesem Gerät und rund um Ihren tatsächlichen Sitzungsablauf organisiert.",
+  // Phase 42.1: translation pending — empty parity stub (P2 privacy paragraph)
+  "help.welcome.subtitle2": "",
   "help.welcome.ctaTour": "Geführte Tour starten",
   "help.welcome.ctaExplore": "Ich schaue mich selbst um",
   // Onboarding surfaces — UI chrome (Phase 40); DE (Sie) flagged for native-speaker review

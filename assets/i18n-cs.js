@@ -595,6 +595,8 @@ window.I18N.cs = {
   // Welcome overlay \u2014 UI chrome (Phase 40); CS (formal) flagged for native-speaker review
   "help.welcome.title": "V\u00edtejte ve sv\u00e9 zahrad\u011b",
   "help.welcome.subtitle": "Sessions Garden udr\u017euje va\u0161i pr\u00e1ci s klienty soukromou, v tomto za\u0159\u00edzen\u00ed a uspo\u0159\u00e1danou podle toho, jak sezen\u00ed skute\u010dn\u011b vedete.",
+  // Phase 42.1: translation pending \u2014 empty parity stub (P2 privacy paragraph)
+  "help.welcome.subtitle2": "",
   "help.welcome.ctaTour": "Spustit prohl\u00eddku s pr\u016fvodcem",
   "help.welcome.ctaExplore": "Prozkoum\u00e1m to s\u00e1m",
   // Onboarding surfaces \u2014 UI chrome (Phase 40); CS (formal) flagged for native-speaker review
