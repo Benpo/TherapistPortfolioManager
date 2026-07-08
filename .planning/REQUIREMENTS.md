@@ -30,10 +30,10 @@ Content quality bar (Ben, 2026-07-07): ALL new user-facing copy (help, welcome, 
 
 ### Guided Tour (TOUR)
 
-- [ ] **TOUR-01**: User can take a replayable guided tour (~6–9 steps along the workflow spine), launched only by explicit choice (welcome CTA or "?") — never auto-run; tour copy speaks in the app's voice/DNA (calm, warm, garden-branded — not generic SaaS tour energy), native-speaker-agent verified
+- [x] **TOUR-01**: User can take a replayable guided tour (~6–9 steps along the workflow spine), launched only by explicit choice (welcome CTA or "?") — never auto-run; tour copy speaks in the app's voice/DNA (calm, warm, garden-branded — not generic SaaS tour energy), native-speaker-agent verified
 - [ ] **TOUR-02**: Every tour step degrades gracefully — anchor present & visible → spotlight + tooltip; anchor missing/hidden → centered modal with the same text + a working "Take me there" link — never a silent skip (testable: remove any anchor → fallback renders; anchor-presence test guards rot)
 - [ ] **TOUR-03**: User's tour survives cross-page navigation — steps that live on another page navigate there and resume (sessionStorage state)
-- [ ] **TOUR-04**: User switching language mid-tour sees the tour re-render cleanly in the new language and direction (`app:language` event; RTL mirroring verified in real WebKit, not jsdom alone)
+- [x] **TOUR-04**: User switching language mid-tour sees the tour re-render cleanly in the new language and direction (`app:language` event; RTL mirroring verified in real WebKit, not jsdom alone)
 
 ### In-App Changelog (CHLG)
 
@@ -93,10 +93,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ONBD-02 | Phase 40 | Complete |
 | ONBD-03 | Phase 40 | Complete |
 | ONBD-04 | Phase 40 | Complete |
-| TOUR-01 | Phase 41 | Pending |
+| TOUR-01 | Phase 41 | Complete |
 | TOUR-02 | Phase 41 | Pending |
 | TOUR-03 | Phase 41 | Pending |
-| TOUR-04 | Phase 41 | Pending |
+| TOUR-04 | Phase 41 | Complete |
 | CHLG-01 | Phase 42 | Pending |
 | CHLG-02 | Phase 42 | Pending |
 | CHLG-03 | Phase 42 | Pending |
