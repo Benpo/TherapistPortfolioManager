@@ -178,12 +178,32 @@ var AttentionCoordinator = (function () {
     panel.appendChild(copy);
     overlay.appendChild(panel);
 
-    function onKeydown(e) { if (e.key === 'Escape') dismiss(); }
+    function onKeydown(e) {
+      if (e.key === 'Escape') { dismiss(); return; }
+      // Minimal focus trap: aria-modal="true" promises the background page is
+      // inert, so Tab must cycle between the two CTAs and never escape into
+      // the (visually covered) page — WCAG 2.4.3 / the confirmDialog pattern.
+      if (e.key === 'Tab') {
+        var active = doc.activeElement;
+        if (e.shiftKey) {
+          if (active === primary || !overlay.contains(active)) {
+            e.preventDefault();
+            try { secondary.focus(); } catch (err) {}
+          }
+        } else if (active === secondary || !overlay.contains(active)) {
+          e.preventDefault();
+          try { primary.focus(); } catch (err) {}
+        }
+      }
+    }
 
     function dismiss() {
       try { if (window.App && window.App.unlockBodyScroll) window.App.unlockBodyScroll(); } catch (e) {}
       doc.removeEventListener('keydown', onKeydown);
       if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      // Hand focus back to the opener (e.g. the Help-menu replay row) so
+      // keyboard/AT users are not stranded on a removed node.
+      try { if (opener && typeof opener.focus === 'function') opener.focus(); } catch (e) {}
       if (!isReplay) {
         lsSet(WELCOME_SEEN, '1');
         var v = (window.AppVersion && window.AppVersion.APP_VERSION);
@@ -198,7 +218,12 @@ var AttentionCoordinator = (function () {
     doc.addEventListener('keydown', onKeydown);
 
     try { if (window.App && window.App.lockBodyScroll) window.App.lockBodyScroll(); } catch (e) {}
+    // aria-modal focus contract: remember the opener, move focus into the
+    // dialog on mount (primary CTA), restore it on dismiss (same pattern as
+    // confirmDialog in app.js).
+    var opener = doc.activeElement;
     doc.body.appendChild(overlay);
+    try { primary.focus(); } catch (e) {}
   }
 
   register({ id: 'welcome', eligible: welcomeEligible, show: function () { showWelcome(false); } });
