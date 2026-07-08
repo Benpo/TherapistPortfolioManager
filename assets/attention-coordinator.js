@@ -328,6 +328,42 @@ var AttentionCoordinator = (function () {
 
   register({ id: 'install-nudge', eligible: installEligible, show: installShow });
 
+  // ── mobile-hint surface (D-15 / D-16 — iOS banner successor) ────────────────
+  // The calm all-mobile successor to the deleted iOS install banner: one-shot,
+  // dismissed-forever, neutral tone (never a warning). Lowest precedence tier.
+  var MOBILE_DISMISSED = 'sg.mobileHintDismissed';
+
+  function mobileEligible() {
+    if (!isPhoneClass()) return false;                 // phone-class only
+    if (lsGet(MOBILE_DISMISSED) === '1') return false; // gone forever — D-16
+    return true;
+  }
+
+  function mobileShow() {
+    var doc = document;
+    var bar = doc.createElement('div');
+    bar.className = 'mobile-hint-bar';
+    bar.setAttribute('role', 'region');
+    bar.setAttribute('aria-label', t('onboard.mobileHint.body'));
+
+    bar.appendChild(makeEl('p', 'mobile-hint-body', 'onboard.mobileHint.body'));
+    var link = makeEl('a', 'mobile-hint-link', 'onboard.mobileHint.link');
+    link.setAttribute('href', './help.html#topic-install-mobile-note');
+    bar.appendChild(link);
+
+    var dismiss = makeEl('button', 'mobile-hint-dismiss', 'onboard.mobileHint.dismiss');
+    dismiss.setAttribute('type', 'button');
+    dismiss.addEventListener('click', function () {
+      lsSet(MOBILE_DISMISSED, '1');                     // persistent, one-shot forever — D-16
+      if (bar.parentNode) bar.parentNode.removeChild(bar);
+    });
+    bar.appendChild(dismiss);
+
+    doc.body.appendChild(bar);
+  }
+
+  register({ id: 'mobile-hint', eligible: mobileEligible, show: mobileShow });
+
   return {
     register: register,
     run: run,
