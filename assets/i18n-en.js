@@ -596,10 +596,11 @@ window.I18N.en = {
   "help.entry.label": "Help",
   "help.entry.center": "Help center",
   "help.entry.contact": "Contact us",
-  "help.entry.replayWelcome": "Replay welcome",
+  "help.entry.replayWelcome": "Onboarding screen",
   // Welcome overlay — UI chrome (Phase 40; help.welcome.* inherited from 26-UI-SPEC)
   "help.welcome.title": "Welcome to your garden",
-  "help.welcome.subtitle": "Sessions Garden keeps your client work private, on this device, and organized around how you actually run a session.",
+  "help.welcome.subtitle": "Sessions Garden brings your whole practice into one calm, simple space — clients, sessions, and notes, all where you expect them. It's built to feel effortless day to day, so the tool disappears and the work comes forward.",
+  "help.welcome.subtitle2": "Everything you enter stays private on this device. No accounts, no cloud, no one else in the room — just your practice, kept safely in your own hands.",
   "help.welcome.ctaTour": "Take the guided tour",
   "help.welcome.ctaExplore": "I'll explore myself",
   // Onboarding surfaces — UI chrome (Phase 40)
