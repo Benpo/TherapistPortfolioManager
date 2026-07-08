@@ -484,6 +484,7 @@ window.App = (() => {
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'header-control-btn help-entry-btn';
+    btn.setAttribute('data-tour', 'help'); // Phase 41 tour anchor (step 10) — inert selector for the guided-tour engine
     btn.setAttribute('aria-label', label);
     btn.setAttribute('title', label);
     btn.setAttribute('aria-haspopup', 'true');
@@ -627,6 +628,7 @@ window.App = (() => {
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.id = 'backupCloudBtn';
+    btn.setAttribute('data-tour', 'backup'); // Phase 41 tour anchor (step 9) — inert selector for the guided-tour engine
 
     // Initial state class — computeBackupRecencyState() returns
     // 'never' | 'fresh' | 'warning' | 'danger'. Defensive: BackupManager may

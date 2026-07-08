@@ -65,7 +65,7 @@
           </div>
         </div>
         <form id="sessionForm">
-          <div class="form-grid">
+          <div class="form-grid" data-tour="session-setup">
             <div class="form-field">
               <label class="label" data-i18n="session.form.client">Client *</label>
               <select class="select-field select-modern" id="clientSelect" data-i18n-placeholder="session.form.client.placeholder">
@@ -201,7 +201,7 @@
 
           <div class="section-divider"></div>
 
-          <div class="accordion-section" data-accordion="heart-shield">
+          <div class="accordion-section" data-accordion="heart-shield" data-tour="session-heart">
             <div class="accordion-header" data-i18n="session.form.heartShield">Heart-Wall Session</div>
             <div class="accordion-body">
               <div class="session-section" data-section-key="heartShield">
@@ -363,7 +363,7 @@
           <div class="section-divider"></div>
 
           <div class="inline-actions" style="margin-top:1.5rem;">
-            <button class="button icon-swap session-save-button" type="submit">
+            <button class="button icon-swap session-save-button" type="submit" data-tour="session-save">
               <span class="button-label" data-i18n="session.form.save">Save Session</span>
               <span class="button-icon" aria-hidden="true">&#128190;</span>
             </button>
