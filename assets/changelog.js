@@ -143,12 +143,30 @@
     _langWired = true;
   }
 
+  // #changelogEntries ships EMPTY and is only populated after the async boot
+  // resolves, so the browser's native scroll-to-fragment runs before the anchor
+  // ids exist. Re-apply the hash ONCE after the first render lands (deep-links
+  // like changelog.html#v1-1 would otherwise strand at the top of the page).
+  // Runs only on boot — app:language re-renders go through render() directly.
+  function scrollToFragment() {
+    try {
+      if (!window.location.hash) return;
+      var target = document.getElementById(window.location.hash.slice(1));
+      if (target) target.scrollIntoView();
+    } catch (e) {}
+  }
+
+  function bootRender() {
+    render();
+    scrollToFragment();
+  }
+
   function boot() {
     wireLanguage();
     if (window.App && typeof App.initCommon === "function") {
-      Promise.resolve(App.initCommon()).then(render, render);
+      Promise.resolve(App.initCommon()).then(bootRender, bootRender);
     } else {
-      render();
+      bootRender();
     }
   }
 
