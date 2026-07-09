@@ -71,7 +71,9 @@
  *
  * TRUST BOUNDARY (T-41-01 / V5)
  *   All tour copy is injected via textContent — never assigned as raw markup.
- *   (No inline SVG is used in this plan, so there is zero raw-markup assignment.)
+ *   The save step renders ONE compile-time-literal export glyph as raw markup (a
+ *   static SVG string, ZERO interpolation — same rule as the app.js "?" glyph);
+ *   that is the only raw-markup assignment, and all other copy stays textContent.
  *
  * Zero dependencies, zero network. Modern evergreen baseline, no legacy shims (D-15).
  */
@@ -342,6 +344,21 @@ var Tour = (function () {
 
     tooltipEl.appendChild(makeEl('h3', 'sg-tour-title', step.i18nKey + '.title'));
     tooltipEl.appendChild(makeEl('p', 'sg-tour-body', step.i18nKey + '.body'));
+
+    // Save-step honest deixis (UAT gap 5): the copy says "this is its icon", so the
+    // export glyph must be literally IN the tooltip. This is the ONE sanctioned
+    // raw-markup assignment in tour.js — a compile-time string literal with ZERO
+    // interpolation (same trust-boundary rule as the app.js "?" glyph, T-41-01).
+    // stroke=currentColor inherits the tooltip text color (no literal hex;
+    // RTL-neutral). Gated to the save step only; every other string stays textContent.
+    if (step.id === 'session-save') {
+      var glyph = document.createElement('span');
+      glyph.className = 'sg-tour-glyph';
+      glyph.setAttribute('aria-hidden', 'true');
+      glyph.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"></path><path d="M16 6l-4-4-4 4"></path><path d="M12 2v14"></path></svg>';
+      tooltipEl.appendChild(glyph);
+    }
+
     tooltipEl.appendChild(buildRow(isFinal));
 
     root.appendChild(tooltipEl);
