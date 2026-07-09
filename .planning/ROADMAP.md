@@ -223,7 +223,7 @@ Plans:
   3. One structured, i18n-capable in-app data source drives both the popup (latest entry) and the page (history) — never forked, never scraped from git, no second version constant.
   4. v1.3's own release notes ship as the first changelog entry (self-hosting proof of the pipeline).
 
-**Plans**: 8/11 plans executed
+**Plans**: 9/11 plans executed
 
 Plans:
 **Wave 1**
@@ -239,7 +239,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 42-09-PLAN.md — Wave 2: every-page popup wiring (7 pages) + sw.js two-array offline precache
+- [x] 42-09-PLAN.md — Wave 2: every-page popup wiring (7 pages) + sw.js two-array offline precache
 - [ ] 42-10-PLAN.md — Wave 2: entry points ("?" row, help rail link, footer version link) + demo hiding
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -338,7 +338,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
 | 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 8/8 | Complete    | 2026-07-08 |
 | 41. Replayable Guided Tour | v1.3 | 14/14 | Complete   | 2026-07-09 |
-| 42. In-App Changelog & What's-New | v1.3 | 8/11 | In Progress|  |
+| 42. In-App Changelog & What's-New | v1.3 | 9/11 | In Progress|  |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |
 </content>
 </invoke>
