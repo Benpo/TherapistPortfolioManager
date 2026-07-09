@@ -56,6 +56,14 @@
  *   spotlight+tooltip on scroll/resize (rAF-debounced). App.lockBodyScroll is
  *   reused ONLY for the centered fallback modal (no anchor to track).
  *
+ * POSITIONING (physical coordinates — Plan 08 / UAT gaps 2-4)
+ *   positionSpotlight writes PHYSICAL top/left/width/height from
+ *   getBoundingClientRect (which is itself physical), so the ring/tooltip are
+ *   direction-neutral and never mirror in RTL. On first mount the chrome is given
+ *   the .sg-tour-instant class so it SNAPS onto the anchor (no grow-from-corner),
+ *   then re-measures one rAF after scrollIntoView settles and restores the smooth
+ *   transition for later scroll/resize reflows.
+ *
  * TRUST BOUNDARY (T-41-01 / V5)
  *   All tour copy is injected via textContent — never assigned as raw markup.
  *   (No inline SVG is used in this plan, so there is zero raw-markup assignment.)
@@ -175,8 +183,13 @@ var Tour = (function () {
     if (!spotlightEl || !el) return;
     var r = el.getBoundingClientRect();
     var pad = 8;
-    spotlightEl.style.insetBlockStart = (r.top - pad) + 'px';
-    spotlightEl.style.insetInlineStart = (r.left - pad) + 'px';
+    // PHYSICAL coordinates (gap-4 fix): getBoundingClientRect returns physical
+    // viewport coords (r.left = distance from the viewport's LEFT edge, in every
+    // direction). Writing them into LOGICAL inset props (inset-inline-start) made
+    // RTL resolve r.left against the RIGHT edge, mirroring every off-center anchor.
+    // Writing physical top/left is direction-neutral and cannot mirror.
+    spotlightEl.style.top = (r.top - pad) + 'px';
+    spotlightEl.style.left = (r.left - pad) + 'px';
     spotlightEl.style.width = (r.width + pad * 2) + 'px';
     spotlightEl.style.height = (r.height + pad * 2) + 'px';
 
@@ -191,8 +204,12 @@ var Tour = (function () {
     var top = below ? (r.bottom + 14) : (r.top - th - 14);
     var anchorCenter = r.left + r.width / 2;
     var left = Math.max(12, Math.min(anchorCenter - tw / 2, window.innerWidth - tw - 12));
-    tooltipEl.style.insetBlockStart = top + 'px';
-    tooltipEl.style.insetInlineStart = left + 'px';
+    // Physical top/left (matches tour.css, which now positions on physical axes).
+    tooltipEl.style.top = top + 'px';
+    tooltipEl.style.left = left + 'px';
+    // --arrow-x is a physical offset from the tooltip's LEFT edge; tour.css consumes
+    // it as physical `left: var(--arrow-x)`, so the arrow tracks the anchor without
+    // re-mirroring in RTL (the two must agree — D-04).
     tooltipEl.style.setProperty('--arrow-x', Math.max(14, Math.min(anchorCenter - left - 7, tw - 28)) + 'px');
   }
 
@@ -306,11 +323,29 @@ var Tour = (function () {
 
     root.appendChild(tooltipEl);
 
+    // First-paint SNAP (gaps 2 + 3): suppress the freshly-mounted ring/tooltip's
+    // transition so they land ON the anchor instead of animating up from their 0×0
+    // mount base (the "grow-from-the-corner" offset). Restore the transition one rAF
+    // later so subsequent scroll/resize reflows still glide smoothly.
+    spotlightEl.classList.add('sg-tour-instant');
+    tooltipEl.classList.add('sg-tour-instant');
+
     // Bring below-the-fold anchors into view, then position + track (A4). Scroll
     // stays free (NO App.lockBodyScroll on the spotlight path).
     try { if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({ block: 'center', inline: 'nearest' }); } catch (e) {}
     positionSpotlight(el);
     installReflow();
+
+    // Re-measure once the scroll has SETTLED (gap 2): scrollIntoView above hasn't
+    // committed its new scroll offset yet when the first positionSpotlight runs, so
+    // the ring would sit at the pre-scroll offset. One rAF later, re-measure against
+    // the settled layout, then drop the instant class so later reflows animate.
+    raf(function () {
+      if (!active || currentEl !== el) return;
+      positionSpotlight(el);
+      if (spotlightEl) spotlightEl.classList.remove('sg-tour-instant');
+      if (tooltipEl) tooltipEl.classList.remove('sg-tour-instant');
+    });
   }
 
   function renderFallback(step, isFinal, total) {
@@ -531,9 +566,11 @@ var Tour = (function () {
   // Subscribe ONCE to the document 'app:language' event App dispatches (app.js
   // line 126), guarded like initHelpEntry._listenerInstalled. On fire, if a tour
   // is active, re-render the CURRENT step: render() does cleanup-then-replace, so
-  // every string re-resolves via t() in the new locale and geometry/arrow re-flip
-  // for RTL (logical props flip for free). Inactive → no-op. Post-run finish/exit
-  // surfaces are static (active === false) so they are intentionally untouched.
+  // every string re-resolves via t() in the new locale and the geometry re-measures
+  // from getBoundingClientRect. Positioning is on PHYSICAL coordinates (top/left),
+  // so it is direction-neutral by construction — the copy flips with the locale but
+  // the ring/tooltip do NOT mirror to the opposite side in RTL. Inactive → no-op.
+  // Post-run finish/exit surfaces are static (active === false) — left untouched.
   function onLanguageChange() {
     if (!active) return;
     render();
