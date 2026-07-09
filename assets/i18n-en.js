@@ -596,7 +596,6 @@ window.I18N.en = {
   "help.entry.label": "Help",
   "help.entry.center": "Help center",
   "help.entry.contact": "Contact us",
-  "help.entry.replayWelcome": "Onboarding screen",
   // Welcome overlay — UI chrome (Phase 40; help.welcome.* inherited from 26-UI-SPEC)
   "help.welcome.title": "Welcome to your garden",
   "help.welcome.subtitle": "Sessions Garden brings your whole practice into one calm, simple space — clients, sessions, and notes, all where you expect them. It's built to feel effortless day to day, so the tool disappears and the work comes forward.",
@@ -648,7 +647,7 @@ window.I18N.en = {
   "help.tour.finish.addClient": "Add your first client",
   "help.tour.finish.startSession": "Start your first session",
   "help.tour.finish.helpCenter": "Browse the help center",
-  "help.entry.takeTour": "Take the tour",
+  "help.entry.takeTour": "Onboarding Tour",
   // Onboarding surfaces — UI chrome (Phase 40)
   "onboard.install.title": "Add Sessions Garden to your computer",
   "onboard.install.body": "Install it for a calm full-screen window and one-click access — it still works fully offline, and your data stays on this device.",

@@ -591,7 +591,6 @@ window.I18N.he = {
   "help.entry.label": "עזרה",
   "help.entry.center": "מרכז העזרה",
   "help.entry.contact": "צרו קשר",
-  "help.entry.replayWelcome": "צפייה חוזרת בפתיחה",
   // Welcome overlay — UI chrome (Phase 40); HE flagged for native-speaker review
   "help.welcome.title": "ברוכים הבאים לגן שלכם",
   "help.welcome.subtitle": "Sessions Garden שומר על עבודת הלקוחות שלכם פרטית, במכשיר הזה, ומאורגנת סביב האופן שבו אתם באמת מנהלים מפגש.",
@@ -644,7 +643,7 @@ window.I18N.he = {
   "help.tour.finish.addClient": "הוספת הלקוח הראשון שלכם",
   "help.tour.finish.startSession": "התחלת המפגש הראשון שלכם",
   "help.tour.finish.helpCenter": "עיון במרכז העזרה",
-  "help.entry.takeTour": "יציאה לסיור",
+  "help.entry.takeTour": "סיור מודרך",
   // Onboarding surfaces — UI chrome (Phase 40); HE flagged for native-speaker review
   "onboard.install.title": "הוספת Sessions Garden למחשב שלכם",
   "onboard.install.body": "מומלץ להתקין כדי לקבל חלון מסך מלא ונעים וגישה בלחיצה אחת — האפליקציה ממשיכה לעבוד גם ללא חיבור לאינטרנט, והנתונים שלכם נשארים במכשיר הזה.",

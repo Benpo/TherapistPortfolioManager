@@ -591,7 +591,6 @@ window.I18N.de = {
   "help.entry.label": "Hilfe",
   "help.entry.center": "Hilfe-Center",
   "help.entry.contact": "Kontakt",
-  "help.entry.replayWelcome": "Begrüßung erneut ansehen",
   // Welcome overlay — UI chrome (Phase 40); DE (Sie) flagged for native-speaker review
   "help.welcome.title": "Willkommen in Ihrem Garten",
   "help.welcome.subtitle": "Sessions Garden hält Ihre Klientenarbeit privat, auf diesem Gerät und rund um Ihren tatsächlichen Sitzungsablauf organisiert.",
@@ -645,7 +644,7 @@ window.I18N.de = {
   "help.tour.finish.addClient": "Ihren ersten Klienten hinzufügen",
   "help.tour.finish.startSession": "Ihre erste Sitzung beginnen",
   "help.tour.finish.helpCenter": "Das Hilfe-Center durchsehen",
-  "help.entry.takeTour": "Tour starten",
+  "help.entry.takeTour": "Einführungstour",
   // Onboarding surfaces — UI chrome (Phase 40); DE (Sie) flagged for native-speaker review
   "onboard.install.title": "Sessions Garden zu Ihrem Computer hinzufügen",
   "onboard.install.body": "Installieren Sie es für ein ruhiges Vollbildfenster und Zugriff mit einem Klick — es funktioniert weiterhin vollständig offline, und Ihre Daten bleiben auf diesem Gerät.",

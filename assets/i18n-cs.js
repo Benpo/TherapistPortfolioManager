@@ -591,7 +591,6 @@ window.I18N.cs = {
   "help.entry.label": "N\u00e1pov\u011bda",
   "help.entry.center": "Centrum n\u00e1pov\u011bdy",
   "help.entry.contact": "Kontaktujte n\u00e1s",
-  "help.entry.replayWelcome": "P\u0159ehr\u00e1t uv\u00edt\u00e1n\u00ed znovu",
   // Welcome overlay \u2014 UI chrome (Phase 40); CS (formal) flagged for native-speaker review
   "help.welcome.title": "V\u00edtejte ve sv\u00e9 zahrad\u011b",
   "help.welcome.subtitle": "Sessions Garden udr\u017euje va\u0161i pr\u00e1ci s klienty soukromou, v tomto za\u0159\u00edzen\u00ed a uspo\u0159\u00e1danou podle toho, jak sezen\u00ed skute\u010dn\u011b vedete.",
@@ -645,7 +644,7 @@ window.I18N.cs = {
   "help.tour.finish.addClient": "P\u0159idat prvn\u00edho klienta",
   "help.tour.finish.startSession": "Zah\u00e1jit prvn\u00ed sezen\u00ed",
   "help.tour.finish.helpCenter": "Proch\u00e1zet centrum n\u00e1pov\u011bdy",
-  "help.entry.takeTour": "Spustit prohl\u00eddku",
+  "help.entry.takeTour": "\u00davodn\u00ed prohl\u00eddka",
   // Onboarding surfaces \u2014 UI chrome (Phase 40); CS (formal) flagged for native-speaker review
   "onboard.install.title": "P\u0159idat Sessions Garden do po\u010d\u00edta\u010de",
   "onboard.install.body": "Nainstalujte si ji pro klidn\u00e9 okno na cel\u00e9 obrazovce a p\u0159\u00edstup jedn\u00edm kliknut\u00edm \u2014 st\u00e1le funguje pln\u011b offline a va\u0161e data z\u016fst\u00e1vaj\u00ed v tomto za\u0159\u00edzen\u00ed.",
