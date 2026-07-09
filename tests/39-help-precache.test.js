@@ -46,7 +46,17 @@ var urlsBody = urlsMatch ? urlsMatch[1] : '';
 
 check('PRECACHE_URLS array is present', !!urlsMatch);
 
-['/assets/help.js', '/assets/help-content-en.js', '/assets/help.css'].forEach(function (asset) {
+// The three locale help-content siblings (he/de/cs) join en so the Help center
+// opens fully OFFLINE in every language (L10N-01). RED until Plan 08 wires them
+// into sw.js PRECACHE_URLS.
+[
+  '/assets/help.js',
+  '/assets/help-content-en.js',
+  '/assets/help-content-he.js',
+  '/assets/help-content-de.js',
+  '/assets/help-content-cs.js',
+  '/assets/help.css'
+].forEach(function (asset) {
   check("PRECACHE_URLS contains '" + asset + "'",
     new RegExp("['\"]" + asset.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + "['\"]").test(urlsBody));
 });

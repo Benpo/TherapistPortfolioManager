@@ -73,10 +73,17 @@ function buildWindow(opts) {
   };
   win.AppVersion = { APP_VERSION: opts.appVersion || '1.3.0' };
   win.eval(readAsset('assets/i18n-en.js'));
+  win.eval(readAsset('assets/i18n-he.js'));
   win.I18N_DEFAULT = 'en';
   // Seed the changelog data BEFORE the surface evaluates, so its gating +
   // D-07 reconcile see the fixture (never the real plan-04 file).
   win.CHANGELOG_CONTENT_EN = opts.content || [];
+  // Optional Hebrew changelog fixture — seeded for the localized-highlight render
+  // test so a locale-aware entries() (Plan 08) reads it under portfolioLang='he'.
+  win.CHANGELOG_CONTENT_HE = opts.contentHe || [];
+  // Optional UI language — the popup resolves copy + (post-Plan-08) entries from
+  // portfolioLang. Set before the surface evaluates.
+  if (opts.lang) win.localStorage.setItem('portfolioLang', opts.lang);
   if (opts.lastSeen != null) win.localStorage.setItem(LAST_SEEN_KEY, opts.lastSeen);
   win.eval(readAsset('assets/attention-coordinator.js'));
   // Plan 05 artifact — absent in Wave 0. readAsset throws ENOENT here → RED.
@@ -158,6 +165,74 @@ test('T-42-V3 silent-skip — APP_VERSION with no changelog entry: ineligible, r
   assert.strictEqual(win.localStorage.getItem(LAST_SEEN_KEY), '1.3.0',
     'the D-07 silent-skip reconcile must advance ' + LAST_SEEN_KEY + ' to APP_VERSION');
   env.dom.window.close();
+});
+
+// ── T-42-V4 — localized-highlight render (Pitfall 1) ─────────────────────────
+// With portfolioLang='he' and a CHANGELOG_CONTENT_HE entry for APP_VERSION, the
+// rendered popup highlights must be the HEBREW ones, NOT the English fixture.
+// RED now: entries() reads window.CHANGELOG_CONTENT_EN unconditionally
+// (whats-new.js:73-77), so show() renders the English marker. Flips GREEN when
+// Plan 08 makes entries() locale-aware (reads CHANGELOG_CONTENT_<loc> by
+// portfolioLang). This is the JS-fixture render gate — it seeds the data object
+// directly and therefore CANNOT see a missing page <script> tag (that is T-42-V5).
+test('T-42-V4 localized-highlight — portfolioLang=he renders the Hebrew highlight, not the English one (Plan 08 locale-aware entries)', function () {
+  var heMarker = 'עברית-הדגשה-ייחודית';
+  var enMarker = 'EN-UNIQUE-HIGHLIGHT';
+  var env = buildWindow({
+    appVersion: '1.3.0',
+    lang: 'he',
+    content: [entry('1.3.0', [enMarker, 'second highlight'])],
+    contentHe: [entry('1.3.0', [heMarker, 'הדגשה שנייה'])],
+  });
+  var win = env.win;
+  var surface = env.AC._getSurface('whats-new');
+  assert.ok(surface, "_getSurface('whats-new') must return the registered surface");
+  surface.show();
+  var items = Array.prototype.map.call(
+    win.document.querySelectorAll('.whats-new-highlights li'),
+    function (li) { return li.textContent; }
+  );
+  var joined = items.join(' | ');
+  assert.ok(items.length > 0, 'the popup must render highlight <li> items; got none');
+  assert.ok(joined.indexOf(heMarker) !== -1,
+    'rendered highlights must contain the Hebrew marker under portfolioLang=he (locale-aware entries — Plan 08); got: ' + joined);
+  assert.strictEqual(joined.indexOf(enMarker), -1,
+    'rendered highlights must NOT contain the English marker under portfolioLang=he; got: ' + joined);
+  env.dom.window.close();
+});
+
+// ── T-42-V5 — cross-page popup-locale <script>-tag shape gate (BLOCKER 1) ────
+// The What's-New popup reads window.CHANGELOG_CONTENT_<loc>; a page that loads
+// whats-new.js but omits the locale sibling <script> tags renders English data
+// regardless of the entries() fix. The T-42-V4 render test CANNOT catch this — it
+// seeds CHANGELOG_CONTENT_HE directly, bypassing the page tags. So this purely-
+// static gate reads every one of the nine pages that load whats-new.js and
+// requires all three changelog-content locale siblings on each. RED now (Plan 08
+// Task 3 adds the tags on all nine pages) — do NOT weaken to green.
+test('T-42-V5 cross-page — every page that loads whats-new.js also loads the he/de/cs changelog-content siblings (BLOCKER 1)', function () {
+  var PAGES = [
+    'index.html', 'sessions.html', 'add-client.html', 'add-session.html',
+    'settings.html', 'reporting.html', 'report.html', 'help.html', 'changelog.html',
+  ];
+  var SIBLINGS = ['changelog-content-he.js', 'changelog-content-de.js', 'changelog-content-cs.js'];
+  // Falsifiability guard: confirm we are auditing exactly the pages that load the
+  // popup — a page dropping whats-new.js (or a new one gaining it) should update
+  // this list, not slip through silently.
+  var loaders = fs.readdirSync(REPO_ROOT)
+    .filter(function (f) { return /\.html$/.test(f); })
+    .filter(function (f) { return readAsset(f).indexOf('whats-new.js') !== -1; })
+    .sort();
+  assert.deepStrictEqual(loaders, PAGES.slice().sort(),
+    'the set of pages loading whats-new.js drifted from the audited nine: ' + loaders.join(', '));
+  var problems = [];
+  PAGES.forEach(function (page) {
+    var src = readAsset(page);
+    SIBLINGS.forEach(function (sib) {
+      if (src.indexOf(sib) === -1) problems.push(page + ' missing ' + sib);
+    });
+  });
+  assert.strictEqual(problems.length, 0,
+    problems.length + ' page/sibling gap(s): ' + problems.join('; '));
 });
 
 console.log('\n42-whats-new-gating: ' + passed + ' passed, ' + failed + ' failed');

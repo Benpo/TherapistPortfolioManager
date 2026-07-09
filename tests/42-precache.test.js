@@ -71,14 +71,29 @@ check('PRECACHE_URLS array is present', !!urlsMatch);
 check('PRECACHE_HTML array is present', !!htmlMatch);
 
 // ── PRECACHE_URLS: the four changelog sub-resource ASSETS must be present ────
+// The three locale changelog-content siblings (he/de/cs) join en so the What's-
+// New popup + /changelog render localized entries fully OFFLINE (L10N-01). They
+// are sub-resource ASSETS → PRECACHE_URLS (never PRECACHE_HTML). RED until Plan 08
+// wires them into sw.js.
 [
   '/assets/changelog-content-en.js',
+  '/assets/changelog-content-he.js',
+  '/assets/changelog-content-de.js',
+  '/assets/changelog-content-cs.js',
   '/assets/whats-new.js',
   '/assets/changelog.js',
   '/assets/changelog.css'
 ].forEach(function (asset) {
   check("PRECACHE_URLS contains '" + asset + "'", rx(asset).test(urlsBody));
 });
+
+// Region isolation: the changelog content siblings belong in PRECACHE_URLS, NOT
+// PRECACHE_HTML (they are assets, not page routes).
+['/assets/changelog-content-he.js', '/assets/changelog-content-de.js', '/assets/changelog-content-cs.js']
+  .forEach(function (asset) {
+    check("PRECACHE_HTML does NOT contain '" + asset + "' (asset belongs in PRECACHE_URLS)",
+      !rx(asset).test(htmlBody));
+  });
 
 // The popup CSS lives in app.css (already precached) — there is NO whats-new.css
 // precache entry, and this test must never demand one.
