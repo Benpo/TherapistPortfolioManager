@@ -62,11 +62,13 @@ for (const loc of LOCALES) {
   MAPS[loc] = m;
 }
 
-// ── The canonical tour-copy key list (10 step titles + 10 step bodies = 20,
-//    chrome 5, fallback 2, exit 3, reminder 3, finish 5, takeTour 1 = 39) ─────
+// ── The canonical tour-copy key list (v3 storyline: 12 step titles + 12 step
+//    bodies = 24, chrome 5, fallback 2, exit 3, reminder 3, finish 5,
+//    takeTour 1 = 43). STEP_IDS mirrors the 41-10 STEPS[] i18nKey suffixes in
+//    storyline order (settings-first: overview → settings chapter → the path). ─
 const STEP_IDS = [
-  'overview', 'addClient', 'startSession', 'setup', 'heart',
-  'save', 'sessions', 'reporting', 'backup', 'help',
+  'overview', 'settings', 'personalize', 'fields', 'snippets', 'ready',
+  'setup', 'heart', 'save', 'sessions', 'backup', 'help',
 ];
 const STEP_KEYS = [];
 for (const id of STEP_IDS) {
