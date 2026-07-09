@@ -184,92 +184,51 @@ blocked: 0
 
 ---
 
-## Round 2 — replay of the remediated v3 tour (2026-07-09)
+## Round 2 — replay of the remediated v3 tour (2026-07-09, CONFIRMED)
 
 <!--
-Round 1 (above) tested the OLD 10-step tour; its 8 gaps were closed by 41-08..41-12
-(geometry, 12-anchor, 12-step STEPS[], v3 copy, "?" trim) and the automated gate (41-13
-Task 1) is GREEN. Ben then replayed the FIXED v3 tour (41-13 Task 2 human-verify) and
-found a NEW round of issues. These are NOT regressions of round 1 — they are next-layer
-UX findings, one of which (R2-2) deliberately REVERSES a locked decision (D-07).
-Status: awaiting scope/interaction-model confirmation before authoring Round-2 gap-closure plans.
+Round 1's 8 gaps were closed by 41-08..41-12; the automated gate (41-13 Task 1) went GREEN.
+Ben then replayed the FIXED v3 tour (41-13 Task 2 human-verify) and found a next layer of
+UX findings. He first drafted five (R2-1..R2-5) exploring an INTERACTIVE tour, then reconsidered
+with Sapir and REVERSED the interactivity. This is the confirmed, decision-aligned record.
+Remediation plan: 41-14 (wave 9). Re-verify: re-run of 41-13. EN first; Ben's Hebrew pass follows
+once EN is locked.
 -->
 
+### CONFIRMED — remediated in 41-14
+
 - id: R2-1
-  truth: "On long settings screens (Custom Fields, Snippets) the spotlight + step box stay usable and on-screen"
-  status: failed
-  reason: "User reported: the fields and snippets panels are taller than the laptop viewport, so the spotlight box is huge; the auto-scroll lands in the MIDDLE of the list and the tooltip with the step-count is pushed off-screen — you see a dim overlay with no words until you manually scroll to the top or bottom."
+  truth: "On long settings panels (Custom Fields, Snippets) the step box stays fully on screen"
+  reason: "Panels are taller than the laptop viewport; renderSpotlight scrollIntoView({block:'center'}) centers the panel so the tethered step box lands off-screen — a wordless dim overlay until you scroll."
   severity: major
-  root_cause: "positionSpotlight sizes the ring to the FULL (very tall) anchor rect; renderSpotlight calls scrollIntoView({block:'center'}) which centers a taller-than-viewport panel so its middle sits at viewport center, and the tethered tooltip (placed above/below the anchor rect, whose top/bottom are now off-screen) is positioned outside the viewport. No viewport clamp keeps the tooltip visible."
-  artifacts:
-    - path: "assets/tour.js:196-228 (positionSpotlight), 375 (scrollIntoView block:center)"
-      issue: "full-panel spotlight + center-scroll bury the tethered tooltip for tall anchors"
-    - path: "STEPS[] anchors fields/snippets = whole panel"
-      issue: "[data-tour=\"fields\"] / [data-tour=\"snippets\"] point at the entire (tall) panel, not a compact header"
-  missing:
-    - "Ben's suggestion: for Snippets, the FIRST beat highlights the Text-Snippets section HEADER (compact anchor), not the whole window; a later beat may show the whole panel but never with a giant box."
-    - "Engine: for a taller-than-viewport anchor, scroll block:'start' (bring the anchor TOP into view) and CLAMP the tooltip fully inside the viewport so the step-count box is ALWAYS visible."
-
-- id: R2-2
-  truth: "The user can interact with the highlighted control during the tour (do it with us), while everything outside the tour stays blocked"
-  status: failed
-  reason: "User reported (MAIN point): the overlay blocks ALL clicks, so on the date-format step they cannot actually change the format in-tour; on step 7 we say 'you can add a new client' but they cannot open the dropdown to see the 'Add new' row — so they can't believe it. Showing information they must memorize and revisit is wrong; the highlighted field should be usable in place."
-  severity: major
-  reverses: "D-07 (Page inert during the tour — dim overlay blocks all clicks; the 'Spotlighted element clickable' alternative was explicitly rejected in 41-DISCUSSION-LOG.md:43). Ben: only now, on device, is it clear this is dangerous for UX."
-  root_cause: "A4/D-07: the full-viewport .sg-tour-overlay (pointer-events:auto, tour.js:285-288 / tour.css:75-80) intercepts every click — including over the spotlight hole — so the real control beneath is never reachable; the spotlight ring is pointer-events:none and purely visual."
-  artifacts:
-    - path: "assets/tour.js:285-288"
-      issue: "single full-viewport click-capturing overlay makes the whole page inert"
-    - path: "assets/tour.css:75-80"
-      issue: ".sg-tour-overlay inset:0 pointer-events:auto covers the spotlight hole too"
-  missing:
-    - "Reverse D-07 to an INTERACTIVE spotlight: replace the single overlay with a 4-panel frame (top/bottom/left/right of the anchor rect) so the anchor rect is a real hole and its control is clickable; everything OUTSIDE the anchor stays blocked (Ben's constraint). Reposition the 4 panels on scroll/resize alongside the ring."
-    - "Record the D-07 reversal + refresh the threat note: the reason D-07 existed (tour state can't desync from user actions) is managed because the tour re-measures on reflow and only NAV steps mutate tour state (see R2-3)."
-
-- id: R2-3
-  truth: "Where it makes sense, clicking the highlighted target itself advances the tour (an alternative to Next); other steps stay Next-only"
-  status: failed
-  reason: "User enhancement: on step 2 ('let's go to Settings') they should be able to just click the Settings gear and have the tour continue to step 3 automatically; on the settings-format steps they should be able to click inside, make changes, then proceed. A mix — some steps advance on click, some enforce Next — is explicitly fine."
-  severity: minor
-  root_cause: "Engine has no per-step 'advance on anchor click' capability; advancing is only via the Next button (buildRow)."
-  artifacts:
-    - path: "assets/tour.js:168-193 (buildRow), 296-299 (activate)"
-      issue: "no advanceOnClick seam; anchor clicks are swallowed by the inert overlay today"
-  missing:
-    - "Per-step advanceOnClick: navigation/action steps (settings gear → Settings, whole-menu → session form) advance the tour when the target is clicked (intercept the real link → persist resume for the next step → let the cross-page nav proceed / call next()); form + content steps stay Next-only so edits don't accidentally advance. Depends on R2-2 (clicks must reach the anchor first)."
+  fix: "Engine: for a tall anchor scroll the anchor TOP into view (Ben: 'always scrolled all the way up') and CLAMP the tooltip fully inside the viewport. Keep the big whole-panel spotlight (the 'highlight just the header' idea was dropped). RED-first WebKit box-in-viewport assertion."
 
 - id: R2-4
-  truth: "The save step points at the REAL export control with an honest label"
-  status: failed
-  reason: "User reported: step 9 says 'this is its icon' with an icon we don't actually use — the real export button has a COLORFUL icon. Drop the fake glyph; say it in plain words, e.g. 'you can share it as a client-ready PDF using the export function on the top' and (optionally) show the real icon in brackets."
+  truth: "The save step points at the app's REAL export control with an honest label"
+  reason: "41-10 inlined a generic monochrome upload SVG; the real export icon is the colourful 📤 on #exportSessionBtn, so the tour's glyph reads as foreign/wrong."
   severity: minor
-  root_cause: "41-10 inlined a generic monochrome upload SVG glyph in the tooltip (tour.js:354-360) for 'honest deixis', but it is NOT the app's actual export-button icon, so it reads as wrong/foreign."
-  artifacts:
-    - path: "assets/tour.js:354-360"
-      issue: "hardcoded generic SVG glyph, not the real export icon"
-    - path: "assets/i18n-*.js help.tour.step.save.body"
-      issue: "copy leans on 'this is its icon' deixis for a glyph that doesn't match reality"
-  missing:
-    - "Remove the inlined generic glyph (or replace with the app's REAL export-icon markup if a glyph is kept); rewrite the save body to plain words pointing at the export function on top, optionally referencing the real icon. Partially reverses 41-10's inline-glyph slice. 4 locales."
+  fix: "Drop the fake glyph; show the real 📤; reword the body to name the Export button in plain words. 4 locales (EN final-ish; HE/DE/CS machine-draft)."
 
 - id: R2-5
-  truth: "The finish step leads with the Help center as the place that goes deeper, then teases the breadth left to explore"
-  status: failed
-  reason: "User reported: in step 12 replace the Reporting emphasis with the HELP section — it's more meaningful. Say we didn't cover everything and there's much more to explore, and the help section details it all (a teasing tone). Then, high-level (not full sentences), mention there's more: Reporting, backup-frequency settings, detailed how-tos for things like snippets. Highlight the most meaningful help functionalities in a bit more detail."
+  truth: "The finish step leads with the Help center as 'there's more to explore', then teases the breadth"
+  reason: "v3 finish copy leads with Reporting; Ben wants Help-center-first + a high-level tease (backups & their frequency, snippets, Heart-Wall, export formats, and the Reporting tab)."
   severity: minor
-  root_cause: "v3 finish copy leads with 'Reporting one tab along'; Ben wants Help-center-first + a breadth tease (reporting / backup frequency / snippet guides)."
-  artifacts:
-    - path: "assets/i18n-*.js help.tour.step.help.* / finish.*"
-      issue: "finish copy emphasis is Reporting-first, not Help-first"
-  missing:
-    - "Rewrite the finish/help step copy: Help-center-first + 'there's more to explore' tease naming (high level) Reporting, backup frequency, and how-tos like snippets. 4 locales."
+  fix: "Rewrite the help step Help-first with a breadth tease. 4 locales."
+
+### REJECTED — explicitly NOT built (Ben + Sapir, 2026-07-09)
+
+- id: R2-2  status: rejected
+  what: "Interactive spotlight — reverse D-07 so the highlighted control is clickable in-tour (change date format in place; open the client dropdown to 'believe' Add-new)."
+  decision: "NOT built. D-07 STANDS — the page stays inert during the tour. Ben + Sapir: clicking in the app is not intended for the tour; it adds too much complexity and bug risk. The long-panel visibility problem (R2-1) is solved by scroll-to-top instead."
+
+- id: R2-3  status: rejected
+  what: "Per-step advance-on-anchor-click (click the Settings gear to advance instead of Next)."
+  decision: "NOT built. Depends on R2-2, which is rejected. Advancing stays Next-only."
 
 ## Round 2 — Summary
 
-total: 5
-passed: 0
-issues: 5
-pending: 0
-skipped: 0
-blocked: 0
-note: "R2-2 reverses locked decision D-07 and R2-2/R2-3 are a real tour-engine change (interactive 4-panel overlay + click-to-advance + tall-anchor scroll/clamp). R2-4 partially reverses 41-10's inline-glyph. Awaiting Ben's confirmation of the interaction model + build path before authoring Round-2 gap-closure plans."
+confirmed: 3   (R2-1 engine scroll/clamp, R2-4 save icon+copy, R2-5 help-first copy)
+rejected: 2    (R2-2 interactive spotlight, R2-3 click-to-advance — D-07 stands)
+remediation: 41-14 (wave 9)
+copy: EN provisional (Ben will supply final texts, no planning needed); HE/DE/CS machine-draft → Phase 42.1
+reverify: re-run 41-13 (automated) + Ben EN replay; Hebrew pass after EN locked
