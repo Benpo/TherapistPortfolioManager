@@ -9,8 +9,26 @@
  *         tooltip, NOT the centered fallback modal. jsdom always takes the fallback
  *         branch because offsetParent === null for every element, so the spotlight
  *         branch is only reachable in a real layout engine (this probe).
- *     (2) TOUR-04 RTL arrow-flip + on-anchor tooltip/spotlight geometry, plus a
- *         clean EN→HE→DE→CS mid-tour re-render (Pitfall 2 + Pitfall 5).
+ *     (2) TOUR-04 RTL physical-side correctness + on-anchor tooltip/spotlight
+ *         geometry, plus a clean EN→HE→DE→CS mid-tour re-render (Pitfall 2 + 5).
+ *
+ * STRENGTHENED IN PLAN 41-08 (UAT gaps 2/3/4):
+ *   The original probe only exercised step 1's FULL-WIDTH greeting card, which
+ *   hid the RTL blocker (a full-width anchor mirrors onto itself). This version
+ *   adds the assertions that actually catch the shipped defect:
+ *     • Section [3] no longer asserts the arrow "flips to the mirrored side" —
+ *       that was asserting the BUG (logical inset props resolve to the opposite
+ *       edge in RTL). It now asserts the arrow stays on the SAME physical side
+ *       (physical-coordinate positioning is direction-neutral by construction).
+ *     • Section [5] (NEW) selects the first meaningfully OFF-CENTER anchor and
+ *       asserts, in real WebKit layout, that the Hebrew spotlight's physical
+ *       left is on the anchor's physical side, NOT the mirrored side — the exact
+ *       assertion that FAILS on the logical/physical mirror (gap 4), plus a
+ *       POST-SETTLE (post-scrollIntoView, ≥2 rAF) re-check that the spotlight
+ *       still overlaps the anchor and the tooltip is inside the viewport (gaps 2/3).
+ *   FALSIFIABILITY: run against the CURRENT (pre-Task-2/3, logical-coordinate)
+ *   tour.js this file is RED — sections [3] and [5] fail because the geometry
+ *   mirrors. It goes GREEN only after tour.js/tour.css switch to physical axes.
  *
  * HOW TO RUN (NOT part of npm test — the runner tests/run-all.js only globs
  *   top-level tests/*.test.js, so this tests/webkit/*.mjs file is never discovered):
@@ -259,22 +277,25 @@ async function main() {
     assert(heArrow && heArrow.dir === 'rtl', 'HE document direction is rtl', JSON.stringify(heArrow));
     assert(!!heArrow, 'HE tour re-rendered (tooltip + arrow present)', JSON.stringify(heArrow));
 
-    // Real flip: the arrow's physical offset from the tooltip's left edge must move
-    // to (roughly) the mirror side. inset-inline-start maps to left in LTR and right
-    // in RTL, so with the same --arrow-x the physical position flips across the
-    // tooltip mid-line. We assert the two offsets land on OPPOSITE sides of center.
+    // Physical-side stability (the POST-FIX contract): --arrow-x is consumed as a
+    // physical `left`, so the arrow's offset from the tooltip's LEFT edge must NOT
+    // move to the mirror side when the document flips to RTL. The pre-fix logical
+    // `inset-inline-start` DID mirror it (that was the bug) — so this assertion is
+    // RED against the current code and GREEN once tour.css positions the arrow with
+    // physical `left`. We assert the EN and HE physical offsets stay on the SAME
+    // side of the tooltip mid-line and are close in magnitude (no mirror).
     if (enArrow && heArrow) {
       const enSide = enArrow.offsetFromLeft - enArrow.tooltipWidth / 2; // <0 = left half
       const heSide = heArrow.offsetFromLeft - heArrow.tooltipWidth / 2;
-      const flipped = Math.sign(enSide) !== Math.sign(heSide) &&
-        Math.abs(enArrow.offsetFromLeft - heArrow.offsetFromLeft) > 20;
-      assert(flipped,
-        'RTL flips the arrow to the mirrored side (not just direction:rtl)',
+      const sameSide = Math.sign(enSide) === Math.sign(heSide) &&
+        Math.abs(enArrow.offsetFromLeft - heArrow.offsetFromLeft) <= 16;
+      assert(sameSide,
+        'RTL keeps the arrow on the SAME physical side (physical coords, no mirror)',
         'EN offsetFromLeft=' + enArrow.offsetFromLeft.toFixed(1) +
         ' HE offsetFromLeft=' + heArrow.offsetFromLeft.toFixed(1) +
         ' tooltipW=' + heArrow.tooltipWidth.toFixed(1));
     } else {
-      assert(false, 'RTL arrow-flip measurable', 'missing arrow measurement');
+      assert(false, 'RTL arrow physical-side measurable', 'missing arrow measurement');
     }
 
     const heInViewport = heArrow && heArrow.left >= -0.5 && heArrow.top >= -0.5 &&
@@ -313,6 +334,90 @@ async function main() {
       assert(state.inViewport, lang.toUpperCase() + ': tooltip inside viewport',
         JSON.stringify(state.rect));
     }
+
+    // ── (5) OFF-CENTER anchor RTL physical-side + post-settle geometry (blocker) ───
+    // The assertion the shipped probe LACKED. A full-width anchor mirrors onto
+    // itself, so gap 4 only shows on an OFF-CENTER anchor. Re-enter Hebrew, walk
+    // the on-page steps, pick the first anchor whose center is >15% of the viewport
+    // off the middle, render it, and assert (in real WebKit layout) the spotlight's
+    // PHYSICAL left is on the anchor's side — not the mirrored side. Then re-check
+    // after the scroll settles (≥2 rAF) that geometry stayed on-anchor.
+    console.log('\n[5] Off-center-anchor RTL physical-side + post-settle geometry:');
+    await page.evaluate(() => {
+      if (window.App && typeof window.App.setLanguage === 'function') window.App.setLanguage('he');
+      else {
+        localStorage.setItem('portfolioLang', 'he');
+        document.documentElement.setAttribute('dir', 'rtl');
+        document.dispatchEvent(new CustomEvent('app:language', { detail: { lang: 'he' } }));
+      }
+    });
+    await page.waitForFunction(
+      () => document.documentElement.getAttribute('dir') === 'rtl' &&
+            document.querySelector('.sg-tour-tooltip') !== null,
+      { timeout: 5000 }
+    );
+
+    const offCenter = await page.evaluate(() => {
+      const steps = window.Tour._getSteps();
+      const curPage = window.Tour._currentPage();
+      const vw = window.innerWidth;
+      for (let i = 0; i < steps.length; i++) {
+        if (steps[i].page !== curPage) continue;
+        const el = document.querySelector(steps[i].anchor);
+        if (!el) continue;
+        const a = el.getBoundingClientRect();
+        const center = a.left + a.width / 2;
+        if (Math.abs(center - vw / 2) > 0.15 * vw) {
+          window.Tour._setStepIndex(i);
+          window.Tour._render();
+          const anchor = document.querySelector(steps[i].anchor).getBoundingClientRect();
+          const sp = document.querySelector('.sg-tour-spotlight').getBoundingClientRect();
+          return {
+            i, id: steps[i].id, vw,
+            anchor: { left: anchor.left, right: anchor.right, width: anchor.width },
+            spotlight: { left: sp.left, right: sp.right, width: sp.width }
+          };
+        }
+      }
+      return null;
+    });
+    assert(!!offCenter,
+      'found a meaningfully off-center on-page anchor to probe the RTL side',
+      JSON.stringify(offCenter));
+    if (offCenter) {
+      const pad = 8;
+      const expectedLeft = offCenter.anchor.left - pad;                    // physical (correct)
+      const mirroredLeft = offCenter.vw - offCenter.anchor.right - pad;    // logical-in-RTL (bug)
+      const distCorrect = Math.abs(offCenter.spotlight.left - expectedLeft);
+      const distMirror = Math.abs(offCenter.spotlight.left - mirroredLeft);
+      assert(distCorrect <= 12 && distCorrect < distMirror,
+        'RTL spotlight sits on the anchor PHYSICAL side, not mirrored [' + offCenter.id + ']',
+        'spotlight.left=' + offCenter.spotlight.left.toFixed(1) +
+        ' expected≈' + expectedLeft.toFixed(1) + ' mirrored≈' + mirroredLeft.toFixed(1));
+    }
+
+    // Post-settle: after scrollIntoView + the one-rAF re-measure, geometry stays on
+    // the anchor and the tooltip is inside the viewport.
+    const settled = await page.evaluate(() => new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const steps = window.Tour._getSteps();
+        const idx = window.Tour._getStepIndex();
+        const anchor = document.querySelector(steps[idx].anchor).getBoundingClientRect();
+        const sp = document.querySelector('.sg-tour-spotlight').getBoundingClientRect();
+        const tt = document.querySelector('.sg-tour-tooltip').getBoundingClientRect();
+        const overlap = !(sp.right <= anchor.left || sp.left >= anchor.right ||
+                          sp.bottom <= anchor.top || sp.top >= anchor.bottom);
+        const ttInView = tt.left >= -0.5 && tt.top >= -0.5 &&
+          tt.right <= window.innerWidth + 0.5 && tt.bottom <= window.innerHeight + 0.5;
+        resolve({ overlap, ttInView,
+          sp: { left: sp.left, right: sp.right }, anchor: { left: anchor.left, right: anchor.right } });
+      }));
+    }));
+    assert(settled.overlap,
+      'post-settle: spotlight still overlaps the anchor (one-rAF re-measure landed)',
+      JSON.stringify(settled));
+    assert(settled.ttInView,
+      'post-settle: tooltip fully inside the viewport', JSON.stringify(settled));
 
     console.log('');
     if (failures === 0) {
