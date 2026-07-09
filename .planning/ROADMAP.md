@@ -166,7 +166,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
   3. The tour survives cross-page navigation — steps that live on another page navigate there and resume (sessionStorage state).
   4. Switching language mid-tour re-renders the tour cleanly in the new language and direction (RTL mirroring verified in real WebKit, not jsdom alone).
 
-**Plans**: 6/13 plans executed (plans 01–06 done; 07 paused at its blocking checkpoint; 08–13 are gap-closure remediation for the 8 UAT gaps per the Ben-approved 41-STORYLINE.md)
+**Plans**: 7/13 plans executed
 
 Plans:
 **Wave 1**
@@ -189,7 +189,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 41-07-PLAN.md — Playwright-WebKit RTL/geometry gate + real-Safari UAT checkpoint [wave 5]
+- [x] 41-07-PLAN.md — Playwright-WebKit RTL/geometry gate + real-Safari UAT checkpoint [wave 5]
 
 **Wave 6** *(gap-closure — UAT remediation per 41-STORYLINE.md, parallel; build on the shipped tour)*
 
@@ -312,7 +312,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
 | 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
 | 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 8/8 | Complete    | 2026-07-08 |
-| 41. Replayable Guided Tour | v1.3 | 6/7 | In Progress|  |
+| 41. Replayable Guided Tour | v1.3 | 7/13 | In Progress|  |
 | 42. In-App Changelog & What's-New | v1.3 | 0/TBD | Not started | - |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |
 </content>
