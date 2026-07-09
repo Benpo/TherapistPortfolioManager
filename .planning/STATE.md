@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 
 ## Current Position
 
-Phase: 41 (replayable-guided-tour) — EXECUTING
-Plan: 12 of 13 complete (gap-closure; 41-10/13 still open)
-Status: 41-12 complete
-Last activity: 2026-07-09 — Phase 41 Plan 12 complete (3-item "?" popover: welcome-replay row retired, tour relabelled "Onboarding Tour"; ONBD-02/D-17 reversal noted in REQUIREMENTS; suite 153/153 GREEN)
+Phase: 41 (replayable-guided-tour) — EXECUTING (paused at 41-13 blocking human-verify checkpoint)
+Plan: 12 of 13 complete; 41-13 automated half GREEN, awaiting human replay sign-off
+Status: PAUSED at 41-13 Task 2 (blocking human-verify). Task 1 GREEN — `node tests/run-all.js` 153/153 + `node tests/webkit/41-rtl-geometry.mjs` all assertions pass (incl. off-center RTL physical-side + post-settle geometry). Awaiting Ben's replay of the full 12-step v3 tour in EN + HE (real Safari/PWA preferred) to confirm storyline coherence and close the failed 41-UAT.md loop. Resume signal: "approved" → write 41-13-SUMMARY + mark phase gate resolved; issues → route as Wave 9 gap-closure.
+Last activity: 2026-07-09 — Phase 41 gap-closure waves 1-2 complete (41-07 closed-out by supersession; 41-08 geometry/RTL-blocker fix, 41-09 12-anchor v3, 41-10 12-step STEPS[]+tab-activation, 41-11 v3 copy 4-locale, 41-12 3-item popover); 41-13 automated gate GREEN; paused at human EN/HE storyline sign-off
 
 ## Performance Metrics
 
