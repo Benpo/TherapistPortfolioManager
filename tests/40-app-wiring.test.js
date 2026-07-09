@@ -3,23 +3,22 @@
  * guard for wiring the AttentionCoordinator into assets/app.js.
  *
  * WHAT THIS PINS (observable behavior, not source shape):
- *   A. initHelpEntry() mounts a "Replay welcome" row (label help.entry.replayWelcome)
- *      as a <button role=menuitem> carrying data-label-key, positioned AFTER the
- *      'Help center' row and BEFORE the 'Contact us' row (D-17). It is an action
- *      row, NOT an <a href>.
- *   B. Clicking that row calls AttentionCoordinator.showWelcome(true) (a direct
- *      open) and does NOT re-arm localStorage 'sg.welcomeSeen' nor the session
- *      marker 'sg.surfaceShownThisSession' (Pitfall 5 — no first-run re-arm).
- *   C. An app:language dispatch re-translates the new row's textContent via its
- *      data-label-key (the existing re-translate listener covers the button row).
- *   D. App.bootAttentionSurfaces() (the initCommon seam that replaces the direct
+ *   A. App.bootAttentionSurfaces() (the initCommon seam that replaces the direct
  *      showFirstLaunchSecurityNote() call) registers a 'security-note' surface
  *      with the coordinator AND calls run() — the security note is now a governed
  *      surface, not a direct call (ONBD-03).
- *   E. The registered 'security-note' eligible() returns false when
+ *   B. The registered 'security-note' eligible() returns false when
  *      #security-guidance-container is absent (D-08 — an unrenderable winner never
  *      consumes the session slot), and true when the container is present with the
  *      license activated and no recent dismissal (D-05 gates).
+ *
+ * NOTE (Phase 41 gap-closure, UAT gap 8): the former welcome-screen replay row
+ * was retired from the "?" popover per Ben's 2026-07-08 decision — the redundant
+ * welcome-screen replay entry is gone, leaving the replayable guided tour as the
+ * single onboarding-replay row. The three tests that pinned that row (mount /
+ * click / app:language re-translate) were removed here. First-run welcome is
+ * unchanged: AttentionCoordinator's welcome-open path stays and is covered
+ * directly by tests/40-welcome-overlay.test.js.
  *
  * HARNESS: boots the REAL assets/app.js into an isolated jsdom window (same
  * eval-into-jsdom convention as tests/39-help-entry.test.js), seeding
@@ -44,14 +43,13 @@ var JSDOM = require('jsdom').JSDOM;
 var REPO_ROOT = path.resolve(__dirname, '..');
 function readAsset(rel) { return fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8'); }
 
-// A fake AttentionCoordinator that records register/run/showWelcome calls.
+// A fake AttentionCoordinator that records register/run calls.
 function makeFakeCoordinator() {
-  var calls = { registered: {}, runCalled: 0, showWelcomeArgs: [] };
+  var calls = { registered: {}, runCalled: 0 };
   return {
     calls: calls,
     register: function (surface) { if (surface && surface.id) calls.registered[surface.id] = surface; },
     run: function () { calls.runCalled++; },
-    showWelcome: function (isReplay) { calls.showWelcomeArgs.push(isReplay); },
   };
 }
 
@@ -87,14 +85,6 @@ function buildWindow(opts) {
   return { dom: dom, win: win, App: win.App };
 }
 
-function itemsByKey(win) {
-  var out = {};
-  win.document.querySelectorAll('.help-entry-item').forEach(function (el) {
-    out[el.getAttribute('data-label-key')] = el;
-  });
-  return out;
-}
-
 var passed = 0;
 var failed = 0;
 function test(name, fn) {
@@ -102,74 +92,7 @@ function test(name, fn) {
   catch (err) { console.log('  FAIL  ' + name); console.log('        ' + (err && err.message || err)); failed++; }
 }
 
-// ── A. Replay-welcome row: element, label, position ─────────────────────────
-test('initHelpEntry mounts a Replay-welcome button (menuitem) after Help center, before Contact us', function () {
-  var env = buildWindow({ nav: 'overview' });
-  env.App.initHelpEntry();
-  var win = env.win;
-  var all = win.document.querySelectorAll('.help-entry-item');
-  var keys = Array.prototype.map.call(all, function (el) { return el.getAttribute('data-label-key'); });
-
-  var iCenter = keys.indexOf('help.entry.center');
-  var iReplay = keys.indexOf('help.entry.replayWelcome');
-  var iContact = keys.indexOf('help.entry.contact');
-  assert.ok(iReplay !== -1, 'a help.entry.replayWelcome row must mount');
-  assert.ok(iCenter !== -1 && iContact !== -1, 'the two day-one rows must still mount');
-  assert.ok(iCenter < iReplay && iReplay < iContact,
-    'Replay welcome must sit AFTER Help center and BEFORE Contact us (D-17)');
-
-  var row = itemsByKey(win)['help.entry.replayWelcome'];
-  assert.strictEqual(row.tagName, 'BUTTON', 'Replay welcome must be a <button> action row, not an <a href>');
-  assert.ok(!row.hasAttribute('href'), 'Replay welcome must NOT carry an href (it is not a link)');
-  assert.strictEqual(row.getAttribute('role'), 'menuitem', 'Replay welcome must carry role=menuitem');
-  assert.strictEqual(row.getAttribute('data-label-key'), 'help.entry.replayWelcome',
-    'Replay welcome must carry data-label-key for re-translate');
-  assert.strictEqual(row.textContent, env.App.t('help.entry.replayWelcome'),
-    'Replay welcome label must equal t(help.entry.replayWelcome) via textContent');
-  win.close();
-});
-
-// ── B. click → showWelcome(true), no re-arm ─────────────────────────────────
-test('clicking Replay welcome calls showWelcome(true) and never re-arms welcomeSeen / session marker', function () {
-  var env = buildWindow({ nav: 'overview' });
-  var win = env.win;
-  var fake = makeFakeCoordinator();
-  win.AttentionCoordinator = fake;
-  env.App.initHelpEntry();
-
-  // Pre-state: first-run flags untouched.
-  win.localStorage.removeItem('sg.welcomeSeen');
-  win.sessionStorage.removeItem('sg.surfaceShownThisSession');
-
-  var row = itemsByKey(win)['help.entry.replayWelcome'];
-  row.dispatchEvent(new win.MouseEvent('click', { bubbles: true, cancelable: true }));
-
-  assert.strictEqual(fake.calls.showWelcomeArgs.length, 1, 'showWelcome must be called exactly once');
-  assert.ok(fake.calls.showWelcomeArgs[0], 'showWelcome must be called with a truthy isReplay (direct replay)');
-  assert.strictEqual(win.localStorage.getItem('sg.welcomeSeen'), null,
-    'replay must NOT write sg.welcomeSeen (Pitfall 5 — no re-arm)');
-  assert.strictEqual(win.sessionStorage.getItem('sg.surfaceShownThisSession'), null,
-    'replay must NOT claim the one-per-session marker (Pitfall 5 — no re-arm)');
-  win.close();
-});
-
-// ── C. re-translate on app:language ─────────────────────────────────────────
-test('app:language re-translates the Replay-welcome row via data-label-key', function () {
-  var env = buildWindow({ nav: 'overview' });
-  var win = env.win;
-  env.App.initHelpEntry();
-
-  // Mutate the dict then fire the shared re-translate signal.
-  win.I18N.en['help.entry.replayWelcome'] = 'REPLAY_X';
-  win.document.dispatchEvent(new win.Event('app:language'));
-
-  var row = itemsByKey(win)['help.entry.replayWelcome'];
-  assert.strictEqual(row.textContent, 'REPLAY_X',
-    'the existing app:language re-translate listener must cover the button row');
-  win.close();
-});
-
-// ── D. bootAttentionSurfaces registers security-note + calls run() ──────────
+// ── A. bootAttentionSurfaces registers security-note + calls run() ──────────
 test('App.bootAttentionSurfaces registers the security-note surface AND calls run()', function () {
   var env = buildWindow({ nav: 'overview', withSecurityContainer: true });
   var win = env.win;
@@ -190,7 +113,7 @@ test('App.bootAttentionSurfaces registers the security-note surface AND calls ru
   win.close();
 });
 
-// ── E. security-note eligible() — D-08 container gate + D-05 gates ───────────
+// ── B. security-note eligible() — D-08 container gate + D-05 gates ───────────
 test('security-note eligible() is false when #security-guidance-container is absent (D-08)', function () {
   var env = buildWindow({ nav: 'overview', withSecurityContainer: false });
   var win = env.win;

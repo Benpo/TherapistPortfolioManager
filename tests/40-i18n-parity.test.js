@@ -1,9 +1,9 @@
 /**
  * Phase 40 Plan 01 — new-key i18n parity gate.
  *
- * Guards the 15 new UI-chrome keys this phase introduces (welcome overlay,
- * "Replay welcome" menu row, install nudge, mobile expectation hint) so no
- * locale drifts a key. Loads all four locale maps (en/he/de/cs) into a vm
+ * Guards the 14 new UI-chrome keys this phase introduces (welcome overlay,
+ * install nudge, mobile expectation hint) so no locale drifts a key. Loads
+ * all four locale maps (en/he/de/cs) into a vm
  * sandbox the same way tests/39-help-integrity.test.js loads I18N, then for
  * every locale × every new key asserts:
  *
@@ -15,7 +15,7 @@
  *                      explicitly not the U+1F4E4 (📤) outbox code point the
  *                      deleted iOS banner used.
  *
- * Authored RED: the 15 keys do not exist yet (Task 2 adds them). Until then
+ * Authored RED: the 14 keys do not exist yet (Task 2 adds them). Until then
  * this gate MUST fail — do NOT weaken it to green.
  *
  * Run: node tests/40-i18n-parity.test.js
@@ -61,14 +61,13 @@ for (const loc of LOCALES) {
   MAPS[loc] = m;
 }
 
-// ── The canonical list of the 15 new keys (welcome 4 + replayWelcome 1 +
-//    install 7 + mobileHint 3 = 15) ─────────────────────────────────────────
+// ── The canonical list of the 14 new keys (welcome 4 + install 7 +
+//    mobileHint 3 = 14) ─────────────────────────────────────────────────────
 const NEW_KEYS = [
   'help.welcome.title',
   'help.welcome.subtitle',
   'help.welcome.ctaTour',
   'help.welcome.ctaExplore',
-  'help.entry.replayWelcome',
   'onboard.install.title',
   'onboard.install.body',
   'onboard.install.ctaInstall',
@@ -103,7 +102,7 @@ function test(name, fn) {
 }
 
 // ── 1. Presence + non-empty for every locale × every new key ────────────────
-test('All 15 new keys exist and are non-empty strings in every locale', function () {
+test('All 14 new keys exist and are non-empty strings in every locale', function () {
   const problems = [];
   for (const loc of LOCALES) {
     for (const key of NEW_KEYS) {

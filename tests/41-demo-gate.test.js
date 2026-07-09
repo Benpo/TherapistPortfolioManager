@@ -6,7 +6,10 @@
  *   1. On a NORMAL page (window.name != 'demo-mode') App.initHelpEntry() mounts a
  *      .help-entry-item carrying data-label-key='help.entry.takeTour' whose label
  *      is t('help.entry.takeTour') via textContent — and it sits AFTER the
- *      'help.entry.replayWelcome' row (P40 D-17 slot ordering).
+ *      'help.entry.center' row and BEFORE the 'help.entry.contact' row (the
+ *      stable day-one anchors; the Phase-41 gap-closure retired the former
+ *      welcome-screen replay row so the popover is now Help center / tour /
+ *      Contact us).
  *   2. In the sales demo (window.name === 'demo-mode') NO help-entry-item carries
  *      data-label-key='help.entry.takeTour' — the row is filtered out entirely
  *      (no dead row), while the day-one rows (center/contact) still mount (D-16).
@@ -81,8 +84,8 @@ function test(name, fn) {
   catch (err) { console.log('  FAIL  ' + name); console.log('        ' + (err && err.message || err)); failed++; }
 }
 
-// ── 1. normal page: the "Take the tour" row IS present, after Replay welcome ──
-test('normal page: "Take the tour" row mounts with t() label, after the Replay welcome row', function () {
+// ── 1. normal page: "Take the tour" row IS present, between Help center + Contact ──
+test('normal page: "Take the tour" row mounts with t() label, after Help center and before Contact us', function () {
   var env = buildWindow(false);
   env.App.initHelpEntry();
   var doc = env.win.document;
@@ -91,14 +94,17 @@ test('normal page: "Take the tour" row mounts with t() label, after the Replay w
   assert.strictEqual(tour.textContent, env.App.t('help.entry.takeTour'),
     '"Take the tour" label must be t(help.entry.takeTour) via textContent');
 
-  // Ordering (P40 D-17 slot): takeTour comes AFTER replayWelcome.
+  // Ordering: takeTour sits between the stable day-one anchors (Help center → tour → Contact us).
   var all = Array.prototype.slice.call(doc.querySelectorAll('.help-entry-item'));
   var keys = all.map(function (el) { return el.getAttribute('data-label-key'); });
-  var iReplay = keys.indexOf('help.entry.replayWelcome');
+  var iCenter = keys.indexOf('help.entry.center');
   var iTour = keys.indexOf('help.entry.takeTour');
-  assert.ok(iReplay !== -1, 'the Replay welcome row must still mount');
-  assert.ok(iTour > iReplay,
-    'the "Take the tour" row must sit AFTER the Replay welcome row (D-17 slot)');
+  var iContact = keys.indexOf('help.entry.contact');
+  assert.ok(iCenter !== -1 && iContact !== -1, 'the two day-one rows must still mount');
+  assert.ok(iTour > iCenter,
+    'the "Take the tour" row must sit AFTER the Help center row');
+  assert.ok(iTour < iContact,
+    'the "Take the tour" row must sit BEFORE the Contact us row');
   env.dom.window.close();
 });
 
