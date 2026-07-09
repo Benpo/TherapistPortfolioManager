@@ -138,9 +138,9 @@ window.App = (() => {
     const placeholder = document.getElementById('nav-placeholder');
     if (!placeholder) return;
     placeholder.innerHTML = `
-    <nav class="app-nav">
+    <nav class="app-nav" data-tour="nav">
       <a href="./index.html" data-nav="overview" data-i18n="nav.overview">Overview</a>
-      <a href="./sessions.html" data-nav="sessions" data-i18n="nav.sessions">Sessions</a>
+      <a href="./sessions.html" data-nav="sessions" data-tour="nav-sessions" data-i18n="nav.sessions">Sessions</a>
       <a href="./reporting.html" data-nav="reporting" data-i18n="nav.reporting">Reporting</a>
       <span class="nav-divider" aria-hidden="true"></span>
       <a href="./add-client.html" data-nav="addClient" data-i18n="nav.addClient">Add Client</a>
@@ -397,6 +397,7 @@ window.App = (() => {
     var link = document.createElement('a');
     link.href = './settings.html';
     link.className = 'header-control-btn settings-gear-btn';
+    link.setAttribute('data-tour', 'settings'); // Phase 41 tour anchor (step 2) — inert selector for the guided-tour engine
     var label = (typeof t === 'function' ? t('header.settings.label') : '') || 'Settings';
     link.setAttribute('aria-label', label);
     link.setAttribute('title', label);
