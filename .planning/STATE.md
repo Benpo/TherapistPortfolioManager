@@ -8,13 +8,13 @@ status: executing
 stopped_at: Phase 41 UI-SPEC approved
 last_updated: "2026-07-09T08:05:15Z"
 last_activity: 2026-07-09
-last_activity_desc: "Phase 41 Plan 09 complete — v3 12-anchor tour contract landed (rot guard GREEN)"
+last_activity_desc: "Phase 41 Plan 11 complete — v3 storyline tour copy in 4 locales, parity gate realigned (43 keys, GREEN)"
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 27
-  completed_plans: 21
-  percent: 33
+  completed_plans: 22
+  percent: 34
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 ## Current Position
 
 Phase: 41 (replayable-guided-tour) — EXECUTING
-Plan: 09 of 13 (gap-closure wave 6)
-Status: 41-09 complete
-Last activity: 2026-07-09 — Phase 41 Plan 09 complete (v3 12-anchor tour contract, rot guard GREEN)
+Plan: 11 of 13 (gap-closure wave 6; 41-10/12/13 still open)
+Status: 41-11 complete
+Last activity: 2026-07-09 — Phase 41 Plan 11 complete (v3 storyline copy in 4 locales, parity gate 43 keys GREEN)
 
 ## Performance Metrics
 
