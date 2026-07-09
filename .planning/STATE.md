@@ -28,10 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 
 ## Current Position
 
-Phase: 41 (replayable-guided-tour) — EXECUTING (Wave 9 gap-closure: 41-14 SHIPPED; 41-13 re-run pending)
-Plan: 12 of 13 shipped + 41-07 closed-out + 41-14 (wave 9) SHIPPED; 41-13 (verify) pending re-run
-Status: 41-14 complete — the 3 CONFIRMED Round-2 fixes are in. R2-1 REVISED (2026-07-09 per Ben): on step entry the page now scrolls to the PAGE TOP (window.scrollTo(0,0)) so the user keeps orientation (settings tab bar / page header visible — "which tab am I in"), REPLACING the earlier isTall→block:'start' heuristic; below-fold guard centers only the two low session-form controls (session-heart, session-save); vertical tooltip clamp + big whole-panel spotlight KEPT (no ring shrink); tour stays non-interactive (D-07). R2-4 step-9 fake upload SVG → real 📤 (U+1F4E4, matches #exportSessionBtn) via textContent + plain "Export button" copy (engine now innerHTML-free); R2-5 finish step → Help-center-first + breadth tease. WebKit probe [section 6] now asserts scrollY<=2 (RED scrollY=40 → GREEN scrollTo(0,0)) + box-in-viewport clamp; jsdom 153/153; 4-locale parity green. REJECTED by Ben + Sapir and NOT built: R2-2 clickable/interactive spotlight + R2-3 click-to-advance — D-07 STANDS, page stays inert. Copy is PROVISIONAL (Ben supplies final texts later); HE/DE/CS machine-draft → Phase 42.1. NEXT: re-run 41-13 automated gate (suite + WebKit probe on the final tour) → Ben replays EN → Hebrew pass after EN locked. Do NOT write 41-13-SUMMARY until the re-replay passes.
-Last activity: 2026-07-09 — Phase 41: R2-1 follow-up — tour scrolls to PAGE TOP on step entry for orientation (replaced isTall block:'start'), below-fold guard for heart/save, clamp retained, ring not shrunk, D-07 upheld; RED→GREEN WebKit probe (scrollY 40→0), suite 153/153
+Phase: 41 (replayable-guided-tour) — ✅ COMPLETE (2026-07-09)
+Plan: 14 of 14 complete (incl. 41-07 close-out by supersession, 41-13 human sign-off, 41-14 + scroll-to-top Round-2 gap-closure)
+Status: Phase 41 COMPLETE — the replayable guided tour is delivered and human-verified. Ben approved the EN 12-step settings-first storyline (2026-07-09); automated gate GREEN (jsdom 153/153 + WebKit RTL/geometry/scroll probe 6/6). TOUR-01..04 all Complete. On step entry the tour scrolls to the page top for orientation; the step box always stays visible; the page stays inert (D-07). DEFERRED to Phase 42.1 (by decision, not a gap): the Hebrew review + final EN wording tweaks (inline — Ben supplies texts, no planning); HE/DE/CS ship as machine-draft today (D-11), so the tour is fully functional in all four locales now.
+Next: Phase 42 — In-App Changelog & What's-New (v1.3, not started) → then 43 (Docs-Maintenance Hard Gate). Phase 42.1 (help/onboarding translation) carries the tour+help native-speaker pass.
+Last activity: 2026-07-09 — Phase 41 COMPLETE: guided tour shipped; EN storyline signed off by Ben; Round-2 fixes landed (scroll-to-top orientation, real 📤 export icon, Help-first finish); interactive-tour ideas rejected (D-07 upheld)
 
 ## Performance Metrics
 

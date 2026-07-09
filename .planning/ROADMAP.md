@@ -81,7 +81,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
 
 - [x] **Phase 39: Help Center & "?" Entry Point** — persistent "?" on every app page, offline `help.html` help center (workflow-spine IA + personalization + technical track), full EN content, empty-state deep-links, per-browser install instructions (completed 2026-07-07)
 - [x] **Phase 40: First-Run Welcome & Onboarding Coordinator** — first-run coordinator (single precedence order), branded welcome overlay (tour / explore myself), re-openable from "?", non-nagging install nudge (completed 2026-07-08)
-- [ ] **Phase 41: Replayable Guided Tour** — bespoke ~6–9-step spine tour, graceful degradation (spotlight ↔ modal + "Take me there"), cross-page resume, language re-render
+- [x] **Phase 41: Replayable Guided Tour** — bespoke ~6–9-step spine tour, graceful degradation (spotlight ↔ modal + "Take me there"), cross-page resume, language re-render (completed 2026-07-09)
 - [ ] **Phase 42: In-App Changelog & What's-New** — once-per-version What's-New popup + persistent changelog page in the help center, one structured data source, v1.3's own notes as first entry
 - [ ] **Phase 43: Docs-Maintenance Hard Gate** — layered blocking gate (git hook + unbypassable CI step + GSD DoD) so no user-facing change ships without a changelog entry + updated help topics; validated against v1.3's own ship
 
@@ -166,7 +166,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
   3. The tour survives cross-page navigation — steps that live on another page navigate there and resume (sessionStorage state).
   4. Switching language mid-tour re-renders the tour cleanly in the new language and direction (RTL mirroring verified in real WebKit, not jsdom alone).
 
-**Plans**: 13/14 plans executed
+**Plans**: 14/14 plans complete
 
 Plans:
 
@@ -207,7 +207,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7)*
 
-- [ ] 41-13-PLAN.md — Full-suite + WebKit probe green + storyline EN/HE human-verify (re-run of the failed UAT) [wave 8]
+- [x] 41-13-PLAN.md — Full-suite + WebKit probe green + storyline EN/HE human-verify (re-run of the failed UAT) [wave 8]
 
 **UI hint**: yes
 
@@ -315,7 +315,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
 | 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
 | 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 8/8 | Complete    | 2026-07-08 |
-| 41. Replayable Guided Tour | v1.3 | 13/14 | In Progress|  |
+| 41. Replayable Guided Tour | v1.3 | 14/14 | Complete   | 2026-07-09 |
 | 42. In-App Changelog & What's-New | v1.3 | 0/TBD | Not started | - |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |
 </content>
