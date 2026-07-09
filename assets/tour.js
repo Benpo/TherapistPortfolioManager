@@ -218,6 +218,15 @@ var Tour = (function () {
     var top = below ? (r.bottom + 14) : (r.top - th - 14);
     var anchorCenter = r.left + r.width / 2;
     var left = Math.max(12, Math.min(anchorCenter - tw / 2, window.innerWidth - tw - 12));
+    // R2-1 viewport CLAMP: on a taller-than-viewport anchor (the long settings
+    // panels) the natural above/below placement lands the step box off-screen — a
+    // wordless dim overlay you must scroll to escape. Clamp the tooltip's physical
+    // top fully inside the viewport with a margin so the step-count box is ALWAYS
+    // visible (renderSpotlight already scrolls such anchors' TOP into view). The
+    // horizontal axis is already clamped above; this adds the vertical clamp. The
+    // spotlight ring is untouched (the big whole-panel highlight is kept — Ben).
+    var vClamp = 12;
+    top = Math.max(vClamp, Math.min(top, window.innerHeight - th - vClamp));
     // Physical top/left (matches tour.css, which now positions on physical axes).
     tooltipEl.style.top = top + 'px';
     tooltipEl.style.left = left + 'px';
@@ -371,8 +380,20 @@ var Tour = (function () {
     tooltipEl.classList.add('sg-tour-instant');
 
     // Bring below-the-fold anchors into view, then position + track (A4). Scroll
-    // stays free (NO App.lockBodyScroll on the spotlight path).
-    try { if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({ block: 'center', inline: 'nearest' }); } catch (e) {}
+    // stays free (NO App.lockBodyScroll on the spotlight path). R2-1: for a TALL
+    // anchor (a settings panel taller than ~70% of the viewport) centering would put
+    // its middle on screen and push the tethered step box off the top/bottom, so
+    // bring its TOP into view instead (block:'start' — Ben's "always scrolled all
+    // the way up"); short anchors still center. The tooltip viewport-clamp in
+    // positionSpotlight guarantees the step box stays visible either way.
+    try {
+      if (el && typeof el.scrollIntoView === 'function') {
+        var ar = el.getBoundingClientRect();
+        var vh = window.innerHeight || ar.height || 0;
+        var isTall = vh > 0 && ar.height >= 0.7 * vh;
+        el.scrollIntoView({ block: isTall ? 'start' : 'center', inline: 'nearest' });
+      }
+    } catch (e) {}
     positionSpotlight(el);
     installReflow();
 
