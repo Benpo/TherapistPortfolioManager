@@ -99,7 +99,19 @@ const PRECACHE_URLS = [
   // app-chrome pages (architect-gate A1), so they must be offline-available or
   // the tour 404s for installed-PWA users (Pitfall 7, HELP-07 precedent).
   '/assets/tour.js',
-  '/assets/tour.css'
+  '/assets/tour.css',
+  // In-App Changelog / What's-New (Phase 42, CHLG-01): the page renderer
+  // (assets/changelog.js), its content data (assets/changelog-content-en.js),
+  // its scoped styles (assets/changelog.css) and the popup surface
+  // (assets/whats-new.js). These four SUB-RESOURCES belong here; the /changelog
+  // PAGE itself goes in PRECACHE_HTML (extensionless route) — putting the page
+  // here would follow the CF pretty-URL redirect and store a redirected:true
+  // response the browser rejects offline (RESEARCH Pitfall 1). The popup CSS is
+  // NOT a separate entry — it lives in the already-precached app.css.
+  '/assets/changelog-content-en.js',
+  '/assets/whats-new.js',
+  '/assets/changelog.js',
+  '/assets/changelog.css'
 ];
 
 /**
@@ -139,7 +151,8 @@ const PRECACHE_HTML = [
   '/impressum-cs',
   '/settings',
   '/report',
-  '/help'
+  '/help',
+  '/changelog'
 ];
 
 /**
