@@ -56,7 +56,7 @@ created: 2026-07-09
 | T-42-V12 | 0→impl | CHLG-01 (coordinator hardening) | Tour-active suppression: while `window.Tour.isActive()`, coordinator `run()` shows NO governed surface (welcome, whats-new, install-nudge, backup, mobile-hint, tour-reminder) and does NOT claim the once-per-session slot; guard is `typeof`-safe when `window.Tour` absent | behavior (jsdom) | `node tests/42-coordinator-tour-guard.test.js` | ❌ W0 |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
-*T-42-V12 is authored RED in plan 42-01 and implemented in plan 42-06 (coordinator guard). Added beyond RESEARCH's original 11-test set with Ben's in-phase approval (2026-07-09); it hardens CHLG-01's "popup fires correctly" guarantee and closes the captured backup-over-tour TODO.*
+*T-42-V12 is authored RED in plan 42-01 and implemented in plan 42-06 (coordinator guard). Added beyond RESEARCH's original 11-test set per the Ben-locked split recorded in STATE.md task 260709-o77 (~line 453): the backup schedule prompt was fixed narrowly in backup.js (o77, option 1) and the coordinator-level tour guard was assigned to Phase 42. T-42-V12 covers the six coordinator-governed surfaces and COMPLEMENTS o77 (disjoint surfaces — backup is not coordinator-governed, Phase 40 D-04); it hardens CHLG-01's "popup fires correctly" guarantee.*
 
 ---
 
