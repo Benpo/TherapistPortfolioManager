@@ -424,6 +424,91 @@ async function main() {
     assert(settled.ttInView,
       'post-settle: tooltip fully inside the viewport', JSON.stringify(settled));
 
+    // ── (6) TALL-ANCHOR box-in-viewport (R2-1) ────────────────────────────────────
+    // On the long settings panels (Custom Fields, Text Snippets) the anchor is
+    // TALLER than the laptop viewport. The current engine scrollIntoView({block:
+    // 'center'}) centers the panel's middle, so the tethered step box (the tooltip
+    // carrying the step-count) lands OFF-screen — a wordless dim overlay until you
+    // scroll. This section drives the REAL renderSpotlight/positionSpotlight path at
+    // a deliberately taller-than-viewport anchor in a SHORT viewport (height 600 so
+    // a long panel genuinely overflows) and asserts the step box is FULLY inside the
+    // viewport. It is RED against the center-scroll engine (box pushed off-screen)
+    // and GREEN only after the scroll-to-anchor-top + tooltip viewport-clamp fix.
+    // Synthetic anchor + synthetic step is the plan-sanctioned focused alternative to
+    // driving the cross-page settings walk, and it exercises the identical engine
+    // render path (offsetParent-visible anchor → spotlight branch → positionSpotlight).
+    console.log('\n[6] Tall-anchor step box stays inside a short viewport (R2-1):');
+    {
+      const shortCtx = await browser.newContext({ viewport: { width: 1280, height: 600 } });
+      const shortPage = await shortCtx.newPage();
+      await shortPage.addInitScript(() => {
+        try {
+          localStorage.setItem('portfolioLicenseActivated', '1');
+          localStorage.setItem('portfolioLicenseInstance', 'webkit-probe');
+          localStorage.setItem('portfolioTermsAccepted', '1');
+          localStorage.setItem('sg.welcomeSeen', '1');
+          localStorage.setItem('portfolioLang', 'en');
+        } catch (e) {}
+      });
+      await shortPage.goto(base + '/index.html', { waitUntil: 'load' });
+      await shortPage.waitForFunction(
+        () => window.Tour && typeof window.Tour.start === 'function' &&
+              document.querySelector('[data-tour="overview"]') !== null,
+        { timeout: 10000 }
+      );
+      await shortPage.evaluate(() => window.Tour.start());
+      await shortPage.waitForSelector('.sg-tour-tooltip', { timeout: 5000 });
+
+      const tall = await shortPage.evaluate(() => {
+        // Mount a deliberately taller-than-viewport anchor and a synthetic step that
+        // targets it, then drive the REAL render path at it (the render loop is
+        // step-composition-agnostic — _getSteps() returns the live array).
+        const el = document.createElement('div');
+        el.setAttribute('data-tour', 'tall-probe');
+        el.style.height = '2200px';
+        el.style.width = '320px';
+        el.style.margin = '48px auto';
+        el.style.background = '#ccd';
+        document.body.appendChild(el);
+        const steps = window.Tour._getSteps();
+        steps.push({
+          id: 'tall-probe',
+          page: window.Tour._currentPage(),
+          anchor: '[data-tour="tall-probe"]',
+          i18nKey: 'help.tour.step.overview',
+          screenName: 'Overview',
+          takeMeThereHref: './index.html'
+        });
+        window.Tour._setStepIndex(steps.length - 1);
+        window.Tour._render();
+        const a = el.getBoundingClientRect();
+        return { anchorHeight: a.height, vh: window.innerHeight };
+      });
+      assert(tall.anchorHeight > tall.vh,
+        'probe anchor is genuinely taller than the viewport',
+        'anchorH=' + tall.anchorHeight + ' vh=' + tall.vh);
+
+      // Let the scrollIntoView + one-rAF re-measure settle, then measure the box.
+      await shortPage.waitForTimeout(250);
+      const box = await shortPage.evaluate(() => new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          const tt = document.querySelector('.sg-tour-tooltip').getBoundingClientRect();
+          resolve({
+            top: tt.top, left: tt.left, right: tt.right, bottom: tt.bottom,
+            vw: window.innerWidth, vh: window.innerHeight
+          });
+        }));
+      }));
+      const m = 1; // allow a 1px sub-pixel margin
+      const boxInView = box.top >= -m && box.left >= -m &&
+        box.bottom <= box.vh + m && box.right <= box.vw + m;
+      assert(boxInView,
+        'tall-anchor step box is FULLY inside the viewport (scroll-to-top + clamp)',
+        'box=' + JSON.stringify(box));
+
+      await shortCtx.close();
+    }
+
     console.log('');
     if (failures === 0) {
       console.log('ALL ASSERTIONS PASSED — WebKit RTL/geometry + spotlight-branch gate GREEN.');
