@@ -608,7 +608,7 @@ window.I18N.en = {
   "help.tour.step.overview.title": "Welcome to your garden",
   "help.tour.step.overview.body": "This is your home page — it greets you each time you arrive. Before the work begins, let's make this place yours; then we'll walk the path a session travels. Leave whenever you like.",
   "help.tour.step.settings.title": "Making it yours",
-  "help.tour.step.settings.body": "Behind this small gear lives Settings — where the app takes your shape. Let's step inside together.",
+  "help.tour.step.settings.body": "Behind this small gear lives Settings — where you make the app yours. Let's step inside together.",
   "help.tour.step.personalize.title": "Your formats and dates",
   "help.tour.step.personalize.body": "Here we are — Settings. This is where you shape your session formats — rename them to match the work you actually do, or add your own. Dates live here too: pick the style your eyes are used to.",
   "help.tour.step.fields.title": "Customizing field names",
