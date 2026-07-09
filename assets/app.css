@@ -4939,6 +4939,128 @@ html[dir="rtl"] .multi-select-toggle {
 }
 
 /* ===================================================================
+   What's-New popup — once-per-version announcement (Phase 42, Plan 05;
+   CHLG-01 / D-05/D-06). A MODEST centered modal mounted by the
+   AttentionCoordinator 'whats-new' surface (assets/whats-new.js) — the
+   full-screen weight stays UNIQUE to the welcome overlay above (D-06). It
+   lives in app.css (always loaded + already in PRECACHE_URLS) so the popup
+   can fire OFFLINE on any chrome-mounting launch page. Semantic tokens only
+   (zero literal hex); logical properties only (RTL-safe, zero JS); dark-aware
+   via token auto-resolution plus the explicit [data-theme="dark"] refinement.
+   The .whats-new-seeall (primary, the single filled accent) and
+   .whats-new-close (quiet neutral dismiss) controls are styled HERE directly —
+   mirroring the self-defined .welcome-cta--* precedent above — because the app
+   ships no shared .btn-primary / .btn-quiet classes to reuse.
+   =================================================================== */
+.whats-new-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--color-modal-overlay-bg);
+  overflow-y: auto;
+}
+.whats-new-popup {
+  inline-size: 100%;
+  max-inline-size: 420px;
+  padding-block: 1.75rem 1.5rem;
+  padding-inline: 1.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  box-shadow: var(--shadow-modal);
+  color: var(--color-text);
+  text-align: start;
+}
+.whats-new-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--color-primary-deeper);
+}
+.whats-new-sub {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+.whats-new-highlights {
+  margin: 0 0 1.4rem;
+  padding-inline-start: 1.2rem;
+}
+.whats-new-highlights li {
+  margin-block-end: 0.45rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+.whats-new-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+/* Shared control base — the 44px tap-target floor (inherited app minimum). */
+.whats-new-seeall,
+.whats-new-close {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 44px;
+  padding-block: 0.6rem;
+  padding-inline: 1.1rem;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+/* Primary — the single filled accent element on the surface. */
+.whats-new-seeall {
+  border: 0;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-button);
+}
+.whats-new-seeall:hover {
+  background: var(--color-primary-dark);
+  box-shadow: var(--shadow-brand);
+  transform: translateY(-1px);
+}
+.whats-new-seeall:active {
+  transform: translateY(0);
+}
+/* Quiet — neutral Close (never an accent; mirrors the welcome dismiss vocab). */
+.whats-new-close {
+  background: var(--color-surface-secondary-btn);
+  color: var(--color-text);
+  border: 1px solid var(--color-border-subtle);
+}
+.whats-new-close:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border);
+}
+.whats-new-seeall:focus-visible,
+.whats-new-close:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+/* Dark refinement — the headline uses the lighter garden green for contrast on
+   the dark surface (mirrors sketch-005 [data-theme="dark"] .popup h2). */
+[data-theme="dark"] .whats-new-title {
+  color: var(--color-green-400);
+}
+
+/* ===================================================================
    Install nudge card — computer-focused, coordinator-governed at the
    second-lowest tier (Phase 40, Plan 03; ONBD-04 / D-12/D-13/D-14).
    A calm bottom inline-end anchored card (NOT a full-bleed banner). The
