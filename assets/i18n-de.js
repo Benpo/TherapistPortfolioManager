@@ -645,6 +645,17 @@ window.I18N.de = {
   "help.tour.finish.startSession": "Ihre erste Sitzung beginnen",
   "help.tour.finish.helpCenter": "Das Hilfe-Center durchsehen",
   "help.entry.takeTour": "Einführungstour",
+  // Changelog page + What's-New popup — UI chrome (Phase 42, D-17); DE (Sie) flagged for native-speaker review (42.1). {X.Y} kept verbatim.
+  "changelog.page.title": "Was ist neu in Sessions Garden",
+  "changelog.page.intro": "Jede Version, in klarer Sprache — das Neueste zuerst. Alles bleibt immer auf Ihrem Gerät.",
+  "changelog.cat.new": "Neu",
+  "changelog.cat.improved": "Verbessert",
+  "changelog.cat.fixed": "Behoben",
+  "whatsNew.title": "Was ist neu in Version {X.Y}",
+  "whatsNew.sub": "Ein kurzer Blick auf das, was Sie erwartet.",
+  "whatsNew.seeAll": "Alle Neuerungen ansehen",
+  "whatsNew.close": "Schließen",
+  "whatsNew.menuRow": "Was ist neu",
   // Onboarding surfaces — UI chrome (Phase 40); DE (Sie) flagged for native-speaker review
   "onboard.install.title": "Sessions Garden zu Ihrem Computer hinzufügen",
   "onboard.install.body": "Installieren Sie es für ein ruhiges Vollbildfenster und Zugriff mit einem Klick — es funktioniert weiterhin vollständig offline, und Ihre Daten bleiben auf diesem Gerät.",

@@ -644,6 +644,17 @@ window.I18N.he = {
   "help.tour.finish.startSession": "התחלת המפגש הראשון שלכם",
   "help.tour.finish.helpCenter": "עיון במרכז העזרה",
   "help.entry.takeTour": "סיור מודרך",
+  // Changelog page + What's-New popup — UI chrome (Phase 42, D-17); HE flagged for native-speaker review (42.1). {X.Y} kept verbatim.
+  "changelog.page.title": "מה חדש ב-Sessions Garden",
+  "changelog.page.intro": "כל עדכון, בשפה פשוטה — החדש ביותר קודם. הכול תמיד נשאר במכשיר שלכם.",
+  "changelog.cat.new": "חדש",
+  "changelog.cat.improved": "שיפורים",
+  "changelog.cat.fixed": "תיקונים",
+  "whatsNew.title": "מה חדש בגרסה {X.Y}",
+  "whatsNew.sub": "הצצה קצרה למה שמחכה לכם.",
+  "whatsNew.seeAll": "לצפייה בכל החידושים",
+  "whatsNew.close": "סגירה",
+  "whatsNew.menuRow": "מה חדש",
   // Onboarding surfaces — UI chrome (Phase 40); HE flagged for native-speaker review
   "onboard.install.title": "הוספת Sessions Garden למחשב שלכם",
   "onboard.install.body": "מומלץ להתקין כדי לקבל חלון מסך מלא ונעים וגישה בלחיצה אחת — האפליקציה ממשיכה לעבוד גם ללא חיבור לאינטרנט, והנתונים שלכם נשארים במכשיר הזה.",

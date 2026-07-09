@@ -645,6 +645,17 @@ window.I18N.cs = {
   "help.tour.finish.startSession": "Zah\u00e1jit prvn\u00ed sezen\u00ed",
   "help.tour.finish.helpCenter": "Proch\u00e1zet centrum n\u00e1pov\u011bdy",
   "help.entry.takeTour": "\u00davodn\u00ed prohl\u00eddka",
+  // Changelog page + What's-New popup \u2014 UI chrome (Phase 42, D-17); CS (formal) flagged for native-speaker review (42.1). {X.Y} kept verbatim.
+  "changelog.page.title": "Co je nov\u00e9ho v Sessions Garden",
+  "changelog.page.intro": "Ka\u017ed\u00e1 verze, srozumiteln\u011b \u2014 nejnov\u011bj\u0161\u00ed jako prvn\u00ed. V\u0161e v\u017edy z\u016fst\u00e1v\u00e1 ve va\u0161em za\u0159\u00edzen\u00ed.",
+  "changelog.cat.new": "Nov\u00e9",
+  "changelog.cat.improved": "Vylep\u0161eno",
+  "changelog.cat.fixed": "Opraveno",
+  "whatsNew.title": "Co je nov\u00e9ho ve verzi {X.Y}",
+  "whatsNew.sub": "Rychl\u00fd pohled na to, co na v\u00e1s \u010dek\u00e1.",
+  "whatsNew.seeAll": "Zobrazit v\u0161echny novinky",
+  "whatsNew.close": "Zav\u0159\u00edt",
+  "whatsNew.menuRow": "Co je nov\u00e9ho",
   // Onboarding surfaces \u2014 UI chrome (Phase 40); CS (formal) flagged for native-speaker review
   "onboard.install.title": "P\u0159idat Sessions Garden do po\u010d\u00edta\u010de",
   "onboard.install.body": "Nainstalujte si ji pro klidn\u00e9 okno na cel\u00e9 obrazovce a p\u0159\u00edstup jedn\u00edm kliknut\u00edm \u2014 st\u00e1le funguje pln\u011b offline a va\u0161e data z\u016fst\u00e1vaj\u00ed v tomto za\u0159\u00edzen\u00ed.",

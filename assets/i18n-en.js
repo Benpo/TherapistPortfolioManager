@@ -648,6 +648,17 @@ window.I18N.en = {
   "help.tour.finish.startSession": "Start your first session",
   "help.tour.finish.helpCenter": "Browse the help center",
   "help.entry.takeTour": "Onboarding Tour",
+  // Changelog page + What's-New popup — UI chrome (Phase 42, D-17: chrome ships in all 4 locales; entry body is Phase 42.1). {X.Y} is a literal token the popup interpolates.
+  "changelog.page.title": "What's new in Sessions Garden",
+  "changelog.page.intro": "Every release, in plain language — newest first. Everything always stays on your device.",
+  "changelog.cat.new": "New",
+  "changelog.cat.improved": "Improved",
+  "changelog.cat.fixed": "Fixed",
+  "whatsNew.title": "What's new in version {X.Y}",
+  "whatsNew.sub": "A quick look at what's waiting for you.",
+  "whatsNew.seeAll": "See everything new",
+  "whatsNew.close": "Close",
+  "whatsNew.menuRow": "What's new",
   // Onboarding surfaces — UI chrome (Phase 40)
   "onboard.install.title": "Add Sessions Garden to your computer",
   "onboard.install.body": "Install it for a calm full-screen window and one-click access — it still works fully offline, and your data stays on this device.",
