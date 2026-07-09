@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sketch 005 — Changelog register (Phase 42)</title>
+<link rel="stylesheet" href="../themes/default.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* Sketch chrome only — everything content-side uses garden tokens. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Rubik', sans-serif;
+    background: var(--color-background);
+    color: var(--color-text, #2f2d38);
+    min-height: 100vh;
+  }
+  [data-theme="dark"] body { color: var(--color-text, #e8e6ef); }
+
+  .sketch-bar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-surface);
+    border-block-end: 1px solid var(--color-green-border);
+    box-shadow: 0 1px 6px var(--color-green-border-faint);
+  }
+  .sketch-bar strong { font-weight: 500; margin-inline-end: 0.5rem; }
+  .sketch-bar .note { font-size: 0.78rem; opacity: 0.65; inline-size: 100%; }
+  .vtab {
+    border: 1px solid var(--color-green-border);
+    background: var(--color-surface);
+    color: inherit;
+    padding: 0.4rem 0.9rem; border-radius: 999px;
+    font: inherit; font-size: 0.85rem; cursor: pointer;
+  }
+  .vtab.active {
+    background: var(--color-primary); color: #fff; border-color: var(--color-primary);
+  }
+  .util { margin-inline-start: auto; display: flex; gap: 0.5rem; }
+  .util .vtab { font-size: 0.8rem; }
+
+  /* ── Page frame (mimics help-center calm) ─────────────────────────── */
+  .page { max-inline-size: 720px; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
+  .page-head { margin-block-end: 2.25rem; }
+  .page-head h1 {
+    font-weight: 400; font-size: 1.7rem; margin: 0 0 0.4rem;
+    color: var(--color-primary-deeper);
+  }
+  [data-theme="dark"] .page-head h1 { color: var(--color-green-400); }
+  .page-head p { margin: 0; opacity: 0.75; font-size: 0.95rem; }
+
+  /* ── Version entry card ───────────────────────────────────────────── */
+  .entry {
+    background: var(--color-surface);
+    border: 1px solid var(--color-green-border-subtle);
+    border-radius: 14px;
+    padding: 1.5rem 1.75rem;
+    margin-block-end: 1.5rem;
+    box-shadow: 0 1px 4px var(--color-green-border-faint);
+  }
+  .entry-head {
+    display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap;
+    margin-block-end: 0.4rem;
+  }
+  .entry-head h2 {
+    margin: 0; font-size: 1.25rem; font-weight: 500;
+    color: var(--color-primary-deeper);
+  }
+  [data-theme="dark"] .entry-head h2 { color: var(--color-green-400); }
+  .entry-date { font-size: 0.85rem; opacity: 0.6; }
+  .entry-lede { margin: 0 0 1rem; font-size: 0.95rem; opacity: 0.85; }
+
+  /* thematic section inside an entry (variants A & C) */
+  .theme-sec { margin-block-start: 1.15rem; }
+  .theme-sec h3 {
+    margin: 0 0 0.5rem; font-size: 1rem; font-weight: 500;
+    color: var(--color-primary-dark);
+  }
+  [data-theme="dark"] .theme-sec h3 { color: var(--color-green-200); }
+
+  /* category group heading (variant B) */
+  .cat-sec { margin-block-start: 1.15rem; }
+  .cat-sec h3 {
+    margin: 0 0 0.5rem; font-size: 0.8rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .cat-sec.cat-new h3      { color: var(--color-green-600); }
+  .cat-sec.cat-improved h3 { color: var(--color-green-500); }
+  .cat-sec.cat-fixed h3    { color: var(--color-orange-500); }
+  [data-theme="dark"] .cat-sec.cat-new h3      { color: var(--color-green-400); }
+  [data-theme="dark"] .cat-sec.cat-improved h3 { color: var(--color-green-200); }
+
+  ul.bullets { margin: 0; padding-inline-start: 1.2rem; }
+  ul.bullets li { margin-block-end: 0.5rem; font-size: 0.95rem; line-height: 1.55; }
+  ul.bullets li:last-child { margin-block-end: 0; }
+
+  /* category chips (variant A) */
+  .chip {
+    display: inline-block; vertical-align: 0.08em;
+    font-size: 0.66rem; font-weight: 500; letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.1rem 0.45rem; border-radius: 999px;
+    margin-inline-end: 0.4rem;
+  }
+  .chip-new      { background: var(--color-green-100); color: var(--color-green-700); }
+  .chip-improved { background: var(--color-cream-warm-700); color: var(--color-green-dark); }
+  .chip-fixed    { background: rgba(249, 115, 22, 0.12); color: #b45309; }
+  [data-theme="dark"] .chip-new      { background: rgba(116, 184, 154, 0.18); color: var(--color-green-400); }
+  [data-theme="dark"] .chip-improved { background: rgba(200, 230, 212, 0.12); color: var(--color-green-200); }
+  [data-theme="dark"] .chip-fixed    { background: rgba(249, 115, 22, 0.15); color: #fdba74; }
+
+  /* one-liner entry (v1.0) */
+  .entry.oneline { padding-block: 1rem; opacity: 0.85; }
+  .entry.oneline .entry-head { margin-block-end: 0; }
+  .entry.oneline .lede-inline { font-size: 0.92rem; opacity: 0.8; }
+
+  /* variant visibility */
+  [data-variant="a"] .only-b, [data-variant="a"] .only-c { display: none; }
+  [data-variant="b"] .only-a, [data-variant="b"] .only-c { display: none; }
+  [data-variant="c"] .only-a, [data-variant="c"] .only-b { display: none; }
+  [data-variant="c"] .chip { display: none; }
+
+  /* ── Popup preview (teaser modal, decided this session) ──────────── */
+  .popup-launch {
+    border: 1px solid var(--color-green-border);
+    background: var(--color-surface);
+    color: inherit; font: inherit; font-size: 0.88rem;
+    padding: 0.55rem 1.1rem; border-radius: 10px; cursor: pointer;
+  }
+  .overlay {
+    position: fixed; inset: 0; background: var(--color-modal-overlay);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+    padding: 1rem;
+  }
+  .overlay.open { display: flex; }
+  .popup {
+    background: var(--color-surface);
+    border-radius: 16px;
+    max-inline-size: 420px; inline-size: 100%;
+    padding: 1.75rem 1.75rem 1.5rem;
+    box-shadow: 0 12px 40px var(--color-modal-shadow);
+  }
+  .popup h2 {
+    margin: 0 0 0.25rem; font-weight: 500; font-size: 1.2rem;
+    color: var(--color-primary-deeper);
+  }
+  [data-theme="dark"] .popup h2 { color: var(--color-green-400); }
+  .popup .sub { margin: 0 0 1rem; font-size: 0.88rem; opacity: 0.7; }
+  .popup ul { margin: 0 0 1.4rem; padding-inline-start: 1.2rem; }
+  .popup li { margin-block-end: 0.45rem; font-size: 0.92rem; line-height: 1.5; }
+  .popup-actions { display: flex; gap: 0.6rem; justify-content: flex-end; }
+  .btn-primary {
+    background: var(--color-primary); color: #fff; border: none;
+    font: inherit; font-size: 0.88rem; padding: 0.55rem 1.1rem;
+    border-radius: 10px; cursor: pointer;
+  }
+  .btn-quiet {
+    background: none; border: none; color: inherit; opacity: 0.7;
+    font: inherit; font-size: 0.88rem; padding: 0.55rem 0.8rem; cursor: pointer;
+  }
+</style>
+</head>
+<body data-variant="a">
+
+<div class="sketch-bar">
+  <strong>Sketch 005 — changelog register</strong>
+  <button class="vtab active" data-v="a">A · Thematic + chips</button>
+  <button class="vtab" data-v="b">B · Grouped by category</button>
+  <button class="vtab" data-v="c">C · Thematic, no chips</button>
+  <div class="util">
+    <button class="vtab" id="popupBtn">Preview What's-New popup</button>
+    <button class="vtab" id="darkBtn">Dark</button>
+  </div>
+  <span class="note">Placeholder copy — structure/register is the question, wording is not gate-approved. All variants show the SAME data.</span>
+</div>
+
+<main class="page">
+  <div class="page-head">
+    <h1>What's new in Sessions Garden</h1>
+    <p>Every release, in plain language — newest first. Everything always stays on your device.</p>
+  </div>
+
+  <!-- ═══ v1.3 ═══ -->
+  <article class="entry">
+    <div class="entry-head"><h2>Version 1.3</h2><span class="entry-date">July 2026</span></div>
+    <p class="entry-lede">This release is all about feeling at home: help that lives inside the app, a warm first welcome, and a guided tour whenever you want it.</p>
+
+    <!-- Variant A & C: thematic sections -->
+    <div class="only-a only-c">
+      <div class="theme-sec">
+        <h3>Help, right inside the app</h3>
+        <ul class="bullets">
+          <li><span class="chip chip-new">New</span>A “?” button on every page opens the help center — searchable, works offline, written for real practice questions.</li>
+          <li><span class="chip chip-new">New</span>A gentle welcome greets you on your first visit and points you to your first steps.</li>
+          <li><span class="chip chip-new">New</span>A guided tour walks you through the whole app — take it any time from the “?” menu.</li>
+        </ul>
+      </div>
+      <div class="theme-sec">
+        <h3>Stay in the loop</h3>
+        <ul class="bullets">
+          <li><span class="chip chip-new">New</span>This page! A “What's New” note appears once after each update, and the full story lives here.</li>
+          <li><span class="chip chip-improved">Improved</span>On phones, a clearer note explains that Sessions Garden is designed for computers.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Variant B: category groups -->
+    <div class="only-b">
+      <div class="cat-sec cat-new">
+        <h3>New</h3>
+        <ul class="bullets">
+          <li>A “?” button on every page opens the help center — searchable, works offline, written for real practice questions.</li>
+          <li>A gentle welcome greets you on your first visit and points you to your first steps.</li>
+          <li>A guided tour walks you through the whole app — take it any time from the “?” menu.</li>
+          <li>This page! A “What's New” note appears once after each update, and the full story lives here.</li>
+        </ul>
+      </div>
+      <div class="cat-sec cat-improved">
+        <h3>Improved</h3>
+        <ul class="bullets">
+          <li>On phones, a clearer note explains that Sessions Garden is designed for computers.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ═══ v1.2 (consolidated, from Ben's draft) ═══ -->
+  <article class="entry">
+    <div class="entry-head"><h2>Version 1.2</h2><span class="entry-date">July 2026</span></div>
+    <p class="entry-lede">This update is all about making the app feel like <em>your</em> practice — your date format, your session formats, and faster ways to find the session you're looking for.</p>
+
+    <div class="only-a only-c">
+      <div class="theme-sec">
+        <h3>Dates, your way</h3>
+        <ul class="bullets">
+          <li><span class="chip chip-new">New</span>A “Personalize” tab in Settings — choose how dates appear throughout the app, or leave it on Auto to follow your language.</li>
+          <li><span class="chip chip-improved">Improved</span>Dates now look the same everywhere — client lists, session tables, and PDF exports all follow your chosen format.</li>
+        </ul>
+      </div>
+      <div class="theme-sec">
+        <h3>Session formats, your way</h3>
+        <ul class="bullets">
+          <li><span class="chip chip-improved">Improved</span>“Session Type” is now Session Format — the way you meet: in-person, online, remote, proxy, or other.</li>
+          <li><span class="chip chip-new">New</span>Rename the built-in formats or add your own in Settings → Personalize.</li>
+        </ul>
+      </div>
+      <div class="theme-sec">
+        <h3>Find sessions faster</h3>
+        <ul class="bullets">
+          <li><span class="chip chip-new">New</span>A Session Format filter on the Overview and Sessions pages — pick one or several formats at once.</li>
+          <li><span class="chip chip-new">New</span>A Heart-Wall toggle — one switch to show only clients or sessions where a Heart-Wall was worked on.</li>
+          <li><span class="chip chip-new">New</span>Click the Name, Sessions, or Last Session column headers to sort; click again to flip the order.</li>
+        </ul>
+      </div>
+      <div class="theme-sec">
+        <h3>Small but meaningful</h3>
+        <ul class="bullets">
+          <li><span class="chip chip-improved">Improved</span>Heart-Wall is now named consistently across the whole app, in all four languages.</li>
+          <li><span class="chip chip-fixed">Fixed</span>Updates now install reliably on Safari — no more stuck old versions.</li>
+          <li><span class="chip chip-fixed">Fixed</span>If the database ever hiccups, the app can now recover itself without losing your work.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="only-b">
+      <div class="cat-sec cat-new">
+        <h3>New</h3>
+        <ul class="bullets">
+          <li>A “Personalize” tab in Settings — choose how dates appear throughout the app, or leave it on Auto to follow your language.</li>
+          <li>Rename the built-in session formats or add your own in Settings → Personalize.</li>
+          <li>A Session Format filter on the Overview and Sessions pages — pick one or several formats at once.</li>
+          <li>A Heart-Wall toggle — one switch to show only clients or sessions where a Heart-Wall was worked on.</li>
+          <li>Click the Name, Sessions, or Last Session column headers to sort; click again to flip the order.</li>
+        </ul>
+      </div>
+      <div class="cat-sec cat-improved">
+        <h3>Improved</h3>
+        <ul class="bullets">
+          <li>Dates now look the same everywhere — client lists, session tables, and PDF exports all follow your chosen format.</li>
+          <li>“Session Type” is now Session Format — the way you meet: in-person, online, remote, proxy, or other.</li>
+          <li>Heart-Wall is now named consistently across the whole app, in all four languages.</li>
+        </ul>
+      </div>
+      <div class="cat-sec cat-fixed">
+        <h3>Fixed</h3>
+        <ul class="bullets">
+          <li>Updates now install reliably on Safari — no more stuck old versions.</li>
+          <li>If the database ever hiccups, the app can now recover itself without losing your work.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ═══ v1.1 (condensed for the sketch) ═══ -->
+  <article class="entry">
+    <div class="entry-head"><h2>Version 1.1</h2><span class="entry-date">June 2026</span></div>
+    <p class="entry-lede">The launch release — Sessions Garden goes live.</p>
+
+    <div class="only-a only-c">
+      <div class="theme-sec">
+        <h3>Sharing your work</h3>
+        <ul class="bullets">
+          <li><span class="chip chip-new">New</span>A beautiful client-facing PDF export of any session — plus Markdown and direct sharing.</li>
+          <li><span class="chip chip-new">New</span>Text snippets: save the phrases you type often and paste them with two keystrokes.</li>
+        </ul>
+      </div>
+      <div class="theme-sec">
+        <h3>Keeping your data safe</h3>
+        <ul class="bullets">
+          <li><span class="chip chip-new">New</span>Encrypted backups — one password-protected file holds everything, photos included.</li>
+          <li><span class="chip chip-improved">Improved</span>One Backup &amp; Restore home in Settings, with gentle reminders so backups never slip.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="only-b">
+      <div class="cat-sec cat-new">
+        <h3>New</h3>
+        <ul class="bullets">
+          <li>A beautiful client-facing PDF export of any session — plus Markdown and direct sharing.</li>
+          <li>Text snippets: save the phrases you type often and paste them with two keystrokes.</li>
+          <li>Encrypted backups — one password-protected file holds everything, photos included.</li>
+        </ul>
+      </div>
+      <div class="cat-sec cat-improved">
+        <h3>Improved</h3>
+        <ul class="bullets">
+          <li>One Backup &amp; Restore home in Settings, with gentle reminders so backups never slip.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- ═══ v1.0 one-liner (decided this session) ═══ -->
+  <article class="entry oneline">
+    <div class="entry-head">
+      <h2>Version 1.0</h2><span class="entry-date">May 2026</span>
+      <span class="lede-inline">Where it all began — the first seed of Sessions Garden.</span>
+    </div>
+  </article>
+</main>
+
+<!-- ═══ What's-New popup preview (teaser + link, modest modal) ═══ -->
+<div class="overlay" id="overlay">
+  <div class="popup" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
+    <h2 id="popupTitle">What's new in version 1.3</h2>
+    <p class="sub">A quick look at what's waiting for you.</p>
+    <ul>
+      <li>A “?” button on every page opens the new help center.</li>
+      <li>A guided tour walks you through the whole app — any time.</li>
+      <li>Release notes now live right here in the app.</li>
+    </ul>
+    <div class="popup-actions">
+      <button class="btn-quiet" id="popupClose">Close</button>
+      <button class="btn-primary" id="popupSeeAll">See everything new</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Variant switcher
+  document.querySelectorAll('.vtab[data-v]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.body.dataset.variant = btn.dataset.v;
+      document.querySelectorAll('.vtab[data-v]').forEach(function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+    });
+  });
+  // Dark toggle
+  document.getElementById('darkBtn').addEventListener('click', function () {
+    var root = document.documentElement;
+    var dark = root.getAttribute('data-theme') === 'dark';
+    if (dark) { root.removeAttribute('data-theme'); this.textContent = 'Dark'; }
+    else { root.setAttribute('data-theme', 'dark'); this.textContent = 'Light'; }
+  });
+  // Popup preview
+  var overlay = document.getElementById('overlay');
+  document.getElementById('popupBtn').addEventListener('click', function () { overlay.classList.add('open'); });
+  document.getElementById('popupClose').addEventListener('click', function () { overlay.classList.remove('open'); });
+  document.getElementById('popupSeeAll').addEventListener('click', function () { overlay.classList.remove('open'); });
+  // Deliberate-dismiss only (welcome-overlay idiom, decided 2026-07-09):
+  // outside clicks do nothing — Close, "See everything new", or Esc dismiss.
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') overlay.classList.remove('open'); });
+</script>
+</body>
+</html>

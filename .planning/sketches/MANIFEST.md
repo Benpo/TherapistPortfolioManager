@@ -29,3 +29,4 @@ for the mockup this phase delivers (D-08: design contract + mockup, no prod code
 | 002 | help-page-ia | How to organize the 7-step workflow spine + flagship personalization + technical track on one page? | TBD | help-page, information-architecture, layout |
 | 003 | tour-fallback | Does the tour feel rich when anchored AND genuinely not-broken when the anchor is missing (D-11)? | TBD | tour, interaction, resilience, i18n |
 | 004 | help-entry-point | Is the header-icon "?" entry discoverable vs. a bottom-corner floating button? | TBD | entry-point, chrome, discoverability |
+| 005 | changelog-register | Thematic sections + N/I/F chips vs. category-grouped vs. chip-free — how does each changelog entry read? (Phase 42) | B — grouped by category (Ben, 2026-07-09) | changelog, register, content-structure |
