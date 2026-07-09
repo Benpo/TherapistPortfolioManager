@@ -147,6 +147,12 @@ None - no external service configuration required. (The WebKit probe is a manual
 - 41-13 final verification must re-run `node tests/webkit/41-rtl-geometry.mjs` (T-41-08a mitigation) — it is now a real gate, not a vacuous pass.
 - Recommended human sign-off (D2): on-device Safari (RTL/Hebrew) visual check of the first-paint snap and step-to-step smoothness once the storyline is recomposed.
 
+## Self-Check: PASSED
+
+- Files verified on disk: `assets/tour.js`, `assets/tour.css`, `tests/webkit/41-rtl-geometry.mjs`, this SUMMARY.
+- Commits verified in git: `3d2a22d`, `ebca80f`, `677ce17`, `3674f0b`.
+- Both suites green: `node tests/run-all.js` = 152 passed; `node tests/webkit/41-rtl-geometry.mjs` = exit 0 (GREEN).
+
 ---
 *Phase: 41-replayable-guided-tour*
 *Completed: 2026-07-09*
