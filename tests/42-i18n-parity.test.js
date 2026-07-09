@@ -1,9 +1,9 @@
 /**
  * Phase 42 — new-key i18n parity gate for the Changelog / What's-New chrome.
  *
- * Guards the 10 new UI-chrome keys this phase introduces (the /changelog page
- * scaffolding + the What's-New popup + the "?" menu row) so no locale drifts a
- * key. Loads all four locale maps (en/he/de/cs) into a vm sandbox the same way
+ * Guards the 11 new UI-chrome keys this phase introduces (the /changelog page
+ * scaffolding + the entry-card version label + the What's-New popup + the "?"
+ * menu row) so no locale drifts a key. Loads all four locale maps (en/he/de/cs) into a vm sandbox the same way
  * tests/40-i18n-parity.test.js does, then for every locale × every new key
  * asserts:
  *
@@ -15,14 +15,15 @@
  *                   changelog/what's-new chrome stays text-only, category labels
  *                   included, so an emoji glyph never leaks into a locale value).
  *
- * The 10 keys (page scaffolding 5 + what's-new popup/menu 5):
- *   changelog.page.title, changelog.page.intro,
+ * The 11 keys (page scaffolding 5 + entry-card 1 + what's-new popup/menu 5):
+ *   changelog.page.title, changelog.page.intro, changelog.entry.version,
  *   changelog.cat.new, changelog.cat.improved, changelog.cat.fixed,
  *   whatsNew.title, whatsNew.sub, whatsNew.seeAll, whatsNew.close,
  *   whatsNew.menuRow
  *
- * Authored RED: the 10 keys do not exist yet (Plan 07 adds them). Until then
- * this gate MUST fail — do NOT weaken it to green.
+ * Authored RED: the original 10 keys did not exist yet (Plan 07 added them);
+ * changelog.entry.version joined via the review fix (WR-03). This gate MUST
+ * fail when any key drifts — do NOT weaken it to green.
  *
  * Run: node tests/42-i18n-parity.test.js
  * Exits 0 on full pass, 1 on any failure (the tests/run-all.js contract).
@@ -67,10 +68,11 @@ for (const loc of LOCALES) {
   MAPS[loc] = m;
 }
 
-// ── The canonical list of the 10 new chrome keys (page 5 + what's-new 5) ─────
+// ── The canonical list of the 11 new chrome keys (page 5 + entry 1 + what's-new 5) ─
 const NEW_KEYS = [
   'changelog.page.title',
   'changelog.page.intro',
+  'changelog.entry.version',
   'changelog.cat.new',
   'changelog.cat.improved',
   'changelog.cat.fixed',
@@ -101,7 +103,7 @@ function test(name, fn) {
 }
 
 // ── 1. Presence + non-empty for every locale × every new key ─────────────────
-test('All 10 new chrome keys exist and are non-empty strings in every locale', function () {
+test('All 11 new chrome keys exist and are non-empty strings in every locale', function () {
   const problems = [];
   for (const loc of LOCALES) {
     for (const key of NEW_KEYS) {

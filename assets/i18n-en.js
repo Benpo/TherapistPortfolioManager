@@ -651,6 +651,7 @@ window.I18N.en = {
   // Changelog page + What's-New popup — UI chrome (Phase 42, D-17: chrome ships in all 4 locales; entry body is Phase 42.1). {X.Y} is a literal token the popup interpolates.
   "changelog.page.title": "What's new in Sessions Garden",
   "changelog.page.intro": "Every release, in plain language — newest first. Everything always stays on your device.",
+  "changelog.entry.version": "Version {V}",
   "changelog.cat.new": "New",
   "changelog.cat.improved": "Improved",
   "changelog.cat.fixed": "Fixed",

@@ -648,6 +648,7 @@ window.I18N.cs = {
   // Changelog page + What's-New popup \u2014 UI chrome (Phase 42, D-17); CS (formal) flagged for native-speaker review (42.1). {X.Y} kept verbatim.
   "changelog.page.title": "Co je nov\u00e9ho v Sessions Garden",
   "changelog.page.intro": "Ka\u017ed\u00e1 verze, srozumiteln\u011b \u2014 nejnov\u011bj\u0161\u00ed jako prvn\u00ed. V\u0161e v\u017edy z\u016fst\u00e1v\u00e1 ve va\u0161em za\u0159\u00edzen\u00ed.",
+  "changelog.entry.version": "Verze {V}",
   "changelog.cat.new": "Nov\u00e9",
   "changelog.cat.improved": "Vylep\u0161eno",
   "changelog.cat.fixed": "Opraveno",

@@ -41,9 +41,15 @@
   }
 
   // Display the release as "Version 1.3" (drop a trailing ".0" patch for calm
-  // house-style; keeps a real patch, e.g. "1.2.4", intact).
+  // house-style; keeps a real patch, e.g. "1.2.4", intact). Localized via the
+  // changelog.entry.version chrome key (D-17) with an English fallback when the
+  // key is missing or its {V} token was lost (mirrors whats-new.js title guard).
   function versionLabel(version) {
-    return "Version " + String(version == null ? "" : version).replace(/\.0$/, "");
+    var v = String(version == null ? "" : version).replace(/\.0$/, "");
+    var raw = t("changelog.entry.version");
+    return (raw !== "changelog.entry.version" && raw.indexOf("{V}") !== -1)
+      ? raw.replace("{V}", v)
+      : "Version " + v;
   }
 
   // ── locale-merged entries (D-16 EN-fallback) ────────────────────────────────

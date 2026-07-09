@@ -647,6 +647,7 @@ window.I18N.he = {
   // Changelog page + What's-New popup — UI chrome (Phase 42, D-17); HE flagged for native-speaker review (42.1). {X.Y} kept verbatim.
   "changelog.page.title": "מה חדש ב-Sessions Garden",
   "changelog.page.intro": "כל עדכון, בשפה פשוטה — החדש ביותר קודם. הכול תמיד נשאר במכשיר שלכם.",
+  "changelog.entry.version": "גרסה {V}",
   "changelog.cat.new": "חדש",
   "changelog.cat.improved": "שיפורים",
   "changelog.cat.fixed": "תיקונים",
