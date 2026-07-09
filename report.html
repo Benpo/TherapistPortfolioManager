@@ -107,6 +107,12 @@
   <script src="./assets/shared-chrome.js"></script>
   <script src="./assets/date-format.js"></script>
   <script src="./assets/attention-coordinator.js"></script>
+  <!-- Changelog data + What's-New popup surface: the data global (CHANGELOG_CONTENT_EN)
+       must load before the popup surface registers into AttentionCoordinator, and both
+       must be present before app.js runs initCommon (which calls AttentionCoordinator.run)
+       so the popup can fire on whichever page starts the session. -->
+  <script src="./assets/changelog-content-en.js"></script>
+  <script src="./assets/whats-new.js"></script>
   <script src="./assets/app.js"></script>
   <script src="./assets/tour.js"></script>
   <script src="./assets/report.js"></script>
