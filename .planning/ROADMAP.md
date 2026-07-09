@@ -257,16 +257,26 @@ Plans:
 **Plans**: 10 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 42.1-01-PLAN.md — RED-first per-locale integrity gates (help + changelog)
 - [ ] 42.1-02-PLAN.md — RED-first extensions: tour \n\n, welcome subtitle2, precache (6 files), What's-New popup localization
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 42.1-03-PLAN.md — Hebrew help body (help-content-he.js, RTL house register)
 - [ ] 42.1-04-PLAN.md — German help body (help-content-de.js, Sie form)
 - [ ] 42.1-05-PLAN.md — Czech help body (help-content-cs.js, formal register)
 - [ ] 42.1-06-PLAN.md — Changelog full history HE/DE/CS (changelog-content-*.js)
 - [ ] 42.1-07-PLAN.md — Welcome + tour chrome: re-translate subtitle/subtitle2 + re-derive 11 stale tour keys (i18n-{he,de,cs}.js)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 42.1-08-PLAN.md — Loader + offline wiring (help.js localeSections, whats-new.js entries, script tags, sw.js precache)
 - [ ] 42.1-09-PLAN.md — Native-speaker register gate HE/DE/CS (whole-corpus per locale)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 42.1-10-PLAN.md — HE real-browser render verification (Chrome + WebKit) + Sapir Hebrew read (blocking checkpoint)
 
 ### Phase 43: Docs-Maintenance Hard Gate

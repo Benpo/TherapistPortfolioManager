@@ -4,9 +4,9 @@ milestone: v1.3
 milestone_name: In-App Help, Onboarding & Changelog
 current_phase: 42
 current_phase_name: in-app-changelog-what-s-new
-status: verifying
+status: executing
 stopped_at: Phase 42 UI-SPEC approved
-last_updated: "2026-07-09T18:51:47.319Z"
+last_updated: "2026-07-09T23:28:47.605Z"
 last_activity: 2026-07-09
 last_activity_desc: Phase 42 execution started
 progress:
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 
 Phase: 42 (in-app-changelog-what-s-new) — EXECUTING
 Plan: 11 of 11
-Status: Phase complete — ready for verification
+Status: Ready to execute
 Next: Phase 42 — In-App Changelog & What's-New (v1.3, not started) → then 43 (Docs-Maintenance Hard Gate). Phase 42.1 (help/onboarding translation) carries the tour+help native-speaker pass.
 Last activity: 2026-07-09 — Phase 42 execution started
 
