@@ -199,6 +199,7 @@ Hard constraints the executor must honor. Anchored to real source, cited inline.
 |--------|----------|
 | Weight | **Modest centered modal**, NOT full-screen. Full-screen stays unique to the welcome overlay (its "highest emotional impact" status is preserved — D-06). DOM: `.overlay > .popup[role="dialog"][aria-modal="true"][aria-labelledby]`, ported from sketch 005. |
 | Content | Headline "What's new in version {X.Y}" + subline + the release's hand-picked top **2–4 highlights** (the entry's explicit `highlights` field, D-08) + primary "See everything new" + quiet "Close" (D-05). The popup is an **announcement, not a reader** — the full story lives on the page. |
+| Focal point | The **hand-picked highlights list + the primary "See everything new" CTA** are the modal's single focal point. Headline/subline set context; the highlights carry the payload; the filled `.btn-primary` is the strongest call and holds the only 10% accent (Color §). The quiet "Close" is deliberately subordinate. |
 | Gating | Registered via **one** `AttentionCoordinator.register({ id:'whats-new', eligible(), show() })` call into the pre-reserved `PRECEDENCE` slot #2 (verified `attention-coordinator.js:47`). `eligible()` ≈ `APP_VERSION !== lsGet('sg.whatsNewLastSeenVersion') && entryExistsFor(APP_VERSION)`. First-run suppression falls out of the welcome's subsume-write (P40 D-03). |
 | Silent skip (D-07) | If no entry exists for the running `APP_VERSION`, the popup does NOT show and the last-seen version still updates quietly. Users never see a contentless announcement. |
 | Version source | Reads **only** `window.AppVersion.APP_VERSION` (`version.js`, currently `1.3.0`). MUST NOT read or touch the SW/integrity layer (`checkIntegrity`, `buildNudge`) — independent surface (ROADMAP §Phase 42). |
@@ -214,6 +215,7 @@ Hard constraints the executor must honor. Anchored to real source, cited inline.
 | Aspect | Contract |
 |--------|----------|
 | Shell | New `changelog.html` mirroring the `help.html` per-page pattern: shared `<head>` script/stylesheet chain (`tokens.css` → `app.css` → `changelog.css`), `SharedChrome.renderFooter()` + nav, `data-i18n` chrome, `assets/changelog.js` loader. NOT a section inside `help.html` (D-13 — help.html stays lean). |
+| Focal point | The **most recent version's entry card** (top of the reverse-chronological list) is the page focal point — it renders first, carries the freshest lede + category blocks, and is the anchor the popup deep-links to (`#{latest-entry-anchor}`). Older entries recede down the page in the same calm rhythm; no single entry is accent-highlighted (recency = position, not color). |
 | Data | Per-locale files, EN canonical: `assets/changelog-content-en.js` (this phase), mirroring the `help-content-en.js` global-registration + documented-schema precedent (D-17). Phase 42.1 adds `-he/-de/-cs` siblings + a parity integrity test (mirrors `tests/39-help-integrity.test.js`). |
 | Entry schema (Variant B — D-11) | Reverse-chronological array of `{ version, date, lede, highlights[], categories: { new?[], improved?[], fixed?[] } }`. Render: per-version `<h2>` (version + release date) → one-sentence lede → New / Improved / Fixed blocks with small colored uppercase category headings; **empty categories omitted**. `highlights[]` is the hand-picked popup source (D-08) + a Phase-43-checkable hook. v1.0 renders as a single one-line origin marker (no categories — D-01). Exact field names beyond these are Claude's discretion. |
 | EN fallback (D-16) | An entry (or part) not yet translated renders in English inside an otherwise-localized page — history is always complete in every locale. Matches the help center's EN-fallback loader plan (42.1). |
@@ -265,11 +267,11 @@ source before flagging:
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS (initial FLAG — no explicit focal point per surface — resolved: focal-point rows added to both interaction tables)
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS (3-weight exception verified against shipped app.css `font-weight:500`)
+- [x] Dimension 5 Spacing: PASS (off-grid radii/padding verified verbatim vs approved sketch 005)
+- [x] Dimension 6 Registry Safety: PASS (zero npm deps)
 
-**Approval:** pending
+**Approval:** APPROVED (gsd-ui-checker, 2026-07-09) — 6/6 dimensions pass; the single non-blocking Dimension-2 FLAG was actioned inline.
