@@ -605,6 +605,7 @@ window.I18N.en = {
   // Replayable guided tour — UI chrome (Phase 41; EN canonical draft from 41-UI-SPEC Copywriting Contract).
   // Step titles are nouns/gerunds (never bare imperatives) so Hebrew reads naturally (Pitfall 9 / Phase 24 D-05).
   // Placeholders {screen}/{n}/{total} are literal tokens the tour engine substitutes — keep verbatim in every locale.
+  // \n inside a body is a real paragraph break (.sg-tour-body is white-space:pre-line) — preserve it in every locale.
   "help.tour.step.overview.title": "Welcome to your garden",
   "help.tour.step.overview.body": "This is your home page — it greets you each time you arrive. Before the work begins, let's make this place yours; then we'll walk the path a session travels. Leave whenever you like.",
   "help.tour.step.settings.title": "Making it yours",
