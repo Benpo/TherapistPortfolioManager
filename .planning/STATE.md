@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 
 ## Current Position
 
-Phase: 41 (replayable-guided-tour) — EXECUTING (Wave 9 gap-closure: 41-14 in progress)
-Plan: 12 of 13 shipped + 41-07 closed-out; 41-13 (verify) pending re-run after 41-14
-Status: Ben replayed the v3 tour (41-13 Task 2) and found Round-2 issues → 41-14 (wave 9). CONFIRMED fixes: R2-1 tall settings panels (Fields/Snippets) bury the step box → engine scroll-to-anchor-top + tooltip viewport clamp (big whole-panel spotlight KEPT); R2-4 step-9 fake export glyph → real 📤 + plain copy; R2-5 finish step → Help-center-first + breadth tease. REJECTED by Ben + Sapir: R2-2 clickable/interactive spotlight + R2-3 click-to-advance — D-07 STANDS, the page stays inert during the tour. Copy is PROVISIONAL (Ben supplies final texts later, no planning needed); HE/DE/CS machine-draft → Phase 42.1. Flow: run 41-14 → re-run 41-13 automated gate → Ben replays EN → Hebrew pass after EN locked. Do NOT write 41-13-SUMMARY until the re-replay passes.
-Last activity: 2026-07-09 — Phase 41: gap-closure waves 1-2 shipped + 41-13 automated gate GREEN; EN replay surfaced Round-2 (3 confirmed fixes, 2 rejected clicking ideas, D-07 upheld); authored 41-14 (wave 9) and executing
+Phase: 41 (replayable-guided-tour) — EXECUTING (Wave 9 gap-closure: 41-14 SHIPPED; 41-13 re-run pending)
+Plan: 12 of 13 shipped + 41-07 closed-out + 41-14 (wave 9) SHIPPED; 41-13 (verify) pending re-run
+Status: 41-14 complete — the 3 CONFIRMED Round-2 fixes are in. R2-1 tall settings panels (Fields/Snippets) burying the step box → engine scroll-to-anchor-top (block:'start' for anchors ≥0.7*vh) + tooltip viewport clamp (big whole-panel spotlight KEPT, no ring shrink); R2-4 step-9 fake upload SVG → real 📤 (U+1F4E4, matches #exportSessionBtn) via textContent + plain "Export button" copy (engine now innerHTML-free); R2-5 finish step → Help-center-first + breadth tease. RED-first WebKit box-in-viewport probe [section 6] was RED (box top=-1087) → GREEN after the fix; jsdom 153/153; 4-locale parity green. REJECTED by Ben + Sapir and NOT built: R2-2 clickable/interactive spotlight + R2-3 click-to-advance — D-07 STANDS, page stays inert. Copy is PROVISIONAL (Ben supplies final texts later); HE/DE/CS machine-draft → Phase 42.1. NEXT: re-run 41-13 automated gate (suite + WebKit probe on the final tour) → Ben replays EN → Hebrew pass after EN locked. Do NOT write 41-13-SUMMARY until the re-replay passes.
+Last activity: 2026-07-09 — Phase 41: shipped 41-14 (wave 9 Round-2 gap-closure) — tall-panel box visibility (scroll-top + clamp), real export icon, Help-first finish; RED→GREEN WebKit probe, suite + parity green; D-07 upheld
 
 ## Performance Metrics
 
