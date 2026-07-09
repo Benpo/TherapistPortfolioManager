@@ -6,14 +6,14 @@ current_phase: 42.1
 current_phase_name: help-onboarding-translation
 status: executing
 stopped_at: Phase 42 UI-SPEC approved
-last_updated: "2026-07-09T23:46:09.380Z"
+last_updated: "2026-07-09T23:59:45.658Z"
 last_activity: 2026-07-09
 last_activity_desc: Phase 42.1 execution started
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 49
-  completed_plans: 41
+  completed_plans: 42
   percent: 67
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 ## Current Position
 
 Phase: 42.1 (help-onboarding-translation) — EXECUTING
-Plan: 3 of 10
+Plan: 4 of 10
 Status: Ready to execute
 Next: Phase 42 — In-App Changelog & What's-New (v1.3, not started) → then 43 (Docs-Maintenance Hard Gate). Phase 42.1 (help/onboarding translation) carries the tour+help native-speaker pass.
 Last activity: 2026-07-09 — Phase 42.1 execution started
@@ -216,6 +216,7 @@ Last activity: 2026-07-09 — Phase 42.1 execution started
 | Phase 42 P11 | 10min | 3 tasks | 1 files |
 | Phase 42.1 P01 | 5min | 2 tasks | 2 files |
 | Phase 42.1 P02 | 3min | 4 tasks | 6 files |
+| Phase 42.1 P03 | 15min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -470,7 +471,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-09T23:46:03.716Z
+**Last session:** 2026-07-09T23:59:04.301Z
 
 Last activity: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
 Stopped at: Phase 42 UI-SPEC approved
