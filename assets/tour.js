@@ -3,9 +3,14 @@
  * TOUR-01 / TOUR-02 / TOUR-03). window.Tour.
  *
  * WHY THIS EXISTS
- *   The tour walks a therapist through the full session spine (10 steps across
- *   index / add-session / sessions / reporting) as a spotlight + tethered
- *   tooltip. It runs ONLY on an explicit start() (no auto-run — TOUR-01), it
+ *   The tour walks a therapist through the v3 settings-first spine (12 steps across
+ *   index / settings / add-session / sessions) as a spotlight + tethered tooltip:
+ *   first make the app yours (the Settings chapter — personalize / fields /
+ *   snippets), then walk the path a session travels. A step MAY declare an
+ *   `activate` selector — a settings tab button the engine clicks on step entry
+ *   (read-only view switch) to un-hide the panel its anchor lives on before the
+ *   anchor is measured (honest deixis). It runs ONLY on an explicit start() (no
+ *   auto-run — TOUR-01), it
  *   NEVER silently skips a step whose anchor is missing (it degrades to a
  *   centered fallback modal that names where the thing lives and offers a
  *   working "Take me there" link — TOUR-02), and it carries a single run across
@@ -95,22 +100,29 @@ var Tour = (function () {
     } catch (e) { return key; }
   }
 
-  // ── the declarative 10-step full-spine route (Pattern 1) ──────────────────────
-  // Each entry: { id, page, anchor, i18nKey, screenName, takeMeThereHref }. The
-  // anchor values match the Plan 02 data-tour contract exactly; i18nKey resolves
-  // <key>.title / <key>.body against the Plan 01 help.tour.step.* keys. The render
-  // loop never changes when steps are added/reordered.
+  // ── the declarative 12-step v3 settings-first route (Pattern 1) ───────────────
+  // Each entry: { id, page, anchor, i18nKey, screenName, takeMeThereHref, activate? }.
+  // The anchor values match the 41-09 data-tour v3 contract exactly; i18nKey resolves
+  // <key>.title / <key>.body against the 41-11 help.tour.step.* keys. A step MAY
+  // declare an `activate` selector — a settings tab button the engine clicks on step
+  // entry (read-only view switch) to un-hide the panel the anchor lives on BEFORE the
+  // anchor is measured (honest deixis, steps 3-5). The render loop never changes when
+  // steps are added/reordered. Spine (v3 §3): overview → settings → personalize →
+  // fields → snippets → nav → session-setup → session-heart → session-save →
+  // nav-sessions → backup → help. No Reporting step (named in the finish copy instead).
   var STEPS = [
     { id: 'overview',      page: 'index.html',       anchor: '[data-tour="overview"]',      i18nKey: 'help.tour.step.overview',     screenName: 'Overview',   takeMeThereHref: './index.html' },
-    { id: 'add-client',    page: 'index.html',       anchor: '[data-tour="add-client"]',    i18nKey: 'help.tour.step.addClient',    screenName: 'Overview',   takeMeThereHref: './index.html' },
-    { id: 'add-session',   page: 'index.html',       anchor: '[data-tour="add-session"]',   i18nKey: 'help.tour.step.startSession', screenName: 'Overview',   takeMeThereHref: './index.html' },
+    { id: 'settings',      page: 'index.html',       anchor: '[data-tour="settings"]',      i18nKey: 'help.tour.step.settings',     screenName: 'Overview',   takeMeThereHref: './index.html' },
+    { id: 'personalize',   page: 'settings.html',    anchor: '[data-tour="personalize"]',   i18nKey: 'help.tour.step.personalize',  screenName: 'Settings',   takeMeThereHref: './settings.html',    activate: '#settingsTabPersonalizeBtn' },
+    { id: 'fields',        page: 'settings.html',    anchor: '[data-tour="fields"]',        i18nKey: 'help.tour.step.fields',       screenName: 'Settings',   takeMeThereHref: './settings.html',    activate: '#settingsTabFieldsBtn' },
+    { id: 'snippets',      page: 'settings.html',    anchor: '[data-tour="snippets"]',      i18nKey: 'help.tour.step.snippets',     screenName: 'Settings',   takeMeThereHref: './settings.html',    activate: '#settingsTabSnippetsBtn' },
+    { id: 'nav',           page: 'settings.html',    anchor: '[data-tour="nav"]',           i18nKey: 'help.tour.step.ready',        screenName: 'Settings',   takeMeThereHref: './settings.html' },
     { id: 'session-setup', page: 'add-session.html', anchor: '[data-tour="session-setup"]', i18nKey: 'help.tour.step.setup',         screenName: 'Session',    takeMeThereHref: './add-session.html' },
     { id: 'session-heart', page: 'add-session.html', anchor: '[data-tour="session-heart"]', i18nKey: 'help.tour.step.heart',         screenName: 'Session',    takeMeThereHref: './add-session.html' },
     { id: 'session-save',  page: 'add-session.html', anchor: '[data-tour="session-save"]',  i18nKey: 'help.tour.step.save',          screenName: 'Session',    takeMeThereHref: './add-session.html' },
-    { id: 'sessions',      page: 'sessions.html',    anchor: '[data-tour="sessions"]',      i18nKey: 'help.tour.step.sessions',     screenName: 'Sessions',   takeMeThereHref: './sessions.html' },
-    { id: 'reporting',     page: 'reporting.html',   anchor: '[data-tour="reporting"]',     i18nKey: 'help.tour.step.reporting',    screenName: 'Reporting',  takeMeThereHref: './reporting.html' },
-    { id: 'backup',        page: 'reporting.html',   anchor: '[data-tour="backup"]',        i18nKey: 'help.tour.step.backup',       screenName: 'Reporting',  takeMeThereHref: './reporting.html' },
-    { id: 'help',          page: 'reporting.html',   anchor: '[data-tour="help"]',          i18nKey: 'help.tour.step.help',         screenName: 'Reporting',  takeMeThereHref: './reporting.html' }
+    { id: 'nav-sessions',  page: 'sessions.html',    anchor: '[data-tour="nav-sessions"]',  i18nKey: 'help.tour.step.sessions',     screenName: 'Sessions',   takeMeThereHref: './sessions.html' },
+    { id: 'backup',        page: 'sessions.html',    anchor: '[data-tour="backup"]',        i18nKey: 'help.tour.step.backup',       screenName: 'Sessions',   takeMeThereHref: './sessions.html' },
+    { id: 'help',          page: 'sessions.html',    anchor: '[data-tour="help"]',          i18nKey: 'help.tour.step.help',         screenName: 'Sessions',   takeMeThereHref: './sessions.html' }
   ];
 
   // ── run state ─────────────────────────────────────────────────────────────────
@@ -272,6 +284,17 @@ var Tour = (function () {
     overlay.className = 'sg-tour-overlay';
     overlay.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); });
     root.appendChild(overlay);
+
+    // Per-step tab activation (v3 §5): a step may declare an `activate` selector —
+    // a settings tab button the engine clicks on entry to un-hide the panel its
+    // anchor lives on BEFORE the anchor is measured (honest deixis, steps 3-5). A
+    // missing button is a guarded no-op, so the degradation branch below (anchor
+    // missing/hidden → centered fallback modal) is unchanged. The click is
+    // idempotent when the tab is already active (defensive on a resume/replay).
+    if (step.activate) {
+      var tab = document.querySelector(step.activate);
+      if (tab && typeof tab.click === 'function') tab.click();
+    }
 
     var el = document.querySelector(step.anchor);
     // A5: branch selection goes through the injectable seam, never inline offsetParent.

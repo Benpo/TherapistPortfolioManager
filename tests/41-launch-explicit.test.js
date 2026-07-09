@@ -87,7 +87,7 @@ async function test(name, fn) {
     var steps;
     var env = buildEnv({ page: 'index.html', body: '<div data-tour="overview">Overview</div>' });
     steps = env.Tour._getSteps();
-    assert.strictEqual(steps.length, 10, 'STEPS must have 10 entries');
+    assert.strictEqual(steps.length, 12, 'STEPS must have 12 entries');
     // Force the anchor-visible branch through the documented seam (A5).
     env.Tour._isAnchorVisible = function () { return true; };
     env.Tour.start();
