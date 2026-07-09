@@ -38,7 +38,7 @@ Content quality bar (Ben, 2026-07-07): ALL new user-facing copy (help, welcome, 
 
 ### In-App Changelog (CHLG)
 
-- [ ] **CHLG-01**: User opening the app after a version change sees a "What's New in vX.Y.Z" popup exactly once — keyed on `APP_VERSION` vs a stored last-seen version, suppressed on the very first-ever launch (welcome owns first-run), dismiss records the version, works fully offline
+- [x] **CHLG-01**: User opening the app after a version change sees a "What's New in vX.Y.Z" popup exactly once — keyed on `APP_VERSION` vs a stored last-seen version, suppressed on the very first-ever launch (welcome owns first-run), dismiss records the version, works fully offline
 - [ ] **CHLG-02**: User can browse a persistent changelog page inside the help center — reverse-chronological, grouped by version + release date, plain-language benefit-led entries (New / Improved / Fixed register, no dev jargon)
 - [ ] **CHLG-03**: One structured, i18n-capable in-app data source drives both the popup (latest entry) and the page (history) — never forked, never scraped from git, no second version constant
 - [ ] **CHLG-04**: v1.3's own release notes ship as the first changelog entry (self-hosting proof of the pipeline; backfill depth decided in discuss-phase)
@@ -98,7 +98,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TOUR-02 | Phase 41 | Complete |
 | TOUR-03 | Phase 41 | Complete |
 | TOUR-04 | Phase 41 | Complete |
-| CHLG-01 | Phase 42 | Pending |
+| CHLG-01 | Phase 42 | Complete |
 | CHLG-02 | Phase 42 | Pending |
 | CHLG-03 | Phase 42 | Pending |
 | CHLG-04 | Phase 42 | Pending |

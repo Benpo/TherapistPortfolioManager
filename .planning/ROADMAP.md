@@ -223,7 +223,7 @@ Plans:
   3. One structured, i18n-capable in-app data source drives both the popup (latest entry) and the page (history) — never forked, never scraped from git, no second version constant.
   4. v1.3's own release notes ship as the first changelog entry (self-hosting proof of the pipeline).
 
-**Plans**: 4/11 plans executed
+**Plans**: 5/11 plans executed
 
 Plans:
 **Wave 1**
@@ -232,7 +232,7 @@ Plans:
 - [x] 42-02-PLAN.md — Wave 0: RED page-render + data-integrity tests
 - [x] 42-03-PLAN.md — Wave 0: RED precache-shape + demo-gate + i18n-parity tests
 - [x] 42-04-PLAN.md — Wave 1: single changelog data source (window.CHANGELOG_CONTENT_EN, schema + placeholder copy)
-- [ ] 42-05-PLAN.md — Wave 1: What's-New popup surface (whats-new.js) + popup CSS in app.css
+- [x] 42-05-PLAN.md — Wave 1: What's-New popup surface (whats-new.js) + popup CSS in app.css
 - [ ] 42-06-PLAN.md — Wave 1: coordinator tour-active suppression guard (run() shows nothing during a tour)
 - [ ] 42-07-PLAN.md — Wave 1: standalone changelog page (changelog.html + changelog.js + changelog.css)
 - [ ] 42-08-PLAN.md — Wave 1: 10 changelog.*/whatsNew.* i18n chrome keys in all 4 locales
@@ -338,7 +338,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
 | 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 8/8 | Complete    | 2026-07-08 |
 | 41. Replayable Guided Tour | v1.3 | 14/14 | Complete   | 2026-07-09 |
-| 42. In-App Changelog & What's-New | v1.3 | 4/11 | In Progress|  |
+| 42. In-App Changelog & What's-New | v1.3 | 5/11 | In Progress|  |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |
 </content>
 </invoke>
