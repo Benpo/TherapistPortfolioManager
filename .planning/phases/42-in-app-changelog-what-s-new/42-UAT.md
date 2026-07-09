@@ -30,14 +30,14 @@ result: [pending]
 
 ### 3. Triage the three code-review WARNING findings (42-REVIEW.md)
 expected: Ben decides disposition for each — fix-now, defer (e.g. Phase 43 or quick task), or accept: WR-01 changelog.html omits tour.js/tour.css (dead "Onboarding Tour" popover row + dead tour-reminder Start button on that page); WR-02 anchor deep-links race async render (latent, currently invisible); WR-03 hardcoded English "Version" label bypasses D-17 chrome-i18n.
-result: [pending]
+result: pass — Ben chose fix-now for all three (2026-07-09, AskUserQuestion). Fixed in 3a4f16f (WR-01), 319497f (WR-02), 856dc69 (WR-03); suite 162/162 green; see 42-REVIEW-FIX.md (status all_fixed).
 
 ## Summary
 
 total: 3
-passed: 0
+passed: 1
 issues: 0
-pending: 3
+pending: 2
 skipped: 0
 blocked: 0
 
