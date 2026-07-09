@@ -512,22 +512,16 @@ window.App = (() => {
     popover.hidden = true;
 
     // ADDABLE item list (D-09 / D-10). Each item is either an { href } link row
-    // or an { action } button row. Phase 40 (this plan) adds the "Replay welcome"
-    // action row (D-17: after Help center, before Contact us); Phase 41 later
-    // appends its own "Take the tour" action row the same way (no rename churn).
+    // or an { action } button row. The popover carries three rows: Help center,
+    // the guided tour, and Contact us — the tour is the single onboarding-replay
+    // entry (the redundant welcome-screen replay row was retired in Phase 41).
     var items = [
       { labelKey: 'help.entry.center', href: './help.html' },
-      // Phase 40 Plan 04 (ONBD-02) — replays the welcome overlay DIRECTLY via
-      // showWelcome(true): a one-off open that bypasses run() and never re-arms
-      // sg.welcomeSeen or the session marker (Pitfall 5). typeof-guarded so a
-      // page without the coordinator never throws.
-      { labelKey: 'help.entry.replayWelcome', action: function () {
-        if (typeof AttentionCoordinator !== 'undefined') AttentionCoordinator.showWelcome(true);
-      } },
       // Phase 41 Plan 05 (TOUR-01) — "Take the tour" action row launches the
       // replayable guided tour via window.Tour.start() (an explicit user click,
-      // never auto-run). Slotted after Replay welcome (P40 D-17 ordering).
-      // typeof-guarded so a page that mounts chrome without tour.js never throws.
+      // never auto-run). Sits between Help center and Contact us — the single
+      // onboarding-replay entry in the popover. typeof-guarded so a page that
+      // mounts chrome without tour.js never throws.
       { labelKey: 'help.entry.takeTour', action: function () {
         if (typeof window.Tour !== 'undefined') window.Tour.start();
       } },
