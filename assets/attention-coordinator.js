@@ -84,13 +84,21 @@ var AttentionCoordinator = (function () {
   }
 
   /**
-   * Show at most one governed surface. Demo-off (D-09) and one-per-session
-   * (D-02) gate the whole run. The session marker is claimed ONLY when a surface
-   * actually shows, so an ineligible higher-precedence surface never consumes
-   * the slot (D-08).
+   * Show at most one governed surface. Demo-off (D-09), tour-active
+   * (coordinator-wide tour-suppression guard), and one-per-session (D-02) gate
+   * the whole run. The session marker is claimed ONLY when a surface actually
+   * shows, so neither an ineligible higher-precedence surface nor a
+   * tour-suppressed run consumes the slot (D-08).
    */
   function run() {
     if (isDemo()) return;                        // D-09
+    // Coordinator-wide tour-suppression guard: while the onboarding tour is
+    // active, show NO governed surface (protects every PRECEDENCE surface at
+    // once — fixes the backup-prompt-over-tour class of bug). typeof-guarded
+    // exactly like the defense-in-depth window.Tour usage below (line ~242).
+    // Non-claiming: returns BEFORE the session-marker claim so a later run()
+    // once the tour ends can still show an eligible surface.
+    if (window.Tour && typeof window.Tour.isActive === 'function' && window.Tour.isActive()) return;
     if (ssGet(SESSION_MARKER) === '1') return;   // D-02 — already shown this session
     for (var i = 0; i < PRECEDENCE.length; i++) {
       var surface = registry[PRECEDENCE[i]];
