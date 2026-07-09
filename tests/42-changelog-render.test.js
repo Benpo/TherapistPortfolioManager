@@ -241,9 +241,12 @@ function cardById(doc, anchor) { return doc.getElementById(anchor); }
 })();
 
 // ── vacuous-green guard ───────────────────────────────────────────────────────
-// 1 + 4 + 3 + 1 + 2 + 3 = 14 assertions above; this guard is the 15th.
+// 1 + 4 + 3 + 1 + 2 + 3 = 14 assertions above; this guard is the 15th. ok()
+// increments CASES on entry, so at the moment this condition is evaluated CASES
+// still reflects only the 14 preceding assertions (this guard's own increment
+// has not landed yet) — hence the -1.
 var EXPECTED_CASES = 15;
-ok('all ' + EXPECTED_CASES + ' assertions executed (no silent skip)', CASES === EXPECTED_CASES);
+ok('all ' + EXPECTED_CASES + ' assertions executed (no silent skip)', CASES === EXPECTED_CASES - 1);
 
 console.log('\n' + PASS + '/' + CASES + ' checks passed');
 if (process.exitCode === 1) {
