@@ -525,13 +525,22 @@ window.App = (() => {
       { labelKey: 'help.entry.takeTour', action: function () {
         if (typeof window.Tour !== 'undefined') window.Tour.start();
       } },
+      // Phase 42 Plan 10 (CHLG-02 / D-14) — "What's new" DESTINATION row opens the
+      // changelog PAGE (./changelog.html), never the one-time popup surface (so
+      // announcements stay one-shot; a menu can't re-trigger them). Sits after the
+      // tour row; demo-filtered below (D-15) so the page is unreachable in the sales
+      // demo. Label renders via textContent from the i18n dict (whatsNew.menuRow).
+      { labelKey: 'whatsNew.menuRow', href: './changelog.html' },
       { labelKey: 'help.entry.contact', href: 'mailto:contact@sessionsgarden.app' }
     ];
-    // Demo gate (D-16): the sales demo never offers the tour — filter the row out
-    // BEFORE the mount loop so no dead row renders. window.name==='demo-mode' is
-    // the established demo seam (initDemoMode / mountBackupCloudButton).
+    // Demo gate (D-16 / D-15): the sales demo never offers the tour OR the
+    // changelog — filter both rows out BEFORE the mount loop so no dead row
+    // renders. window.name==='demo-mode' is the established demo seam
+    // (initDemoMode / mountBackupCloudButton).
     if (typeof window !== 'undefined' && window.name === 'demo-mode') {
-      items = items.filter(function (item) { return item.labelKey !== 'help.entry.takeTour'; });
+      items = items.filter(function (item) {
+        return item.labelKey !== 'help.entry.takeTour' && item.labelKey !== 'whatsNew.menuRow';
+      });
     }
     items.forEach(function (item) {
       // href → <a> link row (unchanged path); action → <button> row.
