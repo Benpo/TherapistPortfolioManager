@@ -191,6 +191,24 @@ body.searching .help-root .spine-group-label { display: none; }
   margin-block-end: 0;
 }
 
+/* Phase 42 (CHLG-02 / D-13): quiet "What's new" see-also affordance — muted and
+   centered under the contact band, underline only on hover so it reads as a
+   secondary rail link, never a workflow-spine card competing with help topics. */
+.help-root .help-see-also {
+  text-align: center;
+  font-size: var(--text-label);
+  margin-block-start: var(--space-lg);
+  margin-block-end: 0;
+}
+.help-root .help-see-also a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+.help-root .help-see-also a:hover,
+.help-root .help-see-also a:focus-visible {
+  text-decoration: underline;
+}
+
 /* ---- two-column layout ---- */
 .help-root .layout {
   display: grid;

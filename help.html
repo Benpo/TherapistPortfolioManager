@@ -103,6 +103,14 @@
               <p class="report-hint">Something not working right? Use <strong>Report a problem</strong> in Settings to copy a diagnostic report into your email — nothing is ever sent automatically.</p>
             </section>
 
+            <!-- Phase 42 (CHLG-02 / D-13): a quiet "see also" affordance to the
+                 changelog PAGE — chronological release history, structurally unlike
+                 the help topics above, so it sits as a secondary rail link rather
+                 than a workflow-spine card. -->
+            <p class="help-see-also">
+              <a href="./changelog.html" data-i18n="whatsNew.menuRow">What's new</a>
+            </p>
+
           </main>
         </div>
       </div>
@@ -123,6 +131,13 @@
   <script src="./assets/shared-chrome.js"></script>
   <script src="./assets/date-format.js"></script>
   <script src="./assets/attention-coordinator.js"></script>
+  <!-- Changelog data + What's-New popup surface (Phase 42 Plan 10): the data global
+       (CHANGELOG_CONTENT_EN) must load before the popup surface registers into
+       AttentionCoordinator, and both must be present before app.js runs initCommon
+       (which calls AttentionCoordinator.run) — help.html is a chrome-mounting page,
+       so the one-time popup can fire here too (RESEARCH Pitfall 2). -->
+  <script src="./assets/changelog-content-en.js"></script>
+  <script src="./assets/whats-new.js"></script>
   <script src="./assets/app.js"></script>
   <script src="./assets/tour.js"></script>
   <!-- Backup trio: the header cloud icon derives its recency color from the
