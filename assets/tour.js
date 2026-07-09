@@ -381,19 +381,29 @@ var Tour = (function () {
     spotlightEl.classList.add('sg-tour-instant');
     tooltipEl.classList.add('sg-tour-instant');
 
-    // Bring below-the-fold anchors into view, then position + track (A4). Scroll
-    // stays free (NO App.lockBodyScroll on the spotlight path). R2-1: for a TALL
-    // anchor (a settings panel taller than ~70% of the viewport) centering would put
-    // its middle on screen and push the tethered step box off the top/bottom, so
-    // bring its TOP into view instead (block:'start' — Ben's "always scrolled all
-    // the way up"); short anchors still center. The tooltip viewport-clamp in
-    // positionSpotlight guarantees the step box stays visible either way.
+    // Scroll + position + track (A4). Scroll stays free (NO App.lockBodyScroll on the
+    // spotlight path). R2-1 follow-up (Ben): on step entry scroll the PAGE to the TOP
+    // so the user keeps orientation — they still see the settings tab bar / page header
+    // ("which tab am I in") instead of being dropped into the middle of a long panel.
+    // This REPLACES the earlier "isTall ? block:'start' : block:'center'" heuristic:
+    // settings/panel steps + all header/nav/greeting steps now land at the page top.
+    // GUARD for below-the-fold controls: after scrolling to top, re-measure the anchor;
+    // if the WHOLE anchor is below the fold (top >= viewport height) — the emotions
+    // accordion (data-tour="session-heart") and the Save button (data-tour="session-
+    // save") far down the long session form — fall back to a centered scroll so the
+    // tour never spotlights an off-screen control (also handle the defensive above-top
+    // case, bottom <= 0). The tooltip viewport-clamp in positionSpotlight still keeps
+    // the step box fully visible either way.
     try {
       if (el && typeof el.scrollIntoView === 'function') {
+        window.scrollTo(0, 0);
         var ar = el.getBoundingClientRect();
-        var vh = window.innerHeight || ar.height || 0;
-        var isTall = vh > 0 && ar.height >= 0.7 * vh;
-        el.scrollIntoView({ block: isTall ? 'start' : 'center', inline: 'nearest' });
+        var vh = window.innerHeight || 0;
+        var belowFold = vh > 0 && ar.top >= vh;
+        var aboveTop = ar.bottom <= 0;
+        if (belowFold || aboveTop) {
+          el.scrollIntoView({ block: 'center', inline: 'nearest' });
+        }
       }
     } catch (e) {}
     positionSpotlight(el);
