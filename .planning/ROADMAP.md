@@ -223,7 +223,20 @@ Plans:
   3. One structured, i18n-capable in-app data source drives both the popup (latest entry) and the page (history) — never forked, never scraped from git, no second version constant.
   4. v1.3's own release notes ship as the first changelog entry (self-hosting proof of the pipeline).
 
-**Plans**: TBD
+**Plans**: 11 plans
+
+Plans:
+- [ ] 42-01-PLAN.md — Wave 0: RED popup + coordinator-tour-guard behavior tests (gating/dismiss/tour-guard)
+- [ ] 42-02-PLAN.md — Wave 0: RED page-render + data-integrity tests
+- [ ] 42-03-PLAN.md — Wave 0: RED precache-shape + demo-gate + i18n-parity tests
+- [ ] 42-04-PLAN.md — Wave 1: single changelog data source (window.CHANGELOG_CONTENT_EN, schema + placeholder copy)
+- [ ] 42-05-PLAN.md — Wave 1: What's-New popup surface (whats-new.js) + popup CSS in app.css
+- [ ] 42-06-PLAN.md — Wave 1: coordinator tour-active suppression guard (run() shows nothing during a tour)
+- [ ] 42-07-PLAN.md — Wave 1: standalone changelog page (changelog.html + changelog.js + changelog.css)
+- [ ] 42-08-PLAN.md — Wave 1: 10 changelog.*/whatsNew.* i18n chrome keys in all 4 locales
+- [ ] 42-09-PLAN.md — Wave 2: every-page popup wiring (7 pages) + sw.js two-array offline precache
+- [ ] 42-10-PLAN.md — Wave 2: entry points ("?" row, help rail link, footer version link) + demo hiding
+- [ ] 42-11-PLAN.md — Wave 3: entry copy — D-03 pipeline draft → Ben D-04 approval → finalize (autonomous:false)
 **UI hint**: yes
 
 ### Phase 42.1: Help & Onboarding Translation (HE/DE/CS) (INSERTED)
