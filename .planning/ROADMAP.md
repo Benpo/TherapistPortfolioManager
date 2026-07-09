@@ -254,11 +254,20 @@ Plans:
 **Scope notes:** Translation happens AFTER the EN corpus stabilizes (post-P42) — one pass, no double-translation. Pipeline per the D-12/D-19 precedent: agent translation grounded in the shipped EN + each locale's existing i18n register conventions (HE infinitive/plural-imperative house style, DE Sie, CS formal) → native-speaker agent gates (Sonnet) → Sapir human read for Hebrew (CS ships on the Phase-37 accepted-risk precedent; external review only on a deliberate CS push). Per-locale integrity tests mirroring `tests/39-help-integrity.test.js` ({ui:key} resolution against each locale file, forbidden-words, structure parity with EN). Scope decision: Ben 2026-07-08 — L10N-01 moved from v2 deferral into v1.3 (EN-only help was never his intent for a Hebrew-first user base). Must land BEFORE Phase 43 so the docs hard-gate covers translated content from day one.
 **Requirements**: L10N-01
 **Depends on:** Phase 42
-**Plans**: TBD
+**Plans**: 10 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 42.1 to break down)
+- [ ] 42.1-01-PLAN.md — RED-first per-locale integrity gates (help + changelog)
+- [ ] 42.1-02-PLAN.md — RED-first extensions: tour \n\n, welcome subtitle2, precache (6 files), What's-New popup localization
+- [ ] 42.1-03-PLAN.md — Hebrew help body (help-content-he.js, RTL house register)
+- [ ] 42.1-04-PLAN.md — German help body (help-content-de.js, Sie form)
+- [ ] 42.1-05-PLAN.md — Czech help body (help-content-cs.js, formal register)
+- [ ] 42.1-06-PLAN.md — Changelog full history HE/DE/CS (changelog-content-*.js)
+- [ ] 42.1-07-PLAN.md — Welcome + tour chrome: re-translate subtitle/subtitle2 + re-derive 11 stale tour keys (i18n-{he,de,cs}.js)
+- [ ] 42.1-08-PLAN.md — Loader + offline wiring (help.js localeSections, whats-new.js entries, script tags, sw.js precache)
+- [ ] 42.1-09-PLAN.md — Native-speaker register gate HE/DE/CS (whole-corpus per locale)
+- [ ] 42.1-10-PLAN.md — HE real-browser render verification (Chrome + WebKit) + Sapir Hebrew read (blocking checkpoint)
 
 ### Phase 43: Docs-Maintenance Hard Gate
 
