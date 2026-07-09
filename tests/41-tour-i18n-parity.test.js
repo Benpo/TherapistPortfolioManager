@@ -178,6 +178,12 @@ test('Placeholder tokens {screen}/{n}/{total} survive in every locale', function
   requireToken('help.tour.fallbackBody', '{screen}');
   requireToken('help.tour.counter', '{n}');
   requireToken('help.tour.counter', '{total}');
+  // The help.tour.step.help.body carries a literal two-newline paragraph break
+  // (a placeholder-class structural token like {screen}/{n}/{total}): the pre-
+  // line copy renders as two paragraphs. A locale that flattens it to a single
+  // newline (or none) collapses the structure — so the token is a newline
+  // IMMEDIATELY followed by a newline. Do NOT loosen to a single '\n'.
+  requireToken('help.tour.step.help.body', '\n\n');
   if (problems.length) throw new Error(problems.join('; '));
 });
 
