@@ -112,6 +112,28 @@ None — plan executed as written. Two plan-anticipated non-actions:
 - EN copy is PROVISIONAL; Ben supplies final texts later (no planning needed). HE/DE/CS are machine-draft → Phase 42.1 native pass.
 - Re-verification is the re-run of 41-13 (automated suite + WebKit probe), then Ben's EN replay; the Hebrew pass follows once EN is locked. Do NOT write 41-13-SUMMARY until the re-replay passes.
 
+## R2-1 follow-up — scroll-to-page-top for orientation (2026-07-09)
+
+Ben clarified the intent behind R2-1 after reviewing the shipped `isTall ? block:'start' : block:'center'` heuristic: on step entry the page should scroll to the **page top** so the user keeps their orientation (they still see the settings tab bar / page header — "which tab am I in") instead of being aligned to the middle/top of a long panel. This REPLACES the `isTall` heuristic.
+
+Changes (surgical — engine not redesigned):
+- **`assets/tour.js` `renderSpotlight`** — replaced the `isTall` scroll heuristic with `window.scrollTo(0, 0)` (instant) on step entry. Below-fold guard: after scrolling to top, re-measure the anchor; if the whole anchor is below the fold (`getBoundingClientRect().top >= window.innerHeight`) — the emotions accordion (`data-tour="session-heart"`) and the Save button (`data-tour="session-save"`) on the long session form — or defensively above the top (`bottom <= 0`), fall back to `scrollIntoView({ block:'center', inline:'nearest' })` so the tour never spotlights an off-screen control. Removed the now-unused `isTall` computation. Kept the first-paint `.sg-tour-instant` snap and the one-rAF post-scroll re-measure.
+- **Kept**: the vertical tooltip clamp (`vClamp` block from 4d754d6) in `positionSpotlight` — the step box stays fully visible either way. Spotlight ring NOT shrunk. Overlay still inert (D-07 stands — non-interactive tour).
+- **`tests/webkit/41-rtl-geometry.mjs` section [6]** — repositioned the synthetic tall anchor to `top:40` (a settings-panel header on-screen after scroll-to-top, not a below-fold control) and added a NEW assertion: `window.scrollY <= 2` on the tall-panel step. Kept the existing box-in-viewport clamp assertion.
+
+RED→GREEN evidence:
+```
+[6] Tall-anchor step box stays inside a short viewport (R2-1):
+  BEFORE (block:'start'):  FAIL  tall settings-panel step scrolls the PAGE to the top → scrollY=40
+  AFTER  (scrollTo(0,0)):  PASS  tall settings-panel step scrolls the PAGE to the top (orientation kept)
+  PASS  tall-anchor step box is FULLY inside the viewport (scroll-to-top + clamp)  [both before & after]
+```
+jsdom `tests/run-all.js` 153/153; WebKit probe all green.
+
+Commits: `b99e25e` (test RED), `1316278` (tour.js GREEN).
+
+Net effect per step: settings/panel steps + all header/nav/greeting steps land at the page top (tab bar visible = orientation); only the two low session-form controls (heart, save) bring themselves into view instead. Re-verification note above unchanged: still awaiting Ben's EN re-replay.
+
 ## Self-Check: PASSED
 - Files verified present: 41-14-SUMMARY.md, tests/webkit/41-rtl-geometry.mjs, assets/tour.js
 - Commits verified: cd77384 (RED), 4d754d6 (GREEN), d714fef (icon+copy)

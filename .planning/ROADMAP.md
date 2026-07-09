@@ -170,7 +170,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
 
 Plans:
 
-- [x] 41-14-PLAN.md
+- [x] 41-14-PLAN.md — Round-2 gap-closure (tall-panel box visibility, real export icon, Help-first finish); R2-1 follow-up 2026-07-09: tour scrolls to PAGE TOP on step entry for orientation (replaced isTall block:'start'), below-fold guard for heart/save, clamp retained
 
 **Wave 1**
 
