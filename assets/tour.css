@@ -171,6 +171,9 @@
   font-weight: var(--weight-regular);
   color: var(--color-text);
   margin: 0;
+  /* Bodies are injected as textContent (XSS boundary) — \n in an i18n string is the
+     only way a step gets a paragraph break, so honor it. */
+  white-space: pre-line;
 }
 .sg-tour-fallback-loc {
   font-size: var(--text-body);
