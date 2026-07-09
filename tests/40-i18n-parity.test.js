@@ -66,6 +66,10 @@ for (const loc of LOCALES) {
 const NEW_KEYS = [
   'help.welcome.title',
   'help.welcome.subtitle',
+  // subtitle2 (the second welcome paragraph) is authored in EN (assets/i18n-en.js)
+  // but held as empty-string stubs in he/de/cs — pinning it here makes the suite
+  // RED-first until Plan 07 authors the three translations (DEFERRED-FROM-40).
+  'help.welcome.subtitle2',
   'help.welcome.ctaTour',
   'help.welcome.ctaExplore',
   'onboard.install.title',
@@ -79,6 +83,38 @@ const NEW_KEYS = [
   'onboard.mobileHint.link',
   'onboard.mobileHint.dismiss',
 ];
+
+// ── The 17 new v1.3 chrome + tour-screen keys (13 help.chrome.* + 4
+//    help.tour.screen.*). These do NOT exist in ANY locale yet — Plan 07 authors
+//    them EN-verbatim (from assets/help.js LABELS / help.html / assets/tour.js
+//    screenName literals) and then he/de/cs. Pinning them here is RED-first: the
+//    presence check reports "en/he/de/cs missing …" until Plan 07 lands. NOTE: the
+//    four help.tour.screen.* keys are pinned HERE (general chrome parity), NOT in
+//    tests/41-tour-i18n-parity.test.js, whose EXACT 42-key tour set must stay at 42.
+const CHROME_KEYS_421 = [
+  'help.chrome.startHere',
+  'help.chrome.sessionLoop',
+  'help.chrome.technicalBits',
+  'help.chrome.spine',
+  'help.chrome.techBand',
+  'help.chrome.intro',
+  'help.chrome.jumpToSection',
+  'help.chrome.contactTitle',
+  'help.chrome.contactBody',
+  'help.chrome.reportHint',
+  'help.chrome.ariaSections',
+  'help.chrome.ariaSearch',
+  'help.chrome.ariaShowTopics',
+  'help.tour.screen.overview',
+  'help.tour.screen.settings',
+  'help.tour.screen.session',
+  'help.tour.screen.sessions',
+];
+
+// The full guarded key set — the original welcome/install/mobileHint keys +
+// subtitle2 + the 17 new v1.3 chrome/screen keys. All presence/non-empty,
+// parity, and emoji assertions run over this extended set.
+const GUARDED_KEYS = NEW_KEYS.concat(CHROME_KEYS_421);
 
 // Emoji / pictographic scan (mirrors 39-help-integrity's EMOJI_RE): surrogate
 // emoji planes + common symbol ranges + variation selector + regional
@@ -101,11 +137,11 @@ function test(name, fn) {
   }
 }
 
-// ── 1. Presence + non-empty for every locale × every new key ────────────────
-test('All 14 new keys exist and are non-empty strings in every locale', function () {
+// ── 1. Presence + non-empty for every locale × every guarded key ────────────
+test('All guarded new/chrome keys exist and are non-empty strings in every locale', function () {
   const problems = [];
   for (const loc of LOCALES) {
-    for (const key of NEW_KEYS) {
+    for (const key of GUARDED_KEYS) {
       if (!(key in MAPS[loc])) {
         problems.push(loc + ': missing ' + key);
         continue;
@@ -122,16 +158,16 @@ test('All 14 new keys exist and are non-empty strings in every locale', function
   }
 });
 
-// ── 2. Cross-locale parity: identical set of the new keys present ───────────
-test('The set of new keys present is identical across all four locales', function () {
+// ── 2. Cross-locale parity: identical set of the guarded keys present ───────
+test('The set of guarded keys present is identical across all four locales', function () {
   const presence = {};
   for (const loc of LOCALES) {
-    presence[loc] = new Set(NEW_KEYS.filter(k => k in MAPS[loc]));
+    presence[loc] = new Set(GUARDED_KEYS.filter(k => k in MAPS[loc]));
   }
   const ref = presence.en;
   const drift = [];
   for (const loc of LOCALES) {
-    for (const key of NEW_KEYS) {
+    for (const key of GUARDED_KEYS) {
       const inRef = ref.has(key);
       const inLoc = presence[loc].has(key);
       if (inRef !== inLoc) {
@@ -142,11 +178,11 @@ test('The set of new keys present is identical across all four locales', functio
   if (drift.length) throw new Error('key-set drift vs en: ' + drift.join('; '));
 });
 
-// ── 3. No-emoji in any new key value ────────────────────────────────────────
-test('No new key value contains an emoji (incl. U+1F4E4 outbox)', function () {
+// ── 3. No-emoji in any guarded key value ────────────────────────────────────
+test('No guarded key value contains an emoji (incl. U+1F4E4 outbox)', function () {
   const hits = [];
   for (const loc of LOCALES) {
-    for (const key of NEW_KEYS) {
+    for (const key of GUARDED_KEYS) {
       const val = MAPS[loc][key];
       if (typeof val !== 'string') continue;
       if (EMOJI_RE.test(val)) hits.push(loc + '/' + key + ' (emoji)');
