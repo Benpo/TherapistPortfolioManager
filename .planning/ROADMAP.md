@@ -226,6 +226,8 @@ Plans:
 **Plans**: 11 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 42-01-PLAN.md — Wave 0: RED popup + coordinator-tour-guard behavior tests (gating/dismiss/tour-guard)
 - [ ] 42-02-PLAN.md — Wave 0: RED page-render + data-integrity tests
 - [ ] 42-03-PLAN.md — Wave 0: RED precache-shape + demo-gate + i18n-parity tests
@@ -234,9 +236,16 @@ Plans:
 - [ ] 42-06-PLAN.md — Wave 1: coordinator tour-active suppression guard (run() shows nothing during a tour)
 - [ ] 42-07-PLAN.md — Wave 1: standalone changelog page (changelog.html + changelog.js + changelog.css)
 - [ ] 42-08-PLAN.md — Wave 1: 10 changelog.*/whatsNew.* i18n chrome keys in all 4 locales
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 42-09-PLAN.md — Wave 2: every-page popup wiring (7 pages) + sw.js two-array offline precache
 - [ ] 42-10-PLAN.md — Wave 2: entry points ("?" row, help rail link, footer version link) + demo hiding
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 42-11-PLAN.md — Wave 3: entry copy — D-03 pipeline draft → Ben D-04 approval → finalize (autonomous:false)
+
 **UI hint**: yes
 
 ### Phase 42.1: Help & Onboarding Translation (HE/DE/CS) (INSERTED)

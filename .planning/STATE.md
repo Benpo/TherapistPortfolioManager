@@ -6,7 +6,7 @@ current_phase: 41
 current_phase_name: replayable-guided-tour
 status: executing
 stopped_at: Phase 42 UI-SPEC approved
-last_updated: "2026-07-09T14:36:17.521Z"
+last_updated: "2026-07-09T16:00:27.580Z"
 last_activity: 2026-07-09
 last_activity_desc: "Phase 41 COMPLETE: guided tour shipped; EN storyline signed off by Ben; Round-2 fixes landed (scroll-to-top orientation, real 📤 export icon, Help-first finish); interactive-tour ideas rejected (D-07 upheld)"
 progress:
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 
 Phase: 41 (replayable-guided-tour) — ✅ COMPLETE (2026-07-09)
 Plan: 14 of 14 complete (incl. 41-07 close-out by supersession, 41-13 human sign-off, 41-14 + scroll-to-top Round-2 gap-closure)
-Status: Phase 41 COMPLETE — the replayable guided tour is delivered and human-verified. Ben approved the EN 12-step settings-first storyline (2026-07-09); automated gate GREEN (jsdom 153/153 + WebKit RTL/geometry/scroll probe 6/6). TOUR-01..04 all Complete. On step entry the tour scrolls to the page top for orientation; the step box always stays visible; the page stays inert (D-07). DEFERRED to Phase 42.1 (by decision, not a gap): the Hebrew review + final EN wording tweaks (inline — Ben supplies texts, no planning); HE/DE/CS ship as machine-draft today (D-11), so the tour is fully functional in all four locales now.
+Status: Ready to execute
 Next: Phase 42 — In-App Changelog & What's-New (v1.3, not started) → then 43 (Docs-Maintenance Hard Gate). Phase 42.1 (help/onboarding translation) carries the tour+help native-speaker pass.
 Last activity: 2026-07-09 — Phase 41 COMPLETE: guided tour shipped; EN storyline signed off by Ben; Round-2 fixes landed (scroll-to-top orientation, real 📤 export icon, Help-first finish); interactive-tour ideas rejected (D-07 upheld)
 

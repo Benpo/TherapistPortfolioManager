@@ -1,8 +1,8 @@
 ---
 phase: 42
 slug: in-app-changelog-what-s-new
-status: draft
-nyquist_compliant: false
+status: ready
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-07-09
 ---
@@ -10,7 +10,7 @@ created: 2026-07-09
 # Phase 42 — Validation Strategy
 
 > Per-phase validation contract for feedback sampling during execution.
-> Source: `42-RESEARCH.md` → `## Validation Architecture` (11 tests T-42-V1..V11).
+> Source: `42-RESEARCH.md` → `## Validation Architecture` (T-42-V1..V11) **+ T-42-V12** (coordinator tour-active guard, added with plan 42-06 — Ben-approved in-phase 2026-07-09).
 > Project rule: behavior tests authored RED **before** implementation (memory `feedback-behavior-verification.md`).
 
 ---
@@ -53,8 +53,10 @@ created: 2026-07-09
 | T-42-V9 | 0→impl | CHLG-03/04 / D-08/10 | Data-source integrity (unique semver; reverse-chron; lede+highlights[2–4]+categories⊆{new,improved,fixed}; v1.0 origin-only; latest has highlights; no emoji) + v1.3 first with `version==='1.3.0'` | integrity (vm) | `node tests/42-changelog-integrity.test.js` | ❌ W0 |
 | T-42-V10 | 0→impl | D-15 | Demo hiding (`window.name==='demo-mode'` → no `whatsNew.menuRow`; footer version link inert) | behavior (jsdom) | `node tests/42-demo-gate.test.js` | ❌ W0 |
 | T-42-V11 | 0→impl | D-17 | i18n parity (`changelog.*` / `whatsNew.*` keys present + non-empty + no-emoji across en/he/de/cs) | parity (vm) | `node tests/42-i18n-parity.test.js` | ❌ W0 |
+| T-42-V12 | 0→impl | CHLG-01 (coordinator hardening) | Tour-active suppression: while `window.Tour.isActive()`, coordinator `run()` shows NO governed surface (welcome, whats-new, install-nudge, backup, mobile-hint, tour-reminder) and does NOT claim the once-per-session slot; guard is `typeof`-safe when `window.Tour` absent | behavior (jsdom) | `node tests/42-coordinator-tour-guard.test.js` | ❌ W0 |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*T-42-V12 is authored RED in plan 42-01 and implemented in plan 42-06 (coordinator guard). Added beyond RESEARCH's original 11-test set with Ben's in-phase approval (2026-07-09); it hardens CHLG-01's "popup fires correctly" guarantee and closes the captured backup-over-tour TODO.*
 
 ---
 
@@ -69,6 +71,7 @@ Author all seven RED before implementation (jsdom already a devDependency; `run-
 - [ ] `tests/42-changelog-integrity.test.js` — T-42-V9 (vm; mirror `tests/39-help-integrity.test.js`)
 - [ ] `tests/42-demo-gate.test.js` — T-42-V10 (jsdom; mirror `tests/41-demo-gate.test.js`)
 - [ ] `tests/42-i18n-parity.test.js` — T-42-V11 (vm; mirror `tests/40-i18n-parity.test.js`)
+- [ ] `tests/42-coordinator-tour-guard.test.js` — T-42-V12 (jsdom; reuse `tests/40-coordinator.test.js` harness; regression-guards all six governed surfaces)
 
 ---
 
@@ -83,11 +86,12 @@ Author all seven RED before implementation (jsdom already a devDependency; `run-
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (7 test files above)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter (set by planner once every task maps to a test or Wave 0 dep)
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies *(plan-checker Dimension 8 pass, 2026-07-09)*
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify *(checker-confirmed)*
+- [x] Wave 0 covers all MISSING references (8 test files above — 7 from RESEARCH + tour-guard)
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s
+- [x] `nyquist_compliant: true` set in frontmatter
+- [ ] `wave_0_complete: true` — flip once the 8 RED files are authored and the suite is green during execution
 
-**Approval:** pending
+**Approval:** plan-locked 2026-07-09 (execution sign-off pending Wave 0 green + `/gsd-verify-work`)
