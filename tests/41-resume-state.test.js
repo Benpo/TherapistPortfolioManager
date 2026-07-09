@@ -72,11 +72,13 @@ async function test(name, fn) {
 
 (async function () {
   await test('A. next() across a page boundary writes sg.tourResume {tourId,stepIndex} then navigates (TOUR-03/D-06)', async function () {
-    // On index.html at step 2 (add-session anchor). Step 3 lives on add-session.html → cross-page.
+    // v3 spine: the FIRST cross-page boundary is step index 1 (settings, index.html)
+    // → step index 2 (personalize, settings.html). Steps 2-5 are all settings.html,
+    // so the old 2→3 crossing no longer crosses a page.
     var env = buildEnv({ page: 'index.html' });
     var steps = env.Tour._getSteps();
-    assert.notStrictEqual(steps[2].page, steps[3].page, 'fixture assumption: step 2 and 3 are on different pages');
-    env.Tour._setStepIndex(2);
+    assert.notStrictEqual(steps[1].page, steps[2].page, 'fixture assumption: step 1 (settings) and step 2 (personalize) are on different pages');
+    env.Tour._setStepIndex(1);
     var navTargets = [];
     env.Tour._navigate = function (href) { navTargets.push(href); };
     env.Tour.next();
@@ -84,20 +86,23 @@ async function test(name, fn) {
     var raw = env.win.sessionStorage.getItem('sg.tourResume');
     assert.ok(raw, 'cross-page next() must persist sg.tourResume');
     var parsed = JSON.parse(raw);
-    assert.strictEqual(parsed.stepIndex, 3, 'persisted stepIndex must be the next step (3)');
+    assert.strictEqual(parsed.stepIndex, 2, 'persisted stepIndex must be the next step (2 = personalize)');
     assert.ok(parsed.tourId, 'resume payload carries a tourId');
     assert.strictEqual(navTargets.length, 1, 'exactly one navigation on a cross-page next()');
-    assert.ok(navTargets[0].indexOf(steps[3].page) !== -1, 'navigation targets the next step page (' + steps[3].page + ')');
+    assert.ok(navTargets[0].indexOf(steps[2].page) !== -1, 'navigation targets the next step page (' + steps[2].page + ' = settings.html)');
   });
 
   await test('B. resume() with a present key on the matching page continues at stepIndex (isActive true, chrome mounted)', async function () {
-    // Land on add-session.html with a resume key pointing at step 3 (session-setup).
-    var env = buildEnv({ page: 'add-session.html', body: '<div data-tour="session-setup">Setup</div>' });
-    env.win.sessionStorage.setItem('sg.tourResume', JSON.stringify({ tourId: 'main', stepIndex: 3 }));
+    // Land on settings.html with a resume key pointing at step 2 (personalize) — the
+    // new index→settings cross-page boundary. The personalize step's activate selector
+    // (#settingsTabPersonalizeBtn) is absent in this fixture → guarded no-op, so the
+    // forced-visible anchor still renders the spotlight.
+    var env = buildEnv({ page: 'settings.html', body: '<div data-tour="personalize">Personalize</div>' });
+    env.win.sessionStorage.setItem('sg.tourResume', JSON.stringify({ tourId: 'main', stepIndex: 2 }));
     env.Tour._isAnchorVisible = function () { return true; };
     env.Tour.resume();
     assert.strictEqual(env.Tour.isActive(), true, 'resume() on the matching page activates the tour');
-    assert.strictEqual(env.Tour._getStepIndex(), 3, 'resume() continues at the persisted stepIndex (3)');
+    assert.strictEqual(env.Tour._getStepIndex(), 2, 'resume() continues at the persisted stepIndex (2 = personalize)');
     assert.ok(env.win.document.querySelector('.sg-tour-spotlight'), 'resume() renders the step chrome');
   });
 
