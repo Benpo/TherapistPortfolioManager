@@ -82,7 +82,7 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
 - [x] **Phase 39: Help Center & "?" Entry Point** — persistent "?" on every app page, offline `help.html` help center (workflow-spine IA + personalization + technical track), full EN content, empty-state deep-links, per-browser install instructions (completed 2026-07-07)
 - [x] **Phase 40: First-Run Welcome & Onboarding Coordinator** — first-run coordinator (single precedence order), branded welcome overlay (tour / explore myself), re-openable from "?", non-nagging install nudge (completed 2026-07-08)
 - [x] **Phase 41: Replayable Guided Tour** — bespoke ~6–9-step spine tour, graceful degradation (spotlight ↔ modal + "Take me there"), cross-page resume, language re-render (completed 2026-07-09)
-- [ ] **Phase 42: In-App Changelog & What's-New** — once-per-version What's-New popup + persistent changelog page in the help center, one structured data source, v1.3's own notes as first entry
+- [x] **Phase 42: In-App Changelog & What's-New** — once-per-version What's-New popup + persistent changelog page in the help center, one structured data source, v1.3's own notes as first entry (completed 2026-07-09)
 - [ ] **Phase 43: Docs-Maintenance Hard Gate** — layered blocking gate (git hook + unbypassable CI step + GSD DoD) so no user-facing change ships without a changelog entry + updated help topics; validated against v1.3's own ship
 
 ## Phase Details (v1.3)
@@ -223,7 +223,7 @@ Plans:
   3. One structured, i18n-capable in-app data source drives both the popup (latest entry) and the page (history) — never forked, never scraped from git, no second version constant.
   4. v1.3's own release notes ship as the first changelog entry (self-hosting proof of the pipeline).
 
-**Plans**: 10/11 plans executed
+**Plans**: 11/11 plans complete
 
 Plans:
 **Wave 1**
@@ -244,7 +244,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 42-11-PLAN.md — Wave 3: entry copy — D-03 pipeline draft → Ben D-04 approval → finalize (autonomous:false)
+- [x] 42-11-PLAN.md — Wave 3: entry copy — D-03 pipeline draft → Ben D-04 approval → finalize (autonomous:false)
 
 **UI hint**: yes
 
@@ -338,7 +338,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
 | 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 8/8 | Complete    | 2026-07-08 |
 | 41. Replayable Guided Tour | v1.3 | 14/14 | Complete   | 2026-07-09 |
-| 42. In-App Changelog & What's-New | v1.3 | 10/11 | In Progress|  |
+| 42. In-App Changelog & What's-New | v1.3 | 11/11 | Complete   | 2026-07-09 |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |
 </content>
 </invoke>
