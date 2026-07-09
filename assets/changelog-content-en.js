@@ -40,13 +40,18 @@
 // treatment. No emojis in any string (D-10). Versions, dates, and anchors are
 // FINAL. Register nouns (New/Improved/Fixed) come from i18n, not the data.
 //
-// ── COPY STATUS: DRAFT / PLACEHOLDER ──────────────────────────────────────────
-//   The lede / highlights / category BODY strings below are STRUCTURALLY-VALID
-//   PLACEHOLDER copy seeded from the PROJECT.md Validated ledger + the v1.2.4
-//   users draft. They satisfy the integrity contract but are NOT the final
-//   wording. Final approved copy lands in Plan 10 via the D-03 wording pipeline
-//   and Ben's explicit D-04 approval. Versions / dates / anchors are NOT
-//   placeholder — they are final now.
+// ── COPY STATUS: DRAFTED VIA D-03 PIPELINE — PENDING BEN'S D-04 APPROVAL ───────
+//   The lede / highlights / category BODY strings below were DRAFTED through the
+//   D-03 wording pipeline (factual gate — grounded in the PROJECT.md Validated
+//   ledger, the UNAPPROVED v1.2.4 users draft, and the milestone archives; then
+//   the register filter so only user-feelable changes survive; then the
+//   native-speaker gate; then the DNA/voice gate — calm, warm, benefit-led,
+//   no-emoji garden register). This is DRAFT copy: it is NOT yet approved. It
+//   awaits Ben's explicit D-04 sign-off (Plan 11, Task 2) — reviewed as rendered
+//   on the real /changelog page + What's-New popup — before it is considered
+//   final. The v1.2.4 draft and PROJECT.md ledger are SOURCE material only;
+//   nothing here was previously approved. Versions / dates / anchors are FINAL
+//   (not draft). Task 3 records the D-04 APPROVED marker once Ben signs off.
 
 (function () {
   "use strict";
@@ -58,21 +63,21 @@
       version: "1.3.0",
       anchor: "v1-3",
       date: "July 2026",
-      lede: "This release is all about feeling at home in Sessions Garden, with guidance right where you need it.",
+      lede: "This release is all about feeling at home in Sessions Garden, with gentle guidance right where you need it.",
       highlights: [
         "A help button on every page opens a searchable help center.",
-        "A guided tour walks you through the app on first launch.",
-        "Release notes now live inside the app.",
+        "A guided tour walks you through the app the first time you open it.",
+        "Release notes now live inside the app, so you can always see what's new.",
       ],
       categories: {
         new: [
-          "A searchable help center reachable from every page.",
-          "A first-run welcome screen that introduces the app.",
-          "A guided tour of the main workflow.",
-          "This in-app changelog, so you can see what changed.",
+          "A searchable help center you can open from any page.",
+          "A warm welcome screen the first time you open the app.",
+          "A guided tour of the main workflow, whenever you'd like a refresher.",
+          "This in-app changelog, so every update is easy to follow.",
         ],
         improved: [
-          "A clearer hint for installing the app on your phone.",
+          "A clearer hint for adding Sessions Garden to your phone's home screen.",
         ],
       },
     },
@@ -82,28 +87,28 @@
       version: "1.2.0",
       anchor: "v1-2",
       date: "July 2026",
-      lede: "Make the app your own, with your date format, your session formats, and faster ways to find a session.",
+      lede: "Make Sessions Garden your own, with your date format, your session formats, and faster ways to find any session.",
       highlights: [
-        "A new Personalize tab lets you choose how dates appear everywhere.",
+        "A new Personalize tab lets you choose how dates appear across the app.",
         "Rename the built-in session formats or add your own.",
-        "Filter and sort sessions to find what you need faster.",
+        "Filter and sort your sessions to find what you need faster.",
       ],
       categories: {
         new: [
-          "A Personalize tab in Settings to choose your date format.",
-          "Custom session formats you can rename or add.",
+          "A Personalize tab in Settings for choosing your date format.",
+          "Custom session formats you can rename or add to.",
           "A Session Format filter on the Overview and Sessions pages.",
-          "A Heart-Wall toggle to show only sessions where a Heart-Wall was worked on.",
-          "Click a column header on the Overview to sort by it.",
+          "A Heart-Wall filter to show only the sessions where a Heart-Wall was worked on.",
+          "Click any column heading on the Overview to sort by it.",
         ],
         improved: [
-          "Dates now look the same everywhere, including PDF exports.",
-          "More reliable install on Safari.",
-          "Heart-Wall is named consistently across the whole app.",
+          "Dates now look the same everywhere, including your PDF exports.",
+          "More reliable installation on Safari.",
+          "Heart-Wall is named consistently throughout the app.",
         ],
         fixed: [
           "The app now recovers on its own from certain database errors.",
-          "Updated the legal pages.",
+          "Refreshed the legal pages.",
         ],
       },
     },
@@ -116,17 +121,17 @@
       lede: "The first paid release, built to help you export, reuse, and protect your work.",
       highlights: [
         "Export a polished PDF of any client's session history.",
-        "Save reusable snippets for faster session notes.",
-        "Encrypted backups keep your data safe on your device.",
+        "Save reusable snippets to write session notes faster.",
+        "Encrypted backups keep your data safe on your own device.",
       ],
       categories: {
         new: [
-          "PDF export of a client's full session history.",
-          "Reusable snippets for common session notes.",
-          "Encrypted, passphrase-protected backups.",
+          "A client-facing PDF export of a client's full session history.",
+          "Reusable text snippets for the notes you write again and again.",
+          "Encrypted, passphrase-protected backups of your data.",
         ],
         improved: [
-          "Gentle reminders to back up your data.",
+          "Gentle reminders to back up your work.",
         ],
       },
     },
@@ -136,7 +141,7 @@
       version: "1.0.0",
       anchor: "v1-0",
       date: "May 2026",
-      lede: "Where it all began, the first seed of Sessions Garden.",
+      lede: "Where it all began — the first seed of Sessions Garden.",
       origin: true,
     },
 
