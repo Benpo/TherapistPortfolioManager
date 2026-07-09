@@ -194,7 +194,7 @@ Plans:
 **Wave 6** *(gap-closure — UAT remediation per 41-STORYLINE.md, parallel; build on the shipped tour)*
 
 - [ ] 41-08-PLAN.md — RTL blocker + first-paint geometry fix + strengthened WebKit probe (UAT gaps 2/3/4) [wave 6]
-- [ ] 41-09-PLAN.md — Anchor recomposition: begin / nav-sessions / nav-reporting / settings + heart re-anchor + rot guard (gaps 1/2/6) [wave 6]
+- [x] 41-09-PLAN.md — Anchor recomposition: settings / personalize / fields / snippets / nav / nav-sessions + heart re-anchor + 12-anchor rot guard (gaps 1/2/6) [wave 6]
 - [ ] 41-11-PLAN.md — Storyline copy in 4 locales + parity gate realign (gaps 1/5/6/7) [wave 6]
 
 **Wave 7** *(blocked on Wave 6)*
