@@ -156,6 +156,30 @@ test('No new chrome key value contains an emoji (D-10 text-only)', function () {
   if (hits.length) throw new Error('emoji in: ' + hits.join('; '));
 });
 
+// ── 4. Interpolation tokens survive verbatim in every locale (WARNING 2) ─────
+// changelog.js (versionLabel ~47-53) and whats-new.js (title ~121-127) fall back
+// to a HARDCODED ENGLISH label when their interpolation token is dropped, so a
+// token-losing locale edit would silently ship an English version label with
+// every other gate still green. This gate mirrors the requireToken idiom in
+// tests/41-tour-i18n-parity.test.js: it asserts changelog.entry.version carries
+// '{V}' and whatsNew.title carries '{X.Y}' in every locale. RED-safe (it PASSES
+// today because all four locales carry both tokens); it guards against future
+// drift — including a Plan 09 refinement dropping a token.
+test('Interpolation tokens {V}/{X.Y} survive in changelog.entry.version / whatsNew.title in every locale', function () {
+  const problems = [];
+  const requireToken = (key, token) => {
+    for (const loc of LOCALES) {
+      const val = MAPS[loc][key];
+      if (typeof val === 'string' && val.indexOf(token) === -1) {
+        problems.push(loc + '/' + key + ' is missing ' + token);
+      }
+    }
+  };
+  requireToken('changelog.entry.version', '{V}');
+  requireToken('whatsNew.title', '{X.Y}');
+  if (problems.length) throw new Error(problems.join('; '));
+});
+
 console.log('');
 console.log('Phase 42 i18n parity gate — ' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed === 0 ? 0 : 1);
