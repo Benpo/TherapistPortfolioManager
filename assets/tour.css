@@ -18,8 +18,16 @@
  *   and the single forward (Next/Done) button only. Every other control — Previous
  *   step, Close tour, "Take me there" — stays neutral.
  *
- * Logical properties only (inset-inline-*, padding-inline/block, border-inline-*)
- * so the tether + arrow flip for free under RTL. No physical left/right.
+ * POSITIONING (physical coordinates — Plan 08 / UAT gap 4)
+ *   The spotlight, tooltip, and arrow are positioned on PHYSICAL axes (left/top),
+ *   because tour.js writes physical getBoundingClientRect coordinates. Physical
+ *   positioning is direction-neutral BY CONSTRUCTION — it cannot mirror to the
+ *   opposite side in RTL. (An earlier version placed these on LOGICAL inset props,
+ *   which resolved r.left against the RIGHT edge in RTL and mirrored every
+ *   off-center anchor — the gap-4 blocker.) Flow/box properties that genuinely
+ *   depend on writing direction — padding-inline/block, border-inline-*, and the
+ *   bottom-sheet's inset-inline:0 span — stay logical; only the point-positioning
+ *   of the tour chrome is physical.
  */
 
 .sg-tour-root {
@@ -82,11 +90,23 @@
   box-shadow:
     0 0 0 4px var(--color-primary),
     0 0 0 9999px var(--color-modal-overlay-bg);
-  transition: all 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Animate ONLY the physical geometry (left/top/width/height) — never `all`, so
+     the box-shadow dim/ring never animates on mount, and never a logical axis (JS
+     writes physical left/top). Matches positionSpotlight in tour.js. */
+  transition:
+    left 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* First-paint SNAP (gaps 2/3): the freshly-mounted ring positions with zero
+   animation so it lands ON the anchor instead of growing from its 0×0 base;
+   tour.js removes this class one rAF later to restore the smooth reflow. */
+.sg-tour-spotlight.sg-tour-instant { transition: none; }
 
 /* ── Tethered tooltip (D-04): rounded surface card, logical-property padding,
-   soft shadow. Positioned via inset-inline-start / inset-block-start (RTL-safe). ── */
+   soft shadow. Positioned via PHYSICAL left / top (tour.js writes physical coords
+   from getBoundingClientRect, so this is direction-neutral and never mirrors). ── */
 .sg-tour-tooltip {
   position: fixed;
   z-index: var(--z-tour-tooltip);
@@ -100,12 +120,16 @@
   padding-block: var(--space-md);
   padding-inline: var(--space-md);
   transition:
-    inset-block-start 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-    inset-inline-start 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    left 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* First-paint SNAP companion to the spotlight (gaps 2/3). */
+.sg-tour-tooltip.sg-tour-instant { transition: none; }
 
-/* ── RTL-safe arrow: a rotated square positioned with logical props so it flips
-   for free under RTL. ───────────────────────────────────────────────────────── */
+/* ── Arrow: a rotated square. --arrow-x is a PHYSICAL offset from the tooltip's
+   left edge (computed in tour.js from getBoundingClientRect), so it is placed with
+   physical `left` — the horizontal axis must NOT be logical or it would re-mirror
+   in RTL. The vertical (top/bottom) axis does not flip under RTL. ─────────────── */
 .sg-tour-arrow {
   position: absolute;
   width: 14px;
@@ -117,11 +141,11 @@
 }
 .sg-tour-tooltip[data-arrow="top"] .sg-tour-arrow {
   inset-block-start: -7px;
-  inset-inline-start: var(--arrow-x, 24px);
+  left: var(--arrow-x);
 }
 .sg-tour-tooltip[data-arrow="bottom"] .sg-tour-arrow {
   inset-block-end: -7px;
-  inset-inline-start: var(--arrow-x, 24px);
+  left: var(--arrow-x);
   transform: rotate(225deg);
 }
 .sg-tour-tooltip[data-arrow="none"] .sg-tour-arrow { display: none; }

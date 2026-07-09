@@ -396,8 +396,13 @@ async function main() {
         ' expected≈' + expectedLeft.toFixed(1) + ' mirrored≈' + mirroredLeft.toFixed(1));
     }
 
-    // Post-settle: after scrollIntoView + the one-rAF re-measure, geometry stays on
-    // the anchor and the tooltip is inside the viewport.
+    // Post-settle: the tour positions the spotlight synchronously (correct — the
+    // ring is tw-independent) then re-measures the tooltip clamp one rAF after the
+    // freshly-mounted chrome is laid out and scrollIntoView commits. Give that
+    // settle a short beat (a fixed 2-rAF window races the internal re-measure +
+    // scroll reflow across the Playwright call boundary — Plan 08 permits "a short
+    // delay"), then assert geometry stayed on-anchor and the tooltip is in-viewport.
+    await page.waitForTimeout(250);
     const settled = await page.evaluate(() => new Promise((resolve) => {
       requestAnimationFrame(() => requestAnimationFrame(() => {
         const steps = window.Tour._getSteps();
