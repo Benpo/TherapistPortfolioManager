@@ -64,7 +64,7 @@
           <button type="button" role="tab" id="settingsTabPhotosBtn" class="settings-tab" aria-selected="false" aria-controls="settingsTabPhotos" data-tab="photos" tabindex="-1" data-i18n="settings.tab.photos">Photos</button>
         </div>
 
-        <div id="settingsTabFields" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabFieldsBtn" hidden>
+        <div id="settingsTabFields" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabFieldsBtn" data-tour="fields" hidden>
           <div class="settings-info-banner" role="note">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10"></circle>
@@ -122,7 +122,7 @@
              (window.DateFormat), filled at wire-time by settings.js — never
              hand-typed. The #sessionTypesEditor container is intentionally empty
              here; assets/settings-session-types.js (Plan 07) populates its rows. -->
-        <div id="settingsTabPersonalize" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabPersonalizeBtn">
+        <div id="settingsTabPersonalize" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabPersonalizeBtn" data-tour="personalize">
           <div class="form-field">
             <label class="label" for="dateFormatSelect" data-i18n="settings.dateFormat.label">Date format</label>
             <select class="input select-field select-modern" id="dateFormatSelect">
@@ -167,7 +167,7 @@
           </div>
         </div>
 
-        <div id="settingsTabSnippets" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabSnippetsBtn" hidden>
+        <div id="settingsTabSnippets" role="tabpanel" class="settings-tabpanel" aria-labelledby="settingsTabSnippetsBtn" data-tour="snippets" hidden>
           <section id="snippetsSection" class="snippets-section">
             <p class="section-helper" data-i18n="snippets.section.helper">Reusable text expansions for session notes.</p>
 
