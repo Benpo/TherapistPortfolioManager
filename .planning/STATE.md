@@ -383,7 +383,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-18 pending todos in .planning/todos/pending/:
+26 pending todos in .planning/todos/pending/:
 
 **Pre-existing:**
 
@@ -410,6 +410,7 @@ Recent decisions affecting current work:
 
 **Bugs (found during UAT):**
 
+- backup-schedule-prompt-fires-over-active-onboarding-tour (2026-07-09) — **RELEASE BLOCKER, Phase 41 escape**: `checkBackupSchedule()` fires `openBackupModal()` on visibilitychange with no tour-active guard (D-04 kept backup surfaces out of the AttentionCoordinator); fix before release, coordinate with parallel Phase 42 discussion
 - client-birthdate-can-be-set-to-a-future-date (2026-07-07) — no `max`/validation on the native date inputs
 - _(previously)_ backup-not-preserving-snippet-prefix FIXED 2026-06-26 (snippetPrefix added to backup manifest + restore; falsifiable round-trip test). Phase 29 code-review INFO items IN-01/02/03 also closed 2026-06-26.
 
