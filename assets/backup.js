@@ -1505,6 +1505,26 @@ window.BackupManager = (function () {
     // 7-day banner handles reminders. Never open the modal unsolicited.
     if (intervalMs === null) return;
 
+    // Phase 41 escape (quick 260709-o77): never open the interval-end backup
+    // modal over an active onboarding-tour overlay — a long-idle tab firing
+    // visibilitychange mid-tour would stack the modal on top of the tour and
+    // look broken. Suppress while the tour overlay is currently mounted on THIS
+    // page (window.Tour.isActive() — the mounted-overlay signal, NOT the
+    // persisted sg.tourResume cross-page state). Crucially this returns BEFORE
+    // the debounce-stamp write below, so the suppressed run does NOT consume
+    // portfolioBackupSchedulePromptedAt — the reminder re-fires naturally once
+    // the tour closes (mirrors the CR-01 successful-prompt-only write gate).
+    // Fully typeof-guarded + try/catch because backup.js loads on pages that
+    // never load tour.js; any throw is treated as "tour inactive" (fall through
+    // to the normal prompt path) so a broken/absent Tour can never disable the
+    // backup reminder.
+    try {
+      if (typeof window !== 'undefined' && window.Tour &&
+          typeof window.Tour.isActive === 'function' && window.Tour.isActive()) {
+        return;
+      }
+    } catch (_) {}
+
     var lastExportRaw;
     try { lastExportRaw = localStorage.getItem('portfolioLastExport'); }
     catch (_) { return; }
