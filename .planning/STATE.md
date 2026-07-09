@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 
 ## Current Position
 
-Phase: 41 (replayable-guided-tour) — EXECUTING (paused at 41-13 blocking human-verify checkpoint)
-Plan: 12 of 13 complete; 41-13 automated half GREEN, awaiting human replay sign-off
-Status: PAUSED at 41-13 Task 2 (blocking human-verify). Task 1 GREEN — `node tests/run-all.js` 153/153 + `node tests/webkit/41-rtl-geometry.mjs` all assertions pass (incl. off-center RTL physical-side + post-settle geometry). Awaiting Ben's replay of the full 12-step v3 tour in EN + HE (real Safari/PWA preferred) to confirm storyline coherence and close the failed 41-UAT.md loop. Resume signal: "approved" → write 41-13-SUMMARY + mark phase gate resolved; issues → route as Wave 9 gap-closure.
-Last activity: 2026-07-09 — Phase 41 gap-closure waves 1-2 complete (41-07 closed-out by supersession; 41-08 geometry/RTL-blocker fix, 41-09 12-anchor v3, 41-10 12-step STEPS[]+tab-activation, 41-11 v3 copy 4-locale, 41-12 3-item popover); 41-13 automated gate GREEN; paused at human EN/HE storyline sign-off
+Phase: 41 (replayable-guided-tour) — EXECUTING (41-13 human replay done → UAT Round 2: 5 new findings)
+Plan: 12 of 13 complete; 41-13 automated half GREEN; 41-13 Task 2 human replay surfaced UAT Round 2 (NOT approved)
+Status: 41-13 Task 1 GREEN (suite 153/153 + WebKit probe all-pass). Ben replayed the v3 tour and found 5 next-layer issues (41-UAT.md "Round 2"): R2-1 tall settings panels bury the step box (scroll/clamp + header re-anchor), R2-2 MAIN — reverse D-07 to an INTERACTIVE spotlight (4-panel frame, highlighted control clickable, outside blocked), R2-3 per-step click-to-advance, R2-4 drop step-9 fake export glyph → plain words + real icon, R2-5 finish step Help-center-first + breadth tease. R2-2/R2-3 are a real tour-engine change reversing a locked decision → awaiting Ben's interaction-model + build-path confirmation before authoring Round-2 gap-closure plans (41-14+). Do NOT write 41-13-SUMMARY (no human pass yet).
+Last activity: 2026-07-09 — Phase 41 gap-closure waves 1-2 shipped (41-07 closed-out; 41-08 geometry, 41-09 12-anchor, 41-10 12-step STEPS[]+tab-activation, 41-11 v3 copy, 41-12 3-item popover); 41-13 automated gate GREEN; human replay found UAT Round 2 (5 findings) — interaction-model reversal (D-07) pending scope confirmation
 
 ## Performance Metrics
 
