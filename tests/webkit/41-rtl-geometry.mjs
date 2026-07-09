@@ -463,11 +463,22 @@ async function main() {
         // Mount a deliberately taller-than-viewport anchor and a synthetic step that
         // targets it, then drive the REAL render path at it (the render loop is
         // step-composition-agnostic — _getSteps() returns the live array).
+        // R2-1 follow-up: position the anchor's TOP just below the page top (40px,
+        // on-screen in the 600px viewport) so it stands in for a long SETTINGS PANEL
+        // whose header is visible after scrolling to page top — NOT a below-the-fold
+        // control. The old block:'start' engine scrolls the panel top to the viewport
+        // top (scrollY≈40 > 2), while Ben's scroll-to-page-top fix leaves scrollY=0
+        // and — because the anchor top (40) is < viewport height (600) — does NOT
+        // trigger the below-fold center fallback. This makes the scrollY assertion
+        // below RED against block:'start' and GREEN after window.scrollTo(0,0).
         const el = document.createElement('div');
         el.setAttribute('data-tour', 'tall-probe');
+        el.style.position = 'absolute';
+        el.style.top = '40px';
+        el.style.left = '50%';
+        el.style.transform = 'translateX(-50%)';
         el.style.height = '2200px';
         el.style.width = '320px';
-        el.style.margin = '48px auto';
         el.style.background = '#ccd';
         document.body.appendChild(el);
         const steps = window.Tour._getSteps();
@@ -495,10 +506,21 @@ async function main() {
           const tt = document.querySelector('.sg-tour-tooltip').getBoundingClientRect();
           resolve({
             top: tt.top, left: tt.left, right: tt.right, bottom: tt.bottom,
-            vw: window.innerWidth, vh: window.innerHeight
+            vw: window.innerWidth, vh: window.innerHeight,
+            scrollY: window.scrollY
           });
         }));
       }));
+      // R2-1 follow-up (Ben's intent): on step entry the PAGE scrolls to the top so
+      // the user keeps orientation (the settings tab bar / page header stays visible —
+      // "which tab am I in") instead of being dropped into the middle of a long panel.
+      // RED against the shipped block:'start' engine (which aligns the panel top to the
+      // viewport top → scrollY = the panel's document offset ≈ 40 > 2); GREEN after
+      // window.scrollTo(0, 0). The below-fold guard is NOT triggered here (anchor top
+      // 40 < 600), so a settings-style tall panel lands at the page top.
+      assert(box.scrollY <= 2,
+        'tall settings-panel step scrolls the PAGE to the top (orientation kept)',
+        'scrollY=' + box.scrollY);
       const m = 1; // allow a 1px sub-pixel margin
       const boxInView = box.top >= -m && box.left >= -m &&
         box.bottom <= box.vh + m && box.right <= box.vw + m;
