@@ -40,18 +40,21 @@
 // treatment. No emojis in any string (D-10). Versions, dates, and anchors are
 // FINAL. Register nouns (New/Improved/Fixed) come from i18n, not the data.
 //
-// ── COPY STATUS: DRAFTED VIA D-03 PIPELINE — PENDING BEN'S D-04 APPROVAL ───────
+// ── COPY STATUS: D-04 APPROVED BY BEN — 2026-07-09 ────────────────────────────
 //   The lede / highlights / category BODY strings below were DRAFTED through the
 //   D-03 wording pipeline (factual gate — grounded in the PROJECT.md Validated
 //   ledger, the UNAPPROVED v1.2.4 users draft, and the milestone archives; then
 //   the register filter so only user-feelable changes survive; then the
 //   native-speaker gate; then the DNA/voice gate — calm, warm, benefit-led,
-//   no-emoji garden register). This is DRAFT copy: it is NOT yet approved. It
-//   awaits Ben's explicit D-04 sign-off (Plan 11, Task 2) — reviewed as rendered
-//   on the real /changelog page + What's-New popup — before it is considered
-//   final. The v1.2.4 draft and PROJECT.md ledger are SOURCE material only;
-//   nothing here was previously approved. Versions / dates / anchors are FINAL
-//   (not draft). Task 3 records the D-04 APPROVED marker once Ben signs off.
+//   no-emoji garden register), then APPROVED by Ben on 2026-07-09 (Plan 11,
+//   Task 2 D-04 gate) as rendered on the real /changelog page + What's-New popup.
+//   Approval carried ONE verbatim revision applied in Task 3: the v1.1 lede and
+//   section-comment label were reworded to drop an internal business-framing
+//   opener that must not ship in user-facing copy — this asset, INCLUDING its
+//   comments, is served to clients, so no internal framing may appear anywhere in
+//   this file. All other entries (v1.3, v1.2, v1.0, popup highlights) approved
+//   exactly as drafted. Versions / dates / anchors are FINAL. GATE-04 (Phase 43)
+//   re-checks the v1.3 entry at the ship moment.
 
 (function () {
   "use strict";
@@ -113,12 +116,12 @@
       },
     },
 
-    // ═══ v1.1 — first paid release ═══════════════════════════════════════════
+    // ═══ v1.1 — export, snippets & encrypted backups ═════════════════════════
     {
       version: "1.1.0",
       anchor: "v1-1",
       date: "June 2026",
-      lede: "The first paid release, built to help you export, reuse, and protect your work.",
+      lede: "Built to help you export, reuse, and protect your work.",
       highlights: [
         "Export a polished PDF of any client's session history.",
         "Save reusable snippets to write session notes faster.",
