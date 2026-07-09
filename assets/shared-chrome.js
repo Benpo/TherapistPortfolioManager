@@ -110,6 +110,18 @@ var SharedChrome = (function() {
       ? ''
       : '<a href="./license.html">' + strings.license + '</a>';
 
+    // Phase 42 Plan 10 (CHLG-02 / D-15) — the v{APP_VERSION} TEXT becomes a quiet
+    // link to the changelog PAGE when NOT in demo; inert plain text in the demo
+    // (same isDemo seam as licenseLinkHtml, so the changelog is unreachable from
+    // the iframe). Reads version only from APP_VERSION — no integrity-token
+    // coupling. The .app-footer-version-warn marker span stays a SIBLING OUTSIDE
+    // this anchor (independence guard: the integrity nudge upgrades on its own,
+    // never entangled with the changelog link — no double-signalling).
+    var versionText = 'v' + APP_VERSION;
+    var versionHtml = isDemo
+      ? versionText
+      : '<a class="app-footer-version-link" href="./changelog.html">' + versionText + '</a>';
+
     // Remove existing footer if re-rendering
     var existing = document.querySelector('.app-footer');
     if (existing) existing.remove();
@@ -132,7 +144,7 @@ var SharedChrome = (function() {
       // The integrity check below may UPGRADE it to v{APP_VERSION} ⚠ — it never
       // downgrades. The marker span is created empty here so the check can fill
       // it without touching the rest of the line.
-      '<p class="app-footer-copy">&copy; 2026 Sessions Garden &middot; v' + APP_VERSION +
+      '<p class="app-footer-copy">&copy; 2026 Sessions Garden &middot; ' + versionHtml +
         '<span class="app-footer-version-warn" aria-hidden="true"></span></p>' +
       '<p class="app-footer-tagline">' + strings.madeWith + '</p>';
 

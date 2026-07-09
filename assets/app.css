@@ -2911,6 +2911,18 @@ body.read-mode .heart-shield-section input {
   font-size: 0.8rem;
   margin: var(--space-xs, 0.25rem) 0 0;
 }
+/* Phase 42 (CHLG-02) — the footer version text links quietly to the changelog
+   page. Muted like the surrounding copy (never accent-colored); underline only
+   on hover/focus so it reads as discoverable-but-silent, not a call to action.
+   The independent .app-footer-version-warn integrity marker is a sibling. */
+.app-footer-version-link {
+  color: inherit;
+  text-decoration: none;
+}
+.app-footer-version-link:hover,
+.app-footer-version-link:focus-visible {
+  text-decoration: underline;
+}
 .app-footer-tagline {
   color: var(--color-text-muted);
   font-size: 0.75rem;
