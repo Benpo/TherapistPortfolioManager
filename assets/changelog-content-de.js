@@ -40,7 +40,7 @@
           "Dieses App-interne Änderungsprotokoll, damit Sie jede Aktualisierung leicht verfolgen können.",
         ],
         improved: [
-          "Ein klarerer Hinweis, wie Sie Sessions Garden zum Startbildschirm Ihres Telefons hinzufügen.",
+          "Ein klarerer Hinweis, wie Sie Sessions Garden auf Ihrem Computer installieren.",
         ],
       },
     },

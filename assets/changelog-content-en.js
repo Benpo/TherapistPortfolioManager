@@ -55,6 +55,14 @@
 //   this file. All other entries (v1.3, v1.2, v1.0, popup highlights) approved
 //   exactly as drafted. Versions / dates / anchors are FINAL. GATE-04 (Phase 43)
 //   re-checks the v1.3 entry at the ship moment.
+//
+//   REVISION 2026-07-10 (Ben-directed, Plan 42.1-10 Task 3, supersedes D-04
+//   "copy FINAL" for this one line): the v1.3 `improved` entry no longer promises
+//   phone / mobile home-screen support — mobile is deliberately NOT published yet
+//   (HELP-06: computer-only install guidance). Reworded EN "…adding Sessions
+//   Garden to your phone's home screen" → "…installing Sessions Garden on your
+//   computer", and mirrored natively in HE/DE/CS. Structure/version/anchor/date
+//   unchanged; no-emoji/terminology rules preserved.
 
 (function () {
   "use strict";
@@ -80,7 +88,7 @@
           "This in-app changelog, so every update is easy to follow.",
         ],
         improved: [
-          "A clearer hint for adding Sessions Garden to your phone's home screen.",
+          "A clearer hint for installing Sessions Garden on your computer.",
         ],
       },
     },

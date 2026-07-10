@@ -41,7 +41,7 @@
           "Tento seznam změn přímo v aplikaci, aby se dala každá aktualizace snadno sledovat.",
         ],
         improved: [
-          "Jasnější nápověda, jak přidat Sessions Garden na domovskou obrazovku vašeho telefonu.",
+          "Jasnější nápověda, jak nainstalovat Sessions Garden do počítače.",
         ],
       },
     },
