@@ -47,7 +47,6 @@
           id: "topic-sections-on-off",
           title: "הפעלה וכיבוי של מקטעים",
           priority: 1,
-          covers: ["settings.html", "assets/settings.js"],
           body: [
             { type: "p", text: "כל אחד עובד קצת אחרת. Sessions Garden בנויה כדי להתאים את עצמה לדרך שלכם — ולא להפך. אפשר להתחיל בעיצוב טופס המפגש כך שיציג רק את מה שאתם משתמשים בו." },
             { type: "steps", items: [
@@ -62,7 +61,6 @@
           id: "topic-renaming",
           title: "שינוי שמות של מקטעים",
           priority: 2,
-          covers: ["settings.html", "assets/settings.js"],
           body: [
             { type: "p", text: "במקטע {ui:settings.tab.fields} אפשר לשנות את השם של רוב מקטעי המפגש למילים המדויקות שבהן אתם משתמשים מול הלקוחות, כך שהטופס ידבר בשפה שלכם. כמה מקטעים קבועים שומרים על שמם, אבל עדיין אפשר לכבות אותם." }
           ]
@@ -71,7 +69,6 @@
           id: "topic-snippet-library",
           title: "ספריית ההשלמות שלכם",
           priority: 2,
-          covers: ["settings.html", "assets/settings-snippets.js", "assets/snippets-seed.js"],
           body: [
             { type: "p", text: "השלמות טקסט הופכות את הטקסט שאתם כותבים שוב ושוב — משמעויות של רגשות, הסברים על טכניקות, הערת הסיכום הקבועה שלכם — למילות מפתח קצרות שמתרחבות תוך כדי הקלדה. Sessions Garden מגיעה עם ספרייה מובנית של השלמות רגשות, ואפשר לעצב אותה מחדש כך שתהיה שלכם, במקטע {ui:settings.tab.snippets} שבהגדרות." },
             { type: "note", text: "המדריך המלא — יצירת השלמות והרחבתן באמצע מפגש — נמצא תחת 'תיעוד רגשות'." }
@@ -81,7 +78,6 @@
           id: "topic-date-format",
           title: "פורמט התאריך שלכם",
           priority: 2,
-          covers: ["settings.html", "assets/settings.js"],
           body: [
             { type: "p", text: "מגדירים את {ui:settings.dateFormat.label} פעם אחת, בהגדרות תחת {ui:settings.tab.personalize}, ו-Sessions Garden משתמשת בו בכל מקום — כולל בייצוא." },
             { type: "note", text: "אפשר להשאיר על {ui:settings.dateFormat.auto} כדי לעקוב אחרי שפת האפליקציה, או לבחור את הסגנון המדויק שנוח לכם לקרוא." }
@@ -91,7 +87,6 @@
           id: "topic-session-formats",
           title: "פורמטי מפגש מותאמים אישית",
           priority: 2,
-          covers: ["settings.html", "assets/settings.js"],
           body: [
             { type: "p", text: "מעבר לפורמטים המובנים {ui:session.type.clinic}, {ui:session.type.online}, {ui:session.type.remote}, {ui:session.type.proxy} ו-{ui:session.type.other}, אפשר להוסיף פורמטים משלכם תחת {ui:settings.sessionTypes.heading} במקטע {ui:settings.tab.personalize} — כך שכל מפגש תמיד מתויג בדרך שבה אתם חושבים עליו." }
           ]
@@ -110,7 +105,6 @@
           id: "topic-first-client",
           title: "הלקוח הראשון שלכם",
           priority: 1,
-          covers: ["add-client.html", "index.html"],
           body: [
             { type: "p", text: "לקוח הוא האדם, הילד או בעל החיים שאיתו אתם עובדים. הוספת לקוח לוקחת רגע." },
             { type: "steps", items: [
@@ -126,7 +120,6 @@
           id: "topic-client-types",
           title: "סוגי לקוחות",
           priority: 2,
-          covers: ["add-client.html"],
           body: [
             { type: "p", text: "בוחרים {ui:client.form.type} בעת הוספת מישהו — {ui:client.form.type.adult}, {ui:client.form.type.child}, {ui:client.form.type.animal} או {ui:client.form.type.other}." }
           ]
@@ -135,7 +128,6 @@
           id: "topic-client-photo",
           title: "תמונות לקוח",
           priority: 3,
-          covers: ["add-client.html", "assets/crop.js"],
           body: [
             { type: "p", text: "אפשר להוסיף {ui:client.form.photo} כדי לעזור לשמור על החיבור האנרגטי בעבודה מרחוק. לאחר ההעלאה אפשר לחתוך ולמקם אותה מחדש כך שתשב בדיוק במקום." }
           ]
@@ -152,7 +144,6 @@
           id: "topic-new-session",
           title: "שתי דרכים להתחיל",
           priority: 1,
-          covers: ["sessions.html", "add-session.html"],
           body: [
             { type: "p", text: "יש שתי דרכים רגועות לפתוח מפגש חדש — אפשר להשתמש בזו שמתאימה לרגע." },
             { type: "steps", items: [
@@ -166,7 +157,6 @@
           id: "topic-past-sessions",
           title: "מפגשים קודמים של לקוח",
           priority: 2,
-          covers: ["sessions.html"],
           body: [
             { type: "p", text: "לפתוח {ui:nav.sessions} כדי לראות את כל מה שתיעדתם, או לבחור {ui:overview.table.viewSessions} אצל לקוח כדי לראות מה קרה בפעם הקודמת." }
           ]
@@ -183,7 +173,6 @@
           id: "topic-quick-paste",
           title: "תיעוד רגשות במהירות",
           priority: 1,
-          covers: ["add-session.html"],
           body: [
             { type: "p", text: "במהלך מפגש רוצים לתעד רגשות בלי לשבור את הרצף." },
             { type: "steps", items: [
@@ -197,7 +186,6 @@
           id: "topic-snippets",
           title: "השלמות טקסט — להקליד פחות",
           priority: 1,
-          covers: ["add-session.html", "settings.html", "assets/snippets.js", "assets/settings-snippets.js", "assets/snippets-seed.js"],
           body: [
             { type: "p", text: "השלמות טקסט הן מילות מפתח קצרות שמתרחבות לטקסט שאתם כותבים לעיתים קרובות — משמעות של רגש, הסבר על טכניקה, הערת הסיכום שאתם מוסיפים לרוב המפגשים. שומרים את הטקסט פעם אחת; לאחר מכן מילה אחת מחזירה אותו, כך שמקלידים פחות באמצע המפגש ונשארים נוכחים עם הלקוח." },
             { type: "p", text: "Sessions Garden מגיעה עם ספרייה מובנית של השלמות רגשות, מוכנות לשימוש. הוספת השלמות משלכם לוקחת דקה:" },
@@ -226,7 +214,6 @@
           id: "topic-heartwall-workflow",
           title: "תהליך העבודה עם חומת הלב",
           priority: 1,
-          covers: ["add-session.html"],
           body: [
             { type: "p", text: "כאשר מפגש הוא עבודה על חומת הלב, Sessions Garden עוזרת לסמן אותו ולעקוב אחריו לאורך המפגשים." },
             { type: "steps", items: [
@@ -240,7 +227,6 @@
           id: "topic-heartwall-removal",
           title: "מעקב אחר הסרה",
           priority: 2,
-          covers: ["add-session.html", "assets/overview.js"],
           body: [
             { type: "p", text: "כאשר חומת לב יורדת, מגדירים את {ui:session.form.shieldRemoved} ל-{ui:session.form.shieldRemoved.yes}." },
             { type: "note", text: "הסטטוס של כל לקוח — {ui:overview.heartShield.active} או {ui:overview.heartShield.removed} — מחושב מתוך המפגשים שלו ומוצג בסקירה הכללית, כך שאף פעם לא צריך לעקוב אחריו ידנית." }
@@ -258,7 +244,6 @@
           id: "topic-before-after",
           title: "דירוגים לפני ואחרי",
           priority: 1,
-          covers: ["add-session.html"],
           body: [
             { type: "p", text: "דירוג כל נושא לפני העבודה ואחריה מראה את השינוי לאורך זמן, במספרים של הלקוח עצמו." },
             { type: "steps", items: [
@@ -272,7 +257,6 @@
           id: "topic-multiple-issues",
           title: "כמה נושאים",
           priority: 2,
-          covers: ["add-session.html"],
           body: [
             { type: "p", text: "עובדים על יותר מדבר אחד במפגש? לבחור {ui:session.form.addIssue} כדי לעקוב אחר נושא נוסף — עד שלושה בכל מפגש, לכל אחד דירוגי לפני-ואחרי משלו." }
           ]
@@ -281,7 +265,6 @@
           id: "topic-reversal",
           title: "להבין היפוך",
           priority: 2,
-          covers: ["add-session.html"],
           body: [
             { type: "p", text: "לפעמים דירוג האחרי יוצא גבוה מדירוג הלפני. זה היפוך — לא כישלון, אלא מידע. לרוב זה אומר שמשהו עמוק יותר עלה, וכדאי לרשום אותו לפעם הבאה." }
           ]
@@ -298,7 +281,6 @@
           id: "topic-single-export",
           title: "ייצוא מפגש בודד",
           priority: 1,
-          covers: ["assets/export-modal.js", "assets/pdf-export.js"],
           body: [
             { type: "p", text: "כאשר מפגש מסתיים, אפשר לשלוח ללקוח עותק מעוצב להפליא או לתייק אותו ברשומות שלכם." },
             { type: "steps", items: [
@@ -312,7 +294,6 @@
           id: "topic-export-formats",
           title: "בחירת פורמט",
           priority: 2,
-          covers: ["assets/export-modal.js"],
           body: [
             { type: "p", text: "PDF מתאים במיוחד לשליחת מסמך גמור ונאה ללקוח. טקסט פשוט מתאים במיוחד כשרוצים לשמור את ההערות ברשומות שלכם או להעביר אותן לאפליקציה אחרת." }
           ]
@@ -329,7 +310,6 @@
           id: "topic-dashboard",
           title: "לקרוא את הסקירה הכללית",
           priority: 2,
-          covers: ["index.html", "assets/overview.js"],
           body: [
             { type: "p", text: "הסקירה הכללית מרכזת את כל העבודה שלכם במקום רגוע אחד: {ui:overview.stats.clients}, {ui:overview.stats.sessions} ו-{ui:overview.stats.month} נמצאים למעלה, וכל הלקוחות מופיעים למטה." }
           ]
@@ -338,7 +318,6 @@
           id: "topic-filters",
           title: "חיפוש וסינון",
           priority: 2,
-          covers: ["index.html"],
           body: [
             { type: "p", text: "אפשר למצוא כל אחד במהירות. מחפשים לפי שם בראש הרשימה, ואז מצמצמים בעזרת {ui:overview.filter.type}, {ui:filter.sessionFormat} או {ui:overview.filter.heartShield}." },
             { type: "note", text: "אפשר לסדר מחדש את הרשימה בעזרת {ui:overview.filter.sort}, ולבחור {ui:overview.filter.clear} כדי להתחיל מחדש." }
@@ -348,7 +327,6 @@
           id: "topic-next-session",
           title: "תאריך המפגש הבא",
           priority: 2,
-          covers: ["index.html", "add-session.html"],
           body: [
             { type: "p", text: "מגדירים {ui:session.form.nextSessionDate} במפגש והוא מופיע בסקירה הכללית תחת {ui:overview.table.nextSession} — מסומן {ui:overview.table.nextSession.overdue} ברגע שהתאריך עבר, כך שאף אחד לא נופל בין הכיסאות." }
           ]
@@ -367,7 +345,6 @@
           id: "topic-data-local",
           title: "הנתונים אף פעם לא עוזבים את הדפדפן",
           priority: 1,
-          covers: ["assets/db.js"],
           body: [
             { type: "p", text: "כל מה שאתם מתעדים ב-Sessions Garden נמצא במכשיר הזה בלבד, בתוך הדפדפן הזה. שום דבר אף פעם לא נשלח לשרת — הפרטיות הזו היא כל הרעיון של האפליקציה." },
             { type: "p", text: "זה גם אומר שאתם הגיבוי היחיד. אם הנתונים של הדפדפן הזה יימחקו אי פעם, המפגשים ייעלמו איתם, ולכן חשוב לשמור גיבוי משלכם." }
@@ -377,7 +354,6 @@
           id: "topic-backup-restore",
           title: "גיבוי ושחזור",
           priority: 1,
-          covers: ["settings.html", "assets/backup.js", "assets/backup-modal.js"],
           body: [
             { type: "p", text: "גיבוי הוא קובץ יחיד שמכיל את כל הלקוחות והמפגשים שלכם. יצירת גיבוי לוקחת פחות מדקה." },
             { type: "steps", items: [
@@ -393,7 +369,6 @@
           id: "topic-working-offline",
           title: "עבודה במצב לא מקוון",
           priority: 2,
-          covers: ["sw.js"],
           body: [
             { type: "p", text: "ברגע ש-Sessions Garden פתוחה בדפדפן, היא ממשיכה לעבוד בלי אינטרנט כלל — תיעוד מפגשים, ייצוא, הכול חוץ מהפעלת הרישיון (וביטול ההפעלה, כשעוברים מחשב)." }
           ]
@@ -402,7 +377,6 @@
           id: "topic-updates",
           title: "קבלת עדכונים",
           priority: 3,
-          covers: ["sw.js"],
           body: [
             { type: "note", text: "כאשר גרסה חדשה מוכנה, Sessions Garden מתעדכנת בשקט בפעם הבאה שפותחים אותה במצב מקוון. אין מה להתקין ידנית." }
           ]
@@ -419,7 +393,6 @@
           id: "topic-install-chrome",
           title: "Chrome ו-Edge",
           priority: 1,
-          covers: ["sw.js", "manifest.json"],
           body: [
             { type: "glyph", name: "install-chrome" },
             { type: "p", text: "במחשב, Chrome ו-Edge מאפשרים להתקין את Sessions Garden כאפליקציה עצמאית בכמה לחיצות." },
@@ -435,7 +408,6 @@
           id: "topic-install-safari",
           title: "Safari ב-Mac",
           priority: 1,
-          covers: ["sw.js", "manifest.json"],
           body: [
             { type: "glyph", name: "install-safari" },
             { type: "p", text: "ב-Mac, Safari יכול להוסיף את Sessions Garden ישירות ל-Dock." },
@@ -451,7 +423,6 @@
           id: "topic-install-mobile-note",
           title: "הערה לגבי טלפונים",
           priority: 2,
-          covers: ["manifest.json"],
           body: [
             { type: "p", text: "Sessions Garden בנויה למחשב שלכם, שם אתם עושים את עבודת המפגשים." },
             { type: "note", text: "אפשר לפתוח אותה בדפדפן של הטלפון, אבל הלקוחות והמפגשים שלכם נמצאים בכל מכשיר בנפרד — אין סנכרון בין המחשב לטלפון. כדאי לשמור את העבודה האמיתית על המחשב שבו התקנתם את האפליקציה." }
@@ -469,7 +440,6 @@
           id: "topic-activation",
           title: "הפעלת הרישיון",
           priority: 1,
-          covers: ["license.html", "assets/license.js"],
           body: [
             { type: "p", text: "מפתח רישיון פותח את האפליקציה המלאה. מזינים אותו פעם אחת." },
             { type: "steps", items: [
@@ -484,7 +454,6 @@
           id: "topic-trial",
           title: "להתנסות קודם",
           priority: 1,
-          covers: ["license.html", "landing.html"],
           body: [
             { type: "p", text: "רוצים לחקור קודם? ההדגמה החיה בדף הפתיחה מאפשרת להתנסות ב-Sessions Garden עם נתוני דוגמה — היא מתאפסת בכל פעם, ושום דבר שמזינים בה לא נשמר. האפליקציה המלאה נפתחת לאחר הפעלת מפתח רישיון; מאותו רגע כל מה שמתעדים נשמר בבטחה במחשב שלכם." }
           ]
@@ -493,7 +462,6 @@
           id: "topic-two-devices",
           title: "מעבר למחשב חדש",
           priority: 2,
-          covers: ["license.html", "assets/license.js"],
           body: [
             { type: "p", text: "הרישיון שלכם מכסה שתי הפעלות — שני דפדפנים או מחשבים." },
             { type: "note", text: "עוברים למחשב חדש? קודם מבטלים את ההפעלה בישן, ואז מפעילים בחדש, כדי להישאר במסגרת המגבלה של שתי הפעלות. חשוב לזכור להעביר את הנתונים בעזרת קובץ גיבוי." }
@@ -511,7 +479,6 @@
           id: "topic-missing-clients",
           title: "\"אני לא רואה את הלקוחות שלי\"",
           priority: 1,
-          covers: ["index.html", "assets/db.js"],
           body: [
             { type: "p", text: "הלקוחות והמפגשים שלכם נשמרים בתוך הדפדפן הזה במחשב הזה. אם נדמה שהם נעלמו, כמעט תמיד הם מוסתרים, לא אבודים." },
             { type: "steps", items: [
@@ -525,7 +492,6 @@
           id: "topic-report-problem",
           title: "דיווח על תקלה",
           priority: 2,
-          covers: ["settings.html", "report.html", "assets/crashlog.js"],
           body: [
             { type: "p", text: "אם משהו לא עובד כמו שצריך, אפשר לשלוח לנו דוח אבחון — אבל שום דבר אף פעם לא נשלח אוטומטית." },
             { type: "steps", items: [
