@@ -291,7 +291,31 @@ Plans:
   3. A written, checkable path-based definition of "user-facing change" governs the gate, with a logged escape hatch for genuine emergencies (never a silent `--no-verify` culture).
   4. The gate hooks the existing release habit — the hand-set `APP_VERSION` bump in `assets/version.js` is the release moment a changelog entry must exist for — and the gate is validated against v1.3's own ship.
 
-**Plans**: TBD
+**Plans**: 7 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 43-01-PLAN.md — RED-first behavior tests (throwaway-git-repo RED/GREEN harness + role-table self-consistency), authored before the gate (D-21) [wave 1]
+- [ ] 43-02-PLAN.md — Foundation: shared vm content loader (scripts/lib/) + 5 test renames (D-22) with before/after grep post-condition + TESTING map/count [wave 1]
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 43-03-PLAN.md — covers[] backfill (D-19) + gen-help-map.js + generated HELP-MAP.md, coherent in one commit (D-13/D-17 #1) [wave 2]
+- [ ] 43-04-PLAN.md — D-20 covers[] EN-only: strip he/de/cs + delete the locale covers-parity block [wave 2]
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 43-05-PLAN.md — role-table.js (written GATE-03 definition, OD-1 watch-code-only) + invariants.js (4 D-17 checks) + wire renamed integrity tests [wave 3]
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 43-06-PLAN.md — scripts/docs-gate.js: invariants-first, range rule, trailers, release moment — turns the Wave-1 behavior test GREEN [wave 4]
+
+**Wave 5** *(enforce at close, ROADMAP §11.4)*
+
+- [ ] 43-07-PLAN.md — enforcement: .githooks/pre-push + package.json prepare + deploy.yml CI step (OD-2 anchored range) + delete pre-commit + CLAUDE.md DoD [wave 5]
+
 **UI hint**: no
 
 ## Backlog
