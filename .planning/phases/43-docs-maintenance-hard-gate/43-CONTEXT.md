@@ -269,6 +269,57 @@ The `todo.match-phase 43` scan returned only keyword noise — no pending todo c
 
 ---
 
+<post_discussion_decisions>
+## Decisions taken AFTER this context was written (2026-07-10, during plan-phase)
+
+Four decisions were taken with Ben during research/planning, all inside this document's
+"Claude's Discretion" fences. They amend no locked decision. Recorded here so the plans and the
+decision record do not diverge — this phase exists to prevent exactly that.
+
+- **OD-1 — The role table watches CODE ONLY.** Watched = a **shipped path** (root `*.html`, anything
+  under `assets/`, plus `manifest.json` and `sw.js`) **AND** a code extension (`.js`, `.css`, `.html`).
+  Non-code shipped files — `.png`, `.jpg`, `.ico`, `.woff2`, `.txt`, `assets/demo-seed-data.json` — are
+  ignored entirely: neither trigger nor satisfier. The vendor bundles stay watched (they are `.js`, and
+  D-06 deliberately declined to denylist them).
+  - *Why:* taken literally, D-05 ("everything `deploy.yml` ships") + D-12 ("uncovered blocks") makes 31
+    images/fonts block forever, since no `covers[]` entry can ever name `Rubik-Bold.woff2`.
+  - *Accepted, known cost, stated plainly in `role-table.js`'s header:* **a logo swap or a new hero
+    illustration ships with no changelog entry and the gate stays silent.** Ben chose this over splitting
+    the changelog and help requirements, having been shown that consequence.
+  - *Both axes are load-bearing.* An extension-only rule makes all 164 `tests/*.js` and the gate's own
+    `scripts/*.js` into uncovered triggers — which would block Phase 43's own ship and every push after.
+  - *D-06 gap closed:* D-06's rationale is "a page and its script are one surface," but it never named
+    `assets/landing.css` / `assets/demo.css`. They are now denylisted alongside their pages.
+
+- **OD-2 — The CI range is anchored to the last-deployed SHA**, not `github.event.before..after`.
+  - *Why:* `deploy.yml`'s `concurrency: cancel-in-progress: true` can drop a push range entirely — a
+    cancelled run's commits are never gate-verified, and the next run's range starts after them. Flipping
+    the flag to `false` does not fix it (GitHub cancels a *pending* run when a third arrives).
+  - The anchored range is self-healing: skipped ranges are re-covered by the next successful run. In
+    steady state it equals `before..after` exactly. `deploy.yml`'s deploy-commit message widens to the
+    full 40-char SHA. Fail closed on an unresolvable anchor; a genuinely absent `deploy` branch is the
+    one documented benign bootstrap.
+
+- **OD-3 — One `*-Unaffected:` trailer may name multiple files**, comma-separated, with one shared reason.
+  - *Why:* replaying Phases 41 and 42 against this gate showed **8** and **12** required trailers. The
+    recurring core (`app.js`, `i18n-{en,he,de,cs}.js`, `app.css`, `tokens.css`, `shared-chrome.js`) is
+    touched nearly every phase and can never earn a help topic. Twelve one-file lines per push is
+    boilerplate, and boilerplate is not a forcing function — it is the gate Ben would disable (§Specifics,
+    the noise principle). Every uncovered file must still be named, with a reason. Only the ceremony shrinks.
+
+- **OD-4 — `Docs-Emergency-Skip:` is honored ONLY on the tip commit of the pushed range.**
+  - *Why:* this repo merges GSD executor worktree branches into `main`, and git reads trailers from every
+    commit reachable in a range, including those pulled in by a merge. Without this, a genuine hotfix's
+    emergency skip would — when its branch was later merged alongside ordinary work — silently excuse that
+    ordinary work too. Tip-only means an emergency skip can only excuse the push it was written for, and
+    costs a real emergency nothing. An inherited skip found on a non-tip commit is ignored **and reported**.
+  - The two cheap `*-Unaffected:` trailers keep "any commit in the range" — they are file-scoped, so an
+    inherited one can only ever excuse the file it names.
+
+</post_discussion_decisions>
+
+---
+
 *Phase: 43-docs-maintenance-hard-gate*
-*Context gathered: 2026-07-10*
+*Context gathered: 2026-07-10 · OD-1..OD-4 appended 2026-07-10 during plan-phase*
 </content>
