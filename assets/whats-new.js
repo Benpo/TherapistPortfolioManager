@@ -70,10 +70,24 @@
     var m = /^(\d+)\.(\d+)/.exec(v || '');
     return m ? (m[1] + '.' + m[2]) : (v || '');
   }
+  // Locale-aware with per-entry EN fallback (mirrors changelog.js localeEntries(),
+  // keyed on version). EN is the canonical, always-complete base; when a locale
+  // array exists each EN entry is swapped for its same-version localized
+  // counterpart when present, else stays EN. Resolve lang the way t() does
+  // (portfolioLang → I18N_DEFAULT → 'en'). Closes Pitfall 1: a Hebrew user on any
+  // page the popup fires on now sees native highlights (given the page loaded the
+  // CHANGELOG_CONTENT_<LANG> sibling — Task 3).
   function entries() {
-    var arr = null;
-    try { arr = window.CHANGELOG_CONTENT_EN; } catch (e) { arr = null; }
-    return Array.isArray(arr) ? arr : [];
+    var lang = (lsGet('portfolioLang') || window.I18N_DEFAULT || 'en').toUpperCase();
+    var loc = null, en = null;
+    try { loc = window['CHANGELOG_CONTENT_' + lang]; } catch (e) {}
+    try { en = window.CHANGELOG_CONTENT_EN; } catch (e) {}
+    var base = Array.isArray(en) ? en : [];
+    if (!Array.isArray(loc)) return base;
+    return base.map(function (b) {
+      var m = loc.filter(function (e) { return e && e.version === b.version; })[0];
+      return m || b;                                        // per-entry EN fallback
+    });
   }
   function entryFor(v) {
     if (!v) return null;
