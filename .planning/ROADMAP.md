@@ -291,7 +291,7 @@ Plans:
   3. A written, checkable path-based definition of "user-facing change" governs the gate, with a logged escape hatch for genuine emergencies (never a silent `--no-verify` culture).
   4. The gate hooks the existing release habit — the hand-set `APP_VERSION` bump in `assets/version.js` is the release moment a changelog entry must exist for — and the gate is validated against v1.3's own ship.
 
-**Plans**: 7/7 plans complete
+**Plans**: 10 plans (7 executed; 3 gap-closure from 43-VERIFICATION.md — CR-01/WR-01/WR-02/WR-03/WR-04/WR-06)
 
 Plans:
 **Wave 1**
@@ -315,6 +315,12 @@ Plans:
 **Wave 5** *(enforce at close, ROADMAP §11.4)*
 
 - [x] 43-07-PLAN.md — enforcement: .githooks/pre-push + package.json prepare + deploy.yml CI step (OD-2 anchored range) + delete pre-commit + CLAUDE.md DoD [wave 5]
+
+**Gap closure** *(from 43-VERIFICATION.md — status gaps_found; 43-REVIEW.md CR-01/WR-01..WR-06)*
+
+- [ ] 43-08-PLAN.md — CI range resolver: fix CR-01 ls-remote rc conflation (three-way fail-closed branch) + WR-02 recovery runbook; extracted, tested scripts/ci-resolve-docs-range.sh [gap-wave 1]
+- [ ] 43-09-PLAN.md — gate matching correctness: WR-01 anchor satisfier detection to role-table + WR-03 exact-case trailer keys + WR-04 unfold folded trailers [gap-wave 1]
+- [ ] 43-10-PLAN.md — WR-06 release-moment tripwire: shared extractAppVersion lib + fifth invariant so GATE-04 can't silently self-disable on version.js drift [gap-wave 2, after 43-09]
 
 **UI hint**: no
 
