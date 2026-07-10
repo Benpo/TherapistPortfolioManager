@@ -71,19 +71,40 @@ function parseRange(range) {
   return { base: base, tip: tip };
 }
 
-// Read a single trailer key over the WHOLE range (honoured from any commit — the
-// *-Unaffected trailers are file-scoped so an inherited one is harmless). Returns
-// an array of raw trailer values (one per commit that carried the key).
-function trailerValuesOverRange(range, key) {
-  var out = gitTry(['log', range, '--format=%(trailers:key=' + key + ',valueonly,only)']);
+// Extract the values of trailers whose key EXACTLY matches `key` (case-sensitive)
+// from a `%(trailers:key=…,only,unfold)` blob. git's own key matcher is
+// case-INSENSITIVE, so we emit the key as-written (not valueonly) and post-filter
+// here — this makes CLAUDE.md's "exact casing (case-sensitive)" contract true
+// (WR-03). `unfold` collapses a folded multi-line value to one physical line, so a
+// correctly-authored multi-file trailer arrives whole (WR-04). Each output line is
+// "Key: value"; we split on the FIRST colon so a value may itself contain colons.
+function exactCaseTrailerValues(out, key) {
   if (out == null) return [];
-  return out.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+  var values = [];
+  out.split('\n').forEach(function (line) {
+    if (!line) return;
+    var idx = line.indexOf(':');
+    if (idx === -1) return;
+    var k = line.slice(0, idx).trim();
+    if (k !== key) return;                 // exact-case match only (WR-03)
+    values.push(line.slice(idx + 1).trim());
+  });
+  return values;
 }
 
-// Read one trailer key from a single commit. Returns the trimmed value or ''.
+// Read a single trailer key over the WHOLE range (honoured from any commit — the
+// *-Unaffected trailers are file-scoped so an inherited one is harmless). Returns
+// an array of exact-case, unfolded trailer values (one per commit that carried it).
+function trailerValuesOverRange(range, key) {
+  var out = gitTry(['log', range, '--format=%(trailers:key=' + key + ',only,unfold)']);
+  return exactCaseTrailerValues(out, key);
+}
+
+// Read one trailer key from a single commit. Returns the first exact-case value or ''.
 function trailerValueForCommit(ref, key) {
-  var out = gitTry(['log', '-1', ref, '--format=%(trailers:key=' + key + ',valueonly,only)']);
-  return out == null ? '' : out.trim();
+  var out = gitTry(['log', '-1', ref, '--format=%(trailers:key=' + key + ',only,unfold)']);
+  var values = exactCaseTrailerValues(out, key);
+  return values.length ? values[0] : '';
 }
 
 function shortSha(ref) {
@@ -182,8 +203,11 @@ function runRangeRule(range) {
   // Classify. Only 'trigger' paths raise a demand.
   var triggers = changed.filter(function (p) { return roleTable.classify(p) === 'trigger'; })
                         .map(normalize);
-  var helpEdited = changed.some(function (p) { return /(^|\/)help-content-(en|he|de|cs)\.js$/.test(normalize(p)); });
-  var changelogEdited = changed.some(function (p) { return /(^|\/)changelog-content-(en|he|de|cs)\.js$/.test(normalize(p)); });
+  // Satisfaction reuses role-table's SINGLE, assets/-anchored definition (WR-01 /
+  // D-17): a non-assets/ path with a satisfier basename never counts as "the help /
+  // changelog was edited". The gate keeps no second, unanchored regex of its own.
+  var helpEdited = changed.some(function (p) { return roleTable.isHelpSatisfier(normalize(p)); });
+  var changelogEdited = changed.some(function (p) { return roleTable.isChangelogSatisfier(normalize(p)); });
 
   // ── EMERGENCY: Docs-Emergency-Skip is honoured ONLY on the range tip (OD-4). ──
   // This is a PASS verdict (exit 0), so the banner goes to stdout — a caller that
