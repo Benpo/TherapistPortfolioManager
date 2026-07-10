@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# pre-push — a fast LOCAL PREVIEW of the docs-rot gate.
+#
+# This runs before the push exists on the remote, so it computes its own commit
+# range and hands it to the ONE shared gate script that CI also runs. It is only a
+# preview: a green result here is not authoritative, and `git push --no-verify`
+# skips it entirely BY DESIGN. The real, unbypassable check is the CI deploy step,
+# which honours only the commit trailers. Treat a block here as an early warning.
+#
+# Protocol (git pre-push): $1 = remote name, $2 = remote URL. Each stdin line is
+#   <local ref> <local sha> <remote ref> <remote sha>
+# We act only on pushes to refs/heads/main; a branch deletion (local sha all-zeros)
+# is skipped; a first push (remote sha all-zeros) falls back to a merge-base range.
+
+set -eu
+
+remote="${1:-}"
+gate="$(git rev-parse --show-toplevel)/scripts/docs-gate.js"
+
+# 40 (or 64) zeros is git's "no such ref yet" sentinel for a side of the push.
+is_zero() {
+  case "$1" in
+    *[!0]*) return 1 ;;   # contains a non-zero char → a real sha
+    "" ) return 1 ;;
+    * ) return 0 ;;        # all zeros
+  esac
+}
+
+status=0
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # Only guard the branch that ships (main); ignore every other ref.
+  [ "$remote_ref" = "refs/heads/main" ] || continue
+  # A deletion of main has an all-zeros local sha — nothing to inspect.
+  is_zero "$local_sha" && continue
+
+  if is_zero "$remote_sha"; then
+    # First push of main: no remote tip to diff against. Prefer the merge-base with
+    # origin/main if we have it locally; otherwise evaluate the tip commit only.
+    if base="$(git merge-base origin/main "$local_sha" 2>/dev/null)"; then
+      range="${base}..${local_sha}"
+    else
+      range="${local_sha}^..${local_sha}"
+    fi
+  else
+    range="${remote_sha}..${local_sha}"
+  fi
+
+  if ! node "$gate" --range "$range"; then
+    status=1
+  fi
+done
+
+exit "$status"

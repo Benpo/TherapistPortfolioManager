@@ -4,7 +4,8 @@
   "private": true,
   "description": "Dev/test workbench only. Production ships static /assets/* with zero runtime dependencies; this package.json and node_modules exist solely to install jsdom and run the test suite (npm test).",
   "scripts": {
-    "test": "node tests/run-all.js"
+    "test": "node tests/run-all.js",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {
     "jsdom": "^29.1.1"
