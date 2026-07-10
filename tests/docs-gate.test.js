@@ -182,11 +182,14 @@ function runGateArgv(extraArgs) {
 function out(r) { return (r.stderr || '') + '\n' + (r.stdout || ''); }
 
 // ── Minimal fixture corpus ───────────────────────────────────────────────────
-// Covered paths (named in a topic's covers[]):
-//   assets/app.js, index.html          → topic "topic-app"    ("The app basics")
-//   assets/settings.js, settings.html  → topic "topic-settings"("Settings")
-// Uncovered but WATCHED (assets/*.js, code extension): assets/a.js, assets/b.js,
-//   assets/c.js, assets/extra.js, assets/version.js.
+// Covered TRIGGERS (named in a topic's covers[], raise BOTH help + changelog):
+//   assets/settings.js, settings.html  → topic "topic-settings" ("Settings")
+//   index.html                         → topic "topic-app"      ("The app basics")
+// Uncovered TRIGGERS (assets/*.js, code extension, no covers[]): assets/a.js,
+//   assets/b.js, assets/c.js, assets/extra.js, assets/reporting.js.
+// CHANGELOG-ONLY (raise the changelog demand but NOT help): assets/app.js,
+//   assets/version.js. (app.js is still named in topic-app's covers[], but the
+//   changelog-only role means its help demand is dropped regardless.)
 // Satisfiers: assets/help-content-en.js, assets/changelog-content-en.js.
 function seedFixtures() {
   writeFile('assets/i18n-en.js',
@@ -231,11 +234,14 @@ function seedFixtures() {
   writeFile('settings.html', '<!doctype html><title>settings</title>\n');
   writeFile('assets/app.js', 'window.App={v:1};\n');
   writeFile('assets/settings.js', 'window.Settings={v:1};\n');
-  // Uncovered watched scripts.
+  // Uncovered watched scripts (triggers: demand help + changelog).
   writeFile('assets/a.js', 'window.A={v:1};\n');
   writeFile('assets/b.js', 'window.B={v:1};\n');
   writeFile('assets/c.js', 'window.C={v:1};\n');
   writeFile('assets/extra.js', 'window.Extra={v:1};\n');
+  // A feature-bearing, uncovered watched script — deliberately NOT changelog-only,
+  // so it still demands help coverage (the changelog-only falsifier below).
+  writeFile('assets/reporting.js', 'window.Reporting={v:1};\n');
 }
 
 // Small edit helpers (append a line so the file's content changes).
@@ -276,25 +282,26 @@ try {
   console.log('docs-gate behavior spec\n');
 
   // ── CHANGELOG block/pass ───────────────────────────────────────────────────
-  // Edit a covered file AND touch its claiming help topic (help satisfied); leave
+  // Edit a covered TRIGGER AND touch its claiming help topic (help satisfied); leave
   // the changelog untouched with no trailer → block naming the file + changelog.
+  // (settings.js is a genuine trigger; app.js is changelog-only and exercised below.)
   test('CHANGELOG: watched change, help satisfied, no changelog → BLOCK (names file + changelog)', function () {
     resetToBaseline();
-    bump('assets/app.js');
+    bump('assets/settings.js');
     touchHelp();
-    commit('edit app, touch help, no changelog');
+    commit('edit settings, touch help, no changelog');
     var r = runGate();
     assert(r.code !== 0, 'expected non-zero (blocked), got 0');
     assert(/changelog/i.test(out(r)), 'stderr must mention "changelog"');
-    assert(/app\.js/.test(out(r)), 'stderr must name the changed file assets/app.js');
+    assert(/settings\.js/.test(out(r)), 'stderr must name the changed file assets/settings.js');
   });
 
   test('CHANGELOG: add a changelog entry → PASS', function () {
     resetToBaseline();
-    bump('assets/app.js');
+    bump('assets/settings.js');
     touchHelp();
     addChangelogBullet();
-    commit('edit app, touch help, add changelog');
+    commit('edit settings, touch help, add changelog');
     var r = runGate();
     assert(r.code === 0, 'expected 0 (allowed), got ' + r.code + '\n' + out(r));
   });
@@ -302,22 +309,24 @@ try {
   // ── HELP block/pass ────────────────────────────────────────────────────────
   // Edit a covered file WITHOUT touching help; changelog satisfied → block naming
   // the claiming topic's id + title; a Help-Unaffected trailer flips it to PASS.
+  // settings.js (not app.js) is used here: app.js is now CHANGELOG-ONLY and no
+  // longer raises a help demand, so a covered *trigger* is needed to exercise help.
   test('HELP: covered change, changelog satisfied, no help touch → BLOCK (names topic id + title)', function () {
     resetToBaseline();
-    bump('assets/app.js');
+    bump('assets/settings.js');
     addChangelogBullet();
-    commit('edit app, add changelog, no help');
+    commit('edit settings, add changelog, no help');
     var r = runGate();
     assert(r.code !== 0, 'expected non-zero (blocked), got 0');
-    assert(/topic-app/.test(out(r)), 'must name the claiming topic id "topic-app"');
-    assert(/The app basics/.test(out(r)), 'must name the claiming topic title');
+    assert(/topic-settings/.test(out(r)), 'must name the claiming topic id "topic-settings"');
+    assert(/Settings/.test(out(r)), 'must name the claiming topic title');
   });
 
   test('HELP: Help-Unaffected trailer for the covered file → PASS', function () {
     resetToBaseline();
-    bump('assets/app.js');
+    bump('index.html');                                      // covered trigger (topic-app)
     addChangelogBullet();
-    commit('edit app, add changelog', [['Help-Unaffected', 'assets/app.js — cosmetic only']]);
+    commit('edit index.html, add changelog', [['Help-Unaffected', 'index.html — cosmetic only']]);
     var r = runGate();
     assert(r.code === 0, 'expected 0 (allowed), got ' + r.code + '\n' + out(r));
   });
@@ -331,6 +340,48 @@ try {
     var r = runGate();
     assert(r.code !== 0, 'expected non-zero (blocked), got 0');
     assert(/extra\.js/.test(out(r)), 'must name the uncovered file');
+    assert(/covers\[\]|Help-Unaffected/i.test(out(r)),
+      'must guide the author to add it to covers[] or declare Help-Unaffected');
+  });
+
+  // ── CHANGELOG-ONLY role: changelog demand kept, help demand dropped ────────
+  // app.js is changelog-only: a changelog entry alone satisfies it (no help edit,
+  // no Help-Unaffected trailer), and it must NEVER raise a help-coverage block —
+  // even though it is still named in a topic's covers[]. This is the noise-principle
+  // payoff: recurring plumbing stops demanding a per-file help trailer every push.
+  test('CHANGELOG-ONLY: an app.js change needs only a changelog entry, never help', function () {
+    resetToBaseline();
+    bump('assets/app.js');
+    addChangelogBullet();                                    // changelog satisfied, NO help edit
+    commit('edit changelog-only app.js, add changelog');
+    var r = runGate();
+    assert(r.code === 0, 'expected 0 (allowed): a changelog-only file needs no help edit, got ' + r.code + '\n' + out(r));
+
+    // And with NO changelog at all it blocks on the CHANGELOG demand (naming app.js),
+    // never on a help-coverage demand.
+    resetToBaseline();
+    bump('assets/app.js');
+    commit('edit changelog-only app.js, no changelog');
+    var r2 = runGate();
+    assert(r2.code !== 0, 'expected block: a changelog-only file still demands a changelog entry');
+    assert(/changelog/i.test(out(r2)), 'block must name the changelog demand');
+    assert(/app\.js/.test(out(r2)), 'block must name the changed file app.js');
+    assert(!/no help topic covers it/.test(out(r2)),
+      'a changelog-only file must NOT raise an uncovered help-coverage block');
+    assert(!/Help: assets\/app\.js/.test(out(r2)),
+      'a changelog-only file must NOT raise a help demand of any kind');
+  });
+
+  // reporting.js is deliberately NOT changelog-only — a feature-bearing file keeps
+  // the full per-file help demand. Changelog satisfied, help absent → BLOCK.
+  test('CHANGELOG-ONLY falsifier: a reporting.js change still demands help coverage', function () {
+    resetToBaseline();
+    bump('assets/reporting.js');
+    addChangelogBullet();                                    // changelog satisfied
+    commit('edit reporting.js, add changelog, no help');
+    var r = runGate();
+    assert(r.code !== 0, 'expected block: reporting.js must still demand help coverage');
+    assert(/reporting\.js/.test(out(r)), 'must name the uncovered feature file');
     assert(/covers\[\]|Help-Unaffected/i.test(out(r)),
       'must guide the author to add it to covers[] or declare Help-Unaffected');
   });
@@ -356,8 +407,8 @@ try {
 
   test('TRAILER Docs-Emergency-Skip on the tip → PASS + loud banner (names commit + reason + files)', function () {
     resetToBaseline();
-    bump('assets/app.js');           // would otherwise demand help + changelog
-    bump('assets/extra.js');
+    bump('assets/app.js');           // changelog-only: would otherwise demand a changelog
+    bump('assets/extra.js');         // uncovered trigger: would otherwise demand help + changelog
     commit('emergency hotfix', [['Docs-Emergency-Skip', 'prod down — hotfix now']]);
     var r = runGate();
     assert(r.code === 0, 'expected 0 (allowed), got ' + r.code + '\n' + out(r));
@@ -522,37 +573,37 @@ try {
   // ── Trailer decoy: a trailer-looking line inside a fenced code block ────────
   test('DECOY: a Help-Unaffected line inside a fenced code block does NOT satisfy the gate', function () {
     resetToBaseline();
-    bump('assets/app.js');          // covered → demands help
+    bump('assets/settings.js');     // covered TRIGGER → demands help (app.js is changelog-only)
     addChangelogBullet();
-    var fence = '```\nHelp-Unaffected: assets/app.js — pasted example, not a real trailer\n```';
-    commit('edit app, add changelog, decoy in body', null, fence);
+    var fence = '```\nHelp-Unaffected: assets/settings.js — pasted example, not a real trailer\n```';
+    commit('edit settings, add changelog, decoy in body', null, fence);
     var r = runGate();
     assert(r.code !== 0, 'expected non-zero (blocked): a fenced decoy must NOT be read as a trailer');
     // The block must be the genuine help demand for the covered file, proving the
     // decoy was ignored — not merely any non-zero exit.
-    assert(/topic-app|help|app\.js/i.test(out(r)),
+    assert(/topic-settings|help|settings\.js/i.test(out(r)),
       'block must be the real help demand (decoy ignored), not an incidental failure');
   });
 
   // ── WR-01: satisfier detection must be anchored to assets/ ─────────────────
-  // Edit a COVERED trigger (assets/app.js → demands help) and create+edit a
+  // Edit a COVERED trigger (assets/settings.js → demands help) and create+edit a
   // non-assets/ DECOY path named like a satisfier (tests/fixtures/help-content-en.js).
   // The decoy must NOT satisfy the help demand: the real assets/help-content-en.js
   // is untouched. Against a gate whose helpEdited regex is unanchored the decoy sets
   // helpEdited=true and this wrongly PASSes → RED until the gate consumes the
   // assets/-anchored role-table predicate.
-  test('ANCHOR WR-01: a non-assets/ help-content decoy does NOT satisfy the help demand → BLOCK (names the real app.js demand)', function () {
+  test('ANCHOR WR-01: a non-assets/ help-content decoy does NOT satisfy the help demand → BLOCK (names the real settings.js demand)', function () {
     resetToBaseline();
-    bump('assets/app.js');                                   // covered → demands help
+    bump('assets/settings.js');                              // covered TRIGGER → demands help
     writeFile('tests/fixtures/help-content-en.js', 'module.exports={decoy:true};\n');
     bump('tests/fixtures/help-content-en.js');               // edit the decoy
     addChangelogBullet();                                    // changelog satisfied
-    commit('edit app, add changelog, edit a non-assets/ help-content decoy');
+    commit('edit settings, add changelog, edit a non-assets/ help-content decoy');
     var r = runGate();
     assert(r.code !== 0, 'expected non-zero (blocked): a non-assets/ decoy must not satisfy help, got 0\n' + out(r));
-    assert(/topic-app/.test(out(r)), 'must name the genuine claiming topic id "topic-app"');
-    assert(/The app basics/.test(out(r)), 'must name the genuine claiming topic title');
-    assert(/app\.js/.test(out(r)), 'must name the real covered file assets/app.js');
+    assert(/topic-settings/.test(out(r)), 'must name the genuine claiming topic id "topic-settings"');
+    assert(/Settings/.test(out(r)), 'must name the genuine claiming topic title');
+    assert(/settings\.js/.test(out(r)), 'must name the real covered file assets/settings.js');
   });
 
   // ── WR-03: a trailer key is honored only at EXACT case ─────────────────────
@@ -562,8 +613,8 @@ try {
   // wrongly PASSes → RED until the reader post-filters by exact key case.
   test('CASE WR-03: a lowercase docs-emergency-skip on the tip is NOT honored → BLOCK', function () {
     resetToBaseline();
-    bump('assets/app.js');                                   // would demand help + changelog
-    bump('assets/extra.js');
+    bump('assets/app.js');                                   // changelog-only: would demand a changelog
+    bump('assets/extra.js');                                 // uncovered trigger: would demand help + changelog
     commit('hotfix with a LOWERCASE emergency-skip key',
       [['docs-emergency-skip', 'prod down — lowercase key must not bypass']]);
     var r = runGate();
@@ -655,39 +706,39 @@ try {
   // the release check and the covers[] index read EN and nothing else, so a
   // locale-only edit cannot stand in for the EN corpus. Against a gate whose
   // satisfier predicate accepts any locale this wrongly PASSes.
-  test('SATISFIER EN-only: a HE-only help edit does NOT satisfy the help demand → BLOCK (names the app.js topic)', function () {
+  test('SATISFIER EN-only: a HE-only help edit does NOT satisfy the help demand → BLOCK (names the settings.js topic)', function () {
     resetToBaseline();
-    bump('assets/app.js');                                   // covered → demands help
+    bump('assets/settings.js');                              // covered TRIGGER → demands help
     writeFile('assets/help-content-he.js', '// he locale stub\n');
     bump('assets/help-content-he.js');                       // edit HE help ONLY
     addChangelogBullet();                                    // changelog satisfied
-    commit('edit app, add changelog, edit HE help only');
+    commit('edit settings, add changelog, edit HE help only');
     var r = runGate();
     assert(r.code !== 0, 'expected non-zero (blocked): a HE-only help edit must not satisfy the EN help demand\n' + out(r));
-    assert(/topic-app/.test(out(r)), 'must name the genuine claiming topic id "topic-app"');
-    assert(/app\.js/.test(out(r)), 'must name the real covered file assets/app.js');
+    assert(/topic-settings/.test(out(r)), 'must name the genuine claiming topic id "topic-settings"');
+    assert(/settings\.js/.test(out(r)), 'must name the real covered file assets/settings.js');
   });
 
   // The EN help edit DOES still satisfy (the positive control for the above).
   test('SATISFIER EN-only: an EN help edit still satisfies the help demand → PASS', function () {
     resetToBaseline();
-    bump('assets/app.js');                                   // covered → demands help
+    bump('assets/settings.js');                              // covered TRIGGER → demands help
     touchHelp();                                             // edit EN help
     addChangelogBullet();                                    // changelog satisfied
-    commit('edit app, add changelog, edit EN help');
+    commit('edit settings, add changelog, edit EN help');
     var r = runGate();
     assert(r.code === 0, 'expected 0 (allowed): an EN help edit must satisfy, got ' + r.code + '\n' + out(r));
   });
 
   // Changelog satisfaction is EN-only too: a CS-only changelog edit must not
-  // satisfy the changelog demand raised by a watched trigger.
+  // satisfy the changelog demand raised by a watched file (app.js is changelog-only,
+  // so it raises the changelog demand with no help demand to muddy the case).
   test('SATISFIER EN-only: a CS-only changelog edit does NOT satisfy the changelog demand → BLOCK', function () {
     resetToBaseline();
-    bump('assets/app.js');                                   // trigger → demands changelog + help
-    touchHelp();                                             // help satisfied
+    bump('assets/app.js');                                   // changelog-only → demands a changelog
     writeFile('assets/changelog-content-cs.js', '// cs locale stub\n');
     bump('assets/changelog-content-cs.js');                  // edit CS changelog ONLY
-    commit('edit app, touch EN help, edit CS changelog only');
+    commit('edit app, edit CS changelog only');
     var r = runGate();
     assert(r.code !== 0, 'expected non-zero (blocked): a CS-only changelog edit must not satisfy the EN changelog demand\n' + out(r));
     assert(/changelog/i.test(out(r)), 'block must name the unmet changelog demand');

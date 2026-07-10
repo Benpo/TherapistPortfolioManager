@@ -13,8 +13,10 @@
  *      contract (unique reverse-chronological semver, highlights 2–4 on content
  *      entries, the origin entry tolerated as a one-line marker).
  *   4. checkRoleTable — the role table is internally consistent (nothing is both
- *      denylisted and a trigger; no satisfier is a trigger; the watch set is
- *      exactly the intended types; every denylist entry is a real shipped file).
+ *      denylisted and a trigger; no satisfier is a trigger; every changelog-only
+ *      file classifies as changelog-only and overlaps no other set; the watch set is
+ *      exactly the intended types; every denylist and changelog-only entry is a real
+ *      shipped file).
  *   5. checkVersionParse — the shared release-moment extractor still parses the
  *      live assets/version.js APP_VERSION literal. If a benign reformat of that
  *      literal ever stops matching, GATE-04's release check would silently and
@@ -172,10 +174,12 @@ function checkChangelogSchema(assetsDir) {
 // ── Invariant 4: role-table self-consistency ─────────────────────────────────
 // The role table cannot contradict itself without letting a real change through or
 // blocking a non-change. Assert: every denylist entry classifies as denylisted
-// (never a trigger) and is a real file on disk; the known satisfiers classify as
-// satisfiers (never triggers); the watch set is exactly the intended types (a
-// shipped code file is watched, a non-code or non-shipped file is not). Throws on
-// the first contradiction. repoRoot locates the denylist files on disk.
+// (never a trigger) and is a real file on disk; every changelog-only entry
+// classifies as changelog-only (demands a changelog but not help), overlaps neither
+// the denylist nor the satisfier set nor itself, and is a real file on disk; the
+// known satisfiers classify as satisfiers (never triggers); the watch set is exactly
+// the intended types (a shipped code file is watched, a non-code or non-shipped file
+// is not). Throws on the first contradiction. repoRoot locates the on-disk files.
 function checkRoleTable(repoRoot) {
   var root = repoRoot || DEFAULT_REPO_ROOT;
 
@@ -198,6 +202,37 @@ function checkRoleTable(repoRoot) {
     }
   }
 
+  // Every changelog-only entry demands a changelog but not help, is disjoint from
+  // the denylist and satisfier sets (and from itself), and is a real shipped file.
+  var co = roleTable.CHANGELOG_ONLY;
+  if (!Array.isArray(co) || co.length === 0) {
+    throw new Error('role-table: CHANGELOG_ONLY must be a non-empty array');
+  }
+  var coSeen = {};
+  for (var m = 0; m < co.length; m++) {
+    var cp = co[m];
+    if (coSeen[cp]) {
+      throw new Error('role-table: CHANGELOG_ONLY lists "' + cp + '" more than once');
+    }
+    coSeen[cp] = true;
+    var crole = roleTable.classify(cp);
+    if (crole !== 'changelog_only') {
+      throw new Error(
+        'role-table: CHANGELOG_ONLY entry "' + cp + '" classifies as "' + crole +
+        '" — it must demand a changelog entry but not help coverage'
+      );
+    }
+    if (dl.indexOf(cp) !== -1) {
+      throw new Error('role-table: "' + cp + '" is in both CHANGELOG_ONLY and DENYLIST');
+    }
+    if (roleTable.isSatisfier(cp)) {
+      throw new Error('role-table: "' + cp + '" is both a CHANGELOG_ONLY entry and a satisfier');
+    }
+    if (!fs.existsSync(path.join(root, cp))) {
+      throw new Error('role-table: CHANGELOG_ONLY names "' + cp + '" but no such file exists');
+    }
+  }
+
   // Satisfiers never classify as triggers.
   var satisfiers = [
     'assets/help-content-en.js', 'assets/help-content-he.js',
@@ -216,8 +251,9 @@ function checkRoleTable(repoRoot) {
   }
 
   // The watch set is exactly the intended types: shipped code is a trigger;
-  // non-code shipped files and non-shipped code are ignored.
-  var watchedExamples = ['assets/app.js', 'assets/app.css', 'index.html', 'manifest.json', 'sw.js'];
+  // non-code shipped files and non-shipped code are ignored. (app.js / app.css are
+  // deliberately NOT used here — they are changelog-only, asserted above.)
+  var watchedExamples = ['assets/reporting.js', 'assets/tour.css', 'index.html', 'manifest.json', 'sw.js'];
   for (var w = 0; w < watchedExamples.length; w++) {
     if (roleTable.classify(watchedExamples[w]) !== 'trigger') {
       throw new Error('role-table: expected "' + watchedExamples[w] + '" to be a trigger');

@@ -12,17 +12,22 @@
  *
  * Contract this spec pins for scripts/lib/role-table.js (CommonJS module):
  *   module.exports.classify(relPath) → one of:
- *     'trigger'    — a watched, user-facing file that RAISES the changelog/help
- *                    demand (a shipped path AND a code extension .js/.css/.html,
- *                    not denylisted, not a satisfier).
- *     'satisfier'  — help-content-*.js / changelog-content-*.js; these SATISFY a
- *                    demand and never raise one of their own.
- *     'denylisted' — a shipped surface deliberately carved out (legal + marketing
- *                    pages AND their scripts/styles).
- *     'ignored'    — everything else: non-code shipped files (images/fonts/.json/
- *                    .txt) and every non-shipped repo path (tests/**, scripts/**,
- *                    package.json, .github/**, .planning/**).
+ *     'trigger'        — a watched, user-facing file that RAISES BOTH the changelog
+ *                        AND per-file help demand (a shipped path AND a code
+ *                        extension .js/.css/.html, not denylisted, not a satisfier,
+ *                        not changelog-only).
+ *     'changelog_only' — recurring plumbing + the docs-system machinery: raises the
+ *                        push-global CHANGELOG demand but is EXEMPT from the per-file
+ *                        help demand (never needs a Help-Unaffected trailer).
+ *     'satisfier'      — help-content-*.js / changelog-content-*.js; these SATISFY a
+ *                        demand and never raise one of their own.
+ *     'denylisted'     — a shipped surface deliberately carved out (legal + marketing
+ *                        pages AND their scripts/styles).
+ *     'ignored'        — everything else: non-code shipped files (images/fonts/.json/
+ *                        .txt) and every non-shipped repo path (tests/**, scripts/**,
+ *                        package.json, .github/**, .planning/**).
  *   module.exports.DENYLIST → array of repo-relative denylisted paths.
+ *   module.exports.CHANGELOG_ONLY → array of repo-relative changelog-only paths.
  *
  * The load-bearing point: an EXTENSION-ONLY rule would classify all 160+
  * tests/*.js and the gate's own scripts/*.js as triggers — every one an uncovered
@@ -68,6 +73,11 @@ function denylist() {
     'scripts/lib/role-table.js did not export a DENYLIST array (expected RED until it ships)');
   return RT.DENYLIST;
 }
+function changelogOnly() {
+  assert(RT && Array.isArray(RT.CHANGELOG_ONLY),
+    'scripts/lib/role-table.js did not export a CHANGELOG_ONLY array (expected RED until it ships)');
+  return RT.CHANGELOG_ONLY;
+}
 
 console.log('docs-gate role-table self-consistency spec\n');
 
@@ -107,14 +117,79 @@ test('singleton: sw.js is a trigger', function () {
 });
 
 // ── A representative watched code file IS a trigger (both axes satisfied) ─────
-test('watched: assets/app.js is a trigger (shipped path AND code extension)', function () {
-  assert(classify('assets/app.js') === 'trigger', 'assets/app.js is a shipped .js — a trigger');
+// (app.js / app.css are deliberately NOT used here — they are changelog-only now;
+// a feature-bearing file such as reporting.js keeps the full trigger role.)
+test('watched: assets/reporting.js is a trigger (shipped path AND code extension)', function () {
+  assert(classify('assets/reporting.js') === 'trigger', 'assets/reporting.js is a feature-bearing shipped .js — a trigger');
 });
 test('watched: a page-level .html is a trigger', function () {
   assert(classify('add-session.html') === 'trigger', 'a shipped app page is a trigger');
 });
 test('watched: a shipped .css is a trigger', function () {
-  assert(classify('assets/app.css') === 'trigger', 'a shipped, non-denylisted stylesheet is a trigger');
+  assert(classify('assets/tour.css') === 'trigger', 'a shipped, non-denylisted, non-changelog-only stylesheet is a trigger');
+});
+
+// ── CHANGELOG-ONLY role: watched, demands a changelog, exempt from help ──────
+// Recurring plumbing and the docs-system machinery classify as 'changelog_only':
+// they raise the push-global changelog demand but never the per-file help demand.
+var EXPECT_CHANGELOG_ONLY = [
+  // Recurring plumbing.
+  'assets/app.js', 'assets/app.css', 'assets/tokens.css', 'assets/shared-chrome.js',
+  'assets/version.js',
+  'assets/i18n-en.js', 'assets/i18n-he.js', 'assets/i18n-de.js', 'assets/i18n-cs.js',
+  // Docs-system machinery.
+  'help.html', 'assets/help.js', 'assets/help.css',
+  'changelog.html', 'assets/changelog.js', 'assets/changelog.css',
+  'assets/whats-new.js', 'assets/attention-coordinator.js',
+];
+EXPECT_CHANGELOG_ONLY.forEach(function (p) {
+  test('changelog-only: "' + p + '" classifies as changelog_only (changelog demand, help exempt)', function () {
+    var role = classify(p);
+    assert(role === 'changelog_only',
+      '"' + p + '" must classify as "changelog_only", got "' + role + '"');
+    assert(role !== 'trigger', '"' + p + '" must NOT raise the per-file help demand');
+  });
+});
+
+test('changelog-only: the exported CHANGELOG_ONLY set matches the expected members exactly', function () {
+  var actual = changelogOnly().slice().sort();
+  var expect = EXPECT_CHANGELOG_ONLY.slice().sort();
+  assert(actual.length === expect.length,
+    'CHANGELOG_ONLY has ' + actual.length + ' entries, expected ' + expect.length);
+  for (var i = 0; i < expect.length; i++) {
+    assert(actual[i] === expect[i],
+      'CHANGELOG_ONLY membership mismatch: got "' + actual[i] + '", expected "' + expect[i] + '"');
+  }
+});
+
+test('changelog-only: has no duplicate entries', function () {
+  var seen = {};
+  changelogOnly().forEach(function (p) {
+    assert(!seen[p], 'CHANGELOG_ONLY lists "' + p + '" more than once');
+    seen[p] = true;
+  });
+});
+
+test('changelog-only: every CHANGELOG_ONLY entry is a real file on disk', function () {
+  changelogOnly().forEach(function (p) {
+    assert(fs.existsSync(path.join(REPO_ROOT, p)),
+      'CHANGELOG_ONLY names "' + p + '" but no such file exists — a dangling entry');
+  });
+});
+
+test('changelog-only: is disjoint from DENYLIST and from the satisfier set', function () {
+  var dl = new Set(denylist());
+  changelogOnly().forEach(function (p) {
+    assert(!dl.has(p), '"' + p + '" is in both CHANGELOG_ONLY and DENYLIST');
+    assert(RT.isSatisfier(p) === false, '"' + p + '" is both changelog-only and a satisfier');
+  });
+});
+
+test('changelog-only: no DENYLIST entry is also changelog-only', function () {
+  var co = new Set(changelogOnly());
+  denylist().forEach(function (p) {
+    assert(!co.has(p), '"' + p + '" is in both DENYLIST and CHANGELOG_ONLY');
+  });
 });
 
 // ── Satisfiers are never triggers ────────────────────────────────────────────

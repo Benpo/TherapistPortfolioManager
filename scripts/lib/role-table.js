@@ -18,8 +18,17 @@
  *        • one of the two root singletons manifest.json / sw.js, watched by NAME
  *          regardless of extension (manifest.json is the one deliberate .json in).
  *
- * A watched file that is neither on the denylist nor a satisfier is a TRIGGER: a
- * user-facing change that must be accompanied by a help/changelog update.
+ * Every WATCHED file then takes exactly one of four ROLES:
+ *   • TRIGGER        — the default: a user-facing change that must be accompanied by
+ *                      BOTH a changelog entry AND per-file help coverage.
+ *   • CHANGELOG-ONLY — recurring plumbing and the docs-system machinery. Still a
+ *                      trigger for the push-global CHANGELOG demand, but EXEMPT from
+ *                      the per-file help-coverage demand (see the CHANGELOG-ONLY note
+ *                      below). Never needs a Help-Unaffected trailer.
+ *   • DENYLIST       — a legal/marketing surface carved out entirely: demands nothing.
+ *   • SATISFIER      — the help/changelog content files: they SATISFY a demand and
+ *                      never raise one of their own.
+ * A non-watched path is IGNORED.
  *
  * ── Why BOTH tests, and why the path test may never be dropped ────────────────
  * The repository holds well over a hundred .js files under tests/ and this gate's
@@ -42,12 +51,21 @@
  * redirect, header, or licence change therefore ships without a docs demand — an
  * accepted gap, called out here so the shipped-vs-watched divergence is explicit.
  *
- * ── Carve-outs ───────────────────────────────────────────────────────────────
+ * ── Carve-outs & roles ───────────────────────────────────────────────────────
  * DENYLIST: legal and marketing surfaces (each page together with its scripts and
  * stylesheets — a page, its script, and its style are one surface). Touching one
  * never demands a changelog entry.
  * SATISFIERS: the help-content and changelog-content data files. These SATISFY a
  * demand and never raise one of their own.
+ * CHANGELOG-ONLY: watched files that keep the push-global changelog demand but are
+ * exempt from the per-file help-coverage demand. Two kinds qualify — recurring
+ * plumbing (app.js, app.css, tokens.css, shared-chrome.js, version.js, the four
+ * i18n dictionaries) and the docs-system machinery (the help and changelog pages,
+ * their scripts and styles, whats-new.js, attention-coordinator.js). Neither can
+ * ever earn a help topic: any user-visible change they carry is documented under
+ * the FEATURE's own topic and in the changelog, so the changelog is their honest
+ * docs surface and the help demand is dropped. Every entry is a real shipped file
+ * (the self-consistency invariant asserts this on disk, like the denylist).
  *
  * Node built-ins only; pure predicates, no I/O.
  */
@@ -77,6 +95,28 @@ var DENYLIST = [
 ];
 
 var DENYLIST_SET = new Set(DENYLIST);
+
+// CHANGELOG-ONLY files. Each is a watched, shipped code file that raises the
+// push-global CHANGELOG demand but is EXEMPT from the per-file help-coverage demand.
+// They fall in two kinds and neither can ever earn a help topic of its own: the
+// recurring plumbing is touched nearly every phase and describes no single feature,
+// and the docs-system machinery IS the help/changelog surface. Any user-visible
+// change either kind carries is documented under the feature's own help topic and in
+// the changelog — so the changelog demand stays (the honest docs surface) and the
+// help demand is dropped (no Help-Unaffected trailer is ever needed for them). Each
+// entry is a real shipped file; the self-consistency invariant asserts this on disk.
+var CHANGELOG_ONLY = [
+  // Recurring plumbing — touched nearly every phase, owns no single feature.
+  'assets/app.js', 'assets/app.css', 'assets/tokens.css', 'assets/shared-chrome.js',
+  'assets/version.js',
+  'assets/i18n-en.js', 'assets/i18n-he.js', 'assets/i18n-de.js', 'assets/i18n-cs.js',
+  // Docs-system machinery — the help and changelog UIs themselves.
+  'help.html', 'assets/help.js', 'assets/help.css',
+  'changelog.html', 'assets/changelog.js', 'assets/changelog.css',
+  'assets/whats-new.js', 'assets/attention-coordinator.js',
+];
+
+var CHANGELOG_ONLY_SET = new Set(CHANGELOG_ONLY);
 
 // Satisfier data files: the help and changelog content, one per language. These
 // carry the very updates the gate demands, so they satisfy — never trigger.
@@ -125,6 +165,10 @@ function isDenylisted(p) {
   return DENYLIST_SET.has(normalize(p));
 }
 
+function isChangelogOnly(p) {
+  return CHANGELOG_ONLY_SET.has(normalize(p));
+}
+
 function isSatisfier(p) {
   return SATISFIER_RE.test(normalize(p));
 }
@@ -142,22 +186,26 @@ function isChangelogSatisfier(p) {
 }
 
 // Single classification entry point. Denylist and satisfier carve-outs win over
-// the watch test; anything not watched (or watched-but-carved-out is handled
-// above) falls through to ignored.
+// the changelog-only and watch tests; the changelog-only role sits between the
+// carve-outs and the plain trigger default (a changelog-only file is watched, but
+// its help demand is dropped); anything not watched falls through to ignored.
 function classify(p) {
   if (isDenylisted(p)) return 'denylisted';
   if (isSatisfier(p)) return 'satisfier';
+  if (isChangelogOnly(p)) return 'changelog_only';
   if (isWatched(p)) return 'trigger';
   return 'ignored';
 }
 
 module.exports = {
   DENYLIST: DENYLIST,
+  CHANGELOG_ONLY: CHANGELOG_ONLY,
   ROOT_SINGLETONS: ROOT_SINGLETONS,
   isShipped: isShipped,
   isCodeExtension: isCodeExtension,
   isWatched: isWatched,
   isDenylisted: isDenylisted,
+  isChangelogOnly: isChangelogOnly,
   isSatisfier: isSatisfier,
   isHelpSatisfier: isHelpSatisfier,
   isChangelogSatisfier: isChangelogSatisfier,

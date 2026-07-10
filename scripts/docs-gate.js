@@ -229,9 +229,16 @@ function runRangeRule(range) {
   var changedSet = {};
   changed.forEach(function (p) { changedSet[normalize(p)] = true; });
 
-  // Classify. Only 'trigger' paths raise a demand.
+  // Classify. Only 'trigger' paths raise the per-file HELP demand. Both 'trigger'
+  // and 'changelog_only' paths raise the push-global CHANGELOG demand: changelog-only
+  // files (recurring plumbing + the docs-system machinery) can never earn a help
+  // topic, so their honest docs surface is the changelog line, not a help topic.
   var triggers = changed.filter(function (p) { return roleTable.classify(p) === 'trigger'; })
                         .map(normalize);
+  var changelogOnly = changed.filter(function (p) { return roleTable.classify(p) === 'changelog_only'; })
+                        .map(normalize);
+  // Everything that demands a changelog entry: triggers + changelog-only files.
+  var changelogDemanders = triggers.concat(changelogOnly);
   // Satisfaction reuses role-table's SINGLE, assets/-anchored definition (WR-01 /
   // D-17): a non-assets/ path with a satisfier basename never counts as "the help /
   // changelog was edited". The gate keeps no second, unanchored regex of its own.
@@ -249,7 +256,7 @@ function runRangeRule(range) {
     outln('  reason:  ' + tipSkip);
     outln('  the structural invariants (Phase 1) were also bypassed — WHOLE gate skipped');
     outln('  skipped watched files:');
-    if (triggers.length) triggers.forEach(function (f) { outln('    - ' + f); });
+    if (changelogDemanders.length) changelogDemanders.forEach(function (f) { outln('    - ' + f); });
     else outln('    (no watched files changed in this range)');
     outln(BAR);
     process.exit(0);
@@ -324,10 +331,11 @@ function runRangeRule(range) {
       '        Help-Unaffected: <file>[, <file>…] — <reason>');
   });
 
-  // CHANGELOG demand (D-08): any watched trigger requires a changelog edit or waiver.
-  if (triggers.length && !changelogEdited && !changelogWaived) {
+  // CHANGELOG demand (D-08): any watched trigger OR changelog-only file requires a
+  // changelog edit or waiver. Changelog-only files raise this demand but not help.
+  if (changelogDemanders.length && !changelogEdited && !changelogWaived) {
     blocks.push('Changelog: these user-facing files changed but no changelog entry was added:\n' +
-      triggers.map(function (f) { return '        - ' + f; }).join('\n') + '\n' +
+      changelogDemanders.map(function (f) { return '        - ' + f; }).join('\n') + '\n' +
       '      Edit assets/changelog-content-en.js, or add a trailer:\n' +
       '        Changelog-Unaffected: <reason>');
   }
@@ -404,7 +412,8 @@ function runRangeRule(range) {
   // is exit 0, so they go to stdout (a successful run's stderr may be discarded).
   if (staleWarnings.length) staleWarnings.forEach(function (w) { outln('  WARNING: ' + w); });
   if (inheritedNotes.length) inheritedNotes.forEach(function (n) { outln('  NOTE: ' + n); });
-  outln('docs-gate OK — ' + range + ' (' + triggers.length + ' watched file(s), all covered)');
+  outln('docs-gate OK — ' + range + ' (' + triggers.length + ' help+changelog file(s), ' +
+    changelogOnly.length + ' changelog-only file(s), all covered)');
   process.exit(0);
 }
 
