@@ -291,7 +291,7 @@ Plans:
   3. A written, checkable path-based definition of "user-facing change" governs the gate, with a logged escape hatch for genuine emergencies (never a silent `--no-verify` culture).
   4. The gate hooks the existing release habit — the hand-set `APP_VERSION` bump in `assets/version.js` is the release moment a changelog entry must exist for — and the gate is validated against v1.3's own ship.
 
-**Plans**: 2/7 plans executed
+**Plans**: 3/7 plans executed
 
 Plans:
 **Wave 1**
@@ -301,7 +301,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 43-03-PLAN.md — covers[] backfill (D-19) + gen-help-map.js + generated HELP-MAP.md, coherent in one commit (D-13/D-17 #1) [wave 2]
+- [x] 43-03-PLAN.md — covers[] backfill (D-19) + gen-help-map.js + generated HELP-MAP.md, coherent in one commit (D-13/D-17 #1) [wave 2]
 - [ ] 43-04-PLAN.md — D-20 covers[] EN-only: strip he/de/cs + delete the locale covers-parity block [wave 2]
 
 **Wave 3** *(blocked on Wave 2)*
@@ -383,6 +383,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 41. Replayable Guided Tour | v1.3 | 14/14 | Complete   | 2026-07-09 |
 | 42. In-App Changelog & What's-New | v1.3 | 11/11 | Complete   | 2026-07-09 |
 | 42.1. Help & Onboarding Translation (HE/DE/CS) | v1.3 | 10/10 | Complete   | 2026-07-10 |
-| 43. Docs-Maintenance Hard Gate | v1.3 | 2/7 | In Progress|  |
+| 43. Docs-Maintenance Hard Gate | v1.3 | 3/7 | In Progress|  |
 </content>
 </invoke>
