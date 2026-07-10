@@ -4,9 +4,9 @@ milestone: v1.3
 milestone_name: In-App Help, Onboarding & Changelog
 current_phase: 43
 current_phase_name: docs-maintenance-hard-gate
-status: verifying
+status: executing
 stopped_at: Phase 43 planned (7 plans, verified)
-last_updated: "2026-07-10T16:33:33.275Z"
+last_updated: "2026-07-10T17:43:20.005Z"
 last_activity: 2026-07-10
 last_activity_desc: Phase 43 execution started
 progress:
@@ -28,11 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 
 ## Current Position
 
-Phase: 43 (docs-maintenance-hard-gate) — EXECUTING
-Plan: 7 of 7
-Status: Phase complete — ready for verification
-Next: `/gsd-execute-phase 43` — the final phase of milestone v1.3. 7 plans across 5 waves; plan-checker approved, architect review closed 1 blocker (path-scoped watch set) + 3 design fixes. Phases 39, 40, 41, 42 and 42.1 are all complete (49/49 plans); 42 UAT closed 3/3 with 0 issues, 42.1 security verified with 0 threats open.
-Last activity: 2026-07-10 — Phase 43 execution started
+Phase: 43 (docs-maintenance-hard-gate) — GAP CLOSURE PLANNED
+Plan: 7 of 10 executed (43-01..07 done; 43-08..10 are new gap-closure plans)
+Status: Ready to execute
+Next: `/gsd-execute-phase 43` — runs the 3 gap-closure plans (wave 1: 43-08 ∥ 43-09; wave 2: 43-10) closing 43-VERIFICATION.md gaps CR-01, WR-01/02/03/04/06. Plan-checker passed on iteration 1.
+Last activity: 2026-07-10 — Phase 43 gap-closure plans created (43-08..10)
+
+**Gate override (2026-07-10, plan-phase 43 --gaps):** step-13a decision-coverage gate returned `could-not-parse` (CONTEXT.md `- **D-06: ...**` bullet format unreadable by the parser; known parser brittleness). Proceeded on the plan-checker's substantive decision-coverage pass (D-14/OD-4/D-23 verified per-decision) + advisory gap-analysis 25/26 (D-09 is a REJECTED decision — nothing to cover). Verify-phase should re-confirm decision coverage.
 
 ## Performance Metrics
 
