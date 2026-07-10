@@ -12,10 +12,13 @@
 #   <local ref> <local sha> <remote ref> <remote sha>
 # We act only on pushes to refs/heads/main; a branch deletion (local sha all-zeros)
 # is skipped; a first push (remote sha all-zeros) falls back to a merge-base range.
+#
+# Note: the gate reads the docs corpus from the WORKING TREE, not the pushed tip —
+# a dirty tree can produce a verdict CI will not reproduce. That is why this is only
+# a preview; CI, which evaluates the actual pushed commits, is authoritative.
 
 set -eu
 
-remote="${1:-}"
 gate="$(git rev-parse --show-toplevel)/scripts/docs-gate.js"
 
 # 40 (or 64) zeros is git's "no such ref yet" sentinel for a side of the push.
@@ -47,7 +50,11 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     range="${remote_sha}..${local_sha}"
   fi
 
-  if ! node "$gate" --range "$range"; then
+  # Redirect stdin from /dev/null: the gate reads no stdin today, but this loop is
+  # driven by the ref list on the hook's stdin, so a future git subprocess in the
+  # gate that read stdin could otherwise swallow the remaining ref lines and skip
+  # gating the rest of a multi-ref push.
+  if ! node "$gate" --range "$range" < /dev/null; then
     status=1
   fi
 done

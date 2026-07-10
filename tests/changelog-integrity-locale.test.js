@@ -3,10 +3,11 @@
  * integrity gate (Phase 42.1, Plan 01; L10N-01; T-42.1-01 / T-42.1-02).
  *
  * RED-FIRST (project rule: integrity tests precede the content they guard).
- * Authored in Wave 0 BEFORE assets/changelog-content-{he,de,cs}.js exist, so the
- * translation plans have a falsifiable, non-vacuous target. Fails RED for the
- * RIGHT reason (locale data file absent) until each locale sibling lands, then
- * turns GREEN. Valid JS (`node -c` passes); auto-discovered by tests/run-all.js.
+ * Authored in Wave 0 before assets/changelog-content-{he,de,cs}.js existed, so the
+ * translation plans had a falsifiable, non-vacuous target — it failed RED for the
+ * RIGHT reason (locale data file absent) until each locale sibling landed. GREEN
+ * now that the locales ship; the absent-file guards remain as harness self-defense.
+ * Valid JS (`node -c` passes); auto-discovered by tests/run-all.js.
  *
  * The per-locale mirror of tests/changelog-integrity.test.js. For every
  * locale it loads assets/changelog-content-en.js + assets/changelog-content-

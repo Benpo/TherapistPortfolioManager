@@ -1,13 +1,14 @@
 /**
  * docs-gate.test.js — falsifiable RED/GREEN behavior spec for the docs-rot gate.
  *
- * This file is authored BEFORE the gate script exists. It is the executable
+ * Authored RED-first, BEFORE the gate script existed. It is the executable
  * specification of the gate's blocking behavior: a gate that always passes ships
  * green too — only a test that can go RED proves the gate can actually block.
  *
- * It fails RED today (scripts/docs-gate.js is absent → the child `node` process
- * throws ENOENT) for the right reason, and is structured so that once the real
- * gate lands every case flips to PASS with no edits here.
+ * It failed RED before the gate landed (scripts/docs-gate.js absent → the child
+ * `node` throws ENOENT). Now that the gate ships, every case is GREEN; the
+ * absence guards below remain as harness self-defense so a future deletion of the
+ * gate fails RED for the right reason rather than passing vacuously.
  *
  * Mechanics (all node built-ins, no jsdom, offline, self-cleaning):
  *   - Build a throwaway repo under os.tmpdir() with a local --bare origin so
@@ -567,6 +568,12 @@ try {
       [['docs-emergency-skip', 'prod down — lowercase key must not bypass']]);
     var r = runGate();
     assert(r.code !== 0, 'expected non-zero (blocked): a lowercase skip key must not bypass the gate, got 0\n' + out(r));
+    // The block must be the genuine range-rule demand, NOT a Phase 1 invariant
+    // block: the fixture cases run Phase 1 against the live install repo, so if
+    // that corpus ever rots this case would otherwise pass vacuously (any non-zero
+    // exit). Pin it to the real reason.
+    assert(!/docs invariant is broken/.test(out(r)),
+      'the block must be the range-rule demand, not a vacuous live-corpus invariant failure');
   });
 
   // ── A tip Docs-Emergency-Skip bypasses the WHOLE gate (invariants included) ─

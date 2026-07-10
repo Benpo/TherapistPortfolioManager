@@ -6,8 +6,9 @@
  * decided by BOTH a shipped-path test AND a code-extension test, and the role
  * table (denylist / satisfier / trigger / ignored) must never contradict itself.
  *
- * It fails RED today (scripts/lib/role-table.js is absent → require throws) and
- * flips to GREEN once the role table lands, with no edits here.
+ * Authored RED-first, before scripts/lib/role-table.js existed (require then threw);
+ * GREEN now that the role table ships. The load-error guard remains as harness
+ * self-defense so a future deletion fails RED for the right reason.
  *
  * Contract this spec pins for scripts/lib/role-table.js (CommonJS module):
  *   module.exports.classify(relPath) → one of:

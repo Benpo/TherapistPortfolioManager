@@ -12,10 +12,10 @@
  * unbypassable layer". Only a test that drives each ls-remote exit code can prove
  * the three-way branch is real; this file is that executable spec.
  *
- * It fails RED today (scripts/ci-resolve-docs-range.sh is absent → `sh` exits
- * non-zero with a "No such file" style error) for the right reason, and is
- * structured so that once the real resolver lands every case flips to PASS with
- * no edits here.
+ * Authored RED-first, before scripts/ci-resolve-docs-range.sh existed (`sh` then
+ * exited non-zero with a "No such file" style error). GREEN now that the resolver
+ * ships; the absent-resolver notice below remains as harness self-defense so a
+ * future deletion fails RED for the right reason.
  *
  * Mechanics (all node built-ins, offline, self-cleaning):
  *   - Build a temp dir under os.tmpdir() and drop a STUB `git` executable in it
@@ -114,7 +114,7 @@ try {
 
   if (!fs.existsSync(RESOLVER)) {
     console.log('[ci-resolve-docs-range.test] resolver ABSENT at ' + RESOLVER);
-    console.log('[ci-resolve-docs-range.test] every case below is EXPECTED RED until Task 2 ships it.\n');
+    console.log('[ci-resolve-docs-range.test] the resolver ships, so this is a REGRESSION — every case below fails RED as self-defense.\n');
   }
 
   // rc=0, resolvable anchor → anchored range on stdout, exit 0.

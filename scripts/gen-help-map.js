@@ -15,8 +15,10 @@
  *   - CHECK (--check)  — regenerate to a string and === compare against the
  *                        committed HELP-MAP.md; on mismatch print how to fix
  *                        and exit non-zero.
- * The check path is exported (checkMap) so the freshness invariant requires
- * this one implementation rather than re-deriving canonicalization.
+ * checkMap() is exported for the CLI's own --check mode. The freshness invariant
+ * shares the canonicalization SUBSTRATE — it calls buildMap() and does its own
+ * read + === compare rather than calling checkMap() — so the two comparisons stay
+ * in lockstep through buildMap(), the only piece that must not be duplicated.
  *
  * Canonicalization (so the freshness compare never flaps on cosmetic diffs):
  *   - LF line endings, exactly one trailing newline.
