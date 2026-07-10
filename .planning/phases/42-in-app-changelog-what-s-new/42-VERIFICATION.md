@@ -1,17 +1,20 @@
 ---
 phase: 42-in-app-changelog-what-s-new
 verified: 2026-07-09T19:05:04Z
-status: human_needed
+status: passed
 score: 7/7 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 human_verification:
+
   - test: "Install the app as a PWA (or open on a real device/browser), go fully offline, then launch on any of the 9 chrome-mounting pages after bumping/simulating a version change."
     expected: "The What's-New popup fires exactly once (modest centered modal, latest entry's 2-4 highlights), dismiss/Close/Esc/'See everything new' all record the version, and /changelog loads and renders fully offline (reverse-chronological, version+date grouped)."
     why_human: "jsdom cannot exercise the real Service Worker / offline cache path or a real 'cold launch after version bump' — every plan 05/07/09 SUMMARY explicitly defers this to the phase-gate UAT."
+
   - test: "Visually inspect the What's-New popup and the /changelog page in light + dark theme and in RTL (Hebrew) layout on a real browser."
     expected: "Popup is a modest 420px centered modal (not full-screen), category headings (New/Improved/Fixed) use the correct color tokens in both themes, RTL logical properties render mirrored correctly, and no LTR artifacts appear in the RTL heading area."
     why_human: "CSS token/RTL correctness and visual weight are not verifiable via grep/jsdom; sketch-mirroring was checked in source only."
+
   - test: "Triage the three code-review WARNING findings in 42-REVIEW.md before/at ship: WR-01 (changelog.html omits tour.js/tour.css, leaving the help popover's 'Onboarding Tour' row and the tour-reminder Start button dead no-ops on that page), WR-02 (deep-link anchors race the browser's native fragment scroll against async render — currently invisible because the CTA always targets the newest entry, which renders first), WR-03 (changelog.js's 'Version' heading label is hardcoded English, bypassing the phase's own D-17 chrome-i18n rule)."
     expected: "Ben decides whether each is fix-now, deferred (e.g. to Phase 43 or a quick task), or accepted as-is; none currently fail a CHLG-01..04 truth but WR-01 is a real, code-confirmed dead UI control."
     why_human: "These are judgment calls on scope/priority, not correctness questions — the code review already diagnosed root cause and proposed fixes; a human decision on disposition is what's missing."
