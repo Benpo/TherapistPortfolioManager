@@ -24,42 +24,15 @@ jobs:
           # The authoritative, unbypassable docs-rot gate. Mirrors the "Verify no
           # sensitive files" idiom (inline shell, loud echo, exit 1, no external
           # action). It runs the SAME scripts/docs-gate.js the local hook runs; only
-          # the range differs. The range is ANCHORED to the last-deployed commit read
-          # from the deploy branch so a cancelled/superseded run's commits are re-covered
-          # on the next successful run (self-healing) rather than silently skipped.
+          # the range differs.
           #
-          # A failing `git log origin/deploy` cannot tell "branch absent" from "branch
-          # present but never fetched" — conflating them collapses the range to the tip
-          # commit only and silently drops the rest of the push. So resolve existence
-          # explicitly with ls-remote, and treat any fetch failure on an EXISTING branch
-          # as fail-closed, never bootstrap.
-          if git ls-remote --exit-code --heads origin deploy >/dev/null 2>&1; then
-            if ! git fetch --no-tags origin deploy >/dev/null 2>&1; then
-              echo "DOCS GATE: 'deploy' branch exists but could not be fetched — failing closed."
-              exit 1
-            fi
-            subject="$(git log FETCH_HEAD -1 --format=%s)"
-            # The deploy commit message is "Deploy from <sha>". Accept a 7–40 hex token
-            # (tolerates the pre-widening 7-char tip on the first run after this change).
-            token="$(printf '%s\n' "$subject" | sed -n 's/^Deploy from \([0-9a-fA-F]\{7,40\}\).*/\1/p')"
-            if [ -z "$token" ]; then
-              echo "DOCS GATE: could not read a deploy anchor from '$subject' — failing closed."
-              exit 1
-            fi
-            if ! anchor="$(git rev-parse --verify "${token}^{commit}" 2>/dev/null)"; then
-              echo "DOCS GATE: deploy anchor '$token' does not resolve in this checkout — failing closed."
-              exit 1
-            fi
-            range="${anchor}..${GITHUB_SHA}"
-          else
-            # ls-remote exit 2 → the deploy branch genuinely does not exist yet. This is
-            # the ONLY case that takes the bootstrap fallback: evaluate the tip commit only.
-            echo "============================================================"
-            echo "  DOCS GATE NOTICE — no 'deploy' branch yet (first-run bootstrap)"
-            echo "  Only the tip commit ${GITHUB_SHA} is evaluated this run."
-            echo "============================================================"
-            range="${GITHUB_SHA}^..${GITHUB_SHA}"
-          fi
+          # Range resolution (anchoring, three-way ls-remote branching, fail-closed
+          # on any network/auth fault or unresolvable anchor — CR-01/WR-02) lives in
+          # the SHARED, unit-tested scripts/ci-resolve-docs-range.sh so a stubbed-git
+          # behavior test can drive every exit code. The resolver is checked out with
+          # the repo (fetch-depth 0), so it is available here. It writes ONLY the
+          # resolved range to stdout and exits non-zero on any fail-closed condition.
+          range="$(sh scripts/ci-resolve-docs-range.sh)"
           count="$(git rev-list --count "$range")"
           echo "Docs gate range: $range ($count commit(s))"
           # A count of exactly 1 on a multi-commit push is the signature of the silent

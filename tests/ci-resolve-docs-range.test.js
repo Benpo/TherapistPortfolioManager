@@ -47,7 +47,7 @@
 var os = require('os');
 var fs = require('fs');
 var path = require('path');
-var execFileSync = require('child_process').execFileSync;
+var spawnSync = require('child_process').spawnSync;
 
 var REPO_ROOT = path.resolve(__dirname, '..');
 var RESOLVER = path.join(REPO_ROOT, 'scripts', 'ci-resolve-docs-range.sh');
@@ -89,7 +89,9 @@ fs.writeFileSync(STUB_GIT,
 fs.chmodSync(STUB_GIT, 0o755);
 
 // Run the REAL resolver with the stub git on PATH and the given STUB_* overrides.
-// Returns { code, stdout, stderr }. An absent resolver surfaces as a clear RED.
+// Returns { code, stdout, stderr }. spawnSync (not execFileSync) is used so that
+// stderr is captured on BOTH success and failure — the rc=2 bootstrap case exits 0
+// yet must still emit its NOTICE to stderr, and execFileSync only returns stdout.
 function runResolver(stub) {
   var env = Object.assign({}, process.env, {
     GIT_CONFIG_GLOBAL: '/dev/null',
@@ -98,16 +100,12 @@ function runResolver(stub) {
     GITHUB_SHA: GITHUB_SHA,
     STUB_ANCHOR_SHA: ANCHOR_SHA,
   }, stub || {});
-  try {
-    var stdout = execFileSync('sh', [RESOLVER], { env: env, stdio: 'pipe' }).toString();
-    return { code: 0, stdout: stdout, stderr: '' };
-  } catch (e) {
-    return {
-      code: (e && typeof e.status === 'number') ? e.status : 1,
-      stdout: (e && e.stdout ? e.stdout.toString() : ''),
-      stderr: (e && e.stderr ? e.stderr.toString() : ''),
-    };
-  }
+  var r = spawnSync('sh', [RESOLVER], { env: env, encoding: 'utf8' });
+  return {
+    code: (typeof r.status === 'number') ? r.status : 1,
+    stdout: r.stdout || '',
+    stderr: r.stderr || '',
+  };
 }
 
 // ── Suite ────────────────────────────────────────────────────────────────────

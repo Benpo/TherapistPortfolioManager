@@ -51,3 +51,17 @@ By contrast, the two `*-Unaffected:` trailers are honored from any commit in the
 layer and honors only the trailers above; the emergency skip is loud and auditable in the
 CI log. If you need to ship past the gate, use `Docs-Emergency-Skip:` on the tip commit —
 never `--no-verify` as a substitute.
+
+**Recovery when the CI anchor cannot resolve (no trailer can help here).** CI anchors its
+range to the last-deployed commit read from the remote `deploy` branch's `Deploy from
+<sha>` subject (resolved by `scripts/ci-resolve-docs-range.sh`). If main's history was
+rewritten — or that subject was mangled — the anchor may no longer resolve, and the
+resolver **fails closed** (exit 1) and prints a recovery runbook. A `Docs-Emergency-Skip:`
+trailer **cannot** rescue this: the resolver runs *before* `scripts/docs-gate.js`, so no
+trailer is read at that point. Recover non-destructively, either: (1) delete the remote
+`deploy` branch — `git push origin --delete deploy` — so the next deploy sees `ls-remote`
+exit 2 and takes the first-run bootstrap path (tip commit only) before re-anchoring, or
+(2) re-point `deploy` to a commit reachable from main's current tip so its subject resolves
+again. Neither touches main or any source; both only reset the deploy anchor. (Note: an
+`ls-remote` network/auth fault — any exit code other than 0 or 2 — also fails closed by
+design, so a transient blip never silently un-gates a multi-commit push.)
