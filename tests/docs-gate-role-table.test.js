@@ -153,6 +153,56 @@ EXPECT_DENYLISTED.forEach(function (p) {
   });
 });
 
+// ── Anchored per-kind satisfier predicates (WR-01 guard) ─────────────────────
+// The gate consumes these instead of keeping its own unanchored regex. They MUST
+// anchor to assets/ exactly like SATISFIER_RE — a non-assets/ decoy path with a
+// satisfier basename must NOT satisfy, or an edit to such a decoy would silently
+// waive the help/changelog demand for the whole range (the WR-01 fail-open).
+function helpSat(p) {
+  assert(RT && typeof RT.isHelpSatisfier === 'function',
+    'scripts/lib/role-table.js did not export isHelpSatisfier() — ' +
+    (LOAD_ERR ? LOAD_ERR.message : 'module present but no isHelpSatisfier'));
+  return RT.isHelpSatisfier(p);
+}
+function changelogSat(p) {
+  assert(RT && typeof RT.isChangelogSatisfier === 'function',
+    'scripts/lib/role-table.js did not export isChangelogSatisfier() — ' +
+    (LOAD_ERR ? LOAD_ERR.message : 'module present but no isChangelogSatisfier'));
+  return RT.isChangelogSatisfier(p);
+}
+
+test('anchor: isHelpSatisfier is true for assets/help-content-en.js, false for a non-assets/ decoy', function () {
+  assert(helpSat('assets/help-content-en.js') === true,
+    'the real assets/ help content must be a help satisfier');
+  assert(helpSat('tests/fixtures/help-content-en.js') === false,
+    'a non-assets/ decoy path named like a satisfier must NOT satisfy (WR-01)');
+});
+
+test('anchor: isChangelogSatisfier is true for assets/changelog-content-en.js, false for a non-assets/ decoy', function () {
+  assert(changelogSat('assets/changelog-content-en.js') === true,
+    'the real assets/ changelog content must be a changelog satisfier');
+  assert(changelogSat('x/changelog-content-en.js') === false,
+    'a non-assets/ decoy path named like a satisfier must NOT satisfy (WR-01)');
+});
+
+test('anchor: all four locales are recognized per kind', function () {
+  ['en', 'he', 'de', 'cs'].forEach(function (lang) {
+    assert(helpSat('assets/help-content-' + lang + '.js') === true,
+      'assets/help-content-' + lang + '.js must be a help satisfier');
+    assert(changelogSat('assets/changelog-content-' + lang + '.js') === true,
+      'assets/changelog-content-' + lang + '.js must be a changelog satisfier');
+  });
+});
+
+test('anchor: a help satisfier is not a changelog satisfier and vice-versa', function () {
+  assert(helpSat('assets/help-content-en.js') === true &&
+         changelogSat('assets/help-content-en.js') === false,
+    'help content must not read as a changelog satisfier');
+  assert(changelogSat('assets/changelog-content-en.js') === true &&
+         helpSat('assets/changelog-content-en.js') === false,
+    'changelog content must not read as a help satisfier');
+});
+
 // ── Every denylisted path is a real shipped file (no dangling entries) ───────
 test('invariant: every DENYLIST entry is a real file on disk', function () {
   var dl = denylist();
