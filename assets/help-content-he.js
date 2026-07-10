@@ -17,7 +17,7 @@
 //   Hebrew help register: infinitive / plural / noun-gerund; NO imperative
 //   singular "you". RTL. Terminology: client = לקוח, session = מפגש,
 //   Heart-Wall = חומת הלב — never the clinical patient/treatment words
-//   (מטופל / טיפול), which tests/42_1-help-integrity.test.js forbids. The brand
+//   (מטופל / טיפול), which tests/help-integrity-locale.test.js forbids. The brand
 //   "Sessions Garden", "PDF", browser names, and contact@sessionsgarden.app stay
 //   Latin; the renderer is dir-aware (textContent, no innerHTML) so mixed
 //   Latin/Hebrew lines display correctly without any manual bidi markup.

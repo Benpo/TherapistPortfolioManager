@@ -11,7 +11,7 @@
  * Convention: this repo is zero-npm. We DO NOT use fake-indexeddb/jsdom (which
  * the plan suggested) — instead we reuse the established handwritten in-memory
  * IDB shim + `vm` sandbox pattern (tests/24-04-idb-migration.test.js,
- * tests/28-04-integrity-state.test.js). This keeps the test honoring the
+ * tests/update-integrity-state.test.js). This keeps the test honoring the
  * project's "zero dependencies, no build" constraint.
  *
  * Run: node tests/29-01-crashlog-capture.test.js

@@ -1,5 +1,5 @@
 /**
- * tests/42_1-changelog-integrity-locale.test.js — per-locale changelog-content
+ * tests/changelog-integrity-locale.test.js — per-locale changelog-content
  * integrity gate (Phase 42.1, Plan 01; L10N-01; T-42.1-01 / T-42.1-02).
  *
  * RED-FIRST (project rule: integrity tests precede the content they guard).
@@ -8,7 +8,7 @@
  * RIGHT reason (locale data file absent) until each locale sibling lands, then
  * turns GREEN. Valid JS (`node -c` passes); auto-discovered by tests/run-all.js.
  *
- * The per-locale mirror of tests/42-changelog-integrity.test.js. For every
+ * The per-locale mirror of tests/changelog-integrity.test.js. For every
  * locale it loads assets/changelog-content-en.js + assets/changelog-content-
  * <loc>.js into a fresh vm sandbox and cross-checks the locale entries against
  * EN:
@@ -34,7 +34,7 @@
  * One parameterized file looping he/de/cs. EN is the parity baseline, never
  * iterated as a target. Read-only: never writes a production file.
  *
- * Run: node tests/42_1-changelog-integrity-locale.test.js
+ * Run: node tests/changelog-integrity-locale.test.js
  * Exits 0 on full pass, 1 on any failure (the tests/run-all.js contract).
  */
 
@@ -59,7 +59,7 @@ const CONTENT_PRESENT = {
   cs: fs.existsSync(assetPath('changelog-content-cs.js')),
 };
 
-// ── Sandbox loader (mirror 42-changelog-integrity.test.js) ───────────────────
+// ── Sandbox loader (mirror changelog-integrity.test.js) ───────────────────
 // Fresh context per call so no locale leaks state into another. A genuine parse
 // error in a shipped file is FATAL (exit 1) — distinct from the RED "file
 // absent" signal, reported as a normal test failure below.
@@ -120,7 +120,7 @@ function entryByVersion(entries, v) {
   return entries.filter(e => e && e.version === v)[0];
 }
 
-// Emoji / pictographic scan — shared shape with 42-changelog-integrity.test.js:87.
+// Emoji / pictographic scan — shared shape with changelog-integrity.test.js:87.
 const EMOJI_RE = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{1F1E6}-\u{1F1FF}]/u;
 
 // Control / bidi-control scan (escape-only — never embed a literal control char

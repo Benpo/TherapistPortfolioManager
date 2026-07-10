@@ -17,7 +17,7 @@
 //   Czech help register: consistent formal address (vykání). Terminology:
 //   client = klient, session = sezení, snippet = úryvek, Heart-Wall stays Latin
 //   as shipped in assets/i18n-cs.js — never the clinical patient/treatment words
-//   (pacient / léčba / léčení), which tests/42_1-help-integrity.test.js forbids.
+//   (pacient / léčba / léčení), which tests/help-integrity-locale.test.js forbids.
 //   The brand "Sessions Garden", "PDF", browser names, and
 //   contact@sessionsgarden.app stay Latin; the renderer is dir-aware
 //   (textContent, no innerHTML).

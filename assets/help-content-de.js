@@ -17,7 +17,7 @@
 //   German help register: consistent formal address (Sie form). Terminology:
 //   client = Klient, session = Sitzung, snippet = Baustein, Heart-Wall stays
 //   Latin as shipped in assets/i18n-de.js — never the clinical patient/treatment
-//   words (Patient / Behandlung), which tests/42_1-help-integrity.test.js
+//   words (Patient / Behandlung), which tests/help-integrity-locale.test.js
 //   forbids. The brand "Sessions Garden", "PDF", browser names, and
 //   contact@sessionsgarden.app stay Latin; the renderer is dir-aware
 //   (textContent, no innerHTML).

@@ -8,7 +8,7 @@
 //     where a locale entry is missing. Both surfaces (changelog page + What's-New
 //     popup) then read natively in Hebrew.
 //
-// Parity contract (enforced by tests/42_1-changelog-integrity-locale.test.js):
+// Parity contract (enforced by tests/changelog-integrity-locale.test.js):
 //   version / anchor / origin flag / category-key set + order are byte-identical
 //   to EN — ONLY the lede / highlights / category strings + the month word are
 //   translated. The v1.0 entry stays origin-only (no highlights/categories).

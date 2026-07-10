@@ -1,5 +1,5 @@
 /**
- * tests/42_1-help-integrity.test.js — per-locale help-content integrity gate
+ * tests/help-integrity-locale.test.js — per-locale help-content integrity gate
  * (Phase 42.1, Plan 01; L10N-01; T-42.1-01 / T-42.1-02).
  *
  * RED-FIRST (project rule: integrity tests precede the content they guard).
@@ -9,10 +9,10 @@
  * then turns GREEN. Valid JS (`node -c` passes); auto-discovered by
  * tests/run-all.js (top-level tests/*.test.js — zero registration).
  *
- * The per-locale mirror of tests/39-help-integrity.test.js. For every locale it
+ * The per-locale mirror of tests/help-integrity.test.js. For every locale it
  * loads assets/i18n-en.js + assets/i18n-<loc>.js + assets/help-content-en.js +
  * assets/help-content-<loc>.js into a fresh vm sandbox (the tests/33-i18n /
- * 39-help-integrity idiom) and cross-checks the locale corpus against EN:
+ * help-integrity idiom) and cross-checks the locale corpus against EN:
  *
  *   (a) Structure parity with EN — identical section ids in identical order;
  *       identical group / featured / topic ids / topic priority / topic covers[];
@@ -27,7 +27,7 @@
  *       /\bpatient\b/ regex). Approved client/session vocab is grounded in the
  *       shipped i18n-<loc>.js dict (HE לקוח/מפגש, DE Klient/Sitzung,
  *       CS klient/sezení).
- *   (d) No emoji — reuse the 39-help-integrity EMOJI_RE against every title/body
+ *   (d) No emoji — reuse the help-integrity EMOJI_RE against every title/body
  *       string.
  *   (e) No control chars other than \n — reject C0/C1 controls and the
  *       U+202A–U+202E / U+2066–U+2069 bidi-control code points (Phase 29
@@ -37,7 +37,7 @@
  * three siblings). EN is loaded as the parity baseline, never iterated as a
  * target. Read-only: never writes a production file.
  *
- * Run: node tests/42_1-help-integrity.test.js
+ * Run: node tests/help-integrity-locale.test.js
  * Exits 0 on full pass, 1 on any failure (the tests/run-all.js contract).
  */
 
@@ -64,7 +64,7 @@ const CONTENT_PRESENT = {
   cs: fs.existsSync(assetPath('help-content-cs.js')),
 };
 
-// ── Sandbox loader (Shared Pattern 4 — mirror 39-help-integrity.test.js) ─────
+// ── Sandbox loader (Shared Pattern 4 — mirror help-integrity.test.js) ─────
 // Fresh context per call so no locale leaks state into another. A genuine parse
 // error in a shipped file is FATAL (exit 1) — distinct from the RED "file
 // absent" signal, which is reported as a normal test failure below.
@@ -138,7 +138,7 @@ function topicById(sec, id) {
   return (sec.topics || []).filter(t => t && t.id === id)[0];
 }
 
-// Emoji / pictographic scan — shared shape with 39-help-integrity.test.js:92
+// Emoji / pictographic scan — shared shape with help-integrity.test.js:92
 // (surrogate emoji planes + common symbol ranges + variation selector).
 // Deliberately excludes the en/em dash and ordinary punctuation used in copy.
 const EMOJI_RE = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{1F1E6}-\u{1F1FF}]/u;

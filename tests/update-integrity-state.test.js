@@ -8,7 +8,7 @@
  * honest-state machine is provable without a service worker, a DOM, or a
  * network.
  *
- * Run: node tests/28-04-integrity-state.test.js
+ * Run: node tests/update-integrity-state.test.js
  * Exits 0 on full pass, 1 on any failure.
  *
  * The 5 load-bearing behavior cases (Plan 04 Task 1 <behavior>):

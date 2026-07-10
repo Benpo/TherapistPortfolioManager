@@ -1,5 +1,5 @@
 /**
- * tests/42-changelog-integrity.test.js — changelog data-source integrity gate
+ * tests/changelog-integrity.test.js — changelog data-source integrity gate
  * (Phase 42, Plan 02; CHLG-03 / CHLG-04 / T-42-V9; D-08 / D-10).
  *
  * RED-FIRST (project rule: integrity tests precede implementation). Authored
@@ -9,7 +9,7 @@
  *
  * The anti-rot guard for the ONE structured source that drives BOTH the What's-
  * New popup (latest .highlights) and the changelog page (full history) — never
- * forked, never scraped from git (CHLG-03). Mirrors tests/39-help-integrity.js:
+ * forked, never scraped from git (CHLG-03). Mirrors tests/help-integrity.js:
  * loads assets/i18n-en.js then assets/changelog-content-en.js into a vm sandbox
  * (the tests/33-i18n pattern) and asserts the RESEARCH ## Entry Schema contract:
  *
@@ -30,7 +30,7 @@
  * Read-only: loads the REAL data module (not a fixture) so it genuinely
  * validates Plan 04's output. Never writes any production file.
  *
- * Run: node tests/42-changelog-integrity.test.js
+ * Run: node tests/changelog-integrity.test.js
  * Exits 0 on full pass, non-zero on any failure (the tests/run-all.js contract).
  */
 
@@ -47,7 +47,7 @@ const DATA_FILE = 'changelog-content-en.js';
 // Plan 04 (changelog-content-en.js) turns this GREEN. All assertions live below.
 if (!fs.existsSync(path.join(ASSETS_DIR, DATA_FILE))) {
   console.error('RED (expected before impl): assets/' + DATA_FILE + ' does not exist yet.');
-  console.error('Plan 04 (changelog-content-en.js) turns tests/42-changelog-integrity.test.js GREEN.');
+  console.error('Plan 04 (changelog-content-en.js) turns tests/changelog-integrity.test.js GREEN.');
   process.exit(1);
 }
 
@@ -59,7 +59,7 @@ sandbox.window.I18N = {};
 sandbox.window.QUOTES = {};
 vm.createContext(sandbox);
 
-// Load the i18n dict (parity with 39-help-integrity) then the REAL data source.
+// Load the i18n dict (parity with help-integrity) then the REAL data source.
 const FILES = ['i18n-en.js', DATA_FILE];
 for (const f of FILES) {
   const src = fs.readFileSync(path.join(ASSETS_DIR, f), 'utf8');
@@ -81,7 +81,7 @@ if (!Array.isArray(ENTRIES)) {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const CATEGORY_KEYS = ['new', 'improved', 'fixed'];
 
-// Emoji / pictographic scan (shared shape with 39-help-integrity): surrogate-
+// Emoji / pictographic scan (shared shape with help-integrity): surrogate-
 // pair emoji planes + common symbol ranges + variation selector. Excludes the
 // en/em dash and ordinary punctuation used in the copy.
 const EMOJI_RE = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{1F1E6}-\u{1F1FF}]/u;

@@ -11,7 +11,7 @@
 // Loaded ONLY by help.html. Global i18n files keep UI-chrome strings; the help
 // BODY lives here (EN-only for now; future translation adds help-content-de.js).
 //
-// ── Schema (enforced by tests/39-help-integrity.test.js) ──────────────────
+// ── Schema (enforced by tests/help-integrity.test.js) ──────────────────
 //   section: {
 //     id       — kebab anchor, unique (this IS the deep-link target)
 //     title    — noun / gerund headline

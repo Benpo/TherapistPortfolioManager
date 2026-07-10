@@ -13,7 +13,7 @@
 // the UI chrome (page title, New/Improved/Fixed labels); the release BODY lives
 // here (EN-only for now; future translation adds changelog-content-de.js, etc.).
 //
-// ── Schema (enforced by tests/42-changelog-integrity.test.js) ─────────────────
+// ── Schema (enforced by tests/changelog-integrity.test.js) ─────────────────
 //   entry: {
 //     version    — semver string, UNIQUE, e.g. '1.3.0' (matches AppVersion
 //                  .APP_VERSION semantics; version.js:27). The array is strictly

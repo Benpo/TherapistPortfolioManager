@@ -20,7 +20,7 @@
  *   7. Terminology + copy hygiene: no body text matches /\bpatient\b/i (nor
  *      /\btreatment\b/i); no body text contains an emoji code point.
  *
- * Run: node tests/39-help-integrity.test.js
+ * Run: node tests/help-integrity.test.js
  * Exits 0 on full pass, 1 on any failure (the tests/run-all.js contract).
  */
 

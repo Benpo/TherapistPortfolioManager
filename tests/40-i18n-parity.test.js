@@ -4,7 +4,7 @@
  * Guards the 14 new UI-chrome keys this phase introduces (welcome overlay,
  * install nudge, mobile expectation hint) so no locale drifts a key. Loads
  * all four locale maps (en/he/de/cs) into a vm
- * sandbox the same way tests/39-help-integrity.test.js loads I18N, then for
+ * sandbox the same way tests/help-integrity.test.js loads I18N, then for
  * every locale × every new key asserts:
  *
  *   1. Presence      — the key exists in the locale map.
@@ -28,7 +28,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-// ── Load every locale map into one vm sandbox (the 39-help-integrity idiom) ──
+// ── Load every locale map into one vm sandbox (the help-integrity idiom) ──
 const sandbox = {
   window: {},
   console: { log() {}, warn() {}, error() {} },
@@ -116,7 +116,7 @@ const CHROME_KEYS_421 = [
 // parity, and emoji assertions run over this extended set.
 const GUARDED_KEYS = NEW_KEYS.concat(CHROME_KEYS_421);
 
-// Emoji / pictographic scan (mirrors 39-help-integrity's EMOJI_RE): surrogate
+// Emoji / pictographic scan (mirrors help-integrity's EMOJI_RE): surrogate
 // emoji planes + common symbol ranges + variation selector + regional
 // indicators. U+1F4E4 (outbox tray, the deleted banner's glyph) lives in the
 // U+1F000–U+1FAFF range below and is asserted explicitly too.

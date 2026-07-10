@@ -52,7 +52,7 @@ Content quality bar (Ben, 2026-07-07): ALL new user-facing copy (help, welcome, 
 
 ### Localization (L10N)
 
-- [x] **L10N-01**: All v1.3-authored user-facing copy (help body, welcome overlay, tour, changelog/What's-New) reads natively in HE/DE/CS — agent translation after the EN corpus stabilizes (post-P42, one pass) → native-speaker agent gates (Sonnet) → Sapir human read for Hebrew (CS ships on the Phase-37 accepted-risk precedent); per-locale integrity tests mirror `tests/39-help-integrity.test.js`. *(Moved from v2 deferral into v1.3 scope by Ben, 2026-07-08 — EN-only help was never the intent for a Hebrew-first user base. Phase 42.1.)*
+- [x] **L10N-01**: All v1.3-authored user-facing copy (help body, welcome overlay, tour, changelog/What's-New) reads natively in HE/DE/CS — agent translation after the EN corpus stabilizes (post-P42, one pass) → native-speaker agent gates (Sonnet) → Sapir human read for Hebrew (CS ships on the Phase-37 accepted-risk precedent); per-locale integrity tests mirror `tests/help-integrity.test.js`. *(Moved from v2 deferral into v1.3 scope by Ben, 2026-07-08 — EN-only help was never the intent for a Hebrew-first user base. Phase 42.1.)*
 
 ## v2 Requirements
 
