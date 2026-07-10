@@ -38,6 +38,7 @@ var execFileSync = require('child_process').execFileSync;
 var invariants = require('./lib/invariants.js');
 var roleTable = require('./lib/role-table.js');
 var helpLoader = require('./lib/help-loader.js');
+var versionParse = require('./lib/version-parse.js');
 
 // ── Small output helpers ─────────────────────────────────────────────────────
 function errln(s) { process.stderr.write(s + '\n'); }
@@ -116,12 +117,10 @@ function fullSha(ref) {
   return out == null ? ref : out.trim();
 }
 
-// Extract the APP_VERSION semver literal from a version.js source blob.
-function extractAppVersion(src) {
-  if (!src) return null;
-  var m = /APP_VERSION\s*[:=]\s*['"](\d+\.\d+\.\d+)['"]/.exec(src);
-  return m ? m[1] : null;
-}
+// The APP_VERSION extractor now lives in the shared scripts/lib/version-parse.js
+// (one implementation, two callers — the gate below and the fifth invariant),
+// so a version.js reformat that breaks parsing fails the invariant instead of
+// silently disabling this release check (WR-06 / D-17).
 
 // ── Trailer parsing (D-14) ───────────────────────────────────────────────────
 // A *-Unaffected trailer value is "<path>[, <path>…] — <reason>". Split on the
@@ -179,6 +178,7 @@ function runInvariants() {
     invariants.checkCoversExist();
     invariants.checkChangelogSchema();
     invariants.checkRoleTable();
+    invariants.checkVersionParse();
   } catch (e) {
     errln(BAR);
     errln('  DOCS GATE BLOCKED — a docs invariant is broken');
@@ -269,8 +269,8 @@ function runRangeRule(range) {
   var changelogWaived = changelogValues.some(function (v) { return v && v.trim(); });
 
   // ── Release moment (GATE-04): did APP_VERSION change across the range? ────────
-  var oldVer = extractAppVersion(gitTry(['show', ends.base + ':assets/version.js']));
-  var newVer = extractAppVersion(gitTry(['show', ends.tip + ':assets/version.js']));
+  var oldVer = versionParse.extractAppVersion(gitTry(['show', ends.base + ':assets/version.js']));
+  var newVer = versionParse.extractAppVersion(gitTry(['show', ends.tip + ':assets/version.js']));
   var versionChanged = oldVer && newVer && oldVer !== newVer;
 
   // ── Collect blocking reasons ─────────────────────────────────────────────────
