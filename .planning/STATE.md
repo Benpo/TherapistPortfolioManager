@@ -5,7 +5,7 @@ milestone_name: In-App Help, Onboarding & Changelog
 current_phase: 43
 current_phase_name: 6 of 6 in milestone v1.3
 status: planning
-stopped_at: Phase 43 context gathered
+stopped_at: Phase 43 planned (7 plans, verified)
 last_updated: "2026-07-10T08:55:40.227Z"
 last_activity: 2026-07-10
 last_activity_desc: Phase 42 UAT complete (3/3 passed), Phase 42.1 security verified
@@ -31,7 +31,7 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 Phase: 43 — Docs-Maintenance Hard Gate (6 of 6 in milestone v1.3)
 Plan: Not started
 Status: Ready to plan
-Next: `/gsd-plan-phase 43` — the final phase of milestone v1.3. Phases 39, 40, 41, 42 and 42.1 are all complete (49/49 plans); 42 UAT closed 3/3 with 0 issues, 42.1 security verified with 0 threats open.
+Next: `/gsd-execute-phase 43` — the final phase of milestone v1.3. 7 plans across 5 waves; plan-checker approved, architect review closed 1 blocker (path-scoped watch set) + 3 design fixes. Phases 39, 40, 41, 42 and 42.1 are all complete (49/49 plans); 42 UAT closed 3/3 with 0 issues, 42.1 security verified with 0 threats open.
 Last activity: 2026-07-10 — Phase 42 UAT complete (3/3 passed), Phase 42.1 security verified
 
 ## Performance Metrics

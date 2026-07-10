@@ -383,6 +383,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 41. Replayable Guided Tour | v1.3 | 14/14 | Complete   | 2026-07-09 |
 | 42. In-App Changelog & What's-New | v1.3 | 11/11 | Complete   | 2026-07-09 |
 | 42.1. Help & Onboarding Translation (HE/DE/CS) | v1.3 | 10/10 | Complete   | 2026-07-10 |
-| 43. Docs-Maintenance Hard Gate | v1.3 | 0/TBD | Not started | - |
+| 43. Docs-Maintenance Hard Gate | v1.3 | 0/7 | Planned | - |
 </content>
 </invoke>
