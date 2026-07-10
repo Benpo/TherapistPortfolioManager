@@ -254,7 +254,7 @@ Plans:
 **Scope notes:** Translation happens AFTER the EN corpus stabilizes (post-P42) — one pass, no double-translation. Pipeline per the D-12/D-19 precedent: agent translation grounded in the shipped EN + each locale's existing i18n register conventions (HE infinitive/plural-imperative house style, DE Sie, CS formal) → native-speaker agent gates (Sonnet) → Sapir human read for Hebrew (CS ships on the Phase-37 accepted-risk precedent; external review only on a deliberate CS push). Per-locale integrity tests mirroring `tests/39-help-integrity.test.js` ({ui:key} resolution against each locale file, forbidden-words, structure parity with EN). Scope decision: Ben 2026-07-08 — L10N-01 moved from v2 deferral into v1.3 (EN-only help was never his intent for a Hebrew-first user base). Must land BEFORE Phase 43 so the docs hard-gate covers translated content from day one.
 **Requirements**: L10N-01
 **Depends on:** Phase 42
-**Plans**: 7/10 plans executed
+**Plans**: 8/10 plans executed
 
 Plans:
 **Wave 1**
@@ -272,7 +272,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 42.1-08-PLAN.md — Loader + offline wiring (help.js localeSections, whats-new.js entries, script tags, sw.js precache)
+- [x] 42.1-08-PLAN.md — Loader + offline wiring (help.js localeSections, whats-new.js entries, script tags, sw.js precache)
 - [ ] 42.1-09-PLAN.md — Native-speaker register gate HE/DE/CS (whole-corpus per locale)
 
 **Wave 4** *(blocked on Wave 3 completion)*
