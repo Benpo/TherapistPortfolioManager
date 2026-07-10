@@ -5,15 +5,15 @@ milestone_name: In-App Help, Onboarding & Changelog
 current_phase: 42.1
 current_phase_name: help-onboarding-translation
 status: executing
-stopped_at: Completed 42.1-08-PLAN.md
-last_updated: "2026-07-10T00:48:00.468Z"
+stopped_at: Completed 42.1-09-PLAN.md (native-speaker register gate he/de/cs)
+last_updated: "2026-07-10T00:56:05.745Z"
 last_activity: 2026-07-09
 last_activity_desc: Phase 42.1 execution started
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 49
-  completed_plans: 47
+  completed_plans: 48
   percent: 67
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 ## Current Position
 
 Phase: 42.1 (help-onboarding-translation) — EXECUTING
-Plan: 9 of 10
+Plan: 10 of 10
 Status: Ready to execute
 Next: Phase 42 — In-App Changelog & What's-New (v1.3, not started) → then 43 (Docs-Maintenance Hard Gate). Phase 42.1 (help/onboarding translation) carries the tour+help native-speaker pass.
 Last activity: 2026-07-09 — Phase 42.1 execution started
@@ -222,6 +222,7 @@ Last activity: 2026-07-09 — Phase 42.1 execution started
 | Phase 42.1 P06 | 12min | 3 tasks | 3 files |
 | Phase 42.1 P07 | 18min | 3 tasks | 4 files |
 | Phase 42.1 P08 | 15min | 4 tasks | 14 files |
+| Phase 42.1 P09 | ~35min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -405,6 +406,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 42.1-06]: HE changelog renders Session Format as סוג/אופן המפגש (not shipped אופן הטיפול) — the integrity gate rejects טיפול; DE/CS keep Heart-Wall Latin, HE uses חומת הלב; month word localized per D-07
 - [Phase ?]: [Phase 42.1-07]: reportHint authored as full plain sentence in all 4 locales (EN byte-identical, no emphasis); he/de/cs wrap the UI label in single quotes since Plan 08 drops the bold
 - [Phase ?]: [Phase 42.1-07]: help.entry.replayWelcome left untouched (retired Phase 41-12); DEFERRED-FROM-40 item 3 is stale
+- [Phase ?]: D-42.1-09-A: HE changelog 'Session Format' paraphrase (סוג המפגש) diverging from the shipped clinical-rooted filter label אופן הטיפול is ACCEPTED (forbidden-term-safe, register-consistent, EN-faithful; shipped-label fix out of 42.1 scope) — flagged for Plan 10/Sapir
 
 ### Pending Todos
 
@@ -480,10 +482,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-10T00:48:00.463Z
+**Last session:** 2026-07-10T00:56:05.739Z
 
 Last activity: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
-Stopped at: Completed 42.1-08-PLAN.md
+Stopped at: Completed 42.1-09-PLAN.md (native-speaker register gate he/de/cs)
 Resume file: None
 Next: /gsd-discuss-phase 39 then /gsd-plan-phase 39 (Help Center & "?" Entry Point). v1.3 roadmap live in ROADMAP.md (Phases 39–43, gate-last).
 
