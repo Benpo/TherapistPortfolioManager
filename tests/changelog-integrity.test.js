@@ -40,6 +40,11 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
+// The shared changelog-schema invariant the docs gate also runs. Wired here
+// additively — the inline schema assertions below stay intact — so npm test and
+// the gate exercise one implementation and catch the same drift.
+const invariants = require('../scripts/lib/invariants.js');
+
 const ASSETS_DIR = path.join(__dirname, '..', 'assets');
 const DATA_FILE = 'changelog-content-en.js';
 
@@ -248,6 +253,12 @@ test('No entry string field contains an emoji code point (D-10)', function () {
     }
   }
   if (hits.length) throw new Error('emoji found in entries: ' + Array.from(new Set(hits)).join(', '));
+});
+
+// ── 7. Shared docs-gate schema invariant (same code the gate runs) ──────────
+// Throws on violation, quiet on success — a failure surfaces as a red test.
+test('Changelog obeys the shared checkChangelogSchema invariant', function () {
+  invariants.checkChangelogSchema();
 });
 
 console.log('');

@@ -30,6 +30,11 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
+// The shared file-on-disk invariants the docs gate also runs. Wiring them here
+// (additively — the inline assertions below stay intact) means npm test exercises
+// the exact same code the gate does, so drift in either is caught in both places.
+const invariants = require('../scripts/lib/invariants.js');
+
 const sandbox = {
   window: {},
   console: { log() {}, warn() {}, error() {} },
@@ -227,6 +232,16 @@ test('No body text contains an emoji code point', function () {
     }
   }
   if (hits.length) throw new Error('emoji found in: ' + hits.join('; '));
+});
+
+// ── 8. Shared docs-gate invariants (same code the gate runs) ────────────────
+// Each throws on violation and returns quietly on success, so a failure surfaces
+// here as a red test — not a silent pass.
+test('HELP-MAP.md is fresh (shared checkHelpMapFresh invariant)', function () {
+  invariants.checkHelpMapFresh();
+});
+test('Every covers[] path exists on disk (shared checkCoversExist invariant)', function () {
+  invariants.checkCoversExist();
 });
 
 console.log('');
