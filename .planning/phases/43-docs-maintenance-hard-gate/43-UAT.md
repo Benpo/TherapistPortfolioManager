@@ -3,7 +3,7 @@ status: testing
 phase: 43-docs-maintenance-hard-gate
 source: [43-VERIFICATION.md]
 started: 2026-07-10T18:42:25Z
-updated: 2026-07-10T18:42:25Z
+updated: 2026-07-10T19:30:00Z
 ---
 
 ## Current Test
@@ -24,14 +24,14 @@ result: [pending]
 
 ### 2. Escape-hatch documentation precision (WR-01/WR-02/WR-03 new findings in 43-REVIEW.md)
 expected: Maintainer decision on the three documentation-precision findings from the post-gap-closure review — (a) CLAUDE.md says `Docs-Emergency-Skip:` "bypasses the whole gate" but it does not bypass Phase-1 invariants (stricter than documented); (b) the in-code comment claiming inherited `*-Unaffected` trailers are file-scoped/harmless is wrong for the push-global `Changelog-Unaffected`; (c) help/changelog satisfaction is any-locale rather than EN-only (EN is the corpus of record). Decide: accept as documented limitations (then fix CLAUDE.md/comments to state them honestly) or tighten in code. None defeats the core "no shipping without docs" promise.
-result: [pending]
+result: pass — Ben decided all three interactively (2026-07-10) and the fixes are applied, tested, and committed (`0fd7fce`, `0e2f52f`, `dcb0763`, `5efa7b4`, plus Info batch `4f3dfff`): (a) tip `Docs-Emergency-Skip` now bypasses the WHOLE gate including Phase-1 invariants, matching the contract; (b) `Changelog-Unaffected` moved to tip-only (OD-4 premise failed for the push-global trailer; decision revision appended to 43-CONTEXT.md), inherited ones ignored + reported; (c) satisfiers narrowed to the EN corpus files, CLAUDE.md states topic choice is trusted-not-verified. All 4 review warnings + 6 info items closed; suite 168/168 green. See 43-REVIEW-FIX.md.
 
 ## Summary
 
 total: 2
-passed: 0
+passed: 1
 issues: 0
-pending: 2
+pending: 1
 skipped: 0
 blocked: 0
 
