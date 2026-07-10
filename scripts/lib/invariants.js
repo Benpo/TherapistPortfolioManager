@@ -15,6 +15,11 @@
  *   4. checkRoleTable — the role table is internally consistent (nothing is both
  *      denylisted and a trigger; no satisfier is a trigger; the watch set is
  *      exactly the intended types; every denylist entry is a real shipped file).
+ *   5. checkVersionParse — the shared release-moment extractor still parses the
+ *      live assets/version.js APP_VERSION literal. If a benign reformat of that
+ *      literal ever stops matching, GATE-04's release check would silently and
+ *      permanently self-disable; this invariant makes that drift fail closed on
+ *      the next push instead (WR-06).
  *
  * Fail closed: every check THROWS an Error with a descriptive message on any
  * violation and returns quietly on success. Callers wrap in try/catch (the gate)
@@ -34,6 +39,7 @@ var path = require('path');
 var loader = require('./help-loader.js');
 var genHelpMap = require('../gen-help-map.js');
 var roleTable = require('./role-table.js');
+var versionParse = require('./version-parse.js');
 
 // scripts/lib/ → repo root is two levels up. Callers may override per-check.
 var DEFAULT_REPO_ROOT = path.join(__dirname, '..', '..');
@@ -225,10 +231,45 @@ function checkRoleTable(repoRoot) {
   }
 }
 
+// ── Invariant 5: the release-moment extractor still parses version.js ─────────
+// GATE-04 detects a release by comparing the APP_VERSION literal at each end of a
+// push range, using the shared extractor in version-parse.js. If that literal is
+// ever renamed, re-quoted (e.g. with backticks), moved, or reformatted so the
+// extractor returns null, the release check would go false at BOTH ends and skip
+// silently — permanently, with no warning. This invariant reads the live
+// assets/version.js from disk and THROWS if the shared extractor can no longer
+// parse it, so a benign version.js reformat fails the NEXT push closed instead of
+// quietly disabling GATE-04 (WR-06). repoRoot locates the file; it defaults to
+// this install's own repo, exactly like the other four invariants.
+function checkVersionParse(repoRoot) {
+  var root = repoRoot || DEFAULT_REPO_ROOT;
+  var versionPath = path.join(root, 'assets', 'version.js');
+  var src;
+  try {
+    src = fs.readFileSync(versionPath, 'utf8');
+  } catch (err) {
+    // Fail closed: an unreadable version.js is as bad as an unparseable one.
+    throw new Error(
+      'cannot read assets/version.js at ' + versionPath +
+      ' — the release-moment extractor (version-parse.js) has nothing to parse, ' +
+      'so GATE-04 would silently disable. Restore the file.'
+    );
+  }
+  if (versionParse.extractAppVersion(src) === null) {
+    throw new Error(
+      'the release-moment extractor no longer parses the APP_VERSION literal in ' +
+      versionPath + ' — GATE-04 would silently, permanently disable. Repair the ' +
+      "APP_VERSION literal to the parseable form (a single/double-quoted semver, " +
+      "e.g. var APP_VERSION = '1.3.0';) so version-parse.js can read it again."
+    );
+  }
+}
+
 module.exports = {
   DEFAULT_REPO_ROOT: DEFAULT_REPO_ROOT,
   checkHelpMapFresh: checkHelpMapFresh,
   checkCoversExist: checkCoversExist,
   checkChangelogSchema: checkChangelogSchema,
   checkRoleTable: checkRoleTable,
+  checkVersionParse: checkVersionParse,
 };
