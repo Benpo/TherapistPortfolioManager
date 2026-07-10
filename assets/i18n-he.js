@@ -593,9 +593,8 @@ window.I18N.he = {
   "help.entry.contact": "צרו קשר",
   // Welcome overlay — UI chrome (Phase 40); HE flagged for native-speaker review
   "help.welcome.title": "ברוכים הבאים לגן שלכם",
-  "help.welcome.subtitle": "Sessions Garden שומר על עבודת הלקוחות שלכם פרטית, במכשיר הזה, ומאורגנת סביב האופן שבו אתם באמת מנהלים מפגש.",
-  // Phase 42.1: translation pending — empty parity stub (P2 privacy paragraph)
-  "help.welcome.subtitle2": "",
+  "help.welcome.subtitle": "Sessions Garden מכנס את כל העבודה שלכם למרחב אחד רגוע ופשוט — לקוחות, מפגשים ורשומות, הכול במקום שבו מצפים למצוא אותם. הוא בנוי כך שיהיה נטול מאמץ ביום-יום, עד שהכלי נעלם והעבודה עצמה עולה אל הקדמה.",
+  "help.welcome.subtitle2": "כל מה שאתם מזינים נשאר פרטי במכשיר הזה. בלי חשבונות, בלי ענן, בלי אף אחד נוסף בחדר — רק העבודה שלכם, שמורה בבטחה בידיים שלכם.",
   "help.welcome.ctaTour": "לצאת לסיור מודרך",
   "help.welcome.ctaExplore": "אחקור בעצמי",
   // Replayable guided tour — copy recomposed to the v3 settings-first storyline (Phase 41-11).

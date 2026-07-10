@@ -593,9 +593,8 @@ window.I18N.de = {
   "help.entry.contact": "Kontakt",
   // Welcome overlay — UI chrome (Phase 40); DE (Sie) flagged for native-speaker review
   "help.welcome.title": "Willkommen in Ihrem Garten",
-  "help.welcome.subtitle": "Sessions Garden hält Ihre Klientenarbeit privat, auf diesem Gerät und rund um Ihren tatsächlichen Sitzungsablauf organisiert.",
-  // Phase 42.1: translation pending — empty parity stub (P2 privacy paragraph)
-  "help.welcome.subtitle2": "",
+  "help.welcome.subtitle": "Sessions Garden bringt Ihre gesamte Praxis in einen ruhigen, einfachen Raum — Klienten, Sitzungen und Notizen, alle dort, wo Sie sie erwarten. Es ist so gebaut, dass es sich Tag für Tag mühelos anfühlt, sodass das Werkzeug verschwindet und die Arbeit in den Vordergrund tritt.",
+  "help.welcome.subtitle2": "Alles, was Sie eingeben, bleibt privat auf diesem Gerät. Keine Konten, keine Cloud, niemand sonst im Raum — nur Ihre Praxis, sicher in Ihren eigenen Händen.",
   "help.welcome.ctaTour": "Geführte Tour starten",
   "help.welcome.ctaExplore": "Ich schaue mich selbst um",
   // Replayable guided tour — copy recomposed to the v3 settings-first storyline (Phase 41-11).

@@ -593,9 +593,8 @@ window.I18N.cs = {
   "help.entry.contact": "Kontaktujte n\u00e1s",
   // Welcome overlay \u2014 UI chrome (Phase 40); CS (formal) flagged for native-speaker review
   "help.welcome.title": "V\u00edtejte ve sv\u00e9 zahrad\u011b",
-  "help.welcome.subtitle": "Sessions Garden udr\u017euje va\u0161i pr\u00e1ci s klienty soukromou, v tomto za\u0159\u00edzen\u00ed a uspo\u0159\u00e1danou podle toho, jak sezen\u00ed skute\u010dn\u011b vedete.",
-  // Phase 42.1: translation pending \u2014 empty parity stub (P2 privacy paragraph)
-  "help.welcome.subtitle2": "",
+  "help.welcome.subtitle": "Sessions Garden spojuje celou va\u0161i praxi do jednoho klidn\u00e9ho, jednoduch\u00e9ho prostoru \u2014 klienti, sezen\u00ed i pozn\u00e1mky, v\u0161e tam, kde to \u010dek\u00e1te. Je vytvo\u0159en tak, aby p\u016fsobil den za dnem bez n\u00e1mahy, tak\u017ee n\u00e1stroj miz\u00ed a pr\u00e1ce samotn\u00e1 vystupuje do pop\u0159ed\u00ed.",
+  "help.welcome.subtitle2": "V\u0161e, co zad\u00e1te, z\u016fst\u00e1v\u00e1 soukrom\u00e9 v tomto za\u0159\u00edzen\u00ed. \u017d\u00e1dn\u00e9 \u00fa\u010dty, \u017e\u00e1dn\u00fd cloud, nikdo dal\u0161\u00ed v m\u00edstnosti \u2014 jen va\u0161e praxe, bezpe\u010dn\u011b ve va\u0161ich vlastn\u00edch rukou.",
   "help.welcome.ctaTour": "Spustit prohl\u00eddku s pr\u016fvodcem",
   "help.welcome.ctaExplore": "Prozkoum\u00e1m to s\u00e1m",
   // Replayable guided tour \u2014 copy recomposed to the v3 settings-first storyline (Phase 41-11).
