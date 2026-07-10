@@ -48,14 +48,9 @@
       '</svg>'
   };
 
-  // Group eyebrow + spine chrome labels (help body is EN-only for now, D-18).
-  var LABELS = {
-    sessionLoop: "The session loop",
-    technicalBits: "The technical bits",
-    spine: "The session loop — from first client to finished session",
-    techBand: "The technical bits, in plain language",
-    startHere: "Start here"
-  };
+  // Group eyebrow + spine chrome labels resolve through the localized
+  // help.chrome.* keys (Plan 07) via t(), re-rendered live on app:language —
+  // a Hebrew user sees Hebrew chrome (BLOCKER 3). No hardcoded English here.
 
   var CONTACT_MAILTO = "mailto:contact@sessionsgarden.app";
 
@@ -199,7 +194,7 @@
     head.appendChild(h2);
     if (section.featured) {
       var tag = el("span", "featured-tag");
-      tag.textContent = LABELS.startHere;
+      tag.textContent = t("help.chrome.startHere");
       head.appendChild(tag);
     }
     var chev = el("span", "chev");
@@ -237,7 +232,7 @@
     link.textContent = section.title;
     var toggle = el("button", "rail-toggle");
     toggle.type = "button";
-    toggle.setAttribute("aria-label", "Show topics");
+    toggle.setAttribute("aria-label", t("help.chrome.ariaShowTopics"));
     toggle.innerHTML = SVG_RAIL_CHEVRON; // literal SVG
     row.appendChild(link);
     row.appendChild(toggle);
@@ -403,8 +398,18 @@
     if (title) title.textContent = t("help.page.title");
     ["searchDesk", "searchMob"].forEach(function (id) {
       var input = document.getElementById(id);
-      if (input) input.placeholder = t("help.search.placeholder");
+      if (input) {
+        input.placeholder = t("help.search.placeholder");
+        // aria-label is an attribute applyTranslations can't reach — set it here
+        // so it flips live on language switch alongside the placeholder.
+        input.setAttribute("aria-label", t("help.chrome.ariaSearch"));
+      }
     });
+    // static-shell aria-labels (attributes; set in render() so they flip live)
+    var railNav = document.getElementById("rail");
+    if (railNav) railNav.setAttribute("aria-label", t("help.chrome.ariaSections"));
+    var jumpNavEl = document.getElementById("jumpNav");
+    if (jumpNavEl) jumpNavEl.setAttribute("aria-label", t("help.chrome.jumpToSection"));
 
     // ── rail ──
     var railBody = document.getElementById("railBody");
@@ -414,7 +419,7 @@
       while (railBody.firstChild) railBody.removeChild(railBody.firstChild);
 
       var loopLabel = el("div", "rail-group-label");
-      loopLabel.textContent = LABELS.sessionLoop;
+      loopLabel.textContent = t("help.chrome.sessionLoop");
       railBody.appendChild(loopLabel);
       var loopGroup = { label: loopLabel, items: [] };
       featured.concat(sessionLoop).forEach(function (section) {
@@ -428,7 +433,7 @@
       railBody.appendChild(railDivider);
 
       var techLabel = el("div", "rail-group-label");
-      techLabel.textContent = LABELS.technicalBits;
+      techLabel.textContent = t("help.chrome.technicalBits");
       railBody.appendChild(techLabel);
       var techGroup = { label: techLabel, items: [] };
       technical.forEach(function (section) {
@@ -448,15 +453,15 @@
       featured.forEach(function (section) { host.appendChild(buildCard(section)); });
 
       var spine = el("div", "spine-group-label");
-      spine.textContent = LABELS.spine;
+      spine.textContent = t("help.chrome.spine");
       host.appendChild(spine);
 
       sessionLoop.forEach(function (section) { host.appendChild(buildCard(section)); });
 
       techBand = el("div", "tech-band");
-      techBand.setAttribute("aria-label", LABELS.technicalBits);
+      techBand.setAttribute("aria-label", t("help.chrome.technicalBits"));
       var techBandLabel = el("div", "tech-band-label");
-      techBandLabel.textContent = LABELS.techBand;
+      techBandLabel.textContent = t("help.chrome.techBand");
       techBand.appendChild(techBandLabel);
       technical.forEach(function (section) { techBand.appendChild(buildCard(section)); });
       host.appendChild(techBand);

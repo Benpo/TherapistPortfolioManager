@@ -102,6 +102,21 @@ var Tour = (function () {
     } catch (e) { return key; }
   }
 
+  // Map each STEPS screenName literal to its localized help.tour.screen.* key so
+  // the fallback "This is on the {screen} screen." names the screen natively mid-
+  // sentence (WARNING 3). Missing key / unresolved → fall back to the literal.
+  var SCREEN_KEYS = {
+    'Overview': 'help.tour.screen.overview',
+    'Settings': 'help.tour.screen.settings',
+    'Session':  'help.tour.screen.session',
+    'Sessions': 'help.tour.screen.sessions'
+  };
+  function screenLabel(screenName) {
+    var key = SCREEN_KEYS[screenName];
+    var resolved = key ? t(key) : '';
+    return (resolved && resolved !== key) ? resolved : screenName;
+  }
+
   // ── the declarative 12-step v3 settings-first route (Pattern 1) ───────────────
   // Each entry: { id, page, anchor, i18nKey, screenName, takeMeThereHref, activate? }.
   // The anchor values match the 41-09 data-tour v3 contract exactly; i18nKey resolves
@@ -443,7 +458,7 @@ var Tour = (function () {
     // "This is on the {screen} screen." — names where it lives (soft landing).
     var loc = document.createElement('p');
     loc.className = 'sg-tour-fallback-loc';
-    loc.textContent = t('help.tour.fallbackBody').replace('{screen}', step.screenName);
+    loc.textContent = t('help.tour.fallbackBody').replace('{screen}', screenLabel(step.screenName));
     card.appendChild(loc);
 
     // Working "Take me there" — A3: persist sg.tourResume {current stepIndex}
