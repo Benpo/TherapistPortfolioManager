@@ -6,8 +6,11 @@ Thumbs.db
 .env
 .env.*
 
-# Local scripts (not deployed)
-scripts/
+# Local scripts (not deployed) — except the docs-rot gate tooling, which the
+# pre-push hook and CI (deploy.yml) must run, so it is version-controlled.
+scripts/*
+!scripts/lib/
+!scripts/docs-gate.js
 
 # Backup files
 *.bak
