@@ -118,3 +118,8 @@ here: v1.3.0's real push to `main` must go GREEN through the new CI step. A pass
 proves the gate does NOT false-block; only `tests/docs-gate.test.js` proves it CAN block.
 BOTH are required before the milestone is considered validated. This plan lands the
 enforcement; the live-ship confirmation is a phase/milestone-exit item.
+
+## Self-Check: PASSED
+
+All 5 files present, `.claude/hooks/pre-commit` confirmed deleted, and all 4 commits
+(`bb50517`, `fbfdc95`, `ebbefe8`, `8a7189a`) exist in the git log.

@@ -4,16 +4,16 @@ milestone: v1.3
 milestone_name: In-App Help, Onboarding & Changelog
 current_phase: 43
 current_phase_name: docs-maintenance-hard-gate
-status: executing
+status: verifying
 stopped_at: Phase 43 planned (7 plans, verified)
-last_updated: "2026-07-10T16:26:15.123Z"
+last_updated: "2026-07-10T16:33:33.275Z"
 last_activity: 2026-07-10
 last_activity_desc: Phase 43 execution started
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 57
-  completed_plans: 55
+  completed_plans: 56
   percent: 83
 ---
 
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 
 Phase: 43 (docs-maintenance-hard-gate) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Next: `/gsd-execute-phase 43` — the final phase of milestone v1.3. 7 plans across 5 waves; plan-checker approved, architect review closed 1 blocker (path-scoped watch set) + 3 design fixes. Phases 39, 40, 41, 42 and 42.1 are all complete (49/49 plans); 42 UAT closed 3/3 with 0 issues, 42.1 security verified with 0 threats open.
 Last activity: 2026-07-10 — Phase 43 execution started
 
@@ -230,6 +230,7 @@ Last activity: 2026-07-10 — Phase 43 execution started
 | Phase 43 P04 | 3min | 2 tasks | 4 files |
 | Phase 43 P05 | ~18min | 3 tasks | 4 files |
 | Phase 43 P06 | 25min | 2 tasks | 1 files |
+| Phase 43 P07 | 10min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -497,7 +498,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-10T16:26:08.034Z
+**Last session:** 2026-07-10T16:33:26.265Z
 
 Last activity: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
 Stopped at: Phase 43 context gathered
