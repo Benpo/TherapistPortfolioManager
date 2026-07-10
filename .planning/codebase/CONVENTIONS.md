@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
+last_mapped_commit: 85c30eaf0a5c17b108306c2910847006a9e26232
 ---
 
 # Coding Conventions
@@ -156,6 +156,20 @@ traceability mechanism — do not omit.
 `XMLHttpRequest`) is called out with a comment referencing the specific constraint code
 (e.g. `// VER-06 carry-over`).
 
+
+## Help & Changelog Content Convention
+
+`help.html` and `changelog.html` are thin shell pages: all visible copy is delivered
+via `data-i18n` keys (e.g. `help.chrome.intro`, `changelog.page.title`) resolved at
+runtime from the `i18n-{lang}.js` dictionaries — no inline English fallback text is
+treated as authoritative content, it exists only as an offline/no-JS fallback.
+
+`HELP-MAP.md` is the single source of truth mapping each help topic (section +
+topic id) to the asset/HTML files it documents. Per the docs hard-gate contract in
+`CLAUDE.md`, any change to a file listed in `HELP-MAP.md`'s "Covers" column requires
+either a help-topic update or an explicit `Help-Unaffected:` trailer — read
+`HELP-MAP.md` cold to find the owning topic; do not scan the full help corpus.
+
 ---
 
-*Convention analysis: 2026-07-07 (incremental remap, scope: root-level static files — no source changes)*
+*Convention analysis: 2026-07-10 (incremental remap, scope: HELP-MAP.md, changelog.html, help.html)*

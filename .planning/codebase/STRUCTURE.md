@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
+last_mapped_commit: 85c30eaf0a5c17b108306c2910847006a9e26232
 ---
 # Codebase Structure
 
@@ -55,7 +55,9 @@ TherapistPortfolioManager_app/
 ├── datenschutz-he.html         # Privacy — Hebrew
 ├── datenschutz-cs.html         # Privacy — Czech
 ├── license.html                # License activation page
-├── license.html                # License page
+├── help.html                    # In-app help center (topic cards built from HELP_CONTENT_* globals)
+├── changelog.html                # In-app "what's new" changelog page
+├── HELP-MAP.md                   # Docs-gate index: help section/topic → source files it covers
 ├── manifest.json               # PWA web app manifest
 ├── sw.js                       # Service worker
 ├── _headers                    # Cloudflare Pages HTTP header rules
@@ -89,6 +91,8 @@ TherapistPortfolioManager_app/
 ## Key File Locations
 
 **Entry Points (HTML pages):**
+- `help.html`: In-app help center — empty shell, populated by `assets/help.js` from `window.HELP_CONTENT_*`
+- `changelog.html`: In-app changelog — empty shell, populated by `assets/changelog.js` from `window.CHANGELOG_CONTENT_*`; also drives the `whats-new` popup
 - `index.html`: App home — client overview, search, filters
 - `sessions.html`: Session list for a client (URL param: `?clientId=N`)
 - `add-client.html`: Add or edit a client (URL param: `?clientId=N` for edit)
@@ -183,6 +187,15 @@ TherapistPortfolioManager_app/
 - Add method to the `PortfolioDB` IIFE in `assets/db.js`
 - Export it in the `return {}` block at the bottom (~line 1110)
 - Schema change: increment `DB_VERSION`, add versioned migration function to `migrations` object
+
+**New help topic:**
+1. Add a row to `HELP-MAP.md` (section, topic id, title, covered files)
+2. Add the topic content to `window.HELP_CONTENT_EN` (and locale equivalents) — content lives in help-specific content files, not `help.html` itself
+3. `assets/help.js` renders the topic card/rail item automatically from the content object — no HTML edits needed
+
+**New changelog entry:**
+1. Add the entry to `window.CHANGELOG_CONTENT_EN` (`assets/changelog-content-en.js`) and locale equivalents
+2. `assets/changelog.js` renders it automatically; `assets/whats-new.js` may surface it as a popup via `attention-coordinator.js` precedence
 
 **New i18n string:**
 - Add key to all four language files: `assets/i18n-en.js`, `assets/i18n-he.js`, `assets/i18n-de.js`, `assets/i18n-cs.js`

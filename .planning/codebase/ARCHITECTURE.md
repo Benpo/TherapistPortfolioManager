@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
+last_mapped_commit: 85c30eaf0a5c17b108306c2910847006a9e26232
 ---
 <!-- refreshed: 2026-07-07 -->
 # Architecture
@@ -167,6 +167,17 @@ last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
 **Demo Mode:**
 - `window.name === "demo-mode"` gates: DB opens `demo_portfolio` IDB instead of `sessions_garden`; gate scripts skip license checks; seed data loaded from `assets/demo-seed-data.json` via `assets/demo-seed.js`
 
+## Help & Changelog Subsystem
+
+**Entry points:**
+- `help.html` — in-app help center. Ships with an empty `.help-root` shell; `assets/help.js` builds topic cards and rail nav items at runtime from `window.HELP_CONTENT_EN` (and per-locale variants). Uses `help-root soft-type` scoped typography so help copy doesn't leak into shared app chrome.
+- `changelog.html` — in-app "what's new" page. Ships with an empty `#changelogEntries` container; `assets/changelog.js` renders entries from `window.CHANGELOG_CONTENT_EN` (`assets/changelog-content-en.js`, plus `-he`/`-de`/`-cs` locale files). Also feeds the `whats-new` popup surface (`assets/whats-new.js`) via the `attention-coordinator.js` precedence system — the popup can fire on the changelog page itself.
+- `HELP-MAP.md` — not a runtime file; a repo-root documentation index mapping help sections/topics to the source files they cover. Read cold by the docs gate (`scripts/docs-gate.js`, `scripts/lib/role-table.js`) to determine which help topic owns a changed shipped file, before consulting the full help content corpus.
+
+**Load order (both pages):** same gate-script head as protected app pages (crash buffer → terms gate → license gate → theme) → `tokens.css`/`app.css` → page CSS (`help.css` or `changelog.css`) → `tour.css` → i18n files → `db.js`/`version.js`/`crashlog.js` → `shared-chrome.js` → `date-format.js` → `attention-coordinator.js` → `app.js` → `tour.js` → backup trio (`jszip.min.js`, `backup.js`, `backup-modal.js`) → page-specific content corpus scripts → `whats-new.js` (changelog only) → page renderer (`help.js` / `changelog.js`).
+
+**Docs-gate coupling:** Per `CLAUDE.md` Definition of Done, any shipped/code change (root `*.html`, `assets/`, `manifest.json`/`sw.js`) requires either a changelog entry or a `Changelog-Unaffected:` trailer, and an updated help topic (per `HELP-MAP.md`) or a `Help-Unaffected:` trailer naming the file. `HELP-MAP.md` is the single source of truth for topic-to-file ownership — it must stay in sync whenever new source files are added under an existing help topic's coverage, or a new topic is introduced.
+
 ## Entry Points
 
 **Protected App Pages:**
@@ -188,6 +199,11 @@ last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
 - Location: `report.html`, `reporting.html`
 - Triggers: Wedged integrity nudge "Report a problem" button or nav
 - Responsibilities: Render diagnostic info from crashlog and DB state
+
+**Help & Changelog:**
+- Location: `help.html`, `changelog.html`
+- Triggers: Nav link, `whats-new` popup surface (changelog), "Report a problem" cross-links (help)
+- Responsibilities: Render static documentation content built from `window.HELP_CONTENT_*` / `window.CHANGELOG_CONTENT_*` globals; no DB reads/writes
 
 ## Architectural Constraints
 

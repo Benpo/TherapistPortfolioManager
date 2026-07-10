@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
+last_mapped_commit: 85c30eaf0a5c17b108306c2910847006a9e26232
 ---
 
 # Codebase Concerns
@@ -93,6 +93,18 @@ last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
 - Why fragile: `snippets-seed.js` must load before `db.js`; `app.js` must load before page-specific scripts. There is no enforcement mechanism — a misplaced `<script>` tag produces a runtime `TypeError: window.X is not a function` that is hard to trace.
 - Safe modification: When adding a new JS file, trace all globals it reads and confirm those scripts appear earlier in the same HTML file's `<script>` tags.
 - Test coverage: Not tested. The test suite uses jsdom stubs that do not reproduce load-order failures.
+
+**HELP-MAP.md is a manually maintained index with no automated sync check:**
+- Files: `HELP-MAP.md`, `help.html`, `assets/help-content-*.js`, `assets/help.js`, `scripts/lib/role-table.js`
+- Why fragile: `HELP-MAP.md` maps each help topic to the source files it "covers," and the docs-gate (`scripts/lib/role-table.js`) tells contributors to read this file cold to find which help topic owns a changed file — but nothing verifies the map itself stays accurate. A file renamed, split, or newly added under `assets/` has no automatic check that it appears in the right `HELP-MAP.md` row (or a new row exists for it) before the gate is trusted. The map's correctness is entirely a human-maintenance contract.
+- Safe modification: When adding/renaming a file that has product-facing behavior, update the corresponding `HELP-MAP.md` row (or add a new topic row) in the same commit as the code change, and add/adjust the matching key in `assets/help-content-en.js` (and other locales) so the docs-gate's "Help-Unaffected" reasoning stays truthful.
+- Test coverage: Not tested. No gate cross-checks `HELP-MAP.md` rows against actual files under `assets/` or against the help-content corpus keys.
+
+**Script load order in `help.html` and `changelog.html` is unusually deep and comment-dependent:**
+- Files: `help.html` (lines 122–160), `changelog.html` (lines 72–104)
+- Why fragile: Both pages carry a long, precisely ordered `<script>` chain — i18n bundles, `db.js`, `crashlog.js`, `attention-coordinator.js`, then per-page `changelog-content-*.js` / `help-content-*.js` data globals, then `whats-new.js`, then `app.js` (which calls `AttentionCoordinator.run`), then the backup trio, then the page's own renderer (`help.js` / `changelog.js`) last. The correctness of "data corpus before popup surface before `app.js`'s coordinator run before the page renderer" is documented only in inline HTML comments (e.g. help.html lines 134–138, changelog.html lines 91–95), not enforced by any test or lint rule. A future edit that reorders these tags (e.g. moving `help.js` earlier, or moving `whats-new.js` after `app.js`) would silently break the What's New popup or leave `#helpCards`/`#changelogEntries` empty, with no test catching it — consistent with the general "Script load order dependency" fragility already noted above, but this pair of pages has the deepest and most comment-reliant ordering contract in the app.
+- Safe modification: Preserve the existing script order when editing either page; if inserting a new script, read the adjacent HTML comments first to find which ordering constraint would be violated. Treat any `whats-new.js` / `changelog-content-*.js` / `help-content-*.js` reorder as requiring a manual smoke test of the What's New popup and the help/changelog page render, since no automated test covers this chain.
+- Test coverage: Not tested (same gap as the general script-load-order fragility above; this is the sharpest instance of it).
 
 **`withStore` returns the IDBRequest result, not the resolved value:**
 - Files: `assets/db.js` (lines 617–626)

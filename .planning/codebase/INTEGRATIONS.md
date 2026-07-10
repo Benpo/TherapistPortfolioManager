@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
+last_mapped_commit: 85c30eaf0a5c17b108306c2910847006a9e26232
 ---
 
 # External Integrations
@@ -80,6 +80,11 @@ last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
 - `CF_PURGE_TOKEN` — Cloudflare API token scoped to cache purge
 
 **No `.env` file required** — the application has no server and no runtime secrets
+
+## Documentation Surfaces
+
+- `help.html` / `changelog.html` — static in-app documentation pages, both fully client-side, no external calls; content sourced from vendored JS globals (see STACK.md). `changelog.html` links back to `help.html` via a "see also" affordance, and vice versa; no server round-trip for either surface.
+- Both pages share the app's early-boot scripts (terms-acceptance redirect, license-activation redirect, CrashLog capture) and register the same service worker (`/sw.js`) as all other app pages — no separate integration surface.
 
 ## Webhooks & Callbacks
 

@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
+last_mapped_commit: 85c30eaf0a5c17b108306c2910847006a9e26232
 ---
 
 # Technology Stack
@@ -15,6 +15,7 @@ last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
 
 **Secondary:**
 - JSON — manifest (`manifest.json`), demo seed data (`assets/demo-seed-data.json`)
+- Content-module JS — `help.html` and `changelog.html` are empty shells filled at runtime from locale-specific data globals: `assets/help-content-{en,he,de,cs}.js` (`window.HELP_CONTENT_*`, `window.HELP_DEEPLINKS`) and `assets/changelog-content-{en,he,de,cs}.js` (`window.CHANGELOG_CONTENT_*`), rendered by `assets/help.js` / `assets/changelog.js`. `HELP-MAP.md` (repo root) is the topic index mapping each help topic to its owning source files — read it before touching help content.
 
 ## Runtime
 

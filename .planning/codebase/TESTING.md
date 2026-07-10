@@ -1,5 +1,5 @@
 ---
-last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
+last_mapped_commit: 85c30eaf0a5c17b108306c2910847006a9e26232
 ---
 
 # Testing Patterns
@@ -303,6 +303,18 @@ assert.throws(
 );
 ```
 
+
+## Content-Integrity Guard Tests (help.html / changelog.html)
+
+`tests/help-integrity.test.js`, `tests/help-integrity-locale.test.js`,
+`tests/changelog-integrity.test.js`, and `tests/changelog-integrity-locale.test.js`
+are source/shape-audit tests (see Test Categories, pattern 2) that read `help.html`
+and `changelog.html` directly via `fs.readFileSync` and assert structural invariants
+— e.g. every `data-i18n` key referenced in the page exists in each `i18n-{lang}.js`
+dictionary, and topic anchors match `HELP-MAP.md` entries. They do not execute the
+pages in a DOM; they are static-content guards, run as part of the same
+`tests/run-all.js` suite as all other tests.
+
 ---
 
-*Testing analysis: 2026-07-07 (incremental remap, scope: root-level static files — no source changes)*
+*Testing analysis: 2026-07-10 (incremental remap, scope: HELP-MAP.md, changelog.html, help.html)*
