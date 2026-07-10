@@ -2,39 +2,36 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: In-App Help, Onboarding & Changelog
-current_phase: 43
-current_phase_name: docs-maintenance-hard-gate
-status: executing
-stopped_at: Phase 43 planned (7 plans, verified)
-last_updated: "2026-07-10T18:19:17.759Z"
+current_phase: 3
+status: Awaiting next milestone
+stopped_at: Phase 43 context gathered
+last_updated: "2026-07-10T21:49:59.239Z"
 last_activity: 2026-07-10
-last_activity_desc: Phase 43 execution started
+last_activity_desc: Milestone v1.3 completed and archived
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 60
   completed_plans: 59
   percent: 83
+current_phase_name: docs-maintenance-hard-gate
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution review)
+See: .planning/PROJECT.md (updated 2026-07-10 — v1.3 close-out evolution review)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 43 — docs-maintenance-hard-gate
+**Current focus:** Planning next milestone (v1.3 shipped & archived 2026-07-10)
 
 ## Current Position
 
-Phase: 43 (docs-maintenance-hard-gate) — EXECUTING
-Plan: 4 of 10
-Status: Ready to execute
-Next: `/gsd-execute-phase 43` — runs the 3 gap-closure plans (wave 1: 43-08 ∥ 43-09; wave 2: 43-10) closing 43-VERIFICATION.md gaps CR-01, WR-01/02/03/04/06. Plan-checker passed on iteration 1.
-Last activity: 2026-07-10 — Phase 43 execution started
-
-**Gate override (2026-07-10, plan-phase 43 --gaps):** step-13a decision-coverage gate returned `could-not-parse` (CONTEXT.md `- **D-06: ...**` bullet format unreadable by the parser; known parser brittleness). Proceeded on the plan-checker's substantive decision-coverage pass (D-14/OD-4/D-23 verified per-decision) + advisory gap-analysis 25/26 (D-09 is a REJECTED decision — nothing to cover). Verify-phase should re-confirm decision coverage.
+Phase: Milestone v1.3 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-10 — Milestone v1.3 completed and archived
 
 ## Performance Metrics
 
@@ -62,6 +59,7 @@ Last activity: 2026-07-10 — Phase 43 execution started
 | 39 | 6 | - | - |
 | 40 | 8 | - | - |
 | 42.1 | 10 | - | - |
+| 43 | 10 | - | - |
 
 **Recent Trend:**
 
@@ -537,8 +535,25 @@ Pre-close artifact audit flagged 16 open items. Ben reviewed the triage and chos
 | quick_task | 1-interactive-demo-on-landing-page-embedde | Genuinely never executed (PLAN.md only, no SUMMARY.md) — an old landing-page interactive-demo idea superseded by the Phase 35 demo/chrome work; left in backlog, not scoped into v1.2 |
 | todos | 5 pending todos (translations verify, deactivation warning, PWA install guidance, terms notification, v12 IDB encryption) | Pre-existing backlog items, already listed in ROADMAP.md's Backlog section and PROJECT.md; not new v1.2 gaps |
 
+## Deferred Items (acknowledged at v1.3 close, 2026-07-10)
+
+Pre-close artifact audit flagged 16 open items; Ben chose "accept debt → complete now" (override_closeout). None are new v1.3 gaps.
+
+**Verification overrides (v1.3 phases):**
+
+| Phase | Override | Basis |
+|-------|----------|-------|
+| 41 Replayable Guided Tour | No formal VERIFICATION.md | TOUR-01..04 satisfied by integration checker (all WIRED), nyquist-compliant VALIDATION, and live e2e 2026-07-10 (Playwright PASS + Ben on-device). Backfill todo: 2026-07-10-phase41-missing-verification-doc.md |
+| 43 Docs-Maintenance Hard Gate | VALIDATION nyquist_compliant:false | Infra covered by own gate suites (20/20+30/30); GATE-04 live-ship proof captured on the v1.3.0 ship (CI 29122423243). Backfill todo: 2026-07-10-phase43-nyquist-bookkeeping.md |
+
+**Pre-existing backlog (carried, not new v1.3 work):**
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | pdf-harness-loadscript-hang | Bookkeeping — file has a full Resolution section; frontmatter status never flipped |
+| quick_task | 10 tasks (260324-oh5 … 260630-sa8, 1-interactive-demo) | Bookkeeping/superseded — each done or consciously dropped; audit-open reads "unknown" (predate status convention) |
+| todos | 34 pending todos | Pre-existing backlog in ROADMAP Backlog + todos/pending/ (incl. the 3 v1.3 doc-debt + deploy-purge-race + help-popovers filed this session) |
+
 ## Operator Next Steps
 
-- v1.3 roadmap created 2026-07-07 (Phases 39–43): 39 Help Center → 40 Welcome & Coordinator → 41 Guided Tour → 42 Changelog & What's-New → 43 Docs Hard Gate (last). 23/23 requirements mapped; standard granularity.
-- Discuss-phase carries the 16 open questions from `.planning/milestones/v1.3-CONTEXT.md` §8 — do NOT let a planner invent answers.
-- Start with /gsd-discuss-phase 39, then /gsd-plan-phase 39.
+- Start the next milestone with /gsd-new-milestone

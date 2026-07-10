@@ -1,5 +1,48 @@
 # Milestones
 
+## v1.3 In-App Help, Onboarding & Changelog (Shipped: 2026-07-10)
+
+**Phases completed:** 6 phases, 59 plans, 32 tasks
+
+**Key accomplishments:**
+
+- Anti-rot EN help corpus in `assets/help-content-en.js` — 12 spine-organized sections with `{ui:key}` live-label tokens, per-topic `covers` metadata, a deep-link registry, and a co-located static integrity test that joins `npm test`.
+- Task 1 — `initHelpEntry()` + Help nav entry (commit `44d40d2`)
+- The standalone offline help center — `help.html` shell + `assets/help.js` (renders the approved hybrid A+C IA from `window.HELP_CONTENT_EN` with `{ui:key}` live-label interpolation, substring search + calm no-match fallback, deep-link auto-expand, scroll-spy, and computer-only install glyphs) + `assets/help.css` (soft-type surfaces) + a jsdom render/XSS-echo gate.
+- Help center precached for offline use (`/help` + `help.js`/`help-content-en.js`/`help.css`) with an `APP_VERSION 1.2.5 → 1.3.0` cache-roll and a static precache-plus-anti-stale test, then the three human-only gates cleared: real-offline navigation on Ben's installed PWA (HELP-07), the D-19 content-review pipeline on the rendered page, and the real-WebKit RTL/dark/soft-type check (HELP-04) — with Sapir's final editorial read deliberately pinned for post-phase.
+- 15 new UI-chrome i18n keys (welcome overlay, "Replay welcome" row, install nudge, mobile expectation hint) authored in all four locales behind a RED-first cross-locale parity gate — EN verbatim from the UI-SPEC, HE/DE/CS register-appropriate drafts.
+- Built `window.AttentionCoordinator` — a data-driven precedence registry that shows exactly one governed surface per browser session — and the first-run Variant-B welcome overlay it governs (Esc/CTA dismiss, D-03 last-seen-version write, replay-without-re-arm), plus token-only welcome CSS. All 12 behavior checks green.
+- 1. [Rule 1 - Bug] jsdom 29 ignores the constructor `userAgent` option
+- initCommon now arbitrates governed attention surfaces via a typeof-guarded `AttentionCoordinator.run()` (the `bootAttentionSurfaces` seam) instead of firing the security note directly; the security note is a governed `security-note` surface with the D-08 container gate and unchanged renderer (D-05); and the "?" popover mounts a non-re-arming "Replay welcome" action button (ONBD-02). All 6 wiring checks + full suite 141/141 green.
+- Wired assets/attention-coordinator.js before app.js on all 8 app pages, deleted the legacy hardcoded-English iOS install banner from index.html, and precached the coordinator so the installed PWA runs it offline — all pinned by two zero-dependency static gates.
+- Task 1 (RED rot guard) — `c182c1f`
+- Task 1 (RED behavior tests) — `92c4eb2`
+- Fixed the RTL off-center-anchor mirror blocker (gap 4) plus the first-paint spotlight offset (gap 2) and step-to-step jump (gap 3) by moving tour.js/tour.css from LOGICAL inset props to PHYSICAL top/left coordinates, and strengthened the WebKit probe so it fails against the pre-fix code and passes after.
+- 1. [Rule 3 - Blocking] Comment mentions of the "innerHTML" token reworded to satisfy the exactly-one-innerHTML gate
+- 1. [Rule 3 - Blocking] EN "add them right here" reworded to satisfy the no-directional-word gate
+- 1. [Rule 1 - Bug] Fixed inverted semver reverse-chron comparison
+- tests/42-precache.test.js (T-42-V6)
+- Task 1 — `assets/whats-new.js`
+- 1. [Rule 1 - Bug] Off-by-one in the plan-02 render-test self-count guard
+- Task 1 — 7-page script-chain wiring (commit `6ad67b3`)
+- Task 1 — "?" popover "What's new" row + demo filter (assets/app.js)
+- 1. [Rule 2 - Missing critical hygiene] Removed the literal "first paid release" phrase from the header comment too
+- `tests/42_1-help-integrity.test.js`
+- 1. [Rule 3 - Blocking constraint] HE "Session Format" term
+- Task 1 — Welcome P1/P2 (he/de/cs)
+- Task 1 — help.js `localeSections()` + RTL css re-key (BLOCKER 2).
+- 1. [Register refinement] HE changelog address harmonized to plural
+- Real-browser (Chromium + WebKit) RTL render verification of the Hebrew help + changelog pages, Ben's approved-with-corrections sign-off, and three UAT fixes: the help-center collapsed chevron now mirrors under RTL, plus two changelog copy corrections across four languages.
+- 1. [Rule 3 - Blocking] `scripts/` was blanket-gitignored
+- Task 1 — covers[] backfill (D-19, metadata only).
+- 1. [Rule 1 — Accuracy] Updated a stale header doc-comment in the locale test
+- Task 1 — `scripts/lib/role-table.js` (`de50aa9`).
+- Task 1 — Local layer (commit `bb50517`).
+- 1. [Rule 1 - Bug] Test harness dropped stderr on exit-0 runs
+- 1. [Rule 3 - Blocking] New behavior test tripped the fake-test detector suite gate
+
+---
+
 ## v1.2 Codebase Health & Reliability (Shipped: 2026-07-07)
 
 **Phases completed:** 11 phases, 82 plans, 108 tasks

@@ -45,6 +45,39 @@
 
 ---
 
+## Milestone: v1.3 — In-App Help, Onboarding & Changelog
+
+**Shipped:** 2026-07-10  
+**Phases:** 6 (39, 40, 41, 42, 42.1, 43) | **Plans:** 59 | **Tasks:** 32
+
+### What Was Built
+An in-app self-teaching + release-comms layer: persistent "?" entry + offline help center (P39); a single-surface first-run onboarding coordinator + welcome overlay (P40); a bespoke replayable 12-step guided tour with graceful spotlight↔modal degradation and cross-page resume (P41); a once-per-version What's-New popup + persistent changelog (P42); full HE/DE/CS localization of all new copy (P42.1); and a layered docs-maintenance hard gate — git hook + unbypassable CI step + GSD DoD — that blocks any user-facing change lacking a changelog/help update (P43).
+
+### What Worked
+- Dependency-ordered sequencing (help center first, docs gate last) meant the gate never blocked its own milestone's sibling commits.
+- The AttentionCoordinator's single-surface precedence registry solved first-run collisions (welcome vs What's-New vs tour vs install nudge) at one seam.
+- Independent/adversarial verification caught real defects late: the tour's cross-page resume was silently broken in production (CF Pages clean-URL 308 vs `.html` page identity) and only surfaced via a live-host repro, not the jsdom suite.
+- Pulling L10N into the same milestone (P42.1, moved in from a v2 deferral) kept the Hebrew-first user base first-class from day one.
+
+### What Was Inefficient
+- The tour (P41) was the fragility hotspot: held at UAT with 8 gaps, two gap-closure rounds (41-13/14), then still shipped a production-only clean-URL resume bug — remediated post-ship as the 260710-tcu hotfix. A live-host (not just jsdom) gate would have caught it pre-ship.
+- Go-live hit a deploy purge-race (CF cache purged before Pages promotion → stale/mixed edge), which recurred on the hotfix deploy too. Still-open HIGH todo; every deploy is exposed until fixed.
+- Phase 41 shipped without a formal VERIFICATION.md and Phase 43 without nyquist bookkeeping — closed as accepted tech debt.
+
+### Patterns Established
+- **Clean-URL page identity**: host clean-URL rewrites (CF Pages 308 `.html`→extensionless) break any code identifying pages by `.html` filename; canonicalize at one seam and regression-test with a stubbed clean URL. Deeper fix (a `data-page` attribute) is backlogged.
+- **Docs-as-DoD hard gate**: a path-based "user-facing" definition + changelog-only/denylist tiers + tip-only trailers, enforced authoritatively in CI, keeps docs from rotting.
+- **Deploy babysitting**: after every deploy, byte-sweep live vs repo and `gh run rerun` if the edge is stale (purge race).
+
+### Key Lessons
+- Verify runtime-behavior features on the REAL production host, not only jsdom/CI — the clean-URL bug was invisible to 168 green tests.
+- A green suite that only ever exercises one code path (`.html` URLs) has a structural blind spot; add the falsifying input (clean URL) as a permanent guard.
+- Every push to main auto-deploys and rolls the integrity token — avoid docs-only pushes (needless PWA churn + re-exposed purge race).
+
+### Cost Observations
+- Model mix: predominantly opus (planning/execution/verification), sonnet for integration/checker passes.
+- Notable: the milestone's single worst defect (tour resume) cost a post-ship hotfix a live-host test gate would have prevented — the strongest process signal for v1.4.
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
