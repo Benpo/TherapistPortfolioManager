@@ -93,6 +93,9 @@ const PRECACHE_URLS = [
   // above, so these three are the only new offline dependencies.
   '/assets/help.js',
   '/assets/help-content-en.js',
+  '/assets/help-content-he.js',
+  '/assets/help-content-de.js',
+  '/assets/help-content-cs.js',
   '/assets/help.css',
   // Replayable guided tour (Phase 41, TOUR-03/04): the bespoke tour engine
   // (assets/tour.js) and its styles (assets/tour.css). Both load on all 8
@@ -109,6 +112,9 @@ const PRECACHE_URLS = [
   // response the browser rejects offline (RESEARCH Pitfall 1). The popup CSS is
   // NOT a separate entry — it lives in the already-precached app.css.
   '/assets/changelog-content-en.js',
+  '/assets/changelog-content-he.js',
+  '/assets/changelog-content-de.js',
+  '/assets/changelog-content-cs.js',
   '/assets/whats-new.js',
   '/assets/changelog.js',
   '/assets/changelog.css'
