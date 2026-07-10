@@ -56,7 +56,8 @@ floor is the deploy boundary — the exact event GATE-01 and GATE-04 constrain.
 | **D-17 #2** | Every path named in any `covers[]` exists on disk | unit | `node tests/help-integrity.test.js` | ✅ | ⬜ pending |
 | **D-17 #3** | Changelog entries have unique versions, non-empty `highlights`, real dates | unit | `node tests/changelog-integrity.test.js` | ✅ | ⬜ pending |
 | **D-20** | `covers[]` absent from all three locale files; locale parity tests green | unit | `node tests/help-integrity-locale.test.js` | ✅ | ⬜ pending |
-| **D-22** | After rename, `grep -rl <old-name>` returns **exactly** the 51 historical artifacts | post-condition | before/after set diff, asserted as a plan task | ✅ | ⬜ pending |
+| **D-22** (i) | No **live** file references an old test token after the rename (a rename was missed) | post-condition | `bash .planning/phases/43-docs-maintenance-hard-gate/assert-rename-postcondition.sh` | ✅ | ⬜ pending |
+| **D-22** (ii) | No **historical** artifact under `.planning/phases/{≠43}` or `.planning/milestones/` was modified at all (the record was rewritten) | post-condition | same script — a `git diff --name-only` content check, NOT a token grep | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 

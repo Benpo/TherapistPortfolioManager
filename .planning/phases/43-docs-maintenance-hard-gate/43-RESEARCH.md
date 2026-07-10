@@ -4,6 +4,23 @@
 **Domain:** Git-hook + GitHub-Actions repo tooling; plain-node static-content parsing; git trailer semantics; test-rename refactor
 **Confidence:** HIGH (all Tier-1 mechanics verified by running git 2.50 locally and reading live source; the one residual is a documented CI edge-case with a recommended fix)
 
+> ## ⚠ PARTIALLY SUPERSEDED — read this before treating any section below as the contract
+>
+> This document is the research record as written on 2026-07-10, preserved as-is. Four decisions were
+> taken with Ben *after* it, during planning. **Where this document and `43-CONTEXT.md`
+> §post_discussion_decisions disagree, CONTEXT wins, and the PLAN files are the executable contract.**
+>
+> | Superseded here | Now |
+> |---|---|
+> | §Q-F "37 uncovered files"; the non-code handling proposal | **OD-1:** a watched path needs a SHIPPED-PATH test **and** a code-extension test. Non-code shipped files are ignored entirely. `tests/**` and `scripts/**` are ignored — an extension-only rule would block the gate's own ship. |
+> | §Q-A / D-02's `before..after` CI range (flag A2) | **OD-2:** the CI range is anchored to the last-deployed SHA. `ls-remote` distinguishes an absent `deploy` branch from an unfetched ref; the latter fails closed. |
+> | §Q-C's single-file trailer shape | **OD-3:** one `*-Unaffected:` trailer may name multiple comma-separated files sharing one mandatory reason. |
+> | §Q-C / §Q-K reading all three trailers over the range | **OD-4:** `Docs-Emergency-Skip:` is honored **only on the range's tip commit** — never inherited through a merge. The two `*-Unaffected:` trailers keep whole-range scope. |
+>
+> Everything else in this document — the `%(trailers)` vs `--grep` finding, the `pre-push` stdin protocol,
+> the `vm`-loader reuse, `npm prepare` semantics, the D-20 blast radius, the RED/GREEN harness mechanics,
+> and the self-trip analysis — stands and was independently confirmed.
+
 ## Summary
 
 Phase 43 is **repo tooling, not app code**. Every design risk that mattered was empirical, and every empirical question resolved in the gate's favour except one CI edge-case (concurrency `cancel-in-progress` can skip a push range — fixable, see Q-A). The `%(trailers:...)` range read, the `vm`-sandbox loader reuse, the `npm prepare` hook install, and the `covers[]` reverse index all work exactly as the 23 locked decisions assume.
