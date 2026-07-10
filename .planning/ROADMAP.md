@@ -291,7 +291,7 @@ Plans:
   3. A written, checkable path-based definition of "user-facing change" governs the gate, with a logged escape hatch for genuine emergencies (never a silent `--no-verify` culture).
   4. The gate hooks the existing release habit — the hand-set `APP_VERSION` bump in `assets/version.js` is the release moment a changelog entry must exist for — and the gate is validated against v1.3's own ship.
 
-**Plans**: 8/10 plans executed
+**Plans**: 9/10 plans executed
 
 Plans:
 **Wave 1**
@@ -319,7 +319,7 @@ Plans:
 **Gap closure** *(from 43-VERIFICATION.md — status gaps_found; 43-REVIEW.md CR-01/WR-01..WR-06)*
 
 - [x] 43-08-PLAN.md — CI range resolver: fix CR-01 ls-remote rc conflation (three-way fail-closed branch) + WR-02 recovery runbook; extracted, tested scripts/ci-resolve-docs-range.sh [gap-wave 1]
-- [ ] 43-09-PLAN.md — gate matching correctness: WR-01 anchor satisfier detection to role-table + WR-03 exact-case trailer keys + WR-04 unfold folded trailers [gap-wave 1]
+- [x] 43-09-PLAN.md — gate matching correctness: WR-01 anchor satisfier detection to role-table + WR-03 exact-case trailer keys + WR-04 unfold folded trailers [gap-wave 1]
 - [ ] 43-10-PLAN.md — WR-06 release-moment tripwire: shared extractAppVersion lib + fifth invariant so GATE-04 can't silently self-disable on version.js drift [gap-wave 2, after 43-09]
 
 **UI hint**: no
@@ -389,6 +389,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 41. Replayable Guided Tour | v1.3 | 14/14 | Complete   | 2026-07-09 |
 | 42. In-App Changelog & What's-New | v1.3 | 11/11 | Complete   | 2026-07-09 |
 | 42.1. Help & Onboarding Translation (HE/DE/CS) | v1.3 | 10/10 | Complete   | 2026-07-10 |
-| 43. Docs-Maintenance Hard Gate | v1.3 | 8/10 | In Progress|  |
+| 43. Docs-Maintenance Hard Gate | v1.3 | 9/10 | In Progress|  |
 </content>
 </invoke>
