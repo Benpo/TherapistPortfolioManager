@@ -36,6 +36,12 @@
  * is the deliberate cost of watching code only; vendor bundles remain watched
  * because they are .js.
  *
+ * The same limitation covers three behavior-bearing config files the deploy step
+ * also publishes but that fail the code-extension axis and so raise no demand:
+ * `_headers` and `_redirects` (CSP/caching and routing rules) and `LICENSE`. A
+ * redirect, header, or licence change therefore ships without a docs demand — an
+ * accepted gap, called out here so the shipped-vs-watched divergence is explicit.
+ *
  * ── Carve-outs ───────────────────────────────────────────────────────────────
  * DENYLIST: legal and marketing surfaces (each page together with its scripts and
  * stylesheets — a page, its script, and its style are one surface). Touching one
@@ -76,12 +82,17 @@ var DENYLIST_SET = new Set(DENYLIST);
 // carry the very updates the gate demands, so they satisfy — never trigger.
 var SATISFIER_RE = /^assets\/(help|changelog)-content-(en|he|de|cs)\.js$/;
 
-// Per-kind satisfier definitions, derived from the SAME assets/-anchored family as
-// SATISFIER_RE. These are the SINGLE, anchored source of truth the docs gate reuses
-// to decide "the help was edited" / "the changelog was edited" — so the gate never
-// keeps a second, unanchored definition that could diverge (WR-01 / D-17).
-var HELP_SATISFIER_RE = /^assets\/help-content-(en|he|de|cs)\.js$/;
-var CHANGELOG_SATISFIER_RE = /^assets\/changelog-content-(en|he|de|cs)\.js$/;
+// Per-kind satisfier definitions. These are the SINGLE, anchored source of truth
+// the docs gate reuses to decide "the help was edited" / "the changelog was
+// edited" — so the gate never keeps a second, unanchored definition that could
+// diverge. Deliberately narrowed to the EN files ONLY: EN is the corpus of record
+// — the covers[] reverse index and the release check both read EN and nothing
+// else, and translations follow EN in later locale passes. So a locale-only edit
+// (help-content-he.js, changelog-content-de.js, …) must NOT satisfy a docs demand,
+// even though those locale files still classify as satisfiers (never triggers) via
+// SATISFIER_RE below. Narrowing to EN also simplifies the predicates.
+var HELP_SATISFIER_RE = /^assets\/help-content-en\.js$/;
+var CHANGELOG_SATISFIER_RE = /^assets\/changelog-content-en\.js$/;
 
 // Normalize a repo-relative path to forward slashes with no leading "./" so the
 // predicates compare cleanly regardless of how the caller spelled the path.
@@ -118,9 +129,11 @@ function isSatisfier(p) {
   return SATISFIER_RE.test(normalize(p));
 }
 
-// Per-kind, assets/-anchored satisfier predicates the docs gate consumes so that
+// Per-kind, EN-anchored satisfier predicates the docs gate consumes so that
 // satisfaction detection stays singular and anchored. A non-assets/ path with a
-// satisfier basename (e.g. tests/fixtures/help-content-en.js) is NOT a satisfier.
+// satisfier basename (e.g. tests/fixtures/help-content-en.js) is NOT a satisfier;
+// nor is a non-EN locale file (help-content-he.js) — only an edit to the EN corpus
+// of record satisfies a demand.
 function isHelpSatisfier(p) {
   return HELP_SATISFIER_RE.test(normalize(p));
 }

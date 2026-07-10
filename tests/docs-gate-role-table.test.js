@@ -185,12 +185,25 @@ test('anchor: isChangelogSatisfier is true for assets/changelog-content-en.js, f
     'a non-assets/ decoy path named like a satisfier must NOT satisfy (WR-01)');
 });
 
-test('anchor: all four locales are recognized per kind', function () {
-  ['en', 'he', 'de', 'cs'].forEach(function (lang) {
-    assert(helpSat('assets/help-content-' + lang + '.js') === true,
-      'assets/help-content-' + lang + '.js must be a help satisfier');
-    assert(changelogSat('assets/changelog-content-' + lang + '.js') === true,
-      'assets/changelog-content-' + lang + '.js must be a changelog satisfier');
+test('anchor: satisfaction is EN-only — only the EN content file satisfies per kind', function () {
+  assert(helpSat('assets/help-content-en.js') === true,
+    'the EN help content is the corpus of record and must satisfy the help demand');
+  assert(changelogSat('assets/changelog-content-en.js') === true,
+    'the EN changelog content is the corpus of record and must satisfy the changelog demand');
+  ['he', 'de', 'cs'].forEach(function (lang) {
+    assert(helpSat('assets/help-content-' + lang + '.js') === false,
+      'a locale-only help edit (' + lang + ') must NOT satisfy — EN is the corpus of record');
+    assert(changelogSat('assets/changelog-content-' + lang + '.js') === false,
+      'a locale-only changelog edit (' + lang + ') must NOT satisfy — EN is the corpus of record');
+  });
+});
+
+test('locale content files still classify as satisfier (never a trigger), even though they do not satisfy the demand', function () {
+  ['he', 'de', 'cs'].forEach(function (lang) {
+    assert(classify('assets/help-content-' + lang + '.js') === 'satisfier',
+      'help-content-' + lang + '.js must stay a non-triggering satisfier');
+    assert(classify('assets/changelog-content-' + lang + '.js') === 'satisfier',
+      'changelog-content-' + lang + '.js must stay a non-triggering satisfier');
   });
 });
 

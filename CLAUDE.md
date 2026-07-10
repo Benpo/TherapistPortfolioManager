@@ -24,6 +24,15 @@ root `*.html`, anything under `assets/`, or `manifest.json`/`sw.js`). To find wh
 topic owns a changed file, read `HELP-MAP.md` cold — it is the topic index; never read the
 help corpus to answer that.
 
+**What "updated" means — satisfaction is trusted, not verified.** The changelog demand is
+satisfied by an edit to `assets/changelog-content-en.js`; a help demand by an edit to
+`assets/help-content-en.js`. **EN only** — EN is the corpus of record (the release check and
+the `covers[]` index read EN and nothing else, and translations follow EN in later locale
+passes), so a locale-only edit (`*-he.js`/`*-de.js`/`*-cs.js`) does **not** satisfy a demand.
+WHICH topic or changelog entry you edited is **trusted, not verified**: the gate confirms an
+EN help/changelog edit accompanies the push, but per-topic content diffing is deliberately
+out of scope.
+
 **The three trailer keys — exact casing (case-sensitive):**
 
 - `Help-Unaffected:` — waive the help demand for the named file(s). Per-file. Honored from

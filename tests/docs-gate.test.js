@@ -526,6 +526,49 @@ try {
     assert(!/malformed/i.test(out(r)), 'a correctly-authored folded trailer must not be reported malformed');
   });
 
+  // ── Satisfaction is EN-only (EN is the corpus of record) ───────────────────
+  // A HE-only help edit must NOT satisfy the help demand for a covered trigger:
+  // the release check and the covers[] index read EN and nothing else, so a
+  // locale-only edit cannot stand in for the EN corpus. Against a gate whose
+  // satisfier predicate accepts any locale this wrongly PASSes.
+  test('SATISFIER EN-only: a HE-only help edit does NOT satisfy the help demand → BLOCK (names the app.js topic)', function () {
+    resetToBaseline();
+    bump('assets/app.js');                                   // covered → demands help
+    writeFile('assets/help-content-he.js', '// he locale stub\n');
+    bump('assets/help-content-he.js');                       // edit HE help ONLY
+    addChangelogBullet();                                    // changelog satisfied
+    commit('edit app, add changelog, edit HE help only');
+    var r = runGate();
+    assert(r.code !== 0, 'expected non-zero (blocked): a HE-only help edit must not satisfy the EN help demand\n' + out(r));
+    assert(/topic-app/.test(out(r)), 'must name the genuine claiming topic id "topic-app"');
+    assert(/app\.js/.test(out(r)), 'must name the real covered file assets/app.js');
+  });
+
+  // The EN help edit DOES still satisfy (the positive control for the above).
+  test('SATISFIER EN-only: an EN help edit still satisfies the help demand → PASS', function () {
+    resetToBaseline();
+    bump('assets/app.js');                                   // covered → demands help
+    touchHelp();                                             // edit EN help
+    addChangelogBullet();                                    // changelog satisfied
+    commit('edit app, add changelog, edit EN help');
+    var r = runGate();
+    assert(r.code === 0, 'expected 0 (allowed): an EN help edit must satisfy, got ' + r.code + '\n' + out(r));
+  });
+
+  // Changelog satisfaction is EN-only too: a CS-only changelog edit must not
+  // satisfy the changelog demand raised by a watched trigger.
+  test('SATISFIER EN-only: a CS-only changelog edit does NOT satisfy the changelog demand → BLOCK', function () {
+    resetToBaseline();
+    bump('assets/app.js');                                   // trigger → demands changelog + help
+    touchHelp();                                             // help satisfied
+    writeFile('assets/changelog-content-cs.js', '// cs locale stub\n');
+    bump('assets/changelog-content-cs.js');                  // edit CS changelog ONLY
+    commit('edit app, touch EN help, edit CS changelog only');
+    var r = runGate();
+    assert(r.code !== 0, 'expected non-zero (blocked): a CS-only changelog edit must not satisfy the EN changelog demand\n' + out(r));
+    assert(/changelog/i.test(out(r)), 'block must name the unmet changelog demand');
+  });
+
 } finally {
   fs.rmSync(tmp, { recursive: true, force: true });
 }
