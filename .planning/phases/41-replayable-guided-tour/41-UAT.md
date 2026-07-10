@@ -1,14 +1,14 @@
 ---
-status: diagnosed
+status: complete
 phase: 41-replayable-guided-tour
 source: [41-01-SUMMARY.md, 41-02-SUMMARY.md, 41-03-SUMMARY.md, 41-04-SUMMARY.md, 41-05-SUMMARY.md, 41-06-SUMMARY.md]
 started: 2026-07-08T21:28:46Z
-updated: 2026-07-08T21:28:46Z
+updated: 2026-07-10T06:08:16Z
 ---
 
 ## Current Test
 
-[testing complete — 8 gaps found and diagnosed; narrative gaps (1,6,7) resolved by the Ben-approved 41-STORYLINE.md (all 4 decisions accepted, D-01 re-approved 2026-07-08); gaps 2,3,4,5,8 are code/copy fixes]
+[testing complete — both UAT rounds closed. Round 1's 8 gaps were remediated by 41-08…41-12; Round 2's 3 confirmed findings by 41-14. See "Closure" at the foot of this file.]
 
 ## Tests
 
@@ -232,3 +232,37 @@ rejected: 2    (R2-2 interactive spotlight, R2-3 click-to-advance — D-07 stand
 remediation: 41-14 (wave 9)
 copy: EN provisional (Ben will supply final texts, no planning needed); HE/DE/CS machine-draft → Phase 42.1
 reverify: re-run 41-13 (automated) + Ben EN replay; Hebrew pass after EN locked
+
+---
+
+## Closure (2026-07-10)
+
+Status flipped `diagnosed` → `complete`. The file sat at `diagnosed` after its last gap was
+closed, which made `gsd_run query audit-open` (rule: *UAT files with status != 'complete'*)
+keep reporting Phase 41 as open long after it shipped.
+
+**Round 1** — 8 gaps, all remediated:
+
+| Gap | Test | Closed by |
+|-----|------|-----------|
+| Cross-page transitions teleport | 1 | 41-09 (v3 storyline route, bridge steps, nav anchors) |
+| Spotlight misaligned on first paint (Safari) | 2 | 41-08 (first-paint snap + post-scroll re-measure) |
+| Step 1→2 jumpy | 3 | 41-08 + merged home beat (41-09) |
+| RTL mirrored spotlight (blocker) | 4 | 41-08 (physical coords, not logical inset props) |
+| Save step's false PDF-icon deixis | 5 | 41-10, superseded by 41-14 (real 📤) |
+| Settings never shown | 6 | 41-09 (step 9 "Making it yours") |
+| Incoherent narrative | 7 | 41-09 (approved 41-STORYLINE.md arc) |
+| "?" menu had 4 items, not 3 | 8 | 41-12 (retired `help.entry.replayWelcome`; reverses P40 D-17) |
+
+**Round 2** — 3 confirmed (R2-1/R2-4/R2-5) closed by 41-14; 2 rejected (R2-2/R2-3) never built,
+D-07 upheld — the tour overlay stays inert.
+
+**Reverify obligations, both discharged** (evidence in 41-13-SUMMARY.md, re-run *after* 41-14):
+
+- Automated: `tests/run-all.js` 153/153; `tests/webkit/41-rtl-geometry.mjs` 6/6 sections PASS
+  in real WebKit, including the R2-1 tall-anchor box-in-viewport + `scrollY <= 2` assertions.
+- Human: Ben replayed the full 12-step v3 tour in EN and approved (2026-07-09).
+
+**Copy note (not a gap).** EN shipped provisional-but-Ben-approved; HE/DE/CS shipped as
+machine-draft by decision D-11. The native-speaker pass was routed to **Phase 42.1**, which
+completed 2026-07-10. Nothing from this UAT remains outstanding.
