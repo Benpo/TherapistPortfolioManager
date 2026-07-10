@@ -188,7 +188,7 @@
             { type: "p", text: "Während einer Sitzung möchten Sie Emotionen festhalten, ohne Ihren Fluss zu unterbrechen." },
             { type: "steps", items: [
               "Öffnen Sie die Sitzung und klappen Sie {ui:session.accordion.emotions} auf.",
-              "Tippen oder fügen Sie die Emotionen ein, wie sie auftauchen — in welchen Worten auch immer Sie verwenden, ein Gedanke nach dem anderen.",
+              "Tippen oder fügen Sie die Emotionen ein, wie sie auftauchen — in welchen Worten auch immer Sie mögen, ein Gedanke nach dem anderen.",
               "Machen Sie weiter; es ist nicht nötig, anzuhalten und die Formulierung zu ordnen, bevor Sie fertig sind."
             ] }
           ]
