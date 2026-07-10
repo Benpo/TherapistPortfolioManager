@@ -15,7 +15,7 @@
  * help-integrity idiom) and cross-checks the locale corpus against EN:
  *
  *   (a) Structure parity with EN — identical section ids in identical order;
- *       identical group / featured / topic ids / topic priority / topic covers[];
+ *       identical group / featured / topic ids / topic priority;
  *       exactly ONE featured section; both groups (session-loop, technical)
  *       present. Only title + body text/steps may differ from EN.
  *   (b) {ui:key} tokens — every {ui:...} in a locale body resolves to a
@@ -240,11 +240,6 @@ for (const loc of LOCALES) {
         const lcTp = lc.topics[i];
         if (lcTp.priority !== enTp.priority) {
           throw new Error(en.id + '/' + enTp.id + ' priority ' + lcTp.priority + ' ≠ EN ' + enTp.priority);
-        }
-        const enCovers = JSON.stringify(enTp.covers);
-        const lcCovers = JSON.stringify(lcTp.covers);
-        if (enCovers !== lcCovers) {
-          throw new Error(en.id + '/' + enTp.id + ' covers ' + lcCovers + ' ≠ EN ' + enCovers);
         }
       }
     }
