@@ -25,7 +25,7 @@ last_mapped_commit: 4493f7d23dd9080cc5547d9a069fcf43d94dcf01
 
 **Run Commands:**
 ```bash
-npm test              # Run all 106 test files (tests/run-all.js)
+npm test              # Run all 166 test files (tests/run-all.js)
 node tests/<file>.test.js   # Run a single test file directly
 ```
 
@@ -39,6 +39,20 @@ node tests/<file>.test.js   # Run a single test file directly
 - Phase/plan tests: `{phase}-{plan}-{slug}.test.js` → `25-01-sendToMyself-removed.test.js`
 - Quick/hotfix tests: `quick-{YYMMDD}-{id}-{slug}.test.js` → `quick-260626-h5j-trigger-autoconvert.test.js`
 - Feature/concern tests: descriptive slug → `pdf-bidi.test.js`, `sw-precache-cache-reload.test.js`
+
+**Integrity-guard rename map (Phase 43, D-22):**
+
+The five standing content-integrity guards were renamed to drop their phase-number
+prefixes (the `{slug}.test.js` convention). If an older SUMMARY or PLAN references an
+old name, follow it forward here:
+
+| Old name | New name |
+|----------|----------|
+| `tests/39-help-integrity.test.js` | `tests/help-integrity.test.js` |
+| `tests/42-changelog-integrity.test.js` | `tests/changelog-integrity.test.js` |
+| `tests/42_1-help-integrity.test.js` | `tests/help-integrity-locale.test.js` |
+| `tests/42_1-changelog-integrity-locale.test.js` | `tests/changelog-integrity-locale.test.js` |
+| `tests/28-04-integrity-state.test.js` | `tests/update-integrity-state.test.js` |
 
 **Helper files in `tests/_helpers/`:**
 - `app-stub.js` — spy-instrumented `App.*` stub for page-level tests
