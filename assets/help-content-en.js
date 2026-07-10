@@ -94,7 +94,7 @@
           id: "topic-date-format",
           title: "Your date format",
           priority: 2,
-          covers: ["settings.html", "assets/settings.js"],
+          covers: ["settings.html", "assets/settings.js", "assets/date-format.js"],
           body: [
             { type: "p", text: "Set your {ui:settings.dateFormat.label} once, in Settings under {ui:settings.tab.personalize}, and Sessions Garden uses it everywhere — including your exports." },
             { type: "note", text: "Leave it on {ui:settings.dateFormat.auto} to follow your app language, or pick the exact style you are used to reading." }
@@ -104,7 +104,7 @@
           id: "topic-session-formats",
           title: "Custom session formats",
           priority: 2,
-          covers: ["settings.html", "assets/settings.js"],
+          covers: ["settings.html", "assets/settings.js", "assets/settings-session-types.js"],
           body: [
             { type: "p", text: "Beyond the built-in {ui:session.type.clinic}, {ui:session.type.online}, {ui:session.type.remote}, {ui:session.type.proxy}, and {ui:session.type.other} formats, you can add your own under {ui:settings.sessionTypes.heading} in {ui:settings.tab.personalize} — so a session is always labeled the way you think about it." }
           ]
@@ -123,7 +123,7 @@
           id: "topic-first-client",
           title: "Your first client",
           priority: 1,
-          covers: ["add-client.html", "index.html"],
+          covers: ["add-client.html", "index.html", "assets/add-client.js"],
           body: [
             { type: "p", text: "A client is the person, child, or animal you work with. Adding one takes a moment." },
             { type: "steps", items: [
@@ -148,7 +148,7 @@
           id: "topic-client-photo",
           title: "Client photos",
           priority: 3,
-          covers: ["add-client.html", "assets/crop.js"],
+          covers: ["add-client.html", "assets/crop.js", "assets/settings-photos.js"],
           body: [
             { type: "p", text: "Add a {ui:client.form.photo} to help hold the energetic connection in remote work. After uploading, you can crop and reposition it so it sits just right." }
           ]
@@ -165,7 +165,7 @@
           id: "topic-new-session",
           title: "Two ways to begin",
           priority: 1,
-          covers: ["sessions.html", "add-session.html"],
+          covers: ["sessions.html", "add-session.html", "assets/add-session.js"],
           body: [
             { type: "p", text: "There are two calm ways to open a new session — use whichever fits the moment." },
             { type: "steps", items: [
@@ -179,7 +179,7 @@
           id: "topic-past-sessions",
           title: "A client's past sessions",
           priority: 2,
-          covers: ["sessions.html"],
+          covers: ["sessions.html", "assets/sessions.js"],
           body: [
             { type: "p", text: "Open {ui:nav.sessions} to see everything you have recorded, or choose {ui:overview.table.viewSessions} on a client to see what happened last time." }
           ]
@@ -311,7 +311,7 @@
           id: "topic-single-export",
           title: "Exporting one session",
           priority: 1,
-          covers: ["assets/export-modal.js", "assets/pdf-export.js"],
+          covers: ["assets/export-modal.js", "assets/pdf-export.js", "assets/jspdf.min.js", "assets/bidi.min.js"],
           body: [
             { type: "p", text: "When a session is finished, you can send a beautifully formatted copy to your client or file it in your own records." },
             { type: "steps", items: [
@@ -390,7 +390,7 @@
           id: "topic-backup-restore",
           title: "Backing up and restoring",
           priority: 1,
-          covers: ["settings.html", "assets/backup.js", "assets/backup-modal.js"],
+          covers: ["settings.html", "assets/backup.js", "assets/backup-modal.js", "assets/jszip.min.js"],
           body: [
             { type: "p", text: "A backup is a single file that holds all your clients and sessions. Making one takes under a minute." },
             { type: "steps", items: [
@@ -538,7 +538,7 @@
           id: "topic-report-problem",
           title: "Reporting a problem",
           priority: 2,
-          covers: ["settings.html", "report.html", "assets/crashlog.js"],
+          covers: ["settings.html", "report.html", "assets/report.js", "assets/crashlog.js"],
           body: [
             { type: "p", text: "If something is not working right, you can send us a diagnostic report — but nothing is ever sent automatically." },
             { type: "steps", items: [

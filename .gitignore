@@ -11,6 +11,7 @@ Thumbs.db
 scripts/*
 !scripts/lib/
 !scripts/docs-gate.js
+!scripts/gen-help-map.js
 
 # Backup files
 *.bak
