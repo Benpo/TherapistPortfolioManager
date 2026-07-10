@@ -24,6 +24,16 @@ root `*.html`, anything under `assets/`, or `manifest.json`/`sw.js`). To find wh
 topic owns a changed file, read `HELP-MAP.md` cold — it is the topic index; never read the
 help corpus to answer that.
 
+**The changelog-only tier.** A subset of watched files — the recurring plumbing (`app.js`,
+the `i18n-*` dictionaries, the shared chrome/tokens/version) and the docs-system machinery
+itself (the help and changelog pages plus their scripts/styles, `whats-new.js`,
+`attention-coordinator.js`) — raises the **changelog demand only** and is **exempt from the
+per-file help demand**, so it never needs a `Help-Unaffected:` trailer. Neither kind can
+earn a help topic of its own: any user-visible change they carry is documented under the
+feature's own topic and in the changelog. The exact membership is the `CHANGELOG_ONLY` set
+in `scripts/lib/role-table.js` — that header is the source of truth; this rule points at it
+rather than restating the list.
+
 **What "updated" means — satisfaction is trusted, not verified.** The changelog demand is
 satisfied by an edit to `assets/changelog-content-en.js`; a help demand by an edit to
 `assets/help-content-en.js`. **EN only** — EN is the corpus of record (the release check and
@@ -49,7 +59,7 @@ em-dash is **mandatory** (a fileless or reasonless `Help-Unaffected` is rejected
 malformed). Worked example (a single trailer line):
 
 ```
-Help-Unaffected: assets/i18n-en.js, assets/i18n-he.js, assets/app.css — tour strings only, no help surface
+Help-Unaffected: assets/reporting.js, assets/tour.js — internal refactor only, no help surface
 ```
 
 **`Docs-Emergency-Skip:` is honored ONLY on the tip commit of the push.** A skip on any
