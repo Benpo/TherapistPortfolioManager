@@ -4,11 +4,11 @@ milestone: v1.3
 milestone_name: In-App Help, Onboarding & Changelog
 current_phase: 43
 current_phase_name: Docs-Maintenance Hard Gate
-status: verifying
-stopped_at: Completed 42.1-09-PLAN.md (native-speaker register gate he/de/cs)
-last_updated: "2026-07-10T05:50:28.725Z"
+status: planning
+stopped_at: Phase 42.1 closed (security verified, 0 threats open); Phase 43 not yet planned
+last_updated: "2026-07-10T07:30:31.000Z"
 last_activity: 2026-07-10
-last_activity_desc: Phase 42.1 complete, transitioned to Phase 43
+last_activity_desc: Phase 42 UAT complete (3/3 passed) + Phase 42.1 security verified — all phases through 42.1 closed, Phase 43 ready to plan
 progress:
   total_phases: 6
   completed_phases: 5
@@ -24,15 +24,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution review)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 42.1 — help-onboarding-translation
+**Current focus:** Phase 43 — Docs-Maintenance Hard Gate
 
 ## Current Position
 
-Phase: 43 — Docs-Maintenance Hard Gate
+Phase: 43 — Docs-Maintenance Hard Gate (6 of 6 in milestone v1.3)
 Plan: Not started
-Status: Phase complete — ready for verification
-Next: Phase 42 — In-App Changelog & What's-New (v1.3, not started) → then 43 (Docs-Maintenance Hard Gate). Phase 42.1 (help/onboarding translation) carries the tour+help native-speaker pass.
-Last activity: 2026-07-10 — Phase 42.1 complete, transitioned to Phase 43
+Status: Ready to plan
+Next: `/gsd-plan-phase 43` — the final phase of milestone v1.3. Phases 39, 40, 41, 42 and 42.1 are all complete (49/49 plans); 42 UAT closed 3/3 with 0 issues, 42.1 security verified with 0 threats open.
+Last activity: 2026-07-10 — Phase 42 UAT complete (3/3 passed), Phase 42.1 security verified
 
 ## Performance Metrics
 
