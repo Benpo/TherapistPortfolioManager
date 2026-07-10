@@ -117,16 +117,17 @@ test('singleton: sw.js is a trigger', function () {
 });
 
 // ── A representative watched code file IS a trigger (both axes satisfied) ─────
-// (app.js / app.css are deliberately NOT used here — they are changelog-only now;
-// a feature-bearing file such as reporting.js keeps the full trigger role.)
-test('watched: assets/reporting.js is a trigger (shipped path AND code extension)', function () {
-  assert(classify('assets/reporting.js') === 'trigger', 'assets/reporting.js is a feature-bearing shipped .js — a trigger');
+// (app.js / app.css are changelog-only; reporting.* is denylisted PoC; tour.* is
+// changelog-only — so a feature-bearing file such as sessions.js keeps the full
+// trigger role.)
+test('watched: assets/sessions.js is a trigger (shipped path AND code extension)', function () {
+  assert(classify('assets/sessions.js') === 'trigger', 'assets/sessions.js is a feature-bearing shipped .js — a trigger');
 });
 test('watched: a page-level .html is a trigger', function () {
   assert(classify('add-session.html') === 'trigger', 'a shipped app page is a trigger');
 });
 test('watched: a shipped .css is a trigger', function () {
-  assert(classify('assets/tour.css') === 'trigger', 'a shipped, non-denylisted, non-changelog-only stylesheet is a trigger');
+  assert(classify('assets/globe-lang.css') === 'trigger', 'a shipped, non-denylisted, non-changelog-only stylesheet is a trigger');
 });
 
 // ── CHANGELOG-ONLY role: watched, demands a changelog, exempt from help ──────
@@ -141,6 +142,8 @@ var EXPECT_CHANGELOG_ONLY = [
   'help.html', 'assets/help.js', 'assets/help.css',
   'changelog.html', 'assets/changelog.js', 'assets/changelog.css',
   'assets/whats-new.js', 'assets/attention-coordinator.js',
+  // Teaching-layer machinery (the guided tour).
+  'assets/tour.js', 'assets/tour.css',
 ];
 EXPECT_CHANGELOG_ONLY.forEach(function (p) {
   test('changelog-only: "' + p + '" classifies as changelog_only (changelog demand, help exempt)', function () {
@@ -222,9 +225,11 @@ var EXPECT_DENYLISTED = [
   'assets/landing.js', 'assets/demo.js', 'assets/demo-seed.js',
   'assets/disclaimer.js', 'assets/i18n-disclaimer.js',
   'assets/landing.css', 'assets/demo.css',
+  // PoC surfaces — carved out until productized (re-armed by deleting these lines).
+  'reporting.html', 'assets/reporting.js',
 ];
 EXPECT_DENYLISTED.forEach(function (p) {
-  test('denylisted: "' + p + '" (marketing/legal surface, page + script + style)', function () {
+  test('denylisted: "' + p + '" (marketing/legal/PoC surface carved out)', function () {
     assert(classify(p) === 'denylisted', '"' + p + '" must be denylisted');
   });
 });

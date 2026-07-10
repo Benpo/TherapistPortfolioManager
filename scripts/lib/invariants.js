@@ -251,9 +251,10 @@ function checkRoleTable(repoRoot) {
   }
 
   // The watch set is exactly the intended types: shipped code is a trigger;
-  // non-code shipped files and non-shipped code are ignored. (app.js / app.css are
-  // deliberately NOT used here — they are changelog-only, asserted above.)
-  var watchedExamples = ['assets/reporting.js', 'assets/tour.css', 'index.html', 'manifest.json', 'sw.js'];
+  // non-code shipped files and non-shipped code are ignored. (app.js / app.css and
+  // the tour/reporting files are deliberately NOT used here — they are changelog-only
+  // or denylisted, asserted above.)
+  var watchedExamples = ['assets/sessions.js', 'assets/globe-lang.css', 'index.html', 'manifest.json', 'sw.js'];
   for (var w = 0; w < watchedExamples.length; w++) {
     if (roleTable.classify(watchedExamples[w]) !== 'trigger') {
       throw new Error('role-table: expected "' + watchedExamples[w] + '" to be a trigger');

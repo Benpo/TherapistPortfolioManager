@@ -25,7 +25,7 @@
  *                      trigger for the push-global CHANGELOG demand, but EXEMPT from
  *                      the per-file help-coverage demand (see the CHANGELOG-ONLY note
  *                      below). Never needs a Help-Unaffected trailer.
- *   • DENYLIST       — a legal/marketing surface carved out entirely: demands nothing.
+ *   • DENYLIST       — a legal/marketing/PoC surface carved out entirely: demands nothing.
  *   • SATISFIER      — the help/changelog content files: they SATISFY a demand and
  *                      never raise one of their own.
  * A non-watched path is IGNORED.
@@ -52,20 +52,24 @@
  * accepted gap, called out here so the shipped-vs-watched divergence is explicit.
  *
  * ── Carve-outs & roles ───────────────────────────────────────────────────────
- * DENYLIST: legal and marketing surfaces (each page together with its scripts and
- * stylesheets — a page, its script, and its style are one surface). Touching one
- * never demands a changelog entry.
+ * DENYLIST: three categories of surface carved out entirely — LEGAL and MARKETING
+ * pages (each page together with its scripts and stylesheets — a page, its script,
+ * and its style are one surface), plus PoC surfaces deliberately undocumented until
+ * they are productized. Touching any of them never demands a changelog entry.
+ * Removing a PoC line is what re-arms the gate for that surface.
  * SATISFIERS: the help-content and changelog-content data files. These SATISFY a
  * demand and never raise one of their own.
  * CHANGELOG-ONLY: watched files that keep the push-global changelog demand but are
- * exempt from the per-file help-coverage demand. Two kinds qualify — recurring
+ * exempt from the per-file help-coverage demand. Three kinds qualify — recurring
  * plumbing (app.js, app.css, tokens.css, shared-chrome.js, version.js, the four
- * i18n dictionaries) and the docs-system machinery (the help and changelog pages,
- * their scripts and styles, whats-new.js, attention-coordinator.js). Neither can
- * ever earn a help topic: any user-visible change they carry is documented under
- * the FEATURE's own topic and in the changelog, so the changelog is their honest
- * docs surface and the help demand is dropped. Every entry is a real shipped file
- * (the self-consistency invariant asserts this on disk, like the denylist).
+ * i18n dictionaries), the docs-system machinery (the help and changelog pages,
+ * their scripts and styles, whats-new.js, attention-coordinator.js), and the
+ * teaching-layer machinery (the guided tour — a help topic about the tour would be
+ * help about help). None can ever earn a help topic: any user-visible change they
+ * carry is documented under the FEATURE's own topic and in the changelog, so the
+ * changelog is their honest docs surface and the help demand is dropped. Every
+ * entry is a real shipped file (the self-consistency invariant asserts this on
+ * disk, like the denylist).
  *
  * Node built-ins only; pure predicates, no I/O.
  */
@@ -76,10 +80,11 @@
 // manifest.json) not carrying a code extension. Watched by exact name.
 var ROOT_SINGLETONS = ['manifest.json', 'sw.js'];
 
-// Legal + marketing surfaces carved out of the watch set. Each entry is a real
-// shipped file (the self-consistency invariant asserts this on disk). A page, its
-// script, and its stylesheet are treated as one surface: touching any of them is
-// a marketing/legal edit, not a product change that needs a changelog line.
+// Legal + marketing + PoC surfaces carved out of the watch set. Each entry is a
+// real shipped file (the self-consistency invariant asserts this on disk). For the
+// legal/marketing pages a page, its script, and its stylesheet are treated as one
+// surface: touching any of them is a marketing/legal edit, not a product change
+// that needs a changelog line.
 var DENYLIST = [
   // Legal pages (four language variants each).
   'impressum.html', 'impressum-en.html', 'impressum-he.html', 'impressum-cs.html',
@@ -92,19 +97,26 @@ var DENYLIST = [
   'assets/disclaimer.js', 'assets/i18n-disclaimer.js',
   // Their stylesheets (page + script + style = one surface).
   'assets/landing.css', 'assets/demo.css',
+  // PoC surfaces — deliberately undocumented until productized (Ben, 2026-07-10).
+  // Removing a line here is what re-arms the gate for that surface: when the
+  // reporting page is enhanced beyond proof-of-concept, delete these two entries
+  // and the gate will demand its help topic + changelog coverage again.
+  'reporting.html', 'assets/reporting.js',
 ];
 
 var DENYLIST_SET = new Set(DENYLIST);
 
 // CHANGELOG-ONLY files. Each is a watched, shipped code file that raises the
 // push-global CHANGELOG demand but is EXEMPT from the per-file help-coverage demand.
-// They fall in two kinds and neither can ever earn a help topic of its own: the
+// They fall in three kinds and none can ever earn a help topic of its own: the
 // recurring plumbing is touched nearly every phase and describes no single feature,
-// and the docs-system machinery IS the help/changelog surface. Any user-visible
-// change either kind carries is documented under the feature's own help topic and in
-// the changelog — so the changelog demand stays (the honest docs surface) and the
-// help demand is dropped (no Help-Unaffected trailer is ever needed for them). Each
-// entry is a real shipped file; the self-consistency invariant asserts this on disk.
+// the docs-system machinery IS the help/changelog surface, and the teaching layer
+// (the guided tour) is onboarding about the app — a help topic about the tour would
+// be help about help. Any user-visible change these carry is documented under the
+// feature's own help topic and in the changelog — so the changelog demand stays (the
+// honest docs surface) and the help demand is dropped (no Help-Unaffected trailer is
+// ever needed for them). Each entry is a real shipped file; the self-consistency
+// invariant asserts this on disk.
 var CHANGELOG_ONLY = [
   // Recurring plumbing — touched nearly every phase, owns no single feature.
   'assets/app.js', 'assets/app.css', 'assets/tokens.css', 'assets/shared-chrome.js',
@@ -114,6 +126,8 @@ var CHANGELOG_ONLY = [
   'help.html', 'assets/help.js', 'assets/help.css',
   'changelog.html', 'assets/changelog.js', 'assets/changelog.css',
   'assets/whats-new.js', 'assets/attention-coordinator.js',
+  // Teaching-layer machinery — the guided tour is onboarding about the app itself.
+  'assets/tour.js', 'assets/tour.css',
 ];
 
 var CHANGELOG_ONLY_SET = new Set(CHANGELOG_ONLY);

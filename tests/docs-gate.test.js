@@ -186,10 +186,11 @@ function out(r) { return (r.stderr || '') + '\n' + (r.stdout || ''); }
 //   assets/settings.js, settings.html  → topic "topic-settings" ("Settings")
 //   index.html                         → topic "topic-app"      ("The app basics")
 // Uncovered TRIGGERS (assets/*.js, code extension, no covers[]): assets/a.js,
-//   assets/b.js, assets/c.js, assets/extra.js, assets/reporting.js.
+//   assets/b.js, assets/c.js, assets/extra.js.
 // CHANGELOG-ONLY (raise the changelog demand but NOT help): assets/app.js,
-//   assets/version.js. (app.js is still named in topic-app's covers[], but the
-//   changelog-only role means its help demand is dropped regardless.)
+//   assets/version.js, assets/tour.js. (app.js is still named in topic-app's
+//   covers[], but the changelog-only role means its help demand is dropped.)
+// DENYLISTED PoC (demands nothing until productized): assets/reporting.js.
 // Satisfiers: assets/help-content-en.js, assets/changelog-content-en.js.
 function seedFixtures() {
   writeFile('assets/i18n-en.js',
@@ -239,9 +240,10 @@ function seedFixtures() {
   writeFile('assets/b.js', 'window.B={v:1};\n');
   writeFile('assets/c.js', 'window.C={v:1};\n');
   writeFile('assets/extra.js', 'window.Extra={v:1};\n');
-  // A feature-bearing, uncovered watched script — deliberately NOT changelog-only,
-  // so it still demands help coverage (the changelog-only falsifier below).
+  // A denylisted PoC surface — demands nothing (the PoC falsifier below).
   writeFile('assets/reporting.js', 'window.Reporting={v:1};\n');
+  // Teaching-layer machinery — changelog-only (the tour falsifier below).
+  writeFile('assets/tour.js', 'window.Tour={v:1};\n');
 }
 
 // Small edit helpers (append a line so the file's content changes).
@@ -372,18 +374,40 @@ try {
       'a changelog-only file must NOT raise a help demand of any kind');
   });
 
-  // reporting.js is deliberately NOT changelog-only — a feature-bearing file keeps
-  // the full per-file help demand. Changelog satisfied, help absent → BLOCK.
-  test('CHANGELOG-ONLY falsifier: a reporting.js change still demands help coverage', function () {
+  // reporting.* is a denylisted PoC surface — deliberately undocumented until
+  // productized — so a reporting.js-only change demands NOTHING: no changelog, no
+  // help, no trailer. (Deleting its DENYLIST lines is what re-arms the gate.)
+  test('DENYLIST PoC falsifier: a reporting.js-only change demands nothing → PASS', function () {
     resetToBaseline();
     bump('assets/reporting.js');
-    addChangelogBullet();                                    // changelog satisfied
-    commit('edit reporting.js, add changelog, no help');
+    commit('edit denylisted PoC reporting.js, nothing else');
     var r = runGate();
-    assert(r.code !== 0, 'expected block: reporting.js must still demand help coverage');
-    assert(/reporting\.js/.test(out(r)), 'must name the uncovered feature file');
-    assert(/covers\[\]|Help-Unaffected/i.test(out(r)),
-      'must guide the author to add it to covers[] or declare Help-Unaffected');
+    assert(r.code === 0, 'expected 0 (allowed): a denylisted PoC file demands nothing, got ' + r.code + '\n' + out(r));
+  });
+
+  // tour.* is teaching-layer machinery — changelog-only: a tour.js change demands a
+  // changelog entry but NOT help coverage (a help topic about the tour would be help
+  // about help).
+  test('CHANGELOG-ONLY falsifier: a tour.js change demands a changelog but NOT help', function () {
+    resetToBaseline();
+    bump('assets/tour.js');
+    addChangelogBullet();                                    // changelog satisfied, no help
+    commit('edit changelog-only tour.js, add changelog');
+    var r = runGate();
+    assert(r.code === 0, 'expected 0 (allowed): tour.js needs only a changelog, got ' + r.code + '\n' + out(r));
+
+    // With no changelog it blocks on the CHANGELOG demand (naming tour.js), never help.
+    resetToBaseline();
+    bump('assets/tour.js');
+    commit('edit changelog-only tour.js, no changelog');
+    var r2 = runGate();
+    assert(r2.code !== 0, 'expected block: a changelog-only file still demands a changelog');
+    assert(/changelog/i.test(out(r2)), 'block must name the changelog demand');
+    assert(/tour\.js/.test(out(r2)), 'block must name the changed file tour.js');
+    assert(!/no help topic covers it/.test(out(r2)),
+      'a changelog-only file must NOT raise a help-coverage block');
+    assert(!/Help: assets\/tour\.js/.test(out(r2)),
+      'a changelog-only file must NOT raise a help demand of any kind');
   });
 
   // ── Three trailers each flip a block to a pass ─────────────────────────────
