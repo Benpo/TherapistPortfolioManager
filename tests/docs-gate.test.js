@@ -415,6 +415,46 @@ try {
     resetToBaseline();
   });
 
+  // ── Changelog-Unaffected is TIP-ONLY (push-global waiver, anti-leak) ───────
+  // On the tip it still waives the changelog demand (positive path).
+  test('CHANGELOG-UNAFFECTED tip: waiver on the range tip → PASS', function () {
+    resetToBaseline();
+    bump('assets/app.js');
+    touchHelp();                                            // help satisfied
+    commit('edit app, touch help, tip changelog waiver',
+      [['Changelog-Unaffected', 'no user-visible change']]);
+    var r = runGate();
+    assert(r.code === 0, 'expected 0 (allowed): a tip Changelog-Unaffected must waive, got ' + r.code + '\n' + out(r));
+  });
+
+  // Inherited from a merged side branch (non-tip), it must NOT waive, and the
+  // ignored inherited waiver must be reported.
+  test('CHANGELOG-UNAFFECTED inherited BLOCK: waiver on an earlier merged commit, ordinary tip → BLOCK (reports ignored inherited waiver)', function () {
+    resetToBaseline();
+    var base = BASELINE;
+    // Side branch carrying the changelog waiver.
+    git(['checkout', '-q', '-B', 'sidewaive', base]);
+    bump('assets/app.js');
+    touchHelp();                                            // help satisfied on the side commit
+    commit('side change with changelog waiver', [['Changelog-Unaffected', 'inherited waiver']]);
+    var waiveSha = git(['rev-parse', '--short', 'HEAD']).trim();
+    // Merge into a fresh mainline, then add an ordinary trigger on top with NO
+    // changelog and NO tip trailer — the real tip.
+    git(['checkout', '-q', '-B', 'mainwaive', base]);
+    git(['merge', '--no-ff', '-q', '-m', 'merge sidewaive', 'sidewaive']);
+    bump('assets/app.js');                                  // covered trigger
+    touchHelp();                                            // help satisfied so only changelog is under test
+    commit('ordinary work on top — no changelog, no tip trailer');
+    var r = runGate(base + '..HEAD');
+    assert(r.code !== 0, 'expected non-zero (blocked): an inherited changelog waiver must NOT waive the tip');
+    assert(/changelog/i.test(out(r)), 'block must name the unmet changelog demand');
+    assert(/inherit|ignored|non-tip|tip commit/i.test(out(r)),
+      'must report that it ignored an inherited changelog waiver');
+    assert(out(r).indexOf(waiveSha) >= 0 || /sidewaive/i.test(out(r)),
+      'must name the commit the inherited waiver came from');
+    resetToBaseline();
+  });
+
   // ── Release moment (APP_VERSION bump) ──────────────────────────────────────
   test('RELEASE: APP_VERSION bump WITH a matching non-empty-highlights entry → PASS', function () {
     resetToBaseline();

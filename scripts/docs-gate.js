@@ -94,9 +94,13 @@ function exactCaseTrailerValues(out, key) {
   return values;
 }
 
-// Read a single trailer key over the WHOLE range (honoured from any commit — the
-// *-Unaffected trailers are file-scoped so an inherited one is harmless). Returns
-// an array of exact-case, unfolded trailer values (one per commit that carried it).
+// Read a single trailer key over the WHOLE range (honoured from any commit).
+// This is used ONLY for Help-Unaffected, which is genuinely file-scoped: an
+// inherited one can excuse only the specific file it names (and a stale one is
+// warned). Push-GLOBAL waivers — Changelog-Unaffected and Docs-Emergency-Skip —
+// are NOT read through here; they are tip-only (a non-tip one is ignored and
+// reported) so an inherited waiver cannot silently excuse unrelated later work.
+// Returns an array of exact-case, unfolded trailer values (one per carrying commit).
 function trailerValuesOverRange(range, key) {
   var out = gitTry(['log', range, '--format=%(trailers:key=' + key + ',only,unfold)']);
   return exactCaseTrailerValues(out, key);
@@ -264,6 +268,15 @@ function runRangeRule(range) {
         'ignored an inherited Docs-Emergency-Skip from ' + shortSha(revs[i]) +
         ' ("' + v + '"); emergency skips are honored only on the tip commit of the range');
     }
+    // Changelog-Unaffected is push-GLOBAL, so like the emergency skip it is honored
+    // only on the tip. A non-tip one pulled in from a merged side branch must never
+    // silently waive the changelog demand for unrelated feature work in this push.
+    var cu = trailerValueForCommit(revs[i], 'Changelog-Unaffected');
+    if (cu && cu.trim()) {
+      inheritedNotes.push(
+        'ignored an inherited Changelog-Unaffected from ' + shortSha(revs[i]) +
+        ' ("' + cu + '"); the changelog waiver is push-global and honored only on the tip commit of the range');
+    }
   }
 
   // ── Trailer maps over the whole range (file-scoped, any commit). ──────────────
@@ -289,10 +302,12 @@ function runRangeRule(range) {
     });
   });
 
-  // Changelog waiver is GLOBAL (one changelog for the app): any non-empty
-  // Changelog-Unaffected trailer waives the changelog demand for the whole push.
-  var changelogValues = trailerValuesOverRange(range, 'Changelog-Unaffected');
-  var changelogWaived = changelogValues.some(function (v) { return v && v.trim(); });
+  // Changelog waiver is push-GLOBAL (one changelog for the app), so it is honored
+  // ONLY on the range tip — the same anti-inheritance rule as the emergency skip.
+  // A non-tip Changelog-Unaffected is ignored (and reported in inheritedNotes
+  // above), so a months-old side branch's waiver can never leak onto later work.
+  var tipChangelogWaiver = trailerValueForCommit(ends.tip, 'Changelog-Unaffected');
+  var changelogWaived = !!(tipChangelogWaiver && tipChangelogWaiver.trim());
 
   // ── Release moment (GATE-04): did APP_VERSION change across the range? ────────
   var oldVer = versionParse.extractAppVersion(gitTry(['show', ends.base + ':assets/version.js']));

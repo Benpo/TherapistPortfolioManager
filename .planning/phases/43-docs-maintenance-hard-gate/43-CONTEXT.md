@@ -315,6 +315,12 @@ decision record do not diverge — this phase exists to prevent exactly that.
     costs a real emergency nothing. An inherited skip found on a non-tip commit is ignored **and reported**.
   - The two cheap `*-Unaffected:` trailers keep "any commit in the range" — they are file-scoped, so an
     inherited one can only ever excuse the file it names.
+  - **Revision (2026-07-10, Ben, post-review decision).** The file-scoped premise above holds only for
+    `Help-Unaffected`. `Changelog-Unaffected` is push-GLOBAL (one changelog for the app), so an inherited
+    one could silently waive the changelog demand for unrelated feature work in a multi-commit push — the
+    same leak class this decision blocks for `Docs-Emergency-Skip`. It was therefore moved to **tip-only**,
+    matching the emergency skip; a non-tip `Changelog-Unaffected` is now ignored and reported. Only
+    `Help-Unaffected` retains "any commit in the range".
 
 </post_discussion_decisions>
 
