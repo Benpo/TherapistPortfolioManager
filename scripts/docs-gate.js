@@ -409,12 +409,28 @@ function runRangeRule(range) {
 }
 
 // ── main ──────────────────────────────────────────────────────────────────────
+// This gate is the fail-CLOSED layer, so an invocation error inside it must abort,
+// never default. A `--range` flag with a missing/empty value fails closed (a caller
+// wiring bug that produced an empty range must not silently evaluate the default
+// and pass with zero files inspected). A three-dot `A...B` range is rejected too:
+// parseRange splits on the FIRST `..`, which would scramble the tip semantics. The
+// origin/main..HEAD default remains ONLY for the no-flag local-dev invocation.
 function parseArgs(argv) {
-  var range = 'origin/main..HEAD';
   for (var i = 0; i < argv.length; i++) {
-    if (argv[i] === '--range' && argv[i + 1]) { range = argv[i + 1]; i++; }
+    if (argv[i] === '--range') {
+      if (!argv[i + 1]) {
+        errln('docs-gate: --range requires a non-empty value (failing closed)');
+        process.exit(1);
+      }
+      if (argv[i + 1].indexOf('...') !== -1) {
+        errln('docs-gate: --range must be a two-dot A..B range, not three-dot (' +
+          argv[i + 1] + ') — failing closed');
+        process.exit(1);
+      }
+      return { range: argv[i + 1] };
+    }
   }
-  return { range: range };
+  return { range: 'origin/main..HEAD' }; // explicit local-dev default only
 }
 
 function main() {

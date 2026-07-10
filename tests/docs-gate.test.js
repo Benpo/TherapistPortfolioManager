@@ -155,6 +155,28 @@ function runGate(range, extraEnv) {
     return r;
   }
 }
+// Run the gate with an ARBITRARY argv (no forced --range), for the parseArgs
+// edge cases: empty --range value, a three-dot range, and the no-flag default.
+function runGateArgv(extraArgs) {
+  if (!GATE_EXISTS) {
+    throw new Error('gate script absent at ' + GATE + ' (expected RED until it ships)');
+  }
+  try {
+    var stdout = execFileSync(process.execPath, [GATE].concat(extraArgs),
+      { cwd: WORK, env: ENV, stdio: 'pipe' }).toString();
+    return { code: 0, stdout: stdout, stderr: '' };
+  } catch (e) {
+    if (e && e.code === 'ENOENT') {
+      throw new Error('gate script absent at ' + GATE + ' (expected RED until it ships)');
+    }
+    return {
+      code: (e && typeof e.status === 'number') ? e.status : 1,
+      stdout: (e && e.stdout ? e.stdout.toString() : ''),
+      stderr: (e && e.stderr ? e.stderr.toString() : ''),
+    };
+  }
+}
+
 // The gate prints its verdict to stderr, but tolerate stdout too.
 function out(r) { return (r.stderr || '') + '\n' + (r.stdout || ''); }
 
@@ -597,6 +619,28 @@ try {
     var r = runGate();
     assert(r.code === 0, 'expected 0 (allowed): a folded trailer must waive both files, got ' + r.code + '\n' + out(r));
     assert(!/malformed/i.test(out(r)), 'a correctly-authored folded trailer must not be reported malformed');
+  });
+
+  // ── WR-04: parseArgs fails CLOSED on a bad --range ─────────────────────────
+  test('ARG WR-04: --range with an empty value fails closed → exit 1', function () {
+    var r = runGateArgv(['--range', '']);
+    assert(r.code === 1, 'expected exit 1 for an empty --range value, got ' + r.code + '\n' + out(r));
+    assert(/--range requires a non-empty value/i.test(out(r)),
+      'must explain the empty-range rejection');
+  });
+
+  test('ARG WR-04: a three-dot --range is rejected → exit 1', function () {
+    resetToBaseline();
+    var r = runGateArgv(['--range', BASELINE + '...HEAD']);
+    assert(r.code === 1, 'expected exit 1 for a three-dot range, got ' + r.code + '\n' + out(r));
+    assert(/three-dot|two-dot/i.test(out(r)), 'must explain the three-dot rejection');
+  });
+
+  test('ARG WR-04: no --range flag falls back to the origin/main..HEAD default (empty range at baseline → PASS)', function () {
+    resetToBaseline();                               // HEAD == BASELINE == origin/main
+    var r = runGateArgv([]);                         // no --range → default
+    assert(r.code === 0, 'expected exit 0: the default range is empty at baseline, got ' + r.code + '\n' + out(r));
+    assert(/docs-gate OK/.test(out(r)), 'must report the OK verdict on the empty default range');
   });
 
   // ── Satisfaction is EN-only (EN is the corpus of record) ───────────────────
