@@ -367,16 +367,16 @@ body.searching .help-root .spine-group-label { display: none; }
   display: none;
   padding: var(--space-xs) var(--space-lg) var(--space-lg);
 }
-/* Interim until Phase 42.1 ships translated content: the help BODY corpus is
-   EN-only (D-18), so inside an RTL page render the prose LTR — otherwise Latin
+/* Shipped 42.1: translated help bodies render RTL under an RTL page. The only
+   LTR exception is a per-section EN-fallback — a section the active NON-EN locale
+   has no entry for, so its EN prose renders under [dir=rtl]. help.js
+   localeSections() marks those cards .is-en-fallback; without the flip their Latin
    punctuation scrambles to the wrong edge (periods jump left, step numbers sit
-   right). Chrome (nav, page title, search, no-match, contact band) stays RTL;
-   Hebrew chip labels inside the LTR prose are inline-block, so they bidi-isolate
-   cleanly. When per-language content files land, key this off the loaded
-   content language instead of [dir]. */
-[dir="rtl"] .help-root .card-body,
-[dir="rtl"] .help-root .card-head h2,
-[dir="rtl"] .help-root .page-head > p {
+   right). Native-locale cards (and the now-translated page-head intro,
+   help.chrome.intro) read RTL. Hebrew chip labels inside a fallback LTR body are
+   inline-block, so they bidi-isolate cleanly. */
+[dir="rtl"] .help-root .help-card.is-en-fallback .card-body,
+[dir="rtl"] .help-root .help-card.is-en-fallback .card-head h2 {
   direction: ltr;
   text-align: start;
 }

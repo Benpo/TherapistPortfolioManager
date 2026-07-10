@@ -67,10 +67,48 @@
   var spyObserver = null;
   var _searchWired = false;
   var _langWired = false;
+  // Per-section EN-fallback marker (D-16): section id → true when that section
+  // rendered its EN counterpart because the active NON-EN locale had no entry for
+  // it. Recomputed by localeSections() on every render; help.css keys the
+  // [dir=rtl]→LTR override off the resulting .is-en-fallback card class so a
+  // fallback body reads LTR while native-locale bodies read RTL (BLOCKER 2).
+  var _fallbackIds = {};
 
   // ── tiny DOM helpers ───────────────────────────────────────────────────────
   function t(key) {
     return (window.App && typeof App.t === "function") ? App.t(key) : key;
+  }
+  function lang() {
+    return (window.App && typeof App.getLanguage === "function")
+      ? String(App.getLanguage() || "en")
+      : "en";
+  }
+
+  // ── locale-merged sections (D-16 EN-fallback; mirrors changelog.js
+  //    localeEntries() but keyed on section `id` instead of `version`) ──────────
+  // EN is the canonical, always-complete, ordered array. For the active locale,
+  // each EN section is replaced by its same-id localized counterpart when present;
+  // otherwise it stays EN. A whole-missing locale → all EN. Side effect: rebuilds
+  // _fallbackIds so buildCard() can mark EN-fallback cards for the RTL css re-key.
+  function localeSections() {
+    var en = window.HELP_CONTENT_EN || [];
+    var lg = lang();
+    var isNonEn = String(lg).toLowerCase() !== "en";
+    var loc = window["HELP_CONTENT_" + String(lg).toUpperCase()];
+    _fallbackIds = {};
+    if (!Array.isArray(loc)) {
+      // whole locale missing → all EN. Under a non-EN (RTL) page every rendered
+      // section is EN-fallback prose and must read LTR; under EN the marker is moot.
+      if (isNonEn) {
+        en.forEach(function (s) { if (s && s.id) _fallbackIds[s.id] = true; });
+      }
+      return en;
+    }
+    return en.map(function (base) {
+      var match = loc.filter(function (s) { return s && s.id === base.id; })[0];
+      if (!match && isNonEn && base && base.id) _fallbackIds[base.id] = true;
+      return match || base;                                // per-section EN fallback
+    });
   }
   function el(tag, className) {
     var node = document.createElement(tag);
@@ -146,6 +184,11 @@
     card.id = section.id;
     if (section.featured) {
       card.classList.add("featured", "is-open");
+    }
+    // Mark an EN-fallback card so help.css can force ONLY its body/heading LTR
+    // under [dir=rtl] (native-locale cards read RTL). Set by localeSections().
+    if (section.id && _fallbackIds[section.id]) {
+      card.classList.add("is-en-fallback");
     }
 
     var head = el("button", "card-head");
@@ -347,7 +390,7 @@
 
   // ── render entry point ──────────────────────────────────────────────────────
   function render() {
-    var sections = window.HELP_CONTENT_EN;
+    var sections = localeSections();
     if (!Array.isArray(sections)) return;
 
     var featured = sections.filter(function (s) { return s.featured; });
