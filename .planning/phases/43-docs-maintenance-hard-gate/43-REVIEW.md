@@ -1,15 +1,15 @@
 ---
 phase: 43-docs-maintenance-hard-gate
-reviewed: 2026-07-10T16:45:37Z
+reviewed: 2026-07-10T18:10:00Z
 depth: standard
-files_reviewed: 29
+files_reviewed: 33
 files_reviewed_list:
+  - .claude/hooks/pre-commit
   - .githooks/pre-push
   - .github/workflows/deploy.yml
   - .gitignore
   - CLAUDE.md
   - HELP-MAP.md
-  - package.json
   - assets/changelog-content-cs.js
   - assets/changelog-content-de.js
   - assets/changelog-content-en.js
@@ -18,256 +18,148 @@ files_reviewed_list:
   - assets/help-content-de.js
   - assets/help-content-en.js
   - assets/help-content-he.js
+  - package.json
+  - scripts/ci-resolve-docs-range.sh
   - scripts/docs-gate.js
   - scripts/gen-help-map.js
   - scripts/lib/help-loader.js
   - scripts/lib/invariants.js
   - scripts/lib/role-table.js
+  - scripts/lib/version-parse.js
   - tests/29-01-crashlog-capture.test.js
   - tests/30-fake-test-detector.test.js
   - tests/40-i18n-parity.test.js
   - tests/changelog-integrity-locale.test.js
   - tests/changelog-integrity.test.js
+  - tests/ci-resolve-docs-range.test.js
   - tests/docs-gate-role-table.test.js
+  - tests/docs-gate-version-parse.test.js
   - tests/docs-gate.test.js
-  - tests/help-integrity.test.js
   - tests/help-integrity-locale.test.js
+  - tests/help-integrity.test.js
   - tests/update-integrity-state.test.js
 findings:
-  critical: 1
-  warning: 6
-  info: 5
-  total: 12
+  critical: 0
+  warning: 4
+  info: 6
+  total: 10
+prior_findings_closed:
+  - CR-01
+  - WR-01
+  - WR-02
+  - WR-03
+  - WR-04
+  - WR-06
 status: issues_found
 ---
 
-# Phase 43: Code Review Report
+# Phase 43: Code Review Report (Re-Review after Gap Closure 43-08/43-09/43-10)
 
-**Reviewed:** 2026-07-10T16:45:37Z
+**Reviewed:** 2026-07-10T18:10:00Z
 **Depth:** standard
-**Files Reviewed:** 29
+**Files Reviewed:** 33 (`.claude/hooks/pre-commit` reviewed as an intentional deletion — no dangling references remain)
 **Status:** issues_found
 
 ## Summary
 
-Reviewed the docs-rot hard gate: the shared gate script (`scripts/docs-gate.js`), its
-three library modules (role-table, invariants, help-loader), the HELP-MAP generator,
-the pre-push hook, the CI enforcement step in deploy.yml, covers[] backfill in the EN
-help corpus (verified stripped from he/de/cs), the five renamed integrity tests, and
-the enforcement wiring (`.gitignore` carve-out, `prepare` hook, CLAUDE.md contract).
+This re-review verifies the 43-08/43-09/43-10 gap closures and hunts for new defects, with focus on fail-open paths in the enforcement chain (`.githooks/pre-push` → `scripts/docs-gate.js` → `deploy.yml` + `scripts/ci-resolve-docs-range.sh`).
 
-The implementation is unusually well-reasoned — trailers are read with git's
-block-scoped `%(trailers:…)` parser (the fenced-decoy case is genuinely blocked),
-the both-axes role table demonstrably prevents the self-bricking failure mode, all
-17 behavior-spec cases plus 26 role-table cases pass, and `.gitignore`'s
-`scripts/*` + `!scripts/lib/` negation was verified to actually track the gate files.
+**All six prior findings are verified FIXED in current source, with executed evidence (not just reading):**
 
-However, the review found one Critical defect that defeats the phase's central
-"fail-closed" property in CI, and six Warnings — several of them empirically verified
-fail-open or false-block paths (satisfier-regex anchoring, folded-trailer misparsing,
-trailer-key case-insensitivity contradicting the CLAUDE.md contract, and a silent
-self-disable of the GATE-04 release rule).
+| Prior finding | Fix location | Verified by |
+|---|---|---|
+| CR-01 (CI range fail-open) | `scripts/ci-resolve-docs-range.sh:72-113` — three-way `ls-remote --exit-code` branch; any rc ∉ {0,2} exits 1 | `tests/ci-resolve-docs-range.test.js` — 4/4 pass (ran) |
+| WR-01 (unanchored satisfier regex) | `scripts/lib/role-table.js:83-84,124-129` + `scripts/docs-gate.js:209-210` consumes the anchored predicates | role-table spec 30/30 + docs-gate ANCHOR case pass (ran) |
+| WR-02 (missing recovery runbook) | `scripts/ci-resolve-docs-range.sh:44-68` runbook to stderr + CLAUDE.md recovery section | resolver test asserts runbook + `Docs-Emergency-Skip` caveat (ran) |
+| WR-03 (case-insensitive trailer keys) | `scripts/docs-gate.js:82-94` exact-case post-filter over git's case-insensitive matcher | docs-gate CASE WR-03 case blocks (ran) |
+| WR-04 (folded trailers mis-blocked) | `scripts/docs-gate.js:100,106` `unfold` in `%(trailers:…)` format | docs-gate FOLD WR-04 case passes (ran) |
+| WR-06 (version-parse self-disable) | `scripts/lib/version-parse.js` shared extractor + fifth invariant `scripts/lib/invariants.js:244-266` | version-parse spec 7/7 pass; all 5 invariants green on live repo (ran) |
 
-## Narrative Findings (AI reviewer)
+Full suites executed during review: `docs-gate.test.js` 20/20, `docs-gate-role-table.test.js` 30/30, `docs-gate-version-parse.test.js` 7/7, `ci-resolve-docs-range.test.js` 4/4, plus the four renamed integrity tests, `30-fake-test-detector`, `40-i18n-parity`, `update-integrity-state`, `29-01-crashlog-capture` — all green. All five invariants pass against the live repo (HELP-MAP.md fresh; every new `covers[]` entry exists on disk; changelog 1.3.0 entry matches `APP_VERSION = '1.3.0'`). Both `.githooks/pre-push` and `scripts/ci-resolve-docs-range.sh` are committed with mode 100755, and the `.gitignore` un-ignore idiom (`scripts/*` + `!scripts/lib/` + explicit files) correctly tracks all seven gate scripts.
 
-## Critical Issues
-
-### CR-01: CI gate ls-remote failure conflation silently collapses the range to tip-only — skipped commits are never re-gated
-
-**File:** `.github/workflows/deploy.yml:36-62`
-**Issue:** The step's own comment states the design rule: a failure "cannot tell
-'branch absent' from 'branch present but never fetched' — conflating them collapses
-the range to the tip commit only and silently drops the rest of the push." The code
-fixes this for `git fetch` but reintroduces the exact conflation at `git ls-remote`:
-
-```yaml
-if git ls-remote --exit-code --heads origin deploy >/dev/null 2>&1; then
-  ...
-else
-  # treated as "deploy branch genuinely does not exist" → bootstrap
-  range="${GITHUB_SHA}^..${GITHUB_SHA}"
-fi
-```
-
-`git ls-remote --exit-code` exits **2** when the branch is absent but **128** on a
-network/auth failure (verified empirically: no-such-branch → rc=2, unreachable
-remote → rc=128). Both land in the `else` branch, and `2>&1` discards the error, so
-a transient network blip at ls-remote time silently takes the bootstrap fallback and
-gates only the tip commit of a multi-commit push. Worse, this is **not**
-self-healing: if that run succeeds, the "Push to deploy branch" step writes `Deploy
-from ${GITHUB_SHA}`, so the next run anchors at the new tip — the commits between the
-old anchor and `${GITHUB_SHA}^` are permanently un-gated. This defeats the phase's
-core fail-closed contract via an ordinary infra error.
-**Fix:** Distinguish the exit codes; only rc=2 may bootstrap:
-```bash
-set +e
-git ls-remote --exit-code --heads origin deploy >/dev/null 2>&1
-rc=$?
-set -e
-if [ "$rc" -eq 0 ]; then
-  ...existing anchored path...
-elif [ "$rc" -eq 2 ]; then
-  ...existing bootstrap path...
-else
-  echo "DOCS GATE: ls-remote failed (rc=$rc) — cannot prove the deploy branch is absent; failing closed."
-  exit 1
-fi
-```
+I also probed the chain adversarially for new fail-open paths (deleted help/changelog corpus → invariants or covers-index load throws → blocked; deleted HELP-MAP → invariant 1 throws; net-diff reverts; force-push-to-ancestor ranges; three-dot ranges; `__proto__`-named paths; empty `GITHUB_SHA` under the resolver's `set -eu`; `git show` failures on `version.js` at the range base; trailer decoys in fenced blocks; uppercase/lowercase trailer-key variants): every probed path degrades fail-closed or is caught upstream. No Critical findings. Four Warnings remain — three are contract/documentation divergences in the gate's semantics, one is a latent fail-open default in argument parsing.
 
 ## Warnings
 
-### WR-01: helpEdited/changelogEdited satisfier regexes are not anchored to assets/ — any repo path ending in a satisfier filename silently satisfies the demand
+### WR-01: `Docs-Emergency-Skip` does NOT bypass Phase 1 invariants, contradicting the documented "bypass the whole gate" contract
 
-**File:** `scripts/docs-gate.js:185-186`
-**Issue:** The gate's satisfaction test uses
-`/(^|\/)help-content-(en|he|de|cs)\.js$/` (and the changelog twin), while the role
-table's `SATISFIER_RE` is anchored `^assets\/…`. Verified: the gate regex matches
-`tests/fixtures/help-content-en.js` (which `roleTable.classify` returns `ignored`
-for). If a fixture/backup copy of a content file is ever committed and touched in a
-push, editing it counts as "the help was edited" and waives the help demand for every
-covered trigger in the range — a silent fail-open, and a divergence between the two
-modules that role-table's header calls the single source of truth.
-**Fix:** Reuse the role table instead of a second regex:
+**File:** `scripts/docs-gate.js:379-394` (main: `runInvariants()` runs before `runRangeRule()`; the tip-skip check lives inside `runRangeRule` at :215-226); contract at `CLAUDE.md` ("`Docs-Emergency-Skip:` — bypass the whole gate")
+**Issue:** The emergency-skip trailer is only honored in Phase 2. If any of the five invariants is broken at the pushed tip (stale `HELP-MAP.md`, dangling `covers[]` entry, changelog schema violation, unparseable `version.js`), CI blocks even a push carrying a valid tip `Docs-Emergency-Skip`. That is the exact scenario the skip exists for: prod is down, and the state that broke prod may plausibly be the same bad merge that also broke a docs invariant. The documented emergency mechanism then does not ship, and the operator gets no runbook (the resolver runbook covers only the anchor case). Fail-closed, so not a security hole — but an availability trap that contradicts the written contract ("the rules below are exactly what the gate enforces — nothing more, nothing less").
+**Fix:** Either (a) probe `trailerValueForCommit(tip, 'Docs-Emergency-Skip')` in `main()` before `runInvariants()`; on hit, print the banner including a note that invariants were also bypassed, exit 0 — or (b) amend CLAUDE.md's `Docs-Emergency-Skip` bullet to state that the structural invariants are NOT bypassed and describe recovery. Option (a) matches the documented intent of an emergency valve; option (b) is the minimal change.
+
+### WR-02: docs-gate comment falsely claims inherited `*-Unaffected` trailers are "file-scoped so … harmless" — `Changelog-Unaffected` is global and inherits the OD-4 leak class
+
+**File:** `scripts/docs-gate.js:96-98` (comment above `trailerValuesOverRange`), behavior at :266-269
+**Issue:** The comment justifying honoring `*-Unaffected` trailers from any commit in the range reads "the *-Unaffected trailers are file-scoped so an inherited one is harmless". True for `Help-Unaffected` (per-file, stale declarations warned at :259-263); false for `Changelog-Unaffected`: it is push-GLOBAL — any non-empty value anywhere in the range waives the changelog demand for the whole push. A months-old side branch carrying `Changelog-Unaffected: typo fix`, merged into a multi-commit push containing genuine feature triggers, silently waives the changelog demand for the unrelated feature work — the same inheritance-leak class OD-4 deliberately blocks for `Docs-Emergency-Skip` (tip-only, :215). CLAUDE.md documents "honored from any commit", so behavior matches the written contract, but the in-code rationale is wrong and the leak vector is real and unaudited.
+**Fix:** Minimum: correct the comment ("Help-Unaffected is file-scoped and stale-warned; Changelog-Unaffected is global and CAN be inherited from a merge — accepted per CLAUDE.md"). Better: report an inherited non-tip `Changelog-Unaffected` the way inherited skips are reported (a NOTE naming the carrying commit, :229-241), so the waiver's origin is auditable in the CI log.
+
+### WR-03: satisfaction is push-global and any-locale — one character in any of the 8 satisfier files satisfies every help/changelog demand, weaker than the documented contract
+
+**File:** `scripts/docs-gate.js:209-210` (`helpEdited`/`changelogEdited` computed as range-wide booleans), :333 (`if (helpEdited) return;` per covered trigger); contract at `CLAUDE.md` ("every affected **help topic** is updated … the rules below are exactly what the gate enforces — nothing more, nothing less")
+**Issue:** The gate demands per-file help coverage but accepts a single edit to ANY of `assets/help-content-{en,he,de,cs}.js` as satisfying the help demand for ALL covered trigger files in the push — including an edit to an unrelated topic, or a whitespace-only edit to the Hebrew file while EN (the corpus `buildCoversIndex` actually reads, :151) is untouched. Same for changelog: a CS-only edit satisfies the demand while `assets/changelog-content-en.js` — the file the block message at :290 tells the author to edit, and the only one the release check (:298) reads — gains nothing. The locale-parity tests that would catch an EN-less locale edit run only under `npm test`; `deploy.yml` has no test step, so the authoritative CI layer never runs them. CLAUDE.md's claim of exact enforcement of "every affected help topic is updated" is an overstatement; the gate enforces "some help file was touched".
+**Fix:** (a) Narrow the gate's satisfier checks to the EN files (`assets/help-content-en.js` / `assets/changelog-content-en.js`), since EN is the corpus of record for covers[] and the release check — locale edits alone should not satisfy; and/or (b) soften the CLAUDE.md wording to state the enforced rule honestly ("a help-content edit must accompany the push; WHICH topic was edited is trusted, not verified"). Topic-level verification would require per-topic content diffing — likely out of scope; say so in the doc instead of overclaiming.
+
+### WR-04: `parseArgs` silently falls back to a default range on a missing/empty `--range` value — a latent fail-open in fail-closed code
+
+**File:** `scripts/docs-gate.js:371-377`
+**Issue:** `if (argv[i] === '--range' && argv[i + 1])` — when `--range` is passed with a missing or empty value (`--range ""`), the guard is falsy and the gate silently evaluates the default `'origin/main..HEAD'`. In the CI checkout that range is EMPTY (HEAD == origin/main after the push event), so a caller wiring bug producing an empty range argument would make the authoritative gate print `docs-gate OK` and pass with zero files inspected. Today this is unreachable through the shipped callers (`set -eu` plus the resolver's pinned stdout contract guarantee a non-empty range), but this gate is the fail-closed layer of defense — an invocation error inside it must abort, not default. Every other error path in this file fails closed; this one fails open.
+**Fix:**
 ```js
-var helpEdited = changed.some(function (p) {
-  return /^assets\/help-content-(en|he|de|cs)\.js$/.test(normalize(p));
-});
+function parseArgs(argv) {
+  for (var i = 0; i < argv.length; i++) {
+    if (argv[i] === '--range') {
+      if (!argv[i + 1]) {
+        errln('docs-gate: --range requires a non-empty value (failing closed)');
+        process.exit(1);
+      }
+      return { range: argv[i + 1] };
+    }
+  }
+  return { range: 'origin/main..HEAD' }; // explicit local-dev default only
+}
 ```
-(or expose `isSatisfier`-style helpers split by kind from role-table.js and call those).
-
-### WR-02: Docs-Emergency-Skip cannot bypass CI anchor-resolution failures, contradicting the documented contract; recovery path undocumented
-
-**File:** `.github/workflows/deploy.yml:44-52`, `CLAUDE.md:45-53`
-**Issue:** CLAUDE.md promises `Docs-Emergency-Skip:` "bypass[es] the whole gate" and
-is the sanctioned way "to ship past the gate." But the anchor resolution
-(`sed` parse of the deploy subject, `git rev-parse --verify "${token}^{commit}"`)
-runs in shell *before* `node scripts/docs-gate.js` is ever invoked. After a history
-rewrite of main (the old deploy anchor becomes unreachable and is absent from a fresh
-clone) or a mangled deploy-branch subject, every deploy fails closed at line 49-51 —
-and the tip-commit skip trailer can never be honored because the gate never runs. The
-only recovery is manually deleting the `deploy` branch to trigger the bootstrap path,
-which is documented nowhere.
-**Fix:** Either (a) check the tip commit for a `Docs-Emergency-Skip` trailer in the
-shell step before failing closed on anchor errors (keeping the loud banner), or at
-minimum (b) document the recovery runbook (delete/re-point the deploy branch) in the
-failure messages and CLAUDE.md so an anchor failure is not a dead end.
-
-### WR-03: Trailer keys match case-insensitively, contradicting CLAUDE.md's "exact casing (case-sensitive)" contract
-
-**File:** `scripts/docs-gate.js:78,85`, `CLAUDE.md:27`
-**Issue:** git's `%(trailers:key=…)` matching is case-insensitive. Verified
-empirically: a commit carrying lowercase `docs-emergency-skip: reason` IS returned
-when queried with `key=Docs-Emergency-Skip` — so a lowercase emergency skip bypasses
-the whole gate. CLAUDE.md states the three keys are case-sensitive and that "the
-rules below are exactly what the gate enforces — nothing more, nothing less." The
-gate enforces *less*: it honors waivers/skips the contract says it would reject.
-**Fix:** Either correct CLAUDE.md to state key matching is case-insensitive, or
-post-filter returned trailers by exact key casing (git can emit the key with
-`%(trailers:key=…,only)` without `valueonly` for verification). Aligning the doc is
-the cheaper, honest fix.
-
-### WR-04: Folded (multi-line) trailer values are split on newlines and misparsed — false "malformed" block
-
-**File:** `scripts/docs-gate.js:77-81,110-123`
-**Issue:** git allows trailer values to be folded onto continuation lines.
-`trailerValuesOverRange` reads `%(trailers:key=…,valueonly,only)` without the
-`unfold` option and then splits output on `\n`. Verified empirically: a folded
-`Help-Unaffected: assets/a.js,\n  assets/b.js — reason` comes back with an embedded
-newline and is parsed as TWO trailer values — `assets/a.js,` (no separator →
-malformed → BLOCK with a misleading "missing a reason" message) and
-`assets/b.js — reason` (waives only b.js). The failure direction is closed (safe),
-but the author did everything the contract asked and gets blocked with a wrong
-diagnosis. `git commit` wraps long messages in some editors/tools, so this will be
-hit in practice with multi-file trailers, which CLAUDE.md explicitly encourages.
-**Fix:** Add `unfold` to both format specifiers:
-```js
-'--format=%(trailers:key=' + key + ',valueonly,only,unfold)'
-```
-
-### WR-05: The gate judges the working tree, not the range tip — pre-push verdicts can diverge from what is actually pushed
-
-**File:** `scripts/docs-gate.js:130-148,175-176,248-250,274`
-**Issue:** Triggers are computed from the commit range, but the covers index
-(`buildCoversIndex` → reads `assets/` from disk), the release-entry check
-(`loadChangelogEN(targetAssets)`), and the Phase-1 invariants all read the checkout's
-working tree. In CI the checkout equals the tip, so they agree. In the pre-push hook
-they can diverge: uncommitted local edits to help/changelog content, or pushing
-`refs/heads/main` while a different branch is checked out, make the gate judge a
-corpus that is not the one being pushed — in either direction (false pass: an
-uncommitted covers[] addition satisfies coverage for a pushed commit that lacks it;
-false block: local WIP breaks an invariant for an unrelated push). The hook is
-documented as a non-authoritative preview, which bounds the damage, but this specific
-divergence is documented nowhere.
-**Fix:** Read the corpus from the range tip (`git show <tip>:assets/help-content-en.js`
-piped into the vm loader) instead of disk for Phase 2; or, minimally, document in the
-gate header and CLAUDE.md that the local preview evaluates the working tree and can
-disagree with CI when the checkout differs from the pushed tip.
-
-### WR-06: GATE-04 release rule silently self-disables if the APP_VERSION literal ever changes shape
-
-**File:** `scripts/docs-gate.js:99-103,248-250`
-**Issue:** `versionChanged = oldVer && newVer && oldVer !== newVer` — if
-`extractAppVersion` returns null at either endpoint (APP_VERSION renamed, re-quoted
-with backticks, moved, or reformatted so the regex
-`/APP_VERSION\s*[:=]\s*['"](\d+\.\d+\.\d+)['"]/` no longer matches), the release
-check is skipped with no warning, permanently and silently. Nothing anywhere asserts
-that the extractor still parses the live `assets/version.js`, so a benign refactor of
-version.js turns GATE-04 off for every future release. The regex matches today
-(`var APP_VERSION = '1.3.0';`, verified), but this is a fail-open degradation with no
-tripwire — the exact rot class this phase exists to prevent.
-**Fix:** Add a fifth invariant (or extend `checkRoleTable`) asserting
-`extractAppVersion(fs.readFileSync('assets/version.js'))` is non-null, so a format
-drift fails closed at the next push instead of silently disabling the release rule.
-Export `extractAppVersion` from a lib module so the invariant and the gate share it.
+While there, consider rejecting a three-dot range (`A...B`): `parseRange` (:67-73) splits on the first `..`, yielding `tip='.B'` and scrambled tip-skip/release semantics. No shipped caller passes one, but the guard is one line.
 
 ## Info
 
-### IN-01: parseRange mishandles three-dot ranges — tip resolves to a garbage ref, silently degrading skip/version checks
+### IN-01: `role-table.js` shipped-path definition claims exact parity with the deploy copy list but omits `_headers`, `_redirects`, `LICENSE`
 
-**File:** `scripts/docs-gate.js:66-72`
-**Issue:** `parseRange('A...B')` finds the first `..` and yields tip `'.B'`
-(verified). The diff/log/trailer-over-range calls still work (git accepts `A...B`),
-but `trailerValueForCommit('.B', …)` and the version endpoints silently fail — so a
-tip `Docs-Emergency-Skip` would be ignored and GATE-04 disabled for that invocation.
-Both current callers pass two-dot ranges only.
-**Fix:** Reject or normalize `...` explicitly at the top of `parseRange` (fail closed
-with a "two-dot ranges only" message).
+**File:** `scripts/lib/role-table.js:12-15,92-99`; deploy list at `.github/workflows/deploy.yml:44-52`
+**Issue:** The header says the SHIPPED-PATH test is "exactly what the deploy step publishes", but deploy.yml also copies `_headers`, `_redirects`, and `LICENSE`. Classification outcomes are unchanged (all three would fail the code-extension axis anyway), but `_redirects`/`_headers` are behavior-bearing shipped config — a redirect-rule or CSP/caching change ships with no docs demand, and the "Accepted limitation" paragraph (:31-37) names only images/fonts/.txt/.json, not these.
+**Fix:** Extend the accepted-limitation paragraph to name `_headers`/`_redirects`/`LICENSE` explicitly, or add the two config files as watched-by-name singletons if a changelog demand is wanted for routing/header changes.
 
-### IN-02: Dead variable in the pre-push hook
+### IN-02: stale "fails RED today — script absent" framing comments in shipped test files
 
-**File:** `.githooks/pre-push:18`
-**Issue:** `remote="${1:-}"` is assigned and never used.
-**Fix:** Delete the line (or use it in log output).
+**File:** `tests/docs-gate.test.js:4-10,17-18`; `tests/ci-resolve-docs-range.test.js:15-18,115-118`; `tests/docs-gate-role-table.test.js:9-10`; `tests/changelog-integrity-locale.test.js:5-9`
+**Issue:** Headers still assert present-tense claims that are now false ("It fails RED today (scripts/docs-gate.js is absent …)", "Authored in Wave 0 BEFORE … exist"). The runtime absence guards (`GATE_EXISTS`, the resolver-absent notice) are harmless dead code now, but the prose will misdirect a future reader diagnosing a failure.
+**Fix:** Rephrase to past tense ("Authored RED-first before the gate existed; the absence guards remain as harness self-defense").
 
-### IN-03: Unknown CLI arguments are silently ignored, falling back to a default range
+### IN-03: `checkHelpMapFresh` re-implements the freshness compare instead of using the exported `checkMap()` it claims to require
 
-**File:** `scripts/docs-gate.js:347-353`
-**Issue:** `parseArgs` only recognizes `--range`; a typo (`--rang X`) silently
-evaluates the default `origin/main..HEAD` instead — a different verdict with no
-signal. Both wired callers spell it correctly, but the gate is also invoked by hand.
-**Fix:** Exit non-zero on unrecognized arguments.
+**File:** `scripts/lib/invariants.js:57-77`; claim at `scripts/gen-help-map.js:18-19` ("The check path is exported (checkMap) so the freshness invariant requires this one implementation")
+**Issue:** The invariant calls `buildMap()` and duplicates the read+`===` compare rather than calling `checkMap()`. The canonicalization substrate (buildMap) IS shared, so drift risk is low, but there are now two compare implementations and the gen-help-map comment describing the design is inaccurate.
+**Fix:** Have `checkHelpMapFresh` call `genHelpMap.checkMap()` (needs a repoRoot/mapPath parameter added) and throw on `!res.ok`, or correct the gen-help-map comment.
 
-### IN-04: normalize() duplicated across gate modules
+### IN-04: pre-push hook — unused `remote` variable and stdin shared with the loop's `node` child
 
-**File:** `scripts/docs-gate.js:150-152`, `scripts/lib/role-table.js:81-83`
-**Issue:** Identical path-normalization helpers are maintained in two modules; a
-future edit to one (e.g., case-folding) silently desynchronizes classification from
-the gate's set/index keys.
-**Fix:** Export `normalize` from role-table.js and require it in docs-gate.js.
+**File:** `.githooks/pre-push:18,50`
+**Issue:** (a) `remote="${1:-}"` is assigned and never used. (b) `node "$gate"` runs inside the `while read` loop and inherits the hook's stdin; nothing in the gate reads stdin today, but if any future git subprocess in the gate did, it would swallow the remaining ref lines and silently skip gating the rest of a multi-ref push.
+**Fix:** Drop the unused assignment; add `< /dev/null` to the `node` invocation as cheap insurance.
 
-### IN-05: covers[] names a denylisted file — an unreachable reverse-index entry
+### IN-05: local hook evaluates the WORKING TREE corpus and install-root invariants, not the pushed tip
 
-**File:** `assets/help-content-en.js:500`, `scripts/lib/role-table.js:59-71`
-**Issue:** `topic-trial` covers `landing.html`, which is denylisted; `classify` puts
-denylist ahead of the watch test, so a landing.html change never becomes a trigger
-and that covers entry can never be consulted by the gate. Harmless today, but a
-covers[] entry that looks load-bearing and is dead invites false confidence. No
-invariant guards covers[] entries being watchable paths.
-**Fix:** Either drop `landing.html` from that covers[] list or add an invariant note
-that covers[] may include denylisted context paths intentionally.
+**File:** `scripts/docs-gate.js:150-151,175-188,298` (on-disk reads); `.githooks/pre-push` (preview caller)
+**Issue:** Phase 2 reads `assets/` help/changelog content from disk and Phase 1 reads the install's own working tree. In CI, disk == pushed tip, so the authoritative layer is sound. Locally, a dirty working tree or a `git push origin <old-sha>:main` refspec makes the local verdict diverge from the tip being pushed (false block or false pass). The hook header already says "only a preview", but the specific divergence mode (disk-vs-tip) is worth a line so a confusing local verdict is self-explaining.
+**Fix:** One sentence in the `.githooks/pre-push` header: "The gate reads the docs corpus from the working tree, not the pushed tip — a dirty tree can produce a verdict CI will not reproduce."
+
+### IN-06: `docs-gate.test.js` fixture cases are coupled to the LIVE repo's invariants; the CASE WR-03 test can pass vacuously under live-corpus rot
+
+**File:** `tests/docs-gate.test.js:499-507`; cause at `scripts/docs-gate.js:175-189` (Phase 1 always targets `DEFAULT_REPO_ROOT`)
+**Issue:** The spec spawns the real gate with cwd = fixture repo, but Phase 1 invariants always run against the gate's own install repo. If the live repo's HELP-MAP goes stale mid-development, every fixture case exits 1 with an invariant message: the PASS cases and message-asserting BLOCK cases go red (good, if confusingly), but the CASE WR-03 test asserts only `r.code !== 0` with no message match — it would keep passing for the wrong reason.
+**Fix:** In the CASE WR-03 test, additionally assert the block is not an invariant block, e.g. `assert(!/docs invariant is broken/.test(out(r)))`.
 
 ---
 
-_Reviewed: 2026-07-10T16:45:37Z_
+_Reviewed: 2026-07-10T18:10:00Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
