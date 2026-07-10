@@ -290,6 +290,10 @@ body.searching .help-root .spine-group-label { display: none; }
 .help-root .rail-toggle:hover { background: var(--color-surface-hover); color: var(--color-primary); }
 .help-root .rail-toggle svg { transition: transform .18s; }
 .help-root .rail-item.is-expanded .rail-toggle svg { transform: rotate(90deg); }
+/* Same RTL mirror for the rail's in-place expander chevron: collapsed points
+   left (rotate180), expanded still points down (the .is-expanded rule wins on
+   specificity 0,4,1 > 0,3,1). (42.1-10, Ben UAT) */
+[dir="rtl"] .help-root .rail-toggle svg { transform: rotate(180deg); }
 .help-root .rail-sub {
   display: none;
   padding-inline-start: var(--space-md);
@@ -363,6 +367,14 @@ body.searching .help-root .spine-group-label { display: none; }
 }
 .help-root .card-head .chev { color: var(--color-text-muted); transition: transform .18s; flex: none; }
 .help-root .help-card.is-open .card-head .chev { transform: rotate(90deg); }
+/* RTL: the COLLAPSED disclosure chevron must point toward the inline-start edge
+   (left), AWAY from the Hebrew text. The LTR glyph is a right-pointing ">" (path
+   "M4 2l4 4-4 4"), so under an RTL page it would point INTO the text. Mirror it
+   with rotate(180deg) → points left. The .is-open rule above still wins on
+   specificity (0,5,0 > 0,4,0) and rotates to 90deg (pointing DOWN) when expanded,
+   so the expanded state is identical in LTR and RTL; both states are pure
+   rotations, so the open→closed transition stays smooth. (42.1-10, Ben UAT) */
+[dir="rtl"] .help-root .card-head .chev { transform: rotate(180deg); }
 .help-root .card-body {
   display: none;
   padding: var(--space-xs) var(--space-lg) var(--space-lg);

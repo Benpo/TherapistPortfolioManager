@@ -213,6 +213,79 @@ async function verifyHelp(engine, page, base, screenshot) {
   }
 }
 
+// Ben UAT (42.1-10 Task 3): under dir=rtl the COLLAPSED help-card chevron must be
+// mirrored (point left, away from the Hebrew text); the EXPANDED state must be
+// unchanged (point down), and the LTR states must be untouched. Falsifiable
+// computed-transform assertions on a real card in both engines. Re-navigates for
+// a clean, default-collapsed DOM (verifyHelp force-opens cards + mutates chrome).
+async function verifyChevron(engine, page, base, screenshot) {
+  await page.goto(base + "/help.html", { waitUntil: "networkidle" });
+  await page.waitForSelector("#helpCards .help-card .chev", { timeout: 15000 });
+
+  const chev = await page.evaluate(() => {
+    function parseMatrix(t) {
+      if (!t || t === "none") return null;
+      const m = t.match(/matrix\(([^)]+)\)/);
+      return m ? m[1].split(",").map((s) => parseFloat(s.trim())) : null;
+    }
+    const card = Array.from(document.querySelectorAll("#helpCards .help-card"))
+      .find((c) => c.querySelector(".chev"));
+    if (!card) return { found: false };
+    const chevEl = card.querySelector(".chev");
+    // Kill the .18s transform transition: a synchronous class toggle + immediate
+    // getComputedStyle otherwise reads the MID-TRANSITION matrix, not the target.
+    chevEl.style.transition = "none";
+    const chevOf = () => {
+      void chevEl.offsetWidth; // force reflow so the target transform resolves
+      return getComputedStyle(chevEl).transform;
+    };
+    // RTL (page is he → dir=rtl): collapsed then expanded
+    card.classList.remove("is-open");
+    const rtlCollapsed = chevOf();
+    card.classList.add("is-open");
+    const rtlExpanded = chevOf();
+    card.classList.remove("is-open");
+    // LTR spot-check: flip <html> dir=ltr transiently, read both states, restore
+    const html = document.documentElement;
+    const prevDir = html.getAttribute("dir");
+    html.setAttribute("dir", "ltr");
+    const ltrCollapsed = chevOf();
+    card.classList.add("is-open");
+    const ltrExpanded = chevOf();
+    card.classList.remove("is-open");
+    html.setAttribute("dir", prevDir);
+    chevEl.style.transition = "";
+    return {
+      found: true, rtlCollapsed, rtlExpanded, ltrCollapsed, ltrExpanded,
+      m: {
+        rc: parseMatrix(rtlCollapsed), re: parseMatrix(rtlExpanded),
+        lc: parseMatrix(ltrCollapsed), le: parseMatrix(ltrExpanded),
+      },
+    };
+  });
+  const approx = (x, v) => x != null && Math.abs(x - v) < 0.01;
+  // RTL collapsed = rotate(180deg) → matrix(-1,0,0,-1,0,0): mirrored, points LEFT
+  check(engine, "help", "RTL collapsed chevron mirrored (rotate180 → points left)",
+    chev.found && chev.m.rc && approx(chev.m.rc[0], -1) && approx(chev.m.rc[3], -1), chev.rtlCollapsed);
+  // RTL expanded = rotate(90deg) → matrix(0,1,-1,0,0,0): points DOWN, unchanged
+  check(engine, "help", "RTL expanded chevron points down (rotate90, unchanged)",
+    chev.found && chev.m.re && approx(chev.m.re[0], 0) && approx(chev.m.re[1], 1), chev.rtlExpanded);
+  // LTR collapsed = no mirror (transform:none, or identity matrix)
+  check(engine, "help", "LTR collapsed chevron unchanged (no mirror)",
+    chev.found && (chev.ltrCollapsed === "none" || (chev.m.lc && approx(chev.m.lc[0], 1) && approx(chev.m.lc[3], 1))), chev.ltrCollapsed);
+  // LTR expanded = rotate(90deg): points down (regression guard)
+  check(engine, "help", "LTR expanded chevron points down (rotate90)",
+    chev.found && chev.m.le && approx(chev.m.le[0], 0) && approx(chev.m.le[1], 1), chev.ltrExpanded);
+
+  if (screenshot) {
+    await page.evaluate(() => {
+      document.querySelectorAll("#helpCards .help-card.is-open").forEach((c) => c.classList.remove("is-open"));
+      window.scrollTo(0, 0);
+    });
+    await page.screenshot({ path: path.join(EVIDENCE, "he-help-collapsed-chevrons.png") });
+  }
+}
+
 async function verifyChangelog(engine, page, base, screenshot) {
   await page.goto(base + "/changelog.html", { waitUntil: "networkidle" });
   await page.waitForSelector("#changelogEntries", { timeout: 15000 });
@@ -260,6 +333,7 @@ async function verifyChangelog(engine, page, base, screenshot) {
     const shoot = engine === "chromium"; // deterministic screenshots from Chromium
     try {
       await verifyHelp(engine, page, base, shoot);
+      await verifyChevron(engine, page, base, shoot);
       await verifyChangelog(engine, page, base, shoot);
     } catch (e) {
       check(engine, "-", "harness ran without throwing", false, e.message);
