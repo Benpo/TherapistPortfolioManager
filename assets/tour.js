@@ -671,12 +671,20 @@ var Tour = (function () {
 
   function isActive() { return active; }
 
-  // ── current-page seam — last path segment, default index.html ─────────────────
+  // ── current-page seam — last path segment, canonicalized to the STEPS `.html` id ─
+  // Cloudflare Pages serves CLEAN URLs (`/settings.html` 308-redirects to `/settings`),
+  // but STEPS[].page identifies pages by `.html` filename. Canonicalize the last path
+  // segment back to that identifier so every cross-page page-check matches on the live
+  // host (the whole tour funnels its page-checks through this one seam). No-op on
+  // literal-`.html` hosts (segment already has a dot → returned unchanged), so local/CI
+  // stay green. filter(Boolean) tolerates a trailing slash (`/settings/`).
   function currentPage() {
     try {
       var p = (window.location && window.location.pathname) || '';
-      var seg = p.split('/').pop();
-      return seg || 'index.html';
+      var seg = p.split('/').filter(Boolean).pop();
+      if (!seg) return 'index.html';                 // '/' → index.html
+      if (seg.indexOf('.') === -1) seg += '.html';   // '/settings' → 'settings.html'
+      return seg;
     } catch (e) { return 'index.html'; }
   }
 
