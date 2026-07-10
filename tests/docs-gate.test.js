@@ -470,6 +470,62 @@ try {
       'block must be the real help demand (decoy ignored), not an incidental failure');
   });
 
+  // ── WR-01: satisfier detection must be anchored to assets/ ─────────────────
+  // Edit a COVERED trigger (assets/app.js → demands help) and create+edit a
+  // non-assets/ DECOY path named like a satisfier (tests/fixtures/help-content-en.js).
+  // The decoy must NOT satisfy the help demand: the real assets/help-content-en.js
+  // is untouched. Against a gate whose helpEdited regex is unanchored the decoy sets
+  // helpEdited=true and this wrongly PASSes → RED until the gate consumes the
+  // assets/-anchored role-table predicate.
+  test('ANCHOR WR-01: a non-assets/ help-content decoy does NOT satisfy the help demand → BLOCK (names the real app.js demand)', function () {
+    resetToBaseline();
+    bump('assets/app.js');                                   // covered → demands help
+    writeFile('tests/fixtures/help-content-en.js', 'module.exports={decoy:true};\n');
+    bump('tests/fixtures/help-content-en.js');               // edit the decoy
+    addChangelogBullet();                                    // changelog satisfied
+    commit('edit app, add changelog, edit a non-assets/ help-content decoy');
+    var r = runGate();
+    assert(r.code !== 0, 'expected non-zero (blocked): a non-assets/ decoy must not satisfy help, got 0\n' + out(r));
+    assert(/topic-app/.test(out(r)), 'must name the genuine claiming topic id "topic-app"');
+    assert(/The app basics/.test(out(r)), 'must name the genuine claiming topic title');
+    assert(/app\.js/.test(out(r)), 'must name the real covered file assets/app.js');
+  });
+
+  // ── WR-03: a trailer key is honored only at EXACT case ─────────────────────
+  // A lowercase `docs-emergency-skip:` is NOT the exact key, so the emergency skip
+  // must not be honored and the push must BLOCK. Against a gate that reads trailers
+  // with git's case-insensitive matcher this lowercase key bypasses the gate and
+  // wrongly PASSes → RED until the reader post-filters by exact key case.
+  test('CASE WR-03: a lowercase docs-emergency-skip on the tip is NOT honored → BLOCK', function () {
+    resetToBaseline();
+    bump('assets/app.js');                                   // would demand help + changelog
+    bump('assets/extra.js');
+    commit('hotfix with a LOWERCASE emergency-skip key',
+      [['docs-emergency-skip', 'prod down — lowercase key must not bypass']]);
+    var r = runGate();
+    assert(r.code !== 0, 'expected non-zero (blocked): a lowercase skip key must not bypass the gate, got 0\n' + out(r));
+  });
+
+  // ── WR-04: a folded (multi-line) multi-file trailer is read as ONE value ───
+  // git folds a long trailer whose continuation line begins with whitespace. A
+  // correctly-authored folded Help-Unaffected naming two files with one shared
+  // reason must waive BOTH. Against a gate that omits `unfold` the value is split on
+  // the newline into a fileless first line (misdiagnosed as "missing a reason") and
+  // this wrongly BLOCKs → RED until the reader unfolds.
+  test('FOLD WR-04: a folded multi-file Help-Unaffected waives every file it names → PASS', function () {
+    resetToBaseline();
+    bump('assets/a.js'); bump('assets/b.js');               // two uncovered watched files
+    addChangelogBullet();                                    // changelog satisfied
+    var foldedMsg = 'edit two uncovered files, folded Help-Unaffected trailer\n\n' +
+      'Help-Unaffected: assets/a.js,\n' +
+      '  assets/b.js — shared internal helper, no UI surface\n';
+    git(['add', '-A']);
+    git(['commit', '-q', '-m', foldedMsg]);
+    var r = runGate();
+    assert(r.code === 0, 'expected 0 (allowed): a folded trailer must waive both files, got ' + r.code + '\n' + out(r));
+    assert(!/malformed/i.test(out(r)), 'a correctly-authored folded trailer must not be reported malformed');
+  });
+
 } finally {
   fs.rmSync(tmp, { recursive: true, force: true });
 }
