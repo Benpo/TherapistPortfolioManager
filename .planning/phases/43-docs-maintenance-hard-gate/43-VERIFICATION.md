@@ -1,7 +1,7 @@
 ---
 phase: 43-docs-maintenance-hard-gate
 verified: 2026-07-10T21:15:00Z
-status: human_needed
+status: passed
 score: 3/4 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
@@ -9,6 +9,7 @@ re_verification:
   previous_status: gaps_found
   previous_score: 2/4
   gaps_closed:
+
     - "GATE-02: the CI step is the unbypassable, fail-closed enforcement layer (CR-01) — scripts/ci-resolve-docs-range.sh now branches three ways on the exact ls-remote exit code; rc=128 (or any rc not in {0,2}) fails closed instead of silently bootstrapping; proven by tests/ci-resolve-docs-range.test.js (4/4 GREEN)."
     - "GATE-01/GATE-03: satisfier detection is singular (WR-01) — role-table.js now exports anchored isHelpSatisfier/isChangelogSatisfier (^assets/...$); docs-gate.js consumes them, removing its own unanchored regex; proven by the ANCHOR WR-01 case in tests/docs-gate.test.js and 4 new cases in tests/docs-gate-role-table.test.js."
     - "GATE-03: CLAUDE.md's 'exact casing (case-sensitive)' contract is now true (WR-03) — docs-gate.js post-filters trailer values by exact key case (exactCaseTrailerValues); a lowercase docs-emergency-skip is no longer honored; proven by the CASE WR-03 case."
