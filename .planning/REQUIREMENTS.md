@@ -102,7 +102,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CHLG-02 | Phase 42 | Complete |
 | CHLG-03 | Phase 42 | Complete |
 | CHLG-04 | Phase 42 | Complete |
-| L10N-01 | Phase 42.1 | In Progress |
+| L10N-01 | Phase 42.1 | Complete |
 | GATE-01 | Phase 43 | Pending |
 | GATE-02 | Phase 43 | Pending |
 | GATE-03 | Phase 43 | Pending |

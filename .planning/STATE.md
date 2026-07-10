@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: In-App Help, Onboarding & Changelog
-current_phase: 42.1
-current_phase_name: help-onboarding-translation
+current_phase: 43
+current_phase_name: Docs-Maintenance Hard Gate
 status: verifying
 stopped_at: Completed 42.1-09-PLAN.md (native-speaker register gate he/de/cs)
-last_updated: "2026-07-10T05:22:14.683Z"
-last_activity: 2026-07-09
-last_activity_desc: Phase 42.1 execution started
+last_updated: "2026-07-10T05:50:28.725Z"
+last_activity: 2026-07-10
+last_activity_desc: Phase 42.1 complete, transitioned to Phase 43
 progress:
   total_phases: 6
   completed_phases: 5
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-07 — v1.2 close-out evolution revie
 
 ## Current Position
 
-Phase: 42.1 (help-onboarding-translation) — EXECUTING
-Plan: 10 of 10
+Phase: 43 — Docs-Maintenance Hard Gate
+Plan: Not started
 Status: Phase complete — ready for verification
 Next: Phase 42 — In-App Changelog & What's-New (v1.3, not started) → then 43 (Docs-Maintenance Hard Gate). Phase 42.1 (help/onboarding translation) carries the tour+help native-speaker pass.
-Last activity: 2026-07-09 — Phase 42.1 execution started
+Last activity: 2026-07-10 — Phase 42.1 complete, transitioned to Phase 43
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Last activity: 2026-07-09 — Phase 42.1 execution started
 | 38 | 12 | - | - |
 | 39 | 6 | - | - |
 | 40 | 8 | - | - |
+| 42.1 | 10 | - | - |
 
 **Recent Trend:**
 
