@@ -309,7 +309,11 @@ decision record do not diverge — this phase exists to prevent exactly that.
   - **Revision (2026-07-10, Ben, first live dry-run).** The multi-file-trailer compromise proved to be
     exactly the noise principle's failure mode at the v1.3 ship dry-run (20 demands). The recurring core +
     docs-system machinery moved to a new changelog-only role — help demand dropped, changelog demand kept.
-    Only genuinely feature-bearing files retain the per-file help demand.
+    Only genuinely feature-bearing files retain the per-file help demand. Two further calls at the same
+    dry-run: `reporting.html` / `assets/reporting.js` were carved out as a **PoC** surface (denylisted —
+    demands nothing, to be re-armed when reporting is productized by deleting its DENYLIST lines), and
+    `assets/tour.js` / `assets/tour.css` were classified as **teaching-layer machinery** (changelog-only —
+    a help topic about the tour would be help about help).
 
 - **OD-4 — `Docs-Emergency-Skip:` is honored ONLY on the tip commit of the pushed range.**
   - *Why:* this repo merges GSD executor worktree branches into `main`, and git reads trailers from every
