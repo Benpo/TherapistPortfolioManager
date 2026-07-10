@@ -46,7 +46,7 @@ Content quality bar (Ben, 2026-07-07): ALL new user-facing copy (help, welcome, 
 ### Docs-Maintenance Hard Gate (GATE)
 
 - [x] **GATE-01**: A phase/ship containing user-facing changes CANNOT complete until a changelog entry exists for those changes AND affected help topics were updated or explicitly marked unaffected — the gate blocks loudly, it does not warn
-- [ ] **GATE-02**: Enforcement is layered — fast local git hook (committed `.githooks/`, shared script) + a CI step in the deploy workflow (the unbypassable layer) + a GSD definition-of-done gate
+- [x] **GATE-02**: Enforcement is layered — fast local git hook (committed `.githooks/`, shared script) + a CI step in the deploy workflow (the unbypassable layer) + a GSD definition-of-done gate
 - [x] **GATE-03**: A written, checkable definition of "user-facing change" (path-based heuristic) governs the gate, with a logged escape hatch for genuine emergencies (never silent `--no-verify` culture)
 - [x] **GATE-04**: The gate hooks the existing release habit — the hand-set `APP_VERSION` bump in `assets/version.js` is the release moment a changelog entry must exist for; the gate is validated against v1.3's own ship
 
@@ -104,7 +104,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CHLG-04 | Phase 42 | Complete |
 | L10N-01 | Phase 42.1 | Complete |
 | GATE-01 | Phase 43 | Complete |
-| GATE-02 | Phase 43 | Pending |
+| GATE-02 | Phase 43 | Complete |
 | GATE-03 | Phase 43 | Complete |
 | GATE-04 | Phase 43 | Complete |
 
