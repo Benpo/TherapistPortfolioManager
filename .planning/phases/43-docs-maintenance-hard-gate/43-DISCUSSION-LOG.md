@@ -237,6 +237,79 @@ Surfaced during scouting: `deploy.yml` runs **no tests at all**. The docs gate w
 
 ---
 
+---
+
+## Post-CONTEXT revisions (same session, after the first write)
+
+Ben reopened four things after CONTEXT.md was first written and committed (`82076c5`). All were folded back in.
+
+### 1. The CI tradeoff — reversed
+
+Ben asked for the D-18 tradeoff to be re-explained, then said the earlier "gate step only" choice had been about keeping the 167-file suite off the deploy path, not about excluding the gate's own invariants.
+
+| Option | Selected |
+|--------|----------|
+| Gate script runs its own invariants first, from a shared module | ✓ |
+| CI invokes the three test files by name | |
+| Leave it — gate step only, invariants via npm test | |
+
+**Result:** the invariants module is called by the gate script *before* the push-range rule, so CI enforces them for free. The `npm test`-in-CI question became moot. → **D-17, D-18**
+
+### 2. Trailer keys
+
+| Option | Selected |
+|--------|----------|
+| Separate keys, no prefix (`Help-Unaffected:` / `Changelog-Unaffected:` / `Docs-Emergency-Skip:`) | ✓ |
+| One key, typed payload (`Docs: help-unaffected (...)`) | |
+
+**Notes:** the `Docs-Gate:` prefix carried no information; the emergency case must not look identical to the routine one. → **D-14**
+
+### 3. Test naming
+
+Ben rejected the proposed `tests/43-docs-gate.test.js` on two counts — the phase number, and the name.
+
+Investigation found seven existing tests already break the documented `{phase}-{plan}-{slug}` pattern (`pdf-bidi`, `pdf-bold-rendering`, `pdf-digit-order`, `pdf-glyph-coverage`, `pdf-latin-regression`, `snippet-prefix-backup-roundtrip`, `sw-precache-cache-reload`) — all standing capability guards, not plan proofs. `run-all.js` globs, so the prefix is pure convention. **The rule Ben articulated was already real and unwritten.**
+
+| Question | Chosen |
+|---|---|
+| New file's name | `help-changelog-integrity.test.js` — then superseded (see below) |
+| Naming collision with the two existing `*-integrity` files | **Consolidate — no third file.** Invariants merge into the renamed `help-integrity` / `changelog-integrity`; only the role table gets its own small file. |
+| Rename scope | All five standing guards, **including** `28-04-integrity-state.test.js` (Ben: *"it's just a rename… I see no big risk unless you enlighten me"*) |
+| `CONVENTIONS.md` rule | `{slug}.test.js`, no phase numbers, provenance in git |
+
+**Risk verification Ben demanded before agreeing to replace-all.** Grep established: nothing `require()`s a test file, nothing reads one by path, `run-all.js` discovers by glob. Every reference is inside a comment (sole exception: a `console.error` hint string printing its own name). **Zero breakage risk.**
+
+The real risk is different: **51 historical artifacts** (`*-SUMMARY.md`, `*-VERIFICATION.md`, archived `v1.2-phases/` docs) reference the old names truthfully. Replace-all would rewrite history. Resolved: a live-files allowlist, a rename map in `TESTING.md`, and a **before/after grep post-condition** asserting exactly the 51 historical files still reference the old names — Ben's condition was *"as long as we make sure 'on live files only' is with high conviction."* → **D-22, D-23**
+
+### 4. Phase IDs in shipped code — and the audit
+
+Ben: *"I'm not sure if I want the 'when' to be GSD phases in the code."* On being shown the argument that `assets/**` ships its comments to customers, then the scale (536 lines at first count):
+
+> *"I just spent phase 29 or similar to remove exactly these comments from the code!! How can it be we still have it? Check it."*
+
+A forensic subagent audit was launched. Findings (full evidence in the Phase 44 seed):
+
+- **Not Phase 29** — that was Reliability & Observability. The cleanup was Phases **32** (5-file pilot) and **36** (batch 2, wrote decision D-07: *"no planning ID survives in product code"*).
+- **It was never repo-wide.** Requirement `DOCS-03` explicitly excluded the three 1,500L+ giants, the vendored bundles, and the `i18n-*` dictionaries. Batch-3 was deferred by design on 2026-07-01 and never scheduled. Those exclusions are six of today's top seven offenders.
+- **It regressed.** `.planning/codebase/CONVENTIONS.md` §Comments still instructs the opposite — *"Code comments cite the phase and plan… This is the primary traceability mechanism — do not omit."* Executors were obeying `CONVENTIONS.md`, not ignoring D-07. Four files Phase 36 cleaned were re-dirtied on 2026-07-07 (`58db351`, `f99d97f`, `d7ef489`, `c06e2ae`). **46% of the debt was created by phases 39–42.1.**
+- **True size:** ~680 lines across ~43 shipped files. One is a runtime string — `assets/add-client.js:89` prints `per D-23 (no hard cap)` to the customer's console.
+
+| Placement question | Chosen |
+|---|---|
+| Where does the comment work land? | Initially: *gate in 43, retrofit as Phase 44.* Then Ben widened the pushback: *"this rule scope is getting a bit big — so let's push this one as well to phase 44 with everything talking about comments and phase ids and so on. But I want phase 44 to properly remove everything FINALLY."* **All of it → Phase 44.** |
+| Test renames — 43 or 44? | **Rename in 43** (it edits four of the five files anyway); **`CONVENTIONS.md` rewrite in 44** so the file is rewritten once, coherently. |
+| Phase 44's milestone | **Seed it now, decide at v1.3 close.** Ben: *"perhaps I will even have it in 1.4 and close 1.3 today after phase 43."* |
+
+**Seed written:** `.planning/todos/pending/2026-07-10-comment-hygiene-retrofit-and-forward-gate.md` — the audit evidence, the four things Phase 44 must kill in order, the suggested 4-plan split, and the five load-bearing citations that must be reworded rather than bare-deleted.
+
+**Phase 43's boundary is now explicit: it must not touch a single comment, and must not edit `CONVENTIONS.md`.**
+
+### 5. Planning guidance
+
+On accepting the phase's widening, Ben set a condition: *"fine for me, split to subagents properly. Plan it better upfront and it's all fine."* Recorded in CONTEXT.md's domain section for the planner.
+
+---
+
 ## Claude's Discretion
 
 - The concrete file→role mapping (denylist / satisfier / trigger) written into the gate script's documented definition.
@@ -248,8 +321,9 @@ Surfaced during scouting: `deploy.yml` runs **no tests at all**. The docs gate w
 
 ## Deferred Ideas
 
+- **The entire comment-hygiene problem → Phase 44.** Seeded at `.planning/todos/pending/2026-07-10-comment-hygiene-retrofit-and-forward-gate.md`. ~680 lines, ~43 shipped files, plus the `CONVENTIONS.md` contradiction that causes it, plus its own forward gate. Milestone home decided at v1.3 close.
 - **New help topics for uncovered user surfaces** — `reporting.html`/`reporting.js` (a whole page with no topic), `tour.js`, `whats-new.js`. Phase-39-sized content effort; not a tooling phase.
-- **Adding `npm test` to CI** — would make the invariants layer unbypassable; its own infra decision.
+- **Adding `npm test` to CI** — its own infra decision. Note D-17 now makes the gate's own invariants unbypassable without it.
 - **Gating the pre-prod branch** — pending the open infra todo (commit `d037b17`).
 - **A generated waiver ledger** — a read-only table reconstructed from `Docs-Gate:` trailers in git history. Rejected as a mechanism, attractive later as a view.
 - **A committed coverage-debt list** — middle path for D-12; revisit only if trailer volume becomes annoying.
