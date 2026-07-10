@@ -306,6 +306,10 @@ decision record do not diverge — this phase exists to prevent exactly that.
     touched nearly every phase and can never earn a help topic. Twelve one-file lines per push is
     boilerplate, and boilerplate is not a forcing function — it is the gate Ben would disable (§Specifics,
     the noise principle). Every uncovered file must still be named, with a reason. Only the ceremony shrinks.
+  - **Revision (2026-07-10, Ben, first live dry-run).** The multi-file-trailer compromise proved to be
+    exactly the noise principle's failure mode at the v1.3 ship dry-run (20 demands). The recurring core +
+    docs-system machinery moved to a new changelog-only role — help demand dropped, changelog demand kept.
+    Only genuinely feature-bearing files retain the per-file help demand.
 
 - **OD-4 — `Docs-Emergency-Skip:` is honored ONLY on the tip commit of the pushed range.**
   - *Why:* this repo merges GSD executor worktree branches into `main`, and git reads trailers from every
