@@ -341,6 +341,29 @@ for (const loc of LOCALES) {
   });
 }
 
+// ── Static help.html locale-tag gate (WR-01; mirrors T-42-V5's shape) ────────
+// The vm-sandbox gates above load the locale corpora from DISK and therefore
+// CANNOT see a dropped/typo'd <script> tag on help.html: help.js
+// localeSections() degrades silently to all-EN when HELP_CONTENT_<LOC> is
+// undefined, so a missing tag ships an English-only Help center for that
+// locale while every other gate stays green (the exact failure class T-42-V5
+// exists to prevent for the changelog siblings). This purely-static gate reads
+// the REAL help.html source — deleting or typo-ing any of the three sibling
+// tags turns it RED.
+test('help.html loads help-content-{he,de,cs}.js after help-content-en.js and before help.js (WR-01 static tag gate)', function () {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'help.html'), 'utf8');
+  const enAt = src.indexOf('help-content-en.js');
+  const helpJsAt = src.indexOf('assets/help.js');
+  if (enAt === -1) throw new Error('help.html missing <script> for help-content-en.js');
+  if (helpJsAt === -1) throw new Error('help.html missing <script> for assets/help.js');
+  for (const sib of ['help-content-he.js', 'help-content-de.js', 'help-content-cs.js']) {
+    const at = src.indexOf(sib);
+    if (at === -1) throw new Error('help.html missing <script> for ' + sib);
+    if (at < enAt) throw new Error(sib + ' must load AFTER help-content-en.js (EN is the canonical base localeSections() merges into)');
+    if (at > helpJsAt) throw new Error(sib + ' must load BEFORE assets/help.js (the corpus must exist at render)');
+  }
+});
+
 console.log('');
 console.log('Phase 42.1 per-locale help-content integrity gate — ' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed === 0 ? 0 : 1);
