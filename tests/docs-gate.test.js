@@ -125,7 +125,7 @@ function commit(subject, trailers, bodyExtra) {
 // repo. Returns { code, stdout, stderr }. code 0 = allowed, non-zero = blocked.
 // When the gate script is absent the child throws ENOENT — surfaced as a clear
 // RED with code=127-ish so the failure names the missing gate.
-function runGate(range) {
+function runGate(range, extraEnv) {
   range = range || 'origin/main..HEAD';
   // An absent gate is NOT a legitimate "block" — throw so every case (including
   // the block-only ones) fails RED for the right reason instead of being
@@ -133,9 +133,10 @@ function runGate(range) {
   if (!GATE_EXISTS) {
     throw new Error('gate script absent at ' + GATE + ' (expected RED until it ships)');
   }
+  var env = extraEnv ? Object.assign({}, ENV, extraEnv) : ENV;
   try {
     var stdout = execFileSync(process.execPath, [GATE, '--range', range],
-      { cwd: WORK, env: ENV, stdio: 'pipe' }).toString();
+      { cwd: WORK, env: env, stdio: 'pipe' }).toString();
     return { code: 0, stdout: stdout, stderr: '' };
   } catch (e) {
     if (e && e.code === 'ENOENT') {
@@ -504,6 +505,38 @@ try {
       [['docs-emergency-skip', 'prod down — lowercase key must not bypass']]);
     var r = runGate();
     assert(r.code !== 0, 'expected non-zero (blocked): a lowercase skip key must not bypass the gate, got 0\n' + out(r));
+  });
+
+  // ── A tip Docs-Emergency-Skip bypasses the WHOLE gate (invariants included) ─
+  // The invariants normally run against the gate's own install repo (which is
+  // healthy), so a "tip skip passes" assertion alone would pass vacuously. To make
+  // it falsifiable we point Phase 1 at a BROKEN fixture root (the work repo has no
+  // HELP-MAP.md, so invariant 1 throws) via DOCS_GATE_INVARIANTS_ROOT.
+  //   control: with the broken root and NO tip skip, invariants must BLOCK — this
+  //            proves the override actually bites.
+  //   subject: with the broken root AND a tip skip, the gate must PASS — proving
+  //            the skip bypasses invariants too, not just the range rule.
+  test('WHOLE-SKIP control: broken invariants root, no tip skip → BLOCK (invariant fires, override bites)', function () {
+    resetToBaseline();
+    bump('assets/app.js'); touchHelp(); addChangelogBullet();
+    commit('ordinary fully-satisfied push, no skip');
+    var r = runGate('origin/main..HEAD', { DOCS_GATE_INVARIANTS_ROOT: WORK });
+    assert(r.code !== 0, 'expected BLOCK: the fixture root has no HELP-MAP.md so invariant 1 must fail\n' + out(r));
+    assert(/invariant/i.test(out(r)), 'the block must be a structural-invariant block');
+  });
+
+  test('WHOLE-SKIP: a valid tip Docs-Emergency-Skip bypasses the structural invariants too → PASS + banner', function () {
+    resetToBaseline();
+    bump('assets/app.js'); bump('assets/extra.js');          // would demand help + changelog
+    commit('emergency hotfix; invariants may be broken too',
+      [['Docs-Emergency-Skip', 'prod down — bypass everything, invariants included']]);
+    var r = runGate('origin/main..HEAD', { DOCS_GATE_INVARIANTS_ROOT: WORK });
+    assert(r.code === 0, 'expected PASS: a tip skip must bypass invariants too, got ' + r.code + '\n' + out(r));
+    var text = out(r);
+    assert(/emergency|skip/i.test(text), 'must print the loud emergency-skip banner');
+    assert(/invariant/i.test(text) && /bypass/i.test(text),
+      'banner must state the structural invariants were also bypassed');
+    assert(!/DOCS GATE BLOCKED/.test(text), 'a bypassed gate must not also print a block');
   });
 
   // ── WR-04: a folded (multi-line) multi-file trailer is read as ONE value ───

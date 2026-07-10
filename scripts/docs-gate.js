@@ -32,6 +32,7 @@
 
 'use strict';
 
+var fs = require('fs');
 var path = require('path');
 var execFileSync = require('child_process').execFileSync;
 
@@ -172,13 +173,37 @@ function normalize(p) {
 }
 
 // ── PHASE 1: invariants (against this install's own repo) ─────────────────────
-function runInvariants() {
+// The invariants normally target this install's own repo root (each check
+// defaults to DEFAULT_REPO_ROOT). A test-only seam lets the behavior suite point
+// Phase 1 at a fixture repo root so the "a tip skip bypasses invariants too" case
+// is falsifiable against a deliberately-broken corpus without touching the live
+// repo. The seam fails CLOSED: an override that is not a readable directory blocks
+// rather than silently reverting to the live repo (which would pass and hide the
+// breakage). The default (no override) is exactly as before.
+function invariantsRootOverride() {
+  var override = process.env.DOCS_GATE_INVARIANTS_ROOT;
+  if (!override) return null;
   try {
-    invariants.checkHelpMapFresh();
-    invariants.checkCoversExist();
-    invariants.checkChangelogSchema();
-    invariants.checkRoleTable();
-    invariants.checkVersionParse();
+    if (!fs.statSync(override).isDirectory()) throw new Error('not a directory');
+  } catch (e) {
+    errln(BAR);
+    errln('  DOCS GATE BLOCKED — the invariants-root override is unreadable (failing closed)');
+    errln('  ' + override + ' — ' + ((e && e.message) || e));
+    errln(BAR);
+    process.exit(1);
+  }
+  return override;
+}
+
+function runInvariants() {
+  var root = invariantsRootOverride();          // null → each check uses its default
+  var assets = root ? path.join(root, 'assets') : undefined;
+  try {
+    invariants.checkHelpMapFresh(root || undefined);
+    invariants.checkCoversExist(assets);
+    invariants.checkChangelogSchema(assets);
+    invariants.checkRoleTable(root || undefined);
+    invariants.checkVersionParse(root || undefined);
   } catch (e) {
     errln(BAR);
     errln('  DOCS GATE BLOCKED — a docs invariant is broken');
@@ -218,6 +243,7 @@ function runRangeRule(range) {
     outln('  DOCS-EMERGENCY-SKIP HONORED — docs gate bypassed');
     outln('  commit:  ' + shortSha(ends.tip));
     outln('  reason:  ' + tipSkip);
+    outln('  the structural invariants (Phase 1) were also bypassed — WHOLE gate skipped');
     outln('  skipped watched files:');
     if (triggers.length) triggers.forEach(function (f) { outln('    - ' + f); });
     else outln('    (no watched files changed in this range)');
@@ -378,8 +404,19 @@ function parseArgs(argv) {
 
 function main() {
   var args = parseArgs(process.argv.slice(2));
-  // PHASE 1 — invariants first (fail closed inside).
-  runInvariants();
+
+  // A valid Docs-Emergency-Skip on the range TIP bypasses the WHOLE gate — the
+  // structural invariants included. The emergency valve exists for the case where
+  // the same bad state that broke prod may also have broken a structural invariant;
+  // blocking the skip on an invariant would defeat its one purpose. Probe the tip
+  // here, BEFORE Phase 1, so invariants never block a legitimately-skipped push.
+  // The range rule below re-reads the tip skip to print the full banner (with the
+  // skipped-file list) and to keep NON-tip skips ignored+reported, so a hotfix's
+  // skip can never leak onto later merged-in work.
+  var tipSkip = trailerValueForCommit(parseRange(args.range).tip, 'Docs-Emergency-Skip');
+
+  // PHASE 1 — invariants first (fail closed inside), unless the tip skip bypasses.
+  if (!tipSkip) runInvariants();
   // PHASE 2 — the range rule. Any throw fails closed with a clean one-line reason
   // (never a raw stack, which would read as a crash rather than a verdict).
   try {

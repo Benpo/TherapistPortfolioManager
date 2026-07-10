@@ -39,8 +39,8 @@ out of scope.
   **any** commit in the pushed range.
 - `Changelog-Unaffected:` — waive the changelog demand for the whole push. Global (one
   changelog for the app). Honored from **any** commit in the range.
-- `Docs-Emergency-Skip:` — bypass the whole gate. Honored **only on the tip commit of the
-  push** (see below).
+- `Docs-Emergency-Skip:` — bypass the whole gate (including the structural invariants).
+  Honored **only on the tip commit of the push** (see below).
 
 **One trailer may name MULTIPLE files**, comma-separated, sharing one reason. Write the
 paths out — brace-expansion (`i18n-{en,he}.js`) is NOT supported. The reason after the
@@ -54,7 +54,9 @@ Help-Unaffected: assets/i18n-en.js, assets/i18n-he.js, assets/app.css — tour s
 **`Docs-Emergency-Skip:` is honored ONLY on the tip commit of the push.** A skip on any
 earlier commit is silently ignored (and reported), so an emergency skip inherited through
 a branch merge can never excuse unrelated later work. Put it on the tip or it does nothing.
-By contrast, the two `*-Unaffected:` trailers are honored from any commit in the range.
+A valid tip skip bypasses the WHOLE gate — the structural invariants (Phase 1) included, not
+just the range rule. By contrast, the two `*-Unaffected:` trailers are honored from any commit
+in the range.
 
 **`git push --no-verify` bypasses only the local hook**, not CI. CI is the enforcement
 layer and honors only the trailers above; the emergency skip is loud and auditable in the
