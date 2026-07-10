@@ -235,5 +235,35 @@ test('T-42-V5 cross-page — every page that loads whats-new.js also loads the h
     problems.length + ' page/sibling gap(s): ' + problems.join('; '));
 });
 
+// ── T-42-V6 — EN-fallback LTR re-key under RTL (WR-02; help BLOCKER-2 analog) ─
+// When entries() falls back to EN for the rendered version under an RTL
+// document (locale sibling failed to load / missing HE entry), the popup panel
+// must carry .is-en-fallback so app.css flips its English lede/highlights LTR.
+// A NATIVE HE entry must NOT carry the class — Hebrew keeps reading RTL.
+test('T-42-V6 EN-fallback RTL — popup gains .is-en-fallback only when the rendered entry fell back to EN under [dir=rtl] (WR-02)', function () {
+  // Case A: portfolioLang=he, HE has NO entry for APP_VERSION → per-entry EN
+  // fallback; RTL document → the class must be present.
+  var envA = buildWindow({ appVersion: '1.3.0', lang: 'he', content: [entry('1.3.0')], contentHe: [] });
+  envA.win.document.documentElement.dir = 'rtl';
+  envA.AC._getSurface('whats-new').show();
+  var popupA = envA.win.document.querySelector('.whats-new-popup');
+  assert.ok(popupA, 'popup must mount (fallback case)');
+  assert.ok(popupA.classList.contains('is-en-fallback'),
+    'EN-fallback entry under [dir=rtl] must mark the popup .is-en-fallback (WR-02)');
+  envA.dom.window.close();
+  // Case B: native HE entry present → no fallback, no class (Hebrew stays RTL).
+  var envB = buildWindow({
+    appVersion: '1.3.0', lang: 'he',
+    content: [entry('1.3.0')], contentHe: [entry('1.3.0', ['הדגשה', 'עוד הדגשה'])],
+  });
+  envB.win.document.documentElement.dir = 'rtl';
+  envB.AC._getSurface('whats-new').show();
+  var popupB = envB.win.document.querySelector('.whats-new-popup');
+  assert.ok(popupB, 'popup must mount (native case)');
+  assert.strictEqual(popupB.classList.contains('is-en-fallback'), false,
+    'a NATIVE HE entry must NOT be marked .is-en-fallback — Hebrew keeps reading RTL');
+  envB.dom.window.close();
+});
+
 console.log('\n42-whats-new-gating: ' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed === 0 ? 0 : 1);

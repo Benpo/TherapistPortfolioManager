@@ -77,16 +77,33 @@
   // (portfolioLang → I18N_DEFAULT → 'en'). Closes Pitfall 1: a Hebrew user on any
   // page the popup fires on now sees native highlights (given the page loaded the
   // CHANGELOG_CONTENT_<LANG> sibling — Task 3).
+  // EN-fallback marker (WR-02; mirrors help.js _fallbackIds / BLOCKER 2): an
+  // entry that stayed EN under a NON-EN locale is flagged `_enFallback` on a
+  // SHALLOW COPY (never mutate the shared CHANGELOG_CONTENT_EN objects), so
+  // show() can force the popup LTR under an RTL page — English lede/highlights
+  // must not render direction:rtl or Latin punctuation scrambles to the wrong
+  // edge. Native-locale entries pass through unmarked.
+  function markEnFallback(b) {
+    var copy = {};
+    for (var k in b) { if (Object.prototype.hasOwnProperty.call(b, k)) copy[k] = b[k]; }
+    copy._enFallback = true;
+    return copy;
+  }
   function entries() {
     var lang = (lsGet('portfolioLang') || window.I18N_DEFAULT || 'en').toUpperCase();
     var loc = null, en = null;
     try { loc = window['CHANGELOG_CONTENT_' + lang]; } catch (e) {}
     try { en = window.CHANGELOG_CONTENT_EN; } catch (e) {}
     var base = Array.isArray(en) ? en : [];
-    if (!Array.isArray(loc)) return base;
+    if (lang === 'EN') return base;                         // EN itself is never a fallback
+    if (!Array.isArray(loc)) {
+      // whole locale missing (script 404 / partial deploy / stale SW miss) →
+      // every rendered entry is EN prose; mark them all (help.js analog).
+      return base.map(markEnFallback);
+    }
     return base.map(function (b) {
       var m = loc.filter(function (e) { return e && e.version === b.version; })[0];
-      return m || b;                                        // per-entry EN fallback
+      return m || markEnFallback(b);                        // per-entry EN fallback
     });
   }
   function entryFor(v) {
@@ -126,6 +143,16 @@
     popup.setAttribute('role', 'dialog');
     popup.setAttribute('aria-modal', 'true');
     popup.setAttribute('aria-labelledby', headlineId);
+
+    // WR-02 (help's BLOCKER-2 analog): when the rendered entry fell back to EN
+    // under an RTL document, mark the panel so app.css flips it LTR
+    // (.whats-new-popup.is-en-fallback). Scoped to the fallback case only —
+    // native HE popups keep reading RTL.
+    try {
+      if (entry._enFallback && String(doc.documentElement.dir || '').toLowerCase() === 'rtl') {
+        popup.classList.add('is-en-fallback');
+      }
+    } catch (e) {}
 
     // Headline — from whatsNew.title with the {X.Y} token interpolated to the
     // running major.minor; falls back to a calm English default (still carrying

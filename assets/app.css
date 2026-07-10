@@ -4987,6 +4987,15 @@ html[dir="rtl"] .multi-select-toggle {
   color: var(--color-text);
   text-align: start;
 }
+/* EN-fallback under RTL (WR-02; mirrors help.css .is-en-fallback — BLOCKER 2):
+   whats-new.js adds this class only when the rendered entry fell back to EN
+   AND the document is RTL, so English lede/highlights read LTR instead of
+   scrambling Latin punctuation to the wrong edge. Native-locale popups never
+   carry the class and keep the page direction. */
+.whats-new-popup.is-en-fallback {
+  direction: ltr;
+  text-align: start;
+}
 .whats-new-title {
   margin: 0 0 0.4rem;
   font-size: 1.35rem;
