@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.3
-milestone_name: In-App Help, Onboarding & Changelog
-current_phase: 3
-status: Awaiting next milestone
-stopped_at: Phase 43 context gathered
-last_updated: "2026-07-10T21:49:59.239Z"
-last_activity: 2026-07-10
-last_activity_desc: Milestone v1.3 completed and archived
+milestone: v1.4
+milestone_name: Richer Sessions
+status: planning
+last_updated: "2026-07-11T09:52:53.973Z"
+last_activity: 2026-07-11
 progress:
-  total_phases: 6
-  completed_phases: 5
-  total_plans: 60
-  completed_plans: 59
-  percent: 83
-current_phase_name: docs-maintenance-hard-gate
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -28,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-07-10 — v1.3 close-out evolution revie
 
 ## Current Position
 
-Phase: Milestone v1.3 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-10 — Milestone v1.3 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-11 — Milestone v1.4 started
 
 ## Performance Metrics
 

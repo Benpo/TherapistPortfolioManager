@@ -86,15 +86,17 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 
 ### Active
 
-<!-- v1.3 In-App Help, Onboarding & Changelog — scope confirmed 2026-07-07. Full brief: .planning/MILESTONE-CONTEXT consumed into REQUIREMENTS.md/ROADMAP.md. -->
+<!-- v1.4 Richer Sessions — scope confirmed 2026-07-11 (questioning in /gsd-new-milestone; full scope in REQUIREMENTS.md/ROADMAP.md). -->
 
-- [ ] Help system — "?" entry point, help center page, welcome overlay, replayable guided tour, empty-state coaching, install nudge, full EN help content for the current feature set (Phase 26 design as the seed, reconciled against the current app — not blindly implemented)
-- [ ] In-app changelog — "What's New" popup on version change + persistent changelog page in the help center, structured in-app data, v1.3's own release notes as the first entry
-- [ ] Docs-maintenance hard gate — a blocking process guardrail (hook and/or GSD definition-of-done gate) so no user-facing change ships without an updated changelog entry + help topics
+- [ ] Rich-text session editor — bold/underline/bullet lists in session note fields; formatting survives PDF + markdown export; research-first (storage format vs IndexedDB, XSS-safety, Hebrew RTL, zero-dependency constraint, snippets/autogrow compatibility)
+- [ ] Session-section reordering — drag-sort of session sections in Settings, persisted per therapist, propagated to add/edit session forms AND the export/copy markdown builders (guard the 260615 bug class)
+- [ ] Mobile pass — fix index-page header buttons (text escapes the circular buttons); popover-exclusivity + collapsed-accordion error-focus micro-bugs; structured verify sweep of the deferred 21-03 checklist on a real iPhone (fix what fails, close the rest as obsolete)
+- [ ] Tech debt — comment-hygiene retrofit + forward grep-gate (~680 lines of internal planning refs across ~43 customer-shipped files incl. one runtime `console.warn`; CONVENTIONS.md contradiction fixed first); deploy purge-race fix (purge only after promotion is confirmed live); pre-prod branch on a second CF Pages project
+- [ ] Low-hanging fruit — future-birthdate validation on the 3 date fields; error-tone toast sweep beyond the session form
 
-**Deferred to backlog (v1.1 close + 2026-06-22 concerns triage + v1.2 close):** mobile `21-03`; landing DE/CS verify (LNCH-04); license re-validation; pagination; PDF→Web Worker; an abandoned landing-page interactive-demo iframe idea (superseded by Phase 35); and other triaged concerns — see ROADMAP "Backlog" for the full list.
+**Deferred to backlog (v1.1 close + 2026-06-22 concerns triage + v1.2 close):** landing DE/CS verify (LNCH-04); license re-validation; pagination; PDF→Web Worker; an abandoned landing-page interactive-demo iframe idea (superseded by Phase 35); and other triaged concerns — see ROADMAP "Backlog" for the full list. (Mobile `21-03` promoted into v1.4's mobile pass, 2026-07-11.)
 
-**Backlog candidate — "Codebase Health II" (surfaced during Phase 30, 2026-06-26; superseded for the v1.3 slot by Help/Changelog above, still valid as a later milestone):** broader test-coverage gaps in large untouched files (`app.js` 1,474L/6 tests, `license.js` 568L/0 tests) and further extraction candidates among the remaining 4-digit files (`backup.js`, `app.js`, `pdf-export.js`, `db.js`) + an app-wide glue-duplication sweep. Full scoping in `todos/pending/2026-06-26-broader-extraction-and-test-coverage-health.md`.
+**Backlog candidate — "Codebase Health II" (surfaced during Phase 30, 2026-06-26; passed over for the v1.3 and v1.4 slots, now the v1.5 candidate):** broader test-coverage gaps in large untouched files (`app.js` 1,474L/6 tests, `license.js` 568L/0 tests) and further extraction candidates among the remaining 4-digit files (`backup.js`, `app.js`, `pdf-export.js`, `db.js`) + an app-wide glue-duplication sweep + Playwright/cross-browser harness. Full scoping in `todos/pending/2026-06-26-broader-extraction-and-test-coverage-health.md`.
 
 ### Out of Scope
 
@@ -163,14 +165,24 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 | Trademark/affiliation disclaimer added (LEGAL-01) | Sessions Garden references Emotion Code®/Body Code™/Heart-Wall® descriptively; a short non-affiliation notice reduces trademark risk with Discover Healing / Wellness Unmasked, Inc. | ✓ Shipped Phase 37 (EN canonical; he/de/cs flagged DRAFT pending native-speaker review) |
 | v1.2 close: acknowledge 16 pre-close audit items rather than resolve each individually | All 16 (1 debug session, 10 quick tasks, 5 todos) were either done-but-unflagged bookkeeping, an explicit won't-fix, a genuinely abandoned pre-v1.2 idea, or already-tracked backlog — none were new v1.2 gaps. Resolving each would have re-litigated already-closed work | ✓ Ben chose "Acknowledge all, proceed" 2026-07-07 — detail in STATE.md "Deferred Items (acknowledged at v1.2 close)" |
 | v1.3 = Help + Changelog (not "Codebase Health II") | The app is feature-large with zero in-app teaching surface and no release-announcement channel; Phase 26's UI-SPEC is already approved and ready to build. Codebase Health II remains a valid later-milestone backlog candidate | ✓ Decided 2026-07-06, see `.planning/MILESTONE-CONTEXT.md` |
+| v1.4 = Richer Sessions (rich-text editor + section reordering + mobile pass + debt trio) | Users complain session text is plain-only — the headline ask; section drag-sort is the natural companion (both personalize session documentation). Comment-hygiene + purge-race + pre-prod are debt with customer exposure / real-incident history. Codebase Health II again deferred (would bloat the milestone into two) — now the v1.5 candidate | ✓ Scoped 2026-07-11 |
 
 ## Current State
 
 **v1.3 In-App Help, Onboarding & Changelog shipped 2026-07-10** (Phases 39–43, 6 phases / 59 plans / 32 tasks). Full detail archived in `milestones/v1.3-ROADMAP.md` / `milestones/v1.3-REQUIREMENTS.md` / `milestones/v1.3-MILESTONE-AUDIT.md`. Milestone audit: 24/24 requirements satisfied, 7/7 cross-phase seams wired, 0 broken flows, suite 169/169 green — closed as `tech_debt` with two low-severity documentation-bookkeeping items (Phase 41 VERIFICATION.md backfill; Phase 43 nyquist bookkeeping), neither a functional gap. The app now teaches itself in-app (help center, first-run onboarding, replayable tour) and announces every release in-app (What's-New + changelog), with a hard CI gate keeping docs current on every future user-facing change. Prior: v1.2 Codebase Health & Reliability shipped 2026-07-07 (test net + decomposed codebase + canonical date engine); v1.1 launched the app (live & sold 2026-06-22).
 
-## Next Milestone (to be planned)
+## Current Milestone: v1.4 Richer Sessions
 
-v1.3 shipped 2026-07-10; no milestone is active. Candidate for **v1.4**: a rich-text editor for session notes (deferred from v1.3). Other candidates live in `.planning/ROADMAP.md` Backlog and `.planning/todos/pending/` (incl. "Codebase Health II" extraction/coverage, mobile, deferred features). Run `/gsd-new-milestone` to scope the next cycle (questioning → research → requirements → roadmap).
+**Goal:** Session documentation becomes richer and personal — formatted text and custom section order — while the app's mobile chrome, error feedback, and deploy pipeline get hardened.
+
+**Target features:**
+- Rich-text session editor (bold/underline/bullets) with formatting preserved in PDF + markdown export — research-first
+- Session-section drag-sort reordering in Settings, propagated to session forms and export builders
+- Mobile pass: index-header button fix, two popover/accordion micro-bugs, 21-03 verify sweep on a real iPhone
+- Tech debt: comment-hygiene retrofit + forward gate; deploy purge-race fix; pre-prod CF Pages environment
+- Low-hanging fruit: future-birthdate validation; error-tone toast sweep
+
+**Key context:** Rich-text was uncaptured anywhere before this milestone (users complain about plain-only session text); the PDF pipeline deliberately strips inline markdown today — this milestone reverses that. Docs/changelog upkeep is enforced automatically by the v1.3 hard gate; whether rich-text gets a guided-tour step is decided at phase planning. Explicit NOT-list: Codebase Health II (v1.5 candidate), modality templates, IndexedDB full encryption, deactivation data-loss warning, demo month-count fix, security-note backoff, Hebrew copy polish / Sapir help read, landing DE/CS verify, legal nice-to-haves, post-launch feature backlog (shortcuts/graphs/wrapper/cloud).
 
 ## Evolution
 
@@ -190,4 +202,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-10 — v1.3 "In-App Help, Onboarding & Changelog" shipped & archived (Phases 39–43; HELP/ONBD/TOUR/CHLG/L10N/GATE all validated; milestone audit `tech_debt` with 2 doc-bookkeeping items). App live & sold. Next: `/gsd-new-milestone` (v1.4 candidate: rich-text session notes).*
+*Last updated: 2026-07-11 — Milestone v1.4 "Richer Sessions" started (rich-text session editor, section reordering, mobile pass, comment-hygiene/purge-race/pre-prod debt, low-hanging fruit). App live & sold.*
