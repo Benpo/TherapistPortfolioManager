@@ -3,16 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Richer Sessions
 current_phase: 44
-status: planned
+current_phase_name: tech-debt-guardrails-pre-prod-environment
+status: executing
 stopped_at: Phase 44 planned — 5 plans, 2 waves, ready to execute
-last_updated: "2026-07-11T17:11:29.762Z"
+last_updated: "2026-07-11T20:55:13.876Z"
 last_activity: 2026-07-11
-last_activity_desc: "Phase 44 planned — 5 plans (DEBT-01/02/03), 2 waves; research + validation + patterns produced, plan-checker PASSED; ready to execute"
+last_activity_desc: Phase 44 execution started
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 5
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -23,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-10 — v1.3 close-out evolution review)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** v1.4 Richer Sessions — Phase 44 (Tech-Debt Guardrails & Pre-Prod) planned: 5 plans, 2 waves; ready to execute
+**Current focus:** Phase 44 — tech-debt-guardrails-pre-prod-environment
 
 ## Current Position
 
-Phase: 44 — Tech-Debt Guardrails & Pre-Prod Environment (planned, ready to execute)
-Plan: 5 plans in 2 waves — Wave 1 {44-01 DEBT-01 CONVENTIONS/add-client, 44-02 DEBT-02 sentinel script, 44-03 DEBT-03 build-staging script} · Wave 2 {44-04 deploy.yml wiring, 44-05 deploy-preprod.yml + CF Pages human checkpoint}
-Status: Phase 44 planned (research → plan → plan-checker PASSED) — ready to execute
-Last activity: 2026-07-11 — Phase 44 planned: 5 plans, 2 waves; RESEARCH + VALIDATION + PATTERNS produced; decision coverage 10/10
+Phase: 44 (tech-debt-guardrails-pre-prod-environment) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-07-11 — Phase 44 execution started
 
 ## Performance Metrics
 
@@ -233,6 +234,7 @@ Last activity: 2026-07-11 — Phase 44 planned: 5 plans, 2 waves; RESEARCH + VAL
 | Phase 43 P08 | 6min | 2 tasks | 5 files |
 | Phase 43 P09 | ~12min | 3 tasks | 4 files |
 | Phase 43 P10 | ~15min | 2 tasks | 5 files |
+| Phase 44 P01 | 7min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -428,6 +430,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 43-08]: CI docs-gate range resolution lifted into shared scripts/ci-resolve-docs-range.sh with a three-way ls-remote exit-code branch — rc=0 anchored, rc=2 bootstrap, any other rc fails closed (CR-01/D-04); proven by a stubbed-git behavior test
 - [Phase ?]: [Phase 43-08]: WR-02 recovery is operational (delete/re-point deploy branch), not a commit trailer — the resolver runs before docs-gate.js so no trailer is read; docs-rot scripts need a .gitignore allowlist entry
 - [Phase ?]: [Phase 43-10]: extractAppVersion lifted into scripts/lib/version-parse.js as the ONE shared extractor; fifth invariant checkVersionParse throws on a version.js format drift so GATE-04 cannot silently self-disable (WR-06/D-17)
+- [Phase ?]: [Phase 44-01]: CONVENTIONS.md §Comments rewritten to the strip-all-planning-IDs rule (both rationales + 4-slot banner + {slug}.test.js naming); add-client.js console.warn de-IDed; NO enforcement gate shipped (D-01 — forward grep-gate defers to v1.5 with the ~680-line retrofit)
 
 ### Pending Todos
 
@@ -503,7 +506,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-11T17:11:29.751Z
+**Last session:** 2026-07-11T20:54:37.723Z
 
 Last activity: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
 Stopped at: Phase 44 planned — 5 plans, 2 waves, plan-checker PASSED (decision coverage 10/10)

@@ -43,7 +43,7 @@ Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings
 
 Rescoped 2026-07-11: the ~680-line legacy comment retrofit is TOO BIG for this milestone — deferred to a focused v1.5 candidate. v1.4 ships only the don't-make-it-worse layer.
 
-- [ ] **DEBT-01**: The CONVENTIONS.md §Comments contradiction is fixed at the root (the instruction telling agents to cite phase/plan IDs is replaced with the strip-all-planning-IDs rule), and the single RUNTIME planning-ref leak is removed (add-client.js:89 `console.warn` printing "per D-23" into customer DevTools — one-line reword). No enforcement gate ships this milestone: the baseline-aware forward grep-gate travels with the ~680-line legacy retrofit in v1.5 (rescoped 2026-07-11 — gate + hygiene belong together; see Deferred / Future)
+- [x] **DEBT-01**: The CONVENTIONS.md §Comments contradiction is fixed at the root (the instruction telling agents to cite phase/plan IDs is replaced with the strip-all-planning-IDs rule), and the single RUNTIME planning-ref leak is removed (add-client.js:89 `console.warn` printing "per D-23" into customer DevTools — one-line reword). No enforcement gate ships this milestone: the baseline-aware forward grep-gate travels with the ~680-line legacy retrofit in v1.5 (rescoped 2026-07-11 — gate + hygiene belong together; see Deferred / Future)
 - [ ] **DEBT-02**: Deploy purges Cloudflare cache only AFTER the Pages promotion is confirmed live (kills the v1.3.0 mixed-cache incident class)
 - [ ] **DEBT-03**: A pre-prod branch deploys to a second CF Pages project reproducing prod URL semantics (clean URLs, _redirects, deploy-stamped integrity token) for real-device pre-release testing
 
@@ -105,7 +105,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MOBL-02 | Phase 48 | Pending |
 | MOBL-03 | Phase 48 | Pending |
 | MOBL-04 | Phase 48 | Pending |
-| DEBT-01 | Phase 44 | Pending |
+| DEBT-01 | Phase 44 | Complete |
 | DEBT-02 | Phase 44 | Pending |
 | DEBT-03 | Phase 44 | Pending |
 | PLSH-01 | Phase 48 | Pending |
@@ -114,17 +114,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PLSH-04 | Phase 48 | Pending |
 
 **Coverage:**
+
 - v1.4 requirements: 26 total
 - Mapped to phases: 26 ✓
 - Unmapped: 0
 
 **By phase:**
+
 - Phase 44 — Tech-Debt Guardrails & Pre-Prod Environment: DEBT-01, DEBT-02, DEBT-03 (3)
 - Phase 45 — Rich-Text Rendering & Export Foundation: RTXT-06, RTXT-07, RTXT-08, RTXT-10 (4)
 - Phase 46 — Rich-Text Toolbar Editor: RTXT-01, RTXT-02, RTXT-03, RTXT-04, RTXT-05, RTXT-09 (6)
 - Phase 47 — Session-Section Reordering: ORDR-01, ORDR-02, ORDR-03, ORDR-04, ORDR-05 (5)
 - Phase 48 — Mobile Pass & Validation Polish: MOBL-01, MOBL-02, MOBL-03, MOBL-04, PLSH-01, PLSH-02, PLSH-03, PLSH-04 (8)
-
 
 ---
 *Requirements defined: 2026-07-11*
