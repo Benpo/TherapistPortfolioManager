@@ -1,0 +1,67 @@
+name: Deploy to Cloudflare Pages (pre-prod)
+
+on:
+  push:
+    branches: [pre-prod]
+
+concurrency:
+  group: deploy-preprod
+  cancel-in-progress: true
+
+jobs:
+  deploy-preprod:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # DELIBERATELY OMITTED (D-08): no docs-gate step. The docs-rot gate protects
+      # PROD releases only and anchors to the `deploy` branch's `Deploy from <sha>`
+      # subject. Pre-prod never triggers on main and never writes `deploy`, so it
+      # must not run — and provably cannot move — the docs-gate anchor.
+
+      - name: Prepare pre-prod directory
+        run: |
+          # Shared transform, single sanctioned divergence (DEBT-03, D-07/D-09).
+          # build-staging.sh reproduces the whitelist copy + deploy-token stamp
+          # byte-for-byte (pinned by tests/build-staging.test.js) and reads
+          # GITHUB_SHA from the Actions environment. --noindex appends the
+          # pre-prod-only X-Robots-Tag: noindex block to the STAGED _headers only.
+          sh scripts/build-staging.sh deploy-staging --noindex
+
+      - name: Verify no sensitive files
+        run: |
+          # Defense in depth: no dev/planning files may leak into the public pre-prod origin.
+          if [ -d "deploy-staging/.planning" ] || [ -d "deploy-staging/.claude" ] || [ -f "deploy-staging/CLAUDE.md" ] || [ -f "deploy-staging/.env" ]; then
+            echo "ERROR: Sensitive files found in deploy-staging!"
+            ls -la deploy-staging/
+            exit 1
+          fi
+          echo "Deploy directory is clean."
+          echo "HTML files:"
+          ls deploy-staging/*.html | wc -l
+          echo "Asset files:"
+          ls deploy-staging/assets/ | wc -l
+
+      - name: Push to deploy-preprod branch
+        run: |
+          # Target isolation (Pitfall 3): force-push ONLY the ephemeral `deploy-preprod`
+          # branch — NEVER the prod `deploy` branch. A verbatim copy of prod's push step
+          # would clobber `deploy` and move the docs-gate anchor. GITHUB_TOKEN suffices;
+          # no CF secrets are needed on pre-prod (CF Pages project #2 watches this branch).
+          cd deploy-staging
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b deploy-preprod
+          git add -A
+          git commit -m "Deploy pre-prod from ${GITHUB_SHA}"
+          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git push -f origin deploy-preprod
+
+      # DELIBERATELY OMITTED (Pattern 3): no Cloudflare cache-purge step. The
+      # pre-prod origin is a `*.pages.dev` outside Ben's CF zone, and CF Pages
+      # auto-invalidates its own cache on each deploy — there is no zone cache to purge.
