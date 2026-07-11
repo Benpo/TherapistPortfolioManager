@@ -2,9 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Richer Sessions
+current_phase: 44
 status: planning
-last_updated: "2026-07-11T11:57:53.000Z"
+stopped_at: Phase 44 context gathered
+last_updated: "2026-07-11T17:11:29.762Z"
 last_activity: 2026-07-11
+last_activity_desc: "v1.4 roadmap created (5 phases: 44 Debt/Pre-Prod · 45 Rich-Text Render · 46 Toolbar Editor · 47 Section Reorder · 48 Mobile+Polish)"
 progress:
   total_phases: 5
   completed_phases: 0
@@ -500,11 +503,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-10T18:18:57.024Z
+**Last session:** 2026-07-11T17:11:29.751Z
 
 Last activity: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
-Stopped at: Phase 43 context gathered
-Resume file: .planning/phases/43-docs-maintenance-hard-gate/43-CONTEXT.md
+Stopped at: Phase 44 context gathered
+Resume file: .planning/phases/44-tech-debt-guardrails-pre-prod-environment/44-CONTEXT.md
 Next: /gsd-discuss-phase 44 then /gsd-plan-phase 44 (Tech-Debt Guardrails & Pre-Prod Environment). v1.4 roadmap live in ROADMAP.md (Phases 44–48).
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
