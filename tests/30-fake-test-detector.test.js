@@ -71,6 +71,7 @@
  *   - 41-anchor-presence                 (Phase 41 tour-anchor rot guard — scans assets/app.js for the backup/help data-tour anchors by design)
  *   - docs-gate                          (docs-rot gate behavior spec — executes the real gate via execFileSync in a synthesized fixture repo; its assets/*.js literals are fixture writes, not source-slicing reads)
  *   - docs-gate-version-parse            (WR-06 release-moment extractor spec — extractAppVersion IS a source-text parser by design; the assets/version.js read is fed to that parser + the fifth invariant, so a source read is the correct shape)
+ *   - build-staging                      (DEBT-03 staging-transform fidelity spec — EXECUTES scripts/build-staging.sh via spawnSync and asserts on the staged OUTPUT tree; the assets/version.js reads are of the script's output + a committed control, not source-slicing — mirroring docs-gate)
  *   - 30-fake-test-detector              (this gate; self-allowlisted defensively)
  *
  * Run: node tests/30-fake-test-detector.test.js
@@ -96,7 +97,8 @@ var ALLOWLIST = {
   'docs-gate': 'docs-rot gate behavior spec — writes synthetic assets/*.js fixtures into a throwaway git repo and EXECUTES the real gate (scripts/docs-gate.js) via execFileSync, asserting on observable verdicts (exit codes + messages); the execution sink is the gate process, not vm/eval, so this detector cannot see it',
   'docs-gate-version-parse': 'WR-06 release-moment extractor + fifth-invariant spec — extractAppVersion(src) IS a source-text parser by design (it lifts the APP_VERSION literal out of version.js), so reading assets/version.js and feeding it to that parser (and to checkVersionParse) is the correct shape; the execution sink is the parser/invariant, not vm/eval, so this detector cannot see it',
   '30-fake-test-detector': 'this gate — reads tests/*.test.js, never assets/*.js; self-allowlisted defensively',
-  'conventions-hygiene': 'DEBT-01 comment-hygiene source-audit — reads .planning/codebase/CONVENTIONS.md and assets/add-client.js as text to assert the citation mandate is gone, the strip-all-planning-IDs rule is present, and the large-photo console.warn prints no decision-ID token; a static absence/presence check is the correct shape for a "did the doc rewrite + one-line reword land" guard (no runtime behavior to execute), mirroring 25-11-hardcoded-english-removed'
+  'conventions-hygiene': 'DEBT-01 comment-hygiene source-audit — reads .planning/codebase/CONVENTIONS.md and assets/add-client.js as text to assert the citation mandate is gone, the strip-all-planning-IDs rule is present, and the large-photo console.warn prints no decision-ID token; a static absence/presence check is the correct shape for a "did the doc rewrite + one-line reword land" guard (no runtime behavior to execute), mirroring 25-11-hardcoded-english-removed',
+  'build-staging': 'DEBT-03 staging-transform fidelity spec — EXECUTES the real transform (scripts/build-staging.sh) via spawnSync into a tmp target dir, then asserts on the staged OUTPUT tree; the assets/version.js reads are of the script\'s output (the stamped staged copy) plus a committed-untouched control read, not source-slicing to fake behavior; the execution sink is the build-staging.sh process, not vm/eval, so this detector cannot see it (mirroring docs-gate)'
 };
 
 // ---------------------------------------------------------------------------
