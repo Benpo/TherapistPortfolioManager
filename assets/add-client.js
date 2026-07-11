@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!file) return;
       try {
         if (file.size > SOFT_SIZE_CAP_BYTES) {
-          console.warn("Large photo upload:", file.size, "bytes — proceeding per D-23 (no hard cap)");
+          console.warn("Large photo upload:", file.size, "bytes — proceeding (soft warning only, no hard size cap)");
           App.showToast("", "photos.upload.warning");
         }
         // Resize on upload — longest edge ≤ 800 px, JPEG q = 0.75.

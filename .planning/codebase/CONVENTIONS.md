@@ -37,7 +37,7 @@ Files: `assets/db.js`, `assets/app.js`, `assets/crashlog.js`, `assets/backup.js`
 **Files:**
 - `kebab-case.js` for all asset files: `add-client.js`, `shared-chrome.js`, `pdf-export.js`
 - `i18n-{lang}.js` for language dictionaries: `i18n-en.js`, `i18n-he.js`, `i18n-de.js`, `i18n-cs.js`
-- Test files: `{phase}-{plan}-{slug}.test.js` (e.g. `25-01-sendToMyself-removed.test.js`) or `quick-{date}-{id}-{slug}.test.js`
+- Test files: `{slug}.test.js` — no phase/plan numbers in the filename, provenance lives in git (forward rule, locked 2026-07-10; see §Comments). The legacy corpus is still phase-numbered (`25-01-sendToMyself-removed.test.js`, `quick-{date}-{id}-{slug}.test.js`) and is renamed only in a later dedicated pass.
 
 **Functions:**
 - `camelCase` for all functions: `openDB`, `migrateOldDB`, `getAllClients`, `buildReportRow`
@@ -148,13 +148,47 @@ This pattern is used for `_sectionLabelCache` (`app.js`) and `_snippetCache` (`a
 
 ## Comments
 
-**Phase/plan references:** Code comments cite the phase and plan that introduced
-non-obvious code (e.g. `// RFCT-03 (Phase 31)`, `// Phase 22`). This is the primary
-traceability mechanism — do not omit.
+**No planning IDs in shipped code.** Shipped code carries no planning IDs. Strip every
+planning ID to plain prose, keeping the WHY it carried:
 
-**Constraint notes:** Any zero-build constraint violation (no `fetch`, no `import`, no
-`XMLHttpRequest`) is called out with a comment referencing the specific constraint code
-(e.g. `// VER-06 carry-over`).
+- Requirement IDs (`REQ-`, `OBS-`, `VER-`, `RFCT-`, `DOCS-`, `DEMO-`, `PDFX-`, `I18N-`,
+  `TEST-`, `DEBT-`, …), decision IDs (`D-NN`), code-review IDs (`CR-NN`), task IDs
+  (`T-N-N-N`), phase/plan citations (`Phase 31`, `Plan 04`), and process framing (`UAT`,
+  `architect-gate`, `the executor`, `.planning/…` paths) all become plain prose.
+- Only the ID/tag leaves; the constraint or rationale it justified stays. A comment that
+  existed *only* to name an ID had no reason to exist; a comment that used an ID to
+  justify a non-obvious constraint keeps the constraint, worded plainly.
+- `git blame` is the durable trace back to the change that introduced a line — that is
+  where provenance lives, not in the shipped source.
+
+**Real technical tokens are NOT planning IDs — leave them untouched:** `AES-256`,
+`SHA-256`, IndexedDB schema versions (`v1`–`v6`), `IDBDatabase`, HTTP status codes, and
+similar domain/technical identifiers are content, not planning provenance.
+
+**Rationale (two, both binding):** (a) `.planning/` is archived per milestone, so an ID
+in shipped code becomes a dangling reference — the target no longer exists in the working
+tree; (b) `assets/**` ships its comments to the browser, so an internal ID is visible to
+any practitioner with DevTools open. Either rationale alone is sufficient; together they
+make the rule non-negotiable for shipped code.
+
+**File-top banner shape (4 slots).** Non-trivial modules open with a four-slot banner in
+this exact order: **`OWNS`** (what the module owns) · **`PUBLIC SURFACE`** (the `window.*`
+it registers + any key handshake) · **`DEPENDENCIES`** (the cross-`window.*` chain it
+reads) · **`CONSTRAINTS`** (key invariants). Tiny modules get a concise 1–3 line banner —
+do not fabricate empty slots where there is nothing to say. Reference template:
+`assets/settings.js` top-of-file. Full Do/Don't wording and worked before/after pairs live
+in the archived
+`.planning/milestones/v1.2-phases/36-code-comments-batch-2/36-COMMENT-STYLE-GUIDE.md`
+(archived history — read it, do not move or promote it out of the archive).
+
+**Constraint notes.** Any zero-build constraint (no `fetch`, no `import`, no
+`XMLHttpRequest`) that a line deliberately upholds is called out in plain prose stating
+the constraint and why — never by naming a requirement ID.
+
+**Test-file naming.** New test files are `{slug}.test.js` — no phase or plan numbers in
+the filename (provenance lives in git). This is forward-looking: the existing
+phase-numbered test corpus (`24-04-…`, `30-…`, `quick-260516-…`) is left as-is here and
+renamed only in a later dedicated pass; new tests follow the slug rule from now on.
 
 
 ## Help & Changelog Content Convention

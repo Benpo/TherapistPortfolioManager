@@ -95,7 +95,8 @@ var ALLOWLIST = {
   '41-anchor-presence': 'Phase 41 tour-anchor rot guard (TOUR-02/TOUR-03) — scans assets/app.js as text for the backup/help data-tour setAttribute anchors by design; a source-scan is the correct shape for a "did a refactor silently drop the anchor" guard, mirroring 40-precache',
   'docs-gate': 'docs-rot gate behavior spec — writes synthetic assets/*.js fixtures into a throwaway git repo and EXECUTES the real gate (scripts/docs-gate.js) via execFileSync, asserting on observable verdicts (exit codes + messages); the execution sink is the gate process, not vm/eval, so this detector cannot see it',
   'docs-gate-version-parse': 'WR-06 release-moment extractor + fifth-invariant spec — extractAppVersion(src) IS a source-text parser by design (it lifts the APP_VERSION literal out of version.js), so reading assets/version.js and feeding it to that parser (and to checkVersionParse) is the correct shape; the execution sink is the parser/invariant, not vm/eval, so this detector cannot see it',
-  '30-fake-test-detector': 'this gate — reads tests/*.test.js, never assets/*.js; self-allowlisted defensively'
+  '30-fake-test-detector': 'this gate — reads tests/*.test.js, never assets/*.js; self-allowlisted defensively',
+  'conventions-hygiene': 'DEBT-01 comment-hygiene source-audit — reads .planning/codebase/CONVENTIONS.md and assets/add-client.js as text to assert the citation mandate is gone, the strip-all-planning-IDs rule is present, and the large-photo console.warn prints no decision-ID token; a static absence/presence check is the correct shape for a "did the doc rewrite + one-line reword land" guard (no runtime behavior to execute), mirroring 25-11-hardcoded-english-removed'
 };
 
 // ---------------------------------------------------------------------------
