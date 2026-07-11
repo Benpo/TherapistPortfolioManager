@@ -74,12 +74,14 @@ jobs:
           git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git push -f origin deploy
 
-      - name: Purge Cloudflare cache
-        if: success()
+      - name: Await promotion, then purge Cloudflare cache
+        env:
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+          CF_PURGE_TOKEN: ${{ secrets.CF_PURGE_TOKEN }}
         run: |
-          curl -s -X POST \
-            "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
-            -H "Authorization: Bearer ${{ secrets.CF_PURGE_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}' \
-            | grep -q '"success":true' && echo "Cache purged" || echo "Cache purge failed (non-blocking)"
+          # DEBT-02: strict sentinel-then-blocking-purge (replaces the old immediate,
+          # non-blocking purge). Poll the live origin until it serves the new short-SHA
+          # deploy token, THEN purge the zone. The script fails the run (exit 1) on a
+          # promotion timeout (no purge — a uniformly-stale cache is safe) or on a purge
+          # failure after confirmed promotion. GITHUB_SHA comes from the Actions context.
+          sh scripts/cf-await-promotion.sh
