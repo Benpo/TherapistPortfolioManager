@@ -43,7 +43,7 @@ Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings
 
 Rescoped 2026-07-11: the ~680-line legacy comment retrofit is TOO BIG for this milestone — deferred to a focused v1.5 candidate. v1.4 ships only the don't-make-it-worse layer.
 
-- [ ] **DEBT-01**: v1.4 adds NO new internal planning references to shipped code — CONVENTIONS.md §Comments contradiction fixed FIRST (the root cause instructing agents to cite phase/plan IDs), plus a baseline-aware forward grep-gate in tests/ that blocks NEW planning refs in changed code WITHOUT demanding the legacy cleanup; PLUS the single RUNTIME planning-ref leak removed (add-client.js:89 `console.warn` printing "per D-23" into customer DevTools — one-line reword, added 2026-07-11 by Ben's call)
+- [ ] **DEBT-01**: The CONVENTIONS.md §Comments contradiction is fixed at the root (the instruction telling agents to cite phase/plan IDs is replaced with the strip-all-planning-IDs rule), and the single RUNTIME planning-ref leak is removed (add-client.js:89 `console.warn` printing "per D-23" into customer DevTools — one-line reword). No enforcement gate ships this milestone: the baseline-aware forward grep-gate travels with the ~680-line legacy retrofit in v1.5 (rescoped 2026-07-11 — gate + hygiene belong together; see Deferred / Future)
 - [ ] **DEBT-02**: Deploy purges Cloudflare cache only AFTER the Pages promotion is confirmed live (kills the v1.3.0 mixed-cache incident class)
 - [ ] **DEBT-03**: A pre-prod branch deploys to a second CF Pages project reproducing prod URL semantics (clean URLs, _redirects, deploy-stamped integrity token) for real-device pre-release testing
 
@@ -58,7 +58,7 @@ Rescoped 2026-07-11: the ~680-line legacy comment retrofit is TOO BIG for this m
 
 - **RTXT-U1**: Underline formatting — dropped 2026-07-11 (no standard markdown syntax; would need a private `++x++` token + PDF underline renderer). Revisit if users ask.
 - **RTXT-F2**: True italic in PDF (vendoring an italic face) — italic ships preview/markdown-only weight in v1.4.
-- **Comment-hygiene legacy retrofit** (~680 lines / ~43 shipped files incl. the add-client console.warn) — deferred 2026-07-11 (Ben: too much for this milestone); candidate focus for v1.5. v1.4 only stops the bleeding (DEBT-01).
+- **Comment-hygiene legacy retrofit + forward gate** (~680 lines / ~43 shipped files) — deferred 2026-07-11 (Ben: too much for this milestone); candidate focus for v1.5. The two travel together: the legacy reword sweep AND the baseline-aware forward grep-gate that blocks NEW planning refs (post-retrofit the gate needs no baseline machinery — a simple zero-tolerance grep). v1.4 only stops the bleeding (DEBT-01: the CONVENTIONS.md §Comments root-cause fix + the single add-client.js console.warn reword, both done in Phase 44).
 - Codebase Health II (extraction + coverage + Playwright harness) — v1.5 candidate.
 
 ## Out of Scope

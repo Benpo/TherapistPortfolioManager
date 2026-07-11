@@ -17,6 +17,31 @@ files:
   - sw.js
 ---
 
+## Phase 44 handled (2026-07-11) — two carve-out items done; the rest stays here for v1.5
+
+Phase 44 (plan 44-01, DEBT-01 "stop the bleeding") executed exactly TWO items from this
+seed and left everything else pending:
+
+- **Item 1 (§Comments rewrite) — DONE.** `.planning/codebase/CONVENTIONS.md` §Comments now
+  carries the strip-all-planning-IDs rule (both rationales: archived-`.planning/` dangling
+  refs + `assets/**` customer DevTools exposure), the 4-slot banner shape, and the
+  `{slug}.test.js` forward test-naming rule. The old "cite the phase and plan … do not omit"
+  mandate is gone. Pinned by `tests/conventions-hygiene.test.js`.
+- **The single runtime leak — DONE.** `assets/add-client.js:89` `console.warn` no longer
+  prints `per D-23`; the no-hard-cap rationale stays in plain prose.
+
+**Still pending for v1.5 (the focus candidate):**
+- **Item 2 (promote `36-COMMENT-STYLE-GUIDE.md`) — NOT done, and intentionally reversed.**
+  Phase 44 decision D-03 keeps the guide archived (§Comments points at it in place); the
+  v1.5 retrofit may revisit promotion, but "promote it" is no longer a given.
+- **Item 3 (clean the ~680 lines) — NOT done.** The full legacy reword sweep (minus the one
+  add-client.js console.warn already handled) remains.
+- **Item 4 (the forward gate) — NOT done.** Deferred to travel WITH the retrofit (Ben,
+  2026-07-11): post-retrofit it can be a simple zero-tolerance grep, no baseline machinery.
+
+The "load-bearing citations — reword, do NOT bare-delete" list below stays authoritative
+for the v1.5 sweep (the add-client.js:89 entry is now resolved).
+
 ## Problem
 
 `assets/**` is served to customers **including its comments** (`.github/workflows/deploy.yml` does `cp -r assets deploy-staging/`). Today **~680 lines across ~43 shipped files** carry internal GSD planning references: decision IDs (`D-09`), phase citations (`Phase 22`), plan citations (`Plan 04`), requirement IDs (`CHLG-03`), and process framing (`UAT`, `architect-gate`, `the executor`, `.planning/` paths).
