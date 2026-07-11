@@ -13,6 +13,7 @@ scripts/*
 !scripts/docs-gate.js
 !scripts/gen-help-map.js
 !scripts/ci-resolve-docs-range.sh
+!scripts/cf-await-promotion.sh
 
 # Backup files
 *.bak
