@@ -10,6 +10,7 @@ Transform the existing functional vanilla JS prototype into a sellable product f
 - ✅ **v1.1 Final Polish & Launch** — Phases 8–27 (shipped 2026-06-22) — full phase detail archived in `milestones/v1.1-ROADMAP.md`
 - ✅ **v1.2 Codebase Health & Reliability** — Phases 28–38 (shipped 2026-07-07) — full phase detail archived in `milestones/v1.2-ROADMAP.md`
 - ✅ **v1.3 In-App Help, Onboarding & Changelog** — Phases 39–43 (shipped 2026-07-10) — full phase detail archived in `milestones/v1.3-ROADMAP.md`
+- 🚧 **v1.4 Richer Sessions** — Phases 44–48 (in progress) — rich-text session editor, section reordering, mobile pass, tech-debt guardrails, validation polish
 
 ## Phases
 
@@ -90,20 +91,94 @@ Every practitioner can learn the whole app *inside* the app (welcome, replayable
 Full phase detail archived in `milestones/v1.3-ROADMAP.md`.
 </details>
 
+### 🚧 v1.4 Richer Sessions (Phases 44–48) — IN PROGRESS
+
+Session documentation becomes richer and personal — formatted text and custom section order — while the app's mobile chrome, error feedback, and deploy pipeline get hardened. Zero new production dependencies; markdown-at-rest storage (fields stay plain strings, no data migration); underline dropped (no markdown syntax). Real-device verification (installed-Safari PWA, real iPhone, real opened PDF) is embedded as a success criterion in each feature phase — jsdom cannot see caret/paste/drag/PDF/RTL, and this repo has shipped false-GREEN jsdom PDF tests before.
+
+- [ ] **Phase 44: Tech-Debt Guardrails & Pre-Prod Environment** — comment-hygiene forward gate + CONVENTIONS.md fix, deploy purge-race fix, second CF Pages pre-prod project
+- [ ] **Phase 45: Rich-Text Rendering & Export Foundation** — formatted notes render in read mode, PDF, and markdown copy/share; legacy content safe; encrypted-backup round-trip
+- [ ] **Phase 46: Rich-Text Toolbar Editor** — formatting toolbar, keyboard shortcuts, auto-format, live preview, nested lists; snippets/autogrow preserved
+- [ ] **Phase 47: Session-Section Reordering** — drag + arrow reorder in Settings, drives the form + both export builders (atomic 260615 guard rewrite), per-therapist persistence
+- [ ] **Phase 48: Mobile Pass & Validation Polish** — index-header fix, popover exclusivity, accordion error-focus, 21-03 iPhone sweep; future-birthdate reject + error-tone sweep + distinct next-date errors + visible error state
+
+## Phase Details
+
+Active milestone (v1.4). Shipped-milestone phase detail is archived in `milestones/*-ROADMAP.md`.
+
+### Phase 44: Tech-Debt Guardrails & Pre-Prod Environment
+**Goal**: Development guardrails and the deploy pipeline are hardened before any feature work begins — new planning references can't leak into shipped code, cache purges can't race the Pages promotion, and a real pre-prod environment exists for on-device pre-release testing.
+**Depends on**: Nothing (first v1.4 phase — lands first so its guardrails protect every later phase's commits, and its pre-prod environment serves the device-heavy verification work).
+**Requirements**: DEBT-01, DEBT-02, DEBT-03
+**Success Criteria** (what must be TRUE):
+  1. `CONVENTIONS.md` no longer instructs agents to cite phase/plan IDs in shipped comments, and a baseline-aware test gate blocks any NEW internal planning reference in changed shipped code while tolerating the existing legacy references (the ~680-line retrofit stays out of scope). The single RUNTIME planning-ref leak — the add-client.js `console.warn` citing D-23 — is removed (one-line reword).
+  2. A deploy purges the Cloudflare cache only AFTER the Pages promotion is confirmed live — the v1.3.0 mixed-cache incident class can no longer occur.
+  3. A `pre-prod` branch deploys to a second Cloudflare Pages project that reproduces production URL semantics (clean URLs, `_redirects`, deploy-stamped integrity token) without touching the `deploy` branch the docs-gate CI anchors to.
+**Plans**: TBD
+
+### Phase 45: Rich-Text Rendering & Export Foundation
+**Goal**: Formatted session notes display correctly everywhere they are read — read mode, PDF export, and markdown copy/share — so markdown-formatted text round-trips end-to-end before any editing UI exists.
+**Depends on**: Phase 44 (guardrails in place before feature commits).
+**Requirements**: RTXT-06, RTXT-07, RTXT-08, RTXT-10
+**Success Criteria** (what must be TRUE):
+  1. When reading a saved session, formatted notes (bold, italic, bullet and numbered lists) render as styled text through the escape-first MdRender path — never raw `**`/`-` tokens and never raw innerHTML.
+  2. Exporting a session to PDF preserves bold and lists with Hebrew RTL/bidi intact; italic renders at regular weight (a documented, accepted limitation) and the heading-strip behavior is a conscious choice — verified against a real opened PDF, not jsdom.
+  3. Copying or sharing a session as markdown reproduces the stored formatting verbatim.
+  4. Pre-v1.4 plain-text sessions render safely and unchanged in meaning, and an encrypted `.sgbackup` round-trip carries formatted notes with zero format changes (verified with a real restore).
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 46: Rich-Text Toolbar Editor
+**Goal**: Therapists can apply formatting while writing session notes — via a toolbar, keyboard shortcuts, and auto-format — with a live preview and nested lists, without breaking snippets or autogrow.
+**Depends on**: Phase 45 (formatting must render everywhere first, so "does it survive export?" is checkable as the toolbar is built, not discovered afterward).
+**Requirements**: RTXT-01, RTXT-02, RTXT-03, RTXT-04, RTXT-05, RTXT-09
+**Success Criteria** (what must be TRUE):
+  1. A toolbar over the session note fields inserts markdown markers for bold, italic, bullet list, and numbered list around the current selection in the familiar text fields.
+  2. On desktop, Ctrl/Cmd+B and Ctrl/Cmd+I apply bold/italic; typing "- " or "1. " starts a list, Enter continues it, and Enter on an empty item exits the list.
+  3. The user can toggle a live preview of the rendered result while editing, and can indent/outdent list items to build nested lists that render correctly in both the preview and the exported PDF.
+  4. Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields — verified in a real browser, not jsdom.
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 47: Session-Section Reordering
+**Goal**: Therapists can set the order of session sections once in Settings and have that order drive the add/edit form and every export, personalizing how each session is documented.
+**Depends on**: Phase 45 (both phases refactor `export-modal.js`'s builders; sequenced so the export surface is touched by one hand at a time). Independent of Phases 46 (editor does not touch the export builders).
+**Requirements**: ORDR-01, ORDR-02, ORDR-03, ORDR-04, ORDR-05
+**Success Criteria** (what must be TRUE):
+  1. In Settings, the user can reorder session sections both by dragging (mouse AND iPhone touch, via pointer events — not HTML5 DnD) and by per-row up/down arrow buttons as the accessible (WCAG 2.2) baseline.
+  2. The saved order immediately drives the add/edit session form layout.
+  3. The saved order drives BOTH the markdown and PDF export builders — `severityAfterSections` included — repointed atomically with the 260615 guard-test rewrite so export order can never briefly diverge from the saved order.
+  4. The chosen order persists per therapist (a `therapistSettings` sentinel record, mirroring the `snippetsDeletedSeeds` pattern) and survives an encrypted backup round-trip.
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 48: Mobile Pass & Validation Polish
+**Goal**: The app's mobile chrome and validation feedback are hardened — header buttons contain their text, popovers behave, and failed validation is clearly visible — verified on real devices as the milestone's closing pass.
+**Depends on**: Phase 44 (guardrails + pre-prod environment for on-device checks); otherwise feature-independent — slotted last as the mobile/polish + real-device closing pass.
+**Requirements**: MOBL-01, MOBL-02, MOBL-03, MOBL-04, PLSH-01, PLSH-02, PLSH-03, PLSH-04
+**Success Criteria** (what must be TRUE):
+  1. On iPhone, index-page header button text stays inside the circular buttons, and the header "?" and language (globe) popovers are mutually exclusive — opening one closes the other.
+  2. Birthdate fields reject future dates at all three entry points (add-client, inline + edit in add-session), and failure toasts use the error tone app-wide (add-client, PDF export, backup — not only the session form).
+  3. Fields that fail validation show a visible error state (e.g. red border) in addition to focus — working in dark mode and RTL, clearing once the user edits the field — and the next-session-date field shows DISTINCT messages for "incomplete entry" vs "not in the future" (verified on real Safari/iPhone).
+  4. On mobile Safari, an error toast expands a collapsed accordion section before focusing the offending field; and the deferred 21-03 checklist (photo-crop, overlay-close, body scroll lock) is verified on a real iPhone — failures fixed, passing items closed as obsolete.
+**Plans**: TBD
+**UI hint**: yes
+
 ## Backlog
 
 Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage (2026-06-22) is complete.
 
-- **Mobile — `21-03`** — crop bug fix (shared module), overlay-close, body scroll lock, iPhone device checkpoint. Archived: `milestones/v1.1-phases/21-comprehensive-mobile-responsiveness-audit-and-fix-all-app-screens-for-iphone-mobile-viewport/`.
-- **Help / onboarding build (Phase 26)** — design complete (`26-UI-SPEC.md`); **build now IN PROGRESS as v1.3 (Phases 39–43)**. Start from the archived UI-SPEC. Todo: `todos/pending/2026-05-15-in-app-onboarding-overview-help.md` (closes at v1.3 ship).
+- **Mobile — `21-03`** — crop bug fix (shared module), overlay-close, body scroll lock, iPhone device checkpoint. Archived: `milestones/v1.1-phases/21-comprehensive-mobile-responsiveness-audit-and-fix-all-app-screens-for-iphone-mobile-viewport/`. **Promoted into v1.4 Phase 48 (MOBL-04) — 2026-07-11.**
+- **Help / onboarding build (Phase 26)** — design complete (`26-UI-SPEC.md`); **built and shipped as v1.3 (Phases 39–43).** Start from the archived UI-SPEC. Todo: `todos/pending/2026-05-15-in-app-onboarding-overview-help.md` (closes at v1.3 ship).
 - **LNCH-04** — landing page DE/CS translation verification. Todo: `todos/pending/2026-03-18-verify-landing-page-translations.md`.
 - **LNCH-06 (mobile QA)** — folded into the mobile backlog item above.
 - **Codebase-map concerns — triaged with Ben 2026-06-22** (`.planning/codebase/CONCERNS.md`):
   - *Folded into v1.2:* error telemetry (P29), IDB escape hatch (P29), CSP→header + cache TTL (P28), RTL guard (P30), `openDB`/`innerHTML`/`var` cleanup (P31), DE/CS i18n (P33).
   - *Deferred to backlog:* license re-validation (adds a phone-home — revisit only if piracy is observed), table pagination, PDF→Web Worker, sequential photo-optimize loop, backup import size cap, jsPDF version pin, a11y (table `aria-rowindex`, export-stepper `aria-current`, toast/demo), landing-page `innerHTML`, license-key-in-localStorage note, IDB record caps.
   - *Won't-do for v1.2:* build step / bundler, full ES-module system, multi-device sync, removing `unsafe-inline` from `script-src` — all conflict with the zero-build / local-only constraints; revisit only if forced.
-- **Broader extraction + test-coverage health ("Codebase Health II", candidate for a later milestone)** — surfaced during Phase 30 discussion (2026-06-26); **superseded for the v1.3 slot by the Help/Changelog milestone**, still a valid later-milestone candidate. v1.2 only char-tests + refactors the two god modules (`settings.js`, `add-session.js`); the rest of the `.js` landscape has two unaddressed risks: (a) **dangerous test-coverage gaps** in large files (`app.js` = 1,474 lines / only 6 tests; `license.js` 568/0; `overview.js`, `landing.js`), and (b) **further extraction candidates** among the 4-digit files (`backup.js`, `app.js`, `pdf-export.js`, `db.js` — triage god-module vs cohesive-large, don't assume) + an app-wide glue-duplication sweep (`t()` in 5 files, `showToast` in 2). Full coverage map + scoping in todo: `todos/pending/2026-06-26-broader-extraction-and-test-coverage-health.md`.
-- **Other pending todos** — see `.planning/todos/pending/` (incl. deactivation data-loss warning, PWA install guidance [absorbed into v1.3 H-9], v12 IDB encryption, drag-sort settings, modality templates).
+- **Broader extraction + test-coverage health ("Codebase Health II", candidate for a later milestone)** — surfaced during Phase 30 discussion (2026-06-26); **passed over for the v1.3 and v1.4 slots, now the v1.5 candidate.** v1.2 only char-tests + refactors the two god modules (`settings.js`, `add-session.js`); the rest of the `.js` landscape has two unaddressed risks: (a) **dangerous test-coverage gaps** in large files (`app.js` = 1,474 lines / only 6 tests; `license.js` 568/0; `overview.js`, `landing.js`), and (b) **further extraction candidates** among the 4-digit files (`backup.js`, `app.js`, `pdf-export.js`, `db.js` — triage god-module vs cohesive-large, don't assume) + an app-wide glue-duplication sweep (`t()` in 5 files, `showToast` in 2). Full coverage map + scoping in todo: `todos/pending/2026-06-26-broader-extraction-and-test-coverage-health.md`.
+- **Comment-hygiene legacy retrofit (~680 lines / ~43 shipped files)** — deferred 2026-07-11 (Ben: too much beside the v1.4 feature work); a focused **v1.5 candidate**. v1.4 only stops the bleeding via the DEBT-01 forward gate (Phase 44).
+- **Rich-text follow-ups (deferred from v1.4 scoping 2026-07-11):** underline formatting (`RTXT-U1` — no markdown syntax; revisit if users ask); true-italic-in-PDF via a vendored italic face (`RTXT-F2` — v1.4 ships italic at regular weight in PDF).
+- **Other pending todos** — see `.planning/todos/pending/` (incl. deactivation data-loss warning, PWA install guidance [absorbed into v1.3 H-9], v12 IDB encryption, modality templates).
 - **1-interactive-demo-on-landing-page-embedde** — an old landing-page interactive-demo iframe idea (`quick/1-interactive-demo-on-landing-page-embedde/1-PLAN.md`), never executed; superseded by the Phase 35 demo/chrome convergence work. Acknowledged and deferred at v1.2 close (2026-07-07) — revisit only if a prospective-buyer live demo becomes a priority.
 
 ## Progress
@@ -137,7 +212,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 23. PDF Hebrew RTL Rewrite | v1.1 | 11/11 | Complete | 2026-05-12 |
 | 24. Pre-Launch Final Cleanup | v1.1 | 8/8 | Complete | 2026-05-14 |
 | 25. Backup Architectural Rework | v1.1 | 13/13 | Complete | 2026-05-16 |
-| 26. In-App Onboarding / Help | v1.1 | Design-only | Deferred — build in backlog | - |
+| 26. In-App Onboarding / Help | v1.1 | Design-only | Deferred — built as v1.3 | - |
 | 27. Backup Modal Visual Cohesion | v1.1 | 1/1 | Complete | 2026-06-15 |
 | 28. Update Reliability & Versioning | v1.2 | 4/4 | Complete | 2026-06-22 |
 | 29. Reliability & Observability | v1.2 | 4/4 | Complete | 2026-06-23 |
@@ -150,11 +225,14 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 36. Code Comments — Batch 2 | v1.2 | 5/5 | Complete | 2026-07-02 |
 | 37. Date consistency + date-format + session types | v1.2 | 15/15 | Complete | 2026-07-06 |
 | 38. Next session date field + overview column | v1.2 | 12/12 | Complete | 2026-07-07 |
-| 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete    | 2026-07-07 |
-| 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 8/8 | Complete    | 2026-07-08 |
-| 41. Replayable Guided Tour | v1.3 | 14/14 | Complete   | 2026-07-09 |
-| 42. In-App Changelog & What's-New | v1.3 | 11/11 | Complete   | 2026-07-09 |
-| 42.1. Help & Onboarding Translation (HE/DE/CS) | v1.3 | 10/10 | Complete   | 2026-07-10 |
-| 43. Docs-Maintenance Hard Gate | v1.3 | 10/10 | Complete    | 2026-07-10 |
-</content>
-</invoke>
+| 39. Help Center & "?" Entry Point | v1.3 | 6/6 | Complete | 2026-07-07 |
+| 40. First-Run Welcome & Onboarding Coordinator | v1.3 | 8/8 | Complete | 2026-07-08 |
+| 41. Replayable Guided Tour | v1.3 | 14/14 | Complete | 2026-07-09 |
+| 42. In-App Changelog & What's-New | v1.3 | 11/11 | Complete | 2026-07-09 |
+| 42.1. Help & Onboarding Translation (HE/DE/CS) | v1.3 | 10/10 | Complete | 2026-07-10 |
+| 43. Docs-Maintenance Hard Gate | v1.3 | 10/10 | Complete | 2026-07-10 |
+| 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 0/TBD | Not started | - |
+| 45. Rich-Text Rendering & Export Foundation | v1.4 | 0/TBD | Not started | - |
+| 46. Rich-Text Toolbar Editor | v1.4 | 0/TBD | Not started | - |
+| 47. Session-Section Reordering | v1.4 | 0/TBD | Not started | - |
+| 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
