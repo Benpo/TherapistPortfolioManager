@@ -375,15 +375,17 @@ Threat note (STRIDE): the mixed-cache incident is an **Integrity/Availability** 
 
 **Assumptions that were ELIMINATED by verification:** the "does pre-prod need a purge?" question (CONTEXT hypothesis) is now VERIFIED as "no" on two independent grounds (Pattern 3) — not an assumption.
 
-## Open Questions
+## Open Questions (RESOLVED at planning — Phase 44 plans)
 
 1. **Shared-script vs. raw duplication for the transform** (Pattern 6)
    - Known: both are correct; CONTEXT blesses duplication.
    - Unclear: whether Ben wants prod's `deploy.yml` transform touched.
    - Recommendation: shared script (better testability + no drift), fallback to duplication. Planner/Ben's call at planning.
+   - **RESOLVED:** shared script chosen — `scripts/build-staging.sh` (transform) + `scripts/cf-await-promotion.sh` (sentinel), both offline-tested; prod `deploy.yml` is refactored to call them (Plan 44-04, behavior-preserving). Rationale: `deploy.yml` is edited for DEBT-02 anyway, so the drift-killing extraction is nearly free.
 2. **Optional byte-consistency check** (DEBT-02 direction 4)
    - Known: the sentinel already confirms the token asset.
    - Recommendation: add only if it stays a 1–2-asset `curl` compare; otherwise skip. Not required by DEBT-02.
+   - **RESOLVED:** omitted — the sentinel token-match already gates the purge; the extra check was not required by DEBT-02 and adds no proportional value.
 
 ## Sources
 

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Richer Sessions
 current_phase: 44
-status: planning
-stopped_at: Phase 44 context gathered
+status: planned
+stopped_at: Phase 44 planned — 5 plans, 2 waves, ready to execute
 last_updated: "2026-07-11T17:11:29.762Z"
 last_activity: 2026-07-11
-last_activity_desc: "v1.4 roadmap created (5 phases: 44 Debt/Pre-Prod · 45 Rich-Text Render · 46 Toolbar Editor · 47 Section Reorder · 48 Mobile+Polish)"
+last_activity_desc: "Phase 44 planned — 5 plans (DEBT-01/02/03), 2 waves; research + validation + patterns produced, plan-checker PASSED; ready to execute"
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
+  total_plans: 5
   completed_plans: 0
   percent: 0
 ---
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-10 — v1.3 close-out evolution review)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** v1.4 Richer Sessions — roadmap created (5 phases, 26 requirements, 100% coverage); ready to plan Phase 44
+**Current focus:** v1.4 Richer Sessions — Phase 44 (Tech-Debt Guardrails & Pre-Prod) planned: 5 plans, 2 waves; ready to execute
 
 ## Current Position
 
-Phase: 44 — Tech-Debt Guardrails & Pre-Prod Environment (not started)
-Plan: —
-Status: Roadmap complete — ready to plan Phase 44
-Last activity: 2026-07-11 — v1.4 roadmap created (5 phases: 44 Debt/Pre-Prod · 45 Rich-Text Render · 46 Toolbar Editor · 47 Section Reorder · 48 Mobile+Polish)
+Phase: 44 — Tech-Debt Guardrails & Pre-Prod Environment (planned, ready to execute)
+Plan: 5 plans in 2 waves — Wave 1 {44-01 DEBT-01 CONVENTIONS/add-client, 44-02 DEBT-02 sentinel script, 44-03 DEBT-03 build-staging script} · Wave 2 {44-04 deploy.yml wiring, 44-05 deploy-preprod.yml + CF Pages human checkpoint}
+Status: Phase 44 planned (research → plan → plan-checker PASSED) — ready to execute
+Last activity: 2026-07-11 — Phase 44 planned: 5 plans, 2 waves; RESEARCH + VALIDATION + PATTERNS produced; decision coverage 10/10
 
 ## Performance Metrics
 
@@ -506,9 +506,9 @@ Recent decisions affecting current work:
 **Last session:** 2026-07-11T17:11:29.751Z
 
 Last activity: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
-Stopped at: Phase 44 context gathered
-Resume file: .planning/phases/44-tech-debt-guardrails-pre-prod-environment/44-CONTEXT.md
-Next: /gsd-discuss-phase 44 then /gsd-plan-phase 44 (Tech-Debt Guardrails & Pre-Prod Environment). v1.4 roadmap live in ROADMAP.md (Phases 44–48).
+Stopped at: Phase 44 planned — 5 plans, 2 waves, plan-checker PASSED (decision coverage 10/10)
+Resume file: .planning/phases/44-tech-debt-guardrails-pre-prod-environment/44-01-PLAN.md
+Next: /gsd-execute-phase 44 (Tech-Debt Guardrails & Pre-Prod Environment) — Wave 1 is 3 parallel plans; 44-05 has a BLOCKING human checkpoint (create 2nd CF Pages project) + a push-time docs-gate trailer for assets/add-client.js. v1.4 roadmap live in ROADMAP.md (Phases 44–48).
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
 

@@ -106,65 +106,85 @@ Session documentation becomes richer and personal — formatted text and custom 
 Active milestone (v1.4). Shipped-milestone phase detail is archived in `milestones/*-ROADMAP.md`.
 
 ### Phase 44: Tech-Debt Guardrails & Pre-Prod Environment
+
 **Goal**: Development guardrails and the deploy pipeline are hardened before any feature work begins — new planning references can't leak into shipped code, cache purges can't race the Pages promotion, and a real pre-prod environment exists for on-device pre-release testing.
 **Depends on**: Nothing (first v1.4 phase — lands first so its guardrails protect every later phase's commits, and its pre-prod environment serves the device-heavy verification work).
 **Requirements**: DEBT-01, DEBT-02, DEBT-03
 **Success Criteria** (what must be TRUE):
+
   1. `CONVENTIONS.md` no longer instructs agents to cite phase/plan IDs in shipped comments, and a baseline-aware test gate blocks any NEW internal planning reference in changed shipped code while tolerating the existing legacy references (the ~680-line retrofit stays out of scope). The single RUNTIME planning-ref leak — the add-client.js `console.warn` citing D-23 — is removed (one-line reword).
   2. A deploy purges the Cloudflare cache only AFTER the Pages promotion is confirmed live — the v1.3.0 mixed-cache incident class can no longer occur.
   3. A `pre-prod` branch deploys to a second Cloudflare Pages project that reproduces production URL semantics (clean URLs, `_redirects`, deploy-stamped integrity token) without touching the `deploy` branch the docs-gate CI anchors to.
+
 **Plans**: 5 plans (2 waves)
+**Wave 1**
+
 - [ ] 44-01-PLAN.md — DEBT-01: rewrite CONVENTIONS.md §Comments + reword add-client.js console.warn + align REQUIREMENTS/ROADMAP (no gate ships) [wave 1]
 - [ ] 44-02-PLAN.md — DEBT-02: scripts/cf-await-promotion.sh sentinel-then-blocking-purge + stub-curl test [wave 1]
 - [ ] 44-03-PLAN.md — DEBT-03: scripts/build-staging.sh shared transform (+ --noindex) + tmp-dir fidelity test [wave 1]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 44-04-PLAN.md — DEBT-02+03: wire deploy.yml to build-staging.sh + cf-await-promotion.sh (blocking purge after promotion) [wave 2]
 - [ ] 44-05-PLAN.md — DEBT-03: deploy-preprod.yml (isolated) + second CF Pages project human checkpoint [wave 2]
 
 ### Phase 45: Rich-Text Rendering & Export Foundation
+
 **Goal**: Formatted session notes display correctly everywhere they are read — read mode, PDF export, and markdown copy/share — so markdown-formatted text round-trips end-to-end before any editing UI exists.
 **Depends on**: Phase 44 (guardrails in place before feature commits).
 **Requirements**: RTXT-06, RTXT-07, RTXT-08, RTXT-10
 **Success Criteria** (what must be TRUE):
+
   1. When reading a saved session, formatted notes (bold, italic, bullet and numbered lists) render as styled text through the escape-first MdRender path — never raw `**`/`-` tokens and never raw innerHTML.
   2. Exporting a session to PDF preserves bold and lists with Hebrew RTL/bidi intact; italic renders at regular weight (a documented, accepted limitation) and the heading-strip behavior is a conscious choice — verified against a real opened PDF, not jsdom.
   3. Copying or sharing a session as markdown reproduces the stored formatting verbatim.
   4. Pre-v1.4 plain-text sessions render safely and unchanged in meaning, and an encrypted `.sgbackup` round-trip carries formatted notes with zero format changes (verified with a real restore).
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 46: Rich-Text Toolbar Editor
+
 **Goal**: Therapists can apply formatting while writing session notes — via a toolbar, keyboard shortcuts, and auto-format — with a live preview and nested lists, without breaking snippets or autogrow.
 **Depends on**: Phase 45 (formatting must render everywhere first, so "does it survive export?" is checkable as the toolbar is built, not discovered afterward).
 **Requirements**: RTXT-01, RTXT-02, RTXT-03, RTXT-04, RTXT-05, RTXT-09
 **Success Criteria** (what must be TRUE):
+
   1. A toolbar over the session note fields inserts markdown markers for bold, italic, bullet list, and numbered list around the current selection in the familiar text fields.
   2. On desktop, Ctrl/Cmd+B and Ctrl/Cmd+I apply bold/italic; typing "- " or "1. " starts a list, Enter continues it, and Enter on an empty item exits the list.
   3. The user can toggle a live preview of the rendered result while editing, and can indent/outdent list items to build nested lists that render correctly in both the preview and the exported PDF.
   4. Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields — verified in a real browser, not jsdom.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 47: Session-Section Reordering
+
 **Goal**: Therapists can set the order of session sections once in Settings and have that order drive the add/edit form and every export, personalizing how each session is documented.
 **Depends on**: Phase 45 (both phases refactor `export-modal.js`'s builders; sequenced so the export surface is touched by one hand at a time). Independent of Phases 46 (editor does not touch the export builders).
 **Requirements**: ORDR-01, ORDR-02, ORDR-03, ORDR-04, ORDR-05
 **Success Criteria** (what must be TRUE):
+
   1. In Settings, the user can reorder session sections both by dragging (mouse AND iPhone touch, via pointer events — not HTML5 DnD) and by per-row up/down arrow buttons as the accessible (WCAG 2.2) baseline.
   2. The saved order immediately drives the add/edit session form layout.
   3. The saved order drives BOTH the markdown and PDF export builders — `severityAfterSections` included — repointed atomically with the 260615 guard-test rewrite so export order can never briefly diverge from the saved order.
   4. The chosen order persists per therapist (a `therapistSettings` sentinel record, mirroring the `snippetsDeletedSeeds` pattern) and survives an encrypted backup round-trip.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 48: Mobile Pass & Validation Polish
+
 **Goal**: The app's mobile chrome and validation feedback are hardened — header buttons contain their text, popovers behave, and failed validation is clearly visible — verified on real devices as the milestone's closing pass.
 **Depends on**: Phase 44 (guardrails + pre-prod environment for on-device checks); otherwise feature-independent — slotted last as the mobile/polish + real-device closing pass.
 **Requirements**: MOBL-01, MOBL-02, MOBL-03, MOBL-04, PLSH-01, PLSH-02, PLSH-03, PLSH-04
 **Success Criteria** (what must be TRUE):
+
   1. On iPhone, index-page header button text stays inside the circular buttons, and the header "?" and language (globe) popovers are mutually exclusive — opening one closes the other.
   2. Birthdate fields reject future dates at all three entry points (add-client, inline + edit in add-session), and failure toasts use the error tone app-wide (add-client, PDF export, backup — not only the session form).
   3. Fields that fail validation show a visible error state (e.g. red border) in addition to focus — working in dark mode and RTL, clearing once the user edits the field — and the next-session-date field shows DISTINCT messages for "incomplete entry" vs "not in the future" (verified on real Safari/iPhone).
   4. On mobile Safari, an error toast expands a collapsed accordion section before focusing the offending field; and the deferred 21-03 checklist (photo-crop, overlay-close, body scroll lock) is verified on a real iPhone — failures fixed, passing items closed as obsolete.
+
 **Plans**: TBD
 **UI hint**: yes
 
