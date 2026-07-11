@@ -6,7 +6,7 @@ current_phase: 44
 current_phase_name: tech-debt-guardrails-pre-prod-environment
 status: executing
 stopped_at: Phase 44 planned — 5 plans, 2 waves, ready to execute
-last_updated: "2026-07-11T21:02:10.053Z"
+last_updated: "2026-07-11T21:02:35.414Z"
 last_activity: 2026-07-11
 last_activity_desc: Phase 44 execution started
 progress:
@@ -432,6 +432,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 43-08]: WR-02 recovery is operational (delete/re-point deploy branch), not a commit trailer — the resolver runs before docs-gate.js so no trailer is read; docs-rot scripts need a .gitignore allowlist entry
 - [Phase ?]: [Phase 43-10]: extractAppVersion lifted into scripts/lib/version-parse.js as the ONE shared extractor; fifth invariant checkVersionParse throws on a version.js format drift so GATE-04 cannot silently self-disable (WR-06/D-17)
 - [Phase ?]: [Phase 44-01]: CONVENTIONS.md §Comments rewritten to the strip-all-planning-IDs rule (both rationales + 4-slot banner + {slug}.test.js naming); add-client.js console.warn de-IDed; NO enforcement gate shipped (D-01 — forward grep-gate defers to v1.5 with the ~680-line retrofit)
+- [Phase 44-02]: DEBT-02 purge-race closed via scripts/cf-await-promotion.sh — poll the no-cache version.js for the short-SHA BUILD_TOKEN, purge only after confirmed promotion; poll-timeout and purge-failure both fail closed (exit 1). Whitelisted in .gitignore (scripts/* denied by default). deploy.yml calls it in Wave 2 (Plan 04).
 
 ### Pending Todos
 
