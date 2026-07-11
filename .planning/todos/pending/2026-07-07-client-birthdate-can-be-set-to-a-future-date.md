@@ -9,6 +9,7 @@ files:
   - assets/add-client.js:218
   - assets/add-session.js:480
   - assets/add-session.js:1066
+resolves_phase: 48
 ---
 
 ## Problem

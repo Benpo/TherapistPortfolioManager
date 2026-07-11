@@ -8,6 +8,7 @@ files:
   - assets/i18n-he.js
   - assets/i18n-de.js
   - assets/i18n-cs.js
+resolves_phase: 48
 ---
 
 ## Problem

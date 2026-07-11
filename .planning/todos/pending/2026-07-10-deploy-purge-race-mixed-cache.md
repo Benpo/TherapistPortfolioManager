@@ -4,6 +4,7 @@ title: "Fix deploy.yml purge race — CF cache purged before Pages promotion, se
 area: deploy-pipeline
 severity: high
 source: v1.3.0 go-live incident (2026-07-10)
+resolves_phase: 44
 ---
 
 ## Problem

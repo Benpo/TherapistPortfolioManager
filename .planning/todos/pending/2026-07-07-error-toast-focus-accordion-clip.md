@@ -10,6 +10,7 @@ files:
   - assets/app.css
   - tests/38-12-toast-tone-focus.test.js
 source: Phase 38 full-phase code review (38-REVIEW.md WR-03, 2026-07-07) — deferred by Ben in favor of v1.2 milestone close-out
+resolves_phase: 48
 ---
 
 ## Problem

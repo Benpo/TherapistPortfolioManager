@@ -14,6 +14,7 @@ files:
   - assets/i18n-de.js
   - assets/i18n-cs.js
 source: spun out from 2026-04-26-editable-session-section-titles.md after Ben's 2026-05-13 review
+resolves_phase: 47
 ---
 
 ## Problem

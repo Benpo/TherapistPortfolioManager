@@ -4,6 +4,7 @@ title: "Header popovers are not mutually exclusive — '?' and language menus ca
 area: header-chrome
 severity: minor
 source: Ben, v1.3.0 go-live evening testing (2026-07-10)
+resolves_phase: 48
 ---
 
 ## Problem

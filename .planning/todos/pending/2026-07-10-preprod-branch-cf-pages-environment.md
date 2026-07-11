@@ -6,6 +6,7 @@ priority: medium
 files:
   - sw.js
   - _redirects
+resolves_phase: 44
 ---
 
 ## Problem

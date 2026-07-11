@@ -11,6 +11,7 @@ files:
   - assets/export-modal.js
   - assets/add-client.js
 source: Phase 38 full-phase code review (38-REVIEW.md WR-04, 2026-07-07) — 38-12 deliberately scoped error-tone migration to add-session.js only
+resolves_phase: 48
 ---
 
 ## Problem
