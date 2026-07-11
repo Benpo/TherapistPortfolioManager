@@ -1,0 +1,98 @@
+# Requirements: TherapistPortfolioManager — Milestone v1.4 "Richer Sessions"
+
+**Defined:** 2026-07-11
+**Core Value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
+
+Prior-milestone requirements: `milestones/v1.1-REQUIREMENTS.md`, `v1.2-REQUIREMENTS.md`, `v1.3-REQUIREMENTS.md` (all shipped). This file covers v1.4 only.
+
+## v1.4 Requirements
+
+Requirements for this milestone. Each maps to roadmap phases.
+
+### Rich-Text Session Editor (RTXT)
+
+Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings — zero migration); toolbar-over-textarea editor surface (preserves snippets/autogrow, avoids WebKit contenteditable bugs); **underline dropped** (no markdown syntax — see Out of Scope); italic accepted knowing the PDF renders it regular-weight (no Hebrew italic face vendored).
+
+- [ ] **RTXT-01**: User can format session note text via a toolbar — bold, italic, bullet list, numbered list — which inserts markdown markers into the familiar text fields
+- [ ] **RTXT-02**: User can format via keyboard shortcuts on desktop (Ctrl/Cmd+B bold, Ctrl/Cmd+I italic)
+- [ ] **RTXT-03**: User gets auto-format while typing — "- " / "1. " starts a list, Enter continues it, Enter on an empty item exits it
+- [ ] **RTXT-04**: User can toggle a live preview of the rendered result while editing
+- [ ] **RTXT-05**: User can indent/outdent list items (nested lists, standard markdown) and nesting renders correctly in preview and PDF
+- [ ] **RTXT-06**: User sees formatted notes when READING sessions (read mode + wherever note text is displayed), rendered escape-first via MdRender — never raw innerHTML
+- [ ] **RTXT-07**: Formatting survives PDF export — bold, lists (incl. nesting), Hebrew RTL/bidi preserved; heading-strip removed or consciously kept
+- [ ] **RTXT-08**: Formatting survives markdown copy/share export verbatim
+- [ ] **RTXT-09**: Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields
+- [ ] **RTXT-10**: Existing (pre-v1.4) sessions render safely and unchanged in meaning; encrypted backup round-trip carries formatted notes with zero format changes
+
+### Session-Section Reordering (ORDR)
+
+- [ ] **ORDR-01**: User can reorder session sections in Settings by dragging (works with mouse AND iPhone touch — pointer-events, not HTML5 DnD)
+- [ ] **ORDR-02**: User can reorder via per-row up/down arrow buttons (accessible baseline, WCAG 2.2)
+- [ ] **ORDR-03**: Saved order drives the add/edit session form layout
+- [ ] **ORDR-04**: Saved order drives the markdown + PDF export builders — repointed atomically with the 260615 guard-test rewrite (order invariant never briefly broken)
+- [ ] **ORDR-05**: Order persists per therapist (therapistSettings sentinel record, mirroring the snippetsDeletedSeeds pattern) and round-trips through encrypted backup
+
+### Mobile Pass (MOBL)
+
+- [ ] **MOBL-01**: Index-page header buttons contain their text on iPhone (currently text escapes the circular buttons)
+- [ ] **MOBL-02**: Header "?" and globe (language) popovers are mutually exclusive — opening one closes the other
+- [ ] **MOBL-03**: Error-toast focus expands a collapsed accordion section before scrolling/focusing the offending field (mobile Safari)
+- [ ] **MOBL-04**: Deferred 21-03 checklist (photo-crop, overlay-close, body scroll lock) verified on a real iPhone — failures fixed, passing items closed as obsolete
+
+### Tech Debt (DEBT)
+
+Rescoped 2026-07-11: the ~680-line legacy comment retrofit is TOO BIG for this milestone — deferred to a focused v1.5 candidate. v1.4 ships only the don't-make-it-worse layer.
+
+- [ ] **DEBT-01**: v1.4 adds NO new internal planning references to shipped code — CONVENTIONS.md §Comments contradiction fixed FIRST (the root cause instructing agents to cite phase/plan IDs), plus a baseline-aware forward grep-gate in tests/ that blocks NEW planning refs in changed code WITHOUT demanding the legacy cleanup
+- [ ] **DEBT-02**: Deploy purges Cloudflare cache only AFTER the Pages promotion is confirmed live (kills the v1.3.0 mixed-cache incident class)
+- [ ] **DEBT-03**: A pre-prod branch deploys to a second CF Pages project reproducing prod URL semantics (clean URLs, _redirects, deploy-stamped integrity token) for real-device pre-release testing
+
+### Polish (PLSH)
+
+- [ ] **PLSH-01**: Client birthdate fields reject future dates (all 3 entry points: add-client, inline + edit in add-session)
+- [ ] **PLSH-02**: Failure toasts use the error tone app-wide (add-client, PDF export, backup — not just the session form)
+- [ ] **PLSH-03**: Next-session date shows DISTINCT error messages for "incomplete entry" vs "date not in the future" — verified on real Safari/iPhone (code has two branches already; the observed collapse is a browser-routing bug — see todo 2026-07-11-next-session-date-error-messages-not-distinct)
+- [ ] **PLSH-04**: Fields that fail validation get a visible error state (red border or similar) in addition to cursor focus — focus alone is too easy to miss; the state clears once the user edits the field; works in dark mode (danger tokens are light-only today) and RTL
+
+## Deferred / Future
+
+- **RTXT-U1**: Underline formatting — dropped 2026-07-11 (no standard markdown syntax; would need a private `++x++` token + PDF underline renderer). Revisit if users ask.
+- **RTXT-F2**: True italic in PDF (vendoring an italic face) — italic ships preview/markdown-only weight in v1.4.
+- **Comment-hygiene legacy retrofit** (~680 lines / ~43 shipped files incl. the add-client console.warn) — deferred 2026-07-11 (Ben: too much for this milestone); candidate focus for v1.5. v1.4 only stops the bleeding (DEBT-01).
+- Codebase Health II (extraction + coverage + Playwright harness) — v1.5 candidate.
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Underline formatting | No markdown syntax; private token breaks external-tool compat — Ben dropped it 2026-07-11 |
+| contenteditable/WYSIWYG editor | Breaks snippets+autogrow, WebKit bug class, sanitizer dependency — 3 of 4 researchers converged against |
+| Font sizes, colors, tables, images in notes | Anti-features for non-technical therapist users; scope explosion |
+| Modality templates | Ben's earlier LOW/v2+ call stands |
+| IndexedDB full encryption | Encrypted backups already cover the artifact that leaves the browser |
+| Deactivation data-loss warning, demo month-count fix, security-note backoff | Offered at scoping 2026-07-11, not selected |
+| Hebrew copy polish + Sapir help read, landing DE/CS verify | Content/business track, runs outside this milestone |
+| Keyboard shortcuts (global), progress graphs, native wrapper, cloud backup | Post-launch backlog, promote individually |
+
+## Process Notes (not requirements)
+
+- Changelog + help-topic updates are enforced automatically by the Phase 43 docs hard-gate on every user-facing push — no separate requirement needed.
+- Whether rich-text gets a guided-tour step: decided at phase planning.
+- jsdom cannot see caret/selection/paste/drag/PDF/RTL-visual behavior — real installed-Safari PWA + real iPhone + real opened-PDF verification is mandatory closing work (this repo has shipped false-GREEN jsdom PDF tests before).
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| (populated by roadmap) | | |
+
+**Coverage:**
+- v1.4 requirements: 26 total
+- Mapped to phases: 0
+- Unmapped: 26 ⚠️ (roadmap pending)
+
+---
+*Requirements defined: 2026-07-11*
+*Last updated: 2026-07-11 after scoping questionnaire (underline dropped, extras all in, drag+arrows)*

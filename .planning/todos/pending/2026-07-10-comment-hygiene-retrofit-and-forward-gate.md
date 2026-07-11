@@ -3,7 +3,7 @@ created: 2026-07-10T09:00:00.000Z
 title: "Phase 44 seed — comment hygiene: kill the contradiction, retrofit ~680 lines, add the forward gate"
 area: code-quality
 priority: high
-milestone_candidate: "v1.3 (as Phase 44) or v1.4 (as Phase 1) — Ben decides at v1.3 close"
+milestone_candidate: "v1.5 focused milestone — Ben decided 2026-07-11 (v1.4 scoping): retrofit too big beside v1.4's feature work. v1.4 ships ONLY the don't-make-it-worse layer (CONVENTIONS.md root-cause fix + baseline-aware forward gate, DEBT-01); the ~680-line legacy cleanup stays here for v1.5"
 files:
   - .planning/codebase/CONVENTIONS.md
   - assets/pdf-export.js
