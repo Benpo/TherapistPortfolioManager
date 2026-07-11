@@ -1,243 +1,228 @@
 # Pitfalls Research
 
-**Domain:** Adding an in-app help/onboarding + version-changelog + docs-maintenance gate to a LIVE, sold, offline-first vanilla-JS multi-page PWA (4 languages incl. Hebrew RTL, non-technical therapist users, solo maintainer + AI agents)
-**Researched:** 2026-07-07
-**Confidence:** HIGH for the integration pitfalls (derived from this repo's own verified constraints + shipped-incident memory); MEDIUM for the general tour/gate community patterns (public best-practice material, corroborated against this codebase)
+**Domain:** Adding rich-text (bold/underline/bullets) editing + section drag-sort reordering to a live, sold, offline-first vanilla-JS PWA (IndexedDB, Hebrew RTL, vendored jsPDF+bidi, snippets engine, installed-Safari flagship users, real customer data in production)
+**Researched:** 2026-07-11
+**Confidence:** HIGH for repo-specific integration points (read directly from source); HIGH for browser-quirk pitfalls (established, stable behaviors); MEDIUM where a specific WebKit version detail is cited
 
-> **Framing.** This is NOT a greenfield onboarding build. The dominant risks here are *integration* risks — the new surfaces colliding with an existing offline cache, an existing first-run stack, an existing installed-PWA update lag, an active DOM refactor, and 10+ paying users who are mid-relationship with the product. Greenfield "how do I build a tour" advice is mostly a distraction. Every pitfall below is phrased as: what breaks *when you bolt this onto the running system*, and the concrete test/check/rule that prevents it.
+> **Framing — read this first.** This milestone's single largest risk is a **storage-format architecture decision made implicitly by the editor choice**, not any individual browser bug. This codebase is already **markdown-string-native**, not HTML/contenteditable-native:
+> - `assets/md-render.js` (`window.MdRender`) is an **escape-then-render** markdown→HTML converter — the only XSS-safe path already blessed for `innerHTML` in this repo.
+> - `assets/export-modal.js:539` already live-previews session text with `MdRender.render(editor.value)` into `innerHTML`.
+> - `assets/pdf-export.js` already has a **full markdown block parser** (heading/list/paragraph) plus `parseInlineBold('**X**')` that renders bold runs in **vendored Heebo Bold** with UAX-#9 bidi pre-shaping. **Italic `*X*` is deliberately stripped; there is no underline renderer.**
+> - The 7 session note fields are `<textarea data-snippets="true">`; the snippets caret-popover engine (`assets/snippets.js`) is built entirely around **`<textarea>` `.value` + `.selectionStart`**, which do not exist on `contenteditable`.
+> - Read mode and the sessions table render session content via **`textContent` (never `innerHTML`)** — e.g. `sessions.js:262 trappedCell.textContent = session.trappedEmotions`. `add-session.js` invariant (lines 36-38): all user values via `textContent`/`.value`, NEVER `innerHTML`.
+>
+> **The opinionated recommendation the pitfalls below assume:** store **markdown strings**, keep the `<textarea>` editing surface (add a formatting toolbar that inserts `**`/`- ` markers around the selection, exactly as the snippets engine already mutates `.value`), and render formatting for display through `MdRender`. Reserve `contenteditable` only if a true WYSIWYG surface is deemed non-negotiable — and if so, budget for every contenteditable pitfall below. The milestone's own words ("formatting survives **markdown** export") point at markdown-as-storage. The one genuine mismatch: **underline has no markdown syntax and no PDF renderer** — resolve that in the storage-format phase (see Pitfall 3), do not discover it at export time.
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: New help/changelog pages 404 offline because they were never added to `PRECACHE_URLS`
+### Pitfall 1: `contenteditable` + `innerHTML` round-trip as the storage model (XSS + data-corruption bomb)
 
 **What goes wrong:**
-You add `help.html`, `assets/help.js`, `assets/help-tour.js`, `assets/help-tour.css`, `changelog` data, and botanical assets. They work perfectly in `npm`/dev and on first online load. Then an installed, offline user (the whole point of this app) taps "?" and gets a blank page or a browser 404 — because the service worker's cache-first strategy only serves what's in the precache manifest, and a 404 is never self-healed by retry. The single most-marketed new feature is invisible to exactly the users who bought the offline promise.
+The naive rich-text build is: make the field `contenteditable`, read `element.innerHTML` on save, write it back into IndexedDB, and re-inject it with `element.innerHTML = stored` on load. This ships raw browser-generated HTML into the database and back into the DOM. It is the exact pattern this codebase spent Phase 31 hardening *away from* (`innerHTML`→DOM). Once stored HTML round-trips through `innerHTML`, any `<img onerror=…>`, `<script>`, `<svg onload=…>`, or `javascript:` URL that ever reaches the field (via paste, via a hand-edited backup, via a `.sgbackup` from another install) executes. It also silently corrupts data: a therapist's clinical note becomes an unbounded HTML blob whose diff, search, and export semantics nobody controls.
 
 **Why it happens:**
-This project has **no build step and a hand-maintained `PRECACHE_URLS` list** (verified: zero-dependency vanilla, no Workbox to auto-generate a manifest). Every new shipped path must be added manually. The pre-commit hook is already known to *skip the `CACHE_NAME` bump when `sw.js` is in the diff* (memory: `reference-pre-commit-sw-bump`), so even editing the SW doesn't guarantee the cache version rolls. It's a two-part manual step that is trivially forgotten, and it fails silently *only for offline users* — so it passes every online smoke test.
+`contenteditable` "just works" in a five-minute demo, and `innerHTML` round-trip is the shortest path from demo to persistence. The danger is invisible until a hostile or malformed input arrives — and this app holds **real customer clinical data already in production**, so the blast radius is real people's records.
 
 **How to avoid:**
-- **Design rule:** treat "new user-facing route/asset" and "PRECACHE_URLS + CACHE_NAME bump" as one atomic change. Put it in the phase Definition-of-Done.
-- **Test to write:** a Node/jsdom test that parses `sw.js`'s `PRECACHE_URLS`, globs the actual shipped `*.html` + new `assets/*` the phase adds, and **fails if any help/changelog file is not precached**. This is a static assertion, no browser needed — cheap and it can't rot.
-- **Verify offline for real:** load the installed PWA, go offline (DevTools → Offline), hard-navigate to `help.html` and open the tour. jsdom cannot catch a precache miss — only a real offline navigation does.
-- Ship a branded offline-fallback for uncached help routes as a backstop, not a substitute.
+Prefer the markdown-string model (store `**`/`- ` marker text, render via `MdRender`). If `contenteditable` is used anyway, **never store `innerHTML` and never re-inject stored HTML directly.** Serialize on save to a constrained model (markdown, or a tiny allow-listed AST) and render on load through a sanitizer that allow-lists a fixed tag/attribute set — the same escape-then-render discipline `MdRender` already embodies. Treat every stored string as hostile on the way back in, including strings that came from a decrypted backup.
 
 **Warning signs:**
-Help works online but you never tested it offline. `git diff` touches `sw.js` but the commit is not a `chore:` cache-bump follow-up. New assets referenced by `help.html` that don't appear verbatim in `PRECACHE_URLS`.
+`element.innerHTML` appears in a *save* path; stored session fields start containing `<` `>` tags; a code review shows user content assigned to `.innerHTML` outside `MdRender.render(...)`.
 
-**Phase to address:**
-Every phase that ships a new page/asset (Help-system phase, Changelog phase). Add the precache assertion in the earliest phase that touches `sw.js`.
+**Phase to address:** Storage-format & data-model phase (first), enforced again in the editor-build phase and code-review.
 
 ---
 
-### Pitfall 2: The "What's New" popup fires on the wrong version because installed PWAs run stale service workers for days
+### Pitfall 2: Paste from Word / Google Docs / WhatsApp injects megabytes of garbage markup (and sanitizer-bypass vectors)
 
 **What goes wrong:**
-The changelog popup is keyed on `APP_VERSION` change (compare shipped `version.js` against a stored `localStorage` "last seen version"). But an installed PWA can serve the *old* app shell + old `version.js` for days after you deploy (verified project reality — the whole v1.2 P28 VER-01..06 work exists because Safari PWA updates are unreliable). Result set:
-- User is still running v1.2.x code but you've "released" v1.3 → popup never fires, or fires with the wrong content.
-- The SW finally updates while the app is open → version flips mid-session, popup can fire at a jarring moment or double-fire.
-- Worse: the popup's *content* (the release notes) is baked into the new shell, so a user on the stale shell literally does not have the v1.3 notes to show — there's no "phone home" (zero-network) to fetch them.
+Users *will* paste from Word, Google Docs, Outlook, and WhatsApp. In a `contenteditable`, a paste from Word/Docs dumps hundreds of lines of `<span style="mso-…">`, `<o:p>`, `class="Apple-…"`, base64 `<img>` blobs, and nested `<div>`s. Stored verbatim, one pasted paragraph can be tens of KB of noise per field; rendered back, the formatting is wrong and the note is unreadable. Sanitizers that operate on an HTML *string* (regex-stripping tags) are bypassable — `<img src=x onerror=…>`, `<a href="javascript:…">`, `<style>` with `expression()`, mutation-XSS via `<noscript>`/`<template>` re-parsing — because parsing HTML with regex is unsound.
 
 **Why it happens:**
-Version-keyed popups assume "deploy = user is now on new version instantly." That assumption is false for every PWA and *doubly* false here given the documented Safari update lag and the no-network constraint (the changelog data ships inside the bundle, so it and the version stamp update together — but only when the shell actually updates).
+`paste` defaults to inserting the richest available clipboard flavor (`text/html`). Developers forget the clipboard is attacker-controllable (a malicious page can set arbitrary `text/html`), and that Word's HTML is adversarial-by-accident.
 
 **How to avoid:**
-- **Design rule:** the popup must key off the version stamp *that shipped in the same bundle as the changelog data* — never a value fetched separately. Since `version.js` already drives footer + cache + integrity self-check (verified single source), reuse *that same* constant. Then the popup and its content are always consistent, because they arrive together.
-- **Detect first-install vs. upgrade explicitly** (see Pitfall 3) so a brand-new install doesn't show "What's New in v1.3" as if the user had a v1.2.
-- **Only mark "seen" after the popup is actually rendered and dismissed**, storing the *exact* version string shown — so a mid-session SW flip resolves cleanly on next load rather than eating the notification.
-- **Test to write:** unit-test the decision function `shouldShowWhatsNew(shippedVersion, lastSeenVersion, isFirstRun)` across the matrix: fresh install, same version, one-version bump, multi-version jump (user skipped a release), and `lastSeen` newer than shipped (downgrade/rollback). Pure function, no DOM — fully jsdom-safe.
-- Accept and document that the popup appears *when the user's shell actually updates*, which may be days after deploy. That is correct behavior, not a bug — but it means "did users see the v1.3 notes" is not answerable from deploy time.
+In the markdown-string model this pitfall largely evaporates: a `<textarea>` paste is `text/plain` only — Word markup never enters. Convert deliberately if desired (read `text/plain` from the paste event; optionally map a small set of `text/html` structures to markdown through an allow-list, never a denylist). If `contenteditable` is used, **intercept `paste` (`preventDefault`) and insert only the sanitized/plain projection** — never let the browser paste `text/html` natively. Sanitize by parsing into a DOM and walking an allow-list of nodes/attributes, not by string-munging. Cap field length after paste.
 
 **Warning signs:**
-Any code path that fetches a version or changelog from a URL. A "seen" flag set before render. No test case for "user skipped a version." Treating deploy time as release-reached-user time.
+Pasted text looks fine but the stored string is 20× larger than what was typed; `mso-`, `Apple-`, `<o:p`, or `data:image` substrings appear in IndexedDB; the field's rendered output differs between browsers.
 
-**Phase to address:**
-Changelog phase. The version-source decision should be locked in discuss-phase (reuse `version.js`, do not invent a parallel stamp).
+**Phase to address:** Editor-build phase (paste handler is a required task, not a polish item), with the sanitizer decided in the storage-format phase.
 
 ---
 
-### Pitfall 3: The welcome overlay treats a 6-month paying customer as a brand-new user
+### Pitfall 3: "Underline" has no markdown syntax and no PDF renderer — silent formatting loss
 
 **What goes wrong:**
-The first-run welcome ("Take the guided tour / I'll explore myself") is gated on the *absence* of a `localStorage` flag (`sg.welcomeSeen`). Existing customers upgrading into v1.3 have never had that flag → on their next launch, a loyal power user who's logged 200 sessions gets a full-screen "Welcome! Let's get you started" overlay. At best it's mildly insulting; at worst they think a reset/wipe happened and panic about their data (this audience is non-technical and privacy-anxious).
-
-The mirror failure is over-correcting: you suppress the welcome for "anyone with data," and then a genuine new trial user who imported a backup, or whose IndexedDB seeded oddly, never sees the welcome at all.
+The milestone names **bold / underline / bullets**. Bold and bullets map cleanly to markdown and are already rendered by both `MdRender` and the PDF pipeline. **Underline does not exist in markdown**, and `pdf-export.js` has **no underline drawing path** (it draws bold via a second vendored font and lists via bullets; underline would require `doc.line()` segments under each text run, positioned per-glyph and bidi-reordered). If underline is offered in the editor but stored as ad-hoc HTML `<u>` (or `__x__`, or `<ins>`), it will: render inconsistently in read mode, be **silently dropped in the PDF** (the flagship client-facing artifact), and either vanish or leak literal markers in the markdown/clipboard export.
 
 **Why it happens:**
-"Flag absent ⇒ first run" is the standard one-shot pattern (and it's what the Phase 26 design proposed, D-15). It's correct for a *fresh* install but conflates "new to the app" with "new to *this feature*." An existing install has no welcome flag simply because the feature didn't exist yet — not because the user is new.
+The feature list treats bold/underline/bullets as one homogeneous group. They are not: two are free in this stack, one requires net-new rendering in three surfaces (read mode, PDF, markdown export) plus a storage convention markdown doesn't provide.
 
 **How to avoid:**
-- **This is a product decision to make explicitly in discuss-phase, not a default to inherit.** Two defensible options:
-  1. **Treat upgraders as new-to-help (show once):** frame the overlay as "New in Sessions Garden: in-app help" rather than "Welcome, let's set up your account." Same one-shot, different copy — never implies a reset.
-  2. **Suppress for existing users, offer a quieter nudge:** detect existing data (client/session count > 0 in IndexedDB, or presence of any pre-v1.3 localStorage key like `portfolioLang`) → skip the full-screen welcome, show a small dismissable "New: help & tours — tap ? anytime" toast instead.
-- **Distinguish upgrade from fresh install** using a pre-existing signal that predates v1.3: e.g. `portfolioLang` / license keys / a non-empty client store all imply "not a first-ever run." Set a `sg.installedBeforeV13` marker on first v1.3 boot based on that check, and branch on it.
-- **Test to write:** a jsdom test seeding (a) empty localStorage + empty IDB → fresh path, (b) `portfolioLang` present / clients > 0 → upgrader path, asserting which overlay variant renders. Falsifiable and cheap.
+Decide underline's fate **in the storage-format phase, on paper, before any editor UI exists.** Options, in order of cost: (a) **drop underline from v1.4** (bold+bullets ship cleanly; therapists rarely need underline in notes) — cheapest and honest; (b) adopt a documented convention (`<u>…</u>` in the allow-list, or a custom `++x++`) AND commit to building an underline renderer in `pdf-export.js` (bidi-aware `doc.line()` under runs) AND a read-mode + markdown-export representation. If (b), treat the PDF underline renderer as its own verification-heavy task. Do not let the editor offer a button whose formatting three of four surfaces cannot represent.
 
 **Warning signs:**
-Welcome logic that reads only `sg.welcomeSeen` and nothing that could distinguish an upgrader. Copy that says "welcome"/"get started"/"set up" with no upgrader variant. No test seeding pre-existing data.
+An underline button exists before anyone has decided how underline is stored; the PDF of an underlined note shows plain text; the markdown export of an underlined note shows either nothing or a stray `<u>`.
 
-**Phase to address:**
-Welcome/first-run phase. Flag the tradeoff to Ben in discuss-phase — this is a "bug or feature" call the owner explicitly wants surfaced.
+**Phase to address:** Storage-format & data-model phase (decision), export/render phase (if kept, build the renderer + verify in real PDF).
 
 ---
 
-### Pitfall 4: First-run attention collision — the welcome overlay stacks on top of redirect gates, the security note, and the iOS A2HS banner
+### Pitfall 4: The snippets caret-popover breaks the moment a field becomes `contenteditable`
 
 **What goes wrong:**
-On first launch the app already runs: three `<head>` redirect gates (legal/T&C, license), an existing first-launch security note (`showFirstLaunchSecurityNote()`), and an iOS Add-to-Home-Screen banner. Drop a full-screen welcome + a PWA install nudge + (potentially) a What's-New popup into the same moment and a new user can face **five competing modal-ish surfaces at once**, possibly z-index-fighting, possibly one trapping focus under another, possibly the welcome firing *before* the legal gate is satisfied (teaching the app to someone who hasn't been let in yet).
+The entire snippets engine (`assets/snippets.js`) is `<textarea>`-shaped: `bindTextarea` early-returns unless `tagName === "TEXTAREA"`; trigger detection reads `textarea.value.slice(0, textarea.selectionStart)`; expansion writes `textarea.value = …` and calls `textarea.setSelectionRange(...)`; the caret-popover position comes from a **mirror `<div>` that clones textarea typography** and measures a zero-width span. **None of `.value`, `.selectionStart`, `.setSelectionRange`, or the textarea-mirror technique exists on `contenteditable`.** Convert the 7 session fields to `contenteditable` and snippet expansion + the autocomplete popover silently stop working across the app — a shipped, used feature regresses to zero.
 
 **Why it happens:**
-Each first-run surface was built independently at a different time; nobody owns the *aggregate* first-run sequence. Adding two or three more without a defined precedence order is how you get a stack.
+The editor task and the snippets task look independent. They share the same DOM elements. `data-snippets="true"` lives on the same `<textarea>`s the rich-text feature wants to upgrade (`add-session.html:239-338`).
 
 **How to avoid:**
-- **Design a single first-run orchestration order and write it down** (a documented precedence chain), e.g.: redirect/legal gate → license activation → security note (once) → *then and only then* welcome overlay → install nudge (deferred, non-blocking) → What's-New popup (only for upgraders, never same launch as welcome). At most one attention-grabbing surface visible at a time; the next waits for the previous to dismiss.
-- **Rule: the welcome must never render until the legal/license gates have passed.** Gate the welcome trigger on the same condition that lets the user into the app.
-- **Rule: welcome and What's-New are mutually exclusive on any single launch.** A fresh install gets welcome (no prior version to announce); an upgrader gets What's-New (already knows the app). Never both.
-- **Verify on a real device** (esp. iOS Safari) that the native A2HS banner + your install nudge + welcome don't all appear together. jsdom cannot see the native banner or real stacking.
+The markdown-string / keep-the-textarea model preserves snippets for free — a formatting toolbar that wraps the selection in `**…**` is the *same class of `.value` mutation* the snippets engine already performs (see `insertExpansion`, which even dispatches a synthetic `input` event for autogrow/dirty-tracking; reuse that exact pattern). If `contenteditable` is chosen, snippets must be **rewritten** for a Range/Selection world (Selection API caret offset, `Range.getBoundingClientRect()` for popover position, `document.execCommand('insertText')` or manual Range mutation for expansion) — scope this as a first-class port, not a footnote, and re-run the snippets test suite (`tests/24-04-trigger-regex`, `Snippets.__testExports`) against it.
 
 **Warning signs:**
-More than one overlay able to become visible in the same tick. Welcome logic that doesn't check the legal/license gate. Install nudge and welcome both `display:flex` at once in a first-run screenshot. No written first-run precedence order.
+Typing `;betrayal ` in a session field no longer expands; the snippet popover never appears; `Snippets.bindTextarea` is being called on a non-textarea and silently no-oping.
 
-**Phase to address:**
-Welcome/first-run phase — but the *orchestration order* is a cross-cutting concern that should be decided before any of the three surfaces are built.
+**Phase to address:** Editor-build phase — snippets compatibility is an explicit acceptance criterion, verified in a real browser.
 
 ---
 
-### Pitfall 5: `data-tour` anchors rot because the DOM is being actively refactored (and the tour degrades silently)
+### Pitfall 5: Read mode and the sessions table won't show formatting — because they render `textContent` today
 
 **What goes wrong:**
-Tour steps bind to `[data-tour="..."]` anchors that don't exist yet and must be added across pages whose DOM is *actively churning* (v1.2 just decomposed `settings.js`/`add-session.js`; more extraction is backlogged). A later refactor moves or regenerates the markup, the anchor vanishes, and — if you inherited `demo-hints.js`'s `if (!target) return;` behavior — the tour step **silently disappears**. The user's "guided tour" has invisible holes and they don't know steps are missing. This is the exact failure mode community best practice warns about: tours break on DOM/class changes, and libraries that don't handle a missing element "crash silently with no error logged."
+Storing markdown is only half the feature. Read mode and the sessions overview render session content via **`textContent`** (`sessions.js:262`, and the `add-session.js` invariant). If the storage model changes to markdown but these render paths are untouched, therapists will type `**important**` and then *see literal asterisks* in the session view — while the PDF shows it bold. That inconsistency reads as a bug and undermines trust in a paid product. The reverse trap: someone "fixes" it by switching those paths to `innerHTML` with the raw stored string — re-introducing Pitfall 1 across every read surface.
 
 **Why it happens:**
-Two compounding causes: (1) anchors are added by one phase and depended-on forever after, but nothing *tests* that they still exist; (2) the borrowed rendering pattern's default is silent-skip, which is fine for an 8-step marketing script but wrong for a teaching tour.
+The feature is mentally modeled as "editor + export," but there are **four** render surfaces: the editor, read mode, the sessions table/overview, and the PDF/markdown export. It's easy to wire two and forget two.
 
 **How to avoid:**
-- **Anchor contract as data:** maintain the canonical list of `data-tour` anchor names in one place (the tour step definitions). 
-- **Test to write (the anti-rot guard):** a jsdom test that loads each page's HTML and asserts **every `data-tour` anchor referenced by a tour step is present in exactly one element**. This runs in `npm test`, fails the moment a refactor drops an anchor, and is the single highest-value test in this milestone. Add it the same phase you add the anchors.
-- **Never bind tours to `#id`s another module owns, `:nth-child`, or visible text** (text changes per locale across 4 languages). Dedicated `data-tour` attributes only — invisible to styling, i18n, and refactors.
-- **Degrade, never skip:** a missing anchor must fall back to a centered modal with the step's text + a "take me there" deep-link (the Phase 26 D-11 contract). Make this the *tested* behavior: delete an anchor in the test DOM and assert the modal fallback renders, not a no-op.
+Enumerate all render surfaces up front. For each display surface that must show formatting, render through `MdRender.render()` (the blessed escape-then-render path) into `innerHTML`, never the raw string. Decide deliberately whether the **compact table cells** should render formatting at all (they probably should strip markers to a plain preview — a `**bold**`→`bold` strip, which `pdf-export.js` already has a helper for) versus the **full read-mode view** which should render it. Do not silently switch a `textContent` sink to `innerHTML` without routing through the sanitizing renderer.
 
 **Warning signs:**
-Tour steps referencing selectors that aren't `data-tour`. No test asserting anchor presence. A refactor PR that touches a page with tour anchors but doesn't run/notice a tour test. "Missing anchor" has no defined visible behavior in the spec.
+Literal `**`/`- ` visible in read mode or the sessions table; a diff that changes `textContent =` to `innerHTML =` without `MdRender` in between.
 
-**Phase to address:**
-Tour-engine phase for the degrade-not-skip behavior; the anchor-presence test should live wherever anchors are introduced and run on every subsequent build.
+**Phase to address:** Export/render phase (read mode + table + PDF + markdown export rendered consistently and safely).
 
 ---
 
-### Pitfall 6: The overlay looks right in jsdom/Chromium but breaks in Safari/WebKit (RTL, stacking context, positioning)
+### Pitfall 6: Data migration — mixed plain/formatted portfolios and old `.sgbackup` files
 
 **What goes wrong:**
-The tour tooltip / welcome overlay / spotlight positions correctly in your jsdom tests and Chromium screenshots, then on a real therapist's iPhone (Hebrew, RTL): the tooltip escapes the viewport on the inline-end side, the spotlight is a 0×0 box, a `viewBox`-only SVG icon collapses, or the overlay renders *behind* a header that has its own stacking context. This project has a documented history of exactly this: **Chromium-only visual gates have missed Safari-only bugs** (memory: `reference-webkit-chromium-svg-visual-verification` — viewBox-only SVG = 0×0 in WebKit; `reference-rtl-select-value-alignment-headless`), and **jsdom does no layout at all** (`getBoundingClientRect` returns zeros), so any positioning/overlap/focus-trap logic is invisible to it.
+Every existing session in every customer's IndexedDB — and every field in every previously-exported `.sgbackup` — is a **plain string that may already contain `*`, `_`, `-`, `<`, `#`, or `>` characters** typed as literal punctuation. Turn on markdown rendering and a therapist's existing note "cost was 50 * 3" or "range 3-4" or a bulleted-by-hand "- point" suddenly renders as italic/list/emphasis it never meant. Worse, if migration rewrites stored strings (e.g. auto-escaping existing content, or converting to HTML), an old backup restored *after* migration re-injects the un-migrated format and the two models collide. Round-tripping formatted data through the encrypted backup must preserve it byte-for-byte.
 
 **Why it happens:**
-jsdom has no layout engine — it cannot catch positioning, z-index/stacking-context, focus-trap, or overflow bugs. Chromium headless catches *some* but not WebKit-specific ones. Overlays are the single most layout-dependent thing in the milestone, and this stack has a proven Safari-blind-spot.
+"It's just a string, nothing to migrate" — but the *interpretation* of the string changes even though the bytes don't. There is no schema version separating "plain-era" fields from "markdown-era" fields.
 
 **How to avoid:**
-- **Rule: overlay/positioning correctness is verified in a real browser, ideally Playwright WebKit + on-device Safari, never jsdom alone.** jsdom tests are fine for the *decision logic* (should-show, anchor-present, seen-flag) but must not be the sole gate for *where the tooltip lands*.
-- **Probe positioning with `getBoundingClientRect` in Playwright WebKit** (the project already has this technique in memory) — assert the tooltip rect is inside the viewport in both LTR and RTL.
-- **CSS rules (hard):** logical properties only (`inset-inline-*`, `margin-inline-*`, `padding-inline-*`) — no `left/right/margin-left`; give overlay SVG icons explicit `width`/`height`, never `viewBox` alone; give the overlay its own top-level stacking context with an explicit high `z-index` and verify it clears `#headerActions` and the redirect gates.
-- **Manual RTL + dark-mode pass** on the welcome, every tour step, and every fallback modal, on a real device.
+Treat this as a real migration decision in the storage-format phase. Prefer a model where **plain old text renders identically to how it renders today** (markdown that is conservative about what it interprets — the existing `MdRender` only acts on `**`, `*`, `#`, `- ` at line start; audit whether that will surprise existing notes, especially bullet-looking lines and `*`-as-multiply). If a per-field/per-session `format` flag or content-version is introduced, define how **old backups without the flag** are interpreted on restore (default to plain), and add a backup round-trip test with a formatted field. Never do a destructive in-place rewrite of existing session strings. Verify the encrypted backup export→import preserves formatted content exactly.
 
 **Warning signs:**
-Positioning logic covered "only by jsdom tests." Any `left:`/`right:`/`text-align:right`/literal hex in overlay CSS. SVG icons with `viewBox` but no width/height. No WebKit run. Green suite, untested on a phone.
+Existing notes change appearance after the feature ships without the user editing them; a restored old backup renders differently than it did before; `*`/`-` in legacy notes triggers unexpected italics/lists.
 
-**Phase to address:**
-Tour-engine phase and Welcome phase — bake a WebKit/on-device check into each phase's verification, do not rely on `npm test` green.
+**Phase to address:** Storage-format & data-model phase (migration/versioning decision + backup round-trip test).
 
 ---
 
-### Pitfall 7: The docs-maintenance gate gets routinely bypassed with `--no-verify` (or blocks emergency fixes) and quietly rots
+### Pitfall 7: Hebrew RTL + mixed bidi inside the editor and inside formatted PDF output
 
 **What goes wrong:**
-You add a pre-commit/pre-push hook that blocks commits touching user-facing files unless the changelog + help topics are also updated. Three predictable failure modes for a *solo* repo:
-1. **Trivial bypass:** `git commit --no-verify` skips it (documented Git behavior). A solo maintainer under time pressure — or an AI agent told "just commit" — routes around it within a week, and now it's theater.
-2. **Emergency-fix deadlock:** a hotfix for a real production bug (this app is *sold* — outages matter) is blocked because you haven't written release notes yet, at the worst possible moment.
-3. **Too-coarse matching:** the gate treats *every* changed file as "user-facing," so a whitespace/comment/test-only/`chore:` commit demands a changelog entry, training you to reflexively `--no-verify` everything → the gate is dead.
-4. **Gate rot:** the pattern of "what counts as user-facing" drifts as the codebase changes; nobody re-checks it; it silently stops catching real changes (matches the community lesson that skipping hooks "defeats the purpose").
+Hebrew is first-class here. Two distinct RTL traps:
+1. **In the editing surface:** inside `contenteditable`, caret placement, arrow-key navigation, and selection across a mixed Hebrew+Latin+digits run are notoriously buggy (caret jumps, selection anchors on the wrong side, `**` markers inserted on the visually-wrong end of a selection). In a `<textarea>` with `dir="auto"` (the pattern the export editor already uses, `add-session.html:458`) this is far more stable — one more reason to keep textareas.
+2. **In the PDF:** bold runs and list bullets must survive UAX-#9 bidi reordering. The pipeline already does this via `parseInlineBold` + `shapeForJsPdf`, but **a bold run that spans a bidi boundary** (bold text containing both Hebrew and a Latin word or digits) is exactly the fragile case — the bold segment must be reordered as segments, and Hebrew digits/numbers within a bold run can land on the wrong side. List bullets must sit on the **start** (right) edge in RTL, and heading/label alignment must be logical, not physical.
 
 **Why it happens:**
-Local git hooks are advisory, not enforceable, and `--no-verify` exists by design. A solo maintainer is both the enforcer and the bypasser — there's no second party the gate protects against. Coarse matching + a rigid block is the fastest route to the gate being resented and disabled.
+Formatting adds *runs* (bold spans, list items) on top of text that already needs bidi reordering. Each run boundary is a new place for the visual order to break. Testing only in English hides all of it.
 
 **How to avoid:**
-- **Match precisely, not broadly.** The gate should fire only on genuinely user-facing surfaces (e.g. `*.html`, `assets/i18n-*.js`, product `assets/*.js` excluding tests/tooling) — and explicitly *not* on `*.test.js`, docs, `chore:`/comment-only diffs. A gate that only fires when it should is a gate people keep.
-- **Provide a first-class, logged escape hatch instead of `--no-verify`.** e.g. an intentional `[skip-changelog]` / `docs: n/a` token in the commit message that the hook recognizes and records — so emergency fixes and non-user-facing changes pass *with an auditable reason*, rather than everyone learning the blunt `--no-verify` reflex.
-- **Given a solo + AI-agent workflow, prefer the gate at the point that actually can't be skipped:** a GSD Definition-of-Done / phase-completion gate (agent workflow checks changelog+help updated before a user-facing phase is marked complete) is more reliable here than a git hook, because the hook's whole threat model (protect the repo from a careless committer) doesn't fit a single trusted owner. Consider **both**, but treat the DoD gate as the real one and the hook as a fast local reminder.
-- **Interplay with the existing SW-bump hook:** this repo already has a pre-commit hook that (buggily) skips the `CACHE_NAME` bump when `sw.js` changes. Don't layer a second fragile hook without reconciling them — one hook file, tested behavior.
-- **Test the gate itself:** write cases proving it *blocks* a user-facing change with no changelog, *passes* a test-only change, and *passes with reason* on the escape token. An untested gate rots invisibly.
+Keep the editing surface a `dir="auto"` `<textarea>` if at all possible. For the PDF, add explicit test vectors for: a bold run that is pure Hebrew; a bold run mixing Hebrew + Latin + digits; a bulleted list in Hebrew (bullet on the right); a bold word inside an otherwise-Hebrew line. Reuse the existing bidi test-vector approach in `pdf-export.js`. Recall the repo's own hard-won RTL lessons: physical `left/top` (not logical `inset-inline-*`) when feeding `getBoundingClientRect` into overlays; WebKit ignoring `text-align` on some inputs. **Verify formatted RTL output in a real rendered PDF opened in a real viewer**, not in jsdom.
 
 **Warning signs:**
-`--no-verify` appearing in your own recent git history. The gate demanding changelog entries for test/comment commits. No escape hatch, so hotfixes stall. No test on the gate's own matching logic. "User-facing" defined by a broad glob like `assets/*`.
+Bold Hebrew renders in reversed/jumbled order in the PDF; a bulleted Hebrew list puts bullets on the left; digits inside a bold Hebrew run jump position; caret behaves erratically when typing Hebrew in the editor.
 
-**Phase to address:**
-Docs-gate phase. Decide hook vs. DoD-gate vs. both in discuss-phase; the too-coarse and no-escape-hatch failures are the ones to design against from the start.
+**Phase to address:** Export/render phase (PDF bidi vectors) + editor-build phase (RTL editing verified on device); real-browser + real-PDF verification phase.
 
 ---
 
-### Pitfall 8: Help content drifts from the real UI — stale screenshots, renamed terminology, features documented that changed
+### Pitfall 8: Safari / WebKit `contenteditable` quirks — and installed-PWA Safari is the flagship environment
 
 **What goes wrong:**
-You author comprehensive EN help against v1.2.x behavior. Then the app keeps shipping (it's live and actively developed). Within a milestone or two the help says "Session Type" (renamed to "Session Format" in P37), "Heart Shield" (renamed "Heart-Wall"), shows screenshots of a pre-refactor settings page, or documents a flow that changed. Non-technical users trust the help *more* than power users would, so drift actively misleads exactly the people it's for. Screenshots are the worst offenders — they go stale the instant the UI moves and there's no compiler to flag them.
+If `contenteditable` is chosen, WebKit is the worst-behaved engine and it is exactly where most customers live (installed PWA on Safari/iOS). Known WebKit `contenteditable` hazards: `beforeinput` / `InputEvent.inputType` coverage and cancelation semantics differ from Chromium (you cannot always rely on canceling `beforeinput` to intercept formatting/paste the way you can in Blink); `document.execCommand` is deprecated everywhere and its behavior/return values are inconsistent in WebKit (bold toggling, list creation produce divergent markup); autocorrect/autocapitalize/dictation on iOS inject text and mutate selection outside your handlers; the software keyboard resizes the viewport and disturbs caret-into-view scrolling; pressing Enter produces `<div>` vs `<p>` vs `<br>` differently per engine. Selection/Range APIs across shadow/zero-width nodes behave subtly differently. Installed-PWA Safari additionally caches aggressively (the repo already fought stale-SW update delivery), so a contenteditable bug shipped to an installed PWA is slow to correct in the field.
 
 **Why it happens:**
-Help content is prose + images with no link to the code that renders the UI; nothing fails when they diverge. This project has *already lived* the terminology-drift problem (P37's whole TERM-01/02 relabel existed because "Session Type" meant three different things). A live product + solo maintainer means content ages continuously and quietly.
+Developers build and test in Chrome DevTools where `contenteditable` is most forgiving, then ship to a WebKit-majority audience. `beforeinput` gaps and `execCommand` inconsistency are invisible until tested on the actual engine.
 
 **How to avoid:**
-- **Prefer text + the app's own live UI over baked screenshots.** Where an illustration is unavoidable, keep the count minimal and list every screenshot in one manifest so a UI change has a checklist of images to re-shoot. Fewer screenshots = less rot surface.
-- **Single-source terminology:** help copy for feature names should pull from the *same i18n keys* the UI uses wherever practical, so a relabel propagates instead of drifting. At minimum, keep a terminology glossary the help and UI both reference.
-- **This is the changelog gate's real job:** the docs-maintenance gate (Pitfall 7) is precisely what keeps help from drifting — a user-facing change can't ship without touching affected help topics. The gate and the content are two halves of one system.
-- **Content-accuracy review is a named task, not an assumption:** Sapir (or Ben) reviews EN help against *actual shipped behavior* before it ships — every claim matches the real Heart-Wall model, severity reversal, per-session export, local-only storage, etc.
+Strongest mitigation: **avoid `contenteditable`** and keep the `<textarea>` + toolbar model — textareas have none of these quirks and are uniform across engines. If `contenteditable` is unavoidable, do **real-device testing on installed-PWA Safari (iOS + macOS)** as a gating criterion, not an afterthought; do not depend on `beforeinput` cancelation as your only interception layer; avoid `execCommand` for anything structural; test Enter-key block creation, iOS dictation, and autocorrect explicitly. Budget for a WebKit-specific bug tail.
 
 **Warning signs:**
-Help mentions "Session Type"/"Heart Shield" (old terms). Screenshots with no manifest/re-shoot checklist. Help feature names hard-coded as prose instead of drawn from i18n. A shipped user-facing change with no corresponding help diff.
+Formatting works in Chrome but not on the iPhone PWA; canceling `beforeinput` doesn't prevent the input on Safari; Enter creates different markup on iOS; the caret scrolls under the software keyboard.
 
-**Phase to address:**
-Help-content phase for authoring discipline; Docs-gate phase for the ongoing anti-drift enforcement. They must be designed together.
+**Phase to address:** Editor-build phase (engine choice) + real-browser verification phase (installed-PWA Safari is a named target).
 
 ---
 
-### Pitfall 9: Untranslated help keys leak raw (or English) across the 3 non-EN locales
+### Pitfall 9: Undo/redo, autogrow, and scroll behavior regressions
 
 **What goes wrong:**
-Help/tour/welcome/changelog content is EN-canonical; DE/CS/HE translation is *deliberately deferred* (verified milestone scope). If the i18n loader's missing-key behavior is "render the raw key" you get `help.tour.addClient.title` on screen in Hebrew; if it's "silently blank" you get empty tooltips; if it falls back to EN you get English help inside an otherwise-Hebrew app for a Hebrew-primary audience. Any of the three looks broken to a paying non-EN user — and the app's biggest language is Hebrew.
+- **Undo/redo:** In a `<textarea>`, mutating `.value` programmatically (as a toolbar's `**`-wrapping would) **destroys the native undo stack** — the user can't Ctrl-Z their formatting or the text before it. In `contenteditable`, custom formatting operations that bypass the browser's own editing commands similarly break the native undo history. The snippets engine already mutates `.value` directly, so this is a known local pattern whose undo cost compounds when a toolbar adds more programmatic mutations.
+- **Autogrow:** The session textareas auto-resize on `input` (the `add-session.js` autoGrow handler measures + sets height, never touches `.value`). Wrapping selection or inserting markers must dispatch the synthetic `input` event (as `snippets.js:408` already does) or the field won't grow to fit; switching to `contenteditable` throws the autogrow mechanism out entirely.
+- **Scroll/caret-into-view:** Toolbar actions and paste can leave the caret off-screen; contenteditable changes scroll semantics.
 
 **Why it happens:**
-Adding a large batch of EN-only keys to a 4-locale system with deferred translation guarantees a window where keys exist in EN and not elsewhere. Whatever the loader does by default for a missing key is now on display at scale.
+Programmatic value mutation is the fast path for a formatting toolbar, and it quietly breaks the browser's built-in editing affordances users expect.
 
 **How to avoid:**
-- **Decide the missing-key policy deliberately** for help content: the least-bad option for deferred-translation content is usually an **explicit, controlled EN fallback** (readable English, never a raw dotted key, never blank) — possibly with a small "help is available in English" note for non-EN users — rather than accidental raw-key leakage.
-- **Test to write:** a key-parity/leakage test that loads each locale and asserts **no `data-i18n` on any help surface resolves to a raw key string** (regex `^[a-z0-9]+(\.[a-z0-9]+)+$`) and none renders empty. This catches both raw-key and blank-key leakage across all 4 locales in `npm test`.
-- **Author EN keys now so HE translates cleanly later:** noun/infinitive phrasing, not imperatives (project-wide Hebrew rule, memory-locked), and flexible-length tooltip containers (HE/DE run longer/shorter than EN — a known RTL truncation risk).
-- **Scope the fallback as an explicit decision in the milestone**, so "English help in a Hebrew app" is a chosen, communicated tradeoff, not a surprise bug report.
+For `<textarea>` toolbars, use `document.execCommand('insertText', …)` where still supported (it preserves the undo stack) or accept the tradeoff explicitly and consider a lightweight custom undo for formatting ops. Always re-dispatch the synthetic `input` event so autogrow + dirty-tracking fire — mirror `insertExpansion` exactly. Preserve/restore `selectionStart`/`selectionEnd` around mutations. Test Ctrl-Z after a bold toggle.
 
 **Warning signs:**
-No missing-key policy stated for help. A locale render showing dotted keys or blank tooltips. No parity/leakage test. Imperative EN microcopy that will force unnatural Hebrew.
+Ctrl-Z does nothing or jumps too far after formatting; the textarea stops growing after a toolbar insert; the caret ends up in the wrong place or off-screen after wrapping a selection.
 
-**Phase to address:**
-Help-content phase (authoring + fallback policy); add the leakage test the same phase the EN keys land.
+**Phase to address:** Editor-build phase.
 
 ---
 
-### Pitfall 10: Double-signal — the What's-New popup and the SW "update available / reload" nudge both fire, confusing users
+### Pitfall 10: Section drag-sort — HTML5 DnD doesn't fire on iOS touch; scroll-while-drag; a11y; and the 260615 export-order bug class
 
 **What goes wrong:**
-The app already cares about SW updates (v1.2 P28 shipped verified PWA-update delivery). If there's any "a new version is ready, reload" affordance, it can collide with the What's-New popup: the user reloads for the update *and then* gets a What's-New popup, or gets a "new version" nudge and a "what's new" popup that seem to say the same thing twice, or the popup fires *before* the reload actually applied the new version (so it describes features the running code doesn't have yet).
+Section reordering has its own cluster:
+- **iOS touch:** The HTML5 Drag-and-Drop API (`dragstart`/`dragover`/`drop`) **does not fire from touch on iOS Safari** — the flagship environment. A drag-sort built purely on HTML5 DnD works on desktop and is completely dead on the iPhone. Pointer Events (`pointerdown`/`pointermove` + `touch-action: none`) or a small custom long-press-drag are required for touch.
+- **Scroll-while-drag:** On a long section list, dragging to the edge needs auto-scroll; touch drag fights the page's native scroll unless `touch-action` is set correctly.
+- **Accessibility:** Pure pointer drag is inoperable by keyboard and invisible to screen readers; a keyboard reorder affordance (move up/down) is needed for a11y.
+- **Order-propagation (the repo's own 260615 bug class):** the milestone explicitly flags this. Section order is set in Settings but is consumed by **multiple** builders — the add/edit session form layout, read mode, the **PDF section order**, and the **markdown/clipboard export order**. Reorder in Settings and forget one consumer and the PDF or the copied markdown comes out in the old order. This is a known past defect class in this codebase.
 
 **Why it happens:**
-Two independently-built version-awareness surfaces (SW update lifecycle vs. changelog popup) with no coordination. Each is reasonable alone; together they double-signal.
+HTML5 DnD looks like the "native" answer and demos fine on a laptop; the iOS gap is invisible until tested on a device. And a single reorder feature fans out to many order-consuming surfaces that are easy to miss.
 
 **How to avoid:**
-- **One version-change story, sequenced:** the What's-New popup should fire *after* the new shell is actually active and running (post-update, on the load where `version.js` first reads the new value), never as an "update pending" teaser. Reuse the single `version.js` source so "am I actually on the new version" and "what's new" are the same fact.
-- **Don't show both a generic "updated" toast and the changelog popup for the same version** — the changelog popup *is* the update announcement. Collapse to one.
-- **Test to write:** extend the `shouldShowWhatsNew` matrix (Pitfall 2) with an "update just applied this load" case and assert single-fire.
+Use Pointer Events (not raw HTML5 DnD) so touch works, or a tiny dependency-free long-press reorder; set `touch-action: none` on drag handles; add auto-scroll near edges; provide keyboard up/down + ARIA. **Enumerate every consumer of section order** (form, read mode, PDF, markdown export, backup) and route them all through **one** ordering source — then add a test that reorders and asserts the PDF/markdown order changed. Persist order per therapist (localStorage or IndexedDB settings) and include it in backup round-trip.
 
 **Warning signs:**
-An "update available/reload" toast plus a separate What's-New popup for the same version. Popup content describing features the running shell doesn't include. No coordination between SW lifecycle events and the popup trigger.
+Drag works on desktop but not on the iPhone; reordering in Settings doesn't change the exported markdown or PDF; the list can't be reordered by keyboard; auto-scroll doesn't trigger near the edges.
 
-**Phase to address:**
-Changelog phase, coordinated with the existing SW update logic from v1.2 P28.
+**Phase to address:** Section-reordering phase (Pointer-Events choice + single ordering source + all-consumers test) + real-device verification phase.
+
+---
+
+### Pitfall 11: jsPDF formatted-text rendering traps (font fallback, list indent, run wrapping)
+
+**What goes wrong:**
+Even reusing the existing pipeline, formatted PDF has sharp edges:
+- **Silent bold fallback:** bold renders only because `heebo-bold-base64.js` is vendored and registered as `Heebo/bold` (`pdf-export.js:261`). If a new weight/style (e.g. underline-via-font, or an italic font) is introduced without vendoring the matching TTF, jsPDF **silently falls back** to a default font that **cannot render Hebrew** — Hebrew turns to tofu/boxes with no error. Any new text style needs a vendored, Hebrew-covering font.
+- **Run wrapping vs `splitTextToSize`:** bold is rendered as per-segment runs *after* `splitTextToSize` wraps lines; a bold run that crosses a wrap boundary, or interacts with bidi reorder, can mis-measure width and overlap/clip. The code comments already flag this fragility.
+- **List indent + RTL alignment:** bullets must indent from the correct (start) edge and align under wrapped continuation lines; ordered vs unordered handling already had a past bug (260608-c8x).
+
+**Why it happens:**
+The PDF is a hand-built layout engine; every new text style is a new interaction with fonts, wrapping, and bidi that the layout code must be taught explicitly.
+
+**How to avoid:**
+Any new emphasis style ships **with** its vendored Hebrew-covering TTF or it doesn't ship. Add PDF test vectors for bold runs crossing wrap boundaries and for lists with wrapped items in RTL. Verify by **opening a real generated PDF**, not by asserting jsdom output — jsdom cannot lay out or render fonts (the repo has been burned by false-GREEN jsdom PDF tests before; see the PDF-jsdom-inert-gates lesson).
+
+**Warning signs:**
+Hebrew shows as boxes in the PDF after adding a style; bold text clips or overlaps at line ends; bulleted lists mis-indent or misalign in RTL; a jsdom PDF test passes but the real PDF is wrong.
+
+**Phase to address:** Export/render phase, with real-PDF verification.
 
 ---
 
@@ -245,110 +230,126 @@ Changelog phase, coordinated with the existing SW update logic from v1.2 P28.
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Hand-add new pages to `PRECACHE_URLS` with no test guard | Fast, no tooling | Silent offline 404s when the manual step is forgotten (Pitfall 1) | Only if paired with the precache-assertion test — otherwise **never** for an offline-first product |
-| Bake screenshots into help content | Looks polished immediately | Every UI change silently invalidates them; no compiler catches it (Pitfall 8) | For a tiny, manifest-tracked set with a re-shoot checklist; avoid otherwise |
-| Ship the tour with `if (!anchor) return;` silent-skip | Least code, "works" in the happy path | Invisible holes in the tour after any refactor; users get a broken teaching flow (Pitfall 5) | **Never** — degrade-to-modal is the contract |
-| Version popup keyed on a separately-fetched/stored version | Simple to reason about | Popup ↔ content mismatch under stale-SW conditions (Pitfall 2) | **Never** here — must key off the same `version.js` that ships the content |
-| Git hook that blocks all `assets/*` changes without a changelog | Feels rigorous | Coarse → reflexive `--no-verify` → dead gate (Pitfall 7) | Never as the *only* mechanism; pair precise matching + logged escape hatch + DoD gate |
-| EN-only help keys with default raw-key fallback | Ship help without waiting on translation | Dotted keys on screen for HE/DE/CS users (Pitfall 9) | Only with an explicit readable-EN fallback + leakage test |
-| Welcome gated solely on `sg.welcomeSeen` absence | One-liner, matches existing pattern | Fires for 6-month customers as if new (Pitfall 3) | Only after the upgrader-vs-fresh decision is made and tested |
+| `contenteditable` + store `innerHTML` | WYSIWYG in an afternoon | XSS in production clinical data; unbounded HTML blobs; snippets/autogrow/undo all break; WebKit bug tail | **Never** for stored user content in this app |
+| Regex/string-based HTML sanitizer | "Cleans" paste quickly | Mutation-XSS + Word-markup bypasses; unsound by construction | Never — parse to DOM + allow-list, or avoid HTML storage entirely |
+| Ship underline stored as ad-hoc `<u>`/HTML | Matches the feature-list wording | Silently dropped in PDF; leaks/vanishes in markdown export; inconsistent read mode | Only with a committed PDF underline renderer + export representation; otherwise drop underline |
+| HTML5 DnD only for section drag | Works on the dev laptop immediately | Dead on iOS PWA (flagship users); no keyboard a11y | Never as the sole mechanism; Pointer Events required for touch |
+| Wire order into the editor but not PDF/markdown | Reorder "works" in the form | 260615-class bug: exports come out in stale order | Never — single ordering source feeds all consumers |
+| Skip real-device Safari test ("passes in Chrome") | Faster sign-off | Field bugs on the majority environment, slow to correct in an installed PWA | Never for editor or drag features |
+| Auto-migrate existing notes to a formatted model in place | "Consistent" data | Destroys legacy plain content; collides with old-backup restore | Never destructive; render legacy plain identically instead |
 
 ## Integration Gotchas
 
-Connecting the new surfaces to the *existing* running system.
-
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| Service worker (`sw.js` / `PRECACHE_URLS`) | Add new help/changelog files, forget to precache + bump `CACHE_NAME` (hook skips the bump when `sw.js` is in the diff) | Atomic "new route ⇒ precache + explicit cache-bump chore"; static test asserts every help asset is precached; verify offline navigation on a real installed PWA |
-| `version.js` (single source: footer + cache + integrity) | Invent a second version stamp for the popup | Reuse the one `version.js` constant so popup + content + integrity self-check agree |
-| First-run stack (redirect gates, license, security note, iOS A2HS banner) | Add welcome/install-nudge/popup independently → 3–5 overlays collide | One written precedence order; ≤1 attention surface at a time; welcome gated behind legal+license; welcome XOR What's-New per launch |
-| `localStorage` (`portfolioLang`, license keys, `securityGuidanceDismissed`) | Use only new flags → can't tell upgrader from fresh install | Detect pre-v1.3 signals (existing lang/license/IDB data) to classify upgrader vs. new |
-| Existing SW update-delivery logic (v1.2 P28) | Separate "update ready" toast + What's-New popup double-signal | Fire the changelog popup only after the new shell is active; collapse to one announcement |
-| Active DOM refactor (settings/add-session extractions ongoing) | Tour anchors added once, silently rot on the next refactor | `data-tour` anchors only + a jsdom presence test that fails when an anchor is dropped |
-| i18n loader (4 locales, EN-first) | Assume deferred-translation keys degrade gracefully | Explicit readable-EN fallback + a raw-key/blank-key leakage test across all locales |
-| Demo mode (`demo.html`, locked-down controls, P35) | Welcome/tour/popup fire inside the marketing demo or leak license/export nudges | Confirm the new surfaces respect the demo lock-down; don't trigger install/activation nudges in demo |
+| Snippets engine (`snippets.js`) | Convert fields to `contenteditable`, silently breaking `.value`/`.selectionStart`-based expansion + textarea-mirror popover | Keep `<textarea>`; toolbar mutates `.value` + dispatches synthetic `input` exactly like `insertExpansion`. If contenteditable, fully port snippets to Selection/Range |
+| `MdRender` (`md-render.js`) | Bypass it and assign raw stored string to `innerHTML` | Route every formatted display through `MdRender.render()` (escape-then-render is the only blessed `innerHTML` path) |
+| PDF pipeline (`pdf-export.js`) | Introduce a new text style without vendoring a Hebrew-covering font | New style ⇒ vendored TTF registered on the `Heebo` family; add bidi + wrap test vectors; verify real PDF |
+| Encrypted `.sgbackup` (`backup.js`) | Forget section-order + formatted content in round-trip | Include order + formatted fields in export/import; add a round-trip test with a formatted field and a reordered section list |
+| Service worker precache (`sw.js`) | Add a new asset (font/JS) but forget to precache it → breaks offline for installed PWA | Add every new shipped asset to `PRECACHE_URLS`; verify offline on a real installed PWA (not `python3 -m http.server`, which false-passes SW tests) |
+| Read mode / sessions table | Switch `textContent` to raw `innerHTML` to "show formatting" | Render via `MdRender`; strip-to-plain for compact table cells |
 
 ## Performance Traps
 
-Scale here is modest (10+ practitioners, local-only), so classic perf traps are low-risk. The real "scale" axes are *number of pages the tour spans* and *content volume*.
-
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Tour re-queries/re-renders all steps on every `app:language` / resize event | Jank when switching language mid-tour; flicker on rotate | Cleanup-then-replace only the active step (the demo-hints.js pattern); debounce resize | Noticeable with RTL relayout on mobile mid-tour |
-| MutationObserver for late-rendering anchors left running for the whole session | Battery/CPU drain on an installed all-day app | Scope the observer to the active tour only; disconnect on tour end | Long sessions on low-end devices |
-| Help page loads all 4 locales' content eagerly | Larger shell, slower first paint | Load only the active locale's help strings | Grows as help content expands over releases |
-| Changelog page renders full history inline forever | Page grows unbounded release over release | Structured data + render most-recent-N, expand-on-demand | After many releases |
+| Re-rendering `MdRender` on every keystroke in a large note | Typing lag in long sessions | Debounce preview; render on blur/save for read mode | Long notes (multi-KB) on low-end phones |
+| Pasted Word HTML bloats stored fields | IndexedDB rows balloon; backup files grow | Plain-text paste (textarea) or sanitize-on-paste + length cap | First paste from Word/Docs |
+| Auto-scroll during drag re-layout on long section lists | Janky drag on mobile | `transform`-based drag, throttle `pointermove`, `touch-action: none` | Many custom sections on a phone |
 
 ## Security Mistakes
 
-Domain-specific (offline, zero-network, encrypted-backup, licensed) — beyond OWASP basics.
-
 | Mistake | Risk | Prevention |
 |---------|------|------------|
-| Help/changelog fetches remote content or images from a CDN | Breaks the zero-network guarantee + offline; privacy regression for a privacy-first product | All help/tour/changelog content and assets ship in-bundle and are precached; no external requests, ever |
-| `innerHTML` for help/changelog copy (esp. anything derived from stored/user data) | XSS via injected markup; contradicts v1.2's `innerHTML`→DOM hardening (P31) | Build DOM nodes / `textContent`; keep the P31 hardening posture for the new modules |
-| Install-nudge / activation help exposing license internals in demo or to the wrong audience | License/paywall info leaking in the marketing demo (P35 locked this down) | Respect the demo lock-down; keep activation help behind the real app gate |
-| Welcome/popup writing PII (client names, counts) into `localStorage` flags | Sensitive data outside IndexedDB's model | Store only opaque flags/version strings in `localStorage`; never client data |
+| Round-tripping user content through `innerHTML` | Stored-XSS executing in a clinical-data app; persists across devices via backup | Never; escape-then-render via `MdRender`, or allow-list DOM sanitize |
+| Trusting decrypted `.sgbackup` content as safe | A malicious/edited backup injects HTML on restore | Sanitize on the way *in* from backup, same as any input |
+| Trusting the clipboard `text/html` flavor on paste | Attacker-set clipboard HTML enters the doc | Read `text/plain`, or sanitize `text/html` via DOM allow-list |
+| Denylist-style tag stripping | Mutation-XSS / obfuscation bypass | Allow-list a fixed, tiny tag+attribute set; no `on*`, no `javascript:`, no `<style>` |
 
 ## UX Pitfalls
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| Forced linear tutorial that blocks the app | Non-technical therapists feel trapped/intimidated | Non-forced welcome with a first-class "I'll explore myself"; tour is optional + replayable (Calm-style, per Phase 26 D-14) |
-| Full-screen "Welcome, let's set up!" for an existing customer | Alarm ("did I lose my data?"), feels insulting | Upgrader-aware copy ("New: in-app help") or a quiet toast (Pitfall 3) |
-| Generic SaaS tour energy ("Step 1 of 12 🚀") | Wrong tone for a calm, clinical, warm product | Warm, workflow-led, self-paced voice; short anchor-light steps |
-| Nagging install prompt / repeated What's-New | Erosion of trust; dismissal fatigue | Dismissable, once, respectful; store dismissal; never re-nag same version |
-| "Install" button that does nothing on iOS Safari | Confusion (no `beforeinstallprompt` on iOS) | Per-browser *illustrated instructions* (Safari = Share → Add to Home Screen), not a universal button |
-| Tour tooltip overflow/truncation in Hebrew/German | Clipped or mirrored-wrong guidance for the largest locale | Flexible-height, `min/max-width`, logical-property containers; verify RTL on-device |
-| What's-New popup interrupting an in-progress session entry | Lost focus / accidental dismissal mid-work | Fire on load/idle, not over an active form; easy to reopen from the changelog page |
+| Literal `**`/`- ` shown in read mode/table | Looks broken; erodes trust in a paid product | Render read/full surfaces via `MdRender`; strip markers in compact cells |
+| Existing plain notes suddenly render as italic/list | "The app changed my old records" | Conservative interpretation; legacy plain renders as it did before |
+| Underline button that does nothing in the PDF | User formats, client PDF ignores it | Drop underline, or build the renderer — no dead buttons |
+| Drag handle invisible/tiny on touch | Can't reorder on the phone | Clear grab affordance, adequate hit target, long-press feedback |
+| No keyboard way to reorder sections | Inaccessible | Up/down controls + ARIA alongside drag |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Help page:** works online — but did you load it **offline on an installed PWA**? (precache miss = 404, Pitfall 1)
-- [ ] **Tour:** runs on the happy path — but delete a `data-tour` anchor: does it **degrade to a modal**, or silently vanish? (Pitfall 5)
-- [ ] **Tour/overlay:** green in jsdom + Chromium — but checked on **real Safari/WebKit in RTL + dark mode**? (Pitfall 6)
-- [ ] **What's-New popup:** fires on a version bump — but tested for **fresh install, skipped-version, and rollback**? And keyed off the *shipped* `version.js`, not a fetched value? (Pitfall 2)
-- [ ] **Welcome:** shows for new users — but does it **treat a 6-month customer as new**? Upgrader path tested? (Pitfall 3)
-- [ ] **First-run:** welcome renders — but does it wait for **legal + license gates**, and never stack with the security note / A2HS banner? (Pitfall 4)
-- [ ] **Docs gate:** blocks a missing changelog — but does it **pass test-only commits**, offer a **logged escape hatch**, and is its matching **tested**? (Pitfall 7)
-- [ ] **Help content:** reads well in EN — but does it use **current terminology** (Session Format, Heart-Wall), and match **actual shipped behavior**? (Pitfall 8)
-- [ ] **i18n:** EN help complete — but do HE/DE/CS render **readable fallback, never raw keys or blanks**? Leakage test present? (Pitfall 9)
-- [ ] **Popup ↔ update:** does the changelog popup **double-signal** with the SW "update ready" nudge? (Pitfall 10)
-- [ ] **Demo mode:** do welcome/tour/popup/install-nudge **respect the P35 demo lock-down**?
+- [ ] **Rich-text editor:** Often missing the **paste handler** — verify pasting from Word/Google Docs/WhatsApp yields clean content, not markup blobs
+- [ ] **Rich-text editor:** Often missing **snippets still working** — verify `;betrayal ` expansion + popover in a formatted field, in a real browser
+- [ ] **Rich-text editor:** Often missing **undo/redo + autogrow** — verify Ctrl-Z after bold, and the field still grows (synthetic `input` dispatched)
+- [ ] **Formatting display:** Often missing **read mode + sessions table** — verify formatting shows (or is cleanly stripped) there, not just in the editor
+- [ ] **PDF:** Often missing **RTL bold/list vectors + real-PDF open** — verify Hebrew bold, mixed-bidi bold run, and Hebrew bulleted list in an actual opened PDF (jsdom can false-GREEN)
+- [ ] **PDF:** Often missing **new-font vendoring** — verify no Hebrew tofu after adding any style; new style ⇒ vendored Hebrew TTF
+- [ ] **Underline:** Often missing an **export representation** — verify underline in read mode AND PDF AND markdown export, or confirm it's dropped from scope
+- [ ] **Section drag:** Often missing **iOS touch** — verify reordering works on a real iPhone PWA (HTML5 DnD is dead on touch)
+- [ ] **Section drag:** Often missing **all order consumers** — verify reorder changes the PDF order AND the copied markdown order (260615 class)
+- [ ] **Section drag:** Often missing **keyboard a11y** — verify reorder by keyboard
+- [ ] **Migration:** Often missing **old-backup restore** — verify a pre-feature `.sgbackup` restores and renders as before; formatted content round-trips exactly
+- [ ] **Offline:** Often missing **SW precache of new assets** — verify offline on a real installed PWA after adding fonts/scripts
+- [ ] **Docs gate:** Often missing **changelog + help topic** — the v1.3 hard gate blocks the push otherwise (see process pitfalls)
 
 ## Recovery Strategies
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Precache miss (help 404s offline) | LOW | Add missing paths to `PRECACHE_URLS`, bump `CACHE_NAME`, redeploy; add the precache test so it can't recur. Users self-heal on next SW update |
-| Wrong-version / mismatched What's-New popup | MEDIUM | Fix the trigger to key off `version.js`; ship a version bump so the corrected popup supersedes; can't un-show what stale-SW users already saw |
-| Welcome fired for existing customers | MEDIUM | Add upgrader detection + one-shot suppression; damage (confusion/support pings) already done — a reassuring changelog entry helps |
-| Tour anchor rot (silent holes) | LOW–MEDIUM | Restore/rename anchors, add the anchor-presence test; if degrade-to-modal was in place, impact was cushioned |
-| Docs gate bypassed to death | LOW | Re-scope matching to be precise, add logged escape hatch, move enforcement to the DoD gate; re-establish the habit |
-| Raw i18n keys leaked to HE users | LOW | Set explicit EN fallback, add leakage test, redeploy; brief window of ugliness |
-| Safari-only overlay break | MEDIUM | Reproduce in Playwright WebKit, fix with logical props / explicit SVG sizing / stacking context; add a WebKit gate to prevent recurrence |
+| Stored-`innerHTML` XSS shipped | HIGH | Stop the bleed (sanitize on render immediately); migrate stored HTML→markdown/allow-listed model across every install's IndexedDB + backups; audit the field history |
+| Snippets broke on contenteditable switch | MEDIUM | Revert to textarea+toolbar, or complete the Selection/Range port; re-run snippet tests |
+| Underline dropped silently in PDF | LOW (if caught pre-ship) / MEDIUM (post-ship) | Decide: remove the button, or build the PDF underline renderer + export representation |
+| Export order stale after reorder (260615) | LOW–MEDIUM | Route all consumers through one ordering source; add the reorder→export assertion test |
+| iOS drag dead on touch | MEDIUM | Re-implement on Pointer Events; retest on device |
+| Legacy notes re-interpreted as markdown | MEDIUM | Make interpretation conservative; bytes never rewritten so no data lost — only render rules change |
 
 ## Pitfall-to-Phase Mapping
 
+Suggested phase shape (roadmapper decides final structure). The ordering rationale: **the storage-format decision gates everything** — it determines XSS surface, snippets survival, migration, and what the export/PDF must render. Build the editor only after the format is fixed; verify on real Safari/iOS + real PDF at the end.
+
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| 1. Precache 404 offline | Any phase shipping a new page/asset (Help, Changelog) | Static precache-assertion test passes; real offline navigation to `help.html` works on installed PWA |
-| 2. Version-keyed popup vs. stale SW | Changelog phase | `shouldShowWhatsNew` matrix test green (fresh/same/bump/skip/rollback); popup keyed to `version.js` |
-| 3. Welcome treats customer as new | Welcome/first-run phase | jsdom test: upgrader (data present) → suppressed/variant; fresh → welcome |
-| 4. First-run attention collision | First-run orchestration (cross-cutting, before the 3 surfaces) | Written precedence order; ≤1 overlay visible; welcome gated on legal+license; on-device first-run pass |
-| 5. Tour anchor rot / silent skip | Tour-engine phase (+ anchor-introducing phase) | Anchor-presence jsdom test; delete-anchor test shows modal fallback |
-| 6. Safari/WebKit overlay break | Tour-engine + Welcome phases | Playwright WebKit rect-in-viewport assertion (LTR+RTL); on-device Safari + dark-mode pass |
-| 7. Docs gate bypass / too coarse / no escape | Docs-gate phase | Gate tests: blocks user-facing-no-changelog, passes test-only, passes on logged escape token |
-| 8. Help content drift | Help-content phase + Docs-gate phase | Terminology audit (Session Format/Heart-Wall); Sapir/Ben accuracy review vs. shipped behavior; screenshot manifest |
-| 9. Untranslated key leakage | Help-content phase | Raw-key/blank-key leakage test across all 4 locales; EN fallback confirmed |
-| 10. Popup ↔ update double-signal | Changelog phase (with v1.2 P28 SW logic) | Single-fire test incl. "update just applied"; no separate "updated" toast for same version |
+| 1 — contenteditable/innerHTML round-trip | Storage-format & data-model phase (first) | Code review: no user content to `innerHTML` outside `MdRender`; storage model documented |
+| 2 — Word/Docs/WhatsApp paste garbage | Editor-build phase (sanitizer decided in format phase) | Manual paste from Word/Docs/WhatsApp; stored size sane; no `mso-`/`data:image` in DB |
+| 3 — underline has no markdown/PDF path | Storage-format phase (decide) + export phase (if kept) | Underline in read mode + PDF + markdown export, or documented as dropped |
+| 4 — snippets break on contenteditable | Editor-build phase | Real-browser: `;trigger ` expansion + popover in a session field; snippet tests green |
+| 5 — read mode/table render textContent | Export/render phase | Formatting shows (or strips) in read mode + table; no raw-string `innerHTML` |
+| 6 — mixed plain/formatted + old backups | Storage-format phase | Old `.sgbackup` restores + renders as before; formatted round-trips; no in-place rewrite |
+| 7 — Hebrew RTL + bidi (editor + PDF) | Editor-build + export phase | Real device editing; real-PDF Hebrew bold/mixed-bidi/list vectors |
+| 8 — Safari/WebKit contenteditable quirks | Editor-build phase (engine choice) | **Real installed-PWA Safari (iOS+macOS)** gating test |
+| 9 — undo/redo, autogrow, scroll | Editor-build phase | Ctrl-Z after format; field grows; caret preserved |
+| 10 — drag: iOS touch, scroll, a11y, order fan-out | Section-reordering phase | Real iPhone reorder; reorder changes PDF+markdown; keyboard reorder |
+| 11 — jsPDF font fallback / wrap / indent | Export/render phase | Real PDF: no Hebrew tofu; bold across wrap; RTL list indent |
+
+## Process Traps Specific to This Repo
+
+These are not domain pitfalls but *this-repo* execution traps that will bite during v1.4:
+
+- **Docs hard-gate (v1.3 GATE-01..04) blocks the push.** Every user-facing change needs a **changelog entry** (`assets/changelog-content-en.js`, EN only) **and** updated help topic(s) (`assets/help-content-en.js`, EN only) — or an explicit `Help-Unaffected:`/`Changelog-Unaffected:` trailer with a reason on the correct commit. The rich-text editor and section reordering are user-facing; plan the changelog + help edits as phase deliverables (Definition of Done), not afterthoughts. `app.js`/`i18n-*`/`tour.*`/docs-machinery are changelog-only tier; `reporting.*` is denylisted. Read `HELP-MAP.md` cold to find the owning topic.
+- **Demo-app parity.** The demo (`demo.js`, `demo-seed*.js`, `demo.css`) must show the new features with seed data, and export/license controls stay locked in demo mode (Phase 35 pattern). A feature that works in the app but is invisible/broken in the demo is incomplete.
+- **Service-worker precache additions.** Any new shipped asset (a vendored italic/underline font, a new JS module) must be added to `sw.js` `PRECACHE_URLS` or it breaks offline for installed PWA users. The repo's own lesson: `python3 -m http.server` **false-passes** SW/offline tests (extensionless precache routes 404 under `allSettled`); verify offline on a real installed PWA.
+- **jsdom cannot see real caret/selection/render behavior.** The `npm test` (jsdom) suite can test **pure logic**: `MdRender` output, markdown-parse helpers, `parseInlineBold` segmentation, order-model functions, sanitizer allow-list decisions, `detectTrigger`/`resolveExpansion`. It **cannot** test: caret position, Selection/Range behavior, `contenteditable` editing, paste, drag pointer events, actual PDF layout/font rendering, RTL visual order, or Safari/iOS quirks. Those require **real-browser + real-device verification** (Playwright WebKit for automatable checks; a physical iPhone PWA for touch/keyboard/dictation; opening a real generated PDF for bidi/font). The repo has shipped false-GREEN jsdom PDF tests before — do not let a green suite substitute for opening the artifact.
+- **Deploy churn / purge race.** Every push to main auto-deploys + rolls the integrity token; keep the reorder/editor commits code-bearing (let docs ride with code) to avoid needless PWA churn and the still-unfixed purge race (itself a v1.4 debt item).
+
+## What Needs Real-Browser/Device Verification vs jsdom
+
+| jsdom-testable (fast, in `npm test`) | Real-browser / real-device only |
+|--------------------------------------|----------------------------------|
+| `MdRender.render()` output + escaping | Caret position & Selection/Range in editor |
+| `parseInlineBold` / markdown block-parse segmentation | `contenteditable` editing, Enter-key block markup |
+| Sanitizer allow-list decisions (pure function) | Paste from Word/Google Docs/WhatsApp |
+| Section-order model functions (reorder → order array) | Drag pointer/touch events; iOS drag; auto-scroll |
+| Order fan-out: given order, builders emit correct sequence | Undo/redo after programmatic format; autogrow growth |
+| `detectTrigger`/`resolveExpansion` snippet logic | Snippets popover position + live expansion in a field |
+| Backup export/import round-trip of formatted strings (data) | Actual PDF layout, font embedding, Hebrew bidi visual order |
+| Migration/versioning interpretation of legacy strings | Installed-PWA Safari (iOS+macOS) behavior; offline after precache |
 
 ## Sources
 
-- **This repo's verified constraints & shipped-incident memory** (HIGH): `.planning/PROJECT.md` (offline/zero-dep/4-locale/version.js single source/demo lock-down); memory refs `reference-pre-commit-sw-bump` (hook skips CACHE_NAME bump), `reference-sw-version-update-delivery` + `reference-pwa-sw-cache-updates` (installed-PWA stale-SW lag, Safari update unreliability), `reference-webkit-chromium-svg-visual-verification` + `reference-rtl-select-value-alignment-headless` (Chromium-only gates miss Safari; viewBox-only SVG = 0×0 in WebKit), `reference-pdf-jsdom-inert-gates` + `feedback-behavior-verification` (jsdom false-GREEN; runtime behavior needs real-browser verification), P37 TERM-01/02 (terminology drift precedent).
-- **Archived Phase 26 research** (HIGH, cross-checked): `.planning/milestones/v1.1-phases/26-in-app-onboarding-overview-help-system/26-RESEARCH.md` — Pitfalls 1–6 (AGPL license, non-RTL/dark vendored CSS, SPA-assumption cross-page, iOS install, EN→Hebrew-imperative, silent-skip fallback). Re-derived independently here; this pass adds the *integration-with-a-live-system* pitfalls P26 did not cover (precache miss, stale-SW version popup, upgrader-vs-fresh, first-run stacking, docs-gate bypass, content drift, key leakage, double-signal).
-- **Community best practice** (MEDIUM): [Product Fruits — Building Unbreakable Product Tours](https://productfruits.com/blog/building-unbreakable-product-tours) (data-attributes over CSS classes; wait for DOM settlement; graceful missing-element handling; silent crashes); [Intercom — Edit CSS to point tours at the right elements](https://www.intercom.com/help/en/articles/2901138-edit-css-to-point-your-tour-at-the-right-website-elements); [MDN — PWA Caching](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Caching) and [PWA Workshop — Precaching](https://pwa-workshop.js.org/3-precaching/) (404 not self-healed; cache-first never refreshes without new SW; need a precache manifest); [DEV — Deterministic caching for offline-first PWAs](https://dev.to/crisiscoresystems/service-workers-that-dont-surprise-you-deterministic-caching-for-offline-first-pwas-5480); [git-scm — githooks](https://git-scm.com/docs/githooks) and [Adam Johnson — Git: How to skip hooks](https://adamj.eu/tech/2023/02/13/git-skip-hooks/) (`--no-verify` bypasses pre-commit/commit-msg by design; skipping defeats the purpose).
+- Direct source read (HIGH): `assets/snippets.js` (textarea/`.value`/`.selectionStart`/mirror-popover coupling), `assets/md-render.js` (escape-then-render), `assets/export-modal.js:537-539` (`MdRender`→`innerHTML` live preview), `assets/pdf-export.js` (markdown block parser, `parseInlineBold`, Heebo Bold vendoring ~line 261, italic-stripped, bidi `shapeForJsPdf`), `assets/sessions.js:262` + `assets/add-session.js:36-38` (textContent-only render invariant), `add-session.html:239-458` (7 `data-snippets` session fields), `.planning/PROJECT.md` (constraints, milestone scope, prior lessons)
+- Repo lessons (HIGH, from CLAUDE.md/MEMORY + PROJECT.md): docs hard-gate (v1.3 GATE-01..04), `python3 -m http.server` false-passing SW/offline tests, PDF-jsdom false-GREEN, RTL logical-vs-physical coords, WebKit input `text-align`, demo-parity + control lockdown, deploy purge-race, 260615 export-order bug class, 260608-c8x ordered-list PDF bug
+- Established platform behavior (HIGH/MEDIUM): HTML5 Drag-and-Drop not firing from iOS touch (Pointer Events required); WebKit `beforeinput`/`InputEvent` cancelation gaps; `execCommand` deprecation/inconsistency; contenteditable Enter-block divergence; clipboard `text/html` is attacker-controllable; regex HTML sanitization is unsound (mutation-XSS)
 
 ---
-*Pitfalls research for: adding in-app help/onboarding + version changelog + docs-maintenance gate to a live offline-first vanilla-JS RTL PWA (solo + AI-agent maintainer)*
-*Researched: 2026-07-07*
+*Pitfalls research for: rich-text session editor + section drag-sort reordering on a live vanilla-JS RTL offline PWA*
+*Researched: 2026-07-11*

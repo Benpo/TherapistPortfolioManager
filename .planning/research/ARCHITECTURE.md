@@ -1,10 +1,10 @@
 # Architecture Research
 
-**Domain:** In-app help / onboarding / changelog for a vanilla multi-page PWA (Sessions Garden)
-**Researched:** 2026-07-07
-**Confidence:** HIGH (grounded in the live codebase; every claim below cites `file:line`. LOW only where noted for design options left open for discuss-phase.)
+**Domain:** Rich-text session editor + section drag-sort reordering bolted onto a live, zero-dependency vanilla-JS PWA (Sessions Garden)
+**Researched:** 2026-07-11
+**Confidence:** HIGH (grounded in the live codebase; every load-bearing claim cites `file:line`. LOW only where a design fork is deliberately left open for discuss-phase.)
 
-> Scope note: this is a **subsequent-milestone integration study**, not a greenfield stack survey. It answers "how do the three v1.3 pillars bolt onto the code that already ships." Phase 26's `26-UI-SPEC.md` (D-01..D-15) is treated as **verified prior art**, reconciled against current source — its named template `demo-hints.js` **no longer exists** (deleted in Phase 35 DEMO-01), and its `data-tour` anchors **are not in production** (grep confirms zero matches). Both facts change the build.
+> Scope note: this is a **subsequent-milestone integration study**, not a greenfield stack survey. It answers "how do the rich-text editor and section reordering bolt onto the code that already ships." The single most important finding — which reframes the whole milestone — is that **the PDF + markdown export pipeline is ALREADY markdown-native and ALREADY renders inline bold + ordered/unordered lists** (Phase 23-12). The MILESTONE-CONTEXT premise that "the PDF pipeline deliberately strips inline markdown, bold not rendered — deferred to a future phase, which is now" is **partially stale**: `stripInlineMarkdown` survives ONLY on the heading branch (`pdf-export.js:1343`, headings are wholly bold already); the paragraph and list branches route through `parseInlineBold` → `drawSegmentedLine` and emit **Heebo Bold** runs (`pdf-export.js:1391-1432`, `931-994`). What is genuinely missing is (a) an **editing affordance** in the session form (fields are plain `<textarea>`), (b) **underline** anywhere (no markdown underline, no `md-render` support, no PDF support), and (c) **user-controlled section order** (hardcoded in four places).
 
 ---
 
@@ -12,362 +12,233 @@
 
 ### System Overview — where the new surfaces attach
 
-The app is a no-build, per-screen HTML app. Every app page loads the same script stack and calls **one** entry point, `App.initCommon()` (`assets/app.js:648`), which mounts all shared chrome into two fixed DOM hooks: `#nav-placeholder` and `#headerActions` (`index.html:66-67`). The three pillars attach here.
+Session note content flows through one storage surface and two consumers today. All three are markdown-string based already:
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│  PER-PAGE HTML (index / sessions / reporting / add-client /            │
-│  add-session / settings / report / demo)  +  NEW: help.html           │
-│    <div id="nav-placeholder">     <div id="headerActions">            │
-└───────────┬───────────────────────────────┬──────────────────────────┘
-            │ renderNav() app.js:137         │ initCommon() app.js:648
-            ▼                                ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                      SHARED CHROME LAYER (existing)                    │
-│  renderNav ─ theme ─ langPopover ─ backupCloud ─ settingsGear ─ ...    │
-│                          │                                             │
-│   NEW mount points (all idempotent, all inside initCommon):           │
-│   ┌──────────┐ ┌──────────────┐ ┌──────────┐ ┌────────────────────┐   │
-│   │ "?" help │ │ welcome      │ │ tour     │ │ What's-New popup    │   │
-│   │ icon     │ │ overlay      │ │ engine   │ │ (version-change)    │   │
-│   │→ headerA │ │ (first-run)  │ │ (resume) │ │                     │   │
-│   └────┬─────┘ └──────┬───────┘ └────┬─────┘ └─────────┬──────────┘   │
-│        │ nav "Help"   │ first-run    │ data-tour        │ APP_VERSION  │
-│        ▼              ▼ coordinator  ▼ anchors          ▼ vs last-seen │
-├──────────────────────────────────────────────────────────────────────┤
-│                       STATE / DATA LAYER                               │
-│  i18n: window.I18N[lang][key] (app.js:14) + app:language event (:126)  │
-│  version: AppVersion.APP_VERSION (version.js:25)                       │
-│  persistence: localStorage (long-lived) + sessionStorage (per-visit)   │
-│  content: NEW changelog-data.js  +  NEW help.* / changelog.* i18n keys │
-│  offline: sw.js PRECACHE_URLS (:33) + PRECACHE_HTML (:106) manual list │
-└──────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│  SESSION FORM  (add-session.html + add-session.js)                        │
+│  8 plain <textarea class="session-textarea"> fields                       │
+│    trappedEmotions · insights · limitingBeliefs · additionalTech ·        │
+│    comments · customerSummary · heartShieldEmotions   (+ issue rows)      │
+│  → composes with: snippets input-listener, autoGrow, dirty-track,         │
+│    read-only toggle, section-visibility, section-label rename             │
+└──────────────┬───────────────────────────────────────────────────────────┘
+               │ saveSessionForm() → .value.trim()  (add-session.js:1163-1245)
+               ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│  PortfolioDB.addSession / updateSession   (db.js:731-737)                  │
+│  session note fields persisted as PLAIN STRINGS on the record.            │
+│  No schema for text formatting. keyPath id, autoIncrement.                 │
+└───────┬───────────────────────────────┬──────────────────────────────────┘
+        │ getSession (edit/read)         │ getAllSessions / getSessionsByClient
+        ▼                                ▼
+┌───────────────────────┐   ┌───────────────────────────────────────────────┐
+│ EXPORT (export-modal)  │   │ .sgbackup ZIP (backup.js) — sessions[] as JSON │
+│ buildSessionMarkdown / │   │ round-trips whatever string we store, verbatim │
+│ buildFilteredSessionMd  │   └───────────────────────────────────────────────┘
+│ push raw field .value  │
+│ as MARKDOWN body under │
+│ "## <sectionLabel>"    │
+│   (export-modal.js:171 │
+│    -295, 349-441)      │
+└──────┬─────────┬───────┘
+       │         │
+       ▼         ▼
+ MdRender    PDFExport.buildSessionPDF
+ (preview,   parseMarkdown → parseInlineBold →
+ md-render)  drawSegmentedLine (Heebo Bold + lists,
+             bidi-shaped, RTL-anchored)
 ```
 
-### Component Responsibilities — NEW vs MODIFIED (explicit)
+**Key implication:** because both consumers already parse the field value as markdown, the storage format for rich text is **already decided by the surrounding code** — it is markdown. The milestone's job is to add an *editing affordance* that emits that markdown, render it back in the form, and close the two real gaps (underline; user-controlled order).
 
-| Component | New / Modified | Responsibility | Integration point (cited) |
-|-----------|----------------|----------------|---------------------------|
-| `assets/help.js` | **NEW** | Renders `help.html` content (workflow-spine IA + personalization + technical track); exposes `Help.openHelpCenter()` for deep-links | Own page; reuses `renderNav()`/`SharedChrome.renderFooter()` (`app.js:137`, `shared-chrome.js:100`) |
-| `help.html` | **NEW** | Help-center page shell (per-page HTML pattern) | Same script stack as `index.html:347-362`; new nav entry |
-| "?" header entry | **NEW** (mount fn) | Icon button in `#headerActions`, opens tour / links to help | Add an `initHelpEntry()` call inside `initCommon()` (`app.js:648-656`), mirroring `initSettingsLink()` (`app.js:391`) |
-| `assets/welcome.js` | **NEW** | First-run full-screen overlay, one-shot via `localStorage 'sg.welcomeSeen'` | Called from a first-run coordinator inside `initCommon()` near `showFirstLaunchSecurityNote()` (`app.js:779`) |
-| `assets/tour.js` | **NEW** | Bespoke step engine; spotlight + tooltip; cross-page resume; graceful degradation | Reads `data-tour` anchors (to be added to page HTML); re-renders on `app:language` (`app.js:126`) |
-| `data-tour="…"` anchors | **NEW** (HTML edits) | Locale/refactor-stable binding targets on ~6–9 workflow elements | Added to `index.html`, `add-client.html`, `add-session.html`, `sessions.html` bodies |
-| `assets/changelog-data.js` | **NEW** | Structured, ordered release entries; i18n-capable | Loaded before `changelog.js`/popup; added to `sw.js` PRECACHE_URLS |
-| What's-New popup (mount fn) | **NEW** | Shows once per version bump; keyed on `APP_VERSION` vs `localStorage 'sg.lastSeenVersion'` | Reads `AppVersion.APP_VERSION` (`version.js:25`); mounted via the first-run coordinator |
-| Changelog page section | **NEW** | Persistent list rendered inside `help.html` | Consumes `changelog-data.js` |
-| PWA install nudge | **NEW / consolidate** | Per-browser install guidance | Supersedes/absorbs the inline iOS banner (`index.html:366-378`) |
-| `renderNav()` | **MODIFIED** | Add a "Help" nav entry (`data-nav="help"`) | `app.js:140-148` |
-| `initCommon()` | **MODIFIED** | Add help-entry mount + first-run coordinator calls | `app.js:648-785` |
-| 4 × `i18n-*.js` | **MODIFIED** | Add `help.*`, `help.welcome.*`, `help.tour.*`, `changelog.*` keys | `assets/i18n-en.js` etc. (flat `"key":"val"` map) |
-| `sw.js` | **MODIFIED** | Register new JS + `help.html` for offline | PRECACHE_URLS (`sw.js:33`), PRECACHE_HTML (`sw.js:106`) — **both are manual lists** |
-| `.git/hooks` + `deploy.yml` + agent DoD | **NEW** | Docs hard gate | `.git/hooks` currently empty; `deploy.yml` has no test/lint step |
+### Component Responsibilities (as they exist today)
 
-**Critical current-state gotchas the roadmap must not miss:**
-
-1. **`report.html` never calls `initCommon()`** — it ships `#headerActions` markup (`report.html:47`) and loads `shared-chrome.js`/`version.js` but **not** `app.js`. So a "?" mounted via `initCommon` will **not** appear on the report page. Decide per pillar whether report/legal/landing pages get the help entry (they are the pages a lost user is most likely on).
-2. **Legal + landing pages have no app chrome at all** and deliberately omit `i18n.js` — `shared-chrome.js` inlines its own `FOOTER_STRINGS`/`BACK_LINK_STRINGS` for exactly this reason (`shared-chrome.js:64-98`). Any help entry there needs the same inline-strings treatment.
-3. **The "footer update-nudge" is not a version-announcement.** It is the **integrity-mismatch** nudge (`version.js:239 buildNudge`, driven by `shared-chrome.js:149 maybeUpgradeFooterAndNudge`). It fires only when the loaded SW cache token ≠ source token — a *broken-update* signal, not a *new-release* signal. The What's-New popup is a **different** surface with a **different** trigger; they can legitimately both exist, but the precedence model (below) must order them.
+| Component | Owns | Cite |
+|-----------|------|------|
+| `add-session.js` | The 8 session textareas, save choke-point, read/edit mode toggle, section visibility + label application, autoGrow, revert snapshot | `add-session.js:1-41` (banner), `:1163-1245` (save), `:306-338` (read-mode), `:913-986` (visibility+labels) |
+| `export-modal.js` | 3-step export; `buildSessionMarkdown` (copy) + `buildFilteredSessionMarkdown` (PDF/MD); live MdRender preview; PDF input assembly | `:171-295`, `:349-441`, `:533-543`, `:614-703` |
+| `md-render.js` | Markdown → safe HTML for the export preview. Supports `#/##/###`, `**bold**`, `*italic*`, `-`/`*` lists, paragraphs, `<br>`. **No underline.** HTML-escapes before rules | `md-render.js:5-75` |
+| `pdf-export.js` | jsPDF pipeline; `parseMarkdown` (blocks) → `parseInlineBold` (segments) → `drawSegmentedLine` (per-run Heebo Regular/Bold, bidi-shaped). Ordered+unordered lists, RTL anchors. **No underline.** Heebo + Heebo Bold vendored | `:478-535`, `:931-994`, `:1391-1432`, `:250-263` (fonts) |
+| `db.js` | IDB choke-point. `sessions` store (fields are strings); `therapistSettings` store (keyPath `sectionKey`, rows `{sectionKey, customLabel, enabled}`); sentinel-write path `_writeTherapistSentinel` | `:731-737`, `:306-312`, `:947-985`, `:917-920` |
+| `settings.js` | The 9 section rows (rename + enable toggle + reset), `SECTION_DEFS` canonical list/order, Save→`setTherapistSetting` per row, BroadcastChannel sync | `:35-49`, `:465-540` |
+| `app.js` | `_sectionLabelCache` (sync section-label/enabled reads), `getSectionLabel`, `isSectionEnabled`, populated in `initCommon` | `:58-75` |
+| `backup.js` | `.sgbackup` export/import; `therapistSettings` restore branches on section rows vs sentinel rows; `ALLOWED_SECTION_KEYS` + `ALLOWED_SENTINEL_KEYS` allow-lists | `:1146-1194`, `:1157` |
 
 ---
 
-## Recommended Project Structure
+## The storage-format decision (rich text)
 
-New files follow the existing flat `assets/` convention (one module per concern, IIFE exposing a `window.*` namespace, no build step):
+**Recommendation: store markdown. No migration. Fields stay plain strings.**
 
-```
-TherapistPortfolioManager_app/
-├── help.html                      # NEW — help-center page (per-page pattern)
-├── assets/
-│   ├── help.js                    # NEW — help-center render + Help.open* API
-│   ├── welcome.js                 # NEW — first-run overlay (localStorage one-shot)
-│   ├── tour.js                    # NEW — bespoke tour engine (authored fresh)
-│   ├── whatsnew.js                # NEW — version-change popup (or fold into help.js)
-│   ├── changelog-data.js          # NEW — structured release entries (window.Changelog)
-│   ├── first-run.js               # NEW (recommended) — precedence coordinator
-│   ├── app.js                     # MOD — initHelpEntry() + coordinator calls in initCommon
-│   ├── i18n-en.js|he.js|de.js|cs.js# MOD — help.*, help.tour.*, changelog.* keys
-│   └── (index/add-*/sessions).html # MOD — data-tour anchors in the body
-├── sw.js                          # MOD — add new assets + help.html to precache lists
-├── .git/hooks/pre-commit          # NEW — docs-gate (fast, local, path-based)
-├── .github/workflows/deploy.yml   # MOD — optional CI docs-gate step
-└── scripts/docs-gate.sh           # NEW — shared gate logic (hook + CI call it)
-```
+| Option | Migration | Old sessions | Mixed portfolios | .sgbackup before/after | Verdict |
+|--------|-----------|--------------|------------------|------------------------|---------|
+| **Markdown** (recommend) | **None** — plain text ⊂ markdown; field type unchanged (string) | Render unchanged (plain text = a markdown paragraph) | Trivially fine — every record is "just a string" | Identical shape; round-trips verbatim (`backup.js` treats sessions[] as opaque JSON) | ✅ Already the codebase lingua franca; both export consumers already parse it |
+| Sanitized HTML | None structurally, but… | XSS surface on every read; **violates the deeply-baked `textContent`-never-`innerHTML` invariant** (`add-session.js:36-40`, `db.js:966-967`, `settings.js:27-28`) | Fine | Carries HTML into the backup file | ❌ Fights the security posture; needs a sanitizer dep or hand-rolled allow-list |
+| JSON (delta / portable-text) | Reasoning + serializers required | Need a plain-string→JSON upgrade path or dual-read | Two shapes coexist | Backup shape changes; importer must handle both | ❌ Overkill for bold/underline/bullets; needs md-serializer (export) + html-serializer (preview) |
 
-### Structure Rationale
+**Why markdown is nearly free here:** `buildFilteredSessionMarkdown` already pushes `trappedValue.trim()` (etc.) as **raw markdown body** under a `##` heading (`export-modal.js:402-438`), and `md-render`/`pdf-export` already parse it. A user who types `- item` in a field **already** gets a bullet in the exported PDF today. The demo seed even ships bullet lists inside `comments` (`demo-seed-data.json:126,152`). So markdown-in-fields is de-facto live in the export path already.
 
-- **One module per surface** matches every existing feature (`backup-modal.js`, `export-modal.js`, `crop.js`) and keeps each pillar independently testable under the `tests/` + `run-all.js` harness.
-- **A dedicated `first-run.js` coordinator** is the single highest-leverage new abstraction: today the first-run surfaces (security note, iOS banner, integrity nudge) each decide independently whether to show, so adding welcome + What's-New without a coordinator guarantees stacking collisions. Centralize the "what shows now?" decision.
-- **`changelog-data.js` as data, not markup** keeps release notes out of `.js` logic and lets the docs-gate assert "a new version entry exists" with a simple parse.
+**The one real compat wrinkle — retroactive interpretation.** The moment the **read-mode form** switches from showing a raw `<textarea>` to showing a *rendered* markdown preview, any pre-existing plain-text field that happens to contain `*`, `-`/`* ` at line start, `#`, or the chosen underline token will suddenly render as formatting (e.g. a literal asterisk becomes bold, a leading dash becomes a bullet). This risk is:
+- **Already partially live** in the export/copy path (those builders already parse field content as markdown), so it is not new to export.
+- **New** to the in-form read view. Flag for discuss-phase: accept it (markdown is intuitive), or gate rendering behind a per-field "is-formatted" marker so legacy content stays literal. A per-field marker reintroduces a (small) schema concern; accepting retro-interpretation keeps zero-migration. Recommend **accept**, because the export already behaves this way and consistency form↔export is the higher-value property.
+
+**Underline is the storage sub-decision.** Markdown has no underline. `**`=bold and `*`=italic are taken (`md-render.js:20-22`, `pdf-export.js:478-535`); `__ __` currently renders **literally** (not mapped). A stored underline needs a token that (a) does not collide with `*`/`**`, (b) is reversible, (c) is handled in BOTH `md-render` (preview + read view) and `pdf-export` (parse + draw). Candidate tokens: `__text__`, `++text++`, or a raw `<u></u>` convention (but `<u>` is HTML-escaped by `md-render.js:8-15` and by `pdf-export`'s text path, so it would need special-casing — messier). **Recommend a paired delimiter (`__…__` or `++…++`)** parsed identically to the bold path. This is a genuine decision to lock BEFORE the editor UI is built.
 
 ---
 
-## Architectural Patterns
+## The section-order decision (reordering)
 
-### Pattern 1: Idempotent chrome mount inside `initCommon()`
+**Order is hardcoded in FOUR places that must all agree — this is the 260615 bug class.**
 
-**What:** Add `initHelpEntry()` the same way `initSettingsLink()` works — resolve `#headerActions`, bail if already mounted, `createElement` an SVG button (never `innerHTML` with user data), insert in the documented icon order, and register a one-time `app:language` relabel listener.
+1. **Static form DOM** — `[data-section-key]` wrappers in `add-session.html` (the visual order).
+2. **`buildSessionMarkdown`** (copy path) — a hardcoded push sequence, explicitly commented "Order MUST mirror the add-session form DOM order" (`export-modal.js:260-292`).
+3. **`buildFilteredSessionMarkdown`** (PDF/MD path) — a second hardcoded push sequence, same comment (`export-modal.js:406-438`).
+4. **`EXPORT_SECTION_ORDER`** array — drives the Step-1 include-checkbox order (`export-modal.js:313-323`).
 
-**When:** For the "?" entry point.
+Plus a subtle **fifth** coupling: `severityAfterSections` (`export-modal.js:646-657` → `pdf-export.js:1291-1319`) positions the severity-bars block by *assuming* the issues/severity section sits right after `heartShield` in form order. Reordering breaks that positional assumption.
 
-**Trade-offs:** Zero new infra, perfectly consistent with the codebase; but it only runs on pages that call `initCommon` (so not `report.html`/legal/landing — see gotcha #1).
+Quick task **260615** (see the drag-sort todo) *fixed* a divergence by making builders 2+3 hardcode-match the static DOM. That fix is exactly what must be **unwound** into "consume the saved order" when drag-sort lands, or the two builders diverge from the now-user-controlled form and reintroduce 260615.
 
-**Example (mirrors `app.js:391-455`):**
-```javascript
-function initHelpEntry() {
-  var actions = document.getElementById('headerActions');
-  if (!actions || actions.querySelector('.help-entry-btn')) return;   // idempotent
-  var btn = document.createElement('button');
-  btn.className = 'header-control-btn help-entry-btn';
-  btn.setAttribute('aria-label', t('help.entry.label'));
-  btn.innerHTML = '<svg …>…</svg>';                                    // compile-time literal only
-  btn.addEventListener('click', function(){ Tour.start('main'); });
-  actions.appendChild(btn);
-  if (!initHelpEntry._i18n) {                                          // one-time relabel
-    document.addEventListener('app:language', function(){ /* re-set aria-label */ });
-    initHelpEntry._i18n = true;
-  }
-}
-```
+**Where the saved order should live.** `therapistSettings` is `keyPath: "sectionKey"` with rows `{sectionKey, customLabel, enabled}` (`db.js:306-312`, `settings.js:507-512`). Note: the 2026-05-13 todo assumed a per-locale `therapistSettings.{locale}` record — **that is wrong per the live schema**; rename/enabled state is **global per section**, one row per key, and order should be too. Two viable homes:
 
-### Pattern 2: Cross-page tour persistence via `sessionStorage` + resume-on-init
+| Option | Shape | Pros | Cons |
+|--------|-------|------|------|
+| **(a) per-row `order` int** | add `order` to each `{sectionKey,…}` row | Reuses `setTherapistSetting` + `getAllTherapistSettings` | Reorder rewrites all 9 rows; must extend `setTherapistSetting` (`db.js:969-985`) + `renderRow`; disabled/locked rows still need slots; total-order integrity is emergent, not enforced |
+| **(b) single sentinel record** (recommend) | `{sectionKey:'sectionOrder', order:[...keys]}` | One write, one read, a clean total order; **mirrors the existing `snippetsDeletedSeeds` sentinel pattern** (`db.js:917-963`) which is already backup-aware | Must register the new key in **two lock-step allow-lists**: `db.js` `_SENTINEL_KEYS` (`:920`) AND `backup.js` `ALLOWED_SENTINEL_KEYS` (`:1157`) — the `db.js:918-920` comment mandates exactly this |
 
-**What:** The workflow-spine tour spans multiple HTML pages. Because each page is a full document load, in-memory step state dies on navigation. Persist `{tourId, stepIndex}` to `sessionStorage` before `location.href`, and have `initCommon()` (or `tour.js`'s own init) check for an in-progress tour on every page load and resume.
+**Recommend (b).** It matches a proven, backup-safe pattern and keeps order as one authoritative array. The backup restore loop already branches sentinel-vs-section rows (`backup.js:1166-1194`), so a new sentinel drops into the existing seam.
 
-**When:** For the guided tour only. `sessionStorage` (not `localStorage`) is correct: a tour is a within-visit activity — the existing iOS banner already uses `sessionStorage 'iosPromptDismissed'` (`index.html:369`) for the same "per-visit" semantics.
-
-**Trade-offs:** Survives navigation and tab reload within a session; auto-clears when the tab closes (a half-finished tour shouldn't resurrect days later). Anchor resolution must degrade gracefully — Phase 26 D-11 already specifies: `anchor present & visible → spotlight; anchor missing / offsetParent===null → centered modal + working "Take me there" link (never a silent skip); step on another page → navigate + persist + resume`.
-
-**Example:**
-```javascript
-// tour.js — step schema per 26-UI-SPEC D-11:
-// { id, page, anchor?: '[data-tour="addClient"]', i18nKey, takeMeThereHref }
-function goToStep(i) {
-  var step = STEPS[i];
-  if (step.page !== currentPage()) {
-    sessionStorage.setItem('sg.tour', JSON.stringify({ tourId: id, stepIndex: i }));
-    location.href = step.takeMeThereHref;                 // resumes on next page init
-    return;
-  }
-  var el = step.anchor && document.querySelector(step.anchor);
-  if (el && el.offsetParent !== null) spotlight(el, step);
-  else centeredFallback(step);                            // NEVER silent-skip (Pitfall 6)
-}
-document.addEventListener('app:language', rerenderCurrentStep);  // cleanup-then-replace
-```
-
-> ⚠️ Prior-art caveat: 26-UI-SPEC modeled the tour renderer on `assets/demo-hints.js`. **That file was deleted in Phase 35** (PROJECT.md DEMO-01). The rendering CSS/DOM idiom must be authored fresh from the tokens system (`assets/tokens.css`, logical properties, `[data-theme="dark"]`). No vendored library (Shepherd/Intro are AGPL → rejected for a closed EUR-119 product; Driver.js MIT is a documented fallback only).
-
-### Pattern 3: Version-change popup keyed on `APP_VERSION` vs a stored last-seen
-
-**What:** On load, compare `AppVersion.APP_VERSION` (`version.js:25`) to `localStorage 'sg.lastSeenVersion'`. Three cases:
-- **key absent** → first-ever run → this is the *welcome* path, **not** a What's-New (don't announce changes to someone who never saw the old version). Seed `sg.lastSeenVersion = APP_VERSION` silently.
-- **stored < APP_VERSION** → genuine upgrader → show What's-New popup with entries newer than `stored`, then write `sg.lastSeenVersion = APP_VERSION`.
-- **stored === APP_VERSION** → nothing.
-
-**When:** For the changelog popup. This is a client-only comparison — no network, consistent with the offline-first constraint.
-
-**Trade-offs:** Simple and offline-safe. Requires the seed-on-first-run rule to avoid double-surfacing welcome + What's-New to the same brand-new user (this is *the* reason the first-run coordinator matters). Semver comparison should be a tiny pure helper (unit-testable, mirrors how `version.js` keeps `resolveIntegrityState` pure at `version.js:53`).
-
-**Example:**
-```javascript
-var seen = localStorage.getItem('sg.lastSeenVersion');
-var now  = window.AppVersion.APP_VERSION;
-if (seen === null)      localStorage.setItem('sg.lastSeenVersion', now);  // first run → welcome owns it
-else if (seen !== now)  FirstRun.enqueue('whatsNew', { since: seen });    // upgrader
-// coordinator decides ordering vs welcome / security note / iOS nudge
-```
-
-### Pattern 4: i18n-capable changelog data structure
-
-**What:** Two viable shapes under the existing flat-key i18n system (`window.I18N[lang][key]`, `app.js:14`). Present both to discuss-phase; **Option A is the recommended default** because it reuses the exact mechanism the whole app already uses.
-
-**Option A — thin data + i18n keys (recommended):**
-```javascript
-// changelog-data.js  — order + metadata only, copy lives in i18n files
-window.Changelog = [
-  { version: '1.3.0', date: '2026-07-XX', keyPrefix: 'changelog.v1_3_0' },
-  { version: '1.2.5', date: '2026-07-07', keyPrefix: 'changelog.v1_2_5' }
-];
-// i18n-en.js:  "changelog.v1_3_0.title": "In-app help & changelog",
-//              "changelog.v1_3_0.items": "…"   (or .item1/.item2 …)
-```
-*Pros:* one translation pipeline, `applyTranslations()` + `app:language` re-render already work, matches `help.*` keys. *Cons:* per-item copy needs a key convention (e.g. `.item1..itemN` or a delimiter split).
-
-**Option B — self-contained multilingual data:**
-```javascript
-window.Changelog = [{
-  version: '1.3.0', date: '2026-07-XX',
-  title: { en:'…', he:'…', de:'…', cs:'…' },
-  items: { en:[…], he:[…], de:[…], cs:[…] }
-}];
-```
-*Pros:* release notes are one self-contained object, easy for the docs-gate to parse "does an entry for `APP_VERSION` exist?". *Cons:* a second, parallel i18n mechanism that `applyTranslations()` doesn't know about — the render code must hand-select the language and re-render on `app:language` itself.
-
-Given the milestone ships **EN canonical, DE/CS/HE deferred** (PROJECT.md), Option A degrades most gracefully: `t()` already falls back to English for any missing key (`app.js:16`).
+**Consumers to switch from hardcoded → saved order (all of them, atomically):**
+- **`app.js`**: add a sync `getSectionOrder()` reading a new cache slot, populated in `initCommon` alongside `_sectionLabelCache` (same eager-load/sync-read pattern as `getSectionLabel`).
+- **Add/edit form** (`add-session.js`): reorder the `[data-section-key]` wrappers in the DOM per saved order at load. `applySectionVisibility` + `applySectionLabels` already iterate those wrappers (`:913-986`) — add a reorder pass before them. Covers both new and edit (same page).
+- **`buildSessionMarkdown` + `buildFilteredSessionMarkdown`**: replace the two hardcoded push sequences with a single loop over the saved order.
+- **`EXPORT_SECTION_ORDER`**: derive from saved order (or sort by it).
+- **`severityAfterSections`**: recompute as "count of enabled body sections preceding `issues` in the **saved** order" instead of the heartShield-first assumption.
+- **Guard test**: `tests/30-export-markdown.test.js` currently asserts `export order == static DOM order` (its header cites `quick-260615-export-section-order`; the assertions live at `:203-209`). It must change to assert `export order == saved section order`. (No standalone `quick-260615-export-section-order.test.js` exists; the coverage is folded into `30-export-markdown.test.js`.)
 
 ---
 
-## Data Flow
+## New vs Modified components (explicit)
 
-### First-run / return-visit decision flow (the coordination that doesn't exist yet)
+**NEW:**
+- **Rich-text toolbar component** (the one substantial new UI). Recommend a **markdown-toolbar-over-`<textarea>`** (Bold/Underline/Bullet buttons that wrap/prefix the current selection with tokens), **NOT `contenteditable`**. Rationale: keeps `.session-textarea` as the storage + editing surface, so the snippets input-listener (`add-session.js:32-34`), `autoGrow` (`:66-74`), dirty-tracking (`:212-219`), read-only toggle (`:315-322`), and section-visibility all keep working **unchanged**. A `contenteditable` swap would break every one of those.
+- **In-form rendered read view** — a MdRender preview surface shown in read-mode in place of (or over) each read-only textarea, so saved formatting is *visible* rather than shown as raw `**`/`__` tokens. (Design fork; see LOW-confidence note below.)
+- **`sectionOrder` sentinel** in `therapistSettings` (+ two allow-list registrations).
+- **Section drag-sort UI** in `settings.js` (reorder the 9 `SECTION_DEFS` rows; persist the sentinel on Save).
+- **`App.getSectionOrder()`** sync accessor + cache slot.
+- Underline parse/render additions (see below — extensions of existing functions, arguably "modified").
 
-```
-page load → initCommon() (app.js:648)
-    │
-    ├─ [pre-body] index.html head gates already ran (index.html:8/12/16):
-    │     no license → landing ; no terms → disclaimer ; license incomplete → license
-    │     (a user only reaches initCommon on index if fully licensed+accepted)
-    │
-    ▼ FirstRun.coordinate()  ← NEW single decision point
-    │   collect candidates, show AT MOST ONE per load by priority:
-    │     • welcome overlay      (localStorage 'sg.welcomeSeen' absent)
-    │     • What's-New popup      ('sg.lastSeenVersion' < APP_VERSION)
-    │     • integrity nudge       (version.js state ≠ 'clean')  ← already exists
-    │     • security note         (app.js:1243, 7-day recurring)
-    │     • PWA install nudge      (per-browser, was index.html:366)
-    ▼
-  render footer (SharedChrome.renderFooter, app.js:782) → may raise integrity nudge
-```
+**MODIFIED:**
+- **`md-render.js`** — add underline token support (new inline rule alongside `applyInline`, `:17-23`). Small, pure, unit-testable.
+- **`pdf-export.js`** — (1) extend the segment model `{text,bold}` → `{text,bold,underline}` in `parseInlineBold` (`:478-535`); (2) in `drawSegmentedLine` (`:931-994`), each run already has a measured width, x-anchor, and y-baseline — draw a `doc.line` under underlined runs (~1.5pt below baseline). RTL is handled for free because runs are already positioned in visual order. **No new font** (bold already vendored; underline is a drawn rule, not a glyph variant). Bold + bullets need **no PDF change**.
+- **`add-session.js`** — wire the toolbar; add the read-mode rendered view; reorder section wrappers per saved order.
+- **`add-session.html`** — toolbar markup per field (or one shared, selection-aware toolbar) + a read-view container per section.
+- **`export-modal.js`** — swap the two hardcoded builder sequences to loop over saved order; recompute `severityAfterSections`; `EXPORT_SECTION_ORDER` follows saved order. Preview already uses MdRender (`:539`) — inherits underline for free once `md-render` supports it.
+- **`settings.js`** — drag-sort interaction + persist order; possibly a "reset order" affordance.
+- **`db.js`** — register `sectionOrder` in `_SENTINEL_KEYS`; the `_writeTherapistSentinel` path already handles arbitrary sentinel arrays (may need to generalize its `deletedIds`-specific coercion at `:955-962` to a generic array field).
+- **`backup.js`** — register `sectionOrder` in `ALLOWED_SENTINEL_KEYS`; verify the sentinel round-trips (the restore branch at `:1166-1179` currently forwards `deletedIds` — generalize to forward the order array).
+- **`sessions.js`** (list table) — the sessions table renders `session.trappedEmotions` via `textContent` (`sessions.js:262`), so raw `**`/`__` tokens would show in the cell preview. Strip inline markdown for the table preview (reuse a strip helper) or accept it. Minor, but do not forget it.
+- **Guard test** `tests/30-export-markdown.test.js` — rewrite the order assertions.
 
-### Offline availability flow (must-not-forget)
-
-```
-new file assets/help.js, tour.js, changelog-data.js, help.html
-    │
-    ▼ MUST be added to sw.js PRECACHE_URLS (sw.js:33) + PRECACHE_HTML (sw.js:106)
-    │   (both are hand-maintained arrays — omission = feature silently breaks offline,
-    │    the exact failure class version.js:16 comment calls out)
-    ▼
-  CACHE_NAME auto-rolls from INTEGRITY_TOKEN on deploy (sw.js:26) — no manual bump,
-  but the pre-commit SW-bump hook note (memory) still applies to PRECACHE edits.
-```
-
-### Key Data Flows
-
-1. **Language switch:** `setLanguage()` → `applyTranslations()` → dispatch `app:language` (`app.js:122-126`). Every new surface (help page, tour tooltip, welcome, popup) must listen and re-render — the tour especially (cleanup-then-replace) because its DOM is built imperatively, not via `data-i18n` scanning.
-2. **Deep-link from empty state → help:** existing empty-state string `overview.clients.empty` (`i18n-en.js`, rendered `overview.js:640`) gains an inline link into the relevant `help.html` spine section — pure copy, no engine (26-UI-SPEC "empty-state coaching" leg).
-3. **Version bump → popup:** `AppVersion.APP_VERSION` (`version.js:25`, hand-set at release) is the sole trigger source; the popup never phones home.
+**NO change needed:**
+- **`backup.js` for rich text** — session fields stay strings; markdown round-trips verbatim. (Only the *section-order sentinel* touches backup.)
+- **PDF bold + list rendering** — already shipped (Phase 23-12).
+- **`db.js` sessions schema / migrations** — no new store, no migration; DB_VERSION stays 6.
+- **Snippets engine** — composes unchanged **iff** the editor stays a textarea.
 
 ---
 
-## First-Run Precedence — OPTIONS (decide in discuss-phase, do NOT pre-commit)
+## Data Flow (after the milestone)
 
-There are now up to **five** things that can want the screen on a single load. Presenting models with tradeoffs; the roadmap owner picks one.
-
-**The competing surfaces (all real today except welcome/What's-New):**
-| Surface | Trigger | Storage | Cited |
-|---------|---------|---------|-------|
-| Head redirect gates | missing license/terms | localStorage | `index.html:8/12/16` |
-| Integrity nudge | SW token mismatch | (none) | `version.js:239` / `shared-chrome.js:149` |
-| Security note | activated, 7-day recurring | `securityGuidanceDismissed` | `app.js:1243` |
-| iOS install banner | iOS + not standalone, per session | `iosPromptDismissed` (sessionStorage) | `index.html:366` |
-| Welcome overlay | first run | `sg.welcomeSeen` (new) | 26-UI-SPEC D-09 |
-| What's-New popup | version bump | `sg.lastSeenVersion` (new) | new |
-
-**Option 1 — Strict single-queue coordinator (recommended default).**
-One `FirstRun.coordinate()` shows exactly one surface per load, by fixed priority: *integrity nudge (safety) > welcome (first run only) > What's-New (upgraders) > security note > install nudge*. Remaining items defer to a later load.
-*Pros:* never stacks; deterministic; testable as a pure priority function (like `resolveIntegrityState`). *Cons:* a genuine upgrader may wait one extra load to see a deferred surface.
-
-**Option 2 — Mutually-exclusive first-run vs return-visit branch.**
-If `sg.welcomeSeen` absent → **only** welcome (suppress everything else that load, seed `sg.lastSeenVersion` silently). Else run the normal queue. 
-*Pros:* brand-new users get a clean single welcome, zero collision with What's-New. *Cons:* two code paths.
-
-**Option 3 — Layered by surface type (least change).**
-Keep passive surfaces (footer integrity nudge, bottom install banner) as non-modal and let only **one modal** (welcome OR What's-New) show at a time.
-*Pros:* smallest diff; reuses today's independent surfaces. *Cons:* a modal + a banner + a footer ⚠ can still co-appear — visually busy for a "calm garden" product.
-
-**Non-negotiable regardless of option:** the head redirect gates (`index.html:8/12/16`) always win — they run before body and short-circuit the page; nothing in the coordinator can precede them.
+**Rich-text write path:**
+```
+User clicks Bold/Underline/Bullet toolbar → wrap selection in markdown token
+  → textarea.value mutated → input event → autoGrow + dirty-track fire (unchanged)
+  → saveSessionForm reads .value.trim() → PortfolioDB.updateSession (string, unchanged)
+```
+**Rich-text read/export path (already markdown-native):**
+```
+getSession → populateSession sets textarea.value
+  → read-mode: MdRender.render(value) into preview surface (NEW view)
+  → export: buildFilteredSessionMarkdown pushes value as md body (unchanged)
+      → MdRender preview (underline NEW) / PDFExport (underline NEW, bold+lists existing)
+```
+**Section-order path (NEW):**
+```
+Settings drag-sort → save → _writeTherapistSentinel({sectionKey:'sectionOrder', order:[…]})
+  → BroadcastChannel → App refreshes _sectionOrder cache
+  → add-session reorders [data-section-key] wrappers
+  → export builders loop saved order (one source of truth) → no 260615 divergence
+```
 
 ---
 
-## Docs Hard Gate — hook vs CI vs agent DoD (what each can actually see)
+## Suggested build order (dependency-aware)
 
-The gate must block a **user-facing** change from shipping without (a) a `changelog-data.js` entry for the new `APP_VERSION` and (b) touched help topics. The three enforcement points see **different inputs** — this distinction drives the design.
+The two features are largely independent EXCEPT they both touch the export builders (`export-modal.js`). Sequence so the builder refactor happens once, cleanly, with its guard-test rewrite.
 
-| Mechanism | Runs when | Inputs it can see | Can enforce | Cannot enforce | Cost |
-|-----------|-----------|-------------------|-------------|----------------|------|
-| **`pre-commit` hook** (`.git/hooks/pre-commit`, currently empty) | local, per commit | **staged diff paths** (`git diff --cached --name-only`) | "commit touches `*.html`/user-facing `assets/*.js` ⇒ require `changelog-data.js` also staged" | intent ("is this user-facing?"), whether help *content* is meaningful, multi-commit batches | ~instant; bypassable with `--no-verify` |
-| **CI step in `deploy.yml`** (new step, none today) | on push to `main`, in Actions | **full push range** (`git diff origin/main…HEAD`), whole tree, `APP_VERSION` value | "if any user-facing path changed since the last deploy AND `APP_VERSION` bumped, `changelog-data.js` must contain that version" | local dev speed (only fires at deploy); still path-heuristic, not semantic | adds ~seconds; not bypassable by devs; **blocks deploy** (deploy.yml pushes to the `deploy` branch, so a failing gate = no release) |
-| **GSD agent DoD gate** | at phase/plan completion | phase manifest, changed files, requirement text, human/agent judgment | semantic "does this phase's changelog + help edit actually describe the change?" | anything outside the GSD workflow (a hotfix committed by hand) | process-time; strongest on *meaning*, weakest on *coverage* |
+**Track A — Rich text**
+1. **Storage-format + underline-token decision** (spike/decision). Blocks everything downstream. Lock: markdown storage, retro-interpretation accepted (or gated), underline delimiter chosen.
+2. **`md-render` underline** (+ unit test). Small; unblocks preview and the in-form read view.
+3. **PDF underline** (extend `parseInlineBold` segment model + `drawSegmentedLine` rule-draw + tests). Depends on the token from step 1. Bold/bullets already done.
+4. **Toolbar-over-textarea editor UI** + in-form rendered read view. Depends on 1–2. This is the headline UX.
+5. **Backup/demo parity check** — mostly verification (fields already round-trip); add a bold/underline example to `demo-seed-data.json` for parity.
 
-**Recommended layering (defence in depth, not one-of):**
-1. **`pre-commit` hook** = fast path-based tripwire. Classify user-facing by path: any root `*.html` except pure-legal, or `assets/*.js` **excluding** an allowlist (`i18n-*.js` copy-only, `*.min.js`, test-only, `changelog-data.js` itself). If tripped and no changelog entry staged → block with a one-line reason. Put the logic in `scripts/docs-gate.sh` so CI reuses it.
-2. **CI step in `deploy.yml`** = the non-bypassable backstop (hooks are `--no-verify`-skippable and `.git/hooks` isn't version-controlled). Assert: `APP_VERSION` bumped ⇒ `changelog-data.js` has a matching entry. Fail the job before the `Push to deploy branch` step (`deploy.yml:54`).
-3. **GSD DoD gate** = the semantic check the milestone brief actually asks for ("no phase completes without updated changelog + help topics"). This is where "did help *content* get updated" lives, because only the workflow knows a phase's intent.
+**Track B — Section reorder** (can run parallel until step B3)
+1. **Order storage** — `sectionOrder` sentinel + `db.js` `_SENTINEL_KEYS` + `backup.js` `ALLOWED_SENTINEL_KEYS` + `App.getSectionOrder()` cache.
+2. **Form consumes saved order** — reorder `[data-section-key]` wrappers (add/edit).
+3. **Export builders consume saved order** — refactor both builders + `EXPORT_SECTION_ORDER` + `severityAfterSections`, and **rewrite the `30-export-markdown` guard test in the same change** (this is the 260615-critical, atomic step).
+4. **Settings drag-sort UI** + persist + optional reset-order.
 
-**Key input reality:** a pre-commit hook fundamentally sees *paths + staged blobs*, not *meaning*. It can reliably answer "did a user-facing file change without a changelog touch?" It cannot answer "is the changelog entry truthful?" — that's the CI-version-match check (mechanical) plus the agent DoD (semantic). Design the gate around what each layer can observe, not around wishful intent-detection in the hook.
+**Ordering rationale:** decide format before building any editor (Track A blocks on A1); render underline in preview/PDF before/with the editor so "does formatting survive export?" is verifiable end-to-end; land the export-builder reorder refactor as one atomic commit with the guard-test rewrite (B3) so the section-order invariant is never briefly broken. If both tracks land in one milestone, do Track B's B3 **after** Track A's export-touching work (or coordinate) so `export-modal.js` is edited by one hand at a time.
 
 ---
 
-## Anti-Patterns
+## Anti-Patterns (domain-specific, verified against this code)
 
-### Anti-Pattern 1: Binding tour steps to CSS/text selectors
-**What people do:** anchor tour spotlights to `#someId`, `:nth-child`, or button text. **Why it's wrong:** breaks on refactor, on RTL reflow, and on every non-EN locale (text changes). **Do instead:** dedicated `data-tour="…"` attributes (26-UI-SPEC "Anchors"), invisible to styling/i18n/refactor. These do not exist yet — adding them is a real HTML-edit task, not free.
+**Swapping the session fields to `contenteditable`.**
+- *Why it's wrong:* breaks the snippets input-listener, `autoGrow` scrollHeight math (`add-session.js:58-74`), dirty-tracking, read-only toggle, and the `.value`-based save/revert snapshot — all of which assume a `<textarea>`.
+- *Do instead:* toolbar-over-textarea emitting markdown tokens.
 
-### Anti-Pattern 2: Silent step-skip when an anchor is missing
-**What people do:** if `querySelector` returns null, advance the tour. **Why it's wrong:** the user sees the tour "jump," loses the thread, and you can't tell it happened. **Do instead:** centered fallback modal + working "Take me there" link (26-UI-SPEC D-11, Pitfall 6).
+**Storing sanitized HTML "so the preview is easy."**
+- *Why it's wrong:* the entire app renders user content via `textContent`/`.value`, never `innerHTML` (stated as an INVARIANT in `add-session.js:36-40`, enforced across `settings.js`, `db.js`, `sessions.js`). HTML storage inverts that and opens an XSS surface on every read.
+- *Do instead:* markdown storage; `MdRender` already produces *escaped* safe HTML for the one place `innerHTML` is used (the export preview, `export-modal.js:539`).
 
-### Anti-Pattern 3: Forgetting the SW precache lists
-**What people do:** ship `help.js`/`help.html` and test online; it works. **Why it's wrong:** installed PWAs serve from cache-first (`sw.js:274`); an asset absent from `PRECACHE_URLS`/`PRECACHE_HTML` is unavailable offline and can 404 for Add-to-Dock users — the failure class `version.js` was built to kill. **Do instead:** every new shipped file gets a line in `sw.js:33`/`:106` in the same commit.
+**Leaving the export builders on hardcoded order after Settings gets drag-sort.**
+- *Why it's wrong:* the exact 260615 divergence — form order becomes user-controlled while PDF/copy stay static.
+- *Do instead:* one saved-order source consumed by form + both builders + step-1 list + severity positioning, with the guard test asserting equality to saved order.
 
-### Anti-Pattern 4: Treating the footer integrity nudge as the changelog channel
-**What people do:** hang "what's new" off the existing footer update-nudge. **Why it's wrong:** that nudge means *your update is broken/incomplete* (`version.js:53` state machine), the opposite of a celebratory release note. **Do instead:** a separate What's-New surface with its own `sg.lastSeenVersion` trigger; let the coordinator order them.
-
-### Anti-Pattern 5: A second i18n mechanism the app doesn't re-render
-**What people do:** put changelog copy in bespoke per-object language maps, then forget to re-render on `app:language`. **Why it's wrong:** switching language leaves stale changelog text. **Do instead:** prefer `data-i18n` keys (Option A) so `applyTranslations()` (`app.js:23`) handles it for free; if using object data, wire an explicit `app:language` listener.
+**Forgetting `severityAfterSections`.**
+- *Why it's wrong:* it silently assumes issues/severity follows `heartShield` in form order; reordering mislocates the severity bars in the PDF.
+- *Do instead:* recompute from saved order.
 
 ---
 
 ## Integration Points
 
-### Internal Boundaries
-
 | Boundary | Communication | Notes |
 |----------|---------------|-------|
-| new surfaces ↔ i18n | `t()` + `app:language` event | `app.js:14`,`:126`; EN-canonical, `t()` auto-falls-back to en (`app.js:16`) |
-| "?" entry ↔ chrome | `initCommon()` mount, `#headerActions` | `app.js:648`; mirror `initSettingsLink` idempotency (`app.js:395`) |
-| Help nav ↔ nav bar | new `data-nav="help"` in `renderNav()` | `app.js:137-148` |
-| tour ↔ pages | `data-tour` anchors + `sessionStorage 'sg.tour'` | anchors are new HTML edits; resume on init |
-| popup ↔ version | read `AppVersion.APP_VERSION` | `version.js:25`; hand-set at release |
-| all new files ↔ offline | `sw.js` precache arrays | `sw.js:33`,`:106` — manual |
-| gate ↔ pipeline | `scripts/docs-gate.sh` shared by hook + CI | `deploy.yml` gains a step before `:54` |
-
-### Surfaces that DON'T get chrome for free (decide coverage)
-
-| Page | Has `#headerActions`? | Calls `initCommon`? | Help entry appears? |
-|------|----------------------|--------------------|--------------------|
-| index/sessions/reporting/add-*/settings | yes | yes | yes (automatic) |
-| `report.html` | yes (`report.html:47`) | **no** (no `app.js`) | **no** — needs explicit wiring |
-| legal (`impressum/datenschutz/disclaimer*`) | no | no | no — inline-strings path if wanted |
-| `landing.html` / `demo.html` | landing: no chrome; demo: chrome but `window.name==='demo-mode'` guards | demo: yes | demo suppresses many entries by design (`app.js:362`) |
+| toolbar ↔ `.session-textarea` | direct `.value` mutation + synthetic `input` event | must compose with snippets + autoGrow (order-independent by design) |
+| `add-session.js` ↔ `export-modal.js` | `window.__exportModalInit(ctx)` accessor closures (`add-session.js:1023-1029`) | export reads live field values via DOM ids at use-site; reorder changes DOM, not the contract |
+| section order ↔ `therapistSettings` | new `sectionOrder` sentinel via `_writeTherapistSentinel` | register in `db.js` `_SENTINEL_KEYS` + `backup.js` `ALLOWED_SENTINEL_KEYS` **in lock-step** |
+| Settings ↔ other tabs | `BroadcastChannel("sessions-garden-settings")` (`settings.js:517-521`) + `app:settings-changed` | order changes should ride the same refresh path as rename/enable |
+| fields ↔ `.sgbackup` | sessions[] JSON, opaque strings (`backup.js`) | rich text needs zero backup change; only the order sentinel touches backup |
+| markdown ↔ PDF | `PDFExport.buildSessionPDF({markdown,…})` (`export-modal.js:675-691`) | bold/lists live; underline is the only new render primitive |
 
 ---
 
-## Suggested Build Order (dependency-reasoned)
+## Confidence
 
-Ordered so each step's prerequisites already exist. Rationale is the point, not the numbering.
-
-1. **Foundations — i18n key scaffolding + `first-run.js` coordinator + version-seen storage.** Everything else renders copy and competes for first-run screen space; stand up the shared plumbing first. Seed `sg.lastSeenVersion`/`sg.welcomeSeen` semantics here. *(No UI yet; unblocks 2–7.)*
-2. **Help center page (`help.html` + `help.js`) + full EN content + "Help" nav entry + "?" header mount.** The help page is the **link target** for deep-links, tour fallbacks ("Take me there"), and the changelog page — build it before anything points at it. *(Depends on 1.)*
-3. **Empty-state deep-links.** Pure copy edits pointing existing empty states (`overview.clients.empty`, `overview.js:640`) at help sections. *(Depends on 2 — needs help sections to exist.)*
-4. **Welcome overlay (`welcome.js`).** First-run surface; register it with the coordinator from step 1. *(Depends on 1; light dependency on 2 for its "take the tour" CTA.)*
-5. **Tour engine (`tour.js`) + `data-tour` anchors.** The most fragile pillar (bespoke engine, cross-page resume, graceful degradation, no template since `demo-hints.js` was deleted). Anchors are HTML edits across 4 pages; the engine consumes them. *(Depends on 1, 2; welcome's CTA launches it.)*
-6. **Changelog data (`changelog-data.js`) + changelog page section + What's-New popup.** Popup needs the version-seen storage (1) and a place to render (2); v1.3's own notes are the first entry. *(Depends on 1, 2.)*
-7. **PWA install nudge (consolidate the inline iOS banner).** Fold `index.html:366-378` into a per-browser nudge governed by the coordinator so it stops competing uncoordinated. *(Depends on 1.)*
-8. **Docs hard gate.** Land it **last within the milestone** so v1.3's own changelog/help edits are already in place (the gate would otherwise block its own sibling commits), then it guards every *future* user-facing change. Layer: `pre-commit` hook + `scripts/docs-gate.sh` → CI step in `deploy.yml` → GSD DoD. *(Depends on 6 for the `changelog-data.js` shape it asserts against.)*
-
-**Ordering invariants:** help page (2) before deep-links (3) and before anything that links into help; version-seen storage (1) before the popup (6); `changelog-data.js` shape (6) before the gate that parses it (8); anchors + engine (5) are a single unit (an engine with no anchors is untestable, anchors with no engine are dead attributes).
-
----
+- **HIGH** on every "already exists / already markdown / hardcoded in 4 places / no migration needed" claim — read directly from source, cited.
+- **LOW / open for discuss-phase:** (1) read-mode rendering fork — accept retro-interpretation vs per-field is-formatted marker; (2) underline delimiter choice; (3) toolbar shape (per-field vs one shared selection-aware toolbar); (4) order-storage option (a) vs (b) — recommend (b) but either works; (5) whether reorder ships in the same milestone as rich text (they intersect only at `export-modal.js`).
 
 ## Sources
 
-- Live source (HIGH confidence, primary): `assets/app.js` (`initCommon:648`, `renderNav:137`, `initSettingsLink:391`, `t:14`, `setLanguage:116`, `showFirstLaunchSecurityNote:1243`, export surface `:1509`); `assets/version.js` (`APP_VERSION:25`, integrity state machine `:53`, `buildNudge:239`); `assets/shared-chrome.js` (`renderFooter:100`, `maybeUpgradeFooterAndNudge:149`, inline strings `:64-98`); `sw.js` (`CACHE_NAME:26`, `PRECACHE_URLS:33`, `PRECACHE_HTML:106`); `index.html` (head gates `:8/12/16`, chrome hooks `:66-67`, iOS banner `:366`, script order `:347-378`); `report.html:47`; `assets/i18n-en.js` (flat-key shape); `assets/overview.js:640`; `.github/workflows/deploy.yml` (no gate step today); `.git/hooks` (empty); `scripts/` (only `cf-purge-cache.sh`).
-- Prior art (HIGH as *design intent*, verified-stale where noted): `.planning/milestones/v1.1-phases/26-in-app-onboarding-overview-help-system/26-UI-SPEC.md` (D-01..D-15, tour step schema, anchor contract, precedence hints). Stale elements confirmed against current source: `demo-hints.js` deleted (PROJECT.md Phase 35), `data-tour` anchors absent (grep = 0), terminology renamed (Phase 37).
-- Project context: `.planning/PROJECT.md` (v1.3 scope, constraints, two-audiences, offline/zero-dep rules).
+- Live source (cited inline `file:line`): `add-session.js`, `export-modal.js`, `md-render.js`, `pdf-export.js`, `db.js`, `settings.js`, `app.js`, `backup.js`, `sessions.js`, `demo-seed-data.json`, `tests/30-export-markdown.test.js`
+- `.planning/todos/pending/2026-05-13-drag-sort-settings-categories.md` (drag-sort intent + the 260615 export-builder trap)
+- `.planning/PROJECT.md` (v1.4 scope, zero-dependency + local-only constraints)
 
 ---
-*Architecture research for: in-app help/onboarding/changelog integration into an existing vanilla-JS multi-page PWA*
-*Researched: 2026-07-07*
+*Architecture research for: rich-text session editor + section reordering on a live zero-dep vanilla PWA*
+*Researched: 2026-07-11*
