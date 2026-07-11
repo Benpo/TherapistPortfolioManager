@@ -113,7 +113,12 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   1. `CONVENTIONS.md` no longer instructs agents to cite phase/plan IDs in shipped comments, and a baseline-aware test gate blocks any NEW internal planning reference in changed shipped code while tolerating the existing legacy references (the ~680-line retrofit stays out of scope). The single RUNTIME planning-ref leak — the add-client.js `console.warn` citing D-23 — is removed (one-line reword).
   2. A deploy purges the Cloudflare cache only AFTER the Pages promotion is confirmed live — the v1.3.0 mixed-cache incident class can no longer occur.
   3. A `pre-prod` branch deploys to a second Cloudflare Pages project that reproduces production URL semantics (clean URLs, `_redirects`, deploy-stamped integrity token) without touching the `deploy` branch the docs-gate CI anchors to.
-**Plans**: TBD
+**Plans**: 5 plans (2 waves)
+- [ ] 44-01-PLAN.md — DEBT-01: rewrite CONVENTIONS.md §Comments + reword add-client.js console.warn + align REQUIREMENTS/ROADMAP (no gate ships) [wave 1]
+- [ ] 44-02-PLAN.md — DEBT-02: scripts/cf-await-promotion.sh sentinel-then-blocking-purge + stub-curl test [wave 1]
+- [ ] 44-03-PLAN.md — DEBT-03: scripts/build-staging.sh shared transform (+ --noindex) + tmp-dir fidelity test [wave 1]
+- [ ] 44-04-PLAN.md — DEBT-02+03: wire deploy.yml to build-staging.sh + cf-await-promotion.sh (blocking purge after promotion) [wave 2]
+- [ ] 44-05-PLAN.md — DEBT-03: deploy-preprod.yml (isolated) + second CF Pages project human checkpoint [wave 2]
 
 ### Phase 45: Rich-Text Rendering & Export Foundation
 **Goal**: Formatted session notes display correctly everywhere they are read — read mode, PDF export, and markdown copy/share — so markdown-formatted text round-trips end-to-end before any editing UI exists.
