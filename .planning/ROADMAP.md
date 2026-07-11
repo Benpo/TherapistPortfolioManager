@@ -116,11 +116,11 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   2. A deploy purges the Cloudflare cache only AFTER the Pages promotion is confirmed live — the v1.3.0 mixed-cache incident class can no longer occur.
   3. A `pre-prod` branch deploys to a second Cloudflare Pages project that reproduces production URL semantics (clean URLs, `_redirects`, deploy-stamped integrity token) without touching the `deploy` branch the docs-gate CI anchors to.
 
-**Plans**: 1/5 plans executed
+**Plans**: 2/5 plans executed
 **Wave 1**
 
 - [x] 44-01-PLAN.md — DEBT-01: rewrite CONVENTIONS.md §Comments + reword add-client.js console.warn + align REQUIREMENTS/ROADMAP (no gate ships) [wave 1]
-- [ ] 44-02-PLAN.md — DEBT-02: scripts/cf-await-promotion.sh sentinel-then-blocking-purge + stub-curl test [wave 1]
+- [x] 44-02-PLAN.md — DEBT-02: scripts/cf-await-promotion.sh sentinel-then-blocking-purge + stub-curl test [wave 1]
 - [ ] 44-03-PLAN.md — DEBT-03: scripts/build-staging.sh shared transform (+ --noindex) + tmp-dir fidelity test [wave 1]
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -256,7 +256,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 42. In-App Changelog & What's-New | v1.3 | 11/11 | Complete | 2026-07-09 |
 | 42.1. Help & Onboarding Translation (HE/DE/CS) | v1.3 | 10/10 | Complete | 2026-07-10 |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 10/10 | Complete | 2026-07-10 |
-| 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 1/5 | In Progress|  |
+| 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 2/5 | In Progress|  |
 | 45. Rich-Text Rendering & Export Foundation | v1.4 | 0/TBD | Not started | - |
 | 46. Rich-Text Toolbar Editor | v1.4 | 0/TBD | Not started | - |
 | 47. Session-Section Reordering | v1.4 | 0/TBD | Not started | - |

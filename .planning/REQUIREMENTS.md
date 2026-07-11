@@ -44,7 +44,7 @@ Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings
 Rescoped 2026-07-11: the ~680-line legacy comment retrofit is TOO BIG for this milestone — deferred to a focused v1.5 candidate. v1.4 ships only the don't-make-it-worse layer.
 
 - [x] **DEBT-01**: The CONVENTIONS.md §Comments contradiction is fixed at the root (the instruction telling agents to cite phase/plan IDs is replaced with the strip-all-planning-IDs rule), and the single RUNTIME planning-ref leak is removed (add-client.js:89 `console.warn` printing "per D-23" into customer DevTools — one-line reword). No enforcement gate ships this milestone: the baseline-aware forward grep-gate travels with the ~680-line legacy retrofit in v1.5 (rescoped 2026-07-11 — gate + hygiene belong together; see Deferred / Future)
-- [ ] **DEBT-02**: Deploy purges Cloudflare cache only AFTER the Pages promotion is confirmed live (kills the v1.3.0 mixed-cache incident class)
+- [x] **DEBT-02**: Deploy purges Cloudflare cache only AFTER the Pages promotion is confirmed live (kills the v1.3.0 mixed-cache incident class)
 - [ ] **DEBT-03**: A pre-prod branch deploys to a second CF Pages project reproducing prod URL semantics (clean URLs, _redirects, deploy-stamped integrity token) for real-device pre-release testing
 
 ### Polish (PLSH)
@@ -106,7 +106,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MOBL-03 | Phase 48 | Pending |
 | MOBL-04 | Phase 48 | Pending |
 | DEBT-01 | Phase 44 | Complete |
-| DEBT-02 | Phase 44 | Pending |
+| DEBT-02 | Phase 44 | Complete |
 | DEBT-03 | Phase 44 | Pending |
 | PLSH-01 | Phase 48 | Pending |
 | PLSH-02 | Phase 48 | Pending |
