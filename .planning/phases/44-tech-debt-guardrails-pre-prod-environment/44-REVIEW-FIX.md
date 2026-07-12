@@ -17,6 +17,7 @@ status: all_fixed
 
 **Summary:**
 - Findings in scope: 6 (WR-01 through WR-06; fix_scope=critical_warning, IN-01..IN-06 excluded)
+- Follow-up: IN-04 fixed afterwards on Ben's request (see "Follow-up fixes" below); IN-01/02/03/05/06 remain open
 - Fixed: 6
 - Skipped: 0
 
@@ -92,6 +93,21 @@ gate never purges, ending the pipeline with one cancelled + one gate-failed run 
 ## Skipped Issues
 
 None — all six in-scope findings were fixed.
+
+## Follow-up fixes (outside fix_scope, user-directed)
+
+### IN-04: No CI job runs the test suites — the specs that pin these scripts gate nothing in the deploy path
+
+**Files modified:** `.github/workflows/deploy.yml`, `.github/workflows/deploy-preprod.yml`
+**Commit:** e8f2b65
+**Applied fix:** Added a `Pipeline script tests (fail-closed)` step to both workflows,
+before the staged tree is built. Prod runs both pinned suites
+(`tests/build-staging.test.js`, `tests/cf-await-promotion.test.js`); pre-prod runs only
+`build-staging.test.js` (the one script that path executes — cf-await-promotion.sh is
+prod-only). Both suites `process.exit(1)` on any failure (verified in source), so a
+pinned-contract regression now fails the deploy instead of shipping on the push that
+introduced it. This closes the amplifier the review flagged for WR-01/WR-02. YAML
+validated (both workflows parse; step order confirmed). IN-01/02/03/05/06 remain open.
 
 ---
 
