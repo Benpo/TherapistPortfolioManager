@@ -95,7 +95,7 @@ Full phase detail archived in `milestones/v1.3-ROADMAP.md`.
 
 Session documentation becomes richer and personal — formatted text and custom section order — while the app's mobile chrome, error feedback, and deploy pipeline get hardened. Zero new production dependencies; markdown-at-rest storage (fields stay plain strings, no data migration); underline dropped (no markdown syntax). Real-device verification (installed-Safari PWA, real iPhone, real opened PDF) is embedded as a success criterion in each feature phase — jsdom cannot see caret/paste/drag/PDF/RTL, and this repo has shipped false-GREEN jsdom PDF tests before.
 
-- [ ] **Phase 44: Tech-Debt Guardrails & Pre-Prod Environment** — comment-hygiene CONVENTIONS.md root-cause fix + runtime-leak reword (forward gate → v1.5), deploy purge-race fix, second CF Pages pre-prod project
+- [x] **Phase 44: Tech-Debt Guardrails & Pre-Prod Environment** — comment-hygiene CONVENTIONS.md root-cause fix + runtime-leak reword (forward gate → v1.5), deploy purge-race fix, second CF Pages pre-prod project
 - [ ] **Phase 45: Rich-Text Rendering & Export Foundation** — formatted notes render in read mode, PDF, and markdown copy/share; legacy content safe; encrypted-backup round-trip
 - [ ] **Phase 46: Rich-Text Toolbar Editor** — formatting toolbar, keyboard shortcuts, auto-format, live preview, nested lists; snippets/autogrow preserved
 - [ ] **Phase 47: Session-Section Reordering** — drag + arrow reorder in Settings, drives the form + both export builders (atomic 260615 guard rewrite), per-therapist persistence
@@ -116,7 +116,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   2. A deploy purges the Cloudflare cache only AFTER the Pages promotion is confirmed live — the v1.3.0 mixed-cache incident class can no longer occur.
   3. A `pre-prod` branch deploys to a second Cloudflare Pages project that reproduces production URL semantics (clean URLs, `_redirects`, deploy-stamped integrity token) without touching the `deploy` branch the docs-gate CI anchors to.
 
-**Plans**: 4/5 plans executed
+**Plans**: 5/5 plans executed
 **Wave 1**
 
 - [x] 44-01-PLAN.md — DEBT-01: rewrite CONVENTIONS.md §Comments + reword add-client.js console.warn + align REQUIREMENTS/ROADMAP (no gate ships) [wave 1]
@@ -126,7 +126,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 44-04-PLAN.md — DEBT-02+03: wire deploy.yml to build-staging.sh + cf-await-promotion.sh (blocking purge after promotion) [wave 2]
-- [ ] 44-05-PLAN.md — DEBT-03: deploy-preprod.yml (isolated) + second CF Pages project human checkpoint [wave 2]
+- [x] 44-05-PLAN.md — DEBT-03: deploy-preprod.yml (isolated) + second CF Pages project human checkpoint [wave 2]
 
 ### Phase 45: Rich-Text Rendering & Export Foundation
 

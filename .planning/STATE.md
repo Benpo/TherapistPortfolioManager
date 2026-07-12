@@ -5,16 +5,16 @@ milestone_name: Richer Sessions
 current_phase: 44
 current_phase_name: tech-debt-guardrails-pre-prod-environment
 status: executing
-stopped_at: Phase 44 planned — 5 plans, 2 waves, ready to execute
-last_updated: "2026-07-11T21:17:27.940Z"
-last_activity: 2026-07-11
-last_activity_desc: Phase 44 execution started
+stopped_at: Phase 44 complete — 5/5 plans; pre-prod pipeline + CF Pages project #2 live (sg-prpr-98xxj34.pages.dev)
+last_updated: "2026-07-12T00:00:00.000Z"
+last_activity: 2026-07-12
+last_activity_desc: Phase 44 plan 05 complete — isolated pre-prod pipeline + second CF Pages project verified
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
-  completed_plans: 4
-  percent: 0
+  completed_plans: 5
+  percent: 20
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-07-10 — v1.3 close-out evolution revie
 
 ## Current Position
 
-Phase: 44 (tech-debt-guardrails-pre-prod-environment) — EXECUTING
-Plan: 5 of 5
-Status: Ready to execute
-Last activity: 2026-07-11 — Phase 44 execution started
+Phase: 44 (tech-debt-guardrails-pre-prod-environment) — COMPLETE (5/5 plans)
+Plan: 5 of 5 complete
+Status: Phase 44 done — DEBT-01/02/03 delivered; pre-prod environment live for on-device verification
+Last activity: 2026-07-12 — Phase 44 plan 05 complete (isolated pre-prod pipeline + CF Pages project #2 verified)
 
 ## Performance Metrics
 
@@ -238,6 +238,7 @@ Last activity: 2026-07-11 — Phase 44 execution started
 | Phase 44 P02 | 10min | 2 tasks | 3 files |
 | Phase 44 P03 | 5m | 2 tasks | 4 files |
 | Phase 44 P04 | 6min | 2 tasks | 1 files |
+| Phase 44 P05 | 30min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -363,6 +364,10 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 31-03]: SnippetsUI IIFE moved VERBATIM (byte-for-byte) to assets/settings-snippets.js; window.__SnippetEditorHelpers hook preserved exactly; anonymous IIFE (no new public global); optional RFCT-03 cleanups deferred per VERBATIM directive
 - [Phase ?]: [Phase 31-03]: test-shape coupling fixed three ways — 8 vm tests eval settings-snippets.js before settings.js; 2 snippet boot tests capture via +1 handler delta; 6 sibling loaders select handlers by stable identity (initCommon/settings-tabs/bindBackupsTab/bindPhotosTab) asserting exactly-one match, no hardcoded count (survives Photos 4->3 drift)
 - [Phase ?]: 31-04: coupled-IIFE-pair extraction — both Photos IIFEs moved together helpers-first; pure verbatim move, RFCT-03 in-region cleanup deferred to preserve the source string the static-source audits scan
+- [Phase 44-05]: Pre-prod pipeline (deploy-preprod.yml) mirrors prod but diverges in exactly four ways — trigger pre-prod (never main), group deploy-preprod (never deploy), --noindex staging, push deploy-preprod only — so it provably cannot write the deploy branch or move the docs-gate anchor (D-07/D-08, Pitfall 3); omits docs-gate + purge steps by design
+- [Phase 44-05]: Second CF Pages project sg-prpr-98xxj34 serves https://sg-prpr-98xxj34.pages.dev (production branch deploy-preprod, no build command, output dir /); unguessable slug + X-Robots-Tag: noindex + license gate, no Cloudflare Access wall (would break iOS standalone-PWA cold-launch/SW testing) (D-09)
+- [Phase 44-05]: Live A-1 verification disproved the append-a-second-/* noindex block — CF Pages resolves DUPLICATE identical _headers path patterns last-one-wins (not merge), so the appended noindex /* replaced the base security-headers block; fixed by INSERTING noindex into the first /* block of the staged _headers (e596dd9, owned by build-staging.sh); non-duplicate patterns still merge
+- [Phase 44-05]: Deferred manual-only DEBT-03 check — installed-PWA cold launch + integrity-token cache roll on a real iOS device from the pre-prod origin (VALIDATION.md); not blocking phase completion, is the on-device lever for Phases 45/48
 - [Phase 31]: 31-05: export-modal extracted via init(ctx) handshake; ctx held to 5 members, shared closure helpers re-derived self-contained in export-modal.js
 - [Phase 31]: CR-01 fix (code review): null _dbPromise after both migrateOldDB() close() sites (db.js:85, :147) so the outer openDB() returns a LIVE handle post legacy-migration instead of the closed pooled one (use-after-close regression from RFCT-03 pooling); guarded by test E in 31-openDB-pooling.test.js (RED→GREEN). grep -c '_dbPromise = null' is now 4 (the 31-01 ==2 gate was a one-time plan check, not an automated test)
 - [Phase ?]: [Phase 32-01]: README reframed to Ben-solo + AI agents (D-01); operational-first, recipes truth-checked against live files; architecture points to .planning/codebase/*.md not duplicated (D-08); README removed from deploy-staging so it is repo-only (D-04)
