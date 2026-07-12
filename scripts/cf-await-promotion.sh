@@ -76,8 +76,14 @@ echo "Awaiting promotion of ${SHORT} at ${POLL_URL}"
 # `curl -fsS` with a cache-buster; `|| true` so a transient curl failure just
 # retries rather than tripping `set -e`. The grep pattern includes the CLOSING
 # quote so a body carrying the full SHA does NOT satisfy the short-token match.
+# `--max-time`/`--connect-timeout` bound each request: the DEADLINE is checked
+# only BETWEEN polls, so without a per-request cap a server that accepts the
+# connection but never responds would hang one poll indefinitely — the
+# SENTINEL_TIMEOUT would never be consulted again and the job would run until
+# the Actions job-level timeout (6h default). Both caps are well under
+# SENTINEL_INTERVAL-scale so the deadline check stays live.
 while :; do
-  body="$(curl -fsS -H 'Cache-Control: no-cache' "${POLL_URL}?cb=$(date +%s)" || true)"
+  body="$(curl -fsS --max-time 20 --connect-timeout 10 -H 'Cache-Control: no-cache' "${POLL_URL}?cb=$(date +%s)" || true)"
   if printf '%s' "$body" | grep -q "BUILD_TOKEN = '${SHORT}'"; then
     echo "Promotion confirmed: live origin serves ${SHORT}."
     break
@@ -97,7 +103,7 @@ done
 # empty/partial $resp falls through to the grep below, which owns ALL purge
 # failures and prints the loud mixed-cache runbook diagnostic the CONTRACT
 # promises. The exit is 1 either way — only the loudness is at stake.
-resp="$(curl -sS -X POST \
+resp="$(curl -sS --max-time 30 -X POST \
   "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
   -H "Authorization: Bearer ${CF_PURGE_TOKEN}" \
   -H "Content-Type: application/json" \
