@@ -54,6 +54,18 @@ if [ -z "$TARGET" ]; then
   exit 2
 fi
 NOINDEX="${2:-}"
+# Reject anything that is not empty or exactly --noindex: a typo'd flag
+# (--no-index, --noidex) or a stray extra arg would otherwise be silently
+# ignored and yield an INDEXABLE pre-prod origin with exit 0 — the same
+# fail-open class as a missed _headers insert, reachable from the call site.
+if [ -n "$NOINDEX" ] && [ "$NOINDEX" != "--noindex" ]; then
+  echo "build-staging: unknown argument '$NOINDEX' (expected --noindex)" >&2
+  exit 2
+fi
+if [ "$#" -gt 2 ]; then
+  echo "build-staging: too many arguments" >&2
+  exit 2
+fi
 
 if [ -z "${GITHUB_SHA:-}" ]; then
   echo "build-staging: GITHUB_SHA is required in the environment" >&2
