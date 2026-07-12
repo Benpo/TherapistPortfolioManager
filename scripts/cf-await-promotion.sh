@@ -44,6 +44,25 @@ POLL_URL="${POLL_URL:-https://sessionsgarden.app/assets/version.js}"
 SENTINEL_INTERVAL="${SENTINEL_INTERVAL:-10}"
 SENTINEL_TIMEOUT="${SENTINEL_TIMEOUT:-300}"
 
+# ── Fail-fast env validation ─────────────────────────────────────────────────
+# `set -u` catches an UNSET variable, but GitHub Actions injects a MISSING
+# secret as an EMPTY string, which -u does not catch. With empty creds the
+# script would poll up to 5 minutes, confirm promotion, then fail the purge —
+# discovering the misconfig only in the exact mixed-cache state (origin=new,
+# edge=old) it exists to prevent. Validate all three before the first poll.
+[ -n "${GITHUB_SHA:-}" ] || {
+  echo "ERROR: GITHUB_SHA is required and non-empty; refusing to start." >&2
+  exit 1
+}
+[ -n "${CF_ZONE_ID:-}" ] || {
+  echo "ERROR: CF_ZONE_ID is required and non-empty (missing secret?); refusing to poll — fix the secret and re-run." >&2
+  exit 1
+}
+[ -n "${CF_PURGE_TOKEN:-}" ] || {
+  echo "ERROR: CF_PURGE_TOKEN is required and non-empty (missing secret?); refusing to poll — fix the secret and re-run." >&2
+  exit 1
+}
+
 # The short SHA is the FIRST 7 chars of GITHUB_SHA (Pitfall 1 — never the full
 # SHA). POSIX `printf '%.7s'` is used, NOT bash-only ${GITHUB_SHA::7}, because this
 # script runs under `sh`.
