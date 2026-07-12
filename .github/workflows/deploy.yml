@@ -4,9 +4,18 @@ on:
   push:
     branches: [main]
 
+# QUEUE, never cancel (cancel-in-progress: false). The sentinel-then-purge step
+# opens a 0-300s await window between `git push -f origin deploy` (origin
+# promotes the new assets) and the zone purge. Cancelling an in-flight run
+# inside that window leaves origin=new / edge=old — the exact v1.3.0
+# mixed-cache condition — and if the superseding run then fails its docs gate
+# it never pushes and never purges, so the pipeline ends with one CANCELLED run
+# and one gate-failed run: no red run says "purge missing", and the deploy
+# anchor has already moved. Queuing preserves push→purge atomicity: every run
+# that pushes also purges (or fails loudly trying).
 concurrency:
   group: deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
