@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Richer Sessions
-current_phase: 44
-current_phase_name: tech-debt-guardrails-pre-prod-environment
-status: executing
-stopped_at: Phase 44 complete — 5/5 plans; pre-prod pipeline + CF Pages project #2 live (sg-prpr-98xxj34.pages.dev)
-last_updated: "2026-07-12T00:00:00.000Z"
+current_phase: 45
+current_phase_name: Rich-Text Rendering & Export Foundation
+status: ready_to_plan
+stopped_at: Phase 44 complete (UAT 2/2 passed, review fixed), ready to plan Phase 45
+last_updated: "2026-07-12T21:45:32.569Z"
 last_activity: 2026-07-12
-last_activity_desc: Phase 44 plan 05 complete — isolated pre-prod pipeline + second CF Pages project verified
+last_activity_desc: Phase 44 complete, transitioned to Phase 45
 progress:
   total_phases: 5
   completed_phases: 1
@@ -21,17 +21,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-10 — v1.3 close-out evolution review)
+See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 44 — tech-debt-guardrails-pre-prod-environment
+**Current focus:** Phase 45 — Rich-Text Rendering & Export Foundation
 
 ## Current Position
 
-Phase: 44 (tech-debt-guardrails-pre-prod-environment) — COMPLETE (5/5 plans)
-Plan: 5 of 5 complete
+Phase: 45 — Rich-Text Rendering & Export Foundation
+Plan: Not started
 Status: Phase 44 done — DEBT-01/02/03 delivered; pre-prod environment live for on-device verification
-Last activity: 2026-07-12 — Phase 44 plan 05 complete (isolated pre-prod pipeline + CF Pages project #2 verified)
+Last activity: 2026-07-12 — Phase 44 complete, transitioned to Phase 45
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Last activity: 2026-07-12 — Phase 44 plan 05 complete (isolated pre-prod pipel
 | 40 | 8 | - | - |
 | 42.1 | 10 | - | - |
 | 43 | 10 | - | - |
+| 44 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -485,6 +486,10 @@ Recent decisions affecting current work:
 - Phase 22 added: Session Workflow Loop — pre-session context card, editable section titles, session-to-document email export (bundles 3 todos from 2026-04-26)
 - Phase 37 added: Date consistency + date-format setting (F6+F5)
 - Phase 42.1 inserted after Phase 42: Help & Onboarding Translation (HE/DE/CS) — L10N-01 moved from v2 deferral into v1.3 (Ben 2026-07-08: EN-only help was never the intent for a Hebrew-first user base); one translation pass after EN stabilizes, before the P43 gate
+- [Phase 44]: Deploy purge is fail-closed sentinel-then-purge — poll the live origin for the new short-SHA BUILD_TOKEN, purge only after promotion confirms; timeout = exit 1 with NO purge (uniformly-stale cache is safe); deploy runs queue instead of cancel (WR-06) so the 0–300s await window can't strand origin=new/edge=old
+- [Phase 44]: Pre-prod = second CF Pages project watching `deploy-preprod` branch; single `build-staging.sh` transform shared with prod, one sanctioned divergence (`--noindex` inserts INTO the base `/*` block — CF Pages resolves duplicate `_headers` patterns last-wins, an appended block would wipe CSP); pre-prod provably cannot move the prod docs-gate anchor
+- [Phase 44]: Both deploy workflows now run the pinned pipeline-script test suites (build-staging, cf-await-promotion) before executing the scripts (review IN-04 close); scripts also fail closed standalone (arg typos, empty secrets, curl timeouts, silent noindex no-op)
+- [Phase 44]: CONVENTIONS.md §Comments rewritten to the strip-planning-IDs rule + conventions-hygiene source-audit test; forward gate only, ~680-line legacy retrofit stays a v1.5 candidate
 
 ### Blockers/Concerns
 
@@ -518,12 +523,12 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-11T21:16:46.459Z
+**Last session:** 2026-07-12
 
-Last activity: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
-Stopped at: Phase 44 planned — 5 plans, 2 waves, plan-checker PASSED (decision coverage 10/10)
-Resume file: .planning/phases/44-tech-debt-guardrails-pre-prod-environment/44-01-PLAN.md
-Next: /gsd-execute-phase 44 (Tech-Debt Guardrails & Pre-Prod Environment) — Wave 1 is 3 parallel plans; 44-05 has a BLOCKING human checkpoint (create 2nd CF Pages project) + a push-time docs-gate trailer for assets/add-client.js. v1.4 roadmap live in ROADMAP.md (Phases 44–48).
+Last activity: 2026-07-12 — Phase 44 closed end-to-end in one session: /gsd-code-review 44 --fix applied all 6 review warnings (fail-closed build-staging args/noindex, cf-await-promotion secret validation + curl timeouts + loud purge diagnostics, deploy queue-not-cancel) plus the IN-04 follow-up (pipeline-script test suites now gate both deploy workflows); UAT 2/2 passed — test 1 caught that the docs-gate trailers never landed on any commit (gate dry-run blocked), fixed by amending the tip (6e4355f), gate re-run green; verification canonicalized passed, phase 44 marked complete, transitioned to Phase 45. Previous: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
+Stopped at: Phase 44 complete (code review 6/6 warnings fixed + IN-04 CI test gate; UAT 2/2 passed; docs-gate trailers landed on tip 6e4355f, gate dry-run green), ready to plan Phase 45
+Resume file: None
+Next: /gsd-plan-phase 45 (Rich-Text Rendering & Export Foundation). NOTE: everything since origin/main 0cae46e is still local-only — the next push to main deploys; the Changelog-Unaffected trailer must ride the tip commit of that push (currently on 6e4355f).
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
 

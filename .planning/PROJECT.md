@@ -84,6 +84,10 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - ✓ L10N-01 — All v1.3-authored help/welcome/tour/changelog copy localized natively HE/DE/CS, per-locale integrity gates, Sapir Hebrew read — v1.3 (Phase 42.1)
 - ✓ GATE-01..04 — Layered docs-maintenance hard gate (git hook + unbypassable CI step + GSD DoD): no user-facing change ships without a changelog entry + updated help topics; validated on v1.3's own ship — v1.3 (Phase 43)
 
+<!-- v1.4 — Richer Sessions (in progress) -->
+
+- ✓ DEBT-01..03 — Comment-hygiene forward layer (CONVENTIONS.md §Comments rewrite + conventions-hygiene source-audit gate, shipped strings de-ID'd); fail-closed sentinel-then-purge deploy (origin confirmed serving the new build token BEFORE the edge purge; queue-not-cancel concurrency; loud mixed-cache runbook diagnostics); shared `build-staging.sh` transform + isolated pre-prod pipeline on a second CF Pages project (noindex inserted into the base `/*` block, prod docs-gate anchor provably untouched; pipeline-script test suites gate both deploy workflows) — v1.4 (Phase 44)
+
 ### Active
 
 <!-- v1.4 Richer Sessions — scope confirmed 2026-07-11 (questioning in /gsd-new-milestone; full scope in REQUIREMENTS.md/ROADMAP.md). -->
@@ -91,7 +95,6 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 - [ ] Rich-text session editor — bold/underline/bullet lists in session note fields; formatting survives PDF + markdown export; research-first (storage format vs IndexedDB, XSS-safety, Hebrew RTL, zero-dependency constraint, snippets/autogrow compatibility)
 - [ ] Session-section reordering — drag-sort of session sections in Settings, persisted per therapist, propagated to add/edit session forms AND the export/copy markdown builders (guard the 260615 bug class)
 - [ ] Mobile pass — fix index-page header buttons (text escapes the circular buttons); popover-exclusivity + collapsed-accordion error-focus micro-bugs; structured verify sweep of the deferred 21-03 checklist on a real iPhone (fix what fails, close the rest as obsolete)
-- [ ] Tech debt — comment-hygiene "don't-make-it-worse" layer only (CONVENTIONS.md contradiction fixed first + baseline-aware forward grep-gate blocking NEW planning refs; the ~680-line legacy retrofit deferred to v1.5, rescoped 2026-07-11); deploy purge-race fix (purge only after promotion is confirmed live); pre-prod branch on a second CF Pages project
 - [ ] Low-hanging fruit — future-birthdate validation on the 3 date fields; error-tone toast sweep beyond the session form
 
 **Deferred to backlog (v1.1 close + 2026-06-22 concerns triage + v1.2 close):** landing DE/CS verify (LNCH-04); license re-validation; pagination; PDF→Web Worker; an abandoned landing-page interactive-demo iframe idea (superseded by Phase 35); and other triaged concerns — see ROADMAP "Backlog" for the full list. (Mobile `21-03` promoted into v1.4's mobile pass, 2026-07-11.)
@@ -167,6 +170,7 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 | v1.3 = Help + Changelog (not "Codebase Health II") | The app is feature-large with zero in-app teaching surface and no release-announcement channel; Phase 26's UI-SPEC is already approved and ready to build. Codebase Health II remains a valid later-milestone backlog candidate | ✓ Decided 2026-07-06, see `.planning/MILESTONE-CONTEXT.md` |
 | v1.4 = Richer Sessions (rich-text editor + section reordering + mobile pass + debt) | Users complain session text is plain-only — the headline ask; section drag-sort is the natural companion (both personalize session documentation). Purge-race + pre-prod are debt with real-incident history. Codebase Health II again deferred (would bloat the milestone into two) — now a v1.5 candidate | ✓ Scoped 2026-07-11 |
 | Comment-hygiene retrofit deferred to v1.5; v1.4 only stops the bleeding | Ben rescoped mid-questionnaire: the ~680-line legacy cleanup is too much beside the feature work. v1.4 fixes the CONVENTIONS.md root cause + adds a baseline-aware forward gate so no NEW planning refs ship; the retrofit becomes a focused v1.5 candidate | ✓ Decided 2026-07-11 |
+| Deploy = fail-closed sentinel-then-purge + queue-not-cancel; pre-prod fully isolated | v1.3.0 mixed-cache incident: purging before Pages promoted re-cached OLD assets into installed PWAs. Now the pipeline polls the live origin for the new build token BEFORE purging, fails loudly (no purge) on timeout, and deploy runs queue instead of cancelling mid-await. Pre-prod is a second CF Pages project on its own branch — it cannot move the prod docs-gate anchor. Both workflows run the pinned script test suites before executing the scripts | ✓ Shipped Phase 44 (2026-07-12; code-review hardening + UAT same day) |
 
 ## Current State
 
@@ -203,4 +207,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-11 — Milestone v1.4 "Richer Sessions" started (rich-text session editor, section reordering, mobile pass, comment-hygiene/purge-race/pre-prod debt, low-hanging fruit). App live & sold.*
+*Last updated: 2026-07-12 after Phase 44 — tech-debt guardrails + pre-prod environment shipped (DEBT-01..03 validated). App live & sold.*
