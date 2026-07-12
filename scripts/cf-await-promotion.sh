@@ -92,11 +92,16 @@ done
 # ── Blocking purge (only after a confirmed match) ────────────────────────────
 # Now that the origin is confirmed new, a purge FAILURE is the mixed-cache
 # condition (origin=new, edge=old for up to 24h), so it must block: exit 1 loudly.
+# `|| true` so a hard curl transport failure (DNS blip, TLS error, reset) does
+# NOT abort at this assignment under `set -e` with only curl's terse error: an
+# empty/partial $resp falls through to the grep below, which owns ALL purge
+# failures and prints the loud mixed-cache runbook diagnostic the CONTRACT
+# promises. The exit is 1 either way — only the loudness is at stake.
 resp="$(curl -sS -X POST \
   "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
   -H "Authorization: Bearer ${CF_PURGE_TOKEN}" \
   -H "Content-Type: application/json" \
-  --data '{"purge_everything":true}')"
+  --data '{"purge_everything":true}' || true)"
 
 if printf '%s' "$resp" | grep -q '"success":true'; then
   echo "Cache purged."
