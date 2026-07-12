@@ -8,16 +8,24 @@
  * step was a self-inspecting echo, never a real assertion. Phase 44 extracts that
  * transform into ONE parameterized script both deploy.yml (prod) and
  * deploy-preprod.yml (pre-prod) call, so the two can never drift, and adds ONE
- * deliberate pre-prod-only divergence behind `--noindex` (append an
- * `X-Robots-Tag: noindex` block to the STAGED `_headers` only, D-09). This file is
- * the executable contract that pins:
+ * deliberate pre-prod-only divergence behind `--noindex` (insert an
+ * `X-Robots-Tag: noindex` line INTO the base `/*` block of the STAGED `_headers`
+ * only, D-09). This file is the executable contract that pins:
  *   (1) whitelist completeness — the exact D-08 file set lands in the staged tree;
  *   (2) token stamp — the staged version.js carries the git short-hash, not the
  *       `__BUILD_TOKEN__` placeholder, and the committed copy is never touched;
  *   (3) the no-leak invariant — NO .planning / .claude / CLAUDE.md / .env in the
  *       staged tree (the deploy.yml verify echo turned into a falsifiable test);
- *   (4) noindex divergence — `--noindex` appends the noindex block to the staged
- *       _headers while leaving the base CSP `/*` block byte-identical (Pitfall 2).
+ *   (4) noindex divergence — `--noindex` inserts the noindex line INTO the first
+ *       `/*` block of the staged _headers, keeping all five base security headers
+ *       in that same block and NEVER introducing a duplicate bare `/*` pattern.
+ *       WHY the duplicate ban is load-bearing: live verification on the real
+ *       pre-prod origin (2026-07-12) proved Cloudflare Pages resolves a DUPLICATE
+ *       identical path pattern in _headers as LAST-ONE-WINS, not merge — the
+ *       original appended second `/*` block replaced the base block and silently
+ *       wiped CSP/X-Frame-Options/Permissions-Policy from every pre-prod
+ *       response. The plain (no-flag) staged copy must stay byte-identical to the
+ *       committed _headers.
  *
  * Authored RED-first, before scripts/build-staging.sh existed (`sh` then exits
  * non-zero with a "No such file" style error, so every case fails RED for the
@@ -80,7 +88,8 @@ function runBuild(target, extraArgs) {
 
 // Extract the FIRST `/*` block (the base CSP block) from a _headers body: the line
 // that is exactly `/*` and every following non-blank line, stopping at the first
-// blank line. This isolates the CSP block from any appended noindex `/*` block.
+// blank line. This isolates the base block so the noindex insert (and the five
+// security headers) can be asserted to live INSIDE it, not elsewhere in the file.
 function firstStarBlock(content) {
   var lines = content.split('\n');
   var out = [];
@@ -167,8 +176,13 @@ try {
     });
   });
 
-  // ── (4) noindex divergence (D-09 / Pitfall 2) ──────────────────────────────
-  test('noindex divergence: --noindex adds X-Robots-Tag noindex; plain run does NOT; base CSP block byte-identical', function () {
+  // ── (4) noindex divergence (D-09 — insert INTO the base /* block) ──────────
+  // CF Pages resolves DUPLICATE identical path patterns last-one-wins (live
+  // pre-prod finding, 2026-07-12): an appended second `/*` block replaced the base
+  // block and wiped the security headers. So the contract is: insert the noindex
+  // line INTO the first `/*` block, keep all five security headers in that block,
+  // and NEVER emit a duplicate bare `/*` pattern line.
+  test('noindex divergence: --noindex inserts noindex INTO the base /* block (5 security headers intact, no duplicate /* pattern); plain copy byte-identical to committed', function () {
     var tPlain = mkTarget();
     var tNoindex = mkTarget();
     var rPlain = runBuild(tPlain);
@@ -176,22 +190,37 @@ try {
     assert(rPlain.code === 0, 'plain run must exit 0, got ' + rPlain.code + '\n' + rPlain.stderr);
     assert(rNoindex.code === 0, '--noindex run must exit 0, got ' + rNoindex.code + '\n' + rNoindex.stderr);
 
+    var committedHeaders = fs.readFileSync(path.join(REPO_ROOT, '_headers'), 'utf8');
     var plainHeaders = fs.readFileSync(path.join(tPlain, '_headers'), 'utf8');
     var noindexHeaders = fs.readFileSync(path.join(tNoindex, '_headers'), 'utf8');
 
-    assert(/X-Robots-Tag:\s*noindex/.test(noindexHeaders),
-      '--noindex staged _headers must carry X-Robots-Tag: noindex');
+    // (a) the --noindex staged copy carries ALL FIVE base security headers AND the
+    //     noindex line, all INSIDE the first /* block (not merely somewhere in the file).
+    var noindexBlock = firstStarBlock(noindexHeaders);
+    assert(noindexBlock.length > 0, 'could not locate the base /* block in the --noindex staged _headers');
+    ['Content-Security-Policy', 'X-Frame-Options', 'X-Content-Type-Options',
+     'Referrer-Policy', 'Permissions-Policy'].forEach(function (h) {
+      assert(noindexBlock.indexOf(h) !== -1,
+        'security header missing from the base /* block of the --noindex staged copy: ' + h +
+        '\n  block: ' + JSON.stringify(noindexBlock));
+    });
+    assert(/X-Robots-Tag:\s*noindex/.test(noindexBlock),
+      'X-Robots-Tag: noindex must live INSIDE the first /* block, got block: ' + JSON.stringify(noindexBlock));
+
+    // (b) NO duplicate bare `/*` path pattern — exactly ONE line that is exactly
+    //     "/*" (patterns like /*.html or /*.js do NOT count: they are longer than
+    //     the bare pattern and match different paths, so CF merges them fine).
+    var bareStarLines = noindexHeaders.split('\n').filter(function (l) { return l === '/*'; });
+    assert(bareStarLines.length === 1,
+      'expected exactly ONE bare /* pattern line in the --noindex staged _headers (CF last-wins on duplicates), got ' +
+      bareStarLines.length);
+
+    // (c) the plain (no flag) staged copy is byte-identical to the committed
+    //     _headers and carries no noindex.
+    assert(plainHeaders === committedHeaders,
+      'plain staged _headers must be byte-identical to the committed _headers');
     assert(!/X-Robots-Tag:\s*noindex/.test(plainHeaders),
       'plain staged _headers must NOT carry X-Robots-Tag: noindex');
-
-    // The base CSP /* block must be byte-identical between the two staged copies.
-    var plainBlock = firstStarBlock(plainHeaders);
-    var noindexBlock = firstStarBlock(noindexHeaders);
-    assert(plainBlock.length > 0, 'could not locate the base /* block in the plain staged _headers');
-    assert(plainBlock === noindexBlock,
-      'base CSP /* block diverged between plain and --noindex staged copies (Pitfall 2)\n' +
-      '  plain:   ' + JSON.stringify(plainBlock) + '\n' +
-      '  noindex: ' + JSON.stringify(noindexBlock));
   });
 
 } finally {

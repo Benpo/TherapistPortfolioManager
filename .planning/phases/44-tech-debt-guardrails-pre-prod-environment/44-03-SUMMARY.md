@@ -99,3 +99,12 @@ Extracted the prod Cloudflare-Pages staging transform out of the inline `deploy.
 - `tests/build-staging.test.js` — FOUND
 - Commit bb17115 (RED test) — FOUND
 - Commit 628c248 (GREEN script) — FOUND
+
+## Post-completion fix (2026-07-12): noindex mechanism changed append → insert
+
+Live verification on the real pre-prod origin (the plan's Assumption A-1 check) **disproved the append-a-second-`/*`-block approach**: Cloudflare Pages resolves a DUPLICATE identical path pattern in `_headers` as **last-one-wins, not merge**. The deployed staged `_headers` was complete and correct (base CSP block intact + appended `/*` noindex block), but the live origin served `x-robots-tag: noindex` while **missing** `content-security-policy`, `x-frame-options`, and `permissions-policy` — the second `/*` block had replaced the first. (Non-duplicate patterns, e.g. `/*.js` + `/assets/version.js`, do merge.)
+
+**Mechanism change** (D-09 intent unchanged — the divergence still lives in the staged copy only, committed `_headers` never touched):
+- `scripts/build-staging.sh` now INSERTS `  X-Robots-Tag: noindex` into the existing first `/*` block of the staged `_headers` (portable awk + redirect+mv, POSIX-sh, BSD/GNU-identical), instead of appending a duplicate `/*` block.
+- `tests/build-staging.test.js` noindex case now pins: all five base security headers AND the noindex line inside the first `/*` block; exactly ONE bare `/*` pattern line (the CF last-wins falsifier — the old append behavior fails this); the plain staged copy byte-identical to the committed `_headers`; committed files untouched.
+- Verified: `node tests/build-staging.test.js` 5/5, `node tests/run-all.js` 172/172, `sh -n` clean.

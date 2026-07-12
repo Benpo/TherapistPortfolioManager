@@ -5,8 +5,9 @@
 #   Reproduce the Cloudflare-Pages deploy staging transform that used to live inline
 #   in .github/workflows/deploy.yml (the "Prepare deploy directory" step): copy an
 #   explicit file whitelist from the repo working tree into <target-dir>, then stamp
-#   the deploy token into the STAGED copy of assets/version.js. Optionally append a
-#   pre-prod-only `X-Robots-Tag: noindex` block to the STAGED _headers (--noindex).
+#   the deploy token into the STAGED copy of assets/version.js. Optionally insert a
+#   pre-prod-only `X-Robots-Tag: noindex` line into the base `/*` block of the
+#   STAGED _headers (--noindex).
 #
 # WHY
 #   One transform, two callers. Wave-2 deploy.yml (prod) and deploy-preprod.yml
@@ -25,8 +26,16 @@
 #       (.planning / .claude / CLAUDE.md / .env can never reach the staged tree).
 #     - Stamps the 7-hex short SHA into <target-dir>/assets/version.js, replacing the
 #       '__BUILD_TOKEN__' placeholder. The COMMITTED assets/version.js is never touched.
-#     - With --noindex, appends a second `/*` block carrying X-Robots-Tag: noindex to
-#       <target-dir>/_headers ONLY (append, never edit the base CSP /* block — Pitfall 2).
+#     - With --noindex, INSERTS the line `  X-Robots-Tag: noindex` into the existing
+#       first `/*` block of <target-dir>/_headers ONLY (right after the bare `/*`
+#       pattern line). WHY insert-into-the-block, NOT an appended second `/*` block:
+#       live verification on the real pre-prod origin (2026-07-12) proved Cloudflare
+#       Pages treats a DUPLICATE identical path pattern in _headers as
+#       LAST-ONE-WINS, not merge — an appended second `/*` block replaced the base
+#       block and silently wiped Content-Security-Policy, X-Frame-Options, and
+#       Permissions-Policy from every pre-prod response. (Non-duplicate patterns
+#       like `/*.js` + `/assets/version.js` DO merge.) The D-09 intent is
+#       unchanged: the divergence lives in the STAGED copy only.
 #     - Writes ONLY under <target-dir>; the committed _headers/version.js stay byte-identical.
 #
 #   Portability: POSIX sh, no bashisms. The token substitution uses a redirect+mv
@@ -73,10 +82,16 @@ SHORT=$(printf '%.7s' "$GITHUB_SHA")
 sed "s/'__BUILD_TOKEN__'/'$SHORT'/" "$TARGET/assets/version.js" > "$TARGET/assets/version.js.tmp"
 mv "$TARGET/assets/version.js.tmp" "$TARGET/assets/version.js"
 
-# --- Pre-prod-only noindex divergence (D-09 / Pitfall 2) ---------------------------
-# Append a SECOND `/*` block to the STAGED _headers only. Appending (never editing the
-# existing block) keeps the base CSP /* block byte-identical, and the committed
-# _headers is untouched because we write into "$TARGET".
+# --- Pre-prod-only noindex divergence (D-09) ---------------------------------------
+# INSERT `  X-Robots-Tag: noindex` into the existing first `/*` block of the STAGED
+# _headers, right after the bare `/*` pattern line. A duplicate `/*` block is
+# FORBIDDEN: CF Pages resolves duplicate identical path patterns last-one-wins (live
+# pre-prod finding, 2026-07-12), so a second `/*` block would replace the base block
+# and wipe the CSP/X-Frame-Options/Permissions-Policy security headers. Portable awk
+# + redirect+mv (no gawk-isms, no sed -i) so BSD (macOS) and GNU (ubuntu CI) agree.
+# The committed _headers is untouched because we write into "$TARGET" only.
 if [ "$NOINDEX" = "--noindex" ]; then
-  printf '\n/*\n  X-Robots-Tag: noindex\n' >> "$TARGET/_headers"
+  awk '{ print; if (!done && $0 == "/*") { print "  X-Robots-Tag: noindex"; done = 1 } }' \
+    "$TARGET/_headers" > "$TARGET/_headers.tmp"
+  mv "$TARGET/_headers.tmp" "$TARGET/_headers"
 fi
