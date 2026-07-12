@@ -48,6 +48,16 @@ jobs:
           # bootstrap degradation — the range echo above makes it auditable in the log.
           node scripts/docs-gate.js --range "$range"
 
+      - name: Pipeline script tests (fail-closed)
+        run: |
+          # Run the pinned behavior specs for BOTH scripts this workflow executes,
+          # BEFORE either runs against production. Without this step the specs gate
+          # nothing in the deploy path (they only run when invoked locally); a
+          # regression in build-staging.sh or cf-await-promotion.sh would ship on
+          # the very push that introduced it. Both suites exit 1 on any failure.
+          node tests/build-staging.test.js
+          node tests/cf-await-promotion.test.js
+
       - name: Prepare deploy directory
         run: |
           # Delegate the whitelist copy + deploy-token stamp to the single shared

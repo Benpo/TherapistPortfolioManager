@@ -23,6 +23,14 @@ jobs:
       # subject. Pre-prod never triggers on main and never writes `deploy`, so it
       # must not run — and provably cannot move — the docs-gate anchor.
 
+      - name: Pipeline script tests (fail-closed)
+        run: |
+          # Pin-check the ONE script this workflow executes before running it.
+          # (cf-await-promotion.sh is prod-only — its suite runs in deploy.yml.)
+          # The suite exits 1 on any failure, failing the deploy before the
+          # staged tree is built or pushed.
+          node tests/build-staging.test.js
+
       - name: Prepare pre-prod directory
         run: |
           # Shared transform, single sanctioned divergence (DEBT-03, D-07/D-09).
