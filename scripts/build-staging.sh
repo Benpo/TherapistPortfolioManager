@@ -94,4 +94,12 @@ if [ "$NOINDEX" = "--noindex" ]; then
   awk '{ print; if (!done && $0 == "/*") { print "  X-Robots-Tag: noindex"; done = 1 } }' \
     "$TARGET/_headers" > "$TARGET/_headers.tmp"
   mv "$TARGET/_headers.tmp" "$TARGET/_headers"
+  # Fail CLOSED if the insert did not land: the awk above fires only on a line
+  # that is exactly `/*`, so a reformatted _headers (whitespace, block
+  # reordering) would otherwise exit 0 and ship an INDEXABLE pre-prod origin —
+  # the one sanctioned divergence silently failing open. Verify it landed.
+  grep -q 'X-Robots-Tag: noindex' "$TARGET/_headers" || {
+    echo "build-staging: --noindex insert failed — no bare '/*' line found in _headers" >&2
+    exit 1
+  }
 fi
