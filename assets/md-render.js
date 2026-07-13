@@ -161,11 +161,22 @@ window.MdRender = (function () {
   function renderBlock(block) {
     if (!block) return "";
     // Headings — accept optional body remainder after the heading line.
-    var headingMatch = block.match(/^(#{1,3})\s+([^\n]*)(?:\n([\s\S]*))?$/);
+    // WR-01 (Phase 45 review): the old multiline `\s+` separator matched a
+    // NEWLINE, so a bare "##" line swallowed its own markers and promoted the
+    // NEXT line to a heading ("##\nfoo" → <h2>foo</h2>) while the PDF kept the
+    // block a literal paragraph. Heading acceptance now tests the FIRST LINE
+    // ONLY, with a regex CHARACTER-MATCHED to pdf-export.js parseMarkdown's
+    // per-line `hMatch` — inside a single line `\s` cannot match a newline, the
+    // heading text must be non-empty (a marker-only "## " stays literal), and
+    // trailing intra-line whitespace is trimmed exactly like the PDF's — so the
+    // two pipelines accept the SAME heading lines by construction.
+    var nlIdx = block.indexOf("\n");
+    var firstLine = nlIdx === -1 ? block : block.slice(0, nlIdx);
+    var headingMatch = /^(#{1,3})\s+(.+?)\s*$/.exec(firstLine);
     if (headingMatch) {
       var level = headingMatch[1].length;
       var headingHtml = "<h" + level + ">" + applyInline(headingMatch[2]) + "</h" + level + ">";
-      var remainder = headingMatch[3];
+      var remainder = nlIdx === -1 ? null : block.slice(nlIdx + 1);
       if (remainder && remainder.trimStart().length > 0) {
         return headingHtml + renderBlock(remainder.trimStart());
       }
@@ -182,10 +193,18 @@ window.MdRender = (function () {
     // render the leading text as its own sub-block, then recurse on the remainder
     // STARTING at the heading line (the block-start heading branch above then
     // consumes it, and its body-remainder recursion re-enters this same split, so
-    // one split also fixes "### Sub" after text inside a heading's body). Index 0
-    // never reaches here — a block that opens with a heading is fully handled by
-    // the block-start branch. This converges read mode toward pdf-export's already
-    // -correct paragraph-terminates-at-heading behavior (the PDF needs no change).
+    // one split also fixes "### Sub" after text inside a heading's body). This
+    // converges read mode toward pdf-export's already-correct paragraph-
+    // terminates-at-heading behavior (the PDF needs no change).
+    // WR-01 note: this per-line scan DELIBERATELY keeps `\s+` — it is CHARACTER-
+    // MATCHED to pdf-export parseMarkdown's paragraph TERMINATOR
+    // (/^#{1,3}\s+/.test(line)), and per-line `\s` cannot match a newline. A
+    // marker-only "## " line is scan-positive in BOTH pipelines (both split the
+    // paragraph there) yet fails heading ACCEPTANCE in both (the PDF's hMatch
+    // and the block-start branch above), so it renders as its own literal
+    // paragraph. The `firstHeadingIdx > 0` guard below makes an index-0
+    // scan-positive-but-rejected line fall through to the paragraph branch
+    // instead of looping.
     var firstHeadingIdx = -1;
     for (var hi = 0; hi < lines.length; hi++) {
       if (/^#{1,3}\s+/.test(lines[hi])) { firstHeadingIdx = hi; break; }

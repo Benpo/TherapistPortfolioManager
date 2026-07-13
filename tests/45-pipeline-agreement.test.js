@@ -435,8 +435,37 @@ test('DEDENT shapes: read mode keeps EVERY item; pdf per-item depth/type/ordinal
   });
 });
 
+// ── 11. BARE-MARKER heading lines (WR-01) — `##\nfoo` is literal in BOTH ─────
+// md-render's old block-start heading regex used `\s+`, which matches a NEWLINE:
+// "##\nfoo" rendered <h2>foo</h2> (the typed "##" vanished; "foo" mis-styled)
+// while pdf parseMarkdown's per-line detector kept it a literal paragraph
+// (T-45-03 divergence class). Lock: a #/##/### line with no intra-line heading
+// text stays a literal paragraph in BOTH pipelines, marker preserved.
+test('bare-marker heading lines (`##\\nfoo`, incl. trailing-space `## \\nfoo`) stay literal paragraphs in BOTH pipelines (WR-01)', function () {
+  ['#', '##', '###', '## '].forEach(function (marker) {
+    var input = marker + '\nfoo';
+    // Read mode: one literal paragraph, marker characters preserved.
+    var html = MdRender.render(input);
+    assert.strictEqual(html, '<p>' + marker + '<br>foo</p>',
+      'MdRender must keep ' + JSON.stringify(input) + ' a literal paragraph (got ' + html + ')');
+    // PDF: one paragraph block carrying both lines — never a heading.
+    var blocks = parseMarkdown(input).filter(function (b) { return b.type !== 'blank'; });
+    assert.strictEqual(blocks.length, 1,
+      'pdf parseMarkdown must yield ONE block for ' + JSON.stringify(input));
+    assert.strictEqual(blocks[0].type, 'para',
+      'pdf parseMarkdown must keep ' + JSON.stringify(input) + ' a paragraph, never a heading');
+    assert.strictEqual(blocks[0].text, marker + '\nfoo',
+      'pdf paragraph must preserve the typed marker verbatim for ' + JSON.stringify(input));
+  });
+  // Guard the non-degenerate side: a REAL heading line still promotes in both.
+  assert.strictEqual(MdRender.render('## foo'), '<h2>foo</h2>', 'a real "## foo" must stay a heading');
+  var hb = parseMarkdown('## foo').filter(function (b) { return b.type !== 'blank'; })[0];
+  assert.strictEqual(hb.type, 'heading', 'pdf must keep "## foo" a heading');
+  assert.strictEqual(hb.level, 2, 'pdf heading level must be 2 for "## foo"');
+});
+
 // ── Count guard — no vacuous green ───────────────────────────────────────────
-var EXPECTED = 16;
+var EXPECTED = 17;
 if (passed + failed !== EXPECTED) {
   console.log('  FAIL  count guard: expected ' + EXPECTED + ' tests, ran ' + (passed + failed));
   failed++;

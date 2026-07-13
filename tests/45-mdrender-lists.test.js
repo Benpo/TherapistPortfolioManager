@@ -137,6 +137,22 @@ test('`text\\n#### x` keeps the 4-hash line literal (not a heading)', function (
   assert.strictEqual(render('text\n#### x'), '<p>text<br>#### x</p>');
 });
 
+// ─── WR-01 (Phase 45 review): a bare marker line must NOT swallow the next line ─
+// The old heading regex used `\s+`, which matches a NEWLINE — "##\nfoo" rendered
+// <h2>foo</h2>: the typed "##" vanished and "foo" was promoted to a heading,
+// while the PDF kept the block a literal paragraph. Heading acceptance is now
+// per-line (character-matched to pdf-export parseMarkdown's hMatch).
+test('bare marker `#\\nfoo` / `##\\nfoo` / `###\\nfoo` stay literal paragraphs (nothing typed vanishes)', function () {
+  ['#', '##', '###'].forEach(function (marker) {
+    assert.strictEqual(render(marker + '\nfoo'), '<p>' + marker + '<br>foo</p>',
+      'bare "' + marker + '" must stay literal and must NOT promote the next line to a heading');
+  });
+});
+
+test('marker-only-with-trailing-space `## \\nfoo` stays a literal paragraph (no empty heading, no promotion)', function () {
+  assert.strictEqual(render('## \nfoo'), '<p>## <br>foo</p>');
+});
+
 // ─── GAP-45-02: marker-only lines are empty list items (1. ≡ 1. ) ────────────
 test('bare ordinal `1.` renders an empty ordered item `<ol><li value="1"></li></ol>`', function () {
   assert.strictEqual(render('1.'), '<ol><li value="1"></li></ol>');
@@ -259,7 +275,7 @@ test('EMPTY-item ordered dedent `  1.\\n1.` keeps both empty typed-1 items (GAP-
 });
 
 // ─── Count guard (no vacuous green) ──────────────────────────────────────────
-var EXPECTED_COUNT = 36;
+var EXPECTED_COUNT = 38;
 if (passed + failed !== EXPECTED_COUNT) {
   console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));
   process.exit(1);
