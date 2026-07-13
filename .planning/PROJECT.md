@@ -174,6 +174,8 @@ Therapists can efficiently track client sessions, trapped emotions, and clinical
 
 ## Current State
 
+**Phase 45 (Rich-Text Rendering & Export Foundation) complete 2026-07-14** — markdown-at-rest session notes now render styled wherever they are read: add-session read mode (`.note-rendered` escape-first overlay), Hebrew-bidi PDF export (document-vs-note heading classification, nested RTL lists), and compact surfaces (strip-to-plain). Cross-pipeline agreement between MdRender and the PDF renderer is test-locked (RTXT-06/07/08/10 validated); real-device gate approved by Ben (real Hebrew PDF + installed-PWA + encrypted backup round-trip); 2 UAT gap rounds + 3 code-review fixes landed same cycle; suite 183/183. v1.4.0 changelog staged (APP_VERSION stays 1.3.0 until release). Next: Phase 46 toolbar editor.
+
 **v1.3 In-App Help, Onboarding & Changelog shipped 2026-07-10** (Phases 39–43, 6 phases / 59 plans / 32 tasks). Full detail archived in `milestones/v1.3-ROADMAP.md` / `milestones/v1.3-REQUIREMENTS.md` / `milestones/v1.3-MILESTONE-AUDIT.md`. Milestone audit: 24/24 requirements satisfied, 7/7 cross-phase seams wired, 0 broken flows, suite 169/169 green — closed as `tech_debt` with two low-severity documentation-bookkeeping items (Phase 41 VERIFICATION.md backfill; Phase 43 nyquist bookkeeping), neither a functional gap. The app now teaches itself in-app (help center, first-run onboarding, replayable tour) and announces every release in-app (What's-New + changelog), with a hard CI gate keeping docs current on every future user-facing change. Prior: v1.2 Codebase Health & Reliability shipped 2026-07-07 (test net + decomposed codebase + canonical date engine); v1.1 launched the app (live & sold 2026-06-22).
 
 ## Current Milestone: v1.4 Richer Sessions
@@ -207,4 +209,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-12 after Phase 44 — tech-debt guardrails + pre-prod environment shipped (DEBT-01..03 validated). App live & sold.*
+*Last updated: 2026-07-14 after Phase 45 — rich-text rendering & export foundation shipped (RTXT-06/07/08/10 validated, real-device gate passed). App live & sold.*

@@ -57,7 +57,7 @@ resolution: RESOLVED 2026-07-14 — Ben approved the 45-06 real-device gate on f
 ## Gaps
 
 ### GAP-45-01: text-then-heading renders literal in read mode (pipeline divergence)
-status: diagnosed
+status: resolved
 severity: major
 surface: `assets/md-render.js` renderBlock — heading regex `/^(#{1,3})\s+…/` anchored at block start only
 diagnosis: a `#`/`##`/`###` line directly after a text line (no blank line before it) falls through to the
@@ -75,7 +75,7 @@ fix_direction (agreed with Ben 2026-07-13): split text-then-heading inside a blo
 resolution: FIXED by 45-07 (commits 3f3820c..207036c), verified on-device by Ben on build 207036c.
 
 ### GAP-45-02: marker-only list lines are trailing-space-sensitive; typed lines visually disappear
-status: diagnosed
+status: resolved
 severity: minor
 surface: `assets/md-render.js` isListItem + `assets/pdf-export.js` parseMarkdown list regexes
   (`/^\s*(?:[-*]|\d+\.)\s+/` — requires whitespace AFTER the marker, content not required)
@@ -93,7 +93,7 @@ resolution: FIXED by 45-07 (commits 3f3820c..207036c), verified on-device by Ben
   (GAP-45-01 likewise fixed and verified).
 
 ### GAP-45-03: same-level marker-type flip folds into the open list (pipeline divergence)
-status: diagnosed (round 2, found by Ben's stress-test on build 207036c)
+status: resolved (was: diagnosed round 2)
 severity: minor
 surface: `assets/md-render.js` buildListLevel — a list run opens ONE element from items[start].type;
   a SAME-DEPTH sibling whose own marker type differs is emitted as a plain <li> inside it
@@ -107,7 +107,7 @@ fix_direction (Ben, 2026-07-13): CommonMark rule — a marker-type change at the
 resolution: FIXED by 45-08 (commits 6b36d17..5ce1f46), verified on-device by Ben on build 5ce1f46.
 
 ### GAP-45-04: read mode renumbers ordered items positionally; PDF preserves typed ordinals
-status: diagnosed (round 2)
+status: resolved (was: diagnosed round 2)
 severity: minor
 surface: `assets/md-render.js` buildListLevel emits bare `<li>` (browser renumbers 1..N);
   `assets/pdf-export.js` deliberately carries `item.ordinal` (typed-ordinal contract, quick 260608-c8x)
