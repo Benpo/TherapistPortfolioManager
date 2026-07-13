@@ -638,7 +638,16 @@ window.PDFExport = (function () {
         continue;
       }
       // List: contiguous lines beginning with "- " or "* " or "1. " etc.
-      if (/^\s*[-*]\s+/.test(line) || /^\s*\d+\.\s+/.test(line)) {
+      // GAP-45-02 (Ben's 2026-07-13 lock): a marker-only line (bare "-"/"*"/"N."
+      // with optional trailing whitespace) is an EMPTY list item, so "1." ≡ "1. "
+      // and nothing typed disappears — matching md-render.js. DETECTION uses a
+      // lookahead `(?=\s|$)` (marker then whitespace OR end-of-line); the 1.5-guard
+      // holds because in "1.5" the dot is followed by a digit, so the ordinal
+      // branch fails and the line stays a paragraph. The list detector, per-item
+      // ordered-ness, ordinal capture, marker strip, AND the paragraph terminator
+      // below all move to this SAME rule in lockstep so the grouper and the
+      // paragraph collector never disagree on a marker-only line.
+      if (/^\s*[-*](?=\s|$)/.test(line) || /^\s*\d+\.(?=\s|$)/.test(line)) {
         // Quick task 260522-iwr: decide ordered-vs-unordered from the FIRST
         // list line. An ordered list ("1. ", "2. " ...) carries an ordinal;
         // an unordered list ("- ", "* ") carries a bullet.
@@ -656,9 +665,9 @@ window.PDFExport = (function () {
         // runs (the common case) the typed ordinals are already 1..N, so
         // there is no visible behaviour change vs. the previous contract.
         // Unordered-list items remain bare strings.
-        var listOrdered = /^\s*\d+\.\s+/.test(line);
+        var listOrdered = /^\s*\d+\.(?=\s|$)/.test(line);
         var items = [];
-        while (i < lines.length && (/^\s*[-*]\s+/.test(lines[i]) || /^\s*\d+\.\s+/.test(lines[i]))) {
+        while (i < lines.length && (/^\s*[-*](?=\s|$)/.test(lines[i]) || /^\s*\d+\.(?=\s|$)/.test(lines[i]))) {
           // Phase 23 (23-12): keep raw markdown — the list-branch renderer
           // calls parseInlineBold(item) and emits Heebo Bold for **X** spans.
           // Quick task 260522-iwr + 260608-c8x: strip the leading marker (the
@@ -676,19 +685,22 @@ window.PDFExport = (function () {
           var rawLine = lines[i];
           var leadSpaces = /^( *)/.exec(rawLine)[1].length;
           var itemDepth = Math.floor(leadSpaces / 2);
-          var itemOrdered = /^\s*\d+\.\s+/.test(rawLine);
+          var itemOrdered = /^\s*\d+\.(?=\s|$)/.test(rawLine);
           if (itemOrdered) {
-            var ordMatch = /^\s*(\d+)\.\s+/.exec(rawLine);
+            // GAP-45-02: ordinal capture consumes the marker then `(?:\s+|$)`, so a
+            // bare "5." still captures ordinal 5 (typed-ordinal contract preserved —
+            // do NOT position-derive) and strips to an empty item body.
+            var ordMatch = /^\s*(\d+)\.(?:\s+|$)/.exec(rawLine);
             var typedOrdinal = ordMatch ? parseInt(ordMatch[1], 10) : (items.length + 1);
             items.push({
-              text: rawLine.replace(/^\s*\d+\.\s+/, ""),
+              text: rawLine.replace(/^\s*\d+\.(?:\s+|$)/, ""),
               ordinal: typedOrdinal,
               depth: itemDepth,
               ordered: true
             });
           } else {
             items.push({
-              text: rawLine.replace(/^\s*[-*]\s+/, ""),
+              text: rawLine.replace(/^\s*[-*](?:\s+|$)/, ""),
               depth: itemDepth,
               ordered: false
             });
@@ -707,8 +719,11 @@ window.PDFExport = (function () {
         i < lines.length &&
         !/^\s*$/.test(lines[i]) &&
         !/^#{1,3}\s+/.test(lines[i]) &&
-        !/^\s*[-*]\s+/.test(lines[i]) &&
-        !/^\s*\d+\.\s+/.test(lines[i])
+        // GAP-45-02: paragraph terminator moves to the marker-only lookahead rule
+        // in lockstep with the list detector above — otherwise the collector and
+        // the grouper would disagree on a marker-only line.
+        !/^\s*[-*](?=\s|$)/.test(lines[i]) &&
+        !/^\s*\d+\.(?=\s|$)/.test(lines[i])
       ) {
         paraLines.push(lines[i]);
         i++;

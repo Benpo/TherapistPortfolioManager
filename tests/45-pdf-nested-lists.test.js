@@ -190,24 +190,34 @@ async function main() {
   // ============================================================
   // (3) GAP-45-02 — marker-only lines parse as EMPTY list items
   // ============================================================
+  // NOTE: assert on individual properties (not deepStrictEqual) — the parsed
+  // objects live in the jsdom realm, so a cross-realm deepStrictEqual fails on
+  // prototype identity even for structurally-identical objects.
   test('PARSE marker-only: `1.` is a list block whose sole item is empty ordered ordinal-1', function () {
     var block = firstListBlock(parse('1.'));
     assert.strictEqual(block.items.length, 1, 'one item expected');
-    assert.deepStrictEqual(block.items[0], { text: '', ordinal: 1, depth: 0, ordered: true });
+    var it = block.items[0];
+    assert.strictEqual(it.text, '', 'empty item body');
+    assert.strictEqual(it.ordinal, 1, 'typed ordinal 1');
+    assert.strictEqual(it.depth, 0, 'depth 0');
+    assert.strictEqual(it.ordered, true, 'ordered true');
   });
 
   test('PARSE marker-only: `1.` and `1. ` yield the identical list/item shape (1. ≡ 1. )', function () {
     var a = firstListBlock(parse('1.'));
     var b = firstListBlock(parse('1. '));
-    assert.deepStrictEqual(a.items, b.items, '`1.` and `1. ` must produce identical items');
+    assert.strictEqual(JSON.stringify(a.items), JSON.stringify(b.items),
+      '`1.` and `1. ` must produce identical items');
   });
 
   test('PARSE marker-only: `-`, `- `, `*` are list blocks whose sole item is empty unordered', function () {
     ['-', '- ', '*'].forEach(function (src) {
       var block = firstListBlock(parse(src));
       assert.strictEqual(block.items.length, 1, 'one item expected for ' + JSON.stringify(src));
-      assert.deepStrictEqual(block.items[0], { text: '', depth: 0, ordered: false },
-        'empty unordered item expected for ' + JSON.stringify(src));
+      var it = block.items[0];
+      assert.strictEqual(it.text, '', 'empty item body for ' + JSON.stringify(src));
+      assert.strictEqual(it.depth, 0, 'depth 0 for ' + JSON.stringify(src));
+      assert.strictEqual(it.ordered, false, 'unordered for ' + JSON.stringify(src));
     });
   });
 

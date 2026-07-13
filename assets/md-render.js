@@ -32,10 +32,15 @@ window.MdRender = (function () {
 
   // ── List helpers (ordered + nested support, Phase 45 D-04/D-05) ──────────────
   // A list item opens (after optional leading spaces) with a bullet ("-"/"*") or
-  // an "N." ordinal, followed by whitespace. Ordinals require whitespace after
-  // the dot so "1.5 mg" stays a paragraph, not a list.
+  // an "N." ordinal, followed by WHITESPACE OR END-OF-LINE. GAP-45-02 (Ben's
+  // 2026-07-13 lock): a marker-only line (bare "-"/"*"/"N." with optional trailing
+  // whitespace) is an EMPTY list item, so "1." ≡ "1. " and nothing typed
+  // disappears (CommonMark-aligned). DETECTION uses a lookahead `(?=\s|$)` so the
+  // marker may be followed by whitespace or the line end; the 1.5-guard is
+  // preserved because in "1.5" the ordinal dot is followed by a digit (neither
+  // whitespace nor end), so the ordinal branch fails and the line stays a paragraph.
   function isListItem(line) {
-    return /^\s*(?:[-*]|\d+\.)\s+/.test(line);
+    return /^\s*(?:[-*]|\d+\.)(?=\s|$)/.test(line);
   }
   // SHARED NESTING CONVENTION (pinned; Plan 02 mirrors it): 2 leading spaces =
   // one nesting level. floor(spaces/2) also folds the 3-space ordinal-continuation
@@ -47,10 +52,14 @@ window.MdRender = (function () {
   // Each run's ordered-ness is decided by ITS OWN marker, not the parent's, so
   // mixed-type nesting ("- a\n  1. b") renders an <ol> inside a <ul> <li>.
   function listType(line) {
-    return /^\s*\d+\.\s+/.test(line) ? "ol" : "ul";
+    // GAP-45-02: a bare "N." (marker-only) is still recognised as ordered — the
+    // ordinal test uses the lookahead form so "1." ≡ "1. " both yield "ol".
+    return /^\s*\d+\.(?=\s|$)/.test(line) ? "ol" : "ul";
   }
   function stripListMarker(line) {
-    return line.replace(/^\s*(?:[-*]|\d+\.)\s+/, "");
+    // GAP-45-02: STRIPPING consumes the marker then trailing whitespace-OR-END
+    // `(?:\s+|$)`, so a marker-only line strips to "" (an empty item body).
+    return line.replace(/^\s*(?:[-*]|\d+\.)(?:\s+|$)/, "");
   }
   // Build nested <ul>/<ol> from a run of list-item lines by leading-whitespace
   // depth. items[start] opens a list element of items[start].type at `depth`.
@@ -186,7 +195,10 @@ window.MdRender = (function () {
     var text = String(markdown).replace(/\r\n/g, "\n");
     var lines = text.split("\n").map(function (line) {
       var l = line.replace(/^\s*#{1,3}\s+/, "");            // heading marker
-      l = l.replace(/^\s*(?:[-*]|\d+\.)\s+/, "");           // bullet or ordered marker
+      // GAP-45-02: same marker-only rule as the render path — strip a marker then
+      // `(?:\s+|$)` so "1." ≡ "1. " here too; the compact-surface callers guard the
+      // result with `|| "-"`, which absorbs an empty string. 1.5-guard preserved.
+      l = l.replace(/^\s*(?:[-*]|\d+\.)(?:\s+|$)/, "");     // bullet or ordered marker
       return stripInline(l);
     });
     return lines.join("\n");
