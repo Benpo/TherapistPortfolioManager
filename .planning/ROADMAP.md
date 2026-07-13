@@ -164,6 +164,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 **Gap-Closure Wave** *(from 2026-07-13 real-device UAT — 2 diagnosed renderer gaps; re-run the 45-06 checkpoint after this lands)*
 
 - [x] 45-07-PLAN.md — GAP-45-01 text-then-heading render split (md-render.js) + GAP-45-02 marker-only lines consistent in both pipelines (md-render.js + pdf-export.js) + agreement-corpus lock + docs gate [gap-closure]
+- [ ] 45-08-PLAN.md — GAP-45-03 same-depth marker-type flip starts a new list (CommonMark) + GAP-45-04 ordered `<li value="N">` editor-1:1 ordinals (md-render.js only; pdf byte-unchanged) + agreement-corpus lock + docs gate [gap-closure round 2]
 
 ### Phase 46: Rich-Text Toolbar Editor
 
