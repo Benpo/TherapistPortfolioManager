@@ -133,6 +133,10 @@
   <script src="./assets/jszip.min.js"></script>
   <script src="./assets/backup.js"></script>
   <script src="./assets/backup-modal.js"></script>
+  <!-- md-render.js MUST precede sessions.js: it is a synchronous IIFE defining
+       window.MdRender, which sessions.js's trapped-cell strip guard reads at
+       render time (Phase 45 Plan 04, BLOCKER 1). -->
+  <script src="./assets/md-render.js"></script>
   <script src="./assets/sessions.js"></script>
   <script>
     if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}

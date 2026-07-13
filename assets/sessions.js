@@ -259,7 +259,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const trappedCell = document.createElement("td");
       trappedCell.className = "trapped-cell";
-      trappedCell.textContent = session.trappedEmotions || "-";
+      // D-06: strip markdown to plain text for this compact cell (textContent,
+      // never innerHTML). Guard MdRender for defence in depth — with md-render.js
+      // now loaded on sessions.html (BLOCKER 1) the strip path runs in production;
+      // if absent the raw string is still safe (shows literal markers).
+      const trappedRaw = session.trappedEmotions || "";
+      const trappedText = (window.MdRender && typeof window.MdRender.strip === "function")
+        ? window.MdRender.strip(trappedRaw)
+        : trappedRaw;
+      trappedCell.textContent = trappedText || "-";
 
       const heartShieldCell = document.createElement("td");
       if (session.isHeartShield) {

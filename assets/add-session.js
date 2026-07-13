@@ -1652,10 +1652,14 @@ function renderSpotlightSessionInfo(refs, sessions, formatDate) {
   refs.total.textContent = String(sessions.length);
 
   // customerSummary read-only quote. Use textContent — never innerHTML —
-  // because the value comes from the user-entered session form.
+  // because the value comes from the user-entered session form. D-06: strip
+  // markdown to plain text for this compact quote (md-render.js is already
+  // loaded on add-session.html; guard for defence in depth).
   const summaryText = (latest.customerSummary || "").trim();
   if (summaryText) {
-    refs.summaryQuote.textContent = summaryText;
+    refs.summaryQuote.textContent = (window.MdRender && typeof window.MdRender.strip === "function")
+      ? window.MdRender.strip(summaryText)
+      : summaryText;
     refs.summaryBlock.classList.remove("is-hidden");
   } else {
     refs.summaryBlock.classList.add("is-hidden");

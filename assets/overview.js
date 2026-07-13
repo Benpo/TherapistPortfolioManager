@@ -845,7 +845,13 @@ function renderClientRows(clients, sessionsByClient) {
         if (commentsText) {
           commentsLine = document.createElement("div");
           commentsLine.className = "session-comments";
-          commentsLine.textContent = `${App.t("session.form.comments")}: ${commentsText}`;
+          // D-06: strip markdown to plain text for this compact line (textContent,
+          // never innerHTML). Guard MdRender for defence in depth — md-render.js is
+          // now loaded on index.html (BLOCKER 1) so the strip path runs in prod.
+          const commentsStripped = (window.MdRender && typeof window.MdRender.strip === "function")
+            ? window.MdRender.strip(commentsText)
+            : commentsText;
+          commentsLine.textContent = `${App.t("session.form.comments")}: ${commentsStripped}`;
         }
         let heartBadge = null;
         if (session.isHeartShield) {
