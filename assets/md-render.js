@@ -150,7 +150,31 @@ window.MdRender = (function () {
     return rendered.join("\n");
   }
 
+  // strip(markdown) — D-06 shared markdown -> PLAIN TEXT helper for the compact
+  //   surfaces (Plan 04). Output is plain text assigned via textContent (NEVER
+  //   innerHTML), so it does NOT HTML-escape. Removes inline emphasis with the
+  //   SAME hardened D-08 rule as applyInline (so "2 * 3 * 4" stays literal) and
+  //   strips leading block markers per line (heading #/##/###, bullet -/*,
+  //   ordered N.). Line breaks between note lines are preserved with a single
+  //   "\n" join; compact consumers truncate as needed.
+  function stripInline(text) {
+    var out = text.replace(/\*\*([^*\s\n](?:[^*\n]*?[^*\s\n])?)\*\*/g, "$1");
+    out = out.replace(/(^|[^*])\*([^*\s\n](?:[^*\n]*?[^*\s\n])?)\*(?!\*)/g, "$1$2");
+    return out;
+  }
+  function strip(markdown) {
+    if (markdown === null || markdown === undefined) return "";
+    var text = String(markdown).replace(/\r\n/g, "\n");
+    var lines = text.split("\n").map(function (line) {
+      var l = line.replace(/^\s*#{1,3}\s+/, "");            // heading marker
+      l = l.replace(/^\s*(?:[-*]|\d+\.)\s+/, "");           // bullet or ordered marker
+      return stripInline(l);
+    });
+    return lines.join("\n");
+  }
+
   return {
     render: render,
+    strip: strip,
   };
 })();
