@@ -1923,6 +1923,16 @@ window.PDFExport = (function () {
   return {
     buildSessionPDF: buildSessionPDF,
     slugify: slugify,
-    triggerDownload: triggerDownload
+    triggerDownload: triggerDownload,
+    // Phase 45 (45-02): test-only seam exposing the internal markdown parse /
+    // inline-emphasis helpers so their D-08 hardening + the drawSegmentedLine
+    // invariant (parseInlineBold≡stripInlineMarkdown) and the per-item nested-list
+    // parsing can be unit-asserted directly. NOT part of the stable public API —
+    // production callers use buildSessionPDF only.
+    __test: {
+      stripInlineMarkdown: stripInlineMarkdown,
+      parseInlineBold: parseInlineBold,
+      parseMarkdown: parseMarkdown
+    }
   };
 })();
