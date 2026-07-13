@@ -3577,6 +3577,69 @@ html[dir="rtl"] .export-format-help[open] summary::before {
 .export-preview ul {
   padding-inline-start: 24px;
 }
+/* MdRender's NEW <ol> output (Phase 45 Plan 01) now appears in the already-wired
+   Step-2 export preview; without this rule ordered lists render at the browser
+   default indent. Logical property = RTL-safe. Matches the .export-preview ul
+   indent above (Plan 04 Task 1, NOTE 5). */
+.export-preview ol {
+  padding-inline-start: 24px;
+}
+
+/* ── Read-mode rendered-note overlay (RTXT-06, Phase 45 Plan 04, UI-SPEC §B) ──
+   The .note-rendered overlay shows a saved note's markdown as styled text in
+   add-session read mode (the app's ONE sanctioned innerHTML note surface, fed
+   only by MdRender). Adapts the .export-preview conventions with RTL-safe
+   logical properties and existing --color-* tokens (no new colors; WCAG-AA in
+   light + dark). Note headings use the SUBORDINATE register: differentiated
+   from body by weight + spacing, NOT a size jump — no border rule, no diamond.
+   Every heading rule is SCOPED under .note-rendered so it can NEVER bleed onto
+   .export-preview h1/h2/h3 (UI-SPEC §B selector-scoping). */
+.note-rendered {
+  color: var(--color-text);
+  font-size: 1rem;
+  line-height: 1.55;
+  white-space: normal;
+  word-break: break-word;
+}
+.note-rendered p {
+  font-size: 1rem;
+  line-height: 1.55;
+  margin-block: 0 8px;
+}
+.note-rendered p:last-child {
+  margin-block-end: 0;
+}
+.note-rendered ul,
+.note-rendered ol {
+  padding-inline-start: 24px;
+  margin-block: 0 8px;
+}
+.note-rendered li {
+  margin-block-end: 2px;
+}
+/* Subordinate note-heading register — 17 / 16 / 15px @ 600, led by weight +
+   spacing (NO border-bottom / NO rule / NO diamond). Scoped to .note-rendered. */
+.note-rendered h1 {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-block: 12px 4px;
+}
+.note-rendered h2 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-block: 12px 4px;
+}
+.note-rendered h3 {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-block: 12px 4px;
+}
+.note-rendered :first-child {
+  margin-block-start: 0;
+}
 
 .export-mobile-tabs {
   display: none;

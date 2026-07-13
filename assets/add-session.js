@@ -277,6 +277,50 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // Read-mode rendered-note overlay (RTXT-06). This is the app's ONE sanctioned
+  // innerHTML write of user note content — routed EXCLUSIVELY through MdRender
+  // (escape-first, XSS-safe). For each of the 7 note `.session-textarea` fields,
+  // entering read mode renders window.MdRender.render(textarea.value) into a
+  // sibling `.note-rendered` element (created once, reused), hides the textarea,
+  // and shows the overlay. The textarea stays the single source of truth: the
+  // overlay is rebuilt on every read-mode entry and torn down on edit-mode entry.
+  // ALL sessions render through this one uniform path (D-07: no per-session
+  // format flag), so hand-typed #/##/### note lines render as headings (D-01) at
+  // the subordinate .note-rendered register. When window.MdRender is unavailable,
+  // fall back to textContent (literal markdown) — NEVER raw innerHTML.
+  // Pitfall 5: never autoGrow a HIDDEN textarea, so read mode no longer calls
+  // resizeReadModeTextareas — the overlay carries the visible height instead.
+  function renderReadModeNotes() {
+    readModeTextareas.forEach((textarea) => {
+      let overlay = textarea._noteRendered;
+      if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.className = "note-rendered";
+        textarea.insertAdjacentElement("afterend", overlay);
+        textarea._noteRendered = overlay;
+      }
+      if (window.MdRender && typeof window.MdRender.render === "function") {
+        // MdRender.render escapes HTML before structural rules — safe to assign.
+        overlay.innerHTML = window.MdRender.render(textarea.value);
+      } else {
+        overlay.textContent = textarea.value; // fallback: literal, never raw innerHTML
+      }
+      overlay.classList.remove("is-hidden");
+      textarea.classList.add("is-hidden");
+    });
+  }
+
+  function clearReadModeNotes() {
+    readModeTextareas.forEach((textarea) => {
+      const overlay = textarea._noteRendered;
+      if (overlay) {
+        overlay.classList.add("is-hidden");
+        overlay.textContent = ""; // clear without innerHTML (MdRender.render stays the sole innerHTML writer)
+      }
+      textarea.classList.remove("is-hidden");
+    });
+  }
+
   function resetInlineClientForm() {
     const fields = [
       "inlineClientFirstName",
@@ -329,8 +373,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }
     if (isReadMode) {
-      resizeReadModeTextareas();
+      // Render each note field's markdown into its .note-rendered overlay and
+      // hide the (readOnly) textarea. NOTE: do NOT resize the textareas here —
+      // they are hidden in read mode (Pitfall 5: never autoGrow a hidden field).
+      renderReadModeNotes();
     } else {
+      clearReadModeNotes();
       clearReadModeTextareas();
       updateAddIssueState();
       updateRemoveButtons();
@@ -1294,7 +1342,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateSessionTitle(editingSession);
       App.setSubmitLabel("session.form.update", submitButton, submitLabel);
     }
-    if (isReadMode) resizeReadModeTextareas();
+    if (isReadMode) renderReadModeNotes(); // overlays are visible in read mode, not the (hidden) textareas
     populateSpotlight(editingSession ? editingSession.clientId : (clientSelect ? clientSelect.value : null));
     updateCancelButtonLabel(); // re-translate Cancel/Discard label
   });

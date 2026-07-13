@@ -219,14 +219,15 @@ async function test(name, fn) {
   // Case 5: SOURCE ASSERTION — overlay writes innerHTML only from MdRender.render, with a textContent fallback.
   await test('SOURCE: add-session.js overlay writes innerHTML only from MdRender.render(...) and has a textContent fallback branch', function () {
     var src = readAsset('assets/add-session.js');
-    // The only innerHTML assignment on the note overlay must be fed by MdRender.render.
-    assert.ok(/\.innerHTML\s*=\s*window\.MdRender\.render\(/.test(src),
-      'the read-mode overlay must assign innerHTML from window.MdRender.render(...)');
+    // The overlay's innerHTML must be fed by MdRender.render (escape-first).
+    assert.ok(/overlay\.innerHTML\s*=\s*window\.MdRender\.render\(/.test(src),
+      'the read-mode overlay must assign overlay.innerHTML from window.MdRender.render(...)');
     // A textContent fallback branch must exist for the MdRender-absent path.
-    assert.ok(/\.textContent\s*=/.test(src) && /window\.MdRender/.test(src),
-      'the overlay must have a textContent fallback guarded on window.MdRender availability');
-    // Guard: no raw interpolated innerHTML on the note overlay (defence against a weakened repoint).
-    assert.ok(!/note-rendered[^]*?\.innerHTML\s*=\s*[`"']/.test(src),
+    assert.ok(/overlay\.textContent\s*=/.test(src) && /window\.MdRender/.test(src),
+      'the overlay must have an overlay.textContent fallback guarded on window.MdRender availability');
+    // Guard (defence against a weakened repoint): the overlay must NEVER assign
+    // innerHTML from a raw string / template literal — only from MdRender.render.
+    assert.ok(!/overlay\.innerHTML\s*=\s*[`"']/.test(src),
       'the overlay must not assign innerHTML from a raw string/template literal');
   });
 
