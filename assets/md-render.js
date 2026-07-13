@@ -16,9 +16,17 @@ window.MdRender = (function () {
 
   function applyInline(text) {
     // text is already escaped — only ** and * sequences (which survived escape) get re-mapped.
-    // Bold first (non-greedy, single-line), then italic (negative lookbehind/ahead to skip ** runs).
-    var out = text.replace(/\*\*([^*\n]+?)\*\*/g, "<strong>$1</strong>");
-    out = out.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, "$1<em>$2</em>");
+    // D-08 hardening: markers must HUG non-whitespace, so a legacy "2 * 3 * 4" or
+    //   "** bold **" stays literal. The content group opens AND closes on a
+    //   non-whitespace char ([^*\s\n]) with any non-star middle ([^*\n]).
+    //   NO regex lookbehind is used — Safari < 16.4 lacks it; the closing-hug
+    //   rule is expressed with a character-class boundary instead.
+    // SHARED CONTRACT: these two emphasis regexes are CHARACTER-IDENTICAL to
+    //   pdf-export.js stripInlineMarkdown's (Plan 02); Plan 05 Task 1 asserts it.
+    //   Bold first (single-line), then italic (the (^|[^*]) prefix + (?!\*) suffix
+    //   keep italic from matching inside ** runs).
+    var out = text.replace(/\*\*([^*\s\n](?:[^*\n]*?[^*\s\n])?)\*\*/g, "<strong>$1</strong>");
+    out = out.replace(/(^|[^*])\*([^*\s\n](?:[^*\n]*?[^*\s\n])?)\*(?!\*)/g, "$1<em>$2</em>");
     return out;
   }
 
