@@ -187,8 +187,50 @@ test('unordered list `- a\\n- b` carries NO value= attribute (bullets only)', fu
   assert.ok(html.indexOf('value=') === -1, 'bullets must never carry a value attribute');
 });
 
+// ─── GAP-45-03: same-depth marker-TYPE flip starts a NEW sibling list ────────
+// Ben's 2026-07-13 CommonMark lock: a marker-type change at the same level closes
+// the current list and opens a sibling list, matching the PDF's per-item markers.
+test('ul->ol flip `-\\n1. x` splits into `<ul><li></li></ul><ol><li value="1">x</li></ol>`', function () {
+  assert.strictEqual(render('-\n1. x'), '<ul><li></li></ul><ol><li value="1">x</li></ol>');
+});
+
+test('ol->ul flip `1. x\\n- y` splits into `<ol><li value="1">x</li></ol><ul><li>y</li></ul>`', function () {
+  assert.strictEqual(render('1. x\n- y'), '<ol><li value="1">x</li></ol><ul><li>y</li></ul>');
+});
+
+test('non-empty ul->ol flip `- a\\n1. b` splits into two sibling lists', function () {
+  assert.strictEqual(render('- a\n1. b'), '<ul><li>a</li></ul><ol><li value="1">b</li></ol>');
+});
+
+test('both-empty flip `-\\n1.` splits into `<ul><li></li></ul><ol><li value="1"></li></ol>`', function () {
+  assert.strictEqual(render('-\n1.'), '<ul><li></li></ul><ol><li value="1"></li></ol>');
+});
+
+test('ordinal continuity across a flip `1. a\\n- b\\n2. c` (a flip cannot reset the number to 1)', function () {
+  assert.strictEqual(
+    render('1. a\n- b\n2. c'),
+    '<ol><li value="1">a</li></ol><ul><li>b</li></ul><ol><li value="2">c</li></ol>'
+  );
+});
+
+test('child-depth flip `- a\\n  - b\\n  1. c` splits the nested child run too', function () {
+  assert.strictEqual(
+    render('- a\n  - b\n  1. c'),
+    '<ul><li>a<ul><li>b</li></ul><ol><li value="1">c</li></ol></li></ul>'
+  );
+});
+
+// ─── Regression-lock: homogeneous runs do NOT split ──────────────────────────
+test('pure ordered run `1. a\\n2. b` stays a single <ol> (no spurious split)', function () {
+  assert.strictEqual(render('1. a\n2. b'), '<ol><li value="1">a</li><li value="2">b</li></ol>');
+});
+
+test('nested bullets `- a\\n  - b\\n- c` are unchanged by the flip logic', function () {
+  assert.strictEqual(render('- a\n  - b\n- c'), '<ul><li>a<ul><li>b</li></ul></li><li>c</li></ul>');
+});
+
 // ─── Count guard (no vacuous green) ──────────────────────────────────────────
-var EXPECTED_COUNT = 23;
+var EXPECTED_COUNT = 31;
 if (passed + failed !== EXPECTED_COUNT) {
   console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));
   process.exit(1);

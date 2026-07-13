@@ -361,8 +361,37 @@ test('typed ordinals: read-mode value="N" matches pdf item.ordinal (`11. jj`, bl
   assert.strictEqual(lists[1].items[0].ordinal, 2, 'second pdf block ordinal must be 2');
 });
 
+// ── 9. SAME-DEPTH TYPE-FLIP agreement (GAP-45-03) ────────────────────────────
+// Read mode splits a same-depth marker-type flip into sibling lists; the PDF keeps
+// ONE list block but marks each item's OWN ordered-ness. Both pipelines therefore
+// mark the SAME items as bullet-vs-numbered even though the HTML shape differs.
+test('same-depth marker-type flips: read mode splits into sibling lists; pdf per-item ordered-ness agrees', function () {
+  [
+    { src: '-\n1. x', md: '<ul><li></li></ul><ol><li value="1">x</li></ol>', ordered: [false, true], ordinals: [null, 1] },
+    { src: '1. x\n- y', md: '<ol><li value="1">x</li></ol><ul><li>y</li></ul>', ordered: [true, false], ordinals: [1, null] },
+    { src: '-\n1.', md: '<ul><li></li></ul><ol><li value="1"></li></ol>', ordered: [false, true], ordinals: [null, 1] }
+  ].forEach(function (row) {
+    // Read mode: two sibling lists with per-run markers.
+    assert.strictEqual(MdRender.render(row.src), row.md,
+      'MdRender must split the flip for ' + JSON.stringify(row.src) + ' (got ' + MdRender.render(row.src) + ')');
+    // PDF: one list block, per-item ordered-ness (and ordinal) match the read-mode markers.
+    var list = parseMarkdown(row.src).filter(function (b) { return b.type === 'list'; })[0];
+    assert.ok(list, 'pdf must produce a list block for ' + JSON.stringify(row.src));
+    assert.strictEqual(list.items.length, row.ordered.length,
+      'pdf must keep both items in ONE block for ' + JSON.stringify(row.src));
+    row.ordered.forEach(function (ord, idx) {
+      assert.strictEqual(list.items[idx].ordered, ord,
+        'pdf item ' + idx + ' ordered-ness must be ' + ord + ' for ' + JSON.stringify(row.src));
+      if (ord) {
+        assert.strictEqual(list.items[idx].ordinal, row.ordinals[idx],
+          'pdf ordered item ' + idx + ' ordinal must be ' + row.ordinals[idx] + ' for ' + JSON.stringify(row.src));
+      }
+    });
+  });
+});
+
 // ── Count guard — no vacuous green ───────────────────────────────────────────
-var EXPECTED = 14;
+var EXPECTED = 15;
 if (passed + failed !== EXPECTED) {
   console.log('  FAIL  count guard: expected ' + EXPECTED + ' tests, ran ' + (passed + failed));
   failed++;
