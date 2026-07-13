@@ -1,16 +1,16 @@
 ---
-status: diagnosed
+status: resolved
 phase: 45-rich-text-rendering-export-foundation
 source: [45-06 checkpoint (real-device gate), Ben real-device UAT 2026-07-13]
 started: 2026-07-13T11:30:00.000Z
-updated: 2026-07-13T13:40:00.000Z
+updated: 2026-07-14T00:00:00.000Z
 ---
 
 ## Current Test
 
 number: n/a
-name: Round 2 — 45-07 verified on-device by Ben (headings-after-text + marker-only fixed, build 207036c); his stress-test exposed 2 further list-grammar corners (GAP-45-03/04), fix directions locked 2026-07-13
-awaiting: 45-08 gap closure, then short re-check + approval of the 45-06 checkpoint
+name: RESOLVED — Ben approved the 45-06 real-device gate 2026-07-14 on final build 5ce1f46 (all 4 diagnosed gaps FIXED by 45-07/45-08 and re-verified on-device; full suite 183/183)
+awaiting: none — checkpoint approved, phase ready for verifier + completion
 
 ## Tests
 
@@ -45,10 +45,14 @@ result: NOT a Phase 45 item — pre-existing bug (backup.js/settings.js untouche
 
 total: 6
 passed: 3
-issues: 2
+issues: 0 (all 4 diagnosed gaps FIXED and re-verified on-device — see resolutions below)
 pending: 0
 skipped: 1 (covered-by-absence)
 blocked: 0
+resolution: RESOLVED 2026-07-14 — Ben approved the 45-06 real-device gate on final build 5ce1f46.
+  GAP-45-01/02 fixed by 45-07 (3f3820c..207036c, verified on build 207036c); GAP-45-03/04 fixed by
+  45-08 (6b36d17..5ce1f46, verified on build 5ce1f46). Full suite 183/183. Evidence recorded in
+  45-06-SUMMARY.md. Out-of-scope second-import popup bug filed as v1.4 ship-blocker todo (resolves_phase 48).
 
 ## Gaps
 
@@ -68,6 +72,7 @@ fix_direction (agreed with Ben 2026-07-13): split text-then-heading inside a blo
   remainder starting at the heading line. PDF needs NO change. Extend
   `tests/45-pipeline-agreement.test.js` with text-then-heading + heading-remainder-then-heading cases so
   this divergence class is locked out.
+resolution: FIXED by 45-07 (commits 3f3820c..207036c), verified on-device by Ben on build 207036c.
 
 ### GAP-45-02: marker-only list lines are trailing-space-sensitive; typed lines visually disappear
 status: diagnosed
@@ -99,6 +104,7 @@ diagnosis: `-` (ul, d0) followed in the same contiguous run by `1. ` (ol, d0) �
 fix_direction (Ben, 2026-07-13): CommonMark rule — a marker-type change at the same level STARTS A
   NEW LIST in read mode (`<ul>…</ul><ol>…</ol>`), matching the PDF's per-item markers. PDF unchanged.
   Agreement-corpus cases for same-depth type flips (both directions, incl. empty items).
+resolution: FIXED by 45-08 (commits 6b36d17..5ce1f46), verified on-device by Ben on build 5ce1f46.
 
 ### GAP-45-04: read mode renumbers ordered items positionally; PDF preserves typed ordinals
 status: diagnosed (round 2)
@@ -111,3 +117,4 @@ fix_direction (Ben, 2026-07-13): EDITOR-1:1 — read mode honors typed ordinals 
   so screen ≡ PDF ≡ what the user typed (`1./1./1.` now displays 1,1,1 — accepted; block-separated
   numbered runs keep their typed numbering on screen too). PDF unchanged.
   Corpus cases: typed non-sequential ordinals, block-separated numbered runs.
+resolution: FIXED by 45-08 (commits 6b36d17..5ce1f46), verified on-device by Ben on build 5ce1f46.

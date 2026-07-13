@@ -5,16 +5,16 @@ milestone_name: Richer Sessions
 current_phase: 45
 current_phase_name: rich-text-rendering-export-foundation
 status: verifying
-stopped_at: Phase 45 UI-SPEC approved
-last_updated: "2026-07-13T21:55:35.453Z"
-last_activity: 2026-07-13
-last_activity_desc: Phase 45 execution started
+stopped_at: Phase 45 real-device gate (45-06) APPROVED — ready for verifier + phase completion
+last_updated: "2026-07-13T23:02:52.871Z"
+last_activity: 2026-07-14
+last_activity_desc: Phase 45 45-06 gate PASSED on build 5ce1f46 (all 4 UAT gaps fixed + re-verified; suite 183/183)
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 13
-  completed_plans: 12
-  percent: 20
+  completed_plans: 13
+  percent: 40
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 ## Current Position
 
 Phase: 45 (rich-text-rendering-export-foundation) — EXECUTING
-Plan: 6 of 6
-Status: Phase complete — ready for verification
-Last activity: 2026-07-13 — Phase 45 execution started
+Plan: 6 of 6 (all plans complete incl. gap rounds 45-07/45-08)
+Status: 45-06 real-device human-verify gate APPROVED — ready for verifier + phase completion (orchestrator owns phase.complete)
+Last activity: 2026-07-14 — Phase 45 45-06 gate PASSED on build 5ce1f46 (all 4 UAT gaps fixed + re-verified; suite 183/183)
 
 ## Performance Metrics
 
@@ -247,6 +247,7 @@ Last activity: 2026-07-13 — Phase 45 execution started
 | Phase 45 P05 | 15min | 2 tasks | 8 files |
 | Phase 45 P07 | 20min | 3 tasks | 6 files |
 | Phase 45 P08 | ~15min | 3 tasks | 4 files |
+| Phase 45 P06 | 2 days | 1 tasks | 0 files |
 
 ## Accumulated Context
 
@@ -452,6 +453,8 @@ Recent decisions affecting current work:
 - [Phase ?]: The deploy no-leak invariant is now a real falsifiable test (build-staging.test.js asserts no .planning/.claude/CLAUDE.md/.env in the staged tree) — T-44-05
 - [Phase 44]: prod deploy.yml stages via shared build-staging.sh and purges only after cf-await-promotion.sh confirms live-origin promotion (blocking) — DEBT-02/DEBT-03 landed atomically in the one blast-radius file
 - [Phase ?]: [Phase 45-02]: PDF **2*3*4** stays literal (char-identical md-render bold regex forbids inner *); parseInlineBold refuses *-content to preserve the strip invariant; nested list items uniform {text,depth,ordered} — per-item marker + depth*14pt physical indent off docDir
+- [Phase ?]: [Phase 45-06]: Real-device / real-PDF human-verify gate PASSED — Ben approved 2026-07-14 on build 5ce1f46; ROADMAP success criteria 1/2/4 confirmed on real surfaces (installed-Safari read mode, real Hebrew PDF, real .sgbackup restore both encrypted + plain)
+- [Phase ?]: [Phase 45-06]: 4 on-device UAT gaps found during the open checkpoint were fixed by 45-07 (GAP-45-01/02) + 45-08 (GAP-45-03/04) and re-verified on-device (suite 183/183); second-backup-import popup bug ruled OUT of Phase 45 scope, filed as v1.4 ship-blocker todo (resolves_phase 48)
 
 ### Pending Todos
 

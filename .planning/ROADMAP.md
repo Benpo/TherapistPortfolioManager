@@ -96,7 +96,7 @@ Full phase detail archived in `milestones/v1.3-ROADMAP.md`.
 Session documentation becomes richer and personal — formatted text and custom section order — while the app's mobile chrome, error feedback, and deploy pipeline get hardened. Zero new production dependencies; markdown-at-rest storage (fields stay plain strings, no data migration); underline dropped (no markdown syntax). Real-device verification (installed-Safari PWA, real iPhone, real opened PDF) is embedded as a success criterion in each feature phase — jsdom cannot see caret/paste/drag/PDF/RTL, and this repo has shipped false-GREEN jsdom PDF tests before.
 
 - [x] **Phase 44: Tech-Debt Guardrails & Pre-Prod Environment** — comment-hygiene CONVENTIONS.md root-cause fix + runtime-leak reword (forward gate → v1.5), deploy purge-race fix, second CF Pages pre-prod project
-- [ ] **Phase 45: Rich-Text Rendering & Export Foundation** — formatted notes render in read mode, PDF, and markdown copy/share; legacy content safe; encrypted-backup round-trip
+- [x] **Phase 45: Rich-Text Rendering & Export Foundation** — formatted notes render in read mode, PDF, and markdown copy/share; legacy content safe; encrypted-backup round-trip (completed 2026-07-13)
 - [ ] **Phase 46: Rich-Text Toolbar Editor** — formatting toolbar, keyboard shortcuts, auto-format, live preview, nested lists; snippets/autogrow preserved
 - [ ] **Phase 47: Session-Section Reordering** — drag + arrow reorder in Settings, drives the form + both export builders (atomic 260615 guard rewrite), per-therapist persistence
 - [ ] **Phase 48: Mobile Pass & Validation Polish** — index-header fix, popover exclusivity, accordion error-focus, 21-03 iPhone sweep; future-birthdate reject + error-tone sweep + distinct next-date errors + visible error state
@@ -140,7 +140,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   3. Copying or sharing a session as markdown reproduces the stored formatting verbatim.
   4. Pre-v1.4 plain-text sessions render safely and unchanged in meaning, and an encrypted `.sgbackup` round-trip carries formatted notes with zero format changes (verified with a real restore).
 
-**Plans**: 7/8 plans executed
+**Plans**: 8/8 plans complete
 **UI hint**: yes
 
 **Wave 1** *(parallel — no file overlap)*
@@ -159,7 +159,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 
 **Wave 4** *(blocked on 45-05 — real-device phase gate)*
 
-- [ ] 45-06-PLAN.md — Real Hebrew PDF + installed-Safari read mode + real `.sgbackup` restore human checkpoint [wave 4]
+- [x] 45-06-PLAN.md — Real Hebrew PDF + installed-Safari read mode + real `.sgbackup` restore human checkpoint [wave 4]
 
 **Gap-Closure Wave** *(from 2026-07-13 real-device UAT — 2 diagnosed renderer gaps; re-run the 45-06 checkpoint after this lands)*
 
@@ -280,7 +280,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 42.1. Help & Onboarding Translation (HE/DE/CS) | v1.3 | 10/10 | Complete | 2026-07-10 |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 10/10 | Complete | 2026-07-10 |
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
-| 45. Rich-Text Rendering & Export Foundation | v1.4 | 7/8 | In Progress|  |
+| 45. Rich-Text Rendering & Export Foundation | v1.4 | 8/8 | Complete   | 2026-07-13 |
 | 46. Rich-Text Toolbar Editor | v1.4 | 0/TBD | Not started | - |
 | 47. Session-Section Reordering | v1.4 | 0/TBD | Not started | - |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
