@@ -430,9 +430,18 @@ window.PDFExport = (function () {
     //   - any future caller that needs a markdown-marker-free plain string
     //     (e.g. running-header / title-block code paths if the client name
     //     ever contains `**`).
+    // Phase 45 (45-02, D-08): emphasis markers must HUG non-whitespace so a
+    // legacy "2 * 3 * 4" or "** bold **" stays LITERAL. The content group opens
+    // AND closes on a non-whitespace char ([^*\s\n]) with any non-star middle
+    // ([^*\n]). NO regex lookbehind (Safari < 16.4 lacks it) — the closing-hug is
+    // a character-class boundary. These two regex PATTERNS are CHARACTER-IDENTICAL
+    // to md-render.js applyInline's (Plan 01 canonical form); Plan 05 Task 1
+    // asserts that cross-file source identity, so preview (MdRender) and PDF never
+    // disagree. Because the bold content class [^*\n] forbids an inner "*", a
+    // token like "**2 * 3 * 4**" stays wholly literal (its content holds "*").
     return text
-      .replace(/\*\*([^*\n]+?)\*\*/g, '$1')   // bold: **X** -> X
-      .replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1$2');  // italic: *X* -> X (avoid matching ** runs)
+      .replace(/\*\*([^*\s\n](?:[^*\n]*?[^*\s\n])?)\*\*/g, '$1')   // bold: **X** -> X
+      .replace(/(^|[^*])\*([^*\s\n](?:[^*\n]*?[^*\s\n])?)\*(?!\*)/g, '$1$2');  // italic: *X* -> X (avoid matching ** runs)
   }
 
   /**
@@ -475,6 +484,15 @@ window.PDFExport = (function () {
    * segments' `.text.length` values. Explicit indices would duplicate state
    * and risk drifting from `splitTextToSize`'s wrapped sub-line boundaries.
    */
+  // Phase 45 (45-02, D-08): whitespace test for the char-scanner emphasis hug.
+  // Mirrors the regex \s class exactly (charAt returns '' past the string end,
+  // which we also treat as "space" so a marker at a string boundary cannot hug),
+  // keeping parseInlineBold's hug rule character-identical to the regex boundary
+  // used by stripInlineMarkdown / md-render applyInline.
+  function isEmphSpace(ch) {
+    return ch === '' || /\s/.test(ch);
+  }
+
   function parseInlineBold(text) {
     if (!text) return [];
     var segments = [];
@@ -494,23 +512,47 @@ window.PDFExport = (function () {
           }
         }
         if (close > i + 2) {
-          // Emit pending regular buffer.
-          if (buf.length > 0) {
-            segments.push({ text: buf, bold: false });
-            buf = '';
+          var boldInner = text.slice(i + 2, close);
+          // Phase 45 (45-02, D-08 / WARNING 4): the bold content must match the
+          // CHARACTER-IDENTICAL md-render rule [^*\s\n](?:[^*\n]*?[^*\s\n])? —
+          // i.e. hold NO inner "*" and HUG non-whitespace at both ends. This keeps
+          // parseInlineBold byte-equal to stripInlineMarkdown: a "**2 * 3 * 4**"
+          // (inner "*") or a "** bold **" (space-adjacent) is REFUSED here and
+          // stays literal, exactly as the strip regex leaves it — preserving the
+          // drawSegmentedLine invariant (T-45-03). Without this the outer ** would
+          // strip to a "2  3  4" bold segment while strip keeps it literal, and the
+          // two would diverge and misplace bold runs after bidi reorder.
+          if (boldInner.indexOf('*') === -1 &&
+              !isEmphSpace(boldInner.charAt(0)) &&
+              !isEmphSpace(boldInner.charAt(boldInner.length - 1))) {
+            // Emit pending regular buffer.
+            if (buf.length > 0) {
+              segments.push({ text: buf, bold: false });
+              buf = '';
+            }
+            // Inner-italic strip inside the bold span. With the "*"-free content
+            // guard above this is now inert (no "*" can remain), but it is retained
+            // and hardened in LOCKSTEP with stripInlineMarkdown's rule so the two
+            // stay character-identical (WARNING 4 / the pdf-export.js:504 site).
+            var inner = boldInner.replace(/(^|[^*])\*([^*\s\n](?:[^*\n]*?[^*\s\n])?)\*(?!\*)/g, '$1$2');
+            segments.push({ text: inner, bold: true });
+            i = close + 2;
+            continue;
           }
-          var inner = text.slice(i + 2, close);
-          // Strip italic markers inside the bold span (no italic rendering).
-          inner = inner.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1$2');
-          segments.push({ text: inner, bold: true });
-          i = close + 2;
-          continue;
+          // Invalid bold span (inner "*" or space-adjacent) — fall through to
+          // literal handling of this "**".
         }
         // Unmatched `**` — fall through to literal handling.
       }
       // Italic single `*X*`: strip but DO NOT emit an italic segment — content
       // is folded into the surrounding regular buffer.
+      // Phase 45 (45-02, D-08): the marker must HUG non-whitespace — the char
+      // after the opening `*` and before the closing `*` must both be non-ws, and
+      // the content must hold no inner `*` — mirroring stripInlineMarkdown's rule
+      // (^|[^*])\*([^*\s\n](?:[^*\n]*?[^*\s\n])?)\*(?!\*) so "2 * 3 * 4" stays
+      // literal and the two functions agree byte-for-byte.
       if (text.charCodeAt(i) === 42 && text.charCodeAt(i + 1) !== 42 &&
+          !isEmphSpace(text.charAt(i + 1)) &&                 // opening hugs non-ws
           (i === 0 || text.charCodeAt(i - 1) !== 42)) {
         var iclose = -1;
         for (var ki = i + 1; ki < n; ki++) {
@@ -520,12 +562,14 @@ window.PDFExport = (function () {
             break;
           }
         }
-        if (iclose > i + 1) {
+        if (iclose > i + 1 &&
+            !isEmphSpace(text.charAt(iclose - 1)) &&          // closing hugs non-ws
+            text.slice(i + 1, iclose).indexOf('*') === -1) {  // no inner star
           buf += text.slice(i + 1, iclose);
           i = iclose + 1;
           continue;
         }
-        // Unmatched `*` — fall through to literal handling.
+        // Unmatched / space-adjacent `*` — fall through to literal handling.
       }
       buf += text.charAt(i);
       i++;
