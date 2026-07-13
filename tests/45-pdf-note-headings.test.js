@@ -281,8 +281,45 @@ async function main() {
       'editor.value must contain no control / zero-width / bidi-override sentinel characters (D-10 byte-clean)');
   });
 
+  // ── WR-02 (Phase 45 review): a LONG note heading must WRAP inside the margins ──
+  // Note headings are therapist FREE TEXT — a sentence-length `## ...` drawn with
+  // one doc.text call overflows the page margin (leftward in RTL). The register
+  // must route through splitTextToSize like body text: multiple margin-anchored
+  // sub-lines, nothing dropped.
+  var LONG_NOTE_HEADING =
+    'WRAPHEAD alpha bravo charlie delta echo foxtrot golf hotel india juliett ' +
+    'kilo lima mike november oscar papa quebec romeo sierra tango uniform ' +
+    'victor whiskey xray yankee zulu';
+  var capWrap = await buildAndCapturePDF('## ' + LONG_NOTE_HEADING, ['someDocLabel'], {});
+
+  test('WR-02: a sentence-length note heading WRAPS into multiple margin-anchored subordinate lines (never one overflowing doc.text call)', function () {
+    // Every fragment of the heading drawn at the subordinate (<14pt) register
+    // whose text is a substring of the typed heading.
+    var frags = capWrap.texts.filter(function (t) {
+      return typeof t.size === 'number' && t.size < 14 &&
+             t.text.length > 0 && LONG_NOTE_HEADING.indexOf(t.text) !== -1;
+    });
+    assert.ok(frags.length >= 2,
+      'a heading far wider than USABLE_W must render as MULTIPLE wrapped sub-lines; saw ' +
+      frags.length + ' doc.text call(s) — a single call means it overflows the margin');
+    // Nothing typed disappears: the wrapped sub-lines reconstruct the heading.
+    var rejoined = frags.map(function (t) { return t.text; }).join(' ');
+    assert.strictEqual(rejoined, LONG_NOTE_HEADING,
+      'the wrapped sub-lines must reconstruct the FULL typed heading; got ' + JSON.stringify(rejoined));
+    // LTR doc: every sub-line is anchored at the left margin (MARGIN_X = 71),
+    // i.e. wrapped inside the content column, and each line sits on its own
+    // descending baseline.
+    frags.forEach(function (t, idx) {
+      assert.strictEqual(t.x, 71, 'wrapped note-heading sub-line ' + idx + ' must anchor at MARGIN_X');
+      if (idx > 0) {
+        assert.ok(t.y > frags[idx - 1].y,
+          'wrapped sub-line ' + idx + ' must draw on a LOWER baseline than sub-line ' + (idx - 1));
+      }
+    });
+  });
+
   // ── Count guard ────────────────────────────────────────────────────────────────
-  var EXPECTED = 6;
+  var EXPECTED = 7;
   test('count guard: expected ' + EXPECTED + ' assertions ran', function () {
     assert.strictEqual(passed + failed, EXPECTED,
       'expected ' + EXPECTED + ' tests before the count guard, saw ' + (passed + failed));

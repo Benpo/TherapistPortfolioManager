@@ -1472,21 +1472,38 @@ window.PDFExport = (function () {
                          : (block.level === 2) ? NOTE_HEADING_H2_SIZE
                          : NOTE_HEADING_H3_SIZE;
             y += NOTE_HEADING_TOP_MARGIN;
-            ensureRoom(LINE_HEIGHT_BODY + NOTE_HEADING_BOTTOM_MARGIN);
             var noteHeadingText = stripInlineMarkdown(block.text);
             doc.setFont('Heebo', 'bold');
             doc.setFontSize(noteSize);
             setInk(COLOR_BODY_INK);
-            var noteVisual = shapeForJsPdf(noteHeadingText);
-            if (docDir === 'rtl') {
-              doc.text(noteVisual, PAGE_W - MARGIN_X, y, { align: 'right', isInputVisual: false });
-            } else {
-              doc.text(noteVisual, MARGIN_X, y, { isInputVisual: false });
+            // WR-02 (Phase 45 review): a note heading is therapist FREE TEXT — a
+            // sentence-length "## ..." drawn with ONE doc.text call overflows the
+            // page margin (leftward in RTL, where the draw is right-anchored).
+            // Wrap through the same splitTextToSize mechanism body text uses.
+            // The font (Heebo bold @ noteSize) is set BEFORE the split so the
+            // measurement happens at the register's own metrics; each sub-line
+            // is shaped + margin-anchored exactly like the old single call.
+            var noteLines = doc.splitTextToSize(noteHeadingText, USABLE_W);
+            for (var nhi = 0; nhi < noteLines.length; nhi++) {
+              // The FIRST line reserves the bottom margin too — identical
+              // page-break bookkeeping to the pre-fix single-line draw, so
+              // single-line note headings render byte-identically. Continuation
+              // lines reserve one body line each.
+              ensureRoom(nhi === 0
+                ? (LINE_HEIGHT_BODY + NOTE_HEADING_BOTTOM_MARGIN)
+                : LINE_HEIGHT_BODY);
+              var noteVisual = shapeForJsPdf(noteLines[nhi]);
+              if (docDir === 'rtl') {
+                doc.text(noteVisual, PAGE_W - MARGIN_X, y, { align: 'right', isInputVisual: false });
+              } else {
+                doc.text(noteVisual, MARGIN_X, y, { isInputVisual: false });
+              }
+              y += LINE_HEIGHT_BODY;
             }
             // Restore a clean baseline for downstream renderer code (no chrome drawn).
             doc.setTextColor(0, 0, 0);
             doc.setFont('Heebo', 'normal');
-            y += LINE_HEIGHT_BODY + NOTE_HEADING_BOTTOM_MARGIN;
+            y += NOTE_HEADING_BOTTOM_MARGIN;
             continue;
           }
 
