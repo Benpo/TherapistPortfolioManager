@@ -61,6 +61,19 @@ window.MdRender = (function () {
     // `(?:\s+|$)`, so a marker-only line strips to "" (an empty item body).
     return line.replace(/^\s*(?:[-*]|\d+\.)(?:\s+|$)/, "");
   }
+  // GAP-45-04 (Ben's 2026-07-13 editor-1:1 lock): capture the TYPED ordinal of an
+  // ordered line so read mode can emit `<li value="N">` and the on-screen number
+  // equals what the user typed (screen ≡ PDF). The capture regex is
+  // CHARACTER-MATCHED to pdf-export.js parseMarkdown's `ordMatch` so the two
+  // pipelines agree on the ordinal (bare "5." → 5; "1.5" fails the branch → null,
+  // preserving the round-1 1.5-guard). This ONLY ADDS a numeric capture — it does
+  // NOT touch the DETECTION helpers (isListItem/listType/stripListMarker). The
+  // returned value is `parseInt` of a `\d+` group, so it is a finite integer whose
+  // string form is digits-only — no user-controlled text ever reaches the attribute.
+  function listOrdinal(line) {
+    var m = /^\s*(\d+)\.(?:\s+|$)/.exec(line);
+    return m ? parseInt(m[1], 10) : null;
+  }
   // Build nested <ul>/<ol> from a run of list-item lines by leading-whitespace
   // depth. items[start] opens a list element of items[start].type at `depth`.
   function buildListLevel(items, start, depth) {
@@ -70,14 +83,19 @@ window.MdRender = (function () {
     while (i < items.length && items[i].depth >= depth) {
       if (items[i].depth > depth) { i++; continue; } // safety (unreached in practice)
       var content = applyInline(items[i].content);
+      // GAP-45-04: an ordered item opens with its TYPED ordinal as value="N";
+      // an unordered item opens with a bare <li> (bullets never carry value).
+      // The ordinal is the integer from listOrdinal (parseInt of \d+), never
+      // `content`/raw text, so nothing user-controlled lands in the attribute.
+      var liOpen = items[i].type === "ol" ? '<li value="' + items[i].ordinal + '">' : "<li>";
       var j = i + 1;
       if (j < items.length && items[j].depth > depth) {
         var k = j;
         while (k < items.length && items[k].depth > depth) { k++; }
-        html += "<li>" + content + buildListLevel(items, j, items[j].depth) + "</li>";
+        html += liOpen + content + buildListLevel(items, j, items[j].depth) + "</li>";
         i = k;
       } else {
-        html += "<li>" + content + "</li>";
+        html += liOpen + content + "</li>";
         i = j;
       }
     }
@@ -86,7 +104,7 @@ window.MdRender = (function () {
   }
   function buildList(listLines) {
     var items = listLines.map(function (l) {
-      return { depth: listDepth(l), type: listType(l), content: stripListMarker(l) };
+      return { depth: listDepth(l), type: listType(l), content: stripListMarker(l), ordinal: listOrdinal(l) };
     });
     return buildListLevel(items, 0, items[0].depth);
   }
