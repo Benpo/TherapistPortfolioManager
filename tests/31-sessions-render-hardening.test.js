@@ -128,8 +128,38 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── Phase 45 Plan 04 EXTENSION (never weaken) ───────────────────────────────
+  // The compact trapped-emotions cell now routes through MdRender.strip (D-06),
+  // but its output MUST still land on textContent — the strip helper emits plain
+  // text, not HTML. This source lock proves the hardening convention survives the
+  // strip change: the trapped cell is a textContent assignment and NEVER an
+  // innerHTML one.
+  await test('EXT(45-04): sessions.js trapped compact cell stays textContent-only after the MdRender.strip change (never innerHTML)', function () {
+    var src = readAsset('assets/sessions.js');
+    assert.ok(/trappedCell\.textContent\s*=/.test(src),
+      'the trapped cell must be assigned via trappedCell.textContent (compact surface stays textContent-only)');
+    assert.ok(!/trappedCell\.innerHTML\s*=/.test(src),
+      'the trapped cell must NEVER be assigned via innerHTML (D-06: strip emits plain text for textContent)');
+    assert.ok(/MdRender\.strip\(/.test(src),
+      'the trapped cell must route through MdRender.strip (plain-text strip, not a render)');
+  });
+
+  // The app's ONE sanctioned innerHTML write of user NOTE content is the
+  // read-mode overlay in add-session.js — and it is routed EXCLUSIVELY through
+  // MdRender.render (escape-first). This lock documents that narrow exception so
+  // the textContent-only convention on every OTHER surface (this file, overview,
+  // the compact cells) is understood to be deliberate and unchanged. The overlay
+  // behavior itself is proven by tests/45-read-mode-render.test.js.
+  await test('EXT(45-04): the ONLY sanctioned note innerHTML path (add-session read-mode overlay) is MdRender-routed and narrow', function () {
+    var addSrc = readAsset('assets/add-session.js');
+    assert.ok(/overlay\.innerHTML\s*=\s*window\.MdRender\.render\(/.test(addSrc),
+      'the read-mode overlay must write innerHTML ONLY from window.MdRender.render(...) (escape-first, single narrow exception)');
+    assert.ok(!/overlay\.innerHTML\s*=\s*[`"']/.test(addSrc),
+      'the read-mode overlay must not write innerHTML from a raw string/template literal');
+  });
+
   // ─── F-A count guard ─────────────────────────────────────────────────────────
-  var EXPECTED_COUNT = 1;
+  var EXPECTED_COUNT = 3;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {

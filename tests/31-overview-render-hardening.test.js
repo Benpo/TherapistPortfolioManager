@@ -141,8 +141,27 @@ test('a client WITH a session renders a view button: .button-label = "overview.t
   env.dom.window.close();
 });
 
+// ─── Phase 45 Plan 04 EXTENSION (never weaken) ───────────────────────────────
+// The compact comments line now routes through MdRender.strip (D-06), but its
+// output MUST still land on textContent — strip emits plain text, not HTML. This
+// source lock proves the hardening convention survives the strip change: the
+// comments line is a textContent assignment and NEVER an innerHTML one. (The
+// app's ONE sanctioned note-innerHTML exception — the add-session read-mode
+// overlay — is MdRender-routed and documented in
+// tests/31-sessions-render-hardening.test.js + proven in
+// tests/45-read-mode-render.test.js.)
+test('EXT(45-04): overview.js comments line stays textContent-only after the MdRender.strip change (never innerHTML)', function () {
+  var src = readAsset('assets/overview.js');
+  assert.ok(/commentsLine\.textContent\s*=/.test(src),
+    'the comments line must be assigned via commentsLine.textContent (compact surface stays textContent-only)');
+  assert.ok(!/commentsLine\.innerHTML\s*=/.test(src),
+    'the comments line must NEVER be assigned via innerHTML (D-06: strip emits plain text for textContent)');
+  assert.ok(/MdRender\.strip\(/.test(src),
+    'the comments line must route through MdRender.strip (plain-text strip, not a render)');
+});
+
 // ─── count guard (no case silently skipped) ──────────────────────────────────
-var EXPECTED_COUNT = 2;
+var EXPECTED_COUNT = 3;
 if (passed + failed !== EXPECTED_COUNT) {
   console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases to execute, but ' +
     (passed + failed) + ' ran — a case was silently skipped.');
