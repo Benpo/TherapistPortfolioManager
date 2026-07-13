@@ -11,9 +11,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Rich-Text Session Editor (RTXT)
 
-Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings — zero migration); toolbar-over-textarea editor surface (preserves snippets/autogrow, avoids WebKit contenteditable bugs); **underline dropped** (no markdown syntax — see Out of Scope); italic accepted knowing the PDF renders it regular-weight (no Hebrew italic face vendored).
+Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings — zero migration); toolbar-over-textarea editor surface (preserves snippets/autogrow, avoids WebKit contenteditable bugs); **underline dropped** (no markdown syntax — see Out of Scope); italic accepted knowing the PDF renders it regular-weight (no Hebrew italic face vendored). Amended 2026-07-13 (Phase 45 discussion): **headings added to the toolbar vocabulary** — H1–H3 plus a "regular text" state (markdown-native, unlike the dropped underline); note-content headings render at a subordinate register in the PDF, never mistakable for document section headings.
 
-- [ ] **RTXT-01**: User can format session note text via a toolbar — bold, italic, bullet list, numbered list — which inserts markdown markers into the familiar text fields
+- [ ] **RTXT-01**: User can format session note text via a toolbar — bold, italic, bullet list, numbered list, and a heading control (H1/H2/H3 + back to regular text) — which inserts markdown markers into the familiar text fields
 - [ ] **RTXT-02**: User can format via keyboard shortcuts on desktop (Ctrl/Cmd+B bold, Ctrl/Cmd+I italic)
 - [ ] **RTXT-03**: User gets auto-format while typing — "- " / "1. " starts a list, Enter continues it, Enter on an empty item exits it
 - [ ] **RTXT-04**: User can toggle a live preview of the rendered result while editing
