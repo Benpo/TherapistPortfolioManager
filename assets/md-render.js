@@ -106,6 +106,25 @@ window.MdRender = (function () {
     // A list item is a line that (after optional leading spaces) opens with a
     // bullet or an "N." ordinal marker followed by whitespace.
     var lines = block.split(/\r?\n/).filter(function (l) { return l.length > 0; });
+    // GAP-45-01: a heading line (#/##/### + whitespace) typed directly UNDER a
+    // text line (no blank-line block boundary) must render as a REAL heading, not
+    // a literal "## X" joined with <br>. Scan for the FIRST heading line and, if
+    // it is not at index 0, split like the WARNING-3 text-then-list split below:
+    // render the leading text as its own sub-block, then recurse on the remainder
+    // STARTING at the heading line (the block-start heading branch above then
+    // consumes it, and its body-remainder recursion re-enters this same split, so
+    // one split also fixes "### Sub" after text inside a heading's body). Index 0
+    // never reaches here — a block that opens with a heading is fully handled by
+    // the block-start branch. This converges read mode toward pdf-export's already
+    // -correct paragraph-terminates-at-heading behavior (the PDF needs no change).
+    var firstHeadingIdx = -1;
+    for (var hi = 0; hi < lines.length; hi++) {
+      if (/^#{1,3}\s+/.test(lines[hi])) { firstHeadingIdx = hi; break; }
+    }
+    if (firstHeadingIdx > 0) {
+      return renderBlock(lines.slice(0, firstHeadingIdx).join("\n")) +
+             renderBlock(lines.slice(firstHeadingIdx).join("\n"));
+    }
     var firstListIdx = -1;
     for (var fi = 0; fi < lines.length; fi++) {
       if (isListItem(lines[fi])) { firstListIdx = fi; break; }
