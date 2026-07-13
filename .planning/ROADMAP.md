@@ -140,7 +140,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   3. Copying or sharing a session as markdown reproduces the stored formatting verbatim.
   4. Pre-v1.4 plain-text sessions render safely and unchanged in meaning, and an encrypted `.sgbackup` round-trip carries formatted notes with zero format changes (verified with a real restore).
 
-**Plans**: 5/6 plans executed
+**Plans**: 6/7 plans executed (1 gap-closure plan added from 2026-07-13 real-device UAT)
 **UI hint**: yes
 
 **Wave 1** *(parallel — no file overlap)*
@@ -160,6 +160,10 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 **Wave 4** *(blocked on 45-05 — real-device phase gate)*
 
 - [ ] 45-06-PLAN.md — Real Hebrew PDF + installed-Safari read mode + real `.sgbackup` restore human checkpoint [wave 4]
+
+**Gap-Closure Wave** *(from 2026-07-13 real-device UAT — 2 diagnosed renderer gaps; re-run the 45-06 checkpoint after this lands)*
+
+- [ ] 45-07-PLAN.md — GAP-45-01 text-then-heading render split (md-render.js) + GAP-45-02 marker-only lines consistent in both pipelines (md-render.js + pdf-export.js) + agreement-corpus lock + docs gate [gap-closure]
 
 ### Phase 46: Rich-Text Toolbar Editor
 
