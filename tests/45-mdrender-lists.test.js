@@ -135,8 +135,32 @@ test('`text\\n#### x` keeps the 4-hash line literal (not a heading)', function (
   assert.strictEqual(render('text\n#### x'), '<p>text<br>#### x</p>');
 });
 
+// ─── GAP-45-02: marker-only lines are empty list items (1. ≡ 1. ) ────────────
+test('bare ordinal `1.` renders an empty ordered item `<ol><li></li></ol>`', function () {
+  assert.strictEqual(render('1.'), '<ol><li></li></ol>');
+});
+
+test('`1.` and `1. ` (trailing space) render identically', function () {
+  assert.strictEqual(render('1.'), render('1. '));
+  assert.strictEqual(render('1. '), '<ol><li></li></ol>');
+});
+
+test('bare bullet `-` and `- ` render an empty unordered item `<ul><li></li></ul>`', function () {
+  assert.strictEqual(render('-'), '<ul><li></li></ul>');
+  assert.strictEqual(render('- '), '<ul><li></li></ul>');
+});
+
+test('bare `*` renders an empty unordered item `<ul><li></li></ul>`', function () {
+  assert.strictEqual(render('*'), '<ul><li></li></ul>');
+});
+
+// ─── Regression-lock: the 1.5-guard — `1.5 mg` stays a paragraph, never a list ─
+test('`1.5 mg` stays a paragraph (1.5-guard preserved by the lookahead)', function () {
+  assert.strictEqual(render('1.5 mg'), '<p>1.5 mg</p>');
+});
+
 // ─── Count guard (no vacuous green) ──────────────────────────────────────────
-var EXPECTED_COUNT = 14;
+var EXPECTED_COUNT = 19;
 if (passed + failed !== EXPECTED_COUNT) {
   console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));
   process.exit(1);

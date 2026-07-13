@@ -305,8 +305,40 @@ test('heading-remainder-then-heading `## H\\ntext\\n### Sub` agrees: heading L2 
   assert.strictEqual(blocks[2].text, 'Sub', 'pdf block 2 heading text "Sub"');
 });
 
+// ── 7. MARKER-ONLY agreement (GAP-45-02) ─────────────────────────────────────
+test('marker-only lines (`-`,`- `,`*`,`1.`,`1. `) are empty list items of the matching type in BOTH pipelines', function () {
+  [
+    { src: '-', tag: 'ul', ordered: false },
+    { src: '- ', tag: 'ul', ordered: false },
+    { src: '*', tag: 'ul', ordered: false },
+    { src: '1.', tag: 'ol', ordered: true },
+    { src: '1. ', tag: 'ol', ordered: true }
+  ].forEach(function (row) {
+    // MdRender: an empty list item of the correct list type; nothing dropped.
+    var html = MdRender.render(row.src);
+    assert.strictEqual(html, '<' + row.tag + '><li></li></' + row.tag + '>',
+      'MdRender must render ' + JSON.stringify(row.src) + ' as an empty <' + row.tag + '> item (got ' + html + ')');
+    // PDF: a list block whose sole item is empty-text with matching ordered-ness.
+    var blocks = parseMarkdown(row.src).filter(function (b) { return b.type !== 'blank'; });
+    assert.strictEqual(blocks[0].type, 'list',
+      'pdf parseMarkdown must produce a list block for ' + JSON.stringify(row.src));
+    assert.strictEqual(blocks[0].items[0].text, '',
+      'pdf list item text must be empty for ' + JSON.stringify(row.src));
+    assert.strictEqual(blocks[0].items[0].ordered, row.ordered,
+      'pdf list item ordered-ness must be ' + row.ordered + ' for ' + JSON.stringify(row.src));
+  });
+});
+
+test('1.5-guard agreement: `1.5 mg` is a paragraph (not a list) in BOTH pipelines', function () {
+  var html = MdRender.render('1.5 mg');
+  assert.ok(html.indexOf('<p>') !== -1 && !/<[ou]l>/.test(html),
+    'MdRender must render "1.5 mg" as a paragraph, no list tag (got ' + html + ')');
+  var blocks = parseMarkdown('1.5 mg').filter(function (b) { return b.type !== 'blank'; });
+  assert.strictEqual(blocks[0].type, 'para', 'pdf parseMarkdown: "1.5 mg" must be a paragraph');
+});
+
 // ── Count guard — no vacuous green ───────────────────────────────────────────
-var EXPECTED = 11;
+var EXPECTED = 13;
 if (passed + failed !== EXPECTED) {
   console.log('  FAIL  count guard: expected ' + EXPECTED + ' tests, ran ' + (passed + failed));
   failed++;

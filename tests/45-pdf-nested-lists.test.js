@@ -187,8 +187,37 @@ async function main() {
       '), not dragged toward the left margin');
   });
 
+  // ============================================================
+  // (3) GAP-45-02 — marker-only lines parse as EMPTY list items
+  // ============================================================
+  test('PARSE marker-only: `1.` is a list block whose sole item is empty ordered ordinal-1', function () {
+    var block = firstListBlock(parse('1.'));
+    assert.strictEqual(block.items.length, 1, 'one item expected');
+    assert.deepStrictEqual(block.items[0], { text: '', ordinal: 1, depth: 0, ordered: true });
+  });
+
+  test('PARSE marker-only: `1.` and `1. ` yield the identical list/item shape (1. ≡ 1. )', function () {
+    var a = firstListBlock(parse('1.'));
+    var b = firstListBlock(parse('1. '));
+    assert.deepStrictEqual(a.items, b.items, '`1.` and `1. ` must produce identical items');
+  });
+
+  test('PARSE marker-only: `-`, `- `, `*` are list blocks whose sole item is empty unordered', function () {
+    ['-', '- ', '*'].forEach(function (src) {
+      var block = firstListBlock(parse(src));
+      assert.strictEqual(block.items.length, 1, 'one item expected for ' + JSON.stringify(src));
+      assert.deepStrictEqual(block.items[0], { text: '', depth: 0, ordered: false },
+        'empty unordered item expected for ' + JSON.stringify(src));
+    });
+  });
+
+  test('PARSE regression: `1.5 mg` stays a paragraph (1.5-guard preserved)', function () {
+    var blocks = parse('1.5 mg');
+    assert.strictEqual(blocks[0].type, 'para', '1.5 mg must be a paragraph, not a list');
+  });
+
   // ── Count guard ──────────────────────────────────────────────────────────────
-  var EXPECTED = 7; // 3 parse + 4 render
+  var EXPECTED = 11; // 3 parse + 4 render + 4 marker-only
   test('count guard: expected ' + EXPECTED + ' assertions ran', function () {
     assert.strictEqual(passed + failed, EXPECTED,
       'expected ' + EXPECTED + ' tests before the count guard, saw ' + (passed + failed));
