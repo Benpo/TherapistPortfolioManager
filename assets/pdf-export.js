@@ -663,18 +663,40 @@ window.PDFExport = (function () {
           // calls parseInlineBold(item) and emits Heebo Bold for **X** spans.
           // Quick task 260522-iwr + 260608-c8x: strip the leading marker (the
           // renderer re-adds the prefix from item.ordinal for ordered lists).
-          if (listOrdered) {
-            var ordMatch = /^\s*(\d+)\.\s+/.exec(lines[i]);
+          //
+          // Phase 45 (45-02, D-04/D-05): record PER ITEM (a) its nesting `depth`
+          // from leading whitespace — SHARED NESTING CONVENTION (Plan 01 Task 1):
+          // 2 spaces = 1 level, floor(spaces/2), which also folds the 3-space
+          // ordinal-continuation indent to level 1 — and (b) its OWN `ordered`-ness
+          // from its OWN marker. Relying on the single block-level flag cannot
+          // represent a MIXED-type nested run and left a nested "1." un-stripped
+          // under an unordered parent (rendering "- 1. b"). Each item now strips
+          // the marker appropriate to ITS OWN type and the renderer keys the
+          // prefix + split-row path on item.ordered.
+          var rawLine = lines[i];
+          var leadSpaces = /^( *)/.exec(rawLine)[1].length;
+          var itemDepth = Math.floor(leadSpaces / 2);
+          var itemOrdered = /^\s*\d+\.\s+/.test(rawLine);
+          if (itemOrdered) {
+            var ordMatch = /^\s*(\d+)\.\s+/.exec(rawLine);
             var typedOrdinal = ordMatch ? parseInt(ordMatch[1], 10) : (items.length + 1);
             items.push({
-              text: lines[i].replace(/^\s*\d+\.\s+/, ""),
-              ordinal: typedOrdinal
+              text: rawLine.replace(/^\s*\d+\.\s+/, ""),
+              ordinal: typedOrdinal,
+              depth: itemDepth,
+              ordered: true
             });
           } else {
-            items.push(lines[i].replace(/^\s*[-*]\s+/, ""));
+            items.push({
+              text: rawLine.replace(/^\s*[-*]\s+/, ""),
+              depth: itemDepth,
+              ordered: false
+            });
           }
           i++;
         }
+        // `ordered` (the first line's type) retained for back-compat; the renderer
+        // now reads item.ordered / item.depth per item (mixed-type nesting).
         blocks.push({ type: 'list', items: items, ordered: listOrdered });
         continue;
       }
@@ -824,6 +846,11 @@ window.PDFExport = (function () {
       var LINE_HEIGHT_HEADING = 26;
       var LINE_HEIGHT_META = 14;
       var LINE_HEIGHT_TITLE = 22;
+      // Phase 45 (45-02, D-05): per-level nested-list indent step, applied as a
+      // PHYSICAL offset keyed off docDir (LTR adds to the start/left anchor; RTL
+      // subtracts from the rightX anchor so nesting indents rightward). Matches
+      // the existing 14pt hanging-indent unit for a consistent list rhythm.
+      var NESTED_INDENT_STEP = 14;
       var FOOTER_BASELINE_Y = PAGE_H - 32;
       var RUNNING_HEADER_Y = MARGIN_TOP - 24;
 
@@ -1435,13 +1462,16 @@ window.PDFExport = (function () {
         if (block.type === 'list') {
           for (var li = 0; li < block.items.length; li++) {
             var item = block.items[li];
-            // Quick task 260608-c8x: ordered-list items now arrive as
-            // { text, ordinal } objects (Bug A fix in parseMarkdown);
-            // unordered-list items remain bare strings. The bold parser
-            // wants the raw text either way.
-            var itemText = (block.ordered && item && typeof item === 'object')
-              ? item.text
-              : item;
+            // Quick task 260608-c8x: ordered-list items arrive as { text, ordinal }
+            // objects. Phase 45 (45-02): ALL items are now uniform objects
+            // { text, depth, ordered, ordinal? } carrying their OWN depth + type
+            // (mixed-type nesting). Read defensively so a legacy bare-string item
+            // (older cached block shape) still renders as a flat depth-0 item.
+            var isObjItem = (item && typeof item === 'object');
+            var itemText = isObjItem ? item.text : item;
+            var itemOrdered = isObjItem ? !!item.ordered : !!block.ordered;
+            var itemDepth = (isObjItem && typeof item.depth === 'number') ? item.depth : 0;
+            var nestIndent = itemDepth * NESTED_INDENT_STEP;
             doc.setFont("Heebo", "normal");
             doc.setFontSize(BODY_SIZE);
             setInk(COLOR_BODY_INK); // Phase 34 (34-07, D-07): body ink #2f2d38
@@ -1452,7 +1482,10 @@ window.PDFExport = (function () {
             var listSegments = parseInlineBold(itemText);
             var listStripped = '';
             for (var lsi = 0; lsi < listSegments.length; lsi++) listStripped += listSegments[lsi].text;
-            var wrapped = doc.splitTextToSize(listStripped, USABLE_W - 14);
+            // Phase 45 (45-02): wrap within the narrower column left by the nest
+            // indent so nested content stays inside its level (flat depth-0 lists
+            // keep the original USABLE_W - 14 width → byte-identical).
+            var wrapped = doc.splitTextToSize(listStripped, USABLE_W - 14 - nestIndent);
             var listOff = 0;
             for (var wi = 0; wi < wrapped.length; wi++) {
               ensureRoom(LINE_HEIGHT_BODY);
@@ -1465,9 +1498,12 @@ window.PDFExport = (function () {
               // become single-item blocks each carrying its own typed
               // ordinal, so the renderer must read it from the item, not
               // derive it from position. Unordered lists keep "- ".
+              // Phase 45 (45-02): prefix follows the ITEM's OWN ordered-ness
+              // (mixed-type nesting), NOT the block-level flag — so a numbered
+              // child under a bullet parent renders "N. ", never "- N. ".
               var listPrefix;
-              if (block.ordered) {
-                var typedOrdinal = (item && typeof item === 'object' && typeof item.ordinal === 'number')
+              if (itemOrdered) {
+                var typedOrdinal = (isObjItem && typeof item.ordinal === 'number')
                   ? item.ordinal
                   : (li + 1); // defensive fallback -- should not trigger post Bug-A fix
                 listPrefix = typedOrdinal + '. ';
@@ -1525,21 +1561,27 @@ window.PDFExport = (function () {
               // The content argument is `listStripped` (the inline-bold-
               // stripped item text) -- the user-visible, marker-free text
               // that UAX #9 would consider for paragraph-direction inference.
-              if (docDir === 'rtl' && wi === 0 && block.ordered && firstStrongDir(listStripped) === 'ltr') {
+              // Phase 45 (45-02, NOTE 5): the split-row branch keys on the ITEM's
+              // OWN ordered-ness, NOT block.ordered — else a nested ordered child
+              // with LTR content under an UNORDERED parent (block.ordered false)
+              // would skip the split-row path and re-trigger the c8x Bug B class
+              // (misplaced ordered prefix after bidi reorder). The right anchor is
+              // pulled inward by nestIndent so nested rows indent rightward in RTL.
+              if (docDir === 'rtl' && wi === 0 && itemOrdered && firstStrongDir(listStripped) === 'ltr') {
                 // Measure prefix width at body font + size.
                 doc.setFont('Heebo', 'normal');
                 doc.setFontSize(BODY_SIZE);
                 var prefixW = doc.getStringUnitWidth(listPrefix) * BODY_SIZE;
-                // Prefix row-segment: right-anchored at the right margin.
+                // Prefix row-segment: right-anchored at the (nest-indented) right margin.
                 drawSegmentedLine(
                   [{ text: listPrefix, bold: false }],
                   y, BODY_SIZE,
-                  { rightX: PAGE_W - MARGIN_X }
+                  { rightX: PAGE_W - MARGIN_X - nestIndent }
                 );
                 // Content row-segment: right-anchored just inside the prefix.
                 drawSegmentedLine(
                   clippedL, y, BODY_SIZE,
-                  { rightX: PAGE_W - MARGIN_X - prefixW }
+                  { rightX: PAGE_W - MARGIN_X - nestIndent - prefixW }
                 );
               } else {
                 // Unified-row path: LTR docs, unordered lists, and
@@ -1557,11 +1599,15 @@ window.PDFExport = (function () {
                 // pre-260608-c8x path so this branch is byte-stable for
                 // every list shape it serves (LTR ordered + LTR unordered
                 // + RTL unordered + all wi>0 continuations).
+                // Phase 45 (45-02): shift the anchor by nestIndent as a PHYSICAL
+                // offset — LTR adds to the left anchor, RTL subtracts from rightX
+                // (nesting indents rightward). Flat depth-0 lists have nestIndent 0
+                // → anchors unchanged → byte-identical to the pre-45 output.
                 var drawOpts;
                 if (docDir === 'rtl') {
-                  drawOpts = { rightX: (wi === 0) ? (PAGE_W - MARGIN_X) : (PAGE_W - MARGIN_X - 14) };
+                  drawOpts = { rightX: (wi === 0) ? (PAGE_W - MARGIN_X - nestIndent) : (PAGE_W - MARGIN_X - nestIndent - 14) };
                 } else {
-                  drawOpts = { leftX: (wi === 0) ? MARGIN_X : (MARGIN_X + 14) };
+                  drawOpts = { leftX: (wi === 0) ? (MARGIN_X + nestIndent) : (MARGIN_X + nestIndent + 14) };
                 }
                 drawSegmentedLine(lineSegments, y, BODY_SIZE, drawOpts);
               }
