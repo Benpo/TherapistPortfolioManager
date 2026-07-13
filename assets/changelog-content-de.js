@@ -21,6 +21,28 @@
 
   window.CHANGELOG_CONTENT_DE = [
 
+    // v1.4 — Richer Sessions: formatted notes that keep their shape
+    {
+      version: "1.4.0",
+      anchor: "v1-4",
+      date: "Juli 2026",
+      lede: "In dieser Version behalten Ihre Sitzungsnotizen ihre Form — fett, Listen und Überschriften bleiben überall schön formatiert, wo Sie sie lesen oder teilen.",
+      highlights: [
+        "Fett, kursiv, Aufzählungs- und nummerierte Listen sowie Überschriften erscheinen jetzt als formatierter Text, wenn Sie eine gespeicherte Sitzung lesen.",
+        "Exportierte PDFs behalten Ihre Formatierung, und Hebräisch bleibt korrekt von rechts nach links.",
+        "Beim Kopieren oder Teilen einer Sitzung bleiben Ihre Notizen genau so, wie Sie sie geschrieben haben.",
+      ],
+      categories: {
+        new: [
+          "Beim Lesen einer gespeicherten Sitzung erscheinen Ihre Notizen jetzt als formatierter Text, sodass Fett, Listen und Überschriften so aussehen, wie Sie sie getippt haben.",
+        ],
+        improved: [
+          "PDF-Exporte bewahren jetzt Fett, kursiv, Aufzählungs- und nummerierte Listen, Verschachtelungen und Notiz-Überschriften — mit korrekt erhaltenem Hebräisch von rechts nach links.",
+          "Das Kopieren einer Sitzung oder das Speichern als Textdatei behält Ihre Notizen genau so, wie sie geschrieben wurden.",
+        ],
+      },
+    },
+
     // v1.3 — In-App Help, Onboarding & Changelog
     {
       version: "1.3.0",

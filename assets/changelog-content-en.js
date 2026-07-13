@@ -69,6 +69,28 @@
 
   window.CHANGELOG_CONTENT_EN = [
 
+    // ═══ v1.4 — Richer Sessions: formatted notes that keep their shape ════════
+    {
+      version: "1.4.0",
+      anchor: "v1-4",
+      date: "July 2026",
+      lede: "Your session notes now keep their shape — bold, lists, and headings stay beautifully formatted wherever you read or share them.",
+      highlights: [
+        "Bold, italics, bullet and numbered lists, and headings now show as styled text when you read a saved session.",
+        "Exported PDFs keep your formatting intact, with Hebrew right-to-left preserved.",
+        "Copying or sharing a session keeps your notes exactly as you wrote them.",
+      ],
+      categories: {
+        new: [
+          "Reading a saved session now shows your notes as styled text, so bold, lists, and headings look the way you typed them.",
+        ],
+        improved: [
+          "PDF exports now preserve bold, italics, bullet and numbered lists, nesting, and note headings — with Hebrew right-to-left kept correct.",
+          "Copying a session or saving it as a text file keeps your notes exactly as written.",
+        ],
+      },
+    },
+
     // ═══ v1.3 — In-App Help, Onboarding & Changelog (self-hosting, CHLG-04) ═══
     {
       version: "1.3.0",

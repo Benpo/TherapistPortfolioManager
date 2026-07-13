@@ -181,7 +181,8 @@
           priority: 2,
           covers: ["sessions.html", "assets/sessions.js"],
           body: [
-            { type: "p", text: "Open {ui:nav.sessions} to see everything you have recorded, or choose {ui:overview.table.viewSessions} on a client to see what happened last time." }
+            { type: "p", text: "Open {ui:nav.sessions} to see everything you have recorded, or choose {ui:overview.table.viewSessions} on a client to see what happened last time." },
+            { type: "p", text: "When you open a saved session, your notes appear as styled text — bold, italics, bullet and numbered lists, and headings show the way you typed them, so a session is easy to read back at a glance." }
           ]
         }
       ]
@@ -318,7 +319,8 @@
               "Open the saved session and choose {ui:session.export}.",
               "Review — and lightly edit — what will be shared.",
               "Pick {ui:export.download.pdf} for a polished document, or {ui:export.download.text} to save the notes as a plain text file."
-            ] }
+            ] },
+            { type: "p", text: "Any formatting you added to your notes — bold, italics, bullet and numbered lists (including nested ones), and headings — is preserved in the PDF, and Hebrew text stays correctly right-to-left." }
           ]
         },
         {
@@ -327,7 +329,8 @@
           priority: 2,
           covers: ["assets/export-modal.js"],
           body: [
-            { type: "p", text: "PDF is best for sending a finished, good-looking document to your client. Plain text is best when you want to keep the notes in your own records or bring them into another app." }
+            { type: "p", text: "PDF is best for sending a finished, good-looking document to your client. Plain text is best when you want to keep the notes in your own records or bring them into another app." },
+            { type: "p", text: "The PDF keeps your note formatting — bold, lists, and headings — as styled text, while the plain-text file keeps your notes exactly as you typed them." }
           ]
         }
       ]

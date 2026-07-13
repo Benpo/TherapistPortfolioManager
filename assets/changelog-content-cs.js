@@ -22,6 +22,28 @@
 
   window.CHANGELOG_CONTENT_CS = [
 
+    // v1.4 — Richer Sessions: formatted notes that keep their shape
+    {
+      version: "1.4.0",
+      anchor: "v1-4",
+      date: "červenec 2026",
+      lede: "Tato verze zachovává tvar vašich poznámek k sezení — tučné písmo, seznamy a nadpisy zůstávají krásně formátované všude, kde je čtete nebo sdílíte.",
+      highlights: [
+        "Tučné písmo, kurzíva, odrážkové i číslované seznamy a nadpisy se nyní zobrazují jako formátovaný text, když čtete uložené sezení.",
+        "Exportovaná PDF zachovají vaše formátování a hebrejština zůstává správně zprava doleva.",
+        "Při kopírování nebo sdílení sezení zůstanou vaše poznámky přesně tak, jak jste je napsali.",
+      ],
+      categories: {
+        new: [
+          "Čtení uloženého sezení nyní zobrazuje vaše poznámky jako formátovaný text, takže tučné písmo, seznamy a nadpisy vypadají tak, jak jste je napsali.",
+        ],
+        improved: [
+          "Exporty do PDF nyní zachovávají tučné písmo, kurzívu, odrážkové i číslované seznamy, vnoření a nadpisy poznámek — se správně zachovanou hebrejštinou zprava doleva.",
+          "Kopírování sezení nebo uložení jako textový soubor zachová vaše poznámky přesně tak, jak byly napsány.",
+        ],
+      },
+    },
+
     // v1.3 — In-App Help, Onboarding & Changelog
     {
       version: "1.3.0",
