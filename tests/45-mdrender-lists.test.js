@@ -229,8 +229,37 @@ test('nested bullets `- a\\n  - b\\n- c` are unchanged by the flip logic', funct
   assert.strictEqual(render('- a\n  - b\n- c'), '<ul><li>a<ul><li>b</li></ul></li><li>c</li></ul>');
 });
 
+// ─── CR-01 (Phase 45 review): DEDENT shapes — nothing typed may disappear ────
+// The pre-fix builder anchored the whole run at items[0].depth and exited on any
+// shallower item, so an item that DEDENTS below the first item's depth was
+// silently dropped from read mode while the PDF kept it. Each sibling run now
+// re-anchors at the CURRENT item's own depth (floor 0 at the top level; child
+// runs bounded by "deeper than parent"), so every typed item renders.
+test('over-indented first item `  - a\\n- b` keeps BOTH items (b must not vanish)', function () {
+  assert.strictEqual(render('  - a\n- b'), '<ul><li>a</li></ul><ul><li>b</li></ul>');
+});
+
+test('intermediate dedent `- a\\n    - b\\n  - c` keeps ALL THREE items (c must not vanish)', function () {
+  assert.strictEqual(
+    render('- a\n    - b\n  - c'),
+    '<ul><li>a<ul><li>b</li></ul><ul><li>c</li></ul></li></ul>'
+  );
+});
+
+test('ordered over-indented first item `  1. a\\n1. b` keeps both typed-ordinal items', function () {
+  assert.strictEqual(render('  1. a\n1. b'), '<ol><li value="1">a</li></ol><ol><li value="1">b</li></ol>');
+});
+
+test('EMPTY-item dedent `  -\\n-` keeps both empty unordered items (GAP-45-02 x CR-01)', function () {
+  assert.strictEqual(render('  -\n-'), '<ul><li></li></ul><ul><li></li></ul>');
+});
+
+test('EMPTY-item ordered dedent `  1.\\n1.` keeps both empty typed-1 items (GAP-45-02 x CR-01)', function () {
+  assert.strictEqual(render('  1.\n1.'), '<ol><li value="1"></li></ol><ol><li value="1"></li></ol>');
+});
+
 // ─── Count guard (no vacuous green) ──────────────────────────────────────────
-var EXPECTED_COUNT = 31;
+var EXPECTED_COUNT = 36;
 if (passed + failed !== EXPECTED_COUNT) {
   console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));
   process.exit(1);

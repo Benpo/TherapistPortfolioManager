@@ -390,8 +390,53 @@ test('same-depth marker-type flips: read mode splits into sibling lists; pdf per
   });
 });
 
+// ── 10. DEDENT-shape agreement (CR-01) — nothing typed may disappear ─────────
+// The pre-fix MdRender builder dropped any list item that dedented below the
+// depth of the run's FIRST item, while pdf parseMarkdown kept every item — the
+// preview showed FEWER items than the exported PDF (T-45-03 divergence class).
+// Lock: for dedent shapes (both list types, empty and non-empty items) read
+// mode renders EVERY item and the PDF carries the same per-item depth /
+// ordered-ness / typed ordinal.
+test('DEDENT shapes: read mode keeps EVERY item; pdf per-item depth/type/ordinal agree (CR-01)', function () {
+  [
+    { src: '  - a\n- b',
+      md: '<ul><li>a</li></ul><ul><li>b</li></ul>',
+      pdf: [{ text: 'a', depth: 1, ordered: false }, { text: 'b', depth: 0, ordered: false }] },
+    { src: '- a\n    - b\n  - c',
+      md: '<ul><li>a<ul><li>b</li></ul><ul><li>c</li></ul></li></ul>',
+      pdf: [{ text: 'a', depth: 0, ordered: false }, { text: 'b', depth: 2, ordered: false }, { text: 'c', depth: 1, ordered: false }] },
+    { src: '  1. a\n1. b',
+      md: '<ol><li value="1">a</li></ol><ol><li value="1">b</li></ol>',
+      pdf: [{ text: 'a', depth: 1, ordered: true, ordinal: 1 }, { text: 'b', depth: 0, ordered: true, ordinal: 1 }] },
+    { src: '  -\n-',
+      md: '<ul><li></li></ul><ul><li></li></ul>',
+      pdf: [{ text: '', depth: 1, ordered: false }, { text: '', depth: 0, ordered: false }] },
+    { src: '  1.\n1.',
+      md: '<ol><li value="1"></li></ol><ol><li value="1"></li></ol>',
+      pdf: [{ text: '', depth: 1, ordered: true, ordinal: 1 }, { text: '', depth: 0, ordered: true, ordinal: 1 }] }
+  ].forEach(function (row) {
+    // Read mode: exact HTML — every typed item present, re-anchored per run.
+    assert.strictEqual(MdRender.render(row.src), row.md,
+      'MdRender must keep every dedented item for ' + JSON.stringify(row.src) +
+      ' (got ' + MdRender.render(row.src) + ')');
+    // PDF: ONE list block carrying ALL items with matching depth/type/ordinal.
+    var list = parseMarkdown(row.src).filter(function (b) { return b.type === 'list'; })[0];
+    assert.ok(list, 'pdf must produce a list block for ' + JSON.stringify(row.src));
+    assert.strictEqual(list.items.length, row.pdf.length,
+      'pdf must keep ALL ' + row.pdf.length + ' items for ' + JSON.stringify(row.src));
+    row.pdf.forEach(function (exp, idx) {
+      assert.strictEqual(list.items[idx].text, exp.text, 'pdf item ' + idx + ' text for ' + JSON.stringify(row.src));
+      assert.strictEqual(list.items[idx].depth, exp.depth, 'pdf item ' + idx + ' depth for ' + JSON.stringify(row.src));
+      assert.strictEqual(list.items[idx].ordered, exp.ordered, 'pdf item ' + idx + ' ordered-ness for ' + JSON.stringify(row.src));
+      if (exp.ordered) {
+        assert.strictEqual(list.items[idx].ordinal, exp.ordinal, 'pdf item ' + idx + ' ordinal for ' + JSON.stringify(row.src));
+      }
+    });
+  });
+});
+
 // ── Count guard — no vacuous green ───────────────────────────────────────────
-var EXPECTED = 15;
+var EXPECTED = 16;
 if (passed + failed !== EXPECTED) {
   console.log('  FAIL  count guard: expected ' + EXPECTED + ' tests, ran ' + (passed + failed));
   failed++;

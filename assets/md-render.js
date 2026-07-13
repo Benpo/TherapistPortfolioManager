@@ -81,18 +81,19 @@ window.MdRender = (function () {
   // split — only a same-depth sibling flip starts a new list.
   //
   // buildOneList opens ONE <type> element, consumes a maximal run of SAME-type
-  // items at `depth` (recursing on deeper children through the sibling-splitting
-  // path so a child-run flip splits too), and STOPS at the first same-depth item
-  // whose OWN type differs. It returns the HTML and the index it stopped at.
+  // items at EXACTLY `depth` (recursing on deeper children through the sibling-
+  // splitting path so a child-run flip splits too), and STOPS at the first
+  // same-depth item whose OWN type differs (GAP-45-03) OR at any item shallower
+  // than `depth` (a DEDENT — the caller re-anchors a fresh run there, CR-01).
+  // It returns the HTML and the index it stopped at. Callers always pass
+  // depth === items[start].depth, so no item can be skipped inside the loop:
+  // a deeper item at the loop top is impossible by construction (the child scan
+  // below consumes every deeper item), and a shallower item exits the loop.
   function buildOneList(items, start, depth) {
     var type = items[start].type;
     var html = "<" + type + ">";
     var i = start;
-    while (i < items.length && items[i].depth >= depth) {
-      if (items[i].depth > depth) { i++; continue; } // safety (unreached in practice)
-      // GAP-45-03: a same-depth sibling whose own marker type differs ends this
-      // list; buildSiblingLists opens a new sibling list of the flipped type.
-      if (items[i].type !== type) { break; }
+    while (i < items.length && items[i].depth === depth && items[i].type === type) {
       var content = applyInline(items[i].content);
       // GAP-45-04: an ordered item opens with its TYPED ordinal as value="N";
       // an unordered item opens with a bare <li> (bullets never carry value).
@@ -105,7 +106,14 @@ window.MdRender = (function () {
       if (j < items.length && items[j].depth > depth) {
         var k = j;
         while (k < items.length && items[k].depth > depth) { k++; }
-        html += liOpen + content + buildSiblingLists(items, j, items[j].depth) + "</li>";
+        // CR-01 (Phase 45 review): bound the child recursion by "DEEPER THAN THE
+        // PARENT" (floor depth + 1), NOT by the first child's own depth — a
+        // dedent to any INTERMEDIATE level ("- a\n    - b\n  - c") must close
+        // the child list and open a sibling child run, never be skipped. The
+        // child scan j..k consumes exactly the items deeper than `depth`, and
+        // buildSiblingLists re-anchors each run inside that window, so every
+        // consumed item is rendered — no typed line may ever vanish (GAP-45-02).
+        html += liOpen + content + buildSiblingLists(items, j, depth + 1) + "</li>";
         i = k;
       } else {
         html += liOpen + content + "</li>";
@@ -115,14 +123,17 @@ window.MdRender = (function () {
     html += "</" + type + ">";
     return { html: html, next: i };
   }
-  // buildSiblingLists emits a maximal SERIES of sibling lists at `depth`: it loops
-  // buildOneList while same-depth items remain, so a same-depth marker-type flip
-  // (GAP-45-03) opens a fresh sibling list of the flipped type at ANY depth.
-  function buildSiblingLists(items, start, depth) {
+  // buildSiblingLists emits a maximal SERIES of sibling lists at or below the
+  // caller's window floor `minDepth`: it loops buildOneList while items at
+  // depth >= minDepth remain, RE-ANCHORING each run at the CURRENT item's own
+  // depth (CR-01 — never the first item's), so BOTH a same-depth marker-type
+  // flip (GAP-45-03) AND a dedent to a shallower still-in-window depth open a
+  // fresh sibling run instead of dropping items.
+  function buildSiblingLists(items, start, minDepth) {
     var html = "";
     var i = start;
-    while (i < items.length && items[i].depth >= depth) {
-      var res = buildOneList(items, i, depth);
+    while (i < items.length && items[i].depth >= minDepth) {
+      var res = buildOneList(items, i, items[i].depth);
       html += res.html;
       if (res.next <= i) { break; } // safety against non-advancement
       i = res.next;
@@ -133,7 +144,11 @@ window.MdRender = (function () {
     var items = listLines.map(function (l) {
       return { depth: listDepth(l), type: listType(l), content: stripListMarker(l), ordinal: listOrdinal(l) };
     });
-    return buildSiblingLists(items, 0, items[0].depth);
+    // CR-01: the top-level window floor is 0, NOT items[0].depth — an
+    // over-indented FIRST item ("  - a\n- b") must not become the gate that
+    // silently drops later shallower items. The PDF pipeline keeps every item
+    // (per-item depth); read mode now does too.
+    return buildSiblingLists(items, 0, 0);
   }
 
   // Single-newline paragraph behavior is LOCKED — consecutive non-blank lines
