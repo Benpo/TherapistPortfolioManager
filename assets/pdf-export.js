@@ -910,6 +910,19 @@ window.PDFExport = (function () {
       var HEADING_RULE_GAP      = 4;
       var HEADING_RULE_WIDTH    = 1.5;
 
+      // Phase 45 (45-03, D-02/D-03; UI-SPEC §C): NOTE-content headings — the
+      // subordinate, chrome-free register for a #/##/### a therapist typed INSIDE a
+      // note field (vs a document section heading). Strictly < 14pt so they read as
+      // subordinate to the 14-18pt branded document headings, bold for weight, in
+      // the body ink, with NO leaf-diamond and NO vein rule. A smaller top margin
+      // than the 24pt document HEADING_TOP_MARGIN keeps them tucked into the note
+      // body flow; the "sm" (~4pt) bottom gap matches UI-SPEC §C.
+      var NOTE_HEADING_H1_SIZE     = 12;
+      var NOTE_HEADING_H2_SIZE     = 11;
+      var NOTE_HEADING_H3_SIZE     = 10.5;
+      var NOTE_HEADING_TOP_MARGIN  = 10;
+      var NOTE_HEADING_BOTTOM_MARGIN = 4;
+
       // Phase 34 (34-07, D-09): footer band geometry — mint-soft top rule, small
       // logo, three zones along the existing footer baseline.
       var FOOTER_RULE_WIDTH = 1;
@@ -1366,6 +1379,38 @@ window.PDFExport = (function () {
       var severityDrawn = false;
       var sectionHeadingsSeen = 0;
 
+      // Phase 45 (45-03, D-02/D-03): document-vs-note heading classification. A
+      // parsed #/##/### heading is a DOCUMENT heading (keeps the Phase-34 branded
+      // leaf-diamond/vein-rule chrome AND, at level >= 2, increments the section
+      // count that positions the severity block) when its trimmed text is in the
+      // document-section label set export-modal forwards on sessionData
+      // (documentSectionLabels = every `## ${label}` the builders emit PLUS the
+      // level-1 title `# ${session.copy.title}`, WARNING 2). Any other heading is
+      // NOTE-typed content a therapist wrote inside a note field → rendered
+      // subordinate + chrome-free, never counted. The set is DATA on the input
+      // contract, never a sentinel in the markdown, so editor.value / the clipboard
+      // copy / the `.md` download all stay byte-clean (D-10). This mirrors the
+      // export-modal severityAfterSections label-match — document identity is
+      // re-derived by label equality, not by marking the text.
+      //
+      // Back-compat: when NO label set is supplied (a caller that predates 45-03,
+      // e.g. the Phase 34 severity/heading tests), hasDocLabels is false and EVERY
+      // heading is treated as a document heading — the exact pre-45-03 behavior, so
+      // those callers are byte-unchanged. Production always forwards the set (a
+      // non-empty array: all section keys + the title), so classification engages
+      // for every real export.
+      var hasDocLabels = Array.isArray(sessionData.documentSectionLabels);
+      var docLabelSet = {};
+      if (hasDocLabels) {
+        sessionData.documentSectionLabels.forEach(function (lbl) {
+          docLabelSet[String(lbl).trim()] = true;
+        });
+      }
+      function isDocumentHeading(block) {
+        if (!hasDocLabels) return true;
+        return docLabelSet[String(block.text).trim()] === true;
+      }
+
       function ensureRoom(neededHeight) {
         if (y + neededHeight > PAGE_H - MARGIN_BOTTOM) {
           doc.addPage();
@@ -1381,7 +1426,11 @@ window.PDFExport = (function () {
 
         // Change 1: insert the severity block at its form-order slot — just before
         // the section heading that follows the target number of leading sections.
-        if (block.type === 'heading' && block.level >= 2) {
+        // Phase 45 (45-03, D-03): only DOCUMENT headings count — a note-typed ##
+        // must never increment sectionHeadingsSeen (else a note heading would shift
+        // the severity block's page slot). The level >= 2 predicate is kept so the
+        // level-1 document title never counts, exactly as before.
+        if (block.type === 'heading' && block.level >= 2 && isDocumentHeading(block)) {
           if (!severityDrawn && sectionHeadingsSeen === severityAfterSections) {
             drawSeverityBlock(severityIssues);
             severityDrawn = true;
@@ -1395,6 +1444,37 @@ window.PDFExport = (function () {
         }
 
         if (block.type === 'heading') {
+          // Phase 45 (45-03, D-02): a NOTE-typed heading (text NOT in the document
+          // label set) renders in the subordinate, chrome-free register — bold,
+          // 12/11/10.5pt for levels 1/2/3 (UI-SPEC §C), NO leaf-diamond, NO vein
+          // rule — still bidi-safe through the existing shape pipeline. Classified
+          // across ALL levels 1-3 (not just level >= 2): the branded branch below
+          // brands every level including the level-1 title, so a note-typed `# Big`
+          // must be demoted here too (WARNING 2). Document headings fall through to
+          // the Phase-34 branded chrome path unchanged.
+          if (!isDocumentHeading(block)) {
+            var noteSize = (block.level === 1) ? NOTE_HEADING_H1_SIZE
+                         : (block.level === 2) ? NOTE_HEADING_H2_SIZE
+                         : NOTE_HEADING_H3_SIZE;
+            y += NOTE_HEADING_TOP_MARGIN;
+            ensureRoom(LINE_HEIGHT_BODY + NOTE_HEADING_BOTTOM_MARGIN);
+            var noteHeadingText = stripInlineMarkdown(block.text);
+            doc.setFont('Heebo', 'bold');
+            doc.setFontSize(noteSize);
+            setInk(COLOR_BODY_INK);
+            var noteVisual = shapeForJsPdf(noteHeadingText);
+            if (docDir === 'rtl') {
+              doc.text(noteVisual, PAGE_W - MARGIN_X, y, { align: 'right', isInputVisual: false });
+            } else {
+              doc.text(noteVisual, MARGIN_X, y, { isInputVisual: false });
+            }
+            // Restore a clean baseline for downstream renderer code (no chrome drawn).
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('Heebo', 'normal');
+            y += LINE_HEIGHT_BODY + NOTE_HEADING_BOTTOM_MARGIN;
+            continue;
+          }
+
           var hSize = (block.level === 1) ? HEADING_SIZE + 2
                     : (block.level === 2) ? HEADING_SIZE
                     : HEADING_SIZE - 2;

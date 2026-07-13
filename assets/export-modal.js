@@ -705,7 +705,12 @@
           sessionNumber: renderInputs.sessionNumber,
           issues: renderInputs.issues,
           exportedOn: renderInputs.exportedOn,
-          severityAfterSections: renderInputs.severityAfterSections
+          severityAfterSections: renderInputs.severityAfterSections,
+          // Phase 45 (45-03, D-02/D-03): the document-section label set lets the
+          // PDF classify each editor.value heading as document (branded chrome +
+          // counted) vs note-typed (subordinate, chrome-free). Passed as DATA — no
+          // sentinel in editor.value, so the `.md` download stays byte-clean (D-10).
+          documentSectionLabels: buildDocumentSectionLabels()
         }, {
           uiLang: localStorage.getItem("portfolioLang") || "en",
           onProgress: function (phase) {
@@ -768,7 +773,11 @@
           sessionNumber: renderInputs.sessionNumber,
           issues: renderInputs.issues,
           exportedOn: renderInputs.exportedOn,
-          severityAfterSections: renderInputs.severityAfterSections
+          severityAfterSections: renderInputs.severityAfterSections,
+          // Phase 45 (45-03, D-02/D-03): document-section label set for note-vs-
+          // document heading classification (same as the PDF-download path). Data,
+          // not a sentinel — the shared editor.value stays byte-clean (D-10).
+          documentSectionLabels: buildDocumentSectionLabels()
         }, { uiLang: localStorage.getItem("portfolioLang") || "en" });
         const slug = window.PDFExport.slugify(data.clientName);
         const fname = slug + "_" + (data.sessionDateISO || "session") + ".pdf";
