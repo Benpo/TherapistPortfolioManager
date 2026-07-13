@@ -1,0 +1,121 @@
+/**
+ * tests/45-mdrender-lists.test.js — Phase 45 Plan 01 Task 1.
+ *
+ * BEHAVIOR LOCK: window.MdRender.render must render ordered lists (1. 2. 3.) as
+ * <ol><li>, nested (indented) bullet AND numbered lists as nested <ul>/<ol>, and
+ * a text line immediately followed by a list run with NO blank line
+ * (Emotions:\n- anger) as a paragraph + a real list — never a literal `- token`
+ * (WARNING 3 / ROADMAP criterion 1). Flat non-nested output stays BYTE-IDENTICAL
+ * to the pre-change renderer (regression lock).
+ *
+ * SHARED NESTING CONVENTION (pinned; Plan 02 mirrors it): 2 leading spaces = one
+ * nesting level. Each nested run's ordered-ness is decided by ITS OWN marker
+ * (`-`/`*` -> <ul>, `N.` -> <ol>), NOT the parent's — so mixed-type nesting
+ * (`- a\n  1. b`) renders a <ol> nested inside a <ul> <li>.
+ *
+ * LOAD: eval the REAL assets/md-render.js into an isolated jsdom window and
+ * assert on the OBSERVABLE returned HTML string. Ends with a count guard so a
+ * silently-skipped case cannot pass vacuously.
+ *
+ * Run: node tests/45-mdrender-lists.test.js  (exit 0 pass / 1 fail)
+ */
+
+'use strict';
+
+var fs = require('fs');
+var path = require('path');
+var assert = require('assert');
+var JSDOM = require('jsdom').JSDOM;
+
+var REPO_ROOT = path.resolve(__dirname, '..');
+function readAsset(rel) { return fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8'); }
+
+function loadMdRender() {
+  var dom = new JSDOM('<!doctype html><html><head></head><body></body></html>', {
+    url: 'https://localhost/',
+    runScripts: 'outside-only',
+  });
+  dom.window.eval(readAsset('assets/md-render.js'));
+  if (!dom.window.MdRender || typeof dom.window.MdRender.render !== 'function') {
+    throw new Error('md-render.js did not expose window.MdRender.render after eval');
+  }
+  return dom;
+}
+
+var passed = 0;
+var failed = 0;
+function test(name, fn) {
+  try { fn(); console.log('  PASS  ' + name); passed++; }
+  catch (err) { console.log('  FAIL  ' + name); console.log('        ' + (err && err.message || err)); failed++; }
+}
+
+var dom = loadMdRender();
+var MdRender = dom.window.MdRender;
+var render = function (md) { return MdRender.render(md); };
+
+// ─── Regression lock: flat bullet list is byte-identical to today ────────────
+test('flat bullet list `- a\\n- b` renders byte-identical to pre-change output', function () {
+  assert.strictEqual(render('- a\n- b'), '<ul><li>a</li><li>b</li></ul>');
+});
+
+// ─── NEW: ordered lists ──────────────────────────────────────────────────────
+test('ordered list `1. a\\n2. b` renders <ol> with two <li>', function () {
+  assert.strictEqual(render('1. a\n2. b'), '<ol><li>a</li><li>b</li></ol>');
+});
+
+test('ordered list preserves source order without hardcoding start=1 (`3. a\\n4. b`)', function () {
+  // The browser numbers <ol>; we must not re-derive ordinals or force start=1.
+  assert.strictEqual(render('3. a\n4. b'), '<ol><li>a</li><li>b</li></ol>');
+});
+
+// ─── NEW: nested lists ───────────────────────────────────────────────────────
+test('nested bullet `- a\\n  - b\\n- c` nests a <ul> inside the first <li>', function () {
+  assert.strictEqual(
+    render('- a\n  - b\n- c'),
+    '<ul><li>a<ul><li>b</li></ul></li><li>c</li></ul>'
+  );
+});
+
+test('nested ordered `1. a\\n   1. b` nests an <ol> inside an ordered <li>', function () {
+  assert.strictEqual(
+    render('1. a\n   1. b'),
+    '<ol><li>a<ol><li>b</li></ol></li></ol>'
+  );
+});
+
+test('mixed-type nesting `- a\\n  1. b` nests an <ol> (not a bullet) inside the first <li>', function () {
+  var html = render('- a\n  1. b');
+  assert.strictEqual(html, '<ul><li>a<ol><li>b</li></ol></li></ul>');
+  // The child run keeps its OWN marker -> ordered, matching Plan 02/Plan 05.
+  assert.ok(/<li>a<ol>/.test(html), 'child run must be an <ol> nested inside the bullet <li>');
+});
+
+// ─── NEW: text-then-list with NO blank line (WARNING 3) ──────────────────────
+test('text then list with NO blank line `Emotions:\\n- anger` splits into <p> + real <ul>', function () {
+  var html = render('Emotions:\n- anger');
+  assert.strictEqual(html, '<p>Emotions:</p><ul><li>anger</li></ul>');
+  assert.ok(/<ul><li>anger<\/li>/.test(html), 'the list run must render as a real <ul><li>anger</li>');
+  assert.ok(html.indexOf('- anger') === -1, 'must NOT emit a literal `- anger` token (WARNING 3)');
+  assert.ok(!/<p>[^<]*- /.test(html), 'no literal `- ` may leak into the paragraph');
+});
+
+// ─── NEW (symmetry): a non-list line ENDS a list run ─────────────────────────
+test('list then trailing text `- a\\n- b\\ntext` renders <ul>...</ul><p>text</p>', function () {
+  assert.strictEqual(render('- a\n- b\ntext'), '<ul><li>a</li><li>b</li></ul><p>text</p>');
+});
+
+// ─── LOCKED contract untouched: single-newline paragraph still uses <br> ─────
+test('paragraph single-newline <br> contract is intact (`line1\\nline2`)', function () {
+  assert.strictEqual(render('line1\nline2'), '<p>line1<br>line2</p>');
+});
+
+// ─── Count guard (no vacuous green) ──────────────────────────────────────────
+var EXPECTED_COUNT = 9;
+if (passed + failed !== EXPECTED_COUNT) {
+  console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));
+  process.exit(1);
+}
+
+console.log('');
+console.log('Plan 45-01 Task 1 MdRender lists tests — ' + passed + ' passed, ' + failed + ' failed');
+process.exit(failed === 0 ? 0 : 1);
