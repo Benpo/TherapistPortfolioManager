@@ -226,7 +226,7 @@ function mdListTags(input) {
   var html = MdRender.render(input);
   var outerM = html.match(/<(ul|ol)>/);
   assert.ok(outerM, 'MdRender must open a list for ' + JSON.stringify(input) + ' (got ' + html + ')');
-  var innerM = html.match(/<li>[^<]*<(ul|ol)>/);
+  var innerM = html.match(/<li(?:\s[^>]*)?>[^<]*<(ul|ol)>/);
   assert.ok(innerM, 'MdRender must NEST a list inside an <li> for ' + JSON.stringify(input) + ' (got ' + html + ')');
   return { outer: outerM[1], inner: innerM[1], html: html };
 }
@@ -315,8 +315,11 @@ test('marker-only lines (`-`,`- `,`*`,`1.`,`1. `) are empty list items of the ma
     { src: '1. ', tag: 'ol', ordered: true }
   ].forEach(function (row) {
     // MdRender: an empty list item of the correct list type; nothing dropped.
+    // GAP-45-04: an ordered empty item now carries value="1" (its typed ordinal);
+    // unordered items are unchanged.
     var html = MdRender.render(row.src);
-    assert.strictEqual(html, '<' + row.tag + '><li></li></' + row.tag + '>',
+    var liOpen = '<li' + (row.ordered ? ' value="1"' : '') + '>';
+    assert.strictEqual(html, '<' + row.tag + '>' + liOpen + '</li></' + row.tag + '>',
       'MdRender must render ' + JSON.stringify(row.src) + ' as an empty <' + row.tag + '> item (got ' + html + ')');
     // PDF: a list block whose sole item is empty-text with matching ordered-ness.
     var blocks = parseMarkdown(row.src).filter(function (b) { return b.type !== 'blank'; });
@@ -337,8 +340,29 @@ test('1.5-guard agreement: `1.5 mg` is a paragraph (not a list) in BOTH pipeline
   assert.strictEqual(blocks[0].type, 'para', 'pdf parseMarkdown: "1.5 mg" must be a paragraph');
 });
 
+// ── 8. TYPED-ORDINAL agreement (GAP-45-04) ───────────────────────────────────
+test('typed ordinals: read-mode value="N" matches pdf item.ordinal (`11. jj`, block-separated `1. X`/`2. Y`)', function () {
+  // Single non-sequential ordinal — read mode emits value="11"; pdf carries ordinal 11.
+  var html11 = MdRender.render('11. jj');
+  assert.ok(html11.indexOf('value="11"') !== -1,
+    'MdRender must emit value="11" for "11. jj" (got ' + html11 + ')');
+  var blk11 = parseMarkdown('11. jj').filter(function (b) { return b.type === 'list'; })[0];
+  assert.ok(blk11, 'pdf must produce a list block for "11. jj"');
+  assert.strictEqual(blk11.items[0].ordinal, 11, 'pdf item.ordinal must be 11 for "11. jj"');
+
+  // Block-separated numbered runs: two <ol> value="1" then value="2"; pdf yields
+  // two single-item list blocks whose ordinals are 1 then 2 — both display 1 then 2.
+  var htmlBlk = MdRender.render('1. X\n\n2. Y');
+  assert.strictEqual(htmlBlk, '<ol><li value="1">X</li></ol>\n<ol><li value="2">Y</li></ol>',
+    'MdRender must keep typed ordinals across the blank-line split (got ' + htmlBlk + ')');
+  var lists = parseMarkdown('1. X\n\n2. Y').filter(function (b) { return b.type === 'list'; });
+  assert.strictEqual(lists.length, 2, 'pdf must yield two list blocks for block-separated numbered runs');
+  assert.strictEqual(lists[0].items[0].ordinal, 1, 'first pdf block ordinal must be 1');
+  assert.strictEqual(lists[1].items[0].ordinal, 2, 'second pdf block ordinal must be 2');
+});
+
 // ── Count guard — no vacuous green ───────────────────────────────────────────
-var EXPECTED = 13;
+var EXPECTED = 14;
 if (passed + failed !== EXPECTED) {
   console.log('  FAIL  count guard: expected ' + EXPECTED + ' tests, ran ' + (passed + failed));
   failed++;

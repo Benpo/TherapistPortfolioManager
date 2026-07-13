@@ -59,13 +59,14 @@ test('flat bullet list `- a\\n- b` renders byte-identical to pre-change output',
 });
 
 // ─── NEW: ordered lists ──────────────────────────────────────────────────────
-test('ordered list `1. a\\n2. b` renders <ol> with two <li>', function () {
-  assert.strictEqual(render('1. a\n2. b'), '<ol><li>a</li><li>b</li></ol>');
+test('ordered list `1. a\\n2. b` renders <ol> with two value-bearing <li>', function () {
+  assert.strictEqual(render('1. a\n2. b'), '<ol><li value="1">a</li><li value="2">b</li></ol>');
 });
 
-test('ordered list preserves source order without hardcoding start=1 (`3. a\\n4. b`)', function () {
-  // The browser numbers <ol>; we must not re-derive ordinals or force start=1.
-  assert.strictEqual(render('3. a\n4. b'), '<ol><li>a</li><li>b</li></ol>');
+test('ordered list displays the TYPED ordinal via value="N" (`3. a\\n4. b` shows 3,4 not 1,2)', function () {
+  // GAP-45-04 editor-1:1: the on-screen number equals what the user typed, so a
+  // list that starts at 3 shows 3 (the browser can no longer renumber to 1).
+  assert.strictEqual(render('3. a\n4. b'), '<ol><li value="3">a</li><li value="4">b</li></ol>');
 });
 
 // ─── NEW: nested lists ───────────────────────────────────────────────────────
@@ -79,14 +80,15 @@ test('nested bullet `- a\\n  - b\\n- c` nests a <ul> inside the first <li>', fun
 test('nested ordered `1. a\\n   1. b` nests an <ol> inside an ordered <li>', function () {
   assert.strictEqual(
     render('1. a\n   1. b'),
-    '<ol><li>a<ol><li>b</li></ol></li></ol>'
+    '<ol><li value="1">a<ol><li value="1">b</li></ol></li></ol>'
   );
 });
 
 test('mixed-type nesting `- a\\n  1. b` nests an <ol> (not a bullet) inside the first <li>', function () {
   var html = render('- a\n  1. b');
-  assert.strictEqual(html, '<ul><li>a<ol><li>b</li></ol></li></ul>');
-  // The child run keeps its OWN marker -> ordered, matching Plan 02/Plan 05.
+  assert.strictEqual(html, '<ul><li>a<ol><li value="1">b</li></ol></li></ul>');
+  // The child run keeps its OWN marker -> ordered, matching Plan 02/Plan 05; the
+  // parent bullet <li> carries NO value, only the nested ordered <li> does.
   assert.ok(/<li>a<ol>/.test(html), 'child run must be an <ol> nested inside the bullet <li>');
 });
 
@@ -136,13 +138,13 @@ test('`text\\n#### x` keeps the 4-hash line literal (not a heading)', function (
 });
 
 // ─── GAP-45-02: marker-only lines are empty list items (1. ≡ 1. ) ────────────
-test('bare ordinal `1.` renders an empty ordered item `<ol><li></li></ol>`', function () {
-  assert.strictEqual(render('1.'), '<ol><li></li></ol>');
+test('bare ordinal `1.` renders an empty ordered item `<ol><li value="1"></li></ol>`', function () {
+  assert.strictEqual(render('1.'), '<ol><li value="1"></li></ol>');
 });
 
 test('`1.` and `1. ` (trailing space) render identically', function () {
   assert.strictEqual(render('1.'), render('1. '));
-  assert.strictEqual(render('1. '), '<ol><li></li></ol>');
+  assert.strictEqual(render('1. '), '<ol><li value="1"></li></ol>');
 });
 
 test('bare bullet `-` and `- ` render an empty unordered item `<ul><li></li></ul>`', function () {
@@ -159,8 +161,34 @@ test('`1.5 mg` stays a paragraph (1.5-guard preserved by the lookahead)', functi
   assert.strictEqual(render('1.5 mg'), '<p>1.5 mg</p>');
 });
 
+// ─── GAP-45-04: ordered <li> carries the TYPED ordinal via value="N" (editor-1:1) ─
+test('typed ordinal `11. jj` renders `<ol><li value="11">jj</li></ol>` (screen ≡ PDF)', function () {
+  assert.strictEqual(render('11. jj'), '<ol><li value="11">jj</li></ol>');
+});
+
+test('repeated `1.\\n1.\\n1.` renders three typed-1 empty items (accepted per Ben 2026-07-13)', function () {
+  assert.strictEqual(
+    render('1.\n1.\n1.'),
+    '<ol><li value="1"></li><li value="1"></li><li value="1"></li></ol>'
+  );
+});
+
+test('block-separated `1. X\\n\\n2. Y` keeps typed ordinals across the blank-line split', function () {
+  assert.strictEqual(
+    render('1. X\n\n2. Y'),
+    '<ol><li value="1">X</li></ol>\n<ol><li value="2">Y</li></ol>'
+  );
+});
+
+// ─── Regression-lock: bullets NEVER carry value= ─────────────────────────────
+test('unordered list `- a\\n- b` carries NO value= attribute (bullets only)', function () {
+  var html = render('- a\n- b');
+  assert.strictEqual(html, '<ul><li>a</li><li>b</li></ul>');
+  assert.ok(html.indexOf('value=') === -1, 'bullets must never carry a value attribute');
+});
+
 // ─── Count guard (no vacuous green) ──────────────────────────────────────────
-var EXPECTED_COUNT = 19;
+var EXPECTED_COUNT = 23;
 if (passed + failed !== EXPECTED_COUNT) {
   console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));
   process.exit(1);
