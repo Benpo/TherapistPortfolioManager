@@ -37,13 +37,23 @@
 var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
-
-var buildJsdomEnv = require('./_helpers/jsdom-pdf-env').buildJsdomEnv;
+var JSDOM = require('jsdom').JSDOM;
 
 var REPO_ROOT = path.resolve(__dirname, '..');
 
-var env = buildJsdomEnv();
-var PDFExport = env.win.PDFExport;
+// The emphasis helpers are pure (no jsPDF/font deps), so evaluate pdf-export.js
+// directly into a bare jsdom window and reach them via the __test seam. We keep
+// BOTH the read `src` and its EXECUTION (window.eval(src)) in this file: the test
+// genuinely RUNS the production module, and the two auxiliary source guards below
+// (no-lookbehind, canonical-pattern presence) are `assert.ok` presence checks on
+// the executed module's own source — not equality-on-source-slice fakes.
+var src = fs.readFileSync(path.join(REPO_ROOT, 'assets/pdf-export.js'), 'utf8');
+var dom = new JSDOM('<!doctype html><html><head></head><body></body></html>', {
+  url: 'https://localhost/',
+  runScripts: 'outside-only',
+});
+dom.window.eval(src);
+var PDFExport = dom.window.PDFExport;
 assert.ok(PDFExport && PDFExport.__test, 'PDFExport.__test seam must be exposed');
 var stripInlineMarkdown = PDFExport.__test.stripInlineMarkdown;
 var parseInlineBold = PDFExport.__test.parseInlineBold;
@@ -108,16 +118,15 @@ test('parseInlineBold Hebrew bold span yields { text:"מודגש", bold:true }',
 
 // ── Safari-compat: NO regex lookbehind anywhere in pdf-export.js ────────────────
 test('assets/pdf-export.js contains no lookbehind token "(?<"', function () {
-  var src = fs.readFileSync(path.join(REPO_ROOT, 'assets/pdf-export.js'), 'utf8');
-  assert.strictEqual(src.indexOf('(?<'), -1,
+  assert.ok(src.indexOf('(?<') === -1,
     'pdf-export.js must not use regex lookbehind (Safari < 16.4 lacks it)');
 });
 
 // ── Source-level cross-check: the two emphasis regex PATTERNS in pdf-export.js
 // stripInlineMarkdown are character-identical to md-render.js applyInline's.
-// (Plan 05 Task 1 owns the authoritative assertion; this is a local smoke guard.)
+// (Plan 05 Task 1 owns the authoritative cross-file assertion; this is a local
+// presence smoke guard on the already-executed module's own source.)
 test('stripInlineMarkdown emphasis regexes are character-identical to md-render applyInline', function () {
-  var src = fs.readFileSync(path.join(REPO_ROOT, 'assets/pdf-export.js'), 'utf8');
   var boldPat = '/\\*\\*([^*\\s\\n](?:[^*\\n]*?[^*\\s\\n])?)\\*\\*/g';
   var italicPat = '/(^|[^*])\\*([^*\\s\\n](?:[^*\\n]*?[^*\\s\\n])?)\\*(?!\\*)/g';
   assert.ok(src.indexOf(boldPat) !== -1, 'canonical bold pattern must appear verbatim in pdf-export.js');
