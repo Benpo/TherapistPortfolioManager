@@ -20,7 +20,7 @@ Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings
 - [ ] **RTXT-05**: User can indent/outdent list items (nested lists, standard markdown) and nesting renders correctly in preview and PDF
 - [x] **RTXT-06**: User sees formatted notes when READING sessions (read mode + wherever note text is displayed), rendered escape-first via MdRender — never raw innerHTML
 - [x] **RTXT-07**: Formatting survives PDF export — bold, lists (incl. nesting), Hebrew RTL/bidi preserved; heading-strip removed or consciously kept
-- [ ] **RTXT-08**: Formatting survives markdown copy/share export verbatim
+- [x] **RTXT-08**: Formatting survives markdown copy/share export verbatim
 - [ ] **RTXT-09**: Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields
 - [x] **RTXT-10**: Existing (pre-v1.4) sessions render safely and unchanged in meaning; encrypted backup round-trip carries formatted notes with zero format changes
 
@@ -93,7 +93,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RTXT-05 | Phase 46 | Pending |
 | RTXT-06 | Phase 45 | Complete |
 | RTXT-07 | Phase 45 | Complete |
-| RTXT-08 | Phase 45 | Pending |
+| RTXT-08 | Phase 45 | Complete |
 | RTXT-09 | Phase 46 | Pending |
 | RTXT-10 | Phase 45 | Complete |
 | ORDR-01 | Phase 47 | Pending |

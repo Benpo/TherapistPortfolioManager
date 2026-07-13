@@ -140,7 +140,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   3. Copying or sharing a session as markdown reproduces the stored formatting verbatim.
   4. Pre-v1.4 plain-text sessions render safely and unchanged in meaning, and an encrypted `.sgbackup` round-trip carries formatted notes with zero format changes (verified with a real restore).
 
-**Plans**: 2/6 plans executed
+**Plans**: 3/6 plans executed
 **UI hint**: yes
 
 **Wave 1** *(parallel — no file overlap)*
@@ -150,7 +150,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 
 **Wave 2** *(45-03 blocked on 45-02 (pdf-export.js); 45-04 blocked on 45-01 (MdRender))*
 
-- [ ] 45-03-PLAN.md — PDF note-body category (D-03) + subordinate chrome-free note headings (D-02) + verbatim copy/share lock (RTXT-08/D-10) [wave 2]
+- [x] 45-03-PLAN.md — PDF note-body category (D-03) + subordinate chrome-free note headings (D-02) + verbatim copy/share lock (RTXT-08/D-10) [wave 2]
 - [ ] 45-04-PLAN.md — Read-mode `.note-rendered` overlay + compact-surface strip (D-06) + scoped CSS + extended 31-* hardening locks [wave 2]
 
 **Wave 3** *(blocked on 45-01..45-04)*
@@ -275,7 +275,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 42.1. Help & Onboarding Translation (HE/DE/CS) | v1.3 | 10/10 | Complete | 2026-07-10 |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 10/10 | Complete | 2026-07-10 |
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
-| 45. Rich-Text Rendering & Export Foundation | v1.4 | 2/6 | In Progress|  |
+| 45. Rich-Text Rendering & Export Foundation | v1.4 | 3/6 | In Progress|  |
 | 46. Rich-Text Toolbar Editor | v1.4 | 0/TBD | Not started | - |
 | 47. Session-Section Reordering | v1.4 | 0/TBD | Not started | - |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
