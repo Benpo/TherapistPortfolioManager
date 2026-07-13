@@ -82,7 +82,7 @@
       ],
       categories: {
         new: [
-          "Reading a saved session now shows your notes as styled text, so bold, lists, and headings look the way you typed them.",
+          "Reading a saved session now shows your notes as styled text, so bold, lists, and headings look the way you typed them — reliably, whether or not you left a blank line between them.",
         ],
         improved: [
           "PDF exports now preserve bold, italics, bullet and numbered lists, nesting, and note headings — with Hebrew right-to-left kept correct.",
