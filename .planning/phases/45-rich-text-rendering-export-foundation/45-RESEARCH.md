@@ -335,16 +335,18 @@ if (block.type === 'heading' && block.level >= 2) {          // ← must count D
 
 **All other claims are VERIFIED against live source.** No external/unverified package or API claims exist in this research (zero new dependencies).
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does note-formatting get its own help topic, or ride an existing one?**
    - What we know: The docs hard-gate requires an EN help-topic touch for user-facing changes; `HELP-MAP.md` is the topic index.
    - What's unclear: Whether "reading formatted notes / exporting formatted PDFs" is a new topic or an update to the existing session/export topic.
    - Recommendation: Read `HELP-MAP.md` cold at plan time; default to updating the existing session-notes/export topic rather than creating a new one (Phase 46 adds the editing UI — the topic likely grows then).
+   - RESOLVED at plan time: plans update the existing session/export help topics (45-05 Task 2); no new topic created.
 
 2. **Guided-tour step for read-mode rendering? (Claude's discretion, per REQUIREMENTS Process Notes)**
    - What we know: The decision is explicitly deferred to phase planning.
    - Recommendation: Skip a tour step this phase — rendering is invisible-by-design (notes just look right); the toolbar in Phase 46 is the teachable moment. Revisit at plan time.
+   - RESOLVED at plan time: no tour step in Phase 45 (no tour task appears in any plan); Phase 46's toolbar is the teachable moment.
 
 ## Environment Availability
 
