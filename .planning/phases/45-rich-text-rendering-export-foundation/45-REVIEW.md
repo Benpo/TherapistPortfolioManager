@@ -62,6 +62,8 @@ Reviewed all 28 files changed since `e48dc08` for Phase 45 (rich-text rendering 
 
 ### CR-01: MdRender drops list items that dedent below the depth of the run's first item — typed content silently disappears from read mode and the export preview
 
+**Status:** FIXED — commit `1e7ef3e` (2026-07-14). Each sibling run now re-anchors at the CURRENT item's own depth (top-level window floor 0, child runs bounded by "deeper than parent"), so every typed item renders; the line-92 skip branch is removed (unreachable-by-construction). Dedent shapes (both list types, empty + non-empty items) locked in `45-mdrender-lists` (5 cases) and the `45-pipeline-agreement` dedent corpus (per-item depth/type/ordinal vs pdf `parseMarkdown`).
+
 **File:** `assets/md-render.js:121-137` (`buildSiblingLists` / `buildList`; contributing skip at `assets/md-render.js:92`)
 **Issue:** `buildList` anchors the whole run at `items[0].depth`, and `buildSiblingLists` exits as soon as `items[i].depth < depth`. Any item shallower than the anchor is consumed by the caller's `i = k` child-scan but never rendered. Confirmed by executing the real renderer:
 
@@ -94,6 +96,8 @@ and inside `buildOneList`, when consuming the child run `j..k`, recurse with the
 
 ### WR-01: Heading regex `\s+` matches a newline — a bare `##` line swallows its markers and promotes the next line to a heading, diverging from the PDF
 
+**Status:** FIXED — commit `038b973` (2026-07-14). Adapted from the suggested `[ \t]+`: heading acceptance now tests the block's FIRST LINE ONLY with `/^(#{1,3})\s+(.+?)\s*$/` — CHARACTER-MATCHED to pdf-export `parseMarkdown`'s per-line `hMatch` — so the two pipelines accept the same heading lines by construction (a plain `[ \t]+` would still have diverged on the marker-only `"## \nfoo"` and pasted-NBSP shapes). The GAP-45-01 per-line scan deliberately keeps `\s+` (character-matched to the PDF's paragraph terminator; per-line `\s` cannot match a newline). Locked by `##\nfoo` / `## \nfoo` cases in `45-mdrender-lists` and the `45-pipeline-agreement` heading corpus.
+
 **File:** `assets/md-render.js:149`
 **Issue:** `block.match(/^(#{1,3})\s+([^\n]*)(?:\n([\s\S]*))?$/)` — `\s` includes `\n`, so the block `"##\nfoo"` matches with `\s+` consuming the newline: read mode renders `<h2>foo</h2>` (confirmed by execution). The typed `##` characters vanish from view and the following line is mis-styled. The PDF pipeline's per-line detector (`/^#{1,3}\s+/.test(line)` in `parseMarkdown`) correctly leaves `"##\nfoo"` as a literal paragraph — so preview and PDF disagree (T-45-03 class). It also contradicts md-render's own GAP-45-01 scan at line 176, which uses per-line `/^#{1,3}\s+/` and does *not* treat a bare `##` as a heading — the same file disagrees with itself depending on whether the marker-only line opens the block.
 **Fix:** Restrict the marker separator to intra-line whitespace:
@@ -105,6 +109,8 @@ var headingMatch = block.match(/^(#{1,3})[ \t]+([^\n]*)(?:\n([\s\S]*))?$/);
 A bare `#`/`##`/`###` line then stays a literal paragraph in both pipelines. Add `"##\nfoo"` to the pipeline-agreement heading corpus.
 
 ### WR-02: Note-typed headings render as a single unwrapped `doc.text` call — long hand-typed headings overflow the PDF page width
+
+**Status:** FIXED — commit `a8e0c56` (2026-07-14). The note-heading register now wraps through `doc.splitTextToSize(noteHeadingText, USABLE_W)` at the register's own font (Heebo bold @ noteSize, set before the split) and draws each sub-line margin-anchored per docDir; single-line headings keep byte-identical `ensureRoom`/`y` bookkeeping. The document branch (1535-1540) is left as-is per the review's own scoping (app-controlled short localized labels). Locked by a wrap test in `45-pdf-note-headings` (multiple margin-anchored sub-lines reconstructing the full typed heading).
 
 **File:** `assets/pdf-export.js:1471-1490` (note-heading branch; same pattern in the document branch at 1535-1540)
 **Issue:** The new note-heading register draws `shapeForJsPdf(noteHeadingText)` with one `doc.text` call and no `splitTextToSize`. Document headings could get away with this because their text is app-controlled localized section labels (short). Note headings are **therapist free text** — `## <a sentence-length heading>` overflows past the right margin in LTR (and past the left margin in RTL, where the draw is right-anchored at `PAGE_W - MARGIN_X`), clipping or colliding with the page edge. This is a newly exposed input class introduced by this phase; 45-pdf-note-headings only asserts size/chrome, never width.
