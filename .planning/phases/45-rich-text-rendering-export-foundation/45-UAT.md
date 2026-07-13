@@ -9,8 +9,8 @@ updated: 2026-07-13T13:40:00.000Z
 ## Current Test
 
 number: n/a
-name: Round 1 complete — 2 gaps diagnosed, gap round authorized ("collect everything, then ONE gap plan + execute" — Ben)
-awaiting: gap closure, then short re-check + approval of the 45-06 checkpoint
+name: Round 2 — 45-07 verified on-device by Ben (headings-after-text + marker-only fixed, build 207036c); his stress-test exposed 2 further list-grammar corners (GAP-45-03/04), fix directions locked 2026-07-13
+awaiting: 45-08 gap closure, then short re-check + approval of the 45-06 checkpoint
 
 ## Tests
 
@@ -84,3 +84,30 @@ fix_direction (Ben's explicit decision 2026-07-13, supersedes the orchestrator's
   Accepted side effect (flagged to Ben): a lone `-` used as a visual separator renders as an empty
   bullet. The `1.5 mg` guard (no whitespace after the dot ⇒ literal) is unaffected. Extend the
   agreement corpus with marker-only cases (bare and trailing-space variants, both marker types).
+resolution: FIXED by 45-07 (commits 3f3820c..207036c), verified on-device by Ben on build 207036c
+  (GAP-45-01 likewise fixed and verified).
+
+### GAP-45-03: same-level marker-type flip folds into the open list (pipeline divergence)
+status: diagnosed (round 2, found by Ben's stress-test on build 207036c)
+severity: minor
+surface: `assets/md-render.js` buildListLevel — a list run opens ONE element from items[start].type;
+  a SAME-DEPTH sibling whose own marker type differs is emitted as a plain <li> inside it
+diagnosis: `-` (ul, d0) followed in the same contiguous run by `1. ` (ol, d0) → the ordered item
+  renders as a BULLET in read mode, while the PDF renderer keys the prefix on each item's OWN
+  `item.ordered` and prints `1.` — cross-pipeline divergence on same-depth mixed-type siblings.
+  (The corpus covers mixed-type NESTING, parent≠child, but not same-depth siblings.)
+fix_direction (Ben, 2026-07-13): CommonMark rule — a marker-type change at the same level STARTS A
+  NEW LIST in read mode (`<ul>…</ul><ol>…</ol>`), matching the PDF's per-item markers. PDF unchanged.
+  Agreement-corpus cases for same-depth type flips (both directions, incl. empty items).
+
+### GAP-45-04: read mode renumbers ordered items positionally; PDF preserves typed ordinals
+status: diagnosed (round 2)
+severity: minor
+surface: `assets/md-render.js` buildListLevel emits bare `<li>` (browser renumbers 1..N);
+  `assets/pdf-export.js` deliberately carries `item.ordinal` (typed-ordinal contract, quick 260608-c8x)
+diagnosis: typed `11. jj` displays `1. jj` on screen but prints `11. jj` in the PDF; block-separated
+  `1. X` / para / `2. Y` displays `1.`/`1.` on screen but `1.`/`2.` in the PDF.
+fix_direction (Ben, 2026-07-13): EDITOR-1:1 — read mode honors typed ordinals via `<li value="N">`
+  so screen ≡ PDF ≡ what the user typed (`1./1./1.` now displays 1,1,1 — accepted; block-separated
+  numbered runs keep their typed numbering on screen too). PDF unchanged.
+  Corpus cases: typed non-sequential ordinals, block-separated numbered runs.
