@@ -109,8 +109,34 @@ test('paragraph single-newline <br> contract is intact (`line1\\nline2`)', funct
   assert.strictEqual(render('line1\nline2'), '<p>line1<br>line2</p>');
 });
 
+// ─── GAP-45-01: text then heading with NO blank line splits into <p> + <hN> ──
+test('text then heading with NO blank line `Emotions:\\n## Summary` splits into <p> + real <h2>', function () {
+  var html = render('Emotions:\n## Summary');
+  assert.strictEqual(html, '<p>Emotions:</p><h2>Summary</h2>');
+  assert.ok(html.indexOf('## Summary') === -1, 'must NOT emit a literal `## Summary` token (GAP-45-01)');
+});
+
+test('text then `# Title` renders a real <h1>, no literal `# Title`', function () {
+  var html = render('note text\n# Title');
+  assert.strictEqual(html, '<p>note text</p><h1>Title</h1>');
+  assert.ok(html.indexOf('# Title') === -1, 'must NOT emit a literal `# Title` token');
+});
+
+test('heading-remainder then heading `## H\\ntext\\n### Sub` renders <h2><p><h3>', function () {
+  assert.strictEqual(render('## H\ntext\n### Sub'), '<h2>H</h2><p>text</p><h3>Sub</h3>');
+});
+
+test('compound `text\\n## H\\n- item` renders <p> + <h2> + <ul>', function () {
+  assert.strictEqual(render('text\n## H\n- item'), '<p>text</p><h2>H</h2><ul><li>item</li></ul>');
+});
+
+// ─── Regression-lock: a 4-hash line is NOT a heading, stays literal paragraph ─
+test('`text\\n#### x` keeps the 4-hash line literal (not a heading)', function () {
+  assert.strictEqual(render('text\n#### x'), '<p>text<br>#### x</p>');
+});
+
 // ─── Count guard (no vacuous green) ──────────────────────────────────────────
-var EXPECTED_COUNT = 9;
+var EXPECTED_COUNT = 14;
 if (passed + failed !== EXPECTED_COUNT) {
   console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));
   process.exit(1);

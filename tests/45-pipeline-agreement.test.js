@@ -270,8 +270,43 @@ test('`Emotions:\\n- anger` splits into a paragraph + a real list in BOTH pipeli
   assert.strictEqual(blocks[1].items[0].text, 'anger', 'pdf list item text must be "anger" (marker stripped)');
 });
 
+// ── 6. TEXT-THEN-HEADING agreement (GAP-45-01) ───────────────────────────────
+test('`Emotions:\\n## Summary` splits into a paragraph + a real heading in BOTH pipelines (no literal "## Summary")', function () {
+  var input = 'Emotions:\n## Summary';
+  // MdRender: <p>Emotions:</p> then <h2>Summary</h2>; never a literal "## Summary".
+  var html = MdRender.render(input);
+  assert.ok(/<p>Emotions:<\/p>/.test(html),
+    'MdRender must render "Emotions:" as a <p> (got ' + html + ')');
+  assert.ok(/<h2>Summary<\/h2>/.test(html),
+    'MdRender must render "## Summary" as a real <h2> (got ' + html + ')');
+  assert.ok(html.indexOf('## Summary') === -1,
+    'MdRender must NOT emit a literal "## Summary" token (got ' + html + ')');
+  // PDF: parseMarkdown splits into a para block + a heading block.
+  var blocks = parseMarkdown(input).filter(function (b) { return b.type !== 'blank'; });
+  assert.strictEqual(blocks[0].type, 'para', 'pdf parseMarkdown: first block must be a paragraph');
+  assert.strictEqual(blocks[0].text, 'Emotions:', 'pdf paragraph text must be "Emotions:"');
+  assert.strictEqual(blocks[1].type, 'heading', 'pdf parseMarkdown: second block must be a heading');
+  assert.strictEqual(blocks[1].level, 2, 'pdf heading level must be 2');
+  assert.strictEqual(blocks[1].text, 'Summary', 'pdf heading text must be "Summary"');
+});
+
+test('heading-remainder-then-heading `## H\\ntext\\n### Sub` agrees: heading L2 -> para -> heading L3 in BOTH pipelines', function () {
+  var input = '## H\ntext\n### Sub';
+  assert.strictEqual(MdRender.render(input), '<h2>H</h2><p>text</p><h3>Sub</h3>',
+    'MdRender must render heading -> paragraph -> heading');
+  var blocks = parseMarkdown(input).filter(function (b) { return b.type !== 'blank'; });
+  assert.strictEqual(blocks[0].type, 'heading', 'pdf block 0 must be a heading');
+  assert.strictEqual(blocks[0].level, 2, 'pdf block 0 heading level 2');
+  assert.strictEqual(blocks[0].text, 'H', 'pdf block 0 heading text "H"');
+  assert.strictEqual(blocks[1].type, 'para', 'pdf block 1 must be a paragraph');
+  assert.strictEqual(blocks[1].text, 'text', 'pdf block 1 paragraph text "text"');
+  assert.strictEqual(blocks[2].type, 'heading', 'pdf block 2 must be a heading');
+  assert.strictEqual(blocks[2].level, 3, 'pdf block 2 heading level 3');
+  assert.strictEqual(blocks[2].text, 'Sub', 'pdf block 2 heading text "Sub"');
+});
+
 // ── Count guard — no vacuous green ───────────────────────────────────────────
-var EXPECTED = 9;
+var EXPECTED = 11;
 if (passed + failed !== EXPECTED) {
   console.log('  FAIL  count guard: expected ' + EXPECTED + ' tests, ran ' + (passed + failed));
   failed++;
