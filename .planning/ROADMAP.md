@@ -140,7 +140,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   3. Copying or sharing a session as markdown reproduces the stored formatting verbatim.
   4. Pre-v1.4 plain-text sessions render safely and unchanged in meaning, and an encrypted `.sgbackup` round-trip carries formatted notes with zero format changes (verified with a real restore).
 
-**Plans**: 6/7 plans executed (1 gap-closure plan added from 2026-07-13 real-device UAT)
+**Plans**: 6/7 plans executed
 **UI hint**: yes
 
 **Wave 1** *(parallel — no file overlap)*
@@ -163,7 +163,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 
 **Gap-Closure Wave** *(from 2026-07-13 real-device UAT — 2 diagnosed renderer gaps; re-run the 45-06 checkpoint after this lands)*
 
-- [ ] 45-07-PLAN.md — GAP-45-01 text-then-heading render split (md-render.js) + GAP-45-02 marker-only lines consistent in both pipelines (md-render.js + pdf-export.js) + agreement-corpus lock + docs gate [gap-closure]
+- [x] 45-07-PLAN.md — GAP-45-01 text-then-heading render split (md-render.js) + GAP-45-02 marker-only lines consistent in both pipelines (md-render.js + pdf-export.js) + agreement-corpus lock + docs gate [gap-closure]
 
 ### Phase 46: Rich-Text Toolbar Editor
 
@@ -279,7 +279,7 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 42.1. Help & Onboarding Translation (HE/DE/CS) | v1.3 | 10/10 | Complete | 2026-07-10 |
 | 43. Docs-Maintenance Hard Gate | v1.3 | 10/10 | Complete | 2026-07-10 |
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
-| 45. Rich-Text Rendering & Export Foundation | v1.4 | 5/6 | In Progress|  |
+| 45. Rich-Text Rendering & Export Foundation | v1.4 | 6/7 | In Progress|  |
 | 46. Rich-Text Toolbar Editor | v1.4 | 0/TBD | Not started | - |
 | 47. Session-Section Reordering | v1.4 | 0/TBD | Not started | - |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
