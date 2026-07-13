@@ -75,24 +75,37 @@ window.MdRender = (function () {
     return m ? parseInt(m[1], 10) : null;
   }
   // Build nested <ul>/<ol> from a run of list-item lines by leading-whitespace
-  // depth. items[start] opens a list element of items[start].type at `depth`.
-  function buildListLevel(items, start, depth) {
+  // depth. GAP-45-03 (Ben's 2026-07-13 CommonMark lock): a same-depth marker-TYPE
+  // flip closes the current list and opens a SIBLING list, so read mode matches
+  // the PDF's per-item markers. A DEEPER child of a differing type is nested, not
+  // split — only a same-depth sibling flip starts a new list.
+  //
+  // buildOneList opens ONE <type> element, consumes a maximal run of SAME-type
+  // items at `depth` (recursing on deeper children through the sibling-splitting
+  // path so a child-run flip splits too), and STOPS at the first same-depth item
+  // whose OWN type differs. It returns the HTML and the index it stopped at.
+  function buildOneList(items, start, depth) {
     var type = items[start].type;
     var html = "<" + type + ">";
     var i = start;
     while (i < items.length && items[i].depth >= depth) {
       if (items[i].depth > depth) { i++; continue; } // safety (unreached in practice)
+      // GAP-45-03: a same-depth sibling whose own marker type differs ends this
+      // list; buildSiblingLists opens a new sibling list of the flipped type.
+      if (items[i].type !== type) { break; }
       var content = applyInline(items[i].content);
       // GAP-45-04: an ordered item opens with its TYPED ordinal as value="N";
       // an unordered item opens with a bare <li> (bullets never carry value).
       // The ordinal is the integer from listOrdinal (parseInt of \d+), never
       // `content`/raw text, so nothing user-controlled lands in the attribute.
+      // Each ordered run's first <li> carries its own ordinal, so display
+      // continuity holds across a flip (1. a / - b / 2. c shows 1 / bullet / 2).
       var liOpen = items[i].type === "ol" ? '<li value="' + items[i].ordinal + '">' : "<li>";
       var j = i + 1;
       if (j < items.length && items[j].depth > depth) {
         var k = j;
         while (k < items.length && items[k].depth > depth) { k++; }
-        html += liOpen + content + buildListLevel(items, j, items[j].depth) + "</li>";
+        html += liOpen + content + buildSiblingLists(items, j, items[j].depth) + "</li>";
         i = k;
       } else {
         html += liOpen + content + "</li>";
@@ -100,13 +113,27 @@ window.MdRender = (function () {
       }
     }
     html += "</" + type + ">";
+    return { html: html, next: i };
+  }
+  // buildSiblingLists emits a maximal SERIES of sibling lists at `depth`: it loops
+  // buildOneList while same-depth items remain, so a same-depth marker-type flip
+  // (GAP-45-03) opens a fresh sibling list of the flipped type at ANY depth.
+  function buildSiblingLists(items, start, depth) {
+    var html = "";
+    var i = start;
+    while (i < items.length && items[i].depth >= depth) {
+      var res = buildOneList(items, i, depth);
+      html += res.html;
+      if (res.next <= i) { break; } // safety against non-advancement
+      i = res.next;
+    }
     return html;
   }
   function buildList(listLines) {
     var items = listLines.map(function (l) {
       return { depth: listDepth(l), type: listType(l), content: stripListMarker(l), ordinal: listOrdinal(l) };
     });
-    return buildListLevel(items, 0, items[0].depth);
+    return buildSiblingLists(items, 0, items[0].depth);
   }
 
   // Single-newline paragraph behavior is LOCKED — consecutive non-blank lines
