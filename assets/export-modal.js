@@ -440,6 +440,31 @@
       return lines.join("\n");
     }
 
+    // Phase 45 (45-03, D-02/D-03/WARNING 2): the document-structure heading
+    // vocabulary the builders emit — every section key's localized `## ${label}`
+    // (via the SAME stripRequired(App.getSectionLabel(...)) call the builders use)
+    // PLUS the level-1 document title `# ${App.t("session.copy.title")}`. This set
+    // is forwarded as DATA on the buildSessionPDF contract
+    // (sessionData.documentSectionLabels) so the PDF block loop can tell a DOCUMENT
+    // heading (keeps the Phase-34 branded leaf-diamond/vein-rule chrome AND, at
+    // level >= 2, increments the section-count that places the severity block) from
+    // a NOTE-typed heading a therapist hand-typed inside a note field (rendered
+    // subordinate + chrome-free, never counted). It is passed as data, NEVER a
+    // sentinel injected into the markdown, so editor.value / the clipboard copy /
+    // the `.md` download all stay byte-clean (D-10). This mirrors the
+    // severityAfterSections label-match above — document-heading identity is
+    // re-derived by label equality, not by marking the text. The title MUST be in
+    // the set (WARNING 2): the PDF chrome branch brands ALL heading levels 1-3, so
+    // a levels-1-3 classification without the title would demote the document title
+    // to the note register on every PDF.
+    function buildDocumentSectionLabels() {
+      const labels = EXPORT_SECTION_ORDER.map(function (key) {
+        return stripRequired(App.getSectionLabel(key, exportDefaultI18nKey(key)));
+      });
+      labels.push(App.t("session.copy.title"));
+      return labels;
+    }
+
     let _exportState = null;
 
     function exportRenderStep1Rows(sessionData) {
@@ -918,6 +943,21 @@
       exportSessionBtn.addEventListener("click", () => {
         openExportDialog();
       });
+    }
+
+    // Test seam (the __exportModalTestHooks idiom): expose the two markdown
+    // builders + the document-section label set so tests can drive the REAL
+    // editor.value pipeline (buildFilteredSessionMarkdown → buildSessionPDF) and
+    // the REAL copy path (buildSessionMarkdown) directly against a populated form
+    // DOM — no clicking through the modal, no source-slicing. These are the exact
+    // functions production uses; exposing them (like deriveSessionOrdinal below)
+    // adds no public feature API. Assigned here, inside initExportModal, because
+    // the builders are closure-locals (unlike the module-scope deriveSessionOrdinal).
+    if (typeof window !== "undefined") {
+      window.__exportModalTestHooks = window.__exportModalTestHooks || {};
+      window.__exportModalTestHooks.buildFilteredSessionMarkdown = buildFilteredSessionMarkdown;
+      window.__exportModalTestHooks.buildSessionMarkdown = buildSessionMarkdown;
+      window.__exportModalTestHooks.buildDocumentSectionLabels = buildDocumentSectionLabels;
     }
   }
 
