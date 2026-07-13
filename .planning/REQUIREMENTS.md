@@ -18,11 +18,11 @@ Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings
 - [ ] **RTXT-03**: User gets auto-format while typing — "- " / "1. " starts a list, Enter continues it, Enter on an empty item exits it
 - [ ] **RTXT-04**: User can toggle a live preview of the rendered result while editing
 - [ ] **RTXT-05**: User can indent/outdent list items (nested lists, standard markdown) and nesting renders correctly in preview and PDF
-- [ ] **RTXT-06**: User sees formatted notes when READING sessions (read mode + wherever note text is displayed), rendered escape-first via MdRender — never raw innerHTML
-- [ ] **RTXT-07**: Formatting survives PDF export — bold, lists (incl. nesting), Hebrew RTL/bidi preserved; heading-strip removed or consciously kept
+- [x] **RTXT-06**: User sees formatted notes when READING sessions (read mode + wherever note text is displayed), rendered escape-first via MdRender — never raw innerHTML
+- [x] **RTXT-07**: Formatting survives PDF export — bold, lists (incl. nesting), Hebrew RTL/bidi preserved; heading-strip removed or consciously kept
 - [ ] **RTXT-08**: Formatting survives markdown copy/share export verbatim
 - [ ] **RTXT-09**: Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields
-- [ ] **RTXT-10**: Existing (pre-v1.4) sessions render safely and unchanged in meaning; encrypted backup round-trip carries formatted notes with zero format changes
+- [x] **RTXT-10**: Existing (pre-v1.4) sessions render safely and unchanged in meaning; encrypted backup round-trip carries formatted notes with zero format changes
 
 ### Session-Section Reordering (ORDR)
 
@@ -91,11 +91,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RTXT-03 | Phase 46 | Pending |
 | RTXT-04 | Phase 46 | Pending |
 | RTXT-05 | Phase 46 | Pending |
-| RTXT-06 | Phase 45 | Pending |
-| RTXT-07 | Phase 45 | Pending |
+| RTXT-06 | Phase 45 | Complete |
+| RTXT-07 | Phase 45 | Complete |
 | RTXT-08 | Phase 45 | Pending |
 | RTXT-09 | Phase 46 | Pending |
-| RTXT-10 | Phase 45 | Pending |
+| RTXT-10 | Phase 45 | Complete |
 | ORDR-01 | Phase 47 | Pending |
 | ORDR-02 | Phase 47 | Pending |
 | ORDR-03 | Phase 47 | Pending |
