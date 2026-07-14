@@ -38,17 +38,21 @@ result: [pending] — matrix not finished; resume after be7877b re-test
 
 ## Summary
 
-total: 10
-passed: 0 (none formally signed off yet)
-issues: 3
-pending: 7
+total: 10 checklist items / 9 gaps found
+passed: 0 (no checklist item formally signed off; round 1 ended 2026-07-14 before the full matrix)
+gaps_resolved_during_gate: 4 (1, 2, 5, 6 — plus the list-toggle fix d88af87)
+gaps_open_for_gap_round: 5 (3 undo stack, 4 preview toggle label+icon, 7 emotions opt-out, 8 snippet-Enter collision, 9 Heart-Wall wording)
+matrix_deferred: iPhone pass, real PDF, RTL/Hebrew, snippets re-test, lists re-test — all at the gate re-run after gap execution
 skipped: 0
 blocked: 0
 
 ## Gaps
 
 ### Gap 1 — Export Step 2: legacy two-pane layout collides with the mounted toolbar (severity: high)
-status: failed
+status: resolved
+RESOLVED during the gate (commits 5f63620/0318cae/0fc5bfe/3e9ad27): right Preview pane,
+mobile tab switcher, and live-pane wiring removed; single full-width editor; preview now
+exclusively via the toolbar eye toggle; sizing kept. Re-verify at the gate re-run.
 What happens: Step 2 still renders the OLD side-by-side Edit|Preview live panes. On focusing
 the editor, the focus-attached toolbar + its preview machinery re-flow the grid: the textarea
 shrinks to a tiny box and panes swap/collapse (screenshots in session, 2026-07-14). Root cause:
@@ -62,7 +66,10 @@ Ben's directive (product intent, verbatim decisions):
   before expanding").
 
 ### Gap 2 — Export Step 2: toolbar must be ALWAYS visible (severity: medium)
-status: failed
+status: resolved
+RESOLVED during the gate (same commit series): RichToolbar.mount gained an additive
+`persistent: true` option — the export editor gets a dedicated permanently-docked bar;
+the 7 note fields keep focus-attached behavior. Re-verify at the gate re-run.
 The export editor toolbar must render permanently above the editor, not focus-attached
 ("the export should ALWAYS show the formatting bar, not only when clicking inside the window").
 Note-field (session page) focus-attached behavior stays as built.
@@ -94,7 +101,10 @@ use would 404 them. Fixed in be7877b (precache both; APP_VERSION → 1.4.0 relea
 Forward lesson: any plan adding a shipped asset must add it to PRECACHE_URLS.
 
 ### Gap 6 — Remove the Formatting-tips accordion (severity: low, CONFIRMED by Ben)
-status: failed
+status: resolved
+RESOLVED during the gate (same commit series): accordion markup, toggle logic, orphan CSS,
+and 9 dead i18n keys removed from all four locales (parity kept). Step-2 helper copy
+rewritten in 4 locales. Re-verify at the gate re-run.
 Confirmed 2026-07-14: the tips accordion is stale now the toolbar exposes every
 formatting affordance — remove it from export Step 2 (and from any other surface that
 carries it, if found during planning). The syntax reference itself survives in the help
