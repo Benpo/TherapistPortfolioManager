@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // rich-toolbar.js — the focus-attached rich-text formatting toolbar.
 //
-// OWNS: ONE shared, mountable toolbar element that docks IN FLOW directly above
+// OWNS: a shared, mountable toolbar element that docks IN FLOW directly above
 //   whichever registered note field currently has focus, hides when no
 //   registered field is focused, and carries the icon-only formatting controls
 //   (bold, italic, bullet list, numbered list, a "Text" heading dropdown,
@@ -10,13 +10,18 @@
 //   The toolbar is docked with `insertAdjacentElement('beforebegin', field)` so
 //   it rides layout on scroll/resize/autogrow with ZERO coordinate math; only
 //   the transient heading dropdown popover uses physical getBoundingClientRect
-//   left/top (RTL-safe — never rect-derived logical inline insets).
+//   left/top (RTL-safe — never rect-derived logical inline insets). A field can
+//   instead be mounted with { persistent: true }: it gets its OWN dedicated bar
+//   docked permanently above it, always visible and never hidden on blur.
 // PUBLIC SURFACE: window.RichToolbar — { mount(textareas, config), unmount(),
 //   refreshButtonState() }. mount is ADDITIVE: repeated calls with disjoint
 //   textarea sets all stay live (fields tracked in a shared Set/WeakMap like
 //   snippets.js bindTextarea); a second mount() NEVER discards earlier-
-//   registered fields, so the seven note fields and the #exportEditor field
-//   coexist on the one shared toolbar instance.
+//   registered fields. The seven note fields share the ONE focus-attached bar
+//   that docks above whichever of them has focus; a field mounted with
+//   { persistent: true } (the export editor) gets its own dedicated bar docked
+//   permanently above it, so the two mounts coexist without the shared bar ever
+//   moving onto the persistent field.
 // DEPENDENCIES: window.TextEdit (editInsert chokepoint + pure transforms;
 //   every edit routes through it so a real input event reaches autoGrow +
 //   snippets) and window.App.t (i18n tooltip strings). Both are reached
@@ -41,8 +46,11 @@ window.RichToolbar = (function () {
   // ── State ──────────────────────────────────────────────────────────────────
   var _registered = new Set();   // every textarea passed to mount() (additive)
   var _bound = new WeakMap();     // textarea → { focusin, focusout, keydown }
-  var _toolbarEl = null;          // the ONE shared toolbar element
+  var _toolbarEl = null;          // the shared focus-attached toolbar element
+  var _persistent = new Set();    // fields mounted persistent: always docked, no hide-on-blur
+  var _persistentBars = new WeakMap(); // persistent field → its own dedicated toolbar element
   var _headingMenuEl = null;      // transient heading dropdown popover
+  var _headingTrigger = null;     // the trigger button that opened the heading menu
   var _focused = null;            // the currently-focused registered textarea
   var _config = { headings: true };
   var _selectionRaf = 0;          // rAF handle for coalesced active-state refresh
@@ -212,16 +220,49 @@ window.RichToolbar = (function () {
     return _toolbarEl;
   }
 
+  // Resolve which toolbar element serves a field: a persistent field owns a
+  // dedicated, always-docked bar; every other field shares the one focus-attached
+  // bar. Falls back to the shared bar for a null/unknown field.
+  function barFor(field) {
+    if (field && _persistentBars.has(field)) return _persistentBars.get(field);
+    return _toolbarEl;
+  }
+
+  // Build (once) and dock a dedicated toolbar directly above a persistent field.
+  // Unlike the shared bar it is never hidden on blur — its visibility follows its
+  // field's own container (e.g. the export step showing or hiding), so it reads as
+  // a permanent part of that editor.
+  function ensurePersistentBar(field) {
+    var bar = _persistentBars.get(field);
+    if (!bar) {
+      bar = buildToolbar();
+      bar.classList.remove("is-hidden");
+      field.insertAdjacentElement("beforebegin", bar);
+      _persistentBars.set(field, bar);
+    }
+    return bar;
+  }
+
   // ── Focus tracking + in-flow docking ───────────────────────────────────────
   // Dock the single toolbar IN FLOW above the focused field so it rides layout
   // on scroll/resize/autogrow with zero coordinate math. Do NOT use
   // fixed getBoundingClientRect coords for the bar — that detaches on the first
   // scroll of an autogrowing field.
   function dockTo(textarea) {
-    var bar = ensureToolbar();
     // Focus moved to a DIFFERENT field: the preview is per-field and resets on
     // blur, so drop any preview bound to the previously-focused field.
     if (_previewOpen && _previewField !== textarea) closePreview();
+    if (_persistent.has(textarea)) {
+      // A persistent field already carries its own always-docked bar — never move
+      // the shared bar onto it. Hide the shared bar (it serves the other fields)
+      // and just track focus + refresh the dedicated bar.
+      if (_toolbarEl) _toolbarEl.classList.add("is-hidden");
+      _focused = textarea;
+      refreshButtonState();
+      updatePreviewButton();
+      return;
+    }
+    var bar = ensureToolbar();
     textarea.insertAdjacentElement("beforebegin", bar);
     bar.classList.remove("is-hidden");
     _focused = textarea;
@@ -244,6 +285,8 @@ window.RichToolbar = (function () {
   // the toolbar itself, whose controls preventDefault so focus never lands there
   // — but guard anyway for keyboard focus).
   function onFieldFocusOut(ev) {
+    // A persistent field keeps its dedicated bar docked on blur (no hide-on-blur).
+    if (_persistent.has(ev.currentTarget)) return;
     var next = ev.relatedTarget;
     if (next && _toolbarEl && _toolbarEl.contains(next)) return;
     if (next && next.tagName === "TEXTAREA" && _registered.has(next)) return;
@@ -272,9 +315,11 @@ window.RichToolbar = (function () {
       if (_headingMenuEl.parentNode) _headingMenuEl.parentNode.removeChild(_headingMenuEl);
     }
     _headingMenuEl = null;
-    if (_toolbarEl) {
-      var trig = _toolbarEl.querySelector(".rich-toolbar-heading-trigger");
-      if (trig) trig.setAttribute("aria-expanded", "false");
+    // Reset the exact trigger that opened the menu — it may live on the shared
+    // bar OR a persistent field's dedicated bar.
+    if (_headingTrigger) {
+      _headingTrigger.setAttribute("aria-expanded", "false");
+      _headingTrigger = null;
     }
   }
 
@@ -353,7 +398,8 @@ window.RichToolbar = (function () {
     return value.slice(s - n, s) === marker && value.slice(e, e + n) === marker;
   }
   function refreshButtonState() {
-    if (!_toolbarEl || !_focused) return;
+    var bar = barFor(_focused);
+    if (!bar || !_focused) return;
     var ta = _focused, v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
     var line = currentLineText(v, s);
     var states = {
@@ -364,10 +410,10 @@ window.RichToolbar = (function () {
       numberedList: /^\s*\d+\.\s/.test(line),
     };
     Object.keys(states).forEach(function (action) {
-      var btn = _toolbarEl.querySelector('.rich-toolbar-btn[data-action="' + action + '"]');
+      var btn = bar.querySelector('.rich-toolbar-btn[data-action="' + action + '"]');
       if (btn) btn.classList.toggle("is-active", !!states[action]);
     });
-    var trig = _toolbarEl.querySelector(".rich-toolbar-heading-trigger");
+    var trig = bar.querySelector(".rich-toolbar-heading-trigger");
     if (trig) trig.classList.toggle("is-active", /^#{1,3}\s/.test(line));
   }
 
@@ -418,6 +464,7 @@ window.RichToolbar = (function () {
     var vw = window.innerWidth || document.documentElement.clientWidth;
     if (mrect.right > vw - 8) menu.style.left = Math.max(8, vw - mrect.width - 8) + "px";
     trigger.setAttribute("aria-expanded", "true");
+    _headingTrigger = trigger;
 
     // Dismiss on outside pointer-down or Esc. Deferred bind so the opening
     // mousedown does not immediately re-close it.
@@ -501,8 +548,9 @@ window.RichToolbar = (function () {
   }
 
   function updatePreviewButton() {
-    if (!_toolbarEl) return;
-    var btn = _toolbarEl.querySelector('.rich-toolbar-btn[data-action="preview"]');
+    var bar = barFor(_focused || _previewField);
+    if (!bar) return;
+    var btn = bar.querySelector('.rich-toolbar-btn[data-action="preview"]');
     if (!btn) return;
     btn.classList.toggle("is-active", _previewOpen);
     var label = _previewOpen
@@ -623,9 +671,13 @@ window.RichToolbar = (function () {
   // listeners. A second mount() with a disjoint set leaves earlier fields live.
   // config.headings gates the Text-style dropdown (both call sites
   // pass true, so one shared config suffices; first mount wins the toolbar DOM).
+  // config.persistent (opt-in) gives each field in this call its OWN bar docked
+  // permanently above it — always visible, never hidden on blur — instead of the
+  // shared focus-attached bar the note fields use.
   function mount(textareas, config) {
     if (typeof document === "undefined") return;
     if (config && typeof config.headings === "boolean") _config.headings = config.headings;
+    var persistent = !!(config && config.persistent);
     ensureToolbar();
     var list = textareas ?
       (textareas.forEach ? textareas : Array.prototype.slice.call(textareas)) : [];
@@ -644,6 +696,10 @@ window.RichToolbar = (function () {
       ta.addEventListener("input", listeners.input);
       _bound.set(ta, listeners);
       _registered.add(ta);
+      if (persistent) {
+        _persistent.add(ta);
+        ensurePersistentBar(ta); // dock the always-on bar immediately
+      }
     });
     // Selection changes drive active-state; bind once, document-wide.
     if (!mount._selBound) {
@@ -665,6 +721,13 @@ window.RichToolbar = (function () {
       }
     });
     _registered.clear();
+    // Tear down every dedicated persistent bar too.
+    _persistent.forEach(function (ta) {
+      var bar = _persistentBars.get(ta);
+      if (bar && bar.parentNode) bar.parentNode.removeChild(bar);
+      _persistentBars.delete(ta);
+    });
+    _persistent.clear();
     hideToolbar();
     if (_toolbarEl && _toolbarEl.parentNode) _toolbarEl.parentNode.removeChild(_toolbarEl);
     _toolbarEl = null;
