@@ -178,13 +178,13 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   3. The user can toggle a live preview of the rendered result while editing, and can indent/outdent list items to build nested lists that render correctly in both the preview and the exported PDF.
   4. Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields — verified in a real browser, not jsdom.
 
-**Plans**: 1/8 plans executed
+**Plans**: 2/8 plans executed
 **UI hint**: yes (UI-SPEC approved; mockup gate D-19 satisfied)
 
 **Wave 1** *(parallel — no file overlap)*
 
 - [x] 46-01-PLAN.md — TextEdit undo-safe chokepoint + pure transforms (toggle/list/heading/auto-format/indent/renumber) + node unit tests [wave 1]
-- [ ] 46-02-PLAN.md — D-13/D-14 true italic in PDF: subset Rubik-Italic + {text,bold,italic} segment model + agreement test + real-PDF feasibility checkpoint [wave 1]
+- [x] 46-02-PLAN.md — D-13/D-14 true italic in PDF: subset Rubik-Italic + {text,bold,italic} segment model + agreement test + real-PDF feasibility checkpoint [wave 1]
 
 **Wave 2** *(blocked on 46-01)*
 
@@ -307,6 +307,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 43. Docs-Maintenance Hard Gate | v1.3 | 10/10 | Complete | 2026-07-10 |
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
 | 45. Rich-Text Rendering & Export Foundation | v1.4 | 8/8 | Complete    | 2026-07-13 |
-| 46. Rich-Text Toolbar Editor | v1.4 | 1/8 | In Progress|  |
+| 46. Rich-Text Toolbar Editor | v1.4 | 2/8 | In Progress|  |
 | 47. Session-Section Reordering | v1.4 | 0/TBD | Not started | - |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
