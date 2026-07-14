@@ -5335,3 +5335,136 @@ html[dir="rtl"] .multi-select-toggle {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+/* =================================================================
+   Phase 46 — Rich-text formatting toolbar (rich-toolbar.js)
+   =================================================================
+   ONE shared, focus-attached bar docked IN FLOW above the focused
+   note field. Chrome consumes EXISTING semantic tokens only (UI-SPEC
+   introduces zero new colors): surface --color-surface, hairline
+   --color-border, idle icon --color-text, active --color-primary,
+   focus-visible primary outline (reusing the .header-icon-btn idiom).
+   Mobile: 44×44 touch targets, horizontally scrollable on overflow
+   (no wrap, no reflow of the field below — D-02). Coexists with the
+   snippets popover at the --z-popover layer without stealing it.
+   ================================================================= */
+.rich-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 8px;
+  margin-block-end: 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-nav);
+  /* Sit above modal chrome so the bar is usable when its field lives inside
+     the export modal; below --z-toast so notifications still surface. Matches
+     the snippets popover layer without stealing it (that popover is appended
+     to <body>; this bar docks in flow, so they never collide). */
+  position: relative;
+  z-index: var(--z-popover);
+  scrollbar-width: thin;
+}
+.rich-toolbar.is-hidden { display: none; }
+
+.rich-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+.rich-toolbar-sep {
+  flex: 0 0 auto;
+  width: 1px;
+  align-self: stretch;
+  margin: 4px 4px;
+  background: var(--color-border);
+}
+
+.rich-toolbar-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.rich-toolbar-btn:hover { background: var(--color-surface-hover); }
+.rich-toolbar-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.rich-toolbar-btn svg { display: block; }
+/* Active/applied state — the ONLY toolbar state that turns accent green. */
+.rich-toolbar-btn.is-active {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+/* "Text ▾" heading dropdown trigger — wider than an icon button. */
+.rich-toolbar-heading { flex: 0 0 auto; display: flex; }
+.rich-toolbar-heading-trigger {
+  width: auto;
+  gap: 2px;
+  padding-inline: 8px;
+}
+.rich-toolbar-heading-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Heading dropdown popover — positioned with PHYSICAL left/top by JS
+   (RTL-safe). Each item previews its register. */
+.rich-toolbar-heading-menu {
+  position: fixed;
+  z-index: var(--z-popover);
+  min-width: 160px;
+  padding: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-nav);
+}
+.rich-toolbar-heading-item {
+  display: block;
+  width: 100%;
+  text-align: start;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: inherit;
+}
+.rich-toolbar-heading-item:hover { background: var(--color-surface-hover); }
+.rich-toolbar-heading-item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+.rich-toolbar-heading-item.is-active { color: var(--color-primary); font-weight: 600; }
+.rich-toolbar-heading-item--h1 { font-size: 17px; font-weight: 600; }
+.rich-toolbar-heading-item--h2 { font-size: 16px; font-weight: 600; }
+.rich-toolbar-heading-item--h3 { font-size: 15px; font-weight: 600; }
+.rich-toolbar-heading-item--p { font-size: 1rem; font-weight: 400; }
+
+/* Mobile: enlarge to 44×44 touch targets; the bar stays a single
+   horizontally-scrollable row (no wrap). */
+@media (max-width: 640px) {
+  .rich-toolbar-btn { width: 44px; height: 44px; }
+  .rich-toolbar-heading-trigger { width: auto; height: 44px; }
+}
