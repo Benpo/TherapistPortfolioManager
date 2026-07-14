@@ -59,10 +59,16 @@ assert.ok(MdRender && typeof MdRender.strip === 'function' && typeof MdRender.re
   'MdRender.strip + MdRender.render must be exposed');
 assert.ok(PDFExport && PDFExport.__test, 'PDFExport.__test seam must be exposed');
 var stripInlineMarkdown = PDFExport.__test.stripInlineMarkdown;
+// Phase 46 (46-02, D-13): the segment model grew from {text,bold} to
+// {text,bold,italic}. parseInline is the canonical extended parser; parseInlineBold
+// is retained as an alias. The join-invariant + bold-token agreement are repointed
+// to parseInline so the italic emission is fuzzed under the SAME randomization.
+var parseInline = PDFExport.__test.parseInline;
 var parseInlineBold = PDFExport.__test.parseInlineBold;
 var parseMarkdown = PDFExport.__test.parseMarkdown;
 assert.strictEqual(typeof stripInlineMarkdown, 'function', 'stripInlineMarkdown must be a function');
-assert.strictEqual(typeof parseInlineBold, 'function', 'parseInlineBold must be a function');
+assert.strictEqual(typeof parseInline, 'function', 'parseInline must be a function');
+assert.strictEqual(typeof parseInlineBold, 'function', 'parseInlineBold must be a function (alias)');
 assert.strictEqual(typeof parseMarkdown, 'function', 'parseMarkdown must be a function');
 
 var passed = 0;
@@ -73,7 +79,11 @@ function test(name, fn) {
 }
 
 function joinSegs(x) {
-  return parseInlineBold(x).map(function (s) { return s.text; }).join('');
+  // Phase 46: repointed to the extended parseInline. The join-invariant is
+  // byte-preserving under the italic extension — a validated *X* span's inner
+  // text moved from the regular buffer into its own {italic:true} segment, so
+  // concatenating all segment .text values is unchanged from the Phase 45 shape.
+  return parseInline(x).map(function (s) { return s.text; }).join('');
 }
 
 // ── 1. BROADENED D-08 corpus — strip-vs-strip agreement ──────────────────────
@@ -136,13 +146,83 @@ test('RANDOMIZED property pass: strip-vs-strip agreement AND the PDF join-invari
     var b = stripInlineMarkdown(s);
     assert.strictEqual(a, b,
       'randomized strip disagreement on ' + JSON.stringify(s) + ': ' + JSON.stringify(a) + ' vs ' + JSON.stringify(b));
-    // (b) WARNING 4 — the PDF join-invariant fuzzes parseInlineBold + its inner strip
+    // (b) WARNING 4 — the PDF join-invariant fuzzes parseInline (extended to emit
+    // {text,bold,italic}) + its inner strip. The italic extension is byte-preserving.
     assert.strictEqual(joinSegs(s), stripInlineMarkdown(s),
-      'join-invariant broke on ' + JSON.stringify(s) + ': parseInlineBold.join=' + JSON.stringify(joinSegs(s)) +
+      'join-invariant broke on ' + JSON.stringify(s) + ': parseInline.join=' + JSON.stringify(joinSegs(s)) +
       ' vs stripInlineMarkdown=' + JSON.stringify(stripInlineMarkdown(s)));
     checked++;
   }
   assert.strictEqual(checked, N, 'the property pass must exercise all ' + N + ' generated strings');
+});
+
+// ── 2b. Phase 46 (46-02, D-13): {text,bold,italic} segment classification ─────
+// The extended parseInline must emit a first-class italic segment for a validated
+// single-asterisk span, keep bold spans bold (italic:false), and preserve the
+// join-invariant. This is the ONLY place the italic FLAG's emission is asserted
+// directly (the randomized pass above fuzzes the join-invariant, not the flags).
+test('a validated `*X*` span yields exactly one italic:true segment (Latin AND Hebrew)', function () {
+  [['a *b* c', 'b'], ['*solo*', 'solo'], ['הסיכום *נטוי* כאן', 'נטוי']].forEach(function (row) {
+    var input = row[0], want = row[1];
+    var segs = parseInline(input);
+    var italics = segs.filter(function (s) { return s.italic; });
+    assert.strictEqual(italics.length, 1,
+      'expected exactly ONE italic segment for ' + JSON.stringify(input) + '; got ' + JSON.stringify(segs));
+    assert.strictEqual(italics[0].text, want,
+      'italic segment text mismatch for ' + JSON.stringify(input) + ': got ' + JSON.stringify(italics[0].text));
+    assert.strictEqual(italics[0].bold, false, 'a *X* span must be italic:true / bold:false');
+    // The join-invariant still holds for these validated single-marker spans.
+    assert.strictEqual(joinSegs(input), stripInlineMarkdown(input),
+      'join-invariant must hold for ' + JSON.stringify(input));
+  });
+});
+
+test('a `**X**` span yields bold:true / italic:false (never an italic segment)', function () {
+  [['a **b** c', 'b'], ['**solo**', 'solo'], ['הסיכום **מודגש** כאן', 'מודגש']].forEach(function (row) {
+    var input = row[0], want = row[1];
+    var segs = parseInline(input);
+    var bolds = segs.filter(function (s) { return s.bold; });
+    assert.strictEqual(bolds.length, 1,
+      'expected exactly ONE bold segment for ' + JSON.stringify(input) + '; got ' + JSON.stringify(segs));
+    assert.strictEqual(bolds[0].text, want, 'bold segment text mismatch for ' + JSON.stringify(input));
+    assert.strictEqual(bolds[0].italic, false, 'a **X** span must be bold:true / italic:false');
+    assert.strictEqual(segs.filter(function (s) { return s.italic; }).length, 0,
+      'a **X** span must emit NO italic segment for ' + JSON.stringify(input));
+  });
+});
+
+test('mixed `**bold** and *italic*` in one line classifies each independently (bold + italic segments)', function () {
+  var input = 'The **s** and *i* end.';
+  var segs = parseInline(input);
+  assert.strictEqual(segs.filter(function (s) { return s.bold; }).map(function (s) { return s.text; }).join('|'), 's',
+    'exactly one bold "s" segment expected; got ' + JSON.stringify(segs));
+  assert.strictEqual(segs.filter(function (s) { return s.italic; }).map(function (s) { return s.text; }).join('|'), 'i',
+    'exactly one italic "i" segment expected; got ' + JSON.stringify(segs));
+  assert.strictEqual(joinSegs(input), stripInlineMarkdown(input), 'join-invariant must hold for the mixed line');
+});
+
+test('`***x***` (combined marker) DEGRADES gracefully — bold-wins, no garbage (RESEARCH Open Q3)', function () {
+  var input = '***x***';
+  var segs = parseInline(input);
+  // No crash, well-formed segments, and the letter survives carried by a bold
+  // (bold-wins) OR italic segment — never dropped, never duplicated.
+  var xSeg = segs.filter(function (s) { return s.text === 'x'; });
+  assert.strictEqual(xSeg.length, 1, '`***x***` must yield exactly one segment carrying "x"; got ' + JSON.stringify(segs));
+  assert.ok(xSeg[0].bold || xSeg[0].italic, '`***x***` must render "x" as bold OR italic (degrade), not plain');
+  // Every segment is well-formed {text,bold,italic} — no undefined flags (no garbage).
+  segs.forEach(function (s) {
+    assert.strictEqual(typeof s.text, 'string', 'segment.text must be a string');
+    assert.strictEqual(typeof s.bold, 'boolean', 'segment.bold must be a boolean');
+    assert.strictEqual(typeof s.italic, 'boolean', 'segment.italic must be a boolean');
+  });
+  // The bare LEADING triple-star is a documented degeneracy where the PDF parser
+  // (bold-first, char-scanned) and the regex-based stripInlineMarkdown diverge on
+  // the residual outer markers (parse -> "*x*", strip -> "x"). This is UNCHANGED
+  // from Phase 45 (the italic extension does not touch this path) and is asserted
+  // here only as "degrades, no garbage" — NOT as strict join===strip. The strip
+  // pipelines' own agreement on `***x***` is covered by the BROADENED corpus above.
+  assert.strictEqual(MdRender.strip(input), stripInlineMarkdown(input),
+    'the two STRIP pipelines must still agree on `***x***` (both reduce to "x")');
 });
 
 // ── 3. CHARACTER-IDENTICAL source assertion + no-lookbehind ───────────────────
@@ -465,7 +545,9 @@ test('bare-marker heading lines (`##\\nfoo`, incl. trailing-space `## \\nfoo`) s
 });
 
 // ── Count guard — no vacuous green ───────────────────────────────────────────
-var EXPECTED = 17;
+// Phase 46 (46-02): +4 tests for the {text,bold,italic} segment model (italic
+// span classification, bold span classification, mixed line, ***x*** degradation).
+var EXPECTED = 21;
 if (passed + failed !== EXPECTED) {
   console.log('  FAIL  count guard: expected ' + EXPECTED + ' tests, ran ' + (passed + failed));
   failed++;
