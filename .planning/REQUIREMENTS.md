@@ -13,11 +13,11 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings — zero migration); toolbar-over-textarea editor surface (preserves snippets/autogrow, avoids WebKit contenteditable bugs); **underline dropped** (no markdown syntax — see Out of Scope); italic accepted knowing the PDF renders it regular-weight (no Hebrew italic face vendored). Amended 2026-07-13 (Phase 45 discussion): **headings added to the toolbar vocabulary** — H1–H3 plus a "regular text" state (markdown-native, unlike the dropped underline); note-content headings render at a subordinate register in the PDF, never mistakable for document section headings. Amended 2026-07-14 (Phase 46 discussion): the **italic-flattens-in-PDF lock is reopened** — Phase 46 researches vendoring a true italic face (Heebo has no italic face; Rubik Italic with Hebrew coverage is the candidate), feasibility-gated; if infeasible within reasonable size/effort, v1.4 falls back to the accepted flattening plus disclosure (italic-button tooltip + one-line export-modal note).
 
-- [ ] **RTXT-01**: User can format session note text via a toolbar — bold, italic, bullet list, numbered list, and a heading control (H1/H2/H3 + back to regular text) — which inserts markdown markers into the familiar text fields
+- [x] **RTXT-01**: User can format session note text via a toolbar — bold, italic, bullet list, numbered list, and a heading control (H1/H2/H3 + back to regular text) — which inserts markdown markers into the familiar text fields
 - [ ] **RTXT-02**: User can format via keyboard shortcuts on desktop (Ctrl/Cmd+B bold, Ctrl/Cmd+I italic)
-- [ ] **RTXT-03**: User gets auto-format while typing — "- " / "1. " starts a list, Enter continues it, Enter on an empty item exits it
+- [x] **RTXT-03**: User gets auto-format while typing — "- " / "1. " starts a list, Enter continues it, Enter on an empty item exits it
 - [ ] **RTXT-04**: User can toggle a live preview of the rendered result while editing
-- [ ] **RTXT-05**: User can indent/outdent list items (nested lists, standard markdown) and nesting renders correctly in preview and PDF
+- [x] **RTXT-05**: User can indent/outdent list items (nested lists, standard markdown) and nesting renders correctly in preview and PDF
 - [x] **RTXT-06**: User sees formatted notes when READING sessions (read mode + wherever note text is displayed), rendered escape-first via MdRender — never raw innerHTML
 - [x] **RTXT-07**: Formatting survives PDF export — bold, lists (incl. nesting), Hebrew RTL/bidi preserved; heading-strip removed or consciously kept
 - [x] **RTXT-08**: Formatting survives markdown copy/share export verbatim
@@ -86,11 +86,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RTXT-01 | Phase 46 | Pending |
+| RTXT-01 | Phase 46 | Complete |
 | RTXT-02 | Phase 46 | Pending |
-| RTXT-03 | Phase 46 | Pending |
+| RTXT-03 | Phase 46 | Complete |
 | RTXT-04 | Phase 46 | Pending |
-| RTXT-05 | Phase 46 | Pending |
+| RTXT-05 | Phase 46 | Complete |
 | RTXT-06 | Phase 45 | Complete |
 | RTXT-07 | Phase 45 | Complete |
 | RTXT-08 | Phase 45 | Complete |

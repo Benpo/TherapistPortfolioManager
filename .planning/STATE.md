@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Richer Sessions
 current_phase: 46
-current_phase_name: Rich-Text Toolbar Editor
-status: ready to execute
-stopped_at: Phase 46 planned — 8 plans in 6 waves; plan-checker passed (3 iterations) + 2-lens architect gate applied (14 findings folded in)
-last_updated: "2026-07-14T18:30:00.000Z"
+current_phase_name: rich-text-toolbar-editor
+status: executing
+stopped_at: Completed 46-01-PLAN.md
+last_updated: "2026-07-14T18:09:34.774Z"
 last_activity: 2026-07-14
-last_activity_desc: Phase 46 planned (8 plans, 6 waves)
+last_activity_desc: Phase 46 execution started
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 21
+  completed_plans: 14
   percent: 40
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 
 **Core value:** Therapists can efficiently track client sessions, trapped emotions, and clinical progress without any technical setup, internet connection, or data leaving their device.
-**Current focus:** Phase 46 — Rich-Text Toolbar Editor
+**Current focus:** Phase 46 — rich-text-toolbar-editor
 
 ## Current Position
 
-Phase: 46 — Rich-Text Toolbar Editor
-Plan: 0 of 8 complete
-Status: Ready to execute — 8 plans in 6 waves; checker passed + architect gate (D-13 italic payload threshold awaits Ben's confirm at the 46-02 checkpoint)
-Last activity: 2026-07-14 — Phase 46 planned (8 plans, 6 waves)
+Phase: 46 (rich-text-toolbar-editor) — EXECUTING
+Plan: 2 of 8
+Status: Ready to execute
+Last activity: 2026-07-14 — Phase 46 execution started
 
 ## Performance Metrics
 
@@ -249,6 +249,7 @@ Last activity: 2026-07-14 — Phase 46 planned (8 plans, 6 waves)
 | Phase 45 P07 | 20min | 3 tasks | 6 files |
 | Phase 45 P08 | ~15min | 3 tasks | 4 files |
 | Phase 45 P06 | 2 days | 1 tasks | 0 files |
+| Phase 46 P01 | 6 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -456,6 +457,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 45-02]: PDF **2*3*4** stays literal (char-identical md-render bold regex forbids inner *); parseInlineBold refuses *-content to preserve the strip invariant; nested list items uniform {text,depth,ordered} — per-item marker + depth*14pt physical indent off docDir
 - [Phase ?]: [Phase 45-06]: Real-device / real-PDF human-verify gate PASSED — Ben approved 2026-07-14 on build 5ce1f46; ROADMAP success criteria 1/2/4 confirmed on real surfaces (installed-Safari read mode, real Hebrew PDF, real .sgbackup restore both encrypted + plain)
 - [Phase ?]: [Phase 45-06]: 4 on-device UAT gaps found during the open checkpoint were fixed by 45-07 (GAP-45-01/02) + 45-08 (GAP-45-03/04) and re-verified on-device (suite 183/183); second-backup-import popup bug ruled OUT of Phase 45 scope, filed as v1.4 ship-blocker todo (resolves_phase 48)
+- [Phase ?]: Phase 46 keystone: window.TextEdit isolates undo/caret/selection math behind editInsert (execCommand insertText) + pure transforms; downstream toolbar plans are thin wiring — 46-01 built + tested headlessly (23 node cases)
 
 ### Pending Todos
 
@@ -535,11 +537,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-14T13:27:39.765Z
+**Last session:** 2026-07-14T18:09:34.768Z
 
 Last activity: 2026-07-12 — Phase 44 closed end-to-end in one session: /gsd-code-review 44 --fix applied all 6 review warnings (fail-closed build-staging args/noindex, cf-await-promotion secret validation + curl timeouts + loud purge diagnostics, deploy queue-not-cancel) plus the IN-04 follow-up (pipeline-script test suites now gate both deploy workflows); UAT 2/2 passed — test 1 caught that the docs-gate trailers never landed on any commit (gate dry-run blocked), fixed by amending the tip (6e4355f), gate re-run green; verification canonicalized passed, phase 44 marked complete, transitioned to Phase 45. Previous: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
-Stopped at: Phase 46 mockup gate satisfied — winners locked (dropdown control, Step-2 50%+maximize, D-20 undo/redo added); ready to plan
-Resume file: .planning/phases/46-rich-text-toolbar-editor/46-UI-SPEC.md
+Stopped at: Completed 46-01-PLAN.md
+Resume file: None
 Next: /gsd-plan-phase 45 (Rich-Text Rendering & Export Foundation). NOTE: everything since origin/main 0cae46e is still local-only — the next push to main deploys; the Changelog-Unaffected trailer must ride the tip commit of that push (currently on 6e4355f).
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
