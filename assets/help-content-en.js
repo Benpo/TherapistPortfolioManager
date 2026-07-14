@@ -197,14 +197,17 @@
           id: "topic-quick-paste",
           title: "Capturing emotions fast",
           priority: 1,
-          covers: ["add-session.html"],
+          covers: ["add-session.html", "assets/rich-toolbar.js", "assets/text-edit.js"],
           body: [
             { type: "p", text: "During a session you want to record emotions without breaking your flow." },
             { type: "steps", items: [
               "Open the session and expand {ui:session.accordion.emotions}.",
               "Type or paste the emotions as they come up — in whatever words you use, one thought at a time.",
               "Keep going; there is no need to stop and tidy the wording until you are done."
-            ] }
+            ] },
+            { type: "p", text: "When you want to add emphasis or structure, a small formatting toolbar appears above whichever note field you are writing in. Select some words and press the bold or italic button — on a computer, Ctrl+B and Ctrl+I do the same. Press the bullet-list or numbered-list button to start a list, and open the text-style menu to turn a line into a heading or back into regular text." },
+            { type: "p", text: "Lists can also grow as you type: start a line with a dash and a space, or a number and a full stop, and the next line continues the list on its own. Press Enter on an empty item to finish the list, and use the indent and outdent buttons — or Tab and Shift+Tab on a computer — to nest items. The undo and redo buttons step back and forward through your recent changes." },
+            { type: "note", text: "Not sure how it will look? Turn on the preview for a note field to watch your formatting take shape as you write, then turn it off to keep writing. Your formatting is saved with the notes, so it reads back as styled text and stays intact when you export." }
           ]
         },
         {
@@ -312,7 +315,7 @@
           id: "topic-single-export",
           title: "Exporting one session",
           priority: 1,
-          covers: ["assets/export-modal.js", "assets/pdf-export.js", "assets/jspdf.min.js", "assets/bidi.min.js"],
+          covers: ["assets/export-modal.js", "assets/pdf-export.js", "assets/jspdf.min.js", "assets/bidi.min.js", "assets/fonts/rubik-italic-base64.js"],
           body: [
             { type: "p", text: "When a session is finished, you can send a beautifully formatted copy to your client or file it in your own records." },
             { type: "steps", items: [
@@ -320,6 +323,7 @@
               "Review — and lightly edit — what will be shared.",
               "Pick {ui:export.download.pdf} for a polished document, or {ui:export.download.text} to save the notes as a plain text file."
             ] },
+            { type: "p", text: "The editing step gives you room to work: the same formatting toolbar sits on top, and you can maximize the window to shape almost a whole session at once. On a phone it fills the screen. Anything you change here is for this export only — it is never saved back to the session." },
             { type: "p", text: "Any formatting you added to your notes — bold, italics, bullet and numbered lists (including nested ones), and headings — is preserved in the PDF, and Hebrew text stays correctly right-to-left." }
           ]
         },

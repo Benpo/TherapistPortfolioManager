@@ -10,14 +10,14 @@
 | adding-a-client | topic-client-photo | Client photos | add-client.html, assets/crop.js, assets/settings-photos.js |
 | starting-a-session | topic-new-session | Two ways to begin | add-session.html, assets/add-session.js, sessions.html |
 | starting-a-session | topic-past-sessions | A client's past sessions | assets/sessions.js, sessions.html |
-| capturing-emotions | topic-quick-paste | Capturing emotions fast | add-session.html |
+| capturing-emotions | topic-quick-paste | Capturing emotions fast | add-session.html, assets/rich-toolbar.js, assets/text-edit.js |
 | capturing-emotions | topic-snippets | Snippets — type less | add-session.html, assets/settings-snippets.js, assets/snippets-seed.js, assets/snippets.js, settings.html |
 | heart-wall | topic-heartwall-workflow | The Heart-Wall workflow | add-session.html |
 | heart-wall | topic-heartwall-removal | Tracking removal | add-session.html, assets/overview.js |
 | severity | topic-before-after | Before and after ratings | add-session.html |
 | severity | topic-multiple-issues | Multiple issues | add-session.html |
 | severity | topic-reversal | Understanding reversal | add-session.html |
-| review-export | topic-single-export | Exporting one session | assets/bidi.min.js, assets/export-modal.js, assets/jspdf.min.js, assets/pdf-export.js |
+| review-export | topic-single-export | Exporting one session | assets/bidi.min.js, assets/export-modal.js, assets/fonts/rubik-italic-base64.js, assets/jspdf.min.js, assets/pdf-export.js |
 | review-export | topic-export-formats | Choosing a format | assets/export-modal.js |
 | overview | topic-dashboard | Reading your overview | assets/overview.js, index.html |
 | overview | topic-filters | Searching and filtering | index.html |
