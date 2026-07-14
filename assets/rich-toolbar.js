@@ -6,7 +6,7 @@
 //   registered field is focused, and carries the icon-only formatting controls
 //   (bold, italic, bullet list, numbered list, a "Text" heading dropdown,
 //   indent, outdent, undo, redo, preview toggle). Every control preserves the
-//   textarea's focus/selection so the native undo stack + caret math survive.
+//   textarea's focus/selection so the undo history + caret math survive.
 //   The toolbar is docked with `insertAdjacentElement('beforebegin', field)` so
 //   it rides layout on scroll/resize/autogrow with ZERO coordinate math; only
 //   the transient heading dropdown popover uses physical getBoundingClientRect
@@ -28,8 +28,8 @@
 //   via the explicit window. prefix because they live in other IIFEs.
 // CONSTRAINTS: FOCUS PRESERVATION is a hard precondition — every toolbar control
 //   binds `mousedown` with `ev.preventDefault()` (mirroring snippets.js:336-341)
-//   so the click commits BEFORE the field can blur; without it native
-//   execCommand('undo'/'redo') targets nothing and editInsert caret math breaks.
+//   so the click commits BEFORE the field can blur; without it an undo/redo
+//   restore lands on the wrong field and editInsert caret math breaks.
 //   It is bound UNCONDITIONALLY (macOS desktop Safari does not focus buttons on
 //   click, so a missing preventDefault false-passes there yet fails everywhere
 //   else). This module NEVER mutates textarea.value directly and never uses the
@@ -326,10 +326,13 @@ window.RichToolbar = (function () {
   // ── Inline-actions layer (every edit routes through window.TextEdit) ───────
   // Apply a pure TextEdit transform through the undo-safe editInsert chokepoint,
   // then restore the transform's expected caret/selection. NEVER touches
-  // textarea.value directly, so the native undo stack + the input event autoGrow
-  // and snippets observe are both preserved.
+  // textarea.value directly, so the input event autoGrow and snippets observe is
+  // preserved. A boundary is recorded on the module undo history BEFORE mutating
+  // so the whole action collapses to exactly one undo step, with the pre-edit
+  // state as the undo target.
   function applyTransform(ta, tr) {
     if (!tr || !tr.replacement) return;
+    if (window.TextEdit.undoRecord) window.TextEdit.undoRecord(ta);
     var r = tr.replacement;
     window.TextEdit.editInsert(ta, r.start, r.end, r.text);
     if (typeof tr.selStart === "number") ta.setSelectionRange(tr.selStart, tr.selEnd);
@@ -354,8 +357,10 @@ window.RichToolbar = (function () {
   // line) — never on ordinary character typing. TextEdit.renumberOrderedBlock
   // returns a NO-OP (unchanged value + empty-length replacement) when the
   // numbering is already correct; in that case we make ZERO editInsert calls so
-  // plain typing never adds a redundant edit or an extra native-undo step. The
-  // re-entrancy guard stops the input event our own renumber fires from looping.
+  // plain typing never adds a redundant edit or an extra undo step. The
+  // re-entrancy guard stops the input event our own renumber fires from looping,
+  // which also folds the renumber into the SAME undo step as the action that
+  // triggered it (rather than opening its own boundary).
   function maybeRenumber(ta) {
     if (_renumbering || !ta) return;
     var tr = window.TextEdit.renumberOrderedBlock(ta.value, ta.selectionStart);
@@ -383,6 +388,13 @@ window.RichToolbar = (function () {
   function isCoarsePointer() {
     try {
       return !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+    } catch (e) { return false; }
+  }
+  // Redo's Windows/Linux shortcut is Ctrl+Y; on mac redo is Cmd+Shift+Z only.
+  function isMac() {
+    try {
+      var p = (navigator.platform || navigator.userAgent || "");
+      return /Mac|iPhone|iPad|iPod/.test(p);
     } catch (e) { return false; }
   }
 
@@ -601,12 +613,12 @@ window.RichToolbar = (function () {
       // Indent/outdent buttons share the keyboard path; headings stay flush-left.
       case "indent": if (!isHeadingLine(ta.value, ta.selectionStart)) { applyTransform(ta, TE.indentLine(ta.value, ta.selectionStart, "in")); maybeRenumber(ta); } break;
       case "outdent": if (!isHeadingLine(ta.value, ta.selectionStart)) { applyTransform(ta, TE.outdentLine(ta.value, ta.selectionStart)); maybeRenumber(ta); } break;
-      // Native undo/redo. Works ONLY because every control preserves
-      // focus (mousedown+preventDefault) so execCommand targets the field.
-      // Single-quoted execCommand so a source grep asserting its presence
-      // matches real code, not just a comment.
-      case "undo": ta.focus(); document.execCommand('undo'); refreshButtonState(); break;
-      case "redo": ta.focus(); document.execCommand('redo'); refreshButtonState(); break;
+      // Undo/redo drive the ONE module-owned history (window.TextEdit) — the
+      // same stack the keyboard shortcut routes to, never two diverging stacks.
+      // Works because every control preserves focus (mousedown+preventDefault)
+      // so the restore lands on the right field with correct caret math.
+      case "undo": ta.focus(); window.TextEdit.undo(ta); refreshButtonState(); break;
+      case "redo": ta.focus(); window.TextEdit.redo(ta); refreshButtonState(); break;
       case "heading": toggleHeadingMenu(el); break;
       case "preview": togglePreview(); break;
     }
@@ -614,9 +626,10 @@ window.RichToolbar = (function () {
 
   // Keydown-anchored list mechanics + desktop-only Ctrl/Cmd+B/I. Enter/Tab are
   // handled on KEYDOWN — the reliable anchor, because iOS Safari fires the
-  // pre-input event inconsistently for Enter, so we do not rely on it. Ctrl+Z /
-  // Ctrl+Shift+Z are intentionally NOT intercepted — they drive the SAME native
-  // undo stack the buttons use.
+  // pre-input event inconsistently for Enter, so we do not rely on it. Ctrl/Cmd+Z
+  // and Ctrl/Cmd+Shift+Z (plus Ctrl+Y off mac) ARE intercepted and routed to the
+  // module undo history, so the keyboard and the buttons drive the SAME single
+  // stack — two stacks would diverge and give contradictory results.
   function onFieldKeyDown(ev) {
     var ta = ev.currentTarget;
     // Enter: list auto-format. TextEdit.autoFormatEnter returns a transform on a
@@ -646,6 +659,24 @@ window.RichToolbar = (function () {
       }
       return;
     }
+    // Undo / redo → the single module history (buttons + keyboard agree).
+    if ((ev.ctrlKey || ev.metaKey) && !ev.altKey) {
+      var zk = (ev.key || "").toLowerCase();
+      if (zk === "z") {
+        ev.preventDefault();
+        ta.focus();
+        if (ev.shiftKey) window.TextEdit.redo(ta); else window.TextEdit.undo(ta);
+        refreshButtonState();
+        return;
+      }
+      if (zk === "y" && ev.ctrlKey && !ev.metaKey && !ev.shiftKey && !isMac()) {
+        ev.preventDefault();
+        ta.focus();
+        window.TextEdit.redo(ta);
+        refreshButtonState();
+        return;
+      }
+    }
     if (isCoarsePointer()) return;
     if (!(ev.ctrlKey || ev.metaKey) || ev.altKey) return;
     var k = (ev.key || "").toLowerCase();
@@ -661,6 +692,11 @@ window.RichToolbar = (function () {
     var ta = ev.currentTarget;
     if (!_renumbering) {
       var it = ev.inputType || "";
+      // Fold ordinary typing into human-scale undo steps (a fresh step at each
+      // line break and typing pause). A restore's own input event is a no-op
+      // here: window.TextEdit self-ignores its recording entry points while a
+      // restore is in flight, so NO toolbar-side restore guard is needed.
+      window.TextEdit.undoNoteInput(ta, it);
       if (it.indexOf("delete") === 0 || it === "insertFromPaste") maybeRenumber(ta);
     }
     if (_previewOpen && _previewField === ta) schedulePreviewRender(ta);
@@ -696,6 +732,9 @@ window.RichToolbar = (function () {
       ta.addEventListener("input", listeners.input);
       _bound.set(ta, listeners);
       _registered.add(ta);
+      // Begin per-field undo tracking (covers the shared note fields AND a
+      // persistent export editor — both register through here).
+      if (window.TextEdit && window.TextEdit.undoTrack) window.TextEdit.undoTrack(ta);
       if (persistent) {
         _persistent.add(ta);
         ensurePersistentBar(ta); // dock the always-on bar immediately
@@ -719,6 +758,7 @@ window.RichToolbar = (function () {
         ta.removeEventListener("input", listeners.input);
         _bound.delete(ta);
       }
+      if (window.TextEdit && window.TextEdit.undoUntrack) window.TextEdit.undoUntrack(ta);
     });
     _registered.clear();
     // Tear down every dedicated persistent bar too.
