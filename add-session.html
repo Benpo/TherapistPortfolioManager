@@ -448,6 +448,7 @@
         <!-- Step 2 -->
         <div class="export-step" data-step="2">
           <p class="export-step-helper" data-i18n="export.step2.helper">Step 2 of 3 — Edit your document on the left; the live preview on the right shows how it will look. Formatting tips appear below if you need them.</p>
+          <p class="export-info-note" data-i18n="export.ephemeralNote">Edits here apply to this export only. They aren't saved to the session and disappear when you close this window — so feel free to restructure or reorder freely.</p>
           <div class="export-mobile-tabs is-hidden" role="tablist">
             <button type="button" class="tab-btn is-active" data-tab="edit" data-i18n="export.tab.edit">Edit</button>
             <button type="button" class="tab-btn" data-tab="preview" data-i18n="export.tab.preview">Preview</button>
@@ -610,6 +611,13 @@
   <script src="./assets/snippets.js"></script>
   <script src="./assets/crop.js"></script>
   <script src="./assets/md-render.js"></script>
+  <!-- Shared rich-text editing modules. text-edit.js exposes the caret/transform
+       chokepoint; rich-toolbar.js is the focus-attached formatting toolbar. Both
+       must load before export-modal.js/add-session.js so window.TextEdit and
+       window.RichToolbar exist when the note-field and export-editor toolbars
+       mount. Ordered text-edit before rich-toolbar (toolbar depends on it). -->
+  <script src="./assets/text-edit.js"></script>
+  <script src="./assets/rich-toolbar.js"></script>
   <!-- Phase 34 (34-06, D-05/FN-3): eager-load the vendored base64 logo so
        window.IconLogoBase64 is present when the PDF header band renders — zero
        fetch, offline-safe (precached by 34-01). Loaded before pdf-export.js. -->

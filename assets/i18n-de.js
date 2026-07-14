@@ -489,6 +489,7 @@ window.I18N.de = {
   "export.stepper.label.3": "Exportieren",
   "export.step1.helper": "Schritt 1 von 3 \u2014 W\u00e4hlen Sie, welche Abschnitte der Sitzung in den Export aufgenommen werden sollen. Ihre Auswahl bestimmt, was im n\u00e4chsten Schritt in der bearbeitbaren Vorschau erscheint.",
   "export.step2.helper": "Schritt 2 von 3 \u2014 Bearbeiten Sie Ihr Dokument links; die Live-Vorschau rechts zeigt, wie es aussehen wird. Formatierungshinweise erscheinen bei Bedarf darunter.",
+  "export.ephemeralNote": "\u00c4nderungen hier gelten nur f\u00fcr diesen Export. Sie werden nicht in der Sitzung gespeichert und verschwinden, wenn Sie dieses Fenster schlie\u00dfen \u2014 Sie k\u00f6nnen also frei umstrukturieren oder neu anordnen.",
   "export.step3.helper": "Schritt 3 von 3 \u2014 W\u00e4hlen Sie, wie das Dokument bereitgestellt werden soll. PDF eignet sich am besten zum Drucken oder f\u00fcr E-Mail; die Textdatei funktioniert in jedem Texteditor; Teilen \u00f6ffnet das Teilen-Men\u00fc Ihres Ger\u00e4ts (sofern unterst\u00fctzt).",
   "export.format.help.title": "Formatierungshinweise (zum Aufklappen klicken)",
   "export.format.help.bold": "Text mit zwei Sternchen (**) umschließen, um ihn fett darzustellen",

@@ -493,6 +493,7 @@ window.I18N.en = {
   "export.stepper.label.3": "Export",
   "export.step1.helper": "Step 1 of 3 — Choose which session sections to include in the export. Your selection here decides what shows up in the editable preview on the next step.",
   "export.step2.helper": "Step 2 of 3 — Edit your document on the left; the live preview on the right shows how it will look. Formatting tips appear below if you need them.",
+  "export.ephemeralNote": "Edits here apply to this export only. They aren't saved to the session and disappear when you close this window — so feel free to restructure or reorder freely.",
   "export.step3.helper": "Step 3 of 3 — Choose how to deliver the document. PDF is best for printing or email; the text file works for any text editor; Share opens your device's share sheet (if supported).",
   "export.format.help.title": "Formatting tips (click to expand)",
   "export.format.help.bold": "surround text with two stars to make it bold",

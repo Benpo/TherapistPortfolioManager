@@ -489,6 +489,7 @@ window.I18N.cs = {
   "export.stepper.label.3": "Exportovat",
   "export.step1.helper": "Krok 1 ze 3 \u2014 Vyberte, kter\u00E9 sekce sezen\u00ED chcete zahrnout do exportu. V\u00E1\u0161 v\u00FDb\u011Br zde ur\u010Duje, co se zobraz\u00ED v upraviteln\u00E9m n\u00E1hledu v dal\u0161\u00EDm kroku.",
   "export.step2.helper": "Krok 2 ze 3 \u2014 Vlevo upravujte sv\u016Fj dokument; \u017Eiv\u00FD n\u00E1hled vpravo ukazuje, jak bude vypadat. Tipy pro form\u00E1tov\u00E1n\u00ED se zobraz\u00ED n\u00ED\u017Ee, pokud je budete pot\u0159ebovat.",
+  "export.ephemeralNote": "\u00DApravy zde plat\u00ED pouze pro tento export. Neukl\u00E1daj\u00ED se do sezen\u00ED a zmiz\u00ED, kdy\u017E toto okno zav\u0159ete \u2014 m\u016F\u017Eete tedy voln\u011B m\u011Bnit strukturu i po\u0159ad\u00ED.",
   "export.step3.helper": "Krok 3 ze 3 \u2014 Zvolte zp\u016Fsob doru\u010Den\u00ED dokumentu. PDF je nejvhodn\u011Bj\u0161\u00ED pro tisk nebo e-mail; textov\u00FD soubor funguje v jak\u00E9mkoli textov\u00E9m editoru; Sd\u00EDlet otev\u0159e panel sd\u00EDlen\u00ED va\u0161eho za\u0159\u00EDzen\u00ED (je-li podporov\u00E1no).",
   "export.format.help.title": "Tipy pro formátování (kliknutím rozbalíte)",
   "export.format.help.bold": "text obklopte dvěma hvězdičkami a zobrazí se tučně",

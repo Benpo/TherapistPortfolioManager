@@ -67,6 +67,21 @@
     const getEditingSession = ctx.getEditingSession;
     const heartShieldToggle = document.getElementById("heartShieldToggle");
 
+    // Mount the shared formatting toolbar over the export editor so Step 2 offers
+    // the full rich-text control set (headings included) — the same toolbar the
+    // add-session note fields use. The mount is additive and focus-attached: it
+    // coexists with the kept Edit/Preview swap switcher below (no live pane), rides
+    // the editor in flow, and hides itself whenever the field is not focused.
+    // Guarded so the page is a clean no-op if the toolbar module has not loaded.
+    const exportEditorForToolbar = document.getElementById("exportEditor");
+    if (
+      exportEditorForToolbar &&
+      window.RichToolbar &&
+      typeof window.RichToolbar.mount === "function"
+    ) {
+      window.RichToolbar.mount([exportEditorForToolbar], { headings: true });
+    }
+
     // Copy text to the clipboard with a secure-context path and an execCommand
     // fallback. Shared shape with add-session.js's per-field copy helper; kept as a
     // self-contained pure helper here because it has no closure dependencies.
