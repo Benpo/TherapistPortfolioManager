@@ -4,16 +4,16 @@ milestone: v1.4
 milestone_name: Richer Sessions
 current_phase: 46
 current_phase_name: rich-text-toolbar-editor
-status: executing
+status: verifying
 stopped_at: Completed 46-01-PLAN.md
-last_updated: "2026-07-14T20:04:59.223Z"
+last_updated: "2026-07-14T22:25:50.529Z"
 last_activity: 2026-07-14
 last_activity_desc: Phase 46 execution started
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 21
-  completed_plans: 20
+  total_plans: 27
+  completed_plans: 21
   percent: 40
 ---
 
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 
 Phase: 46 (rich-text-toolbar-editor) — EXECUTING
 Plan: 8 of 8
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-14 — Phase 46 execution started
 
 ## Performance Metrics
@@ -256,6 +256,7 @@ Last activity: 2026-07-14 — Phase 46 execution started
 | Phase 46 P05 | 2min | 1 tasks | 1 files |
 | Phase 46 P06 | 20 | 2 tasks | 7 files |
 | Phase 46 P07 | 12 | 2 tasks | 3 files |
+| Phase 46 P09 | 18 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -467,6 +468,7 @@ Recent decisions affecting current work:
 - [Phase 46]: D-13 GREEN accepted: true PDF italic ships via subset Rubik-Italic (~83.7 KB base64) registered under family 'Heebo' style 'italic'; ~6.3 KB descriptor in every export accepted; D-14 disclosure NOT needed in 46-06
 - [Phase 46]: parseInline {text,bold,italic} extended byte-preserving; clipSegmentsToRange must propagate ALL style flags — italic-drop bug found only via real opened PDF, not jsdom
 - [Phase ?]: 46-06: export Step 2 is now a full toolbar editor with 50%-default/maximize-to-90% sizing, flex-fill editor, mobile full-screen; D-14 italic disclosure NOT added (46-02 GREEN true italic).
+- [Phase 46]: 46-09: single module-level undo stack in window.TextEdit (700ms coalesce, 200-snapshot cap) owns undo/redo for buttons + Ctrl/Cmd+Z; native execCommand undo/redo removed
 
 ### Pending Todos
 
@@ -546,7 +548,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-14T20:04:48.947Z
+**Last session:** 2026-07-14T22:25:15.465Z
 
 Last activity: 2026-07-12 — Phase 44 closed end-to-end in one session: /gsd-code-review 44 --fix applied all 6 review warnings (fail-closed build-staging args/noindex, cf-await-promotion secret validation + curl timeouts + loud purge diagnostics, deploy queue-not-cancel) plus the IN-04 follow-up (pipeline-script test suites now gate both deploy workflows); UAT 2/2 passed — test 1 caught that the docs-gate trailers never landed on any commit (gate dry-run blocked), fixed by amending the tip (6e4355f), gate re-run green; verification canonicalized passed, phase 44 marked complete, transitioned to Phase 45. Previous: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
 Stopped at: Completed 46-01-PLAN.md
