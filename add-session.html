@@ -453,30 +453,17 @@
           <div id="exportStep1Rows"></div>
         </div>
 
-        <!-- Step 2 -->
+        <!-- Step 2 — single full-width edit surface. The formatting toolbar is
+             docked above this editor by RichToolbar (persistent mount) and stays
+             visible while this step is shown; preview is via the toolbar's preview
+             toggle, which opens a pane under the editor. -->
         <div class="export-step" data-step="2">
-          <p class="export-step-helper" data-i18n="export.step2.helper">Step 2 of 3 — Edit your document on the left; the live preview on the right shows how it will look. Formatting tips appear below if you need them.</p>
+          <p class="export-step-helper" data-i18n="export.step2.helper">Step 2 of 3 — Edit your document below; use the Preview button in the toolbar to see how it will look.</p>
           <p class="export-info-note" data-i18n="export.ephemeralNote">Edits here apply to this export only. They aren't saved to the session and disappear when you close this window — so feel free to restructure or reorder freely.</p>
-          <div class="export-mobile-tabs is-hidden" role="tablist">
-            <button type="button" class="tab-btn is-active" data-tab="edit" data-i18n="export.tab.edit">Edit</button>
-            <button type="button" class="tab-btn" data-tab="preview" data-i18n="export.tab.preview">Preview</button>
-          </div>
           <div class="export-edit-area">
-            <span class="export-pane-label" data-i18n="export.step2.label.edit">Edit</span>
-            <span class="export-pane-label" data-i18n="export.step2.label.preview">Preview</span>
             <textarea id="exportEditor" class="textarea export-editor" data-snippets="true" dir="auto" spellcheck="true"></textarea>
-            <div id="exportPreview" class="export-preview"></div>
           </div>
           <!-- Translate-via-Google CTA REMOVED 2026-04-28 (REQ-16 dropped). Do NOT add this anchor element. -->
-          <details class="export-format-help">
-            <summary data-i18n="export.format.help.title">Formatting tips (click to expand)</summary>
-            <ul class="export-format-help-list">
-              <li><code>**bold**</code> &mdash; <span data-i18n="export.format.help.bold">surround text with two stars to make it bold</span></li>
-              <li><code>*italic*</code> &mdash; <span data-i18n="export.format.help.italic">surround text with one star to make it italic</span></li>
-              <li><code># Heading</code> &mdash; <span data-i18n="export.format.help.heading">start a line with # for a heading; ## for a smaller heading</span></li>
-              <li><code>- list item</code> &mdash; <span data-i18n="export.format.help.list">start a line with a dash and a space to create a bullet list</span></li>
-            </ul>
-          </details>
         </div>
 
         <!-- Step 3 -->

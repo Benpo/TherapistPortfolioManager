@@ -231,16 +231,18 @@ async function test(name, fn) {
       'the overlay must not assign innerHTML from a raw string/template literal');
   });
 
-  // Case 6: SOURCE ASSERTION — app.css has a scoped .note-rendered register + the .export-preview ol indent rule.
-  await test('SOURCE: app.css defines .note-rendered, scopes note headings under .note-rendered, and adds a .export-preview ol indent rule', function () {
+  // Case 6: SOURCE ASSERTION — app.css has a scoped .note-rendered register (which
+  // also styles the export editor's on-demand preview pane) with ordered-list indent.
+  await test('SOURCE: app.css defines .note-rendered, scopes note headings under .note-rendered, and indents its ordered lists', function () {
     var css = readAsset('assets/app.css');
     assert.ok(/\.note-rendered\b/.test(css), 'app.css must define a .note-rendered selector');
     // Note-heading rules must be scoped under .note-rendered (never bare h1/h2/h3 that bleed globally).
     assert.ok(/\.note-rendered\s+h1\b/.test(css) || /\.note-rendered\s+h[123]\b/.test(css),
       'note-heading styles must be scoped under .note-rendered (e.g. ".note-rendered h1")');
-    // The new ordered-list indent rule for the Step-2 export preview (NOTE 5).
-    assert.ok(/\.export-preview\s+ol\b/.test(css),
-      'app.css must add a ".export-preview ol" indent rule to match the existing ".export-preview ul"');
+    // Ordered lists in the rendered surface (read-mode notes + the export editor's
+    // preview pane, which reuses .note-rendered) must carry the same indent as bullets.
+    assert.ok(/\.note-rendered\s+ol\b/.test(css),
+      'app.css must indent ".note-rendered ol" to match ".note-rendered ul"');
   });
 
   // ─── F-A end-of-file count guard ─────────────────────────────────────────────

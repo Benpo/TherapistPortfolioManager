@@ -69,17 +69,20 @@
 
     // Mount the shared formatting toolbar over the export editor so Step 2 offers
     // the full rich-text control set (headings included) — the same toolbar the
-    // add-session note fields use. The mount is additive and focus-attached: it
-    // coexists with the kept Edit/Preview swap switcher below (no live pane), rides
-    // the editor in flow, and hides itself whenever the field is not focused.
-    // Guarded so the page is a clean no-op if the toolbar module has not loaded.
+    // add-session note fields use. This mount is PERSISTENT: the export editor gets
+    // its own bar docked permanently above it, always visible while Step 2 is shown
+    // rather than appearing only on focus. Preview is via that bar's preview toggle
+    // (the same per-field preview pane the note fields use), which opens under the
+    // editor. The mount is additive — it leaves the note fields' focus-attached
+    // toolbar untouched. Guarded so the page is a clean no-op if the toolbar module
+    // has not loaded.
     const exportEditorForToolbar = document.getElementById("exportEditor");
     if (
       exportEditorForToolbar &&
       window.RichToolbar &&
       typeof window.RichToolbar.mount === "function"
     ) {
-      window.RichToolbar.mount([exportEditorForToolbar], { headings: true });
+      window.RichToolbar.mount([exportEditorForToolbar], { headings: true, persistent: true });
     }
 
     // Copy text to the clipboard with a secure-context path and an execCommand
@@ -311,7 +314,7 @@
 
     // ============================================================
     // Export modal
-    // 3-step flow: Step 1 selection -> Step 2 edit/preview -> Step 3 outputs
+    // 3-step flow: Step 1 selection -> Step 2 edit -> Step 3 outputs
     // ============================================================
     const EXPORT_DEFAULT_CHECKED = {
       trapped: true,
@@ -597,53 +600,6 @@
       }
     }
 
-    function exportUpdatePreview() {
-      const editor = document.getElementById("exportEditor");
-      const preview = document.getElementById("exportPreview");
-      if (!editor || !preview) return;
-      if (window.MdRender && typeof window.MdRender.render === "function") {
-        // MdRender.render escapes HTML before structural rules — safe to assign.
-        preview.innerHTML = window.MdRender.render(editor.value);
-      } else {
-        preview.textContent = editor.value;
-      }
-    }
-
-    function exportApplyMobileTabs() {
-      const modal = document.getElementById("exportModal");
-      if (!modal) return;
-      const tabs = modal.querySelector(".export-mobile-tabs");
-      const editor = document.getElementById("exportEditor");
-      const preview = document.getElementById("exportPreview");
-      const isMobile = window.matchMedia("(max-width: 768px)").matches;
-      if (!tabs) return;
-      tabs.classList.toggle("is-hidden", !isMobile);
-      if (!isMobile) {
-        // Desktop: both visible side-by-side
-        if (editor) editor.classList.remove("is-hidden");
-        if (preview) preview.classList.remove("is-hidden");
-        return;
-      }
-      // Mobile: respect active tab (default to edit)
-      const activeTab = tabs.querySelector(".tab-btn.is-active");
-      const which = activeTab ? activeTab.dataset.tab : "edit";
-      if (editor) editor.classList.toggle("is-hidden", which !== "edit");
-      if (preview) preview.classList.toggle("is-hidden", which !== "preview");
-    }
-
-    function exportWireMobileTabs() {
-      const modal = document.getElementById("exportModal");
-      if (!modal) return;
-      const tabs = modal.querySelectorAll(".export-mobile-tabs .tab-btn");
-      tabs.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          modal.querySelectorAll(".export-mobile-tabs .tab-btn").forEach((b) => b.classList.remove("is-active"));
-          btn.classList.add("is-active");
-          exportApplyMobileTabs();
-        });
-      });
-    }
-
     async function exportCloseDialog(skipDirtyCheck) {
       const modal = document.getElementById("exportModal");
       if (!modal) return;
@@ -876,7 +832,6 @@
       exportSetActiveStep(1);
 
       const editor = document.getElementById("exportEditor");
-      const preview = document.getElementById("exportPreview");
       // Defensively bind the export editor for snippet expansion. The static
       // editor already carries data-snippets="true" (bound by Snippets.init()
       // at DOMContentLoaded), but this idempotent call (guarded by Snippets'
@@ -884,12 +839,10 @@
       // is ever re-rendered.
       if (window.Snippets && editor) window.Snippets.bindTextarea(editor);
       if (editor) editor.value = "";
-      if (preview) preview.innerHTML = "";
 
       modal.classList.remove("is-hidden");
       App.lockBodyScroll();
       App.applyTranslations(modal);
-      exportApplyMobileTabs();
 
       // Wire events for the lifetime of this dialog. Track listeners so we can detach.
       const closeBtn = document.getElementById("exportClose");
@@ -921,27 +874,23 @@
           if (editor) editor.value = md;
           _exportState.hasEditedPreview = false;
           exportSetActiveStep(2);
-          exportApplyMobileTabs();
-          exportUpdatePreview();
         } else if (_exportState.currentStep === 2) {
           exportSetActiveStep(3);
         } else {
           exportCloseDialog(true);
         }
       };
+      // Track edits so closing a modified export prompts a discard confirm. The
+      // formatted preview is on-demand via the toolbar's preview toggle, so no
+      // live re-render is wired here.
       const onEditorInput = () => {
         _exportState.hasEditedPreview = true;
-        exportUpdatePreview();
       };
-      const onResize = () => exportApplyMobileTabs();
       const onMaximize = () => {
         const cardEl = modal.querySelector(".export-card");
         if (!cardEl) return;
         const nowMax = cardEl.classList.toggle("is-maximized");
         updateMaximizeBtn(maximizeBtn, nowMax);
-        // Re-run the edit/preview layout so the swap switcher stays correct after
-        // the surface resizes.
-        exportApplyMobileTabs();
       };
       const onPdf = () => exportHandleDownloadPdf();
       const onMd = () => exportHandleDownloadMd();
@@ -965,7 +914,6 @@
       if (backBtn) backBtn.addEventListener("click", onBack);
       if (nextBtn) nextBtn.addEventListener("click", onNext);
       if (editor) editor.addEventListener("input", onEditorInput);
-      window.addEventListener("resize", onResize);
       if (maximizeBtn) maximizeBtn.addEventListener("click", onMaximize);
       if (downloadPdfBtn) downloadPdfBtn.addEventListener("click", onPdf);
       if (downloadMdBtn) downloadMdBtn.addEventListener("click", onMd);
@@ -979,7 +927,6 @@
         if (backBtn) backBtn.removeEventListener("click", onBack);
         if (nextBtn) nextBtn.removeEventListener("click", onNext);
         if (editor) editor.removeEventListener("input", onEditorInput);
-        window.removeEventListener("resize", onResize);
         if (maximizeBtn) maximizeBtn.removeEventListener("click", onMaximize);
         if (downloadPdfBtn) downloadPdfBtn.removeEventListener("click", onPdf);
         if (downloadMdBtn) downloadMdBtn.removeEventListener("click", onMd);

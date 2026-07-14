@@ -3384,17 +3384,20 @@ html[dir="rtl"] .settings-locked-info::after {
 .export-card.is-editor-step .export-edit-area {
   flex: 1 1 auto;
   min-block-size: 0;
+  /* The single edit surface plus its optional preview pane (opened by the toolbar
+     preview toggle) may exceed the modal height — scroll them here so the pane
+     stays reachable. */
+  overflow-y: auto;
 }
 .export-card.is-editor-step .export-editor {
-  min-block-size: 0;
-  block-size: 100%;
-  /* The editor flex-fills; a manual drag-resize handle would fight the layout,
-     so it is removed for the export editor specifically (other textareas keep
-     their resize:vertical from the .textarea base rule). */
+  /* The editor flex-fills the area when the preview is closed and shrinks toward
+     its base min-height (keeping a usable size) when the preview opens below it. A
+     manual drag-resize handle would fight the layout, so it is removed for the
+     export editor specifically (other textareas keep their resize:vertical from
+     the .textarea base rule). */
+  flex: 1 1 auto;
+  block-size: auto;
   resize: none;
-}
-.export-card.is-editor-step .export-preview {
-  min-block-size: 0;
 }
 
 /* Maximize / restore toggle — sits inline-start of the close button in the
@@ -3529,66 +3532,6 @@ html[dir="rtl"] .settings-locked-info::after {
   border-block-end: 1px solid var(--color-border-soft);
 }
 
-/* Phase 22-11 — Step 2 markdown formatting cheatsheet (UAT Test 2 gap:
-   "therapist with no markdown background should be able to apply
-   bold/italic/headings without leaving the modal"). */
-.export-format-help {
-  margin-block-start: 16px;
-  padding: 12px 16px;
-  background: var(--color-surface-subtle);
-  border-radius: 12px;
-  font-size: 0.8125rem;
-}
-.export-format-help summary {
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--color-text);
-  padding-block: 4px;
-  list-style: none;
-}
-.export-format-help summary::-webkit-details-marker { display: none; }
-.export-format-help summary::before {
-  content: "▸";
-  display: inline-block;
-  margin-inline-end: 8px;
-  transition: transform 120ms ease-in-out;
-}
-.export-format-help[open] summary::before {
-  transform: rotate(90deg);
-}
-html[dir="rtl"] .export-format-help summary::before {
-  content: "◂";
-}
-html[dir="rtl"] .export-format-help[open] summary::before {
-  transform: rotate(-90deg);
-}
-.export-format-help-list {
-  list-style: none;
-  padding: 0;
-  margin: 8px 0 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.export-format-help-list li {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-  color: var(--color-text-muted);
-  line-height: 1.4;
-}
-.export-format-help-list code {
-  font-family: var(--font-mono, ui-monospace, monospace);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-soft);
-  border-radius: 4px;
-  padding: 2px 6px;
-  font-size: 0.8125rem;
-  color: var(--color-text);
-  white-space: nowrap;
-}
-
 .export-section-row {
   display: flex;
   align-items: center;
@@ -3613,10 +3556,14 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   flex: 1;
 }
 
+/* Single full-width edit surface. The formatting toolbar (docked above by
+   RichToolbar) and the on-demand preview pane (opened by the toolbar's preview
+   toggle, inserted after the editor) stack in this column; each carries its own
+   block margin, so no column gap is needed. The rendered preview reuses the
+   .note-rendered / .rich-toolbar-preview styling defined below. */
 .export-edit-area {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
 }
 .export-editor {
   min-block-size: 240px;
@@ -3626,67 +3573,17 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   border-radius: 16px;
   border: 1px solid var(--color-border);
 }
-.export-preview {
-  min-block-size: 240px;
-  padding: 16px;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 16px;
-  background: var(--color-surface);
-  overflow-y: auto;
-}
-/* Phase 22-14 (Gap N1 / D1) — visible pane title above each Step 2 pane
- * (editor on inline-start, preview on inline-end at desktop). Label-role
- * typography per 22-UI-SPEC: 14px / 600 / 1.4. Logical margin-block-end of
- * 8px (xs spacing token) for the gap to the pane below. */
-.export-pane-label {
-  font-size: 1.0625rem;
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--color-text);
-  margin-block-end: 10px;
-}
-.export-preview h1 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  line-height: 1.25;
-  margin-block-end: 8px;
-}
-.export-preview h2 {
-  font-size: 1rem;
-  font-weight: 600;
-  border-block-end: 1px solid var(--color-border);
-  margin-block: 16px 8px;
-  padding-block-end: 4px;
-}
-.export-preview h3 {
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-block: 16px 4px;
-}
-.export-preview p {
-  font-size: 1rem;
-  line-height: 1.5;
-}
-.export-preview ul {
-  padding-inline-start: 24px;
-}
-/* MdRender's NEW <ol> output (Phase 45 Plan 01) now appears in the already-wired
-   Step-2 export preview; without this rule ordered lists render at the browser
-   default indent. Logical property = RTL-safe. Matches the .export-preview ul
-   indent above (Plan 04 Task 1, NOTE 5). */
-.export-preview ol {
-  padding-inline-start: 24px;
-}
 
 /* ── Read-mode rendered-note overlay (RTXT-06, Phase 45 Plan 04, UI-SPEC §B) ──
    The .note-rendered overlay shows a saved note's markdown as styled text in
    add-session read mode (the app's ONE sanctioned innerHTML note surface, fed
-   only by MdRender). Adapts the .export-preview conventions with RTL-safe
-   logical properties and existing --color-* tokens (no new colors; WCAG-AA in
-   light + dark). Note headings use the SUBORDINATE register: differentiated
-   from body by weight + spacing, NOT a size jump — no border rule, no diamond.
-   Every heading rule is SCOPED under .note-rendered so it can NEVER bleed onto
-   .export-preview h1/h2/h3 (UI-SPEC §B selector-scoping). */
+   only by MdRender). It also styles the export editor's on-demand preview pane,
+   which reuses this class. RTL-safe logical properties and existing --color-*
+   tokens (no new colors; WCAG-AA in light + dark). Note headings use the
+   SUBORDINATE register: differentiated from body by weight + spacing, NOT a size
+   jump — no border rule, no diamond. Every heading rule is SCOPED under
+   .note-rendered so these note-heading sizes never bleed onto other rendered
+   surfaces (UI-SPEC §B selector-scoping). */
 .note-rendered {
   color: var(--color-text);
   font-size: 1rem;
@@ -3768,25 +3665,6 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   margin-block: 0;
 }
 
-.export-mobile-tabs {
-  display: none;
-  gap: 8px;
-  margin-block-end: 16px;
-}
-.export-mobile-tabs .tab-btn {
-  padding-block: 8px;
-  padding-inline: 16px;
-  border-radius: 16px;
-  min-block-size: 44px;
-  background: var(--color-surface-toggle);
-  border: 1px solid var(--color-border-soft);
-}
-.export-mobile-tabs .tab-btn.is-active {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-dark);
-  font-weight: 600;
-}
-
 .export-output-card {
   display: flex;
   align-items: center;
@@ -3825,21 +3703,7 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   color: var(--color-text-muted);
 }
 
-@media (min-width: 769px) {
-  .export-edit-area {
-    grid-template-columns: 1fr 1fr;
-    /* Phase 22-14 (Gap N1 / D1) — row 1 = pane labels, row 2 = textarea + preview */
-    grid-template-rows: auto 1fr;
-  }
-}
-
 @media (max-width: 768px) {
-  .export-edit-area {
-    grid-template-columns: 1fr;
-  }
-  .export-mobile-tabs {
-    display: inline-flex;
-  }
   /* Step 2 on phones is a full-screen keyboard-aware takeover — both the default
      and maximized states collapse to the same full-viewport surface. max-height
      (physical) overrides the .modal-card base 90vh cap so it truly fills. dvh
@@ -3854,12 +3718,7 @@ html[dir="rtl"] .export-format-help[open] summary::before {
     border-radius: 0;
     padding: 16px;
   }
-  .export-card.is-editor-step .export-edit-area {
-    display: flex;
-    flex-direction: column;
-  }
-  .export-card.is-editor-step .export-editor,
-  .export-card.is-editor-step .export-preview {
+  .export-card.is-editor-step .export-editor {
     flex: 1 1 auto;
     min-block-size: 0;
   }

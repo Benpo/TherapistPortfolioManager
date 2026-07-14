@@ -107,9 +107,9 @@ function loadRealPdf(win) {
  * @param {object} [opts]
  * @param {object} [opts.shareMock] createShareMock() result to install as
  *        navigator.canShare/share before eval.
- * @param {boolean} [opts.mobile] when true, matchMedia reports matches:true so
- *        the export mobile-tabs path (exportApplyMobileTabs) executes its mobile
- *        branch (GAP-10 / region B3 — the path the default matches:false hides).
+ * @param {boolean} [opts.mobile] when true, matchMedia reports matches:true. The
+ *        export step no longer has a mobile tab switcher (single full-width editor
+ *        at every width); this now only feeds the toolbar's coarse-pointer check.
  */
 function buildEnv(opts) {
   opts = opts || {};
@@ -123,8 +123,8 @@ function buildEnv(opts) {
   // is EMPTY-content (issues:[] → one default empty issue row, all fields "") so
   // populateSession leaves the form byte-identical to a fresh new session, and
   // buildFilteredSessionMarkdown omits client/date from the body — every existing
-  // assertion (filtered markdown markers, share/download seams, preview, mobile
-  // tabs) is unchanged.
+  // assertion (filtered markdown markers, share/download seams, the toolbar preview
+  // toggle, the persistent toolbar) is unchanged.
   var dom = new JSDOM(html, {
     url: 'https://localhost/add-session.html?sessionId=1',
     runScripts: 'outside-only',
@@ -174,6 +174,12 @@ function buildEnv(opts) {
     Object.defineProperty(win.navigator, 'canShare', { value: opts.shareMock.canShare, configurable: true });
     Object.defineProperty(win.navigator, 'share', { value: opts.shareMock.share, configurable: true });
   }
+
+  // Shared rich-text editing modules (real page load order: text-edit before
+  // rich-toolbar). export-modal.js persistently mounts the formatting toolbar over
+  // #exportEditor, so RichToolbar must exist in the window or that mount is a no-op.
+  win.eval(readAsset('assets/text-edit.js'));
+  win.eval(readAsset('assets/rich-toolbar.js'));
 
   win.eval(readAsset('assets/export-modal.js')); // export-modal.js BEFORE add-session.js (unconditional __exportModalInit boot call)
   win.eval(readAsset('assets/add-session.js'));
@@ -365,63 +371,82 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  // ─── F. exportUpdatePreview renders #exportPreview via the REAL MdRender branch
-  // (B3). An INJECTED MdRender stub returns a recognizable wrapper so a green
-  // assertion proves the MdRender branch at add-session.js:1269-1271 ran — NOT
-  // the tautological editor.value textContent fallback at :1273.
-  await test('with an injected window.MdRender, advancing to step 2 renders #exportPreview from MdRender.render (the real MdRender branch, not the editor.value fallback)', async function () {
+  // ─── F. Preview is via the toolbar toggle, not a right-side #exportPreview pane.
+  // The two-pane live preview was removed: Step 2 is a single full-width editor and
+  // the formatted preview opens on demand from the toolbar's eye toggle into a
+  // .rich-toolbar-preview pane under the editor. An INJECTED MdRender stub returns a
+  // recognizable wrapper so a green assertion proves the render ran (not a fallback).
+  await test('the toolbar preview toggle renders the editor content into a .rich-toolbar-preview pane via MdRender (single-surface; the old #exportPreview is gone)', async function () {
     var env = buildEnv();
     var win = env.win;
-    // Inject a MdRender whose output is structurally distinct from the fallback:
-    // the fallback path sets preview.textContent (no element, escaped), so a
-    // data-mdrender attribute in innerHTML can ONLY come from this stub.
+    // Structurally-distinct MdRender output: a data-mdrender attribute in innerHTML
+    // can only come from this stub, never from the textContent fallback.
     win.MdRender = {
       render: function (md) { return '<p data-mdrender="1">' + md + '</p>'; },
     };
     await env.domHandler();
     await settle();
 
-    setVal(win, 'trappedEmotions', 'TRAP_MARKER');
+    // The removed right-side pane must not exist anymore.
+    assert.strictEqual(win.document.getElementById('exportPreview'), null,
+      'the removed #exportPreview two-pane element must not exist (single full-width editor now)');
 
+    setVal(win, 'trappedEmotions', 'TRAP_MARKER');
     win.document.getElementById('exportSessionBtn').click();
     await settle();
-    win.document.getElementById('exportNextBtn').click(); // step 1 → 2 → exportUpdatePreview
+    win.document.getElementById('exportNextBtn').click(); // step 1 → 2 (builds editor md)
     await settle();
 
-    var preview = win.document.getElementById('exportPreview');
-    assert.ok(preview.innerHTML.indexOf('data-mdrender="1"') !== -1,
-      'the preview must reflect the injected MdRender wrapper (proves the MdRender branch ran, not the editor.value fallback)');
-    assert.ok(preview.innerHTML.indexOf('TRAP_MARKER') !== -1,
-      'the MdRender output must carry the built markdown content (the editor value flowed through MdRender.render)');
-    // A non-zero element child confirms innerHTML (MdRender branch), not textContent.
-    assert.ok(preview.querySelector('p[data-mdrender="1"]'),
-      'the preview must contain the MdRender-produced <p> element (innerHTML branch, not textContent fallback)');
+    var editor = win.document.getElementById('exportEditor');
+    editor.focus();
+    await settle();
+
+    // The persistent toolbar is docked directly above the editor; open its preview.
+    var toolbar = editor.previousElementSibling;
+    assert.ok(toolbar && toolbar.classList.contains('rich-toolbar'),
+      'the formatting toolbar must be docked directly above #exportEditor');
+    var previewBtn = toolbar.querySelector('.rich-toolbar-btn[data-action="preview"]');
+    assert.ok(previewBtn, 'the toolbar must carry a preview toggle button');
+    // The toolbar preserves focus on mousedown (its controls commit there).
+    previewBtn.dispatchEvent(new win.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    await settle();
+
+    var pane = editor.nextElementSibling;
+    assert.ok(pane && pane.classList.contains('rich-toolbar-preview'),
+      'toggling preview must insert a .rich-toolbar-preview pane directly under the editor');
+    assert.ok(pane.innerHTML.indexOf('data-mdrender="1"') !== -1,
+      'the preview pane must reflect the injected MdRender output (render ran, not a fallback)');
+    assert.ok(pane.innerHTML.indexOf('TRAP_MARKER') !== -1,
+      'the preview must carry the built markdown content (editor value flowed through MdRender.render)');
 
     env.dom.window.close();
   });
 
-  // ─── G. Mobile tabs apply under matchMedia matches:true (B3) ─────────────────
-  await test('with matchMedia matches:true, opening the dialog applies the mobile-tabs layout (tabs visible, preview hidden behind the active edit tab)', async function () {
+  // ─── G. The Step-2 toolbar is persistent (always docked), and the mobile
+  // Edit/Preview tab switcher is gone (single full-width surface at every width).
+  await test('the export editor toolbar is persistent — docked above #exportEditor and visible on step 2 without focus — and the mobile Edit/Preview tabs are removed', async function () {
     var env = buildEnv({ mobile: true });
     var win = env.win;
     await env.domHandler();
     await settle();
 
+    // The removed mobile Edit/Preview switcher must not exist at any width.
+    assert.strictEqual(win.document.querySelector('.export-mobile-tabs'), null,
+      'the removed .export-mobile-tabs Edit/Preview switcher must not exist');
+
     win.document.getElementById('exportSessionBtn').click();
     await settle();
+    win.document.getElementById('exportNextBtn').click(); // step 1 → 2
+    await settle();
+    assert.strictEqual(activeStep(win), 2, 'must be on the editor step');
 
-    var modal = win.document.getElementById('exportModal');
-    var tabs = modal.querySelector('.export-mobile-tabs');
     var editor = win.document.getElementById('exportEditor');
-    var preview = win.document.getElementById('exportPreview');
-    assert.ok(tabs, 'the mobile-tabs element must exist');
-    assert.strictEqual(tabs.classList.contains('is-hidden'), false,
-      'under matchMedia matches:true the mobile tabs must be revealed (exportApplyMobileTabs mobile branch)');
-    // Default active tab is "edit" → editor visible, preview hidden on mobile.
-    assert.strictEqual(editor.classList.contains('is-hidden'), false,
-      'the edit pane must stay visible under the default active edit tab');
-    assert.strictEqual(preview.classList.contains('is-hidden'), true,
-      'the preview pane must be hidden behind the inactive preview tab on mobile');
+    var toolbar = editor.previousElementSibling;
+    assert.ok(toolbar && toolbar.classList.contains('rich-toolbar'),
+      'a persistent formatting toolbar must be docked directly above #exportEditor');
+    // Persistent = present and visible even though the editor was never focused.
+    assert.strictEqual(toolbar.classList.contains('is-hidden'), false,
+      'the persistent toolbar must be visible on step 2 without the editor being focused');
 
     env.dom.window.close();
   });
