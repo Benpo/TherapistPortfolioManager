@@ -149,9 +149,9 @@ window.PDFExport = (function () {
           return typeof window.HeeboBold === 'string' && window.HeeboBold.length > 0;
         });
       }).then(function () {
-        // Phase 46 (46-02, D-13): Rubik-Italic (subset Latin + Hebrew, wght 400)
-        // loaded after Heebo Bold -- registered under family 'Heebo' style 'italic'
-        // so setFont('Heebo','italic') selects TRUE slanted glyphs (Heebo has no
+        // Rubik-Italic (subset Latin + Hebrew, wght 400) loaded after Heebo Bold
+        // -- registered under family 'Heebo' style 'italic' so
+        // setFont('Heebo','italic') selects TRUE slanted glyphs (Heebo has no
         // italic face; jsPDF cannot synthesize slant). isReady predicate mirrors
         // the heebo steps so headless/jsdom resolves synchronously (no hang).
         return loadScriptOnce('./assets/fonts/rubik-italic-base64.js', function () {
@@ -269,11 +269,11 @@ window.PDFExport = (function () {
       doc.addFileToVFS("HeeboBold.ttf", window.HeeboBold);
       doc.addFont("HeeboBold.ttf", "Heebo", "bold");
     }
-    // Phase 46 (46-02, D-13): Rubik-Italic registered under the SAME family
-    // ('Heebo') with style='italic'. Heebo ships no italic face and jsPDF cannot
-    // synthesize slant, so italic runs get a vendored slanted face transparently
-    // via setFont('Heebo', 'italic') -- normal/bold stay Heebo, the family name
-    // never changes, and the Phase 23 bidi pipeline is untouched. Safe-no-op when
+    // Rubik-Italic registered under the SAME family ('Heebo') with
+    // style='italic'. Heebo ships no italic face and jsPDF cannot synthesize
+    // slant, so italic runs get a vendored slanted face transparently via
+    // setFont('Heebo', 'italic') -- normal/bold stay Heebo, the family name
+    // never changes, and the existing bidi pipeline is untouched. Safe-no-op when
     // window.RubikItalic is missing (mirrors the Regular/Bold guards above).
     if (typeof window.RubikItalic === "string" && window.RubikItalic.length > 0) {
       doc.addFileToVFS("RubikItalic.ttf", window.RubikItalic);
@@ -563,8 +563,8 @@ window.PDFExport = (function () {
         }
         // Unmatched `**` — fall through to literal handling.
       }
-      // Italic single `*X*`: Phase 46 (46-02, D-13) now emits a TRUE italic
-      // segment (previously folded into the surrounding regular buffer, Phase 45).
+      // Italic single `*X*`: now emits a TRUE italic segment (previously folded
+      // into the surrounding regular buffer).
       // Phase 45 (45-02, D-08): the marker must HUG non-whitespace — the char
       // after the opening `*` and before the closing `*` must both be non-ws, and
       // the content must hold no inner `*` — mirroring stripInlineMarkdown's rule
@@ -584,10 +584,10 @@ window.PDFExport = (function () {
         if (iclose > i + 1 &&
             !isEmphSpace(text.charAt(iclose - 1)) &&          // closing hugs non-ws
             text.slice(i + 1, iclose).indexOf('*') === -1) {  // no inner star
-          // Phase 46 (46-02, D-13): emit an italic:true segment. The inner text is
-          // byte-identical to what Phase 45 concatenated into buf, so the
-          // JOIN-INVARIANT is preserved EXACTLY (T-45-03) — the content just moves
-          // into its own dedicated segment instead of the regular buffer.
+          // Emit an italic:true segment. The inner text is byte-identical to what
+          // was previously concatenated into buf, so the JOIN-INVARIANT is
+          // preserved EXACTLY — the content just moves into its own dedicated
+          // segment instead of the regular buffer.
           if (buf.length > 0) {
             segments.push({ text: buf, bold: false, italic: false });
             buf = '';
@@ -605,11 +605,11 @@ window.PDFExport = (function () {
     return segments;
   }
 
-  // Phase 46 (46-02): parseInlineBold retained as an ALIAS of the extended
-  // parseInline so any caller/test referencing the historical name keeps working.
-  // parseInline is the canonical name (emits {text, bold, italic}); the italic
-  // flag is the only addition — bold/regular segments are byte-identical to the
-  // Phase 45 shape aside from the new italic:false property.
+  // parseInlineBold retained as an ALIAS of the extended parseInline so any
+  // caller/test referencing the historical name keeps working. parseInline is
+  // the canonical name (emits {text, bold, italic}); the italic flag is the only
+  // addition — bold/regular segments are byte-identical to the previous shape
+  // aside from the new italic:false property.
   var parseInlineBold = parseInline;
 
   /**
@@ -645,10 +645,10 @@ window.PDFExport = (function () {
       var sliceStart = Math.max(0, startIdx - segStart);
       var sliceEnd = Math.min(seg.text.length, endIdx - segStart);
       if (sliceEnd <= sliceStart) continue;
-      // Phase 46 (46-02, D-13): propagate the italic flag through the clip, not
-      // just bold — otherwise drawSegmentedLine (which now reads seg.italic to
-      // build styleByLogical) would render every clipped italic run as normal,
-      // silently dropping true italic on every wrapped paragraph/list sub-line.
+      // Propagate the italic flag through the clip, not just bold — otherwise
+      // drawSegmentedLine (which now reads seg.italic to build styleByLogical)
+      // would render every clipped italic run as normal, silently dropping true
+      // italic on every wrapped paragraph/list sub-line.
       out.push({ text: seg.text.slice(sliceStart, sliceEnd), bold: seg.bold, italic: seg.italic });
     }
     return out;
@@ -1072,11 +1072,11 @@ window.PDFExport = (function () {
         var line = '';
         for (var si = 0; si < segments.length; si++) line += segments[si].text;
         if (line.length === 0) return;
-        // Phase 46 (46-02, D-13): styleByLogical encodes the per-code-unit style as
-        // 0=normal / 1=bold / 2=italic (parallel to the historical weightByLogical,
-        // which stays 0/1 for bold). Runs now break when the STYLE changes (which
-        // subsumes a weight change), so an italic run is a distinct maximal run and
-        // gets setFont('Heebo','italic') — the vendored Rubik-Italic face registered
+        // styleByLogical encodes the per-code-unit style as 0=normal / 1=bold /
+        // 2=italic (parallel to the historical weightByLogical, which stays 0/1
+        // for bold). Runs now break when the STYLE changes (which subsumes a
+        // weight change), so an italic run is a distinct maximal run and gets
+        // setFont('Heebo','italic') — the vendored Rubik-Italic face registered
         // under family 'Heebo'. normal/bold are unchanged.
         var STYLE_NAME = ['normal', 'bold', 'italic'];
         var weightByLogical = new Uint8Array(line.length);

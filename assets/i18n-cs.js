@@ -516,7 +516,7 @@ window.I18N.cs = {
   "export.pdf.failed": "Nelze vygenerovat PDF. Zkuste znovu nebo st\u00E1hn\u011Bte jako textov\u00FD soubor.",
   "export.empty.body": "Toto sezen\u00ED zat\u00EDm nem\u00E1 obsah. Nejprve sezen\u00ED ulo\u017Ete.",
 
-  // Phase 46 \u2014 Panel n\u00E1stroj\u016F form\u00E1tovan\u00E9ho textu (rich-toolbar.js)
+  // Panel n\u00E1stroj\u016F form\u00E1tovan\u00E9ho textu (rich-toolbar.js)
   "toolbar.aria": "Form\u00E1tov\u00E1n\u00ED textu",
   "toolbar.bold": "Tu\u010Dn\u00E9 (Ctrl+B)",
   "toolbar.italic": "Kurz\u00EDva (Ctrl+I)",

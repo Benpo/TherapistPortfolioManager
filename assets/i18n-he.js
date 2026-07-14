@@ -516,7 +516,7 @@ window.I18N.he = {
   "export.pdf.failed": "לא ניתן ליצור PDF. יש לנסות שוב או להוריד כקובץ טקסט.",
   "export.empty.body": "אין עדיין תוכן במפגש זה. יש לשמור תחילה.",
 
-  // Phase 46 — סרגל עיצוב טקסט (rich-toolbar.js)
+  // סרגל עיצוב טקסט (rich-toolbar.js)
   "toolbar.aria": "עיצוב טקסט",
   "toolbar.bold": "מודגש (Ctrl+B)",
   "toolbar.italic": "נטוי (Ctrl+I)",

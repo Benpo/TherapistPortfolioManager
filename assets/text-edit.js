@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // text-edit.js — the rich-text toolbar's undo-safe edit primitive + pure string
-//   transforms. Phase 46 keystone (RESEARCH Pattern 1).
+//   transforms.
 //
 // OWNS: the SINGLE undo-safe insertion chokepoint `editInsert` (every
 //   programmatic textarea edit in the toolbar routes through it so the browser's
@@ -27,9 +27,9 @@
 //   range-replacing textarea method (the `set-range-text` sibling) LOOKS like
 //   the right replacement but ALSO wipes undo in Chrome/Safari — a future
 //   "cleanup" must NOT modernize editInsert into it or it silently breaks Ctrl+Z
-//   and the undo/redo buttons (D-11/D-20 depend on the native stack). That
+//   and the undo/redo buttons, which depend on the native stack. That
 //   undo-wiping identifier is deliberately kept OUT of this file as a literal
-//   token so the plan's source-assertion grep stays green. The transforms are
+//   token so a source grep asserting its absence stays green. The transforms are
 //   pure — no DOM, no regex backtracking hazards, linear scans over one note field.
 // ─────────────────────────────────────────────────────────────────────────────
 window.TextEdit = (function () {
@@ -43,7 +43,7 @@ window.TextEdit = (function () {
   var LIST_RE = /^\s*(?:[-*]|\d+\.)(?=\s|$)/;
   var INDENT = "  "; // 2 spaces = one nesting level (shared convention)
 
-  // ── The undo-safe insertion chokepoint (RESEARCH Pattern 1) ────────────────
+  // ── The undo-safe insertion chokepoint ─────────────────────────────────────
   // Select [start,end] then let `insertText` overwrite it. On the extremely rare
   // env where execCommand is unavailable (returns false), fall back to a value-
   // splice and MANUALLY re-dispatch a real bubbling `input` event so autoGrow +
@@ -83,7 +83,7 @@ window.TextEdit = (function () {
     return { value: value, selStart: selStart, selEnd: selEnd, replacement: rep };
   }
 
-  // ── Inline emphasis toggle (D-04) ──────────────────────────────────────────
+  // ── Inline emphasis toggle ─────────────────────────────────────────────────
   // marker is BOLD ("**") or ITALIC ("*"). Three cases, NEVER a doubled artifact:
   //  (a) selection already immediately surrounded by the marker → unwrap;
   //  (b) empty selection → insert one marker pair, caret placed BETWEEN them;
@@ -106,7 +106,7 @@ window.TextEdit = (function () {
     return result(applyReplacement(value, repWrap), repWrap, s + m, e + m);
   }
 
-  // ── List-marker insert (RTXT-01) ───────────────────────────────────────────
+  // ── List-marker insert ─────────────────────────────────────────────────────
   // Prefix the caret's line, at its leading-whitespace boundary, with the bullet
   // token ("- ") or the numbered token ("1. ").
   function insertListMarker(value, s, e, kind) {
@@ -140,7 +140,7 @@ window.TextEdit = (function () {
     return result(applyReplacement(value, rep), rep, ns, ne);
   }
 
-  // ── List mechanics (RTXT-03, RTXT-05, D-09/D-10/D-11) ──────────────────────
+  // ── List mechanics ─────────────────────────────────────────────────────────
   // Parse a list line into { lead, marker, ordinal, body } or null if the line
   // is not a list item. `body` is the text after the marker+whitespace ("" for a
   // marker-only line); `ordinal` is the typed number (null for a bullet). Uses
@@ -161,11 +161,10 @@ window.TextEdit = (function () {
   // autoFormatEnter(value, sel): the Enter-key list behavior.
   //  - non-list line          → null (caller lets the native Enter happen).
   //  - list line, EMPTY body:
-  //       top level (0 lead)  → remove the marker, exiting the list (D-10);
-  //       nested (>=2 lead)   → drop exactly ONE indent level (2 spaces) (D-10).
+  //       top level (0 lead)  → remove the marker, exiting the list;
+  //       nested (>=2 lead)   → drop exactly ONE indent level (2 spaces).
   //  - list line, NON-empty body → insert "\n" + same lead + the next marker so
-  //       the list continues (bullet reuses its token; ordered → ordinal+1)
-  //       (RTXT-03).
+  //       the list continues (bullet reuses its token; ordered → ordinal+1).
   function autoFormatEnter(value, sel) {
     var line = currentLine(value, sel);
     var parsed = parseListLine(line.text);
@@ -193,7 +192,7 @@ window.TextEdit = (function () {
   // indentLine(value, sel, dir): dir 'in' adds one indent level (2 spaces) at the
   // caret's line start; dir 'out' removes up to one level. Callers only invoke
   // this on list lines (Tab keeps native focus-move on non-list lines — no
-  // keyboard trap, D-09).
+  // keyboard trap).
   function indentLine(value, sel, dir) {
     var line = currentLine(value, sel);
     if (dir === "out") {
@@ -211,11 +210,11 @@ window.TextEdit = (function () {
   }
 
   // renumberOrderedBlock(value, sel): rewrite the contiguous list block around
-  // the caret so every ordered run reads 1..N PER nesting depth (D-11). The
-  // caret's intra-line offset is preserved across the rewrite (Pitfall 4). When
+  // the caret so every ordered run reads 1..N PER nesting depth. The
+  // caret's intra-line offset is preserved across the rewrite. When
   // the numbering is already correct the result is a NO-OP (unchanged value +
   // empty-length replacement) so the caller can skip editInsert entirely and not
-  // inflate the native undo stack on ordinary typing (issue 9 / D-20).
+  // inflate the native undo stack on ordinary typing.
   function renumberOrderedBlock(value, sel) {
     var lines = value.split("\n");
     var starts = [];
@@ -242,7 +241,7 @@ window.TextEdit = (function () {
 
     // Renumber each depth independently: a per-depth counter, cleared for any
     // DEEPER depth whenever we return to a shallower one, and reset by a bullet
-    // (a same-depth type flip starts a fresh ordered run — md-render GAP-45-03).
+    // (a same-depth type flip starts a fresh ordered run, matching md-render).
     var counters = {};
     var newLines = lines.slice();
     var changed = false;

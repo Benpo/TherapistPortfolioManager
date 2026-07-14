@@ -520,9 +520,9 @@ window.I18N.en = {
   "export.pdf.failed": "Could not generate PDF. Try again, or download as a text file instead.",
   "export.empty.body": "This session has no content yet. Save the session first.",
 
-  // Phase 46 — Rich-text toolbar (rich-toolbar.js). Icon-only buttons (D-14);
-  // meaning carried by these tooltip strings. Italic base copy is the contract
-  // of record (the PDF-fallback clause, if any, is appended by 46-06).
+  // Rich-text toolbar (rich-toolbar.js). Icon-only buttons; meaning carried by
+  // these tooltip strings. Italic base copy is the contract of record (a
+  // PDF-fallback clause, if any, is added in a later slice).
   "toolbar.aria": "Text formatting",
   "toolbar.bold": "Bold (Ctrl+B)",
   "toolbar.italic": "Italic (Ctrl+I)",

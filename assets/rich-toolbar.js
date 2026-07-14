@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// rich-toolbar.js — the focus-attached rich-text formatting toolbar (Phase 46).
+// rich-toolbar.js — the focus-attached rich-text formatting toolbar.
 //
 // OWNS: ONE shared, mountable toolbar element that docks IN FLOW directly above
 //   whichever registered note field currently has focus, hides when no
@@ -10,17 +10,16 @@
 //   The toolbar is docked with `insertAdjacentElement('beforebegin', field)` so
 //   it rides layout on scroll/resize/autogrow with ZERO coordinate math; only
 //   the transient heading dropdown popover uses physical getBoundingClientRect
-//   left/top (RTL-safe — never rect-derived logical inline insets; repo memory
-//   reference-rtl-logical-props-physical-coords).
+//   left/top (RTL-safe — never rect-derived logical inline insets).
 // PUBLIC SURFACE: window.RichToolbar — { mount(textareas, config), unmount(),
 //   refreshButtonState() }. mount is ADDITIVE: repeated calls with disjoint
 //   textarea sets all stay live (fields tracked in a shared Set/WeakMap like
 //   snippets.js bindTextarea); a second mount() NEVER discards earlier-
-//   registered fields, so 46-05's 7 note fields and 46-06's #exportEditor
+//   registered fields, so the seven note fields and the #exportEditor field
 //   coexist on the one shared toolbar instance.
-// DEPENDENCIES: window.TextEdit (46-01 — editInsert chokepoint + pure transforms;
+// DEPENDENCIES: window.TextEdit (editInsert chokepoint + pure transforms;
 //   every edit routes through it so a real input event reaches autoGrow +
-//   snippets, RTXT-09) and window.App.t (i18n tooltip strings). Both are reached
+//   snippets) and window.App.t (i18n tooltip strings). Both are reached
 //   via the explicit window. prefix because they live in other IIFEs.
 // CONSTRAINTS: FOCUS PRESERVATION is a hard precondition — every toolbar control
 //   binds `mousedown` with `ev.preventDefault()` (mirroring snippets.js:336-341)
@@ -33,8 +32,8 @@
 //   the input-event contract are preserved (grep-gated: zero direct value-
 //   assignment / range-replace API in this file). Positioned overlays use
 //   PHYSICAL left/top, never logical inline-inset props (RTL mirrors a rect
-//   wrongly — the literal logical-inset token is kept out of this file so the
-//   plan's zero-count source grep stays green).
+//   wrongly — the literal logical-inset token is kept out of this file so a
+//   source grep asserting its absence stays green).
 // ─────────────────────────────────────────────────────────────────────────────
 window.RichToolbar = (function () {
   "use strict";
@@ -97,7 +96,7 @@ window.RichToolbar = (function () {
     chevron: function () { return svg(["M6 9l6 6 6-6"], { strokeWidth: "2" }); },
   };
 
-  // ── Control spec (order + grouping per UI-SPEC Component Inventory) ─────────
+  // ── Control spec (order + grouping) ────────────────────────────────────────
   // Groups separated by hairline separators: [bold,italic] | [bullet,numbered]
   // | [heading dropdown] | [indent,outdent] | [undo,redo] | [preview].
   var GROUPS = [
@@ -123,7 +122,7 @@ window.RichToolbar = (function () {
     ],
   ];
 
-  // ── FOCUS PRESERVATION (issue 1/2 BLOCKER) ─────────────────────────────────
+  // ── FOCUS PRESERVATION ─────────────────────────────────────────────────────
   // Bind mousedown+preventDefault on EVERY toolbar control so the click commits
   // before the focused textarea can blur. Mirrors snippets.js:336-341. Bound
   // UNCONDITIONALLY — macOS desktop Safari does not focus buttons on click, so a
@@ -146,7 +145,7 @@ window.RichToolbar = (function () {
     btn.setAttribute("aria-label", title);
     btn.appendChild(ICONS[spec.icon]());
     // Keep focus on the field; run the action. `_dispatch` is filled by the
-    // inline-actions layer (Task 2) — until then controls preserve focus only.
+    // inline-actions layer — until then controls preserve focus only.
     bindPreserveFocus(btn, function () { _dispatch(spec.action, btn); });
     return btn;
   }
@@ -210,7 +209,7 @@ window.RichToolbar = (function () {
 
   // ── Focus tracking + in-flow docking ───────────────────────────────────────
   // Dock the single toolbar IN FLOW above the focused field so it rides layout
-  // on scroll/resize/autogrow with zero coordinate math (issue 3). Do NOT use
+  // on scroll/resize/autogrow with zero coordinate math. Do NOT use
   // fixed getBoundingClientRect coords for the bar — that detaches on the first
   // scroll of an autogrowing field.
   function dockTo(textarea) {
@@ -273,7 +272,7 @@ window.RichToolbar = (function () {
   // Apply a pure TextEdit transform through the undo-safe editInsert chokepoint,
   // then restore the transform's expected caret/selection. NEVER touches
   // textarea.value directly, so the native undo stack + the input event autoGrow
-  // and snippets observe (RTXT-09) are both preserved.
+  // and snippets observe are both preserved.
   function applyTransform(ta, tr) {
     if (!tr || !tr.replacement) return;
     var r = tr.replacement;
@@ -282,13 +281,13 @@ window.RichToolbar = (function () {
     refreshButtonState();
   }
 
-  // Bold/italic share full toggle semantics (D-04) via TextEdit.toggleWrap:
+  // Bold/italic share full toggle semantics via TextEdit.toggleWrap:
   // wrap / unwrap / insert-pair-with-caret-between — never a doubled marker.
   function doEmphasis(ta, marker) {
     applyTransform(ta, window.TextEdit.toggleWrap(ta.value, ta.selectionStart, ta.selectionEnd, marker));
   }
 
-  // Desktop-only gate for Ctrl/Cmd+B/I (D-02) — on touch the buttons are the
+  // Desktop-only gate for Ctrl/Cmd+B/I — on touch the buttons are the
   // sole formatting affordance, so no keyboard shortcut is bound there.
   function isCoarsePointer() {
     try {
@@ -296,7 +295,7 @@ window.RichToolbar = (function () {
     } catch (e) { return false; }
   }
 
-  // ── Active-state: reflect the caret/selection format (D-04) ────────────────
+  // ── Active-state: reflect the caret/selection format ───────────────────────
   function currentLineText(value, sel) {
     var start = value.lastIndexOf("\n", sel - 1) + 1;
     var end = value.indexOf("\n", sel);
@@ -365,7 +364,7 @@ window.RichToolbar = (function () {
     _headingMenuEl = menu;
 
     // Position with PHYSICAL left/top from getBoundingClientRect (RTL-safe —
-    // a rect-derived logical inline inset mirrors wrongly in RTL; repo memory).
+    // a rect-derived logical inline inset mirrors wrongly in RTL).
     var rect = trigger.getBoundingClientRect();
     menu.style.left = rect.left + "px";
     menu.style.top = (rect.bottom + 4) + "px";
@@ -405,18 +404,18 @@ window.RichToolbar = (function () {
       case "numberedList": applyTransform(ta, TE.insertListMarker(ta.value, ta.selectionStart, ta.selectionEnd, "ol")); break;
       case "indent": applyTransform(ta, TE.indentLine(ta.value, ta.selectionStart, "in")); break;
       case "outdent": applyTransform(ta, TE.outdentLine(ta.value, ta.selectionStart)); break;
-      // Native undo/redo (D-20). Works ONLY because every control preserves
+      // Native undo/redo. Works ONLY because every control preserves
       // focus (mousedown+preventDefault) so execCommand targets the field.
-      // Single-quoted execCommand so the plan's source-assertion grep matches
-      // real code, not just a comment (mirrors the 46-01 quote-style alignment).
+      // Single-quoted execCommand so a source grep asserting its presence
+      // matches real code, not just a comment.
       case "undo": ta.focus(); document.execCommand('undo'); refreshButtonState(); break;
       case "redo": ta.focus(); document.execCommand('redo'); refreshButtonState(); break;
       case "heading": toggleHeadingMenu(el); break;
-      case "preview": /* live preview pane is wired in 46-04 (same module) */ break;
+      case "preview": /* live preview pane ships in a later slice of this module */ break;
     }
   }
 
-  // Desktop-only Ctrl/Cmd+B/I (D-02). Ctrl+Z / Ctrl+Shift+Z are intentionally
+  // Desktop-only Ctrl/Cmd+B/I. Ctrl+Z / Ctrl+Shift+Z are intentionally
   // NOT intercepted — they drive the SAME native undo stack the buttons use.
   function onFieldKeyDown(ev) {
     if (isCoarsePointer()) return;
@@ -428,8 +427,8 @@ window.RichToolbar = (function () {
 
   // ── Public: mount (ADDITIVE) ───────────────────────────────────────────────
   // Register each passed textarea into the shared Set/WeakMap and attach focus
-  // listeners. A second mount() with a disjoint set leaves earlier fields live
-  // (issue 4). config.headings gates the Text-style dropdown (both call sites
+  // listeners. A second mount() with a disjoint set leaves earlier fields live.
+  // config.headings gates the Text-style dropdown (both call sites
   // pass true, so one shared config suffices; first mount wins the toolbar DOM).
   function mount(textareas, config) {
     if (typeof document === "undefined") return;

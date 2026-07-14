@@ -5337,15 +5337,15 @@ html[dir="rtl"] .multi-select-toggle {
 }
 
 /* =================================================================
-   Phase 46 — Rich-text formatting toolbar (rich-toolbar.js)
+   Rich-text formatting toolbar (rich-toolbar.js)
    =================================================================
    ONE shared, focus-attached bar docked IN FLOW above the focused
-   note field. Chrome consumes EXISTING semantic tokens only (UI-SPEC
-   introduces zero new colors): surface --color-surface, hairline
+   note field. Chrome consumes EXISTING semantic tokens only (zero
+   new colors introduced): surface --color-surface, hairline
    --color-border, idle icon --color-text, active --color-primary,
    focus-visible primary outline (reusing the .header-icon-btn idiom).
    Mobile: 44×44 touch targets, horizontally scrollable on overflow
-   (no wrap, no reflow of the field below — D-02). Coexists with the
+   (no wrap, no reflow of the field below). Coexists with the
    snippets popover at the --z-popover layer without stealing it.
    ================================================================= */
 .rich-toolbar {

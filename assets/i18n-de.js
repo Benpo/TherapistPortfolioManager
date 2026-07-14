@@ -516,7 +516,7 @@ window.I18N.de = {
   "export.pdf.failed": "PDF konnte nicht erstellt werden. Versuchen Sie es erneut oder laden Sie als Textdatei herunter.",
   "export.empty.body": "Diese Sitzung enth\u00E4lt noch keinen Inhalt. Speichern Sie sie zuerst.",
 
-  // Phase 46 \u2014 Rich-Text-Symbolleiste (rich-toolbar.js)
+  // Rich-Text-Symbolleiste (rich-toolbar.js)
   "toolbar.aria": "Textformatierung",
   "toolbar.bold": "Fett (Strg+B)",
   "toolbar.italic": "Kursiv (Strg+I)",

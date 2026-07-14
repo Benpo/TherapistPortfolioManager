@@ -1,16 +1,16 @@
 /**
- * Phase 46 Plan 01 Task 1 — behavior tests for window.TextEdit's undo-safe
- * insertion chokepoint (editInsert) + the inline/heading pure transforms
- * (currentLine, toggleWrap, insertListMarker, applyHeading).
+ * Behavior tests for window.TextEdit's undo-safe insertion chokepoint
+ * (editInsert) + the inline/heading pure transforms (currentLine, toggleWrap,
+ * insertListMarker, applyHeading).
  *
  * Pure-function test: loads assets/text-edit.js in a vm sandbox and reads the
  * helpers from window.TextEdit.__testExports (mirrors the tests/24-04 loader
  * idiom for window.Snippets.__testExports). No jsdom needed for the pure fns.
  *
- * Run: node tests/46-text-edit.test.js
+ * Run: node tests/text-edit.test.js
  * Exits 0 on full pass, 1 on any failure.
  *
- * Covers RTXT-01 (marker insert + heading) and D-04 (toggle with no doubled
+ * Covers marker insert + heading, and the emphasis toggle (no doubled
  * marker artifact on empty selection; round-trip unwrap).
  */
 
@@ -217,7 +217,7 @@ test('editInsert primary path uses execCommand insertText (no value-splice)', ()
 });
 
 // --- Summary ---------------------------------------------------------------
-console.log('\n46-text-edit: ' + passed + ' passed, ' + failed + ' failed');
+console.log('\ntext-edit: ' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed === 0 ? 0 : 1);
 
 // Global (Node) instances of the Event constructor: editInsert's fallback uses

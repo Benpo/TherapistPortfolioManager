@@ -1,10 +1,10 @@
 // Rubik Italic -- subset Hebrew + Latin ITALIC face (vendored so exported-PDF italic runs get TRUE slanted glyphs; Heebo has no italic face and jsPDF cannot synthesize slant) -- SIL OFL 1.1
 // Source: https://fonts.google.com/specimen/Rubik (Rubik-Italic[wght].ttf variable, instanced to wght=400 then subset)
 // Upstream: https://github.com/google/fonts/tree/main/ofl/rubik (Rubik-Italic[wght].ttf, downloaded 2026-07-14 from google/fonts main)
-// Vendored 2026-07-14 for Phase 46 Plan 46-02 (D-13: TRUE italic glyphs in PDF export, Latin AND Hebrew; registered under family 'Heebo' style 'italic').
+// Vendored 2026-07-14 to give exported PDFs TRUE italic glyphs, Latin AND Hebrew, registered under family 'Heebo' style 'italic'.
 // Produced with fonttools 4.62.1: python3 -m fontTools.varLib.instancer 'Rubik-Italic[wght].ttf' wght=400, then pyftsubset --unicodes=U+0020-007E,U+00A0-00FF,U+0100-017F,U+0590-05FF,U+2000-206F,U+20AA --layout-features=ccmp,mark,mkmk,kern,liga,locl,rlig --no-glyph-names --no-hinting --desubroutinize
 // Glyph coverage verified: Latin Basic (52 letters + 10 digits), Latin-1 supplement, Latin Extended-A, Hebrew block U+0590-05FF (27 letters alef-tav + 17 nikud/points), General punctuation U+2000-206F, shekel U+20AA. italic angle -12 deg; OS/2 weight 400; ITALIC flags set.
-// Payload: 64260 TTF bytes -> 85680 base64 chars (~83.7 KB) -- GREEN (<= ~90 KB, D-13 feasibility gate).
+// Payload: 64260 TTF bytes -> 85680 base64 chars (~83.7 KB) -- within the ~90 KB size budget.
 // Consumed by pdf-export.js via:
 //   doc.addFileToVFS("RubikItalic.ttf", the RubikItalic global below);
 //   doc.addFont("RubikItalic.ttf", "Heebo", "italic");   // registered UNDER family Heebo so setFont("Heebo","italic") picks the slanted face; normal/bold stay Heebo

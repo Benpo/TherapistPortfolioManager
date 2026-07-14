@@ -1,16 +1,16 @@
 /**
- * Phase 46 Plan 01 Task 2 — behavior tests for window.TextEdit's list-mechanics
- * pure transforms: autoFormatEnter (continue/exit/outdent), indentLine /
- * outdentLine, and renumberOrderedBlock.
+ * Behavior tests for window.TextEdit's list-mechanics pure transforms:
+ * autoFormatEnter (continue/exit/outdent), indentLine / outdentLine, and
+ * renumberOrderedBlock.
  *
  * Pure-function test: loads assets/text-edit.js in a vm sandbox and reads the
  * helpers from window.TextEdit.__testExports (tests/24-04 loader idiom).
  *
- * Run: node tests/46-list-mechanics.test.js  (exit 0 pass, 1 fail)
+ * Run: node tests/list-mechanics.test.js  (exit 0 pass, 1 fail)
  *
- * Covers RTXT-03 (continuation/exit), RTXT-05 + D-11 (renumber per nesting
- * depth), D-09/D-10 (indent unit = 2 spaces; single-level outdent), and issue 9
- * (no-op renumber lets the caller skip editInsert).
+ * Covers list continuation/exit, per-nesting-depth renumber, the indent unit
+ * (2 spaces; single-level outdent), and the no-op renumber that lets the caller
+ * skip editInsert.
  */
 
 'use strict';
@@ -166,5 +166,5 @@ test('no-op: an already-correct 1..N block returns unchanged + empty replacement
   assert.strictEqual(r.replacement.text, '', 'no text to insert');
 });
 
-console.log('\n46-list-mechanics: ' + passed + ' passed, ' + failed + ' failed');
+console.log('\nlist-mechanics: ' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed === 0 ? 0 : 1);
