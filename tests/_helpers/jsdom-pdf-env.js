@@ -91,6 +91,13 @@ function buildJsdomEnv(options) {
   win.eval(readAsset('assets/bidi.min.js'));
   win.eval(readAsset('assets/fonts/heebo-base64.js'));
   win.eval(readAsset('assets/fonts/heebo-bold-base64.js'));
+  // Phase 46 (46-02, D-13): define window.RubikItalic by evaluating the vendored
+  // italic module directly — same rationale as the icon global below. pdf-export's
+  // ensureDeps added a rubik-italic loadScriptOnce step; without the global present
+  // its isReady predicate returns false and ensureDeps appends an unresolvable
+  // <script> (jsdom never fires onload), hanging buildSessionPDF forever. The
+  // already-present global short-circuits that step (mirrors the Heebo steps).
+  win.eval(readAsset('assets/fonts/rubik-italic-base64.js'));
   // Phase 34 (34-06, D-05/FN-3): define window.IconLogoBase64 by evaluating the
   // vendored logo module directly into the window — mirroring how the libs above
   // are eval'd. This makes harness-built PDFs include the real embedded logo

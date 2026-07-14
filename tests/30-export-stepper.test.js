@@ -73,6 +73,10 @@ function loadRealPdf(win) {
   win.eval(readAsset('assets/bidi.min.js'));
   win.eval(readAsset('assets/fonts/heebo-base64.js'));
   win.eval(readAsset('assets/fonts/heebo-bold-base64.js'));
+  // Phase 46 (46-02, D-13): eval the vendored Rubik-Italic module so
+  // window.RubikItalic is present — ensureDeps added a rubik-italic loadScriptOnce
+  // step whose isReady predicate short-circuits on this global (mirrors Heebo).
+  win.eval(readAsset('assets/fonts/rubik-italic-base64.js'));
   // pdf-export.js's ensureDeps lazy-loads its vendored scripts via
   // loadScriptOnce, which resolves immediately ONLY when a matching
   // <script src="..."> already exists in the DOM. In jsdom an appended external
@@ -80,7 +84,8 @@ function loadRealPdf(win) {
   // the exact srcs ensureDeps requests (mirrors the green PDF tests) so the
   // already-eval'd globals satisfy the dep-load and buildSessionPDF resolves.
   ['./assets/jspdf.min.js', './assets/bidi.min.js',
-   './assets/fonts/heebo-base64.js', './assets/fonts/heebo-bold-base64.js']
+   './assets/fonts/heebo-base64.js', './assets/fonts/heebo-bold-base64.js',
+   './assets/fonts/rubik-italic-base64.js']
     .forEach(function (src) {
       var s = win.document.createElement('script');
       s.src = src;

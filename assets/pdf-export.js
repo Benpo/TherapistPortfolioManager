@@ -149,6 +149,15 @@ window.PDFExport = (function () {
           return typeof window.HeeboBold === 'string' && window.HeeboBold.length > 0;
         });
       }).then(function () {
+        // Phase 46 (46-02, D-13): Rubik-Italic (subset Latin + Hebrew, wght 400)
+        // loaded after Heebo Bold -- registered under family 'Heebo' style 'italic'
+        // so setFont('Heebo','italic') selects TRUE slanted glyphs (Heebo has no
+        // italic face; jsPDF cannot synthesize slant). isReady predicate mirrors
+        // the heebo steps so headless/jsdom resolves synchronously (no hang).
+        return loadScriptOnce('./assets/fonts/rubik-italic-base64.js', function () {
+          return typeof window.RubikItalic === 'string' && window.RubikItalic.length > 0;
+        });
+      }).then(function () {
         // Phase 34 (34-06, D-05/FN-3): make the embedded-logo base64 module
         // (window.IconLogoBase64, vendored by 34-01) available for the header
         // band. The logo is OPTIONAL (drawHeaderBand guards the global and omits
@@ -259,6 +268,16 @@ window.PDFExport = (function () {
     if (typeof window.HeeboBold === "string" && window.HeeboBold.length > 0) {
       doc.addFileToVFS("HeeboBold.ttf", window.HeeboBold);
       doc.addFont("HeeboBold.ttf", "Heebo", "bold");
+    }
+    // Phase 46 (46-02, D-13): Rubik-Italic registered under the SAME family
+    // ('Heebo') with style='italic'. Heebo ships no italic face and jsPDF cannot
+    // synthesize slant, so italic runs get a vendored slanted face transparently
+    // via setFont('Heebo', 'italic') -- normal/bold stay Heebo, the family name
+    // never changes, and the Phase 23 bidi pipeline is untouched. Safe-no-op when
+    // window.RubikItalic is missing (mirrors the Regular/Bold guards above).
+    if (typeof window.RubikItalic === "string" && window.RubikItalic.length > 0) {
+      doc.addFileToVFS("RubikItalic.ttf", window.RubikItalic);
+      doc.addFont("RubikItalic.ttf", "Heebo", "italic");
     }
   }
 
@@ -493,7 +512,7 @@ window.PDFExport = (function () {
     return ch === '' || /\s/.test(ch);
   }
 
-  function parseInlineBold(text) {
+  function parseInline(text) {
     if (!text) return [];
     var segments = [];
     var n = text.length;
@@ -527,7 +546,7 @@ window.PDFExport = (function () {
               !isEmphSpace(boldInner.charAt(boldInner.length - 1))) {
             // Emit pending regular buffer.
             if (buf.length > 0) {
-              segments.push({ text: buf, bold: false });
+              segments.push({ text: buf, bold: false, italic: false });
               buf = '';
             }
             // Inner-italic strip inside the bold span. With the "*"-free content
@@ -535,7 +554,7 @@ window.PDFExport = (function () {
             // and hardened in LOCKSTEP with stripInlineMarkdown's rule so the two
             // stay character-identical (WARNING 4 / the pdf-export.js:504 site).
             var inner = boldInner.replace(/(^|[^*])\*([^*\s\n](?:[^*\n]*?[^*\s\n])?)\*(?!\*)/g, '$1$2');
-            segments.push({ text: inner, bold: true });
+            segments.push({ text: inner, bold: true, italic: false });
             i = close + 2;
             continue;
           }
@@ -544,8 +563,8 @@ window.PDFExport = (function () {
         }
         // Unmatched `**` — fall through to literal handling.
       }
-      // Italic single `*X*`: strip but DO NOT emit an italic segment — content
-      // is folded into the surrounding regular buffer.
+      // Italic single `*X*`: Phase 46 (46-02, D-13) now emits a TRUE italic
+      // segment (previously folded into the surrounding regular buffer, Phase 45).
       // Phase 45 (45-02, D-08): the marker must HUG non-whitespace — the char
       // after the opening `*` and before the closing `*` must both be non-ws, and
       // the content must hold no inner `*` — mirroring stripInlineMarkdown's rule
@@ -565,7 +584,15 @@ window.PDFExport = (function () {
         if (iclose > i + 1 &&
             !isEmphSpace(text.charAt(iclose - 1)) &&          // closing hugs non-ws
             text.slice(i + 1, iclose).indexOf('*') === -1) {  // no inner star
-          buf += text.slice(i + 1, iclose);
+          // Phase 46 (46-02, D-13): emit an italic:true segment. The inner text is
+          // byte-identical to what Phase 45 concatenated into buf, so the
+          // JOIN-INVARIANT is preserved EXACTLY (T-45-03) — the content just moves
+          // into its own dedicated segment instead of the regular buffer.
+          if (buf.length > 0) {
+            segments.push({ text: buf, bold: false, italic: false });
+            buf = '';
+          }
+          segments.push({ text: text.slice(i + 1, iclose), bold: false, italic: true });
           i = iclose + 1;
           continue;
         }
@@ -574,9 +601,16 @@ window.PDFExport = (function () {
       buf += text.charAt(i);
       i++;
     }
-    if (buf.length > 0) segments.push({ text: buf, bold: false });
+    if (buf.length > 0) segments.push({ text: buf, bold: false, italic: false });
     return segments;
   }
+
+  // Phase 46 (46-02): parseInlineBold retained as an ALIAS of the extended
+  // parseInline so any caller/test referencing the historical name keeps working.
+  // parseInline is the canonical name (emits {text, bold, italic}); the italic
+  // flag is the only addition — bold/regular segments are byte-identical to the
+  // Phase 45 shape aside from the new italic:false property.
+  var parseInlineBold = parseInline;
 
   /**
    * Phase 23 (23-12): clip a segment array to a logical character range.
@@ -1034,38 +1068,51 @@ window.PDFExport = (function () {
         var line = '';
         for (var si = 0; si < segments.length; si++) line += segments[si].text;
         if (line.length === 0) return;
+        // Phase 46 (46-02, D-13): styleByLogical encodes the per-code-unit style as
+        // 0=normal / 1=bold / 2=italic (parallel to the historical weightByLogical,
+        // which stays 0/1 for bold). Runs now break when the STYLE changes (which
+        // subsumes a weight change), so an italic run is a distinct maximal run and
+        // gets setFont('Heebo','italic') — the vendored Rubik-Italic face registered
+        // under family 'Heebo'. normal/bold are unchanged.
+        var STYLE_NAME = ['normal', 'bold', 'italic'];
         var weightByLogical = new Uint8Array(line.length);
+        var styleByLogical = new Uint8Array(line.length);
         var off = 0;
         for (var si2 = 0; si2 < segments.length; si2++) {
           var seg = segments[si2];
           var w = seg.bold ? 1 : 0;
-          for (var k = 0; k < seg.text.length; k++) weightByLogical[off + k] = w;
+          var st = seg.bold ? 1 : (seg.italic ? 2 : 0);
+          for (var k = 0; k < seg.text.length; k++) {
+            weightByLogical[off + k] = w;
+            styleByLogical[off + k] = st;
+          }
           off += seg.text.length;
         }
         var shaped = shapeForJsPdfWithMap(line);
         var visual = shaped.visual;
         var v2l = shaped.visualToLogicalMap;
-        // Walk visual positions, collect maximal contiguous runs by weight.
+        // Walk visual positions, collect maximal contiguous runs by style.
         var runs = [];
         var vn = visual.length;
         var runStart = 0;
-        var runWeight = weightByLogical[v2l[0]];
+        var runStyle = styleByLogical[v2l[0]];
         for (var vp = 1; vp < vn; vp++) {
-          var wv = weightByLogical[v2l[vp]];
-          if (wv !== runWeight) {
-            runs.push({ text: visual.slice(runStart, vp), bold: runWeight === 1 });
+          var sv = styleByLogical[v2l[vp]];
+          if (sv !== runStyle) {
+            runs.push({ text: visual.slice(runStart, vp), style: runStyle });
             runStart = vp;
-            runWeight = wv;
+            runStyle = sv;
           }
         }
-        runs.push({ text: visual.slice(runStart, vn), bold: runWeight === 1 });
-        // Measure each run's width at its own weight. doc.getStringUnitWidth
+        runs.push({ text: visual.slice(runStart, vn), style: runStyle });
+        // Measure each run's width at its own style. doc.getStringUnitWidth
         // depends on the currently-active font, so we setFont per run before
-        // measuring (and again before drawing).
+        // measuring (and again before drawing) — the family switch to the italic
+        // face is transparent because it is registered under family 'Heebo'.
         var widths = new Array(runs.length);
         var totalW = 0;
         for (var ri = 0; ri < runs.length; ri++) {
-          doc.setFont('Heebo', runs[ri].bold ? 'bold' : 'normal');
+          doc.setFont('Heebo', STYLE_NAME[runs[ri].style]);
           doc.setFontSize(size);
           widths[ri] = doc.getStringUnitWidth(runs[ri].text) * size;
           totalW += widths[ri];
@@ -1083,7 +1130,7 @@ window.PDFExport = (function () {
         // visual-shaped via shapeForJsPdfWithMap, and slicing the visual
         // string into runs preserves that property within each run.
         for (var rj = 0; rj < runs.length; rj++) {
-          doc.setFont('Heebo', runs[rj].bold ? 'bold' : 'normal');
+          doc.setFont('Heebo', STYLE_NAME[runs[rj].style]);
           doc.setFontSize(size);
           doc.text(runs[rj].text, x, y, { isInputVisual: false });
           x += widths[rj];
@@ -1591,7 +1638,7 @@ window.PDFExport = (function () {
             // Parse the raw item (which retains `**X**` markers per
             // parseMarkdown 23-12 change), wrap on the STRIPPED text, then
             // emit each wrapped sub-line via drawSegmentedLine.
-            var listSegments = parseInlineBold(itemText);
+            var listSegments = parseInline(itemText);
             var listStripped = '';
             for (var lsi = 0; lsi < listSegments.length; lsi++) listStripped += listSegments[lsi].text;
             // Phase 45 (45-02): wrap within the narrower column left by the nest
@@ -1739,7 +1786,7 @@ window.PDFExport = (function () {
           doc.setFont("Heebo", "normal");
           doc.setFontSize(BODY_SIZE);
           setInk(COLOR_BODY_INK); // Phase 34 (34-07, D-07): body ink #2f2d38
-          var paraSegments = parseInlineBold(block.text);
+          var paraSegments = parseInline(block.text);
           var paraStripped = '';
           for (var psi = 0; psi < paraSegments.length; psi++) paraStripped += paraSegments[psi].text;
           var paraLines = doc.splitTextToSize(paraStripped, USABLE_W);
@@ -2133,6 +2180,7 @@ window.PDFExport = (function () {
     // production callers use buildSessionPDF only.
     __test: {
       stripInlineMarkdown: stripInlineMarkdown,
+      parseInline: parseInline,
       parseInlineBold: parseInlineBold,
       parseMarkdown: parseMarkdown
     }

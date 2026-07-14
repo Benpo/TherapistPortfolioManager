@@ -98,6 +98,21 @@ When that happens, the developer who made the legitimate change MUST follow this
 If a Phase 24+ change unexpectedly fails the regression check, that's the smoke alarm —
 investigate the layout/text/font cause before regenerating. The hashes are gates, not data.
 
+## Regeneration history
+
+- **Phase 46 Plan 46-02 (D-13, RTXT-05) — 2026-07-14.** All 5 baselines regenerated after
+  `registerFonts` began registering the vendored subset Rubik-Italic face under family
+  `'Heebo'` style `'italic'` (true PDF italic for Latin + Hebrew). The registration is
+  unconditional (mirrors the always-registered Heebo Bold), so jsPDF embeds the italic font
+  descriptor into every exported PDF — adding ~6.3 KB even to italic-free sessions and thus
+  shifting every fixture hash. **Byte-neutrality was proven before regenerating:** with the
+  Rubik registration temporarily disabled but ALL other 46-02 changes active (the
+  `loadScriptOnce` rubik step, `parseInline`'s `{text,bold,italic}` emission, and
+  `drawSegmentedLine`'s `styleByLogical` run model), all 5 fixtures hashed byte-identical to
+  the pre-46 baseline — confirming the ONLY drift is the intended font registration. None of
+  these 5 fixtures contains italic markers, so their glyph content is unchanged; only the
+  embedded font table grew.
+
 ## Phase 23 plan IDs
 
 This regression suite was landed by **Plan 23-04** as the closer for UAT statement T3.
