@@ -78,10 +78,12 @@ existing button/keydown handlers; pure transforms untouched. Design goal: one un
 per toolbar action; typing grouped into small human-scale units (e.g., per line/pause).
 Failing target recorded: desktop browser (granularity UX), reported before the iOS matrix ran.
 
-### Gap 4 — Preview toggle needs a text label, both surfaces (severity: medium)
+### Gap 4 — Preview toggle needs label + icon, both surfaces (severity: medium)
 status: failed
-Icon-only eye button is insufficient on note fields AND export. Needs visible text —
-"Preview"/"Edit" swap label or better. Applies wherever the toggle appears.
+Icon-only eye button is insufficient on note fields AND export. Ben's spec (2026-07-14):
+label AND icon, showing the TARGET state — eye icon + "Preview" while editing (switches
+to view), pencil icon + "Edit" while previewing (switches back). Applies wherever the
+toggle appears.
 
 ### Gap 5 — SW precache omission: new modules bypassed the update pipeline (severity: high)
 status: resolved
@@ -91,11 +93,13 @@ d88af87 list fix never reached Ben's device despite PWA restarts + cache clear, 
 use would 404 them. Fixed in be7877b (precache both; APP_VERSION → 1.4.0 release bump).
 Forward lesson: any plan adding a shipped asset must add it to PRECACHE_URLS.
 
-### Gap 6 — Formatting tips block on export Step 2 (severity: low, CONFIRM with Ben)
+### Gap 6 — Remove the Formatting-tips accordion (severity: low, CONFIRMED by Ben)
 status: failed
-Ben: "the formatting tips are now expandable if we have the formatter as menu" — read as
-"expEndable" (redundant now the toolbar exists) → remove the tips accordion from Step 2.
-CONFIRM reading before executing; if he meant something else, re-scope.
+Confirmed 2026-07-14: the tips accordion is stale now the toolbar exposes every
+formatting affordance — remove it from export Step 2 (and from any other surface that
+carries it, if found during planning). The syntax reference itself survives in the help
+center (the 46-07 help update already documents formatting there); hand-typed markdown
+keeps working regardless.
 
 ### Gap 7 — Export content scope: emotions before/after must be opt-out (severity: medium, scope addition)
 status: failed
