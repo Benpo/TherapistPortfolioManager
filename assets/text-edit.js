@@ -140,27 +140,174 @@ window.TextEdit = (function () {
     return result(applyReplacement(value, rep), rep, ns, ne);
   }
 
-  // Public API + test seam. autoFormatEnter/indentLine/outdentLine/
-  // renumberOrderedBlock are attached in the list-mechanics section below.
-  var api = {
+  // ── List mechanics (RTXT-03, RTXT-05, D-09/D-10/D-11) ──────────────────────
+  // Parse a list line into { lead, marker, ordinal, body } or null if the line
+  // is not a list item. `body` is the text after the marker+whitespace ("" for a
+  // marker-only line); `ordinal` is the typed number (null for a bullet). Uses
+  // the SAME detection as md-render.js so continuation only fires on lines the
+  // renderer treats as list items.
+  function parseListLine(text) {
+    if (!LIST_RE.test(text)) return null;
+    var m = /^( *)([-*]|(\d+)\.)(?:\s+([\s\S]*))?$/.exec(text);
+    if (!m) return null;
+    return {
+      lead: m[1],
+      marker: m[2],
+      ordinal: m[3] !== undefined ? parseInt(m[3], 10) : null,
+      body: m[4] || "",
+    };
+  }
+
+  // autoFormatEnter(value, sel): the Enter-key list behavior.
+  //  - non-list line          → null (caller lets the native Enter happen).
+  //  - list line, EMPTY body:
+  //       top level (0 lead)  → remove the marker, exiting the list (D-10);
+  //       nested (>=2 lead)   → drop exactly ONE indent level (2 spaces) (D-10).
+  //  - list line, NON-empty body → insert "\n" + same lead + the next marker so
+  //       the list continues (bullet reuses its token; ordered → ordinal+1)
+  //       (RTXT-03).
+  function autoFormatEnter(value, sel) {
+    var line = currentLine(value, sel);
+    var parsed = parseListLine(line.text);
+    if (!parsed) return null;
+    if (parsed.body.length === 0) {
+      if (parsed.lead.length === 0) {
+        // Exit: strip the whole marker, leaving just the (empty) leading indent.
+        var repExit = { start: line.start, end: line.end, text: parsed.lead };
+        var caretExit = line.start + parsed.lead.length;
+        return result(applyReplacement(value, repExit), repExit, caretExit, caretExit);
+      }
+      // Outdent one level: remove the first two leading spaces of the line.
+      var repOut = { start: line.start, end: line.start + INDENT.length, text: "" };
+      var caretOut = Math.max(line.start, sel - INDENT.length);
+      return result(applyReplacement(value, repOut), repOut, caretOut, caretOut);
+    }
+    // Continue: newline + same indent + next marker.
+    var nextMarker = parsed.ordinal !== null ? (parsed.ordinal + 1) + ". " : parsed.marker + " ";
+    var insertion = "\n" + parsed.lead + nextMarker;
+    var repCont = { start: sel, end: sel, text: insertion };
+    var caretCont = sel + insertion.length;
+    return result(applyReplacement(value, repCont), repCont, caretCont, caretCont);
+  }
+
+  // indentLine(value, sel, dir): dir 'in' adds one indent level (2 spaces) at the
+  // caret's line start; dir 'out' removes up to one level. Callers only invoke
+  // this on list lines (Tab keeps native focus-move on non-list lines — no
+  // keyboard trap, D-09).
+  function indentLine(value, sel, dir) {
+    var line = currentLine(value, sel);
+    if (dir === "out") {
+      var lead = leadingSpaces(line.text);
+      var remove = Math.min(INDENT.length, lead.length);
+      var repOut = { start: line.start, end: line.start + remove, text: "" };
+      var caret = Math.max(line.start, sel - remove);
+      return result(applyReplacement(value, repOut), repOut, caret, caret);
+    }
+    var repIn = { start: line.start, end: line.start, text: INDENT };
+    return result(applyReplacement(value, repIn), repIn, sel + INDENT.length, sel + INDENT.length);
+  }
+  function outdentLine(value, sel) {
+    return indentLine(value, sel, "out");
+  }
+
+  // renumberOrderedBlock(value, sel): rewrite the contiguous list block around
+  // the caret so every ordered run reads 1..N PER nesting depth (D-11). The
+  // caret's intra-line offset is preserved across the rewrite (Pitfall 4). When
+  // the numbering is already correct the result is a NO-OP (unchanged value +
+  // empty-length replacement) so the caller can skip editInsert entirely and not
+  // inflate the native undo stack on ordinary typing (issue 9 / D-20).
+  function renumberOrderedBlock(value, sel) {
+    var lines = value.split("\n");
+    var starts = [];
+    var off = 0;
+    for (var i = 0; i < lines.length; i++) { starts.push(off); off += lines[i].length + 1; }
+
+    // Which line holds the caret?
+    var caretLine = lines.length - 1;
+    for (var c = 0; c < lines.length; c++) {
+      if (sel <= starts[c] + lines[c].length) { caretLine = c; break; }
+    }
+    function isLI(idx) { return idx >= 0 && idx < lines.length && LIST_RE.test(lines[idx]); }
+
+    // Anchor on the caret's line, or an immediately adjacent list line.
+    var anchor = caretLine;
+    if (!isLI(anchor)) {
+      if (isLI(anchor - 1)) anchor -= 1;
+      else if (isLI(anchor + 1)) anchor += 1;
+      else return noopRenumber(value, sel);
+    }
+    var top = anchor, bot = anchor;
+    while (isLI(top - 1)) top -= 1;
+    while (isLI(bot + 1)) bot += 1;
+
+    // Renumber each depth independently: a per-depth counter, cleared for any
+    // DEEPER depth whenever we return to a shallower one, and reset by a bullet
+    // (a same-depth type flip starts a fresh ordered run — md-render GAP-45-03).
+    var counters = {};
+    var newLines = lines.slice();
+    var changed = false;
+    var caretLineDelta = 0;
+    for (var j = top; j <= bot; j++) {
+      var ln = lines[j];
+      var depth = Math.floor(leadingSpaces(ln).length / 2);
+      for (var k in counters) { if (Number(k) > depth) delete counters[k]; }
+      var om = /^(\s*)(\d+)\.(?=\s|$)/.exec(ln);
+      if (om) {
+        counters[depth] = (counters[depth] || 0) + 1;
+        var newOrd = counters[depth];
+        var oldOrd = om[2];
+        if (String(newOrd) !== oldOrd) {
+          newLines[j] = ln.replace(/^(\s*)(\d+)\./, "$1" + newOrd + ".");
+          changed = true;
+          if (j === caretLine) caretLineDelta += (String(newOrd).length - oldOrd.length);
+        }
+      } else {
+        // Bullet (or non-ordered list item): reset this depth so a following
+        // ordered sibling run restarts at 1.
+        counters[depth] = 0;
+      }
+    }
+    if (!changed) return noopRenumber(value, sel);
+
+    var newValue = newLines.join("\n");
+    // Recompute the caret: its line start shifts by earlier lines' width changes
+    // (captured by rebuilding from newLines); within its own line, shift by that
+    // line's ordinal-width delta only if the caret sits after the ordinal.
+    var newLineStart = 0;
+    for (var p = 0; p < caretLine; p++) { newLineStart += newLines[p].length + 1; }
+    var caretInLine = sel - starts[caretLine];
+    var newCaretInLine = caretInLine + (caretInLine > 0 ? caretLineDelta : 0);
+    if (newCaretInLine < 0) newCaretInLine = 0;
+    var newCaret = newLineStart + newCaretInLine;
+
+    var blockStart = starts[top];
+    var blockEndOld = starts[bot] + lines[bot].length;
+    var rep = { start: blockStart, end: blockEndOld, text: newLines.slice(top, bot + 1).join("\n") };
+    return result(newValue, rep, newCaret, newCaret);
+  }
+  function noopRenumber(value, sel) {
+    return result(value, { start: sel, end: sel, text: "" }, sel, sel);
+  }
+
+  return {
     editInsert: editInsert,
     toggleWrap: toggleWrap,
     insertListMarker: insertListMarker,
     applyHeading: applyHeading,
+    autoFormatEnter: autoFormatEnter,
+    indentLine: indentLine,
+    outdentLine: outdentLine,
+    renumberOrderedBlock: renumberOrderedBlock,
     __testExports: {
       currentLine: currentLine,
       toggleWrap: toggleWrap,
       insertListMarker: insertListMarker,
       applyHeading: applyHeading,
+      autoFormatEnter: autoFormatEnter,
+      indentLine: indentLine,
+      outdentLine: outdentLine,
+      renumberOrderedBlock: renumberOrderedBlock,
+      parseListLine: parseListLine,
     },
   };
-
-  // Expose internals to the list-mechanics extension (same IIFE, appended below).
-  api.__internal = {
-    BOLD: BOLD, ITALIC: ITALIC, LIST_RE: LIST_RE, INDENT: INDENT,
-    currentLine: currentLine, leadingSpaces: leadingSpaces,
-    applyReplacement: applyReplacement, result: result,
-  };
-
-  return api;
 })();
