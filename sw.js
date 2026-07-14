@@ -84,6 +84,7 @@ const PRECACHE_URLS = [
   '/assets/bidi.min.js',
   '/assets/fonts/heebo-base64.js',
   '/assets/fonts/heebo-bold-base64.js',
+  '/assets/fonts/rubik-italic-base64.js',
   '/assets/snippets-seed.js',
   '/assets/snippets.js',
   '/assets/report.js',
