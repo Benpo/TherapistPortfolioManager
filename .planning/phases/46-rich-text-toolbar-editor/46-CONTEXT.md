@@ -46,6 +46,11 @@ The EDITING layer on top of Phase 45's proven rendering pipeline: a formatting t
 ### Process: UI gate (binding)
 - **D-19:** Detailed visual design (button order/grouping, icons, heading-selector presentation — dropdown vs. segmented, spacing, dark mode, RTL mirroring, snippets-button coexistence) is **delegated to the mandatory `/gsd-ui-phase` UI-SPEC**. The UI phase MUST deliver an **interactive (typable/clickable) HTML mockup** — toolbar, live preview, list mechanics feel, and BOTH Step-2 size directions — for Ben's sign-off **BEFORE planning**. Ben: "important to see the UI before accepting."
 
+### Mockup-gate outcomes (2026-07-14 — sketches 006/007, gate SATISFIED)
+- **D-16 RESOLVED:** Step 2 opens at **~50% of viewport by default** AND keeps a **visible maximize toggle to ~90%** (synthesis of directions (a)+(b)); 70%/80% candidates and current-size baseline rejected; mobile stays D-17 full-screen.
+- **Heading control RESOLVED:** compact **dropdown ("Text ▾")** on desktop AND mobile; segmented rejected (sketch 006 variant B).
+- **D-20 (NEW, Ben at sign-off):** the toolbar gains **undo/redo buttons** in the real implementation (deliberately not mocked). They must drive the **native undo stack** — viable precisely because D-11 already mandates undo-preserving edit APIs; on touch they are the ONLY undo affordance (no Ctrl+Z). Tooltips `Undo (Ctrl+Z)` / `Redo (Ctrl+Shift+Z)`, all four locales. If native-stack triggering proves unreliable in a target browser, fallback is a module-level undo stack — plan-phase research decides.
+
 ### Claude's Discretion
 - Toolbar DOM/positioning mechanism (beware the RTL overlay pitfall: `getBoundingClientRect` is physical — position with physical left/top, not logical inset-inline), preview render debounce, auto-format/renumber implementation approach (within the D-11 undo/caret constraint), selection APIs, i18n key naming (all new strings ship in EN/DE/HE/CS), info-note styling within existing tokens, Step-2 keyboard shortcut choice, exact feasibility thresholds for D-13 ("reasonable size/effort" — researcher proposes, Ben confirms at plan review).
 - Whether the rich-text toolbar gets a guided-tour step — per REQUIREMENTS Process Notes, decided at phase planning.

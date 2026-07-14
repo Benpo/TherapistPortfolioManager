@@ -2,9 +2,13 @@
 sketch: 007
 name: export-step2-size
 question: "Step-2 editing surface: bigger-by-default (50/70/80% candidates) or current size + maximize toggle to ~90%?"
-winner: null
+winner: "A (50%) + B's maximize"
 tags: [export, modal, sizing, phase-46]
 ---
+
+> **Winner: synthesis** (Ben, 2026-07-14) — Step 2 opens **bigger by default at ~50% of the
+> viewport** (variant A, 50% candidate) AND keeps **variant B's visible maximize toggle**
+> opening to ~90% in the real implementation. Mobile unchanged: D-17 full-screen takeover.
 
 # Sketch 007: Export Step-2 Size Directions (Phase 46, D-16)
 

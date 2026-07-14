@@ -1,7 +1,7 @@
 ---
 phase: 46
 slug: rich-text-toolbar-editor
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-07-14
@@ -102,6 +102,8 @@ Icon-only toolbar (language-independent, D-14); all meaning is in tooltips + the
 | Heading control tooltip | `Text style` (opens H1 / H2 / H3 / Regular text) |
 | Indent tooltip | `Indent (Tab)` |
 | Outdent tooltip | `Outdent (Shift+Tab)` |
+| Undo tooltip (D-20) | `Undo (Ctrl+Z)` |
+| Redo tooltip (D-20) | `Redo (Ctrl+Shift+Z)` |
 | Preview-toggle tooltip | `Preview` (active: `Hide preview`) |
 | Primary CTA | **None new.** Export modal keeps its existing `Continue` / `Export PDF`. The editor surfaces no page-level CTA. |
 | Empty state (preview pane, field empty) | Heading: `Nothing to preview yet` · Body: `Start typing to see the formatted result.` |
@@ -118,12 +120,12 @@ Icon-only toolbar (language-independent, D-14); all meaning is in tooltips + the
 | Component | Where | Spec |
 |-----------|-------|------|
 | **Focus-attached toolbar** | Single instance docked above the focused note field (7 fields: trappedEmotions, heartShieldEmotions, insights, limitingBeliefs, additionalTech, customerSummary, comments); hidden when no note field is focused (D-01). Mobile = same bar, compact, horizontally scrollable (D-02). | Surface `--color-surface`; hairline `--color-border` bottom/top; `--shadow-nav` optional; buttons per §Spacing; icon-only. |
-| **Toolbar buttons** | bold, italic, bullet-list, numbered-list, heading control, indent, outdent, preview-toggle | Idle `--color-text`; active/applied `--color-primary`; `:focus-visible` primary outline; 44×44 touch / ≥32px desktop. Full toggle semantics (D-04). |
-| **Heading-selector control** | in the toolbar | Presents **H1 / H2 / H3 / Regular text** (Phase-45 D-01 paragraph-style model). **Present BOTH a dropdown and a segmented variant in the mockup** for Ben's eyes-on pick (D-19); recommend the segmented/compact form on desktop and a compact dropdown on mobile to save the scrollable row. |
+| **Toolbar buttons** | bold, italic, bullet-list, numbered-list, heading control, indent, outdent, **undo, redo (D-20, added at mockup sign-off)**, preview-toggle | Idle `--color-text`; active/applied `--color-primary`; `:focus-visible` primary outline; 44×44 touch / ≥32px desktop. Full toggle semantics (D-04). Undo/redo drive the NATIVE undo stack (viable because D-11 mandates undo-preserving edit APIs); on touch they are the ONLY undo affordance (no Ctrl+Z). Undo/redo group sits before the preview toggle, separator-delimited. |
+| **Heading-selector control** | in the toolbar | Presents **H1 / H2 / H3 / Regular text** (Phase-45 D-01 paragraph-style model). **RESOLVED at the mockup gate (sketch 006, Ben 2026-07-14): compact dropdown ("Text ▾")** on desktop AND mobile; the segmented variant is rejected. Menu items preview their register (H1 17px/600 … Regular 1rem/400); popover positions with physical left/top at `--z-popover` level. |
 | **Live preview pane** | directly BELOW the focused textarea (D-05); per-field, on-demand, resets on blur (D-06/D-07) | **Reuse `.note-rendered`** for all rendered styling; render only through `MdRender.render` (never raw innerHTML). Debounced re-render (debounce value = discretion). Empty-state copy above. |
 | **Step-2 export editor (redesigned)** | export-modal Step 2 | Full toolbar incl. headings (D-03); keeps the **swap-style Edit/Preview switcher** (NOT a live pane — D-08), optional keyboard shortcut (discretion). Inner editor **flexes to fill** the modal (D-18) — no fixed `resize: vertical` textarea inside a fixed shell. |
 | **Step-2 info note** | top of Step 2 | Info-band using `--color-info-bg` / `--color-info-text`; icon + the D-03 copy; informational tone (not a warning). |
-| **Maximize affordance** (conditional) | Step-2 header — only if Ben picks Step-2 **direction (b)** | Toggle button opening the modal to ~90% with a rearranged maximized layout. |
+| **Maximize affordance** | Step-2 header, next to close | **Unconditional (mockup-gate pick 2026-07-14):** Step 2 opens at **~50% of viewport by default** and carries a clearly visible maximize toggle opening to **~90%** with a rearranged, roomier layout. |
 
 **Reused as-is (do NOT re-spec or restyle):**
 - `window.MdRender` (escape-first renderer) — preview + Step-2 switcher already consume it.
@@ -146,17 +148,13 @@ These are the behaviors the checker/executor treat as the visual+interaction sou
 6. **Preview (D-05/06/07):** eye/preview toggle in the toolbar; live pane below the field; per-field; state resets on blur (no stickiness).
 7. **Shortcuts scope (D-02):** Ctrl/Cmd+B/I on desktop only. On touch the toolbar is the ONLY formatting affordance — no keyboard-accessory bar.
 8. **Mobile Step-2 (D-17):** full-screen 100%×100% keyboard-aware takeover.
+9. **Undo/redo buttons (D-20, added at mockup sign-off):** toolbar undo/redo mirror native Ctrl/Cmd+Z / Ctrl/Cmd+Shift+Z over the SAME native undo stack — every programmatic edit (toggles, auto-format, renumber) must remain natively undoable (this extends, not replaces, the D-11 constraint). If native-stack triggering proves unreliable in a target browser, the fallback is a module-level undo stack — decided at plan-phase research, not here.
 
 ---
 
-## Step-2 Size Directions — BOTH required in the mockup (D-16)
+## Step-2 Size Directions — RESOLVED (D-16, mockup gate 2026-07-14)
 
-Ben is deliberately undecided; the UI-SPEC mandates the mockup present **both** as visual alternatives for his eyes-on pick:
-
-- **(a) Bigger-by-default** — Step 2 opens larger (candidates ~50 / 70 / 80% of viewport). Concerns to make visible: the size gap vs. the small Step 1, and the window must not read like a separate app.
-- **(b) Current size + visible maximize toggle** — Step 2 keeps ~today's size but adds a clearly visible maximize control opening to ~90% with a nicely rearranged maximized layout.
-
-Both must show a real toolbar, the Edit/Preview switcher, and enough vertical room to display (almost) a whole session with minimal scrolling. Mobile is fixed regardless: full-screen takeover (D-17).
+Ben's pick at sketch 007 is a **synthesis of both directions**: Step 2 opens **bigger by default at ~50% of the viewport** (direction (a), 50% candidate) AND carries **direction (b)'s clearly visible maximize toggle** (Step-2 header, next to close) opening to **~90%** with a rearranged, roomier layout. The 70%/80% bigger-by-default candidates and the current-size baseline are rejected. Mobile is unchanged: full-screen takeover (D-17).
 
 ---
 
@@ -169,6 +167,8 @@ The UI phase MUST deliver an **interactive (typable/clickable) HTML mockup** —
 - **both** Step-2 size directions (a) and (b).
 
 Ben's words: "important to see the UI before accepting." A static render does not satisfy this gate.
+
+**Gate status: SATISFIED 2026-07-14** — interactive sketches 006 (typable editor; 26 machine-verified interaction checks) and 007 (Step-2 sizing), commit `aaca6f8`. Ben's picks: **dropdown text-style control** (006 B), **Step-2 50%-by-default + maximize-to-90% synthesis** (007). One scope addition at sign-off: **undo/redo toolbar buttons (D-20)**, mirrored in 46-CONTEXT.md.
 
 ---
 
@@ -195,11 +195,11 @@ Repo memory `feedback-ui-checker-greenfield-false-positives.md`: the greenfield 
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS (FLAG accepted: no single "primary visual anchor" sentence — chrome-only phase, per-component detail carries it)
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** APPROVED — gsd-ui-checker 2026-07-14 (5 PASS / 1 non-blocking FLAG) + Ben's interactive-mockup sign-off 2026-07-14 (sketches 006/007). Post-approval amendments from the sign-off: heading control resolved to dropdown, D-16 resolved to 50%+maximize synthesis, D-20 undo/redo added.

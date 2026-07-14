@@ -2,9 +2,13 @@
 sketch: 006
 name: rich-text-toolbar-editor
 question: "Does the focus-attached toolbar + live preview + list mechanics feel right while typing — and text-style control: segmented or dropdown?"
-winner: null
+winner: "B"
 tags: [toolbar, editor, interaction, phase-46]
 ---
+
+> **Winner: B — dropdown text-style control ("Text ▾"), desktop + mobile** (Ben, 2026-07-14).
+> At sign-off Ben also added scope for the real implementation: **undo/redo toolbar buttons**
+> (not mocked here) — recorded as D-20 in 46-CONTEXT.md and in the UI-SPEC.
 
 # Sketch 006: Rich-Text Toolbar Editor (Phase 46, D-19 gate)
 

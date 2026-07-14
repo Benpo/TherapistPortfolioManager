@@ -246,12 +246,12 @@
 
 <div id="variant-nav">
   <span class="nav-title">007 · Step-2 size:</span>
-  <button class="variant-tab active" id="tabA" onclick="showVariant('a')">A: Bigger by default</button>
+  <button class="variant-tab active" id="tabA" onclick="showVariant('a')">A: Bigger by default ★ Selected (50% + B's maximize)</button>
   <button class="variant-tab" id="tabB" onclick="showVariant('b')">B: Current size + maximize toggle</button>
   <span class="size-chips show" id="sizeChips">
     <span class="lbl">size candidates:</span>
-    <button class="size-chip" onclick="setASize(50, this)">50%</button>
-    <button class="size-chip on" onclick="setASize(70, this)">70%</button>
+    <button class="size-chip on" onclick="setASize(50, this)">50% ★</button>
+    <button class="size-chip" onclick="setASize(70, this)">70%</button>
     <button class="size-chip" onclick="setASize(80, this)">80%</button>
   </span>
 </div>
@@ -275,7 +275,7 @@
   <!-- ═══ Variant A: bigger by default ═══ -->
   <div class="modal" id="modalA">
     <div class="modal-overlay" onclick="requestClose()"></div>
-    <div class="modal-card" id="cardA" style="--a-size:70%">
+    <div class="modal-card" id="cardA" style="--a-size:50%">
       <button class="modal-close" onclick="requestClose()" aria-label="Close">×</button>
       <h3 class="modal-title">Export Session</h3>
       <div class="step-indicator">
