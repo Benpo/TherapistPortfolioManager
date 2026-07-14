@@ -525,10 +525,37 @@
       });
     }
 
+    // Reflect the maximize toggle state onto the header button (icon-only, so the
+    // meaning lives in the title/aria-label, set here from i18n).
+    function updateMaximizeBtn(btn, isMax) {
+      if (!btn) return;
+      btn.setAttribute("aria-pressed", isMax ? "true" : "false");
+      const titleKey = isMax ? "export.restore" : "export.maximize";
+      const label = App.t(titleKey);
+      btn.title = label;
+      btn.setAttribute("aria-label", label);
+    }
+
     function exportSetActiveStep(n) {
       const modal = document.getElementById("exportModal");
       if (!modal) return;
       _exportState.currentStep = n;
+
+      // The roomy 50%/maximize/flex-fill sizing is gated to the editor step: turn
+      // it ON only while Step 2 is active so Steps 1/3 keep the natural card size,
+      // and surface the maximize toggle only there. Leaving Step 2 also drops any
+      // maximized state so re-entry always starts at the 50% default.
+      const card = modal.querySelector(".export-card");
+      const maximizeBtn = document.getElementById("exportMaximize");
+      const isEditorStep = n === 2;
+      if (card) {
+        card.classList.toggle("is-editor-step", isEditorStep);
+        if (!isEditorStep) card.classList.remove("is-maximized");
+      }
+      if (maximizeBtn) {
+        maximizeBtn.classList.toggle("is-hidden", !isEditorStep);
+        if (!isEditorStep) updateMaximizeBtn(maximizeBtn, false);
+      }
 
       modal.querySelectorAll(".export-step").forEach((stepEl) => {
         const stepNum = Number(stepEl.dataset.step);
@@ -872,6 +899,11 @@
       const downloadPdfBtn = document.getElementById("exportDownloadPdf");
       const downloadMdBtn = document.getElementById("exportDownloadMd");
       const shareBtn = document.getElementById("exportShare");
+      const maximizeBtn = document.getElementById("exportMaximize");
+
+      // Title/aria are set here (applyTranslations only handles textContent), so
+      // the button reads correctly the moment it is revealed on Step 2.
+      updateMaximizeBtn(maximizeBtn, false);
 
       const onClose = () => exportCloseDialog(false);
       const onOverlay = () => exportCloseDialog(false);
@@ -902,6 +934,15 @@
         exportUpdatePreview();
       };
       const onResize = () => exportApplyMobileTabs();
+      const onMaximize = () => {
+        const cardEl = modal.querySelector(".export-card");
+        if (!cardEl) return;
+        const nowMax = cardEl.classList.toggle("is-maximized");
+        updateMaximizeBtn(maximizeBtn, nowMax);
+        // Re-run the edit/preview layout so the swap switcher stays correct after
+        // the surface resizes.
+        exportApplyMobileTabs();
+      };
       const onPdf = () => exportHandleDownloadPdf();
       const onMd = () => exportHandleDownloadMd();
       const onShare = () => exportHandleShare();
@@ -925,6 +966,7 @@
       if (nextBtn) nextBtn.addEventListener("click", onNext);
       if (editor) editor.addEventListener("input", onEditorInput);
       window.addEventListener("resize", onResize);
+      if (maximizeBtn) maximizeBtn.addEventListener("click", onMaximize);
       if (downloadPdfBtn) downloadPdfBtn.addEventListener("click", onPdf);
       if (downloadMdBtn) downloadMdBtn.addEventListener("click", onMd);
       if (shareBtn) shareBtn.addEventListener("click", onShare);
@@ -938,6 +980,7 @@
         if (nextBtn) nextBtn.removeEventListener("click", onNext);
         if (editor) editor.removeEventListener("input", onEditorInput);
         window.removeEventListener("resize", onResize);
+        if (maximizeBtn) maximizeBtn.removeEventListener("click", onMaximize);
         if (downloadPdfBtn) downloadPdfBtn.removeEventListener("click", onPdf);
         if (downloadMdBtn) downloadMdBtn.removeEventListener("click", onMd);
         if (shareBtn) shareBtn.removeEventListener("click", onShare);

@@ -3348,6 +3348,99 @@ html[dir="rtl"] .settings-locked-info::after {
 .export-card {
   inline-size: min(720px, 92vw);
 }
+
+/* ── Export Step-2 editing surface ──────────────────────────────────────────
+   ALL of the sizing below is scoped to .export-card (and gated further to the
+   active editor step). The shared .modal-card base rule is deliberately NOT
+   touched — the crop, discard-confirm and edit-client modals reuse that base
+   and have no regression coverage, so widening it would risk a silent break.
+   The roomy 50%/90% surface is gated behind .is-editor-step (toggled ON only
+   when Step 2 is the active step) so the Choose and Deliver steps keep the
+   natural min(720px,92vw) auto-height card and never render oddly empty. */
+.export-card.is-editor-step {
+  inline-size: min(1100px, 92vw);
+  block-size: 50vh;
+  block-size: 50dvh;
+}
+.export-card.is-maximized.is-editor-step {
+  inline-size: min(1400px, 96vw);
+  block-size: 90vh;
+  block-size: 90dvh;
+  padding: 32px;
+}
+/* Propagate the card height down so the editor flex-fills the modal instead of a
+   fixed textarea inside a fixed shell — only while the editor step is active, so
+   the active step becomes a height-forwarding flex column. */
+.export-card.is-editor-step .modal-card-body {
+  display: flex;
+  flex-direction: column;
+}
+.export-card.is-editor-step .export-step.is-active {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  display: flex;
+  flex-direction: column;
+}
+.export-card.is-editor-step .export-edit-area {
+  flex: 1 1 auto;
+  min-block-size: 0;
+}
+.export-card.is-editor-step .export-editor {
+  min-block-size: 0;
+  block-size: 100%;
+  /* The editor flex-fills; a manual drag-resize handle would fight the layout,
+     so it is removed for the export editor specifically (other textareas keep
+     their resize:vertical from the .textarea base rule). */
+  resize: none;
+}
+.export-card.is-editor-step .export-preview {
+  min-block-size: 0;
+}
+
+/* Maximize / restore toggle — sits inline-start of the close button in the
+   export header. Icon-only (meaning carried by its title/aria-label, set in JS);
+   borrows the neutral modal-close chrome. Shown only on Step 2 (JS clears
+   .is-hidden on entry, restores it on exit). */
+.export-maximize-btn {
+  position: absolute;
+  top: 1rem;
+  inset-inline-end: calc(1rem + 36px + 8px);
+  border: 0;
+  background: var(--color-surface-modal-close);
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--color-primary-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.export-maximize-btn:hover {
+  background: var(--color-surface-hover);
+}
+
+/* Step-2 ephemeral-edit info band — informational tone (not a warning): edits in
+   the export editor affect only this export and are discarded on close. */
+.export-info-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-block: 0 16px;
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.export-info-note::before {
+  content: "\24D8"; /* circled small letter i */
+  font-size: 1.1rem;
+  line-height: 1.35;
+  flex-shrink: 0;
+}
 .export-step-indicator {
   display: flex;
   align-items: center;
@@ -3746,6 +3839,29 @@ html[dir="rtl"] .export-format-help[open] summary::before {
   }
   .export-mobile-tabs {
     display: inline-flex;
+  }
+  /* Step 2 on phones is a full-screen keyboard-aware takeover — both the default
+     and maximized states collapse to the same full-viewport surface. max-height
+     (physical) overrides the .modal-card base 90vh cap so it truly fills. dvh
+     tracks the on-screen keyboard's shrunken viewport. Scoped to the editor step
+     so Steps 1/3 keep the centred card. */
+  .export-card.is-editor-step,
+  .export-card.is-maximized.is-editor-step {
+    inline-size: 100vw;
+    max-inline-size: 100vw;
+    block-size: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    padding: 16px;
+  }
+  .export-card.is-editor-step .export-edit-area {
+    display: flex;
+    flex-direction: column;
+  }
+  .export-card.is-editor-step .export-editor,
+  .export-card.is-editor-step .export-preview {
+    flex: 1 1 auto;
+    min-block-size: 0;
   }
 }
 
