@@ -108,6 +108,28 @@ before/after; customers complained. Ben wants a PRE-SELECTED checkbox (opt-out),
 inclusion. Approved by Ben to ride this gap round. Details + open design questions in
 .planning/todos/pending/2026-07-14-export-emotions-optout-checkbox.md.
 
+### Gap 8 — Enter on an open snippet suggestion ALSO fires list auto-continue (severity: high)
+status: failed
+In a note field, inside any list, accepting a snippet autocomplete with Enter both expands
+the snippet AND jumps to a new list item — so you cannot expand a snippet and continue
+writing in the same bullet; you must delete the spurious new item every time. This is the
+RTXT-09 danger zone (checklist item 7) failing in a coordination way: the toolbar's Enter
+auto-format (list continuation) and the Snippets accept-on-Enter both handle the same
+keystroke. Fix direction: the list auto-continue must YIELD when the snippets autocomplete
+is active/accepting (check the Snippets open-state or event.defaultPrevented before acting) —
+snippet accept wins, list continuation only fires on a plain Enter. Needs a regression test
+covering Enter-with-suggestion-open vs plain Enter in a list.
+
+### Gap 9 — Heart-Wall export prints a bare "No" when flagged-but-not-released (severity: medium, pre-existing)
+status: failed
+When a session is flagged as a Heart-Wall session but the wall was NOT released at the end
+(the bottom flag), the exported Heart-Wall section renders just "No" — readers first assume
+it means "not a Heart-Wall session," which is wrong; it apparently means "not released."
+Believed pre-existing (likely live in production, unverified). Fix: replace the bare boolean
+with explanatory copy distinguishing the states, e.g. released vs "identified — not yet
+released". The gap plan must propose concrete wording options (all locales) for Ben to
+choose; also audit the same section for the released=yes wording while there.
+
 ### Fixed during the gate (for the record)
 - List button toggle/switch semantics: tests 88f7639, fix d88af87 (7 new unit tests).
 - Gap 5 delivery fix + v1.4.0 bump: be7877b.
