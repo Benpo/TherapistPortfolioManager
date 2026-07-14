@@ -80,6 +80,8 @@ const PRECACHE_URLS = [
   '/assets/settings-session-types.js',
   '/assets/pdf-export.js',
   '/assets/md-render.js',
+  '/assets/text-edit.js',
+  '/assets/rich-toolbar.js',
   '/assets/jspdf.min.js',
   '/assets/bidi.min.js',
   '/assets/fonts/heebo-base64.js',
