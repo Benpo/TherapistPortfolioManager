@@ -16,7 +16,7 @@ Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings
 - [x] **RTXT-01**: User can format session note text via a toolbar — bold, italic, bullet list, numbered list, and a heading control (H1/H2/H3 + back to regular text) — which inserts markdown markers into the familiar text fields
 - [x] **RTXT-02**: User can format via keyboard shortcuts on desktop (Ctrl/Cmd+B bold, Ctrl/Cmd+I italic)
 - [x] **RTXT-03**: User gets auto-format while typing — "- " / "1. " starts a list, Enter continues it, Enter on an empty item exits it
-- [ ] **RTXT-04**: User can toggle a live preview of the rendered result while editing
+- [x] **RTXT-04**: User can toggle a live preview of the rendered result while editing
 - [x] **RTXT-05**: User can indent/outdent list items (nested lists, standard markdown) and nesting renders correctly in preview and PDF
 - [x] **RTXT-06**: User sees formatted notes when READING sessions (read mode + wherever note text is displayed), rendered escape-first via MdRender — never raw innerHTML
 - [x] **RTXT-07**: Formatting survives PDF export — bold, lists (incl. nesting), Hebrew RTL/bidi preserved; heading-strip removed or consciously kept
@@ -89,7 +89,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RTXT-01 | Phase 46 | Complete |
 | RTXT-02 | Phase 46 | Complete |
 | RTXT-03 | Phase 46 | Complete |
-| RTXT-04 | Phase 46 | Pending |
+| RTXT-04 | Phase 46 | Complete |
 | RTXT-05 | Phase 46 | Complete |
 | RTXT-06 | Phase 45 | Complete |
 | RTXT-07 | Phase 45 | Complete |
