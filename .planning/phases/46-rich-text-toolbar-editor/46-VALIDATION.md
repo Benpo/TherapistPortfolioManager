@@ -45,7 +45,7 @@ audited: 2026-07-14
 | 46-02-02 | 02 | 1 | RTXT-05 | T-46-02b | parseInline join-invariant byte-for-byte; single-pass bidi untouched | unit | `npm test` | ✅ (extends 45-pipeline-agreement) | ⬜ pending |
 | 46-02-03 | 02 | 1 | RTXT-05 | T-46-02b | italic/bold classified; `***x***` degrades, join-invariant holds | unit | `node tests/45-pipeline-agreement.test.js` | ✅ (extended, 46-02) | ⬜ pending |
 | 46-02-04 | 02 | 1 | RTXT-05 (D-13/D-14) | T-46-02a/c | real opened-PDF italic (Latin + Hebrew) + payload feasibility sign-off | manual | — (checkpoint:human-verify, blocking-human) | — | ⬜ pending |
-| 46-03-01 | 03 | 2 | RTXT-01, RTXT-02 | T-46-03b | RTL-safe physical positioning; no direct `.value`/setRangeText | source | `grep -c "window.RichToolbar" assets/rich-toolbar.js; grep -c "getBoundingClientRect" assets/rich-toolbar.js; grep -c "rich-toolbar" assets/app.css` | — (source assertion) | ⬜ pending |
+| 46-03-01 | 03 | 2 | RTXT-01, RTXT-02 | T-46-03b | focus-preserved (mousedown+preventDefault, issue 1); in-flow dock (insertAdjacentElement) rides scroll/resize (issue 3); RTL-safe physical coords for the heading popover only; no direct `.value`/setRangeText | source | `grep -c "window.RichToolbar" assets/rich-toolbar.js; grep -c "getBoundingClientRect" assets/rich-toolbar.js; grep -c "rich-toolbar" assets/app.css; grep -c "mousedown" assets/rich-toolbar.js; grep -c "insertAdjacentElement" assets/rich-toolbar.js` | — (source assertion) | ⬜ pending |
 | 46-03-02 | 03 | 2 | RTXT-01, RTXT-02 (D-04/D-20) | T-46-03b | edits via TextEdit; native execCommand undo/redo; 4-locale i18n parity | source + suite | `npm test; grep -c "execCommand('undo')" assets/rich-toolbar.js; grep -c "toggleWrap" assets/rich-toolbar.js` | — (source; i18n-parity via suite) | ⬜ pending |
 | 46-04-01 | 04 | 3 | RTXT-03, RTXT-05 (D-09/10/11) | T-46-04b | keydown-anchored; renumber via TextEdit; undo-safe, caret-stable | unit-backed + source | `npm test; grep -c "autoFormatEnter\|renumberOrderedBlock" assets/rich-toolbar.js` | — (46-01 units back it) | ⬜ pending |
 | 46-04-02 | 04 | 3 | RTXT-04 (D-05/06/07) | T-46-04a | preview 100% via MdRender (escape-first); no raw-value innerHTML | source | `grep -c "MdRender.render" assets/rich-toolbar.js; grep -c "note-rendered" assets/rich-toolbar.js assets/app.css` | — (source assertion) | ⬜ pending |
@@ -90,7 +90,10 @@ MISSING references" invariant holds without a dedicated Wave 0.
 | Undo/redo buttons === keyboard undo (esp. iOS PWA) | D-20 | `execCommand('undo')` reliability is device-specific (A4 / Pitfall 3) | 46-08 item 5 — a mismatch routes to the NAMED D-20 fallback follow-up (single module-level undo stack that also intercepts Ctrl+Z), NOT generic gap-closure |
 | Live preview render on real WebKit | RTXT-04 | render + toggle only real in a browser | 46-08 item 6 |
 | Snippets + autogrow unchanged in an enhanced field | RTXT-09 (danger zone) | input-event composition only provable in a real browser | 46-08 item 7 |
+| In-flow toolbar stays docked on scroll / autogrow | RTXT-01 (issue 3) | in-flow layout riding only observable in a real browser as the field grows/scrolls | 46-08 item 1 (SCROLL CHECK) |
 | Export Step-2 sizing / maximize / mobile full-screen | D-16/17/18 | layout + viewport behavior only real | 46-08 item 8 |
+| Steps 1 & 3 not oddly empty at 50% / maximized | D-16 (issue 6) | step-scoped sizing only judgeable by eye on a real render | 46-08 item 8 (STEPS 1 & 3 CHECK) |
+| Two mount() call sites coexist (note fields + export editor) | RTXT-01 (issue 4) | additive-mount liveness only provable by exercising both surfaces in one session | 46-08 item 8 (MULTI-MOUNT COEXISTENCE) |
 | RTL toolbar / dropdown / preview mirroring | RTL invariant | physical-coordinate positioning only visible on a real RTL render | 46-08 item 10 |
 
 ---
