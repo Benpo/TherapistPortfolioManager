@@ -21,7 +21,7 @@ Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings
 - [x] **RTXT-06**: User sees formatted notes when READING sessions (read mode + wherever note text is displayed), rendered escape-first via MdRender — never raw innerHTML
 - [x] **RTXT-07**: Formatting survives PDF export — bold, lists (incl. nesting), Hebrew RTL/bidi preserved; heading-strip removed or consciously kept
 - [x] **RTXT-08**: Formatting survives markdown copy/share export verbatim
-- [ ] **RTXT-09**: Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields
+- [x] **RTXT-09**: Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields
 - [x] **RTXT-10**: Existing (pre-v1.4) sessions render safely and unchanged in meaning; encrypted backup round-trip carries formatted notes with zero format changes
 
 ### Session-Section Reordering (ORDR)
@@ -94,7 +94,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RTXT-06 | Phase 45 | Complete |
 | RTXT-07 | Phase 45 | Complete |
 | RTXT-08 | Phase 45 | Complete |
-| RTXT-09 | Phase 46 | Pending |
+| RTXT-09 | Phase 46 | Complete |
 | RTXT-10 | Phase 45 | Complete |
 | ORDR-01 | Phase 47 | Pending |
 | ORDR-02 | Phase 47 | Pending |
