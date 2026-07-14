@@ -516,6 +516,25 @@ window.I18N.he = {
   "export.pdf.failed": "לא ניתן ליצור PDF. יש לנסות שוב או להוריד כקובץ טקסט.",
   "export.empty.body": "אין עדיין תוכן במפגש זה. יש לשמור תחילה.",
 
+  // Phase 46 — סרגל עיצוב טקסט (rich-toolbar.js)
+  "toolbar.aria": "עיצוב טקסט",
+  "toolbar.bold": "מודגש (Ctrl+B)",
+  "toolbar.italic": "נטוי (Ctrl+I)",
+  "toolbar.bulletList": "רשימת תבליטים",
+  "toolbar.numberedList": "רשימה ממוספרת",
+  "toolbar.textStyle": "סגנון טקסט",
+  "toolbar.textStyleShort": "טקסט",
+  "toolbar.indent": "הגדל הזחה (Tab)",
+  "toolbar.outdent": "הקטן הזחה (Shift+Tab)",
+  "toolbar.undo": "בטל (Ctrl+Z)",
+  "toolbar.redo": "בצע שוב (Ctrl+Shift+Z)",
+  "toolbar.preview": "תצוגה מקדימה",
+  "toolbar.hidePreview": "הסתר תצוגה מקדימה",
+  "toolbar.heading1": "כותרת 1",
+  "toolbar.heading2": "כותרת 2",
+  "toolbar.heading3": "כותרת 3",
+  "toolbar.regularText": "טקסט רגיל",
+
   // Phase 22 Plan 12 (Gap B) — Leave-page guard for in-progress session form
   "session.leavePage.title": "לעזוב את המפגש?",
   "session.leavePage.body": "יש שינויים שלא נשמרו. עזיבה עכשיו תמחק אותם.",

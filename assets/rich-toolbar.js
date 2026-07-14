@@ -258,8 +258,9 @@ window.RichToolbar = (function () {
 
   // ── Heading dropdown popover (physical coords; built here, wired in actions) ─
   function closeHeadingMenu() {
-    if (_headingMenuEl && _headingMenuEl.parentNode) {
-      _headingMenuEl.parentNode.removeChild(_headingMenuEl);
+    if (_headingMenuEl) {
+      if (typeof _headingMenuEl.__cleanup === "function") _headingMenuEl.__cleanup();
+      if (_headingMenuEl.parentNode) _headingMenuEl.parentNode.removeChild(_headingMenuEl);
     }
     _headingMenuEl = null;
     if (_toolbarEl) {
@@ -268,19 +269,162 @@ window.RichToolbar = (function () {
     }
   }
 
-  // ── Active-state (filled by the inline-actions layer) ──────────────────────
-  // Default no-op so Task-1 chrome is coherent; the actions layer computes
-  // bold/italic/list/heading state at the caret and toggles .is-active.
-  function refreshButtonState() { /* actions layer overrides via _refreshImpl */
-    if (typeof _refreshImpl === "function") _refreshImpl();
+  // ── Inline-actions layer (every edit routes through window.TextEdit) ───────
+  // Apply a pure TextEdit transform through the undo-safe editInsert chokepoint,
+  // then restore the transform's expected caret/selection. NEVER touches
+  // textarea.value directly, so the native undo stack + the input event autoGrow
+  // and snippets observe (RTXT-09) are both preserved.
+  function applyTransform(ta, tr) {
+    if (!tr || !tr.replacement) return;
+    var r = tr.replacement;
+    window.TextEdit.editInsert(ta, r.start, r.end, r.text);
+    if (typeof tr.selStart === "number") ta.setSelectionRange(tr.selStart, tr.selEnd);
+    refreshButtonState();
   }
-  var _refreshImpl = null;
 
-  // ── Action dispatch (filled by the inline-actions layer) ───────────────────
-  // Task-1 chrome preserves focus for every control; the actual TextEdit wiring
-  // (bold/italic/list/heading/indent/undo/redo) is installed by the actions
-  // layer below. Kept as a single chokepoint so every control routes here.
-  var _dispatch = function (/* action, el */) { /* wired by actions layer */ };
+  // Bold/italic share full toggle semantics (D-04) via TextEdit.toggleWrap:
+  // wrap / unwrap / insert-pair-with-caret-between — never a doubled marker.
+  function doEmphasis(ta, marker) {
+    applyTransform(ta, window.TextEdit.toggleWrap(ta.value, ta.selectionStart, ta.selectionEnd, marker));
+  }
+
+  // Desktop-only gate for Ctrl/Cmd+B/I (D-02) — on touch the buttons are the
+  // sole formatting affordance, so no keyboard shortcut is bound there.
+  function isCoarsePointer() {
+    try {
+      return !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+    } catch (e) { return false; }
+  }
+
+  // ── Active-state: reflect the caret/selection format (D-04) ────────────────
+  function currentLineText(value, sel) {
+    var start = value.lastIndexOf("\n", sel - 1) + 1;
+    var end = value.indexOf("\n", sel);
+    if (end === -1) end = value.length;
+    return value.slice(start, end);
+  }
+  function isWrapped(value, s, e, marker) {
+    var n = marker.length;
+    return value.slice(s - n, s) === marker && value.slice(e, e + n) === marker;
+  }
+  function refreshButtonState() {
+    if (!_toolbarEl || !_focused) return;
+    var ta = _focused, v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+    var line = currentLineText(v, s);
+    var states = {
+      bold: isWrapped(v, s, e, "**"),
+      // single-star italic, excluding the case where it is really a bold pair
+      italic: isWrapped(v, s, e, "*") && !isWrapped(v, s, e, "**"),
+      bulletList: /^\s*[-*]\s/.test(line),
+      numberedList: /^\s*\d+\.\s/.test(line),
+    };
+    Object.keys(states).forEach(function (action) {
+      var btn = _toolbarEl.querySelector('.rich-toolbar-btn[data-action="' + action + '"]');
+      if (btn) btn.classList.toggle("is-active", !!states[action]);
+    });
+    var trig = _toolbarEl.querySelector(".rich-toolbar-heading-trigger");
+    if (trig) trig.classList.toggle("is-active", /^#{1,3}\s/.test(line));
+  }
+
+  // ── Heading dropdown menu (physical-coordinate popover, RTL-safe) ──────────
+  function toggleHeadingMenu(trigger) {
+    if (_headingMenuEl) { closeHeadingMenu(); return; }
+    openHeadingMenu(trigger);
+  }
+  function openHeadingMenu(trigger) {
+    var ta = _focused;
+    if (!ta) return;
+    var menu = document.createElement("div");
+    menu.className = "rich-toolbar-heading-menu";
+    menu.setAttribute("role", "menu");
+    var items = [
+      { level: 1, cls: "h1", key: "toolbar.heading1", fb: "Heading 1" },
+      { level: 2, cls: "h2", key: "toolbar.heading2", fb: "Heading 2" },
+      { level: 3, cls: "h3", key: "toolbar.heading3", fb: "Heading 3" },
+      { level: 0, cls: "p", key: "toolbar.regularText", fb: "Regular text" },
+    ];
+    var line = currentLineText(ta.value, ta.selectionStart);
+    var activeLevel = /^(#{1,3})\s/.test(line) ? RegExp.$1.length : 0;
+    items.forEach(function (it) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "rich-toolbar-heading-item rich-toolbar-heading-item--" + it.cls;
+      b.setAttribute("role", "menuitem");
+      b.setAttribute("data-level", String(it.level));
+      b.textContent = t(it.key, it.fb);
+      if (it.level === activeLevel) b.classList.add("is-active");
+      // mousedown+preventDefault (focus preservation) — same rule as buttons.
+      bindPreserveFocus(b, function () {
+        applyTransform(ta, window.TextEdit.applyHeading(ta.value, ta.selectionStart, ta.selectionEnd, it.level));
+        closeHeadingMenu();
+        ta.focus();
+      });
+      menu.appendChild(b);
+    });
+    document.body.appendChild(menu);
+    _headingMenuEl = menu;
+
+    // Position with PHYSICAL left/top from getBoundingClientRect (RTL-safe —
+    // a rect-derived logical inline inset mirrors wrongly in RTL; repo memory).
+    var rect = trigger.getBoundingClientRect();
+    menu.style.left = rect.left + "px";
+    menu.style.top = (rect.bottom + 4) + "px";
+    var mrect = menu.getBoundingClientRect();
+    var vw = window.innerWidth || document.documentElement.clientWidth;
+    if (mrect.right > vw - 8) menu.style.left = Math.max(8, vw - mrect.width - 8) + "px";
+    trigger.setAttribute("aria-expanded", "true");
+
+    // Dismiss on outside pointer-down or Esc. Deferred bind so the opening
+    // mousedown does not immediately re-close it.
+    function onDocDown(ev) {
+      if (menu.contains(ev.target) || trigger.contains(ev.target)) return;
+      closeHeadingMenu();
+    }
+    function onEsc(ev) {
+      if (ev.key === "Escape") { closeHeadingMenu(); ta.focus(); }
+    }
+    menu.__cleanup = function () {
+      document.removeEventListener("mousedown", onDocDown, true);
+      document.removeEventListener("keydown", onEsc, true);
+    };
+    setTimeout(function () {
+      document.addEventListener("mousedown", onDocDown, true);
+      document.addEventListener("keydown", onEsc, true);
+    }, 0);
+  }
+
+  // ── Action dispatch — single chokepoint every control routes through ───────
+  function _dispatch(action, el) {
+    var ta = _focused;
+    if (!ta && action !== "heading") return;
+    var TE = window.TextEdit;
+    switch (action) {
+      case "bold": doEmphasis(ta, "**"); break;
+      case "italic": doEmphasis(ta, "*"); break;
+      case "bulletList": applyTransform(ta, TE.insertListMarker(ta.value, ta.selectionStart, ta.selectionEnd, "ul")); break;
+      case "numberedList": applyTransform(ta, TE.insertListMarker(ta.value, ta.selectionStart, ta.selectionEnd, "ol")); break;
+      case "indent": applyTransform(ta, TE.indentLine(ta.value, ta.selectionStart, "in")); break;
+      case "outdent": applyTransform(ta, TE.outdentLine(ta.value, ta.selectionStart)); break;
+      // Native undo/redo (D-20). Works ONLY because every control preserves
+      // focus (mousedown+preventDefault) so execCommand targets the field.
+      // Single-quoted execCommand so the plan's source-assertion grep matches
+      // real code, not just a comment (mirrors the 46-01 quote-style alignment).
+      case "undo": ta.focus(); document.execCommand('undo'); refreshButtonState(); break;
+      case "redo": ta.focus(); document.execCommand('redo'); refreshButtonState(); break;
+      case "heading": toggleHeadingMenu(el); break;
+      case "preview": /* live preview pane is wired in 46-04 (same module) */ break;
+    }
+  }
+
+  // Desktop-only Ctrl/Cmd+B/I (D-02). Ctrl+Z / Ctrl+Shift+Z are intentionally
+  // NOT intercepted — they drive the SAME native undo stack the buttons use.
+  function onFieldKeyDown(ev) {
+    if (isCoarsePointer()) return;
+    if (!(ev.ctrlKey || ev.metaKey) || ev.altKey) return;
+    var k = (ev.key || "").toLowerCase();
+    if (k === "b") { ev.preventDefault(); doEmphasis(ev.currentTarget, "**"); }
+    else if (k === "i") { ev.preventDefault(); doEmphasis(ev.currentTarget, "*"); }
+  }
 
   // ── Public: mount (ADDITIVE) ───────────────────────────────────────────────
   // Register each passed textarea into the shared Set/WeakMap and attach focus
@@ -299,9 +443,11 @@ window.RichToolbar = (function () {
       var listeners = {
         focusin: onFieldFocusIn,
         focusout: onFieldFocusOut,
+        keydown: onFieldKeyDown,
       };
       ta.addEventListener("focusin", listeners.focusin);
       ta.addEventListener("focusout", listeners.focusout);
+      ta.addEventListener("keydown", listeners.keydown);
       _bound.set(ta, listeners);
       _registered.add(ta);
     });
@@ -319,6 +465,7 @@ window.RichToolbar = (function () {
       if (listeners) {
         ta.removeEventListener("focusin", listeners.focusin);
         ta.removeEventListener("focusout", listeners.focusout);
+        ta.removeEventListener("keydown", listeners.keydown);
         _bound.delete(ta);
       }
     });
@@ -332,27 +479,9 @@ window.RichToolbar = (function () {
     }
   }
 
-  // Expose internals so the inline-actions layer (same module, extended below in
-  // Task 2) can install _dispatch / _refreshImpl and reach shared state.
-  var _internals = {
-    getFocused: function () { return _focused; },
-    getToolbar: function () { return _toolbarEl; },
-    getConfig: function () { return _config; },
-    setDispatch: function (fn) { _dispatch = fn; },
-    setRefresh: function (fn) { _refreshImpl = fn; },
-    setHeadingMenu: function (el) { _headingMenuEl = el; },
-    getHeadingMenu: function () { return _headingMenuEl; },
-    closeHeadingMenu: closeHeadingMenu,
-    bindPreserveFocus: bindPreserveFocus,
-    isRegistered: function (el) { return _registered.has(el); },
-    t: t,
-    getBoundingClientRect: function (el) { return el.getBoundingClientRect(); },
-  };
-
   return {
     mount: mount,
     unmount: unmount,
     refreshButtonState: refreshButtonState,
-    __internals: _internals,
   };
 })();

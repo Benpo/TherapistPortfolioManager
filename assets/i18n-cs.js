@@ -516,6 +516,25 @@ window.I18N.cs = {
   "export.pdf.failed": "Nelze vygenerovat PDF. Zkuste znovu nebo st\u00E1hn\u011Bte jako textov\u00FD soubor.",
   "export.empty.body": "Toto sezen\u00ED zat\u00EDm nem\u00E1 obsah. Nejprve sezen\u00ED ulo\u017Ete.",
 
+  // Phase 46 \u2014 Panel n\u00E1stroj\u016F form\u00E1tovan\u00E9ho textu (rich-toolbar.js)
+  "toolbar.aria": "Form\u00E1tov\u00E1n\u00ED textu",
+  "toolbar.bold": "Tu\u010Dn\u00E9 (Ctrl+B)",
+  "toolbar.italic": "Kurz\u00EDva (Ctrl+I)",
+  "toolbar.bulletList": "Odr\u00E1\u017Ekov\u00FD seznam",
+  "toolbar.numberedList": "\u010C\u00EDslovan\u00FD seznam",
+  "toolbar.textStyle": "Styl textu",
+  "toolbar.textStyleShort": "Text",
+  "toolbar.indent": "Odsadit (Tab)",
+  "toolbar.outdent": "Zmen\u0161it odsazen\u00ED (Shift+Tab)",
+  "toolbar.undo": "Zp\u011Bt (Ctrl+Z)",
+  "toolbar.redo": "Znovu (Ctrl+Shift+Z)",
+  "toolbar.preview": "N\u00E1hled",
+  "toolbar.hidePreview": "Skr\u00FDt n\u00E1hled",
+  "toolbar.heading1": "Nadpis 1",
+  "toolbar.heading2": "Nadpis 2",
+  "toolbar.heading3": "Nadpis 3",
+  "toolbar.regularText": "B\u011B\u017En\u00FD text",
+
   // Phase 22 Plan 12 (Gap B) \u2014 Leave-page guard for in-progress session form
   "session.leavePage.title": "Opustit toto sezen\u00ED?",
   "session.leavePage.body": "M\u00E1te neulo\u017Een\u00E9 zm\u011Bny. Pokud nyn\u00ED odejdete, budou ztraceny.",

@@ -516,6 +516,25 @@ window.I18N.de = {
   "export.pdf.failed": "PDF konnte nicht erstellt werden. Versuchen Sie es erneut oder laden Sie als Textdatei herunter.",
   "export.empty.body": "Diese Sitzung enth\u00E4lt noch keinen Inhalt. Speichern Sie sie zuerst.",
 
+  // Phase 46 \u2014 Rich-Text-Symbolleiste (rich-toolbar.js)
+  "toolbar.aria": "Textformatierung",
+  "toolbar.bold": "Fett (Strg+B)",
+  "toolbar.italic": "Kursiv (Strg+I)",
+  "toolbar.bulletList": "Aufz\u00E4hlung",
+  "toolbar.numberedList": "Nummerierte Liste",
+  "toolbar.textStyle": "Textstil",
+  "toolbar.textStyleShort": "Text",
+  "toolbar.indent": "Einr\u00FCcken (Tab)",
+  "toolbar.outdent": "Ausr\u00FCcken (Umschalt+Tab)",
+  "toolbar.undo": "R\u00FCckg\u00E4ngig (Strg+Z)",
+  "toolbar.redo": "Wiederholen (Strg+Umschalt+Z)",
+  "toolbar.preview": "Vorschau",
+  "toolbar.hidePreview": "Vorschau ausblenden",
+  "toolbar.heading1": "\u00DCberschrift 1",
+  "toolbar.heading2": "\u00DCberschrift 2",
+  "toolbar.heading3": "\u00DCberschrift 3",
+  "toolbar.regularText": "Normaler Text",
+
   // Phase 22 Plan 12 (Gap B) \u2014 Leave-page guard for in-progress session form
   "session.leavePage.title": "Sitzung verlassen?",
   "session.leavePage.body": "Sie haben ungespeicherte \u00C4nderungen. Beim Verlassen gehen sie verloren.",

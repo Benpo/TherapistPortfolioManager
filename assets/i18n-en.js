@@ -520,6 +520,27 @@ window.I18N.en = {
   "export.pdf.failed": "Could not generate PDF. Try again, or download as a text file instead.",
   "export.empty.body": "This session has no content yet. Save the session first.",
 
+  // Phase 46 — Rich-text toolbar (rich-toolbar.js). Icon-only buttons (D-14);
+  // meaning carried by these tooltip strings. Italic base copy is the contract
+  // of record (the PDF-fallback clause, if any, is appended by 46-06).
+  "toolbar.aria": "Text formatting",
+  "toolbar.bold": "Bold (Ctrl+B)",
+  "toolbar.italic": "Italic (Ctrl+I)",
+  "toolbar.bulletList": "Bullet list",
+  "toolbar.numberedList": "Numbered list",
+  "toolbar.textStyle": "Text style",
+  "toolbar.textStyleShort": "Text",
+  "toolbar.indent": "Indent (Tab)",
+  "toolbar.outdent": "Outdent (Shift+Tab)",
+  "toolbar.undo": "Undo (Ctrl+Z)",
+  "toolbar.redo": "Redo (Ctrl+Shift+Z)",
+  "toolbar.preview": "Preview",
+  "toolbar.hidePreview": "Hide preview",
+  "toolbar.heading1": "Heading 1",
+  "toolbar.heading2": "Heading 2",
+  "toolbar.heading3": "Heading 3",
+  "toolbar.regularText": "Regular text",
+
   // Phase 22 Plan 12 (Gap B) — Leave-page guard for in-progress session form
   "session.leavePage.title": "Leave this session?",
   "session.leavePage.body": "You have unsaved changes. Leaving now will discard them.",
