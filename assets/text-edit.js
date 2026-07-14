@@ -12,9 +12,11 @@
 //   selStart, selEnd, replacement:{start,end,text}}` and is unit-testable in the
 //   zero-npm node runner without a browser (mirrors window.Snippets.__testExports).
 // PUBLIC SURFACE: window.TextEdit — { editInsert, toggleWrap, insertListMarker,
-//   applyHeading, autoFormatEnter, indentLine, outdentLine, renumberOrderedBlock }.
-//   Also window.TextEdit.__testExports exposing every pure helper (+ currentLine)
-//   so the node runner can exercise them headlessly.
+//   applyHeading, autoFormatEnter, indentLine, outdentLine, renumberOrderedBlock,
+//   undoTrack, undoUntrack, undoRecord, undoNoteInput, undo, redo }.
+//   Also window.TextEdit.__testExports exposing every pure helper (+ currentLine
+//   and the pure coalesce-boundary decision) so the node runner can exercise them
+//   headlessly.
 // DEPENDENCIES: document.execCommand + the marker grammar of md-render.js — the
 //   bold token is `**`, the italic token is `*`, the list-marker forms are `- `
 //   / `* ` / `N. `, and the nesting unit is 2 leading spaces (Math.floor(spaces/2),
@@ -318,6 +320,170 @@ window.TextEdit = (function () {
     return result(value, { start: sel, end: sel, text: "" }, sel, sel);
   }
 
+  // ── Module-owned undo/redo stack ───────────────────────────────────────────
+  // WHY this exists (and why it replaces relying on the browser's own undo):
+  // the browser groups typing into large chunks of its own choosing, so a single
+  // undo could wipe several lines at once — undo stopped feeling trustworthy for
+  // long notes. This module keeps ONE history per field with boundaries at
+  // human scale (a break at each new line and at a typing pause) so one undo
+  // reverts a line or a short burst, and every formatting action is exactly one
+  // step. Because a single stack now owns undo, the keyboard shortcut MUST route
+  // to this same stack too — two stacks (one for the buttons, one for the
+  // keyboard) would drift apart and give contradictory results.
+  //
+  // The restore is applied through the SAME undo-safe insert chokepoint used for
+  // every other edit, so it fires a real input event and the field's auto-grow,
+  // snippet expansion and live preview all react to an undo/redo exactly as they
+  // do to typing. A module-internal "restoring" flag brackets that restore and
+  // makes the two recording entry points self-no-op while it is set, so a
+  // restore's own input event can never push itself back onto the history —
+  // callers may call the recording entry points unconditionally and stay safe.
+  var HISTORY = new WeakMap();   // textarea → { snaps, ptr, lastTime, lastKind, pending }
+  var COALESCE_MS = 700;         // typing pause (~0.7s) that starts a fresh step
+  var HISTORY_CAP = 200;         // keep the most recent N snapshots per field
+  var _restoring = false;        // true while an undo/redo restore is in flight
+
+  function snapOf(ta) {
+    return { value: ta.value, selStart: ta.selectionStart, selEnd: ta.selectionEnd };
+  }
+
+  // Which broad category an input belongs to — used so switching between adding
+  // and removing text starts a new undo step.
+  function categorizeInput(inputType) {
+    if (typeof inputType !== "string") return "other";
+    if (inputType.indexOf("delete") === 0) return "delete";
+    if (inputType.indexOf("insert") === 0) return "insert";
+    return "other";
+  }
+  function isNewlineInput(inputType) {
+    return inputType === "insertLineBreak" || inputType === "insertParagraph";
+  }
+
+  // Pure decision (no DOM): should this input OPEN a new undo boundary, or fold
+  // into the step in progress? A brand-new step (lastKind null) never opens — it
+  // is already fresh. Otherwise a new line, a pause longer than the coalesce
+  // window, or a switch between adding and removing text each start a new step.
+  function shouldOpenBoundary(lastKind, lastTime, now, inputType, windowMs) {
+    if (lastKind === null || lastKind === undefined) return false;
+    if (isNewlineInput(inputType)) return true;
+    if (now - lastTime > windowMs) return true;
+    if (categorizeInput(inputType) !== lastKind) return true;
+    return false;
+  }
+
+  function nowMs() {
+    return (typeof Date !== "undefined" && Date.now) ? Date.now() : 0;
+  }
+
+  // Commit a snapshot as a checkpoint: drop any redo tail, then push it only if
+  // it differs from the current checkpoint's value (a same-value commit just
+  // refreshes the caret). Cap the history so a long session cannot grow without
+  // bound — the oldest snapshots fall off the front.
+  function sealSnap(H, s) {
+    H.snaps.length = H.ptr + 1;
+    if (H.snaps[H.ptr].value !== s.value) {
+      H.snaps.push({ value: s.value, selStart: s.selStart, selEnd: s.selEnd });
+      H.ptr++;
+    } else {
+      H.snaps[H.ptr] = { value: s.value, selStart: s.selStart, selEnd: s.selEnd };
+    }
+    if (H.snaps.length > HISTORY_CAP) {
+      var drop = H.snaps.length - HISTORY_CAP;
+      H.snaps.splice(0, drop);
+      H.ptr -= drop;
+      if (H.ptr < 0) H.ptr = 0;
+    }
+  }
+
+  // Begin tracking a field: seed a baseline snapshot and reset the pointer/step.
+  function undoTrack(textarea) {
+    if (!textarea) return;
+    var base = snapOf(textarea);
+    HISTORY.set(textarea, {
+      snaps: [{ value: base.value, selStart: base.selStart, selEnd: base.selEnd }],
+      ptr: 0,
+      lastTime: 0,
+      lastKind: null,
+      pending: base,
+    });
+  }
+  function undoUntrack(textarea) {
+    if (textarea) HISTORY.delete(textarea);
+  }
+
+  // Called immediately BEFORE a structural edit (bold, list marker, heading,
+  // indent, …): seal the current pre-edit state so the coming edit is exactly one
+  // undo step, and reset the step so the edit's own input event opens fresh
+  // rather than folding into prior typing. No-op while a restore is in flight.
+  function undoRecord(textarea) {
+    if (_restoring || !textarea) return;
+    var H = HISTORY.get(textarea);
+    if (!H) return;
+    sealSnap(H, snapOf(textarea));
+    H.lastKind = null;
+    H.pending = snapOf(textarea);
+    H.lastTime = nowMs();
+  }
+
+  // Called on every ordinary input event. Decides whether to open a new boundary
+  // (sealing the PRE-input state so the boundary character begins the next step)
+  // or fold into the current step. No-op while a restore is in flight.
+  function undoNoteInput(textarea, inputType) {
+    if (_restoring || !textarea) return;
+    var H = HISTORY.get(textarea);
+    if (!H) return;
+    var now = nowMs();
+    if (shouldOpenBoundary(H.lastKind, H.lastTime, now, inputType, COALESCE_MS)) {
+      sealSnap(H, H.pending);
+    }
+    H.pending = snapOf(textarea);
+    H.lastKind = categorizeInput(inputType);
+    H.lastTime = now;
+  }
+
+  // Apply a snapshot back onto the field through the insert chokepoint so a real
+  // input event fires, then place the caret. Bracketed by the restoring flag.
+  function restoreSnap(textarea, snap) {
+    _restoring = true;
+    try {
+      editInsert(textarea, 0, textarea.value.length, snap.value);
+      textarea.setSelectionRange(snap.selStart, snap.selEnd);
+    } finally {
+      _restoring = false;
+    }
+  }
+  function afterRestore(H, textarea) {
+    H.lastKind = null;
+    H.pending = snapOf(textarea);
+    H.lastTime = nowMs();
+  }
+
+  // Move one step back. First seal any un-sealed live edits (so redo can return
+  // to them), then step the pointer and restore. Returns whether anything moved.
+  function undo(textarea) {
+    if (_restoring || !textarea) return false;
+    var H = HISTORY.get(textarea);
+    if (!H) return false;
+    var live = snapOf(textarea);
+    if (live.value !== H.snaps[H.ptr].value) sealSnap(H, live);
+    if (H.ptr <= 0) return false;
+    H.ptr--;
+    restoreSnap(textarea, H.snaps[H.ptr]);
+    afterRestore(H, textarea);
+    return true;
+  }
+  // Move one step forward if a redo target exists.
+  function redo(textarea) {
+    if (_restoring || !textarea) return false;
+    var H = HISTORY.get(textarea);
+    if (!H) return false;
+    if (H.ptr >= H.snaps.length - 1) return false;
+    H.ptr++;
+    restoreSnap(textarea, H.snaps[H.ptr]);
+    afterRestore(H, textarea);
+    return true;
+  }
+
   return {
     editInsert: editInsert,
     toggleWrap: toggleWrap,
@@ -327,6 +493,12 @@ window.TextEdit = (function () {
     indentLine: indentLine,
     outdentLine: outdentLine,
     renumberOrderedBlock: renumberOrderedBlock,
+    undoTrack: undoTrack,
+    undoUntrack: undoUntrack,
+    undoRecord: undoRecord,
+    undoNoteInput: undoNoteInput,
+    undo: undo,
+    redo: redo,
     __testExports: {
       currentLine: currentLine,
       toggleWrap: toggleWrap,
@@ -337,6 +509,9 @@ window.TextEdit = (function () {
       outdentLine: outdentLine,
       renumberOrderedBlock: renumberOrderedBlock,
       parseListLine: parseListLine,
+      shouldOpenBoundary: shouldOpenBoundary,
+      categorizeInput: categorizeInput,
+      isNewlineInput: isNewlineInput,
     },
   };
 })();
