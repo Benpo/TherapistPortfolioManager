@@ -6,8 +6,8 @@
 //   programmatic textarea edit in the toolbar routes through it so the browser's
 //   native undo stack and the real `input` event autoGrow/snippets observe are
 //   both preserved), plus the side-effect-free string transforms that compute
-//   WHAT to insert: inline emphasis toggle (bold/italic), list-marker insert,
-//   heading apply/clear, list auto-format on Enter, indent/outdent, and
+//   WHAT to insert: inline emphasis toggle (bold/italic), list-marker
+//   toggle/switch, heading apply/clear, list auto-format on Enter, indent/outdent, and
 //   ordered-list renumber. Each transform is `(value, sel...) -> {value,
 //   selStart, selEnd, replacement:{start,end,text}}` and is unit-testable in the
 //   zero-npm node runner without a browser (mirrors window.Snippets.__testExports).
@@ -82,6 +82,17 @@ window.TextEdit = (function () {
   function result(value, rep, selStart, selEnd) {
     return { value: value, selStart: selStart, selEnd: selEnd, replacement: rep };
   }
+  // Map a caret/selection position through a {start,end,text} replacement:
+  //  - after the edited span  → shift by the net length delta;
+  //  - before it              → unchanged;
+  //  - inside the edited span → clamp into the new text (so a caret sitting in a
+  //    removed marker lands at the replacement start rather than dangling).
+  function mapCaret(pos, rep) {
+    var delta = rep.text.length - (rep.end - rep.start);
+    if (pos >= rep.end) return pos + delta;
+    if (pos <= rep.start) return pos;
+    return rep.start + Math.min(pos - rep.start, rep.text.length);
+  }
 
   // ── Inline emphasis toggle ─────────────────────────────────────────────────
   // marker is BOLD ("**") or ITALIC ("*"). Three cases, NEVER a doubled artifact:
@@ -106,17 +117,36 @@ window.TextEdit = (function () {
     return result(applyReplacement(value, repWrap), repWrap, s + m, e + m);
   }
 
-  // ── List-marker insert ─────────────────────────────────────────────────────
-  // Prefix the caret's line, at its leading-whitespace boundary, with the bullet
-  // token ("- ") or the numbered token ("1. ").
+  // ── List-marker toggle / switch ─────────────────────────────────────────────
+  // Toggle the caret line's list formatting for the requested kind ("ul" bullet
+  // or "ol" numbered). Three cases, keyed off the line's current marker (detected
+  // with the shared LIST_RE grammar so it is character-identical to the renderer):
+  //  (a) no marker            → insert the requested token at the leading-
+  //      whitespace boundary ("- " / "1. ");
+  //  (b) same-kind marker     → remove it (marker + trailing space), preserving
+  //      the line's leading indentation ("  - text" → "  text");
+  //  (c) other-kind marker    → switch the marker glyph in place, keeping the
+  //      spacing ("- text" +ol → "1. text"; "3. text" +ul → "- text").
+  // Ordered renumbering after a removal/switch is the caller's job (it renumbers
+  // the block after every list action). The number emitted on a bullet→ordered
+  // switch is a placeholder "1." that the renumber pass then corrects.
   function insertListMarker(value, s, e, kind) {
     var line = currentLine(value, s);
-    var lead = leadingSpaces(line.text);
-    var at = line.start + lead.length;
-    var token = kind === "ol" ? "1. " : "- ";
-    var rep = { start: at, end: at, text: token };
-    var shift = token.length;
-    return result(applyReplacement(value, rep), rep, s + shift, e + shift);
+    var at = line.start + leadingSpaces(line.text).length;
+    var wantOl = kind === "ol";
+    var parsed = parseListLine(line.text);
+    var rep;
+    if (!parsed) {
+      rep = { start: at, end: at, text: wantOl ? "1. " : "- " };
+    } else if ((parsed.ordinal !== null) === wantOl) {
+      // Same kind → drop the marker and its trailing whitespace, keep the indent.
+      var ws = /^ *(?:[-*]|\d+\.)(\s*)/.exec(line.text)[1];
+      rep = { start: at, end: at + parsed.marker.length + ws.length, text: "" };
+    } else {
+      // Other kind → swap just the marker glyph, leaving the spacing/body intact.
+      rep = { start: at, end: at + parsed.marker.length, text: wantOl ? "1." : "-" };
+    }
+    return result(applyReplacement(value, rep), rep, mapCaret(s, rep), mapCaret(e, rep));
   }
 
   // ── Heading apply / clear ──────────────────────────────────────────────────
