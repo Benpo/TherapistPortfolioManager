@@ -224,7 +224,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 
 **Wave 10** *(blocked on all gap code — docs hard-gate)*
 
-- [ ] 46-13-PLAN.md — docs hard-gate: v1.4.1 bump + EN changelog + affected help topics (quick-paste / snippets / review-export) [gap-closure, wave 10]
+- [ ] 46-13-PLAN.md — docs hard-gate: revise the unreleased v1.4.0 EN changelog entry to final behaviour (no version bump) + affected help topics (quick-paste / snippets / review-export) [gap-closure, wave 10]
 
 **Wave 11** *(blocked on 46-09..46-13 — closing real-device re-run)*
 
