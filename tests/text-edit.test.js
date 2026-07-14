@@ -169,6 +169,60 @@ test('insertListMarker ordered: line gets "1. " and md-render detects it', () =>
   assert.strictEqual(r.value, '1. first step');
 });
 
+// --- insertListMarker: toggle a same-kind marker OFF (no marker stacking) ---
+test('insertListMarker bullet on an existing bullet line toggles the marker off', () => {
+  const v = '- buy milk';
+  const r = T.insertListMarker(v, v.length, v.length, 'ul');
+  assert.strictEqual(r.value, 'buy milk', 'second bullet click must remove the marker');
+  assert.ok(!LIST_RE.test(r.value), 'line no longer parses as a list item');
+  assert.strictEqual(applyRep(v, r.replacement), r.value);
+  // Caret sat after the marker → shifts back by the removed marker width.
+  assert.strictEqual(r.selStart, v.length - 2);
+  assert.strictEqual(r.selStart, r.selEnd);
+});
+test('insertListMarker ordered on an existing multi-digit ordinal toggles it off', () => {
+  const v = '12. step twelve';
+  const r = T.insertListMarker(v, v.length, v.length, 'ol');
+  assert.strictEqual(r.value, 'step twelve', 'removes the whole "12. " marker');
+  assert.ok(!LIST_RE.test(r.value), 'line no longer parses as a list item');
+  assert.strictEqual(r.selStart, v.length - 4, 'caret shifts back by "12. " width');
+});
+test('insertListMarker toggle-off preserves the line leading indentation', () => {
+  const v = '  - nested item';
+  const r = T.insertListMarker(v, v.length, v.length, 'ul');
+  assert.strictEqual(r.value, '  nested item', 'indentation kept, marker gone');
+});
+
+// --- insertListMarker: switch kind in place (bullet <-> numbered) ----------
+test('insertListMarker ordered on a bullet line switches "- " to "1. "', () => {
+  const v = '- buy milk';
+  const r = T.insertListMarker(v, v.length, v.length, 'ol');
+  assert.strictEqual(r.value, '1. buy milk', 'bullet switches to numbered in place');
+  assert.strictEqual(applyRep(v, r.replacement), r.value);
+  assert.strictEqual(r.selStart, v.length + 1, 'caret shifts by +1 (marker grew by one char)');
+});
+test('insertListMarker bullet on a numbered line switches "3. " to "- "', () => {
+  const v = '3. buy milk';
+  const r = T.insertListMarker(v, v.length, v.length, 'ul');
+  assert.strictEqual(r.value, '- buy milk', 'numbered switches to bullet in place');
+  assert.strictEqual(r.selStart, v.length - 1, 'caret shifts by -1 (marker shrank by one char)');
+});
+test('insertListMarker switch preserves leading indentation', () => {
+  const v = '  3. nested';
+  const r = T.insertListMarker(v, v.length, v.length, 'ul');
+  assert.strictEqual(r.value, '  - nested');
+});
+
+// --- insertListMarker: caret sitting INSIDE the removed marker clamps ------
+test('insertListMarker toggle-off with caret inside the marker clamps to the body start', () => {
+  const v = '- buy milk';
+  // Caret between "-" and its space (index 1) is inside the removed "- " region.
+  const r = T.insertListMarker(v, 1, 1, 'ul');
+  assert.strictEqual(r.value, 'buy milk');
+  assert.strictEqual(r.selStart, 0, 'caret clamps to the replacement start');
+  assert.strictEqual(r.selStart, r.selEnd);
+});
+
 // --- applyHeading: level 2 then level 0 is the identity (idempotent) --------
 const HEADING_RE = /^(#{1,3})\s+(.+?)\s*$/; // md-render firstLine heading, verbatim
 test('applyHeading level 2 then level 0 returns the original line', () => {
