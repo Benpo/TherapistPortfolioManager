@@ -323,7 +323,7 @@
               "Review — and lightly edit — what will be shared.",
               "Pick {ui:export.download.pdf} for a polished document, or {ui:export.download.text} to save the notes as a plain text file."
             ] },
-            { type: "p", text: "The editing step gives you room to work: the same formatting toolbar sits on top, and you can maximize the window to shape almost a whole session at once. On a phone it fills the screen. Anything you change here is for this export only — it is never saved back to the session." },
+            { type: "p", text: "The editing step gives you room to work in a single editor: the same formatting toolbar sits on top — including the preview button, so you can check how the document will look — and you can maximize the window to shape almost a whole session at once. On a phone it fills the screen. Anything you change here is for this export only — it is never saved back to the session." },
             { type: "p", text: "Any formatting you added to your notes — bold, italics, bullet and numbered lists (including nested ones), and headings — is preserved in the PDF, and Hebrew text stays correctly right-to-left." }
           ]
         },
