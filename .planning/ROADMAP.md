@@ -178,8 +178,34 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   3. The user can toggle a live preview of the rendered result while editing, and can indent/outdent list items to build nested lists that render correctly in both the preview and the exported PDF.
   4. Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields — verified in a real browser, not jsdom.
 
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 8 plans
+**UI hint**: yes (UI-SPEC approved; mockup gate D-19 satisfied)
+
+**Wave 1** *(parallel — no file overlap)*
+
+- [ ] 46-01-PLAN.md — TextEdit undo-safe chokepoint + pure transforms (toggle/list/heading/auto-format/indent/renumber) + node unit tests [wave 1]
+- [ ] 46-02-PLAN.md — D-13/D-14 true italic in PDF: subset Rubik-Italic + {text,bold,italic} segment model + agreement test + real-PDF feasibility checkpoint [wave 1]
+
+**Wave 2** *(blocked on 46-01)*
+
+- [ ] 46-03-PLAN.md — rich-toolbar.js chrome + inline formatting (bold/italic toggle, lists, heading dropdown, desktop shortcuts, undo/redo) + i18n + CSS [wave 2]
+
+**Wave 3** *(blocked on 46-03 — same module)*
+
+- [ ] 46-04-PLAN.md — rich-toolbar.js list mechanics (auto-format/indent/outdent/renumber) + per-field live preview pane [wave 3]
+
+**Wave 4** *(blocked on 46-04 — parallel, file-disjoint)*
+
+- [ ] 46-05-PLAN.md — mount toolbar + preview over the 7 note fields in add-session.js (RTXT-09 preserved; no-tour-step decision) [wave 4]
+- [ ] 46-06-PLAN.md — export-modal Step-2 redesign: full toolbar + info note + 50%/maximize + flex-fill + mobile full-screen + shared-module script tags [wave 4]
+
+**Wave 5** *(blocked on 46-05, 46-06)*
+
+- [ ] 46-07-PLAN.md — docs hard-gate: EN changelog + affected help topics + covers[] for new modules [wave 5]
+
+**Wave 6** *(blocked on 46-02, 46-05, 46-06, 46-07 — closing real-device pass)*
+
+- [ ] 46-08-PLAN.md — real-browser / real-iPhone-PWA / real-PDF phase verification gate [wave 6]
 
 ### Phase 47: Session-Section Reordering
 
@@ -281,6 +307,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 43. Docs-Maintenance Hard Gate | v1.3 | 10/10 | Complete | 2026-07-10 |
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
 | 45. Rich-Text Rendering & Export Foundation | v1.4 | 8/8 | Complete    | 2026-07-13 |
-| 46. Rich-Text Toolbar Editor | v1.4 | 0/TBD | Not started | - |
+| 46. Rich-Text Toolbar Editor | v1.4 | 0/8 | Planned | - |
 | 47. Session-Section Reordering | v1.4 | 0/TBD | Not started | - |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
