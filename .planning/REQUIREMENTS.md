@@ -11,7 +11,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Rich-Text Session Editor (RTXT)
 
-Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings — zero migration); toolbar-over-textarea editor surface (preserves snippets/autogrow, avoids WebKit contenteditable bugs); **underline dropped** (no markdown syntax — see Out of Scope); italic accepted knowing the PDF renders it regular-weight (no Hebrew italic face vendored). Amended 2026-07-13 (Phase 45 discussion): **headings added to the toolbar vocabulary** — H1–H3 plus a "regular text" state (markdown-native, unlike the dropped underline); note-content headings render at a subordinate register in the PDF, never mistakable for document section headings.
+Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings — zero migration); toolbar-over-textarea editor surface (preserves snippets/autogrow, avoids WebKit contenteditable bugs); **underline dropped** (no markdown syntax — see Out of Scope); italic accepted knowing the PDF renders it regular-weight (no Hebrew italic face vendored). Amended 2026-07-13 (Phase 45 discussion): **headings added to the toolbar vocabulary** — H1–H3 plus a "regular text" state (markdown-native, unlike the dropped underline); note-content headings render at a subordinate register in the PDF, never mistakable for document section headings. Amended 2026-07-14 (Phase 46 discussion): the **italic-flattens-in-PDF lock is reopened** — Phase 46 researches vendoring a true italic face (Heebo has no italic face; Rubik Italic with Hebrew coverage is the candidate), feasibility-gated; if infeasible within reasonable size/effort, v1.4 falls back to the accepted flattening plus disclosure (italic-button tooltip + one-line export-modal note).
 
 - [ ] **RTXT-01**: User can format session note text via a toolbar — bold, italic, bullet list, numbered list, and a heading control (H1/H2/H3 + back to regular text) — which inserts markdown markers into the familiar text fields
 - [ ] **RTXT-02**: User can format via keyboard shortcuts on desktop (Ctrl/Cmd+B bold, Ctrl/Cmd+I italic)
@@ -57,7 +57,7 @@ Rescoped 2026-07-11: the ~680-line legacy comment retrofit is TOO BIG for this m
 ## Deferred / Future
 
 - **RTXT-U1**: Underline formatting — dropped 2026-07-11 (no standard markdown syntax; would need a private `++x++` token + PDF underline renderer). Revisit if users ask.
-- **RTXT-F2**: True italic in PDF (vendoring an italic face) — italic ships preview/markdown-only weight in v1.4.
+- **RTXT-F2**: True italic in PDF (vendoring an italic face) — **promoted 2026-07-14 into Phase 46 as a feasibility-gated goal** (Rubik Italic candidate — Heebo has no italic face); falls back to flattening + disclosure (tooltip + export-modal note) if infeasible.
 - **Comment-hygiene legacy retrofit + forward gate** (~680 lines / ~43 shipped files) — deferred 2026-07-11 (Ben: too much for this milestone); candidate focus for v1.5. The two travel together: the legacy reword sweep AND the baseline-aware forward grep-gate that blocks NEW planning refs (post-retrofit the gate needs no baseline machinery — a simple zero-tolerance grep). v1.4 only stops the bleeding (DEBT-01: the CONVENTIONS.md §Comments root-cause fix + the single add-client.js console.warn reword, both done in Phase 44).
 - Codebase Health II (extraction + coverage + Playwright harness) — v1.5 candidate.
 
