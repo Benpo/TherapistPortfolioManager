@@ -69,22 +69,26 @@
 
   window.CHANGELOG_CONTENT_EN = [
 
-    // ═══ v1.4 — Richer Sessions: formatted notes that keep their shape ════════
+    // ═══ v1.4 — Richer Sessions: formatting your notes, and notes that keep their shape ═══
     {
       version: "1.4.0",
       anchor: "v1-4",
       date: "July 2026",
-      lede: "Your session notes now keep their shape — bold, lists, and headings stay beautifully formatted wherever you read or share them.",
+      lede: "Formatting your session notes is now effortless — a toolbar and keyboard shortcuts add bold, lists, and headings that keep their shape wherever you read or share them.",
       highlights: [
-        "Bold, italics, bullet and numbered lists, and headings now show as styled text when you read a saved session.",
-        "Exported PDFs keep your formatting intact, with Hebrew right-to-left preserved.",
-        "Copying or sharing a session keeps your notes exactly as you wrote them.",
+        "A formatting toolbar over every note field adds bold, italics, bullet and numbered lists, and headings — with keyboard shortcuts on your computer.",
+        "Bold, italics, lists, and headings show as styled text when you read a saved session, and stay intact in exported PDFs — Hebrew right-to-left preserved.",
+        "A roomier export editor gives you space to shape a session before you share it, with a maximize option and the same formatting toolbar.",
       ],
       categories: {
         new: [
+          "A formatting toolbar sits above your session notes, with buttons for bold, italics, bullet and numbered lists, and a text-style menu for headings — plus undo and redo.",
+          "A live preview you can turn on for any note field, to watch your formatting take shape as you write.",
           "Reading a saved session now shows your notes as styled text, so bold, lists, and headings look the way you typed them — numbered lists keep the exact numbers you entered, switching between bullets and numbers renders each correctly, and it all works reliably whether or not you left a blank line between them.",
         ],
         improved: [
+          "Formatting while you type feels natural: use Ctrl+B and Ctrl+I on your computer, start a line with a dash or a number to begin a list that continues on its own, and press Tab to nest items.",
+          "The export editor now opens roomier — with space to shape almost a whole session at once, a maximize button, and the same formatting toolbar — and fills the screen on a phone.",
           "PDF exports now preserve bold, italics, bullet and numbered lists, nesting, and note headings — with Hebrew right-to-left kept correct.",
           "Copying a session or saving it as a text file keeps your notes exactly as written.",
         ],
