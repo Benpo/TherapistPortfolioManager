@@ -2,6 +2,13 @@
 
 ## Design Direction
 
+**Phase 46 addendum (sketches 006–007):** the rich-text toolbar editor's D-19 mockup
+gate. Direction is again **not open** — locked by `46-UI-SPEC.md` + the 19-decision
+`46-CONTEXT.md`: same garden tokens, Phase-45 `.note-rendered` register, icon-only
+toolbar (net-new chrome at 400/600 only), accent green reserved for active states.
+These sketches exist so Ben can *type into* the editor and feel the list mechanics,
+live preview, and both Step-2 size directions before planning.
+
 In-app onboarding / overview / help system for **Sessions Garden** (Phase 26). The
 visual and tonal direction is **not open** — it is fully locked by the approved
 `26-UI-SPEC.md` and the 15-decision `26-CONTEXT.md`: a calm, warm, clinician-domain
@@ -30,3 +37,5 @@ for the mockup this phase delivers (D-08: design contract + mockup, no prod code
 | 003 | tour-fallback | Does the tour feel rich when anchored AND genuinely not-broken when the anchor is missing (D-11)? | TBD | tour, interaction, resilience, i18n |
 | 004 | help-entry-point | Is the header-icon "?" entry discoverable vs. a bottom-corner floating button? | TBD | entry-point, chrome, discoverability |
 | 005 | changelog-register | Thematic sections + N/I/F chips vs. category-grouped vs. chip-free — how does each changelog entry read? (Phase 42) | B — grouped by category (Ben, 2026-07-09) | changelog, register, content-structure |
+| 006 | rich-text-toolbar-editor | Does the focus-attached toolbar + live preview + list mechanics feel right while typing — and text-style control: segmented or dropdown? (Phase 46, D-19) | TBD | toolbar, editor, interaction, phase-46 |
+| 007 | export-step2-size | Step-2 editing surface: bigger-by-default (50/70/80% candidates) or current size + maximize toggle → 90%? (Phase 46, D-16) | TBD | export, modal, sizing, phase-46 |

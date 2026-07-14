@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sketch 006 — Rich-Text Toolbar Editor (Phase 46)</title>
+<link rel="stylesheet" href="../themes/default.css">
+<style>
+  /* Real app fonts (graceful fallback to system-ui if file:// blocks them) */
+  @font-face { font-family:'Rubik'; src:url('../../../assets/fonts/Rubik-Regular.woff2') format('woff2'); font-weight:400; font-style:normal; }
+  @font-face { font-family:'Rubik'; src:url('../../../assets/fonts/Rubik-SemiBold.woff2') format('woff2'); font-weight:600; font-style:normal; }
+  @font-face { font-family:'Rubik'; src:url('../../../assets/fonts/Rubik-Bold.woff2') format('woff2'); font-weight:700; font-style:normal; }
+
+  /* Tokens the shared theme lacks (from real tokens.css) */
+  :root {
+    --color-info-bg: #cce5ff;
+    --color-info-text: #004085;
+    --color-surface-toggle: var(--color-green-50);
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { min-height: 100%; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-background);
+    color: var(--color-text);
+    padding-top: 56px; /* variant nav */
+    transition: background 0.2s, color 0.2s;
+  }
+
+  /* ── Variant nav (sketch chrome) ─────────────────────────────── */
+  #variant-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+    background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+    padding: 8px 16px; display: flex; gap: 8px; align-items: center;
+  }
+  #variant-nav .nav-title { font-size: 12px; color: var(--color-text-muted); margin-inline-end: 8px; }
+  .variant-tab {
+    font-family: var(--font-sans); font-size: 14px; padding: 6px 14px;
+    border: 1px solid var(--color-border); border-radius: 9999px;
+    background: transparent; color: var(--color-text); cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .variant-tab:hover { background: var(--color-surface-hover); }
+  .variant-tab.active {
+    background: var(--color-primary); color: var(--color-text-inverse);
+    border-color: var(--color-primary); font-weight: 600;
+  }
+
+  /* ── Stage / viewport simulation ─────────────────────────────── */
+  #stage { max-width: 860px; margin: 0 auto; padding: 24px 16px 96px; transition: max-width 0.2s ease; }
+  body.vp-phone  #stage { max-width: 375px; padding-inline: 8px; }
+  body.vp-tablet #stage { max-width: 768px; }
+
+  /* ── Test-script card ────────────────────────────────────────── */
+  .test-card {
+    background: var(--color-surface-alt); border: 1px solid var(--color-border-soft);
+    border-radius: 12px; padding: 16px; margin-block-end: 24px;
+    font-size: 0.9rem; line-height: 1.5;
+  }
+  .test-card h2 { font-size: 0.9rem; font-weight: 600; margin-block-end: 8px; }
+  .test-card ol { padding-inline-start: 24px; }
+  .test-card li { margin-block-end: 2px; }
+  .test-card kbd {
+    font-family: var(--font-sans); font-size: 0.8rem; background: var(--color-surface);
+    border: 1px solid var(--color-border); border-radius: 4px; padding: 0 4px;
+  }
+
+  /* ── Mini add-session form ───────────────────────────────────── */
+  .page-title { font-size: 1.35rem; font-weight: 700; margin-block-end: 4px; }
+  .page-sub { color: var(--color-text-muted); font-size: 0.9rem; margin-block-end: 16px; }
+  .form-card {
+    background: var(--color-surface); border-radius: 18px;
+    box-shadow: var(--shadow-card); padding: 24px; margin-block-end: 24px;
+  }
+  body.vp-phone .form-card { padding: 16px; border-radius: 12px; }
+  .field { margin-block-end: 20px; }
+  .field:last-child { margin-block-end: 0; }
+  .field label { display: block; font-size: 0.95rem; font-weight: 600; margin-block-end: 6px; }
+  .note-field {
+    width: 100%; min-height: 96px; resize: none; overflow: hidden;
+    font-family: var(--font-sans); font-size: 1rem; line-height: 1.5;
+    color: var(--color-text); background: var(--color-surface);
+    border: 1px solid var(--color-border); border-radius: 12px; padding: 12px;
+    transition: border-color 0.15s ease;
+  }
+  .note-field:focus { outline: none; border-color: var(--color-primary); }
+
+  /* ── The focus-attached toolbar ──────────────────────────────── */
+  #rtToolbar {
+    display: none; align-items: center; gap: 4px;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: 12px; padding: 4px; margin-block-end: 8px;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+    box-shadow: var(--shadow-nav);
+  }
+  #rtToolbar.is-docked { display: flex; animation: tb-in 0.15s ease; }
+  @keyframes tb-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .tb-btn {
+    flex: 0 0 auto; width: 36px; height: 36px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid transparent; background: transparent; padding: 0;
+    color: var(--color-text); cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+    font-family: var(--font-sans);
+  }
+  body.vp-phone .tb-btn { width: 44px; height: 44px; } /* WCAG 2.2 touch targets */
+  .tb-btn:hover { background: var(--color-surface-hover); }
+  .tb-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  .tb-btn.is-active { color: var(--color-primary); background: var(--color-surface-secondary-btn); }
+  .tb-btn svg { display: block; }
+  .tb-glyph-b { font-weight: 800; font-size: 17px; }
+  .tb-glyph-i { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-size: 18px; }
+  .tb-sep { flex: 0 0 auto; width: 1px; height: 20px; background: var(--color-border-soft); margin-inline: 4px; }
+  [dir="rtl"] .icon-flip svg { transform: scaleX(-1); }
+
+  /* Text-style control — SEGMENTED (Variant A) */
+  .hc-segmented { display: none; flex: 0 0 auto; align-items: center; gap: 0; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; }
+  body[data-heading-control="segmented"] .hc-segmented { display: inline-flex; }
+  .hc-seg-btn {
+    font-family: var(--font-sans); font-size: 0.85rem; font-weight: 400;
+    padding: 0 10px; height: 34px; border: none; background: transparent;
+    color: var(--color-text); cursor: pointer; transition: all 0.15s ease;
+    border-inline-end: 1px solid var(--color-border-soft);
+  }
+  body.vp-phone .hc-seg-btn { height: 42px; }
+  .hc-seg-btn:last-child { border-inline-end: none; }
+  .hc-seg-btn:hover { background: var(--color-surface-hover); }
+  .hc-seg-btn.is-active { color: var(--color-primary); background: var(--color-surface-secondary-btn); font-weight: 600; }
+  .hc-seg-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: -2px; }
+
+  /* Text-style control — DROPDOWN (Variant B) */
+  .hc-dropdown { display: none; position: relative; flex: 0 0 auto; }
+  body[data-heading-control="dropdown"] .hc-dropdown { display: inline-block; }
+  .hc-dd-btn {
+    font-family: var(--font-sans); font-size: 0.9rem; height: 36px;
+    padding: 0 10px; display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--color-border); border-radius: 8px;
+    background: transparent; color: var(--color-text); cursor: pointer;
+    transition: background-color 0.15s;
+  }
+  body.vp-phone .hc-dd-btn { height: 44px; }
+  .hc-dd-btn:hover { background: var(--color-surface-hover); }
+  .hc-dd-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  .hc-dd-menu {
+    position: fixed; /* physical coords — repo RTL rule */
+    min-width: 180px; background: var(--color-surface);
+    border: 1px solid var(--color-border); border-radius: 12px;
+    box-shadow: var(--shadow-card); padding: 4px; z-index: 360; display: none;
+  }
+  .hc-dd-menu.is-open { display: block; }
+  .hc-dd-item {
+    display: block; width: 100%; text-align: start; border: none; background: transparent;
+    font-family: var(--font-sans); color: var(--color-text); cursor: pointer;
+    padding: 8px 12px; border-radius: 8px; transition: background-color 0.15s;
+  }
+  .hc-dd-item:hover { background: var(--color-surface-hover); }
+  .hc-dd-item.is-active { color: var(--color-primary); background: var(--color-surface-secondary-btn); }
+  .hc-dd-item .dd-h1 { font-size: 17px; font-weight: 600; }
+  .hc-dd-item .dd-h2 { font-size: 16px; font-weight: 600; }
+  .hc-dd-item .dd-h3 { font-size: 15px; font-weight: 600; }
+  .hc-dd-item .dd-p  { font-size: 1rem;  font-weight: 400; }
+
+  /* ── Live preview pane ───────────────────────────────────────── */
+  #previewWrap {
+    display: none; border: 1px solid var(--color-border); border-radius: 12px;
+    background: var(--color-surface); padding: 12px 16px; margin-block-start: 8px;
+    animation: tb-in 0.15s ease;
+  }
+  #previewWrap.is-open { display: block; }
+  .preview-tag {
+    display: inline-block; font-size: 0.75rem; font-weight: 600;
+    color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em;
+    margin-block-end: 6px;
+  }
+  .preview-empty h3 { font-size: 0.95rem; font-weight: 600; margin-block-end: 2px; }
+  .preview-empty p { font-size: 0.9rem; color: var(--color-text-muted); }
+
+  /* Phase-45 .note-rendered register — copied verbatim from app.css */
+  .note-rendered { color: var(--color-text); font-size: 1rem; line-height: 1.55; white-space: normal; word-break: break-word; }
+  .note-rendered p { font-size: 1rem; line-height: 1.55; margin-block: 0 8px; }
+  .note-rendered p:last-child { margin-block-end: 0; }
+  .note-rendered ul, .note-rendered ol { padding-inline-start: 24px; margin-block: 0 8px; }
+  .note-rendered li { margin-block-end: 2px; }
+  .note-rendered h1 { font-size: 17px; font-weight: 600; line-height: 1.35; margin-block: 12px 4px; }
+  .note-rendered h2 { font-size: 16px; font-weight: 600; line-height: 1.35; margin-block: 12px 4px; }
+  .note-rendered h3 { font-size: 15px; font-weight: 600; line-height: 1.35; margin-block: 12px 4px; }
+  .note-rendered :first-child { margin-block-start: 0; }
+
+  /* ── Fake snippets popover (RTXT-09 coexistence) ─────────────── */
+  #snipPop {
+    position: fixed; /* physical left/top — repo RTL rule */
+    min-width: 220px; max-width: 280px; background: var(--color-surface);
+    border: 1px solid var(--color-border); border-radius: 12px;
+    box-shadow: var(--shadow-card); padding: 4px; z-index: 360; display: none;
+  }
+  #snipPop.is-open { display: block; }
+  .snip-item { padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+  .snip-item.is-selected, .snip-item:hover { background: var(--color-surface-hover); }
+  .snip-item .snip-trigger { font-size: 0.85rem; font-weight: 600; color: var(--color-primary); }
+  .snip-item .snip-preview { font-size: 0.8rem; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ── Sketch tools (bottom-right, hardcoded dark) ─────────────── */
+  #sketch-tools {
+    position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+    font-family: system-ui; font-size: 12px; background: rgba(0,0,0,0.72); color: #fff;
+    padding: 8px 12px; border-radius: 8px; opacity: 0.45; transition: opacity 0.2s;
+    display: flex; gap: 6px; align-items: center; flex-wrap: wrap; max-width: 320px;
+  }
+  #sketch-tools:hover { opacity: 1; }
+  #sketch-tools button {
+    font-size: 11px; background: rgba(255,255,255,0.14); color: #fff;
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 6px;
+    padding: 3px 8px; cursor: pointer;
+  }
+  #sketch-tools button.on { background: #2d6a4f; border-color: #2d6a4f; }
+</style>
+</head>
+<body data-heading-control="segmented">
+
+<!-- Variant nav -->
+<div id="variant-nav">
+  <span class="nav-title">006 · text-style control:</span>
+  <button class="variant-tab active" id="tabA" onclick="setVariant('segmented')">A: Segmented (H1 H2 H3 ¶)</button>
+  <button class="variant-tab" id="tabB" onclick="setVariant('dropdown')">B: Dropdown (Text ▾)</button>
+</div>
+
+<div id="stage">
+  <div class="test-card">
+    <h2>Test script — type into the fields below</h2>
+    <ol>
+      <li>Click into <strong>Trapped Emotions</strong> — the toolbar docks above it.</li>
+      <li>Delete line 3 entirely — watch old “4.” renumber to “3.” instantly.</li>
+      <li>Paste the cut line at the end — it takes the next number.</li>
+      <li><kbd>Enter</kbd> on an empty nested item outdents; on an empty top-level item it exits the list.</li>
+      <li>Select a word → <kbd>Ctrl/Cmd+B</kbd> bolds it; again unbolds (same for <kbd>I</kbd>).</li>
+      <li><kbd>Tab</kbd> / <kbd>Shift+Tab</kbd> indent/outdent a list line; <kbd>Tab</kbd> on plain text still moves focus.</li>
+      <li>Eye icon → live preview below the field re-renders as you type.</li>
+      <li>Type <kbd>;rel</kbd> mid-note — the snippets popover appears at the caret (must coexist with the toolbar).</li>
+      <li>Bottom-right tools: dark mode, RTL + Hebrew sample, phone width (44px touch targets).</li>
+    </ol>
+  </div>
+
+  <h1 class="page-title">Log a Session</h1>
+  <p class="page-sub">Maya Cohen · Emotion Code · 14 Jul 2026</p>
+
+  <div class="form-card" id="formCard">
+    <div class="field">
+      <label for="fldTrapped">Trapped Emotions</label>
+      <textarea class="note-field" id="fldTrapped" spellcheck="false">1. Abandonment — age 7, released
+2. Grief — inherited from mother, released
+3. Low self-esteem — age 12, needs follow-up
+4. Anger — released with magnet, 3 passes</textarea>
+    </div>
+    <div class="field">
+      <label for="fldInsights">Insights</label>
+      <textarea class="note-field" id="fldInsights" spellcheck="false">**Key theme:** letting go of old stories
+
+- Client felt a *shift* after the second release
+- Daily heart-focused breathing assigned
+  - morning: 5 minutes
+  - evening: before sleep</textarea>
+    </div>
+    <div class="field">
+      <label for="fldComments">Comments</label>
+      <textarea class="note-field" id="fldComments" spellcheck="false"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- The single focus-attached toolbar (docked above the focused field by JS) -->
+<div id="rtToolbar" role="toolbar" aria-label="Formatting">
+  <!-- Text-style control, Variant A: segmented -->
+  <span class="hc-segmented" title="Text style">
+    <button type="button" class="hc-seg-btn" data-heading="1">H1</button>
+    <button type="button" class="hc-seg-btn" data-heading="2">H2</button>
+    <button type="button" class="hc-seg-btn" data-heading="3">H3</button>
+    <button type="button" class="hc-seg-btn is-active" data-heading="0">¶</button>
+  </span>
+  <!-- Text-style control, Variant B: dropdown -->
+  <span class="hc-dropdown">
+    <button type="button" class="hc-dd-btn" id="hcDdBtn" title="Text style">
+      <span id="hcDdLabel">Text</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+  </span>
+  <span class="tb-sep"></span>
+  <button type="button" class="tb-btn" id="btnBold" title="Bold (Ctrl+B)"><span class="tb-glyph-b">B</span></button>
+  <button type="button" class="tb-btn" id="btnItalic" title="Italic (Ctrl+I) · appears upright in PDF export"><span class="tb-glyph-i">I</span></button>
+  <span class="tb-sep"></span>
+  <button type="button" class="tb-btn" id="btnUl" title="Bullet list">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="9" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="9" y1="18" x2="21" y2="18"/><circle cx="4.5" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.4" fill="currentColor" stroke="none"/></svg>
+  </button>
+  <button type="button" class="tb-btn" id="btnOl" title="Numbered list">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><text x="2.4" y="8.2" font-size="7" fill="currentColor" stroke="none" font-family="system-ui">1</text><text x="2.4" y="14.4" font-size="7" fill="currentColor" stroke="none" font-family="system-ui">2</text><text x="2.4" y="20.6" font-size="7" fill="currentColor" stroke="none" font-family="system-ui">3</text></svg>
+  </button>
+  <button type="button" class="tb-btn icon-flip" id="btnIndent" title="Indent (Tab)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="5" x2="21" y2="5"/><line x1="11" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="3 9 7 12 3 15"/></svg>
+  </button>
+  <button type="button" class="tb-btn icon-flip" id="btnOutdent" title="Outdent (Shift+Tab)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="5" x2="21" y2="5"/><line x1="11" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="7 9 3 12 7 15"/></svg>
+  </button>
+  <span class="tb-sep"></span>
+  <button type="button" class="tb-btn" id="btnPreview" title="Preview">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+  </button>
+</div>
+
+<!-- Text-style dropdown menu (fixed, physical coords) -->
+<div class="hc-dd-menu" id="hcDdMenu">
+  <button type="button" class="hc-dd-item" data-heading="1"><span class="dd-h1">Heading 1</span></button>
+  <button type="button" class="hc-dd-item" data-heading="2"><span class="dd-h2">Heading 2</span></button>
+  <button type="button" class="hc-dd-item" data-heading="3"><span class="dd-h3">Heading 3</span></button>
+  <button type="button" class="hc-dd-item is-active" data-heading="0"><span class="dd-p">Regular text</span></button>
+</div>
+
+<!-- Live preview pane (single instance, moves with the toolbar) -->
+<div id="previewWrap">
+  <span class="preview-tag">Preview</span>
+  <div id="previewBody" class="note-rendered"></div>
+</div>
+
+<!-- Fake snippets popover -->
+<div id="snipPop"></div>
+
+<!-- Sketch tools -->
+<div id="sketch-tools">
+  <button id="toolDark" onclick="toggleDark()">Dark</button>
+  <button id="toolRtl" onclick="toggleRtl()">RTL</button>
+  <button onclick="fillHebrew()">עברית sample</button>
+  <span style="opacity:0.6">|</span>
+  <button id="vpPhone" onclick="setViewport('phone')">Phone</button>
+  <button id="vpTablet" onclick="setViewport('tablet')">Tablet</button>
+  <button id="vpFull" class="on" onclick="setViewport('full')">Full</button>
+</div>
+
+<script>
+"use strict";
+/* ═══════════════ Sketch chrome ═══════════════ */
+function setVariant(mode) {
+  document.body.dataset.headingControl = mode;
+  document.getElementById('tabA').classList.toggle('active', mode === 'segmented');
+  document.getElementById('tabB').classList.toggle('active', mode === 'dropdown');
+}
+function toggleDark() {
+  const on = document.documentElement.dataset.theme === 'dark';
+  if (on) delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = 'dark';
+  document.getElementById('toolDark').classList.toggle('on', !on);
+}
+function toggleRtl() {
+  const rtl = document.documentElement.dir === 'rtl';
+  document.documentElement.dir = rtl ? 'ltr' : 'rtl';
+  document.getElementById('toolRtl').classList.toggle('on', !rtl);
+}
+function setViewport(vp) {
+  document.body.classList.remove('vp-phone', 'vp-tablet');
+  if (vp !== 'full') document.body.classList.add('vp-' + vp);
+  ['vpPhone','vpTablet','vpFull'].forEach(id => document.getElementById(id).classList.remove('on'));
+  document.getElementById({phone:'vpPhone',tablet:'vpTablet',full:'vpFull'}[vp]).classList.add('on');
+  NOTE_FIELDS.forEach(autoGrow);
+}
+function fillHebrew() {
+  const ta = document.getElementById('fldTrapped');
+  ta.value = "1. נטישה — גיל 7, שוחרר\n2. אבל — עבר בירושה מאמא, שוחרר\n3. ערך עצמי נמוך — גיל 12, דורש מעקב\n4. כעס — שוחרר עם מגנט, 3 מעברים";
+  if (document.documentElement.dir !== 'rtl') toggleRtl();
+  ta.focus(); afterChange(ta);
+}
+
+/* ═══════════════ Mini escape-first renderer (MdRender subset) ═══════════════ */
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function inlineMd(s) {
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  return s;
+}
+function renderMd(src) {
+  const lines = esc(src).split('\n');
+  let html = '', listStack = [], para = [];
+  const closeLists = (depth) => { while (listStack.length > depth) html += '</li></' + listStack.pop() + '>'; };
+  const flushPara = () => {
+    if (para.length) { html += '<p>' + para.map(inlineMd).join('<br>') + '</p>'; para = []; }
+  };
+  for (const raw of lines) {
+    const h = raw.match(/^(#{1,3})\s+(.*)$/);
+    const li = raw.match(/^((?:  )*)(?:-|\d+[.)])\s+(.*)$/);
+    const isOl = /^\s*\d+[.)]\s/.test(raw);
+    if (h) { flushPara(); closeLists(0); const l = h[1].length; html += `<h${l}>${inlineMd(h[2])}</h${l}>`; }
+    else if (li) {
+      flushPara();
+      const depth = li[1].length / 2 + 1, tag = isOl ? 'ol' : 'ul';
+      if (depth > listStack.length) { while (listStack.length < depth) { html += `<${tag}>`; listStack.push(tag); html += '<li>'; } html += inlineMd(li[2]); }
+      else { closeLists(depth); html += '</li><li>' + inlineMd(li[2]); }
+    }
+    else if (raw.trim() === '') { flushPara(); closeLists(0); }
+    else { closeLists(0); para.push(raw); }
+  }
+  flushPara(); closeLists(0);
+  return html;
+}
+
+/* ═══════════════ Editor engine ═══════════════ */
+const NOTE_FIELDS = Array.from(document.querySelectorAll('.note-field'));
+const toolbar = document.getElementById('rtToolbar');
+const previewWrap = document.getElementById('previewWrap');
+const previewBody = document.getElementById('previewBody');
+let currentTA = null, previewOn = false, previewTimer = null;
+
+function lineBounds(v, pos) {
+  const start = v.lastIndexOf('\n', pos - 1) + 1;
+  let end = v.indexOf('\n', pos); if (end === -1) end = v.length;
+  return { start, end, text: v.slice(start, end) };
+}
+function parseListLine(text) {
+  const m = text.match(/^((?:  )*)(- |(\d+)([.)]) )(.*)$/);
+  if (!m) return null;
+  return { indent: m[1], depth: m[1].length / 2, marker: m[2], num: m[3] ? parseInt(m[3], 10) : null, sep: m[4] || '.', content: m[5] };
+}
+function setValueKeepCaret(ta, newValue, selStart, selEnd) {
+  ta.value = newValue;
+  ta.setSelectionRange(selStart, selEnd !== undefined ? selEnd : selStart);
+}
+
+/* Full auto-renumber (D-11): raw text always reads 1..N per run+depth */
+function renumber(ta) {
+  const v = ta.value, caret = ta.selectionStart, caretEnd = ta.selectionEnd;
+  const lines = v.split('\n');
+  const caretLine = v.slice(0, caret).split('\n').length - 1;
+  const caretCol = caret - (v.lastIndexOf('\n', caret - 1) + 1);
+  const counters = [];
+  let changed = false, caretDelta = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^((?:  )*)(\d+)([.)])( .*|$)/);
+    const bullet = /^((?:  )*)- /.exec(lines[i]);
+    if (m) {
+      const depth = m[1].length / 2;
+      counters.length = depth + 1;
+      counters[depth] = (counters[depth] || 0) + 1;
+      const newLine = m[1] + counters[depth] + m[3] + m[4];
+      if (newLine !== lines[i]) {
+        if (i === caretLine) {
+          const oldPrefix = m[1].length + m[2].length, newPrefix = m[1].length + String(counters[depth]).length;
+          if (caretCol > oldPrefix) caretDelta += newPrefix - oldPrefix;
+        } else if (i < caretLine) caretDelta += newLine.length - lines[i].length;
+        lines[i] = newLine; changed = true;
+      }
+    } else if (bullet) { counters.length = bullet[1].length / 2 + 1; counters[bullet[1].length / 2] = 0; }
+    else { counters.length = 0; }
+  }
+  if (changed) setValueKeepCaret(ta, lines.join('\n'), caret + caretDelta, caretEnd + caretDelta);
+}
+
+function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 2) + 'px'; }
+
+function afterChange(ta) {
+  renumber(ta);
+  autoGrow(ta);
+  refreshStates();
+  if (previewOn && ta === currentTA) {
+    clearTimeout(previewTimer);
+    previewTimer = setTimeout(renderPreview, 150);
+  }
+}
+
+function renderPreview() {
+  if (!currentTA) return;
+  const v = currentTA.value;
+  if (v.trim() === '') {
+    previewBody.innerHTML = '<div class="preview-empty"><h3>Nothing to preview yet</h3><p>Start typing to see the formatted result.</p></div>';
+  } else {
+    previewBody.innerHTML = renderMd(v);
+  }
+}
+
+/* ── Toggle semantics for bold/italic (D-04) ── */
+function toggleWrap(ta, marker) {
+  const v = ta.value, s = ta.selectionStart, e = ta.selectionEnd, m = marker.length;
+  const sel = v.slice(s, e);
+  if (sel.length >= 2 * m && sel.startsWith(marker) && sel.endsWith(marker)) {
+    setValueKeepCaret(ta, v.slice(0, s) + sel.slice(m, sel.length - m) + v.slice(e), s, e - 2 * m);
+  } else if (v.slice(s - m, s) === marker && v.slice(e, e + m) === marker) {
+    setValueKeepCaret(ta, v.slice(0, s - m) + sel + v.slice(e + m), s - m, e - m);
+  } else if (s === e) {
+    setValueKeepCaret(ta, v.slice(0, s) + marker + marker + v.slice(e), s + m);
+  } else {
+    setValueKeepCaret(ta, v.slice(0, s) + marker + sel + marker + v.slice(e), s + m, e + m);
+  }
+  afterChange(ta);
+}
+
+/* ── Heading apply (paragraph-style model, Phase 45 D-01) ── */
+function applyHeading(ta, level) {
+  const v = ta.value, caret = ta.selectionStart;
+  const { start, end, text } = lineBounds(v, caret);
+  const stripped = text.replace(/^#{1,3}\s+/, '');
+  const newText = level === 0 ? stripped : '#'.repeat(level) + ' ' + stripped;
+  const delta = newText.length - text.length;
+  setValueKeepCaret(ta, v.slice(0, start) + newText + v.slice(end), Math.max(start, caret + delta));
+  afterChange(ta);
+}
+
+/* ── List toggles ── */
+function toggleList(ta, ordered) {
+  const v = ta.value, caret = ta.selectionStart;
+  const { start, end, text } = lineBounds(v, caret);
+  const li = parseListLine(text);
+  let newText;
+  if (li && ((ordered && li.num !== null) || (!ordered && li.num === null))) {
+    newText = li.indent + li.content;                                   // remove marker
+  } else if (li) {
+    newText = li.indent + (ordered ? '1. ' : '- ') + li.content;        // swap type
+  } else {
+    newText = (ordered ? '1. ' : '- ') + text;                          // add marker
+  }
+  setValueKeepCaret(ta, v.slice(0, start) + newText + v.slice(end), caret + (newText.length - text.length));
+  afterChange(ta);
+}
+
+/* ── Indent / outdent (D-09) ── */
+function indentLine(ta, outdent) {
+  const v = ta.value, caret = ta.selectionStart;
+  const { start, end, text } = lineBounds(v, caret);
+  if (!parseListLine(text)) return false;
+  let newText;
+  if (outdent) {
+    if (!text.startsWith('  ')) return true; // already top level — swallow the keypress
+    newText = text.slice(2);
+  } else newText = '  ' + text;
+  setValueKeepCaret(ta, v.slice(0, start) + newText + v.slice(end), Math.max(start, caret + (newText.length - text.length)));
+  afterChange(ta);
+  return true;
+}
+
+/* ── Enter behavior (auto-continue / exit / empty-nested-outdent, D-10) ── */
+function handleEnter(ta) {
+  const v = ta.value, caret = ta.selectionStart;
+  const { start, end, text } = lineBounds(v, caret);
+  const li = parseListLine(text);
+  if (!li) return false;
+  if (li.content.trim() === '' && caret >= start + li.indent.length + li.marker.length) {
+    if (li.depth > 0) { // empty nested item → outdent one level per press
+      const newText = text.slice(2);
+      setValueKeepCaret(ta, v.slice(0, start) + newText + v.slice(end), caret - 2);
+    } else {            // empty top-level item → exit the list
+      setValueKeepCaret(ta, v.slice(0, start) + v.slice(end), start);
+    }
+    afterChange(ta);
+    return true;
+  }
+  const nextMarker = li.num !== null ? (li.num + 1) + li.sep + ' ' : '- ';
+  const insert = '\n' + li.indent + nextMarker;
+  setValueKeepCaret(ta, v.slice(0, caret) + insert + v.slice(ta.selectionEnd), caret + insert.length);
+  afterChange(ta);
+  return true;
+}
+
+/* ── Active-state detection ── */
+function refreshStates() {
+  if (!currentTA) return;
+  const v = currentTA.value, caret = currentTA.selectionStart;
+  const { start, text } = lineBounds(v, caret);
+  const li = parseListLine(text);
+  const h = text.match(/^(#{1,3})\s/);
+  const before = text.slice(0, caret - start);
+  const boldOn = (before.split('**').length - 1) % 2 === 1;
+  const italicOn = (before.replace(/\*\*/g, '').split('*').length - 1) % 2 === 1;
+  document.getElementById('btnBold').classList.toggle('is-active', boldOn);
+  document.getElementById('btnItalic').classList.toggle('is-active', italicOn);
+  document.getElementById('btnUl').classList.toggle('is-active', !!li && li.num === null);
+  document.getElementById('btnOl').classList.toggle('is-active', !!li && li.num !== null);
+  const level = h ? h[1].length : 0;
+  document.querySelectorAll('.hc-seg-btn').forEach(b => b.classList.toggle('is-active', +b.dataset.heading === level));
+  document.querySelectorAll('.hc-dd-item').forEach(b => b.classList.toggle('is-active', +b.dataset.heading === level));
+  document.getElementById('hcDdLabel').textContent = level ? 'H' + level : 'Text';
+}
+
+/* ── Docking (D-01): one toolbar, docked above the focused field ── */
+function dock(ta) {
+  if (currentTA === ta) return;
+  currentTA = ta;
+  previewOn = false;                       // preview state resets when leaving a field (D-07)
+  previewWrap.classList.remove('is-open');
+  document.getElementById('btnPreview').classList.remove('is-active');
+  document.getElementById('btnPreview').title = 'Preview';
+  ta.parentNode.insertBefore(toolbar, ta);
+  ta.insertAdjacentElement('afterend', previewWrap);
+  toolbar.classList.add('is-docked');
+  refreshStates();
+}
+function undock() {
+  toolbar.classList.remove('is-docked');
+  previewWrap.classList.remove('is-open');
+  previewOn = false; currentTA = null;
+  closeSnips(); closeDdMenu();
+}
+
+document.addEventListener('focusin', (e) => {
+  if (e.target.classList && e.target.classList.contains('note-field')) dock(e.target);
+});
+document.addEventListener('focusout', () => {
+  setTimeout(() => {
+    const a = document.activeElement;
+    if (!a) return undock();
+    if (a.classList && a.classList.contains('note-field')) return;
+    if (toolbar.contains(a) || previewWrap.contains(a) || document.getElementById('hcDdMenu').contains(a)) return;
+    undock();
+  }, 0);
+});
+/* Toolbar clicks never steal focus from the textarea */
+toolbar.addEventListener('mousedown', (e) => e.preventDefault());
+document.getElementById('hcDdMenu').addEventListener('mousedown', (e) => e.preventDefault());
+/* Sketch chrome (variant tabs, dark/RTL tools) must not steal focus either — else the toolbar undocks mid-comparison */
+document.getElementById('variant-nav').addEventListener('mousedown', (e) => e.preventDefault());
+document.getElementById('sketch-tools').addEventListener('mousedown', (e) => e.preventDefault());
+
+/* ── Toolbar wiring ── */
+document.getElementById('btnBold').addEventListener('click', () => currentTA && toggleWrap(currentTA, '**'));
+document.getElementById('btnItalic').addEventListener('click', () => currentTA && toggleWrap(currentTA, '*'));
+document.getElementById('btnUl').addEventListener('click', () => currentTA && toggleList(currentTA, false));
+document.getElementById('btnOl').addEventListener('click', () => currentTA && toggleList(currentTA, true));
+document.getElementById('btnIndent').addEventListener('click', () => currentTA && indentLine(currentTA, false));
+document.getElementById('btnOutdent').addEventListener('click', () => currentTA && indentLine(currentTA, true));
+document.getElementById('btnPreview').addEventListener('click', () => {
+  if (!currentTA) return;
+  previewOn = !previewOn;
+  previewWrap.classList.toggle('is-open', previewOn);
+  const b = document.getElementById('btnPreview');
+  b.classList.toggle('is-active', previewOn);
+  b.title = previewOn ? 'Hide preview' : 'Preview';
+  if (previewOn) renderPreview();
+});
+document.querySelectorAll('.hc-seg-btn').forEach(b =>
+  b.addEventListener('click', () => currentTA && applyHeading(currentTA, +b.dataset.heading)));
+
+/* Dropdown text-style control (fixed positioning, PHYSICAL left/top — repo RTL rule) */
+const ddMenu = document.getElementById('hcDdMenu');
+function closeDdMenu() { ddMenu.classList.remove('is-open'); }
+document.getElementById('hcDdBtn').addEventListener('click', () => {
+  if (ddMenu.classList.contains('is-open')) return closeDdMenu();
+  const r = document.getElementById('hcDdBtn').getBoundingClientRect();
+  ddMenu.style.left = Math.min(r.left, window.innerWidth - 200) + 'px';
+  ddMenu.style.top = (r.bottom + 4) + 'px';
+  ddMenu.classList.add('is-open');
+});
+document.querySelectorAll('.hc-dd-item').forEach(b =>
+  b.addEventListener('click', () => { if (currentTA) applyHeading(currentTA, +b.dataset.heading); closeDdMenu(); }));
+document.addEventListener('click', (e) => {
+  if (!ddMenu.contains(e.target) && e.target.id !== 'hcDdBtn' && !document.getElementById('hcDdBtn').contains(e.target)) closeDdMenu();
+});
+
+/* ── Fake snippets popover (RTXT-09 coexistence; caret-anchored, z-360) ── */
+const SNIPPETS = [
+  { trigger: 'release', text: 'Released with magnet — 3 passes over the governing meridian.' },
+  { trigger: 'follow', text: 'Needs follow-up at next session.' },
+  { trigger: 'breath', text: 'Assigned heart-focused breathing, 5 minutes daily.' }
+];
+const snipPop = document.getElementById('snipPop');
+let snipState = null;
+function closeSnips() { snipPop.classList.remove('is-open'); snipState = null; }
+function caretXY(ta) {
+  const s = getComputedStyle(ta);
+  const d = document.createElement('div');
+  ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','whiteSpace','wordWrap','wordBreak','paddingTop','paddingRight','paddingBottom','paddingLeft','borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth','boxSizing','direction','textAlign'].forEach(p => d.style[p] = s[p]);
+  d.style.position = 'absolute'; d.style.visibility = 'hidden'; d.style.whiteSpace = 'pre-wrap';
+  d.style.width = ta.clientWidth + 'px';
+  d.textContent = ta.value.slice(0, ta.selectionStart);
+  const span = document.createElement('span'); span.textContent = '\u200b'; d.appendChild(span);
+  document.body.appendChild(d);
+  const x = span.offsetLeft, y = span.offsetTop;
+  d.remove();
+  const r = ta.getBoundingClientRect();
+  const lh = parseFloat(s.lineHeight) || 22;
+  return { left: r.left + x - ta.scrollLeft, top: r.top + y - ta.scrollTop + lh };
+}
+function detectSnippet(ta) {
+  const before = ta.value.slice(0, ta.selectionStart);
+  const m = before.match(/(^|\s);([\p{L}\p{N}-]*)$/u);
+  if (!m) return closeSnips();
+  const q = m[2].toLowerCase();
+  const hits = SNIPPETS.filter(sn => sn.trigger.startsWith(q));
+  if (!hits.length) return closeSnips();
+  snipState = { ta, start: ta.selectionStart - m[2].length - 1, hits, sel: 0 };
+  snipPop.innerHTML = hits.map((sn, i) =>
+    `<div class="snip-item${i === 0 ? ' is-selected' : ''}" data-i="${i}"><div class="snip-trigger">;${sn.trigger}</div><div class="snip-preview">${sn.text}</div></div>`).join('');
+  const xy = caretXY(ta);
+  snipPop.style.left = Math.min(xy.left, window.innerWidth - 290) + 'px'; /* physical */
+  snipPop.style.top = xy.top + 'px';
+  snipPop.classList.add('is-open');
+  snipPop.querySelectorAll('.snip-item').forEach(el =>
+    el.addEventListener('mousedown', (e) => { e.preventDefault(); insertSnippet(+el.dataset.i); }));
+}
+function insertSnippet(i) {
+  if (!snipState) return;
+  const { ta, start, hits } = snipState;
+  const v = ta.value, end = ta.selectionStart;
+  setValueKeepCaret(ta, v.slice(0, start) + hits[i].text + v.slice(end), start + hits[i].text.length);
+  closeSnips(); afterChange(ta);
+}
+function snipMove(dir) {
+  snipState.sel = (snipState.sel + dir + snipState.hits.length) % snipState.hits.length;
+  snipPop.querySelectorAll('.snip-item').forEach((el, i) => el.classList.toggle('is-selected', i === snipState.sel));
+}
+
+/* ── Field wiring ── */
+NOTE_FIELDS.forEach(ta => {
+  autoGrow(ta);
+  ta.addEventListener('input', () => { afterChange(ta); detectSnippet(ta); });
+  ta.addEventListener('keydown', (e) => {
+    if (snipState) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); return snipMove(1); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); return snipMove(-1); }
+      if (e.key === 'Enter') { e.preventDefault(); return insertSnippet(snipState.sel); }
+      if (e.key === 'Escape') { return closeSnips(); }
+    }
+    if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+      const k = e.key.toLowerCase();
+      if (k === 'b') { e.preventDefault(); return toggleWrap(ta, '**'); }
+      if (k === 'i') { e.preventDefault(); return toggleWrap(ta, '*'); }
+    }
+    if (e.key === 'Enter' && handleEnter(ta)) e.preventDefault();
+    if (e.key === 'Tab' && indentLine(ta, e.shiftKey)) e.preventDefault(); // list lines only — plain text keeps focus-move
+  });
+  ta.addEventListener('click', refreshStates);
+  ta.addEventListener('keyup', refreshStates);
+  ta.addEventListener('scroll', closeSnips);
+});
+</script>
+</body>
+</html>
