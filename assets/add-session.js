@@ -218,6 +218,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateCancelButtonLabel();
     });
   }
+
+  // Rich-text formatting toolbar + per-field live preview over the 7 note
+  // fields. The toolbar is focus-attached: it docks above whichever
+  // .session-textarea has focus in edit mode and hides when none is focused.
+  // In read mode the note textareas are hidden and readOnly (so not focusable),
+  // which means the toolbar stays hidden automatically — the read/edit toggle
+  // in setReadMode needs no separate toolbar teardown. The mount is ADDITIVE
+  // and does NOT rewire autoGrow or the snippets input listener: toolbar edits
+  // fire real input events those listeners already observe, so formatting,
+  // auto-grow, and snippet expansion compose cleanly. Guarded on presence so
+  // the page still works if the toolbar module is not loaded yet.
+  //
+  // No guided-tour step is added for the toolbar this milestone: it is
+  // self-evident from its icon buttons and tooltips and is covered in the help
+  // center, so an extra tour step would add fatigue for little gain.
+  if (window.RichToolbar && typeof window.RichToolbar.mount === "function") {
+    window.RichToolbar.mount(
+      document.querySelectorAll(".session-textarea"),
+      { headings: true }
+    );
+  }
+
   window.addEventListener("beforeunload", (e) => {
     // Honour the one-shot bypass flag set by
     // App.installNavGuard so the user does not see a custom dialog AND the
