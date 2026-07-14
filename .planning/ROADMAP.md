@@ -178,7 +178,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   3. The user can toggle a live preview of the rendered result while editing, and can indent/outdent list items to build nested lists that render correctly in both the preview and the exported PDF.
   4. Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields — verified in a real browser, not jsdom.
 
-**Plans**: 7/8 plans executed
+**Plans**: 7/8 base plans executed; 6 gap-closure plans added (46-09..46-14) from the 46-08 UAT
 **UI hint**: yes (UI-SPEC approved; mockup gate D-19 satisfied)
 
 **Wave 1** *(parallel — no file overlap)*
@@ -206,6 +206,29 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 **Wave 6** *(blocked on 46-02, 46-05, 46-06, 46-07 — closing real-device pass)*
 
 - [ ] 46-08-PLAN.md — real-browser / real-iPhone-PWA / real-PDF phase verification gate [wave 6]
+
+**Gap-Closure Waves** *(from the 2026-07-14 46-08 real-device UAT — 5 open gaps; re-run the device gate after these land)*
+
+**Wave 7** *(parallel — no file overlap)*
+
+- [ ] 46-09-PLAN.md — Gap 3: module-level undo/redo stack in TextEdit (granular, Ctrl+Z intercepted; the NAMED D-20 follow-up) [gap-closure, wave 7]
+- [ ] 46-10-PLAN.md — Gap 7: emotions before/after opt-out (pre-selected, persisted; gates PDF severity bars + copy) — design-ratification checkpoint [gap-closure, wave 7]
+
+**Wave 8** *(blocked on 46-09 (rich-toolbar.js) + 46-10 (i18n))*
+
+- [ ] 46-11-PLAN.md — Gap 4 + Gap 8: preview toggle label+icon (eye/pencil, both surfaces) + snippet-accept-in-a-list Enter fix (+ regression tests) [gap-closure, wave 8]
+
+**Wave 9** *(blocked on 46-10 (export-modal.js) + 46-11 (i18n))*
+
+- [ ] 46-12-PLAN.md — Gap 9: Heart-Wall export wording (released vs identified-not-released, all locales) — wording-choice checkpoint [gap-closure, wave 9]
+
+**Wave 10** *(blocked on all gap code — docs hard-gate)*
+
+- [ ] 46-13-PLAN.md — docs hard-gate: v1.4.1 bump + EN changelog + affected help topics (quick-paste / snippets / review-export) [gap-closure, wave 10]
+
+**Wave 11** *(blocked on 46-09..46-13 — closing real-device re-run)*
+
+- [ ] 46-14-PLAN.md — real-device / real-PDF re-verification gate (5 gap fixes + deferred 46-08 matrix + round-1 in-gate fixes) [gap-closure, wave 11]
 
 ### Phase 47: Session-Section Reordering
 
@@ -307,6 +330,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 43. Docs-Maintenance Hard Gate | v1.3 | 10/10 | Complete | 2026-07-10 |
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
 | 45. Rich-Text Rendering & Export Foundation | v1.4 | 8/8 | Complete    | 2026-07-13 |
-| 46. Rich-Text Toolbar Editor | v1.4 | 7/8 | In Progress|  |
+| 46. Rich-Text Toolbar Editor | v1.4 | 7/8 + 6 gap plans | In Progress|  |
 | 47. Session-Section Reordering | v1.4 | 0/TBD | Not started | - |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
