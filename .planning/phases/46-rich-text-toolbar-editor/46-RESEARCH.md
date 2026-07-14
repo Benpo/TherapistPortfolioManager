@@ -331,7 +331,7 @@ function toggleWrap(ta, marker) {           // marker = '**' or '*'
 
 ## Open Questions
 
-1. **D-13 payload threshold — the feasibility gate.**
+1. **D-13 payload threshold — the feasibility gate. (RESOLVED)**
    - What we know: Rubik has a true italic Hebrew-covering face; jsPDF embeds it via `addFont(..., 'italic')`; it lazy-loads only during export; current font payload is ~170 KB (Heebo 60 KB + 110 KB).
    - What's unclear: the exact size of a Latin+Hebrew Rubik-Italic subset as a base64 TTF.
    - **Recommended concrete thresholds (for Ben to confirm at plan review):**
@@ -339,18 +339,22 @@ function toggleWrap(ta, marker) {           // marker = '**' or '*'
      - **AMBER (proceed only if Ben accepts the weight):** ~90–140 KB — offer as a plan-review choice.
      - **RED (fall back to D-14 flattening + disclosure):** > ~140 KB, OR subsetting/bidi integration proves fiddly enough to risk the shipped Phase-23 pipeline, OR Hebrew italic renders visibly broken (A2).
    - Recommendation: **subset before deciding**; register the italic bytes UNDER family `'Heebo'` style `'italic'` (renderer only ever says `setFont('Heebo', style)`); keep Heebo for regular/bold (do NOT switch the PDF wholesale to Rubik — that re-tests everything).
+   - **RESOLVED:** operationalized in **46-02**. Task 1 subsets + vendors Rubik-Italic and MEASURES the base64 payload against these exact GREEN/AMBER/RED thresholds; Task 2 registers it under family `'Heebo'` style `'italic'` (Heebo kept for regular/bold); Task 4 is a blocking-human checkpoint where Ben confirms GREEN/AMBER (ship) or RED (→ D-14 fallback) against a real opened PDF.
 
-2. **D-20 native-undo triggering reliability.**
+2. **D-20 native-undo triggering reliability. (RESOLVED)**
    - What we know: edits via `insertText` land on the native stack; Ctrl+Z works for free.
    - What's unclear: whether `execCommand('undo')`/`('redo')` *buttons* fire reliably on iOS Safari PWA.
    - Recommendation: implement native-first; add a real-device test asserting button-undo === keyboard-undo; if it fails on any target, switch to a single module stack that ALSO intercepts Ctrl+Z (never dual-stack).
+   - **RESOLVED:** native-first is built in **46-03** Task 2 (`execCommand('undo')`/`('redo')` buttons). Reliability is jsdom-blind, so it is asserted at the **46-08** real-device gate (item 5: button-undo === keyboard-undo, esp. iOS PWA). A mismatch on any target triggers a NAMED follow-up plan implementing the prescribed single module-level undo stack that also intercepts Ctrl+Z (never dual-stack) — explicitly documented in 46-08's objective + item 5, not an undifferentiated gap-closure bucket.
 
-3. **Bold-italic (`***x***`).**
+3. **Bold-italic (`***x***`). (RESOLVED)**
    - What we know: md-render tokenizes `**bold**` and `*italic*` separately; combined `***` is an ambiguous edge, not a toolbar affordance.
    - Recommendation: don't offer a combined button; ensure `***x***` at least degrades gracefully in the PDF (bold-wins or italic-wins, not garbage). A dedicated Rubik-BoldItalic face is out of scope unless Ben asks (A5).
+   - **RESOLVED:** no combined toolbar button (confirmed — **46-03** ships only bold/italic separately). **46-02** Task 2 makes `***x***` degrade gracefully to bold-wins/italic-wins (no combined face, no garbage), and **46-02** Task 3 adds `***x***` to the randomized fuzz asserting the join-invariant still holds.
 
-4. **Guided-tour step for the toolbar** (REQUIREMENTS Process Note, deferred to planning).
+4. **Guided-tour step for the toolbar** (REQUIREMENTS Process Note, deferred to planning). **(RESOLVED)**
    - Recommendation: a small optional tour step is low-cost; decide at plan time. Tour machinery is in the changelog-only docs tier (no help-topic demand).
+   - **RESOLVED:** decision recorded in **46-05** — NO tour step this phase. Rationale: the toolbar is self-evident (icon buttons + tooltips), it is documented in the help topic (46-07), and the bespoke tour is already 12 steps (added steps risk fatigue for low ROI). `tour.js` is not touched.
 
 ## Environment Availability
 
