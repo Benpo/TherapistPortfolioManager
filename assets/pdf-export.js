@@ -645,7 +645,11 @@ window.PDFExport = (function () {
       var sliceStart = Math.max(0, startIdx - segStart);
       var sliceEnd = Math.min(seg.text.length, endIdx - segStart);
       if (sliceEnd <= sliceStart) continue;
-      out.push({ text: seg.text.slice(sliceStart, sliceEnd), bold: seg.bold });
+      // Phase 46 (46-02, D-13): propagate the italic flag through the clip, not
+      // just bold — otherwise drawSegmentedLine (which now reads seg.italic to
+      // build styleByLogical) would render every clipped italic run as normal,
+      // silently dropping true italic on every wrapped paragraph/list sub-line.
+      out.push({ text: seg.text.slice(sliceStart, sliceEnd), bold: seg.bold, italic: seg.italic });
     }
     return out;
   }
@@ -1650,7 +1654,7 @@ window.PDFExport = (function () {
               ensureRoom(LINE_HEIGHT_BODY);
               var subLineL = wrapped[wi];
               var clippedL = clipSegmentsToRange(listSegments, listOff, listOff + subLineL.length);
-              if (clippedL.length === 0) clippedL = [{ text: subLineL, bold: false }];
+              if (clippedL.length === 0) clippedL = [{ text: subLineL, bold: false, italic: false }];
               // Quick task 260608-c8x (Bug A): the list prefix uses the
               // TYPED ordinal (item.ordinal) for ordered lists, NOT the
               // local index (li + 1). Paragraph-separated numbered items
@@ -1805,7 +1809,7 @@ window.PDFExport = (function () {
             var clipped = clipSegmentsToRange(paraSegments, paraOff, paraOff + subLine.length);
             // Empty clip safeguard (defensive): if the clip yields nothing,
             // fall back to a single regular segment with the wrapped sub-line.
-            if (clipped.length === 0) clipped = [{ text: subLine, bold: false }];
+            if (clipped.length === 0) clipped = [{ text: subLine, bold: false, italic: false }];
             drawSegmentedLine(clipped, y, BODY_SIZE);
             paraOff += subLine.length + 1;
             y += LINE_HEIGHT_BODY;
