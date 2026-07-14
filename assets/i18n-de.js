@@ -530,6 +530,8 @@ window.I18N.de = {
   "toolbar.redo": "Wiederholen (Strg+Umschalt+Z)",
   "toolbar.preview": "Vorschau",
   "toolbar.hidePreview": "Vorschau ausblenden",
+  "toolbar.previewEmptyTitle": "Noch nichts zur Vorschau",
+  "toolbar.previewEmptyBody": "Tippen Sie los, um das formatierte Ergebnis zu sehen.",
   "toolbar.heading1": "\u00DCberschrift 1",
   "toolbar.heading2": "\u00DCberschrift 2",
   "toolbar.heading3": "\u00DCberschrift 3",

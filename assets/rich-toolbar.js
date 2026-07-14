@@ -46,6 +46,11 @@ window.RichToolbar = (function () {
   var _focused = null;            // the currently-focused registered textarea
   var _config = { headings: true };
   var _selectionRaf = 0;          // rAF handle for coalesced active-state refresh
+  var _renumbering = false;       // re-entrancy guard: our own renumber editInsert
+                                  // fires an input event; block it from re-triggering
+  var _previewOpen = false;       // is the live preview pane currently shown
+  var _previewField = null;       // the textarea the preview pane belongs to
+  var _previewDebounce = 0;       // debounce handle for live preview re-render
 
   // ── i18n helper ────────────────────────────────────────────────────────────
   // App lives in a different IIFE; reach it through window. A fallback keeps the
@@ -214,15 +219,20 @@ window.RichToolbar = (function () {
   // scroll of an autogrowing field.
   function dockTo(textarea) {
     var bar = ensureToolbar();
+    // Focus moved to a DIFFERENT field: the preview is per-field and resets on
+    // blur, so drop any preview bound to the previously-focused field.
+    if (_previewOpen && _previewField !== textarea) closePreview();
     textarea.insertAdjacentElement("beforebegin", bar);
     bar.classList.remove("is-hidden");
     _focused = textarea;
     refreshButtonState();
+    updatePreviewButton();
   }
 
   function hideToolbar() {
     if (_toolbarEl) _toolbarEl.classList.add("is-hidden");
     closeHeadingMenu();
+    closePreview(); // reset the preview when focus leaves the whole field set
     _focused = null;
   }
 
@@ -278,6 +288,42 @@ window.RichToolbar = (function () {
     var r = tr.replacement;
     window.TextEdit.editInsert(ta, r.start, r.end, r.text);
     if (typeof tr.selStart === "number") ta.setSelectionRange(tr.selStart, tr.selEnd);
+    refreshButtonState();
+  }
+
+  // A list line is one whose leading content is a bullet or ordinal marker —
+  // character-matched to the renderer's list grammar (`- ` / `* ` / `N. `, any
+  // 2-space nesting). Tab/Shift+Tab only act on these; ordinary text keeps native
+  // focus-move (no keyboard trap). Heading lines are deliberately NOT list lines.
+  function isListLine(value, sel) {
+    return /^\s*(?:[-*]|\d+\.)(?=\s|$)/.test(currentLineText(value, sel));
+  }
+  // Heading lines stay flush-left — never indented (by Tab or the buttons).
+  function isHeadingLine(value, sel) {
+    return /^#{1,3}\s/.test(currentLineText(value, sel));
+  }
+
+  // Auto-renumber the caret's contiguous ordered block so raw text always reads
+  // 1..N. Called ONLY on STRUCTURAL list changes (marker insert, Enter
+  // continuation/exit/outdent, indent/outdent, or a deletion that removes a list
+  // line) — never on ordinary character typing. TextEdit.renumberOrderedBlock
+  // returns a NO-OP (unchanged value + empty-length replacement) when the
+  // numbering is already correct; in that case we make ZERO editInsert calls so
+  // plain typing never adds a redundant edit or an extra native-undo step. The
+  // re-entrancy guard stops the input event our own renumber fires from looping.
+  function maybeRenumber(ta) {
+    if (_renumbering || !ta) return;
+    var tr = window.TextEdit.renumberOrderedBlock(ta.value, ta.selectionStart);
+    if (!tr || !tr.replacement) return;
+    var r = tr.replacement;
+    if (r.text === "" && r.start === r.end) return; // no-op: numbering already correct
+    _renumbering = true;
+    try {
+      window.TextEdit.editInsert(ta, r.start, r.end, r.text);
+      if (typeof tr.selStart === "number") ta.setSelectionRange(tr.selStart, tr.selEnd);
+    } finally {
+      _renumbering = false;
+    }
     refreshButtonState();
   }
 
@@ -392,6 +438,108 @@ window.RichToolbar = (function () {
     }, 0);
   }
 
+  // ── Live preview pane (per-field, on-demand, blur-reset) ───────────────────
+  // The eye toggle builds a preview pane directly BELOW the focused field and
+  // re-renders it (debounced) while typing. The pane REUSES the .note-rendered
+  // styling but is a DISTINCT element stored on `textarea._notePreview` — never
+  // the SEPARATE property that read-mode's renderReadModeNotes overlay owns — so
+  // the edit-mode preview and the read-mode overlay never share an element or
+  // clobber each other. All rendering routes through window.MdRender.render
+  // (escape-first, XSS-safe); the raw note value is NEVER assigned to innerHTML.
+  function buildPreviewPane(ta) {
+    var pane = ta._notePreview;
+    if (!pane) {
+      pane = document.createElement("div");
+      pane.className = "note-rendered rich-toolbar-preview";
+      pane.setAttribute("aria-live", "polite");
+      ta.insertAdjacentElement("afterend", pane);
+      ta._notePreview = pane;
+    }
+    return pane;
+  }
+
+  // Render the focused field's value into its preview pane. Empty field → the
+  // empty-state block (built with textContent, never innerHTML). Non-empty →
+  // MdRender.render (the SOLE innerHTML writer here); textContent fallback when
+  // MdRender is unavailable (literal markdown, never raw innerHTML).
+  function renderPreview(ta) {
+    var pane = ta && ta._notePreview;
+    if (!pane) return;
+    var val = ta.value;
+    if (!val || !val.trim()) {
+      pane.classList.add("is-empty");
+      pane.textContent = "";
+      var wrap = document.createElement("div");
+      wrap.className = "rich-toolbar-preview-empty";
+      var title = document.createElement("p");
+      title.className = "rich-toolbar-preview-empty-title";
+      title.textContent = t("toolbar.previewEmptyTitle", "Nothing to preview yet");
+      var body = document.createElement("p");
+      body.className = "rich-toolbar-preview-empty-body";
+      body.textContent = t("toolbar.previewEmptyBody", "Start typing to see the formatted result.");
+      wrap.appendChild(title);
+      wrap.appendChild(body);
+      pane.appendChild(wrap);
+      return;
+    }
+    pane.classList.remove("is-empty");
+    if (window.MdRender && typeof window.MdRender.render === "function") {
+      // MdRender.render escapes HTML before structural rules — safe to assign.
+      pane.innerHTML = window.MdRender.render(val);
+    } else {
+      pane.textContent = val; // fallback: literal, never raw innerHTML
+    }
+  }
+
+  function schedulePreviewRender(ta) {
+    if (!_previewOpen || _previewField !== ta) return;
+    if (_previewDebounce) clearTimeout(_previewDebounce);
+    _previewDebounce = setTimeout(function () {
+      _previewDebounce = 0;
+      renderPreview(ta);
+    }, 120);
+  }
+
+  function updatePreviewButton() {
+    if (!_toolbarEl) return;
+    var btn = _toolbarEl.querySelector('.rich-toolbar-btn[data-action="preview"]');
+    if (!btn) return;
+    btn.classList.toggle("is-active", _previewOpen);
+    var label = _previewOpen
+      ? t("toolbar.hidePreview", "Hide preview")
+      : t("toolbar.preview", "Preview");
+    btn.title = label;
+    btn.setAttribute("aria-label", label);
+    btn.setAttribute("aria-pressed", _previewOpen ? "true" : "false");
+  }
+
+  function openPreview(ta) {
+    var pane = buildPreviewPane(ta);
+    pane.classList.remove("is-hidden");
+    _previewOpen = true;
+    _previewField = ta;
+    renderPreview(ta);
+    updatePreviewButton();
+  }
+
+  // Reset on blur / field change / toggle-off — no stickiness.
+  function closePreview() {
+    if (_previewField && _previewField._notePreview) {
+      _previewField._notePreview.classList.add("is-hidden");
+    }
+    if (_previewDebounce) { clearTimeout(_previewDebounce); _previewDebounce = 0; }
+    _previewOpen = false;
+    _previewField = null;
+    updatePreviewButton();
+  }
+
+  function togglePreview() {
+    var ta = _focused;
+    if (!ta) return;
+    if (_previewOpen && _previewField === ta) closePreview();
+    else { if (_previewOpen) closePreview(); openPreview(ta); }
+  }
+
   // ── Action dispatch — single chokepoint every control routes through ───────
   function _dispatch(action, el) {
     var ta = _focused;
@@ -400,10 +548,11 @@ window.RichToolbar = (function () {
     switch (action) {
       case "bold": doEmphasis(ta, "**"); break;
       case "italic": doEmphasis(ta, "*"); break;
-      case "bulletList": applyTransform(ta, TE.insertListMarker(ta.value, ta.selectionStart, ta.selectionEnd, "ul")); break;
-      case "numberedList": applyTransform(ta, TE.insertListMarker(ta.value, ta.selectionStart, ta.selectionEnd, "ol")); break;
-      case "indent": applyTransform(ta, TE.indentLine(ta.value, ta.selectionStart, "in")); break;
-      case "outdent": applyTransform(ta, TE.outdentLine(ta.value, ta.selectionStart)); break;
+      case "bulletList": applyTransform(ta, TE.insertListMarker(ta.value, ta.selectionStart, ta.selectionEnd, "ul")); maybeRenumber(ta); break;
+      case "numberedList": applyTransform(ta, TE.insertListMarker(ta.value, ta.selectionStart, ta.selectionEnd, "ol")); maybeRenumber(ta); break;
+      // Indent/outdent buttons share the keyboard path; headings stay flush-left.
+      case "indent": if (!isHeadingLine(ta.value, ta.selectionStart)) { applyTransform(ta, TE.indentLine(ta.value, ta.selectionStart, "in")); maybeRenumber(ta); } break;
+      case "outdent": if (!isHeadingLine(ta.value, ta.selectionStart)) { applyTransform(ta, TE.outdentLine(ta.value, ta.selectionStart)); maybeRenumber(ta); } break;
       // Native undo/redo. Works ONLY because every control preserves
       // focus (mousedown+preventDefault) so execCommand targets the field.
       // Single-quoted execCommand so a source grep asserting its presence
@@ -411,18 +560,62 @@ window.RichToolbar = (function () {
       case "undo": ta.focus(); document.execCommand('undo'); refreshButtonState(); break;
       case "redo": ta.focus(); document.execCommand('redo'); refreshButtonState(); break;
       case "heading": toggleHeadingMenu(el); break;
-      case "preview": /* live preview pane ships in a later slice of this module */ break;
+      case "preview": togglePreview(); break;
     }
   }
 
-  // Desktop-only Ctrl/Cmd+B/I. Ctrl+Z / Ctrl+Shift+Z are intentionally
-  // NOT intercepted — they drive the SAME native undo stack the buttons use.
+  // Keydown-anchored list mechanics + desktop-only Ctrl/Cmd+B/I. Enter/Tab are
+  // handled on KEYDOWN — the reliable anchor, because iOS Safari fires the
+  // pre-input event inconsistently for Enter, so we do not rely on it. Ctrl+Z /
+  // Ctrl+Shift+Z are intentionally NOT intercepted — they drive the SAME native
+  // undo stack the buttons use.
   function onFieldKeyDown(ev) {
+    var ta = ev.currentTarget;
+    // Enter: list auto-format. TextEdit.autoFormatEnter returns a transform on a
+    // list line (continue / top-level exit / single-level nested outdent)
+    // and null on an ordinary line. On a transform we take over the Enter and
+    // renumber the block; on null the native Enter proceeds untouched.
+    if (ev.key === "Enter" && !ev.shiftKey && !ev.isComposing &&
+        !ev.ctrlKey && !ev.metaKey && !ev.altKey) {
+      var trE = window.TextEdit.autoFormatEnter(ta.value, ta.selectionStart);
+      if (trE) {
+        ev.preventDefault();
+        applyTransform(ta, trE);
+        maybeRenumber(ta); // continuation/exit/outdent restructures the ordered block
+      }
+      return;
+    }
+    // Tab / Shift+Tab: indent/outdent ONLY on a list line; on ordinary text keep
+    // the native focus-move (no keyboard trap). Heading lines are not list
+    // lines, so they keep native Tab too (flush-left).
+    if (ev.key === "Tab" && !ev.ctrlKey && !ev.metaKey && !ev.altKey) {
+      if (isListLine(ta.value, ta.selectionStart)) {
+        ev.preventDefault();
+        applyTransform(ta, ev.shiftKey
+          ? window.TextEdit.outdentLine(ta.value, ta.selectionStart)
+          : window.TextEdit.indentLine(ta.value, ta.selectionStart, "in"));
+        maybeRenumber(ta);
+      }
+      return;
+    }
     if (isCoarsePointer()) return;
     if (!(ev.ctrlKey || ev.metaKey) || ev.altKey) return;
     var k = (ev.key || "").toLowerCase();
-    if (k === "b") { ev.preventDefault(); doEmphasis(ev.currentTarget, "**"); }
-    else if (k === "i") { ev.preventDefault(); doEmphasis(ev.currentTarget, "*"); }
+    if (k === "b") { ev.preventDefault(); doEmphasis(ta, "**"); }
+    else if (k === "i") { ev.preventDefault(); doEmphasis(ta, "*"); }
+  }
+
+  // Structural deletions (Backspace/Delete/cut that removes a list line) can
+  // disturb ordered numbering, so renumber on deletion input types only — plain
+  // character typing (`insertText` without a newline) must NOT renumber. Every
+  // input also refreshes the live preview when it is open for this field.
+  function onFieldInput(ev) {
+    var ta = ev.currentTarget;
+    if (!_renumbering) {
+      var it = ev.inputType || "";
+      if (it.indexOf("delete") === 0 || it === "insertFromPaste") maybeRenumber(ta);
+    }
+    if (_previewOpen && _previewField === ta) schedulePreviewRender(ta);
   }
 
   // ── Public: mount (ADDITIVE) ───────────────────────────────────────────────
@@ -443,10 +636,12 @@ window.RichToolbar = (function () {
         focusin: onFieldFocusIn,
         focusout: onFieldFocusOut,
         keydown: onFieldKeyDown,
+        input: onFieldInput,
       };
       ta.addEventListener("focusin", listeners.focusin);
       ta.addEventListener("focusout", listeners.focusout);
       ta.addEventListener("keydown", listeners.keydown);
+      ta.addEventListener("input", listeners.input);
       _bound.set(ta, listeners);
       _registered.add(ta);
     });
@@ -465,6 +660,7 @@ window.RichToolbar = (function () {
         ta.removeEventListener("focusin", listeners.focusin);
         ta.removeEventListener("focusout", listeners.focusout);
         ta.removeEventListener("keydown", listeners.keydown);
+        ta.removeEventListener("input", listeners.input);
         _bound.delete(ta);
       }
     });
