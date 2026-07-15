@@ -53,7 +53,7 @@ total: round 1 — 10 checklist items / 9 gaps; round 2 (46-14 re-run) — 11 it
 passed: 0 (no checklist item formally signed off; round 2 started 2026-07-15 on the 00f0c08 build)
 gaps_resolved_during_gate: 4 (1, 2, 5, 6 — plus the list-toggle fix d88af87)
 gaps_fixed_in_gap_round_awaiting_round2_confirm: 5 (3 undo stack, 4 preview toggle label+icon, 7 emotions opt-out, 8 snippet-Enter collision, 9 Heart-Wall wording)
-gaps_open_round2: 2 (10 Step-2 default layout collapse on laptop viewports, 11 export toolbar not always-visible)
+gaps_open_round2: 10/11 fixed in 46-15 (awaiting 46-16 device confirm); 12 (persistent-bar controls dead without focus) and 13 (preview pane below fold) open — found while testing the 46-15 build
 skipped: 0
 blocked: 0
 
@@ -186,6 +186,45 @@ e.g. `position: sticky; inset-block-start: 0` on the bar scoped to the export ed
 container — plus the Gap-10 `flex-shrink: 0`. Verify: with a long document, scroll to the
 bottom of the edit area — the bar must still be visible and clickable; with a short
 viewport the bar must render at full height.
+
+### Gap 12 — Export toolbar controls are DEAD until the editor is focused once (severity: high, round 2)
+status: failed
+Reported by Ben at the round-2 gate ("the preview button in export does nothing"), reproduced
+live in Playwright WebKit (2026-07-15, build e0c48c5): with export Step 2 open and the editor
+NOT yet focused, a real click on the toolbar's Preview button does nothing — no pane, no
+button-state flip. Root cause (confirmed in source): rich-toolbar.js `_dispatch`/`togglePreview`
+resolve their target field from `_focused` (the last-focused registered field) and return
+early when it is null. That invariant ("a visible bar implies a focused field") held for the
+focus-attached shared bar but was broken by the round-1 in-gate `persistent: true` mount —
+the export bar is always visible, so users click its controls BEFORE ever focusing the
+editor (the always-on bar invites exactly that; on the live page default focus sits on
+#sessionDate). This affects EVERY control on the persistent bar (bold, lists, undo, preview…),
+not just Preview. The toolbar's mousedown+preventDefault focus-preservation also means the
+click itself never focuses the editor. NOT a round-2 regression: shipped with the round-1
+in-gate persistent-bar commit series; untestable until gaps 10/11 made Step 2 usable.
+Fix direction: dispatch on a persistent bar must target the bar's OWN field (the
+`_persistentBars` mapping already knows it) — e.g. resolve `ta = barField || _focused`
+(and focus the field as part of the action, as the undo/redo cases already do) so the
+persistent bar never depends on prior focus. Note-field shared-bar behavior unchanged.
+Regression test: jsdom can cover the dispatch-target resolution; the device gate covers feel.
+
+### Gap 13 — Export preview pane opens 100% below the scroll fold (severity: high, round 2)
+status: failed
+Second half of "does nothing", reproduced live in WebKit at 1440x820 on build e0c48c5: with
+the editor focused, clicking Preview DOES open the pane and flip the button (aria-pressed
+true, label → "Edit"), but the pane is inserted after the editor inside the fixed-height
+`.export-edit-area` scroll container, and the editor (flex-fill, min-block-size 240px)
+already fills/overflows the visible area — measured pane top 659.6px vs area visible bottom
+652.0px: the pane starts entirely below the fold. The user sees no change unless they notice
+the small label flip and manually scroll the edit area. Pre-existing consequence of the
+round-1 single-pane redesign (pane-below-editor inside a fixed-height scroller); on note
+fields the page grows so the pane is naturally visible — the export's scroll container is
+the only surface with a fold. Fix direction (gap plan chooses the mechanism, device gate
+ratifies the feel): on opening the preview in the export, bring the pane into view — e.g.
+scroll the edit area so the pane's top is visible (scrollIntoView/scrollTop math scoped to
+the export bar's field), possibly paired with letting the editor yield height while the
+preview is open. Must not disturb note-field preview behavior, the sticky pinned bar, or
+undo/caret state; RTL-safe.
 
 ### Fixed during the gate (for the record)
 - List button toggle/switch semantics: tests 88f7639, fix d88af87 (7 new unit tests).
