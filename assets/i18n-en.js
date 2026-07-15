@@ -531,6 +531,7 @@ window.I18N.en = {
   "toolbar.redo": "Redo (Ctrl+Shift+Z)",
   "toolbar.preview": "Preview",
   "toolbar.hidePreview": "Hide preview",
+  "toolbar.backToEdit": "Edit",
   "toolbar.previewEmptyTitle": "Nothing to preview yet",
   "toolbar.previewEmptyBody": "Start typing to see the formatted result.",
   "toolbar.heading1": "Heading 1",

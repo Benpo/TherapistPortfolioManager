@@ -5436,6 +5436,21 @@ html[dir="rtl"] .multi-select-toggle {
   line-height: 1;
 }
 
+/* The preview toggle carries a text label beside its icon, so it grows past the
+   fixed icon-button square to fit the label while keeping the same touch target
+   height and the horizontally-scrollable single-row bar. */
+.rich-toolbar-btn--labeled {
+  width: auto;
+  gap: 4px;
+  padding-inline: 8px;
+}
+.rich-toolbar-btn-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 /* Heading dropdown popover — positioned with PHYSICAL left/top by JS
    (RTL-safe). Each item previews its register. */
 .rich-toolbar-heading-menu {
@@ -5476,4 +5491,5 @@ html[dir="rtl"] .multi-select-toggle {
 @media (max-width: 640px) {
   .rich-toolbar-btn { width: 44px; height: 44px; }
   .rich-toolbar-heading-trigger { width: auto; height: 44px; }
+  .rich-toolbar-btn--labeled { width: auto; height: 44px; }
 }

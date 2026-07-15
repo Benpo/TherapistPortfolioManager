@@ -525,6 +525,7 @@ window.I18N.he = {
   "toolbar.redo": "בצע שוב (Ctrl+Shift+Z)",
   "toolbar.preview": "תצוגה מקדימה",
   "toolbar.hidePreview": "הסתר תצוגה מקדימה",
+  "toolbar.backToEdit": "עריכה",
   "toolbar.previewEmptyTitle": "אין עדיין מה להציג",
   "toolbar.previewEmptyBody": "התחילו להקליד כדי לראות את התוצאה המעוצבת.",
   "toolbar.heading1": "כותרת 1",

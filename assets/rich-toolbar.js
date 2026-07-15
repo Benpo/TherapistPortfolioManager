@@ -106,6 +106,8 @@ window.RichToolbar = (function () {
     undo: function () { return svg(["M9 7L4 12l5 5", "M4 12h11a5 5 0 0 1 0 10h-1"], { strokeWidth: "1.9" }); },
     redo: function () { return svg(["M15 7l5 5-5 5", "M20 12H9a5 5 0 0 0 0 10h1"], { strokeWidth: "1.9" }); },
     preview: function () { return svg(["M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z", "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"], { strokeWidth: "1.8" }); },
+    // Pencil — the target-state icon shown while previewing (click returns to editing).
+    pencil: function () { return svg(["M12 20h9", "M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"], { strokeWidth: "1.8" }); },
     chevron: function () { return svg(["M6 9l6 6 6-6"], { strokeWidth: "2" }); },
   };
 
@@ -157,6 +159,16 @@ window.RichToolbar = (function () {
     btn.title = title;
     btn.setAttribute("aria-label", title);
     btn.appendChild(ICONS[spec.icon]());
+    // The preview control carries a visible label alongside its icon so its
+    // target state reads at a glance. The icon stays the first child so it can be
+    // swapped (eye <-> pencil) later; the label span follows it.
+    if (spec.action === "preview") {
+      btn.classList.add("rich-toolbar-btn--labeled");
+      var previewLabel = document.createElement("span");
+      previewLabel.className = "rich-toolbar-btn-label";
+      previewLabel.textContent = title;
+      btn.appendChild(previewLabel);
+    }
     // Keep focus on the field; run the action. `_dispatch` is filled by the
     // inline-actions layer — until then controls preserve focus only.
     bindPreserveFocus(btn, function () { _dispatch(spec.action, btn); });
@@ -559,15 +571,29 @@ window.RichToolbar = (function () {
     }, 120);
   }
 
+  // The preview control shows its TARGET state, not its current one: while
+  // editing it offers an eye + "Preview" (click goes to preview); while
+  // previewing it offers a pencil + "Edit" (click goes back to editing). Icon,
+  // label, title and aria-label are set together from the one open-state flag on
+  // whichever bar currently owns the button.
   function updatePreviewButton() {
     var bar = barFor(_focused || _previewField);
     if (!bar) return;
     var btn = bar.querySelector('.rich-toolbar-btn[data-action="preview"]');
     if (!btn) return;
     btn.classList.toggle("is-active", _previewOpen);
+    var iconName = _previewOpen ? "pencil" : "preview";
     var label = _previewOpen
-      ? t("toolbar.hidePreview", "Hide preview")
+      ? t("toolbar.backToEdit", "Edit")
       : t("toolbar.preview", "Preview");
+    // Swap the leading icon: replace the existing SVG child in place so the
+    // label span that follows it keeps its position.
+    var oldIcon = btn.querySelector("svg");
+    var newIcon = ICONS[iconName]();
+    if (oldIcon) btn.replaceChild(newIcon, oldIcon);
+    else btn.insertBefore(newIcon, btn.firstChild);
+    var labelEl = btn.querySelector(".rich-toolbar-btn-label");
+    if (labelEl) labelEl.textContent = label;
     btn.title = label;
     btn.setAttribute("aria-label", label);
     btn.setAttribute("aria-pressed", _previewOpen ? "true" : "false");

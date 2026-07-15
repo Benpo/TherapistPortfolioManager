@@ -525,6 +525,7 @@ window.I18N.cs = {
   "toolbar.redo": "Znovu (Ctrl+Shift+Z)",
   "toolbar.preview": "N\u00E1hled",
   "toolbar.hidePreview": "Skr\u00FDt n\u00E1hled",
+  "toolbar.backToEdit": "Upravit",
   "toolbar.previewEmptyTitle": "Zat\u00EDm nen\u00ED co zobrazit",
   "toolbar.previewEmptyBody": "Za\u010Dn\u011Bte ps\u00E1t a uvid\u00EDte naform\u00E1tovan\u00FD v\u00FDsledek.",
   "toolbar.heading1": "Nadpis 1",

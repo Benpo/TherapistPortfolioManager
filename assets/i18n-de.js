@@ -525,6 +525,7 @@ window.I18N.de = {
   "toolbar.redo": "Wiederholen (Strg+Umschalt+Z)",
   "toolbar.preview": "Vorschau",
   "toolbar.hidePreview": "Vorschau ausblenden",
+  "toolbar.backToEdit": "Bearbeiten",
   "toolbar.previewEmptyTitle": "Noch nichts zur Vorschau",
   "toolbar.previewEmptyBody": "Tippen Sie los, um das formatierte Ergebnis zu sehen.",
   "toolbar.heading1": "\u00DCberschrift 1",
