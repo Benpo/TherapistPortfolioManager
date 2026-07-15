@@ -49,6 +49,10 @@ window.RichToolbar = (function () {
   var _toolbarEl = null;          // the shared focus-attached toolbar element
   var _persistent = new Set();    // fields mounted persistent: always docked, no hide-on-blur
   var _persistentBars = new WeakMap(); // persistent field → its own dedicated toolbar element
+  var _barField = new WeakMap();  // reverse of _persistentBars: a dedicated bar → the field it serves.
+                                  // A persistent bar is ALWAYS visible, so its controls are clicked
+                                  // before the field is ever focused; dispatch resolves the target
+                                  // from the clicked control's OWN bar, so it never depends on focus.
   var _headingMenuEl = null;      // transient heading dropdown popover
   var _headingTrigger = null;     // the trigger button that opened the heading menu
   var _focused = null;            // the currently-focused registered textarea
@@ -251,6 +255,7 @@ window.RichToolbar = (function () {
       bar.classList.remove("is-hidden");
       field.insertAdjacentElement("beforebegin", bar);
       _persistentBars.set(field, bar);
+      _barField.set(bar, field); // record the bar→field link so dispatch resolves both ways
     }
     return bar;
   }
@@ -607,6 +612,34 @@ window.RichToolbar = (function () {
     _previewField = ta;
     renderPreview(ta);
     updatePreviewButton();
+    revealPreviewPane(ta, pane);
+  }
+
+  // Bring a just-opened preview pane into view when it belongs to the export
+  // edit-area — the ONLY preview surface with a scroll fold. That area is a
+  // fixed-height overflow-y:auto container whose editor already fills it, so the
+  // pane (docked after the editor) opens entirely below the fold. Scroll the
+  // container so the pane's top clears the pinned (sticky) toolbar, offset by the
+  // bar's height — a bare scrollIntoView aligns to the container top, UNDER the
+  // sticky bar. Note fields grow the page instead (no fold), so they resolve no
+  // container here and take no scroll. The offset is computed from live rects
+  // (the static edit-area is not the pane's offsetParent, so a raw offsetTop would
+  // not be container-relative); the scroll is vertical-only, hence RTL-safe.
+  function revealPreviewPane(ta, pane) {
+    if (!ta || !pane || typeof ta.closest !== "function") return;
+    var container = ta.closest(".export-edit-area");
+    if (!container) return; // not the export surface — note-field preview takes no scroll
+    var bar = _persistentBars.get(ta);
+    if (!bar) return;
+    var GAP = 8; // small breathing room below the pinned bar
+    var areaRect = container.getBoundingClientRect();
+    var barRect = bar.getBoundingClientRect();
+    var paneRect = pane.getBoundingClientRect();
+    if (!paneRect.height && !areaRect.height) return; // no layout (e.g. headless jsdom)
+    // Pane's current offset from the top of the container content, minus the bar
+    // height and gap: scroll the container so the pane top lands just below the bar.
+    var delta = (paneRect.top - barRect.bottom) - GAP;
+    container.scrollTop += delta;
   }
 
   // Reset on blur / field change / toggle-off — no stickiness.
@@ -620,8 +653,13 @@ window.RichToolbar = (function () {
     updatePreviewButton();
   }
 
-  function togglePreview() {
-    var ta = _focused;
+  // Preview is view-only, so it resolves its field WITHOUT focusing it — focusing
+  // the export editor would pop the iOS soft keyboard over the just-revealed pane.
+  // A persistent control passes its own bar's field explicitly; the shared bar
+  // passes nothing and falls back to the focused field. updatePreviewButton/barFor
+  // fall back to _previewField, so the button state stays correct without focus.
+  function togglePreview(field) {
+    var ta = field || _focused;
     if (!ta) return;
     if (_previewOpen && _previewField === ta) closePreview();
     else { if (_previewOpen) closePreview(); openPreview(ta); }
@@ -629,6 +667,32 @@ window.RichToolbar = (function () {
 
   // ── Action dispatch — single chokepoint every control routes through ───────
   function _dispatch(action, el) {
+    // A persistent bar is always visible, so its controls are clicked before the
+    // field is ever focused. Resolve the target from the CLICKED control's OWN bar
+    // (bar→field) so a persistent control never depends on prior focus. A shared
+    // note-field control resolves to no barField and falls through to _focused,
+    // keeping the shared-bar path byte-identical.
+    var ownBar = el && typeof el.closest === "function" ? el.closest(".rich-toolbar") : null;
+    var barField = ownBar && _barField.has(ownBar) ? _barField.get(ownBar) : null;
+    if (barField) {
+      if (action === "preview") {
+        // View-only: resolve the field WITHOUT focusing it (no soft-keyboard pop).
+        togglePreview(barField);
+        return;
+      }
+      // Formatting/undo/redo/heading: make the bar's own field the active target.
+      // Set the module focus state DIRECTLY (do not rely solely on the focusin
+      // side-effect, which may not fire in every engine). When the field was never
+      // focused its caret is the engine default (varies) — anchor a deterministic
+      // caret at end-of-document. A real selection (start !== end) is left intact.
+      if (document.activeElement !== barField &&
+          barField.selectionStart === barField.selectionEnd) {
+        var len = barField.value.length;
+        try { barField.setSelectionRange(len, len); } catch (e) { /* detached */ }
+      }
+      barField.focus();
+      dockTo(barField); // sets _focused = barField + refreshes state
+    }
     var ta = _focused;
     if (!ta && action !== "heading") return;
     var TE = window.TextEdit;
@@ -806,6 +870,7 @@ window.RichToolbar = (function () {
     _persistent.forEach(function (ta) {
       var bar = _persistentBars.get(ta);
       if (bar && bar.parentNode) bar.parentNode.removeChild(bar);
+      if (bar) _barField.delete(bar);
       _persistentBars.delete(ta);
     });
     _persistent.clear();
