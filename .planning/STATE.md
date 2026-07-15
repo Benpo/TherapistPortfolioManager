@@ -8,7 +8,7 @@ status: verifying
 stopped_at: Completed 46-01-PLAN.md
 last_updated: "2026-07-15T00:00:00.000Z"
 last_activity: 2026-07-15
-last_activity_desc: "46-15 gap-round-2 executed — export Step-2 layout floor + pinned toolbar (RED→GREEN WebKit probe, 190/190)"
+last_activity_desc: "46-17 gap-round-3 executed — persistent-bar first-click dispatch (Gap 12) + export preview reveal below pinned bar (Gap 13); RED→GREEN jsdom test + WebKit probe set E, suite 191/191"
 progress:
   total_phases: 5
   completed_phases: 2
@@ -30,8 +30,8 @@ See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 
 Phase: 46 (rich-text-toolbar-editor) — EXECUTING
 Plan: 8 of 8
-Status: Phase complete — ready for verification (46-15 gap-round-2 fix landed; 46-16 real-device gate pending)
-Last activity: 2026-07-15 — 46-15 export Step-2 layout floor + pinned toolbar (RED→GREEN WebKit probe)
+Status: Phase complete — ready for verification (46-17 gap-round-3 fix landed; 46-16 real-device gate pending)
+Last activity: 2026-07-15 — 46-17 persistent-bar first-click dispatch (Gap 12) + export preview reveal (Gap 13), RED→GREEN jsdom + WebKit probe
 
 ## Performance Metrics
 
@@ -262,6 +262,7 @@ Last activity: 2026-07-15 — 46-15 export Step-2 layout floor + pinned toolbar 
 | Phase 46 P12 | 6min | 2 tasks | 6 files |
 | Phase 46 P13 | 12min | 2 tasks | 2 files |
 | Phase 46 P15 | 20min | 2 tasks | 2 files |
+| Phase 46 P17 | 30min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
