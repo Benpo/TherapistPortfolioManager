@@ -459,7 +459,8 @@ window.RichToolbar = (function () {
       { level: 0, cls: "p", key: "toolbar.regularText", fb: "Regular text" },
     ];
     var line = currentLineText(ta.value, ta.selectionStart);
-    var activeLevel = /^(#{1,3})\s/.test(line) ? RegExp.$1.length : 0;
+    var hm = /^(#{1,3})\s/.exec(line);
+    var activeLevel = hm ? hm[1].length : 0;
     items.forEach(function (it) {
       var b = document.createElement("button");
       b.type = "button";
