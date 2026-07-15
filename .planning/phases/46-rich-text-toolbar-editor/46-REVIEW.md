@@ -130,6 +130,15 @@ writes trigger 'input' events", is factually wrong — direct `.value =` fires n
 `input` event — and is the mental model that hid this gap. Correcting it would
 prevent regressions.)
 
+**Status:** FIXED — commit `1c3b326` (2026-07-15). Added `window.TextEdit.undoReset`
+(alias of `undoTrack`, which already resets `snaps`/`ptr`/`pending` to the field's
+current value) and call it after the note-field writes in `populateSession` (placed
+after `growAllSessionTextareas()`) and after both `editor.value` writes in the export
+dialog — the `""` reset on open (also clears cross-open undo bleed) and the generated
+markdown on Step-2 entry. Corrected the false comment. RED-first TDD:
+`tests/46-undo-reseed-after-populate.test.js` (4 assertions) failed against the unfixed
+source (`undoReset is not a function`) then passed; suite 189/189 → 190/190.
+
 ## Info
 
 ### IN-01: `weightByLogical` is dead code after the style refactor in `drawSegmentedLine`
@@ -145,6 +154,11 @@ expecting it to drive rendering.
 declaration, and the `weightByLogical[off + k] = w;` write; keep only
 `styleByLogical`.
 
+**Status:** FIXED — commit `3e1bbc8` (2026-07-15). Removed the `weightByLogical`
+declaration, the `var w = seg.bold ? 1 : 0` and its write; `styleByLogical` is the
+sole per-code-unit array. Updated the stale pipeline doc-comment to describe the
+style array. PDF golden/pipeline tests stay green (190/190).
+
 ### IN-02: `RegExp.$1` static used to read the active heading level
 
 **File:** `assets/rich-toolbar.js:462`
@@ -155,6 +169,9 @@ fragile (any intervening regex clobbers it) and is a deprecated idiom
 inconsistent with the explicit capture-group `.exec()` used elsewhere in the
 same file.
 **Fix:** `var hm = /^(#{1,3})\s/.exec(line); var activeLevel = hm ? hm[1].length : 0;`
+
+**Status:** FIXED — commit `ccbf6e1` (2026-07-15). Replaced `RegExp.$1` with an explicit
+two-statement `.exec()` capture as specified. Suite green (190/190).
 
 ### IN-03: Undo/redo marks the export editor "dirty", forcing a discard prompt on a returned-to-pristine document
 
@@ -167,6 +184,11 @@ unnecessary discard confirmation. Minor UX only; content integrity is unaffected
 **Fix:** Optional — compare the editor value against the last generated markdown
 before flagging dirty, or accept the current behavior as a conservative
 "you touched it" signal.
+
+**Status:** FIXED — commit `a41fabd` (2026-07-15). `onEditorInput` now sets
+`hasEditedPreview = (editor.value !== _exportState.generatedMarkdown)`, comparing against
+the markdown stashed on the dialog state at Step-2 entry, so undo/redo back to the
+pristine generated document clears the flag and no discard prompt fires. Suite green (190/190).
 
 ---
 
