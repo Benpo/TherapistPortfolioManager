@@ -230,15 +230,15 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 
 - [ ] 46-14-PLAN.md — real-device / real-PDF re-verification gate (5 gap fixes + deferred 46-08 matrix + round-1 in-gate fixes) [gap-closure, wave 11]
 
-**Gap-Closure Round 2** *(from the 2026-07-15 46-14 re-run on MacBook Pro — item 11 failed, 2 new high-severity gaps: 10 Step-2 default layout collapse on laptop viewports, 11 export toolbar not always-visible)*
+**Gap-Closure Round 2** *(from the 2026-07-15 46-14 re-run on MacBook Pro — item 11 failed, 2 new high-severity gaps: 10 Step-2 default layout collapse on laptop viewports, 11 export toolbar not always-visible. Self-contained fresh round: 46-16 SUPERSEDES 46-14's re-run duty.)*
 
-**Wave 12** *(scoped CSS fix — no file overlap with pending gates)*
+**Round-2 Wave 1** *(scoped CSS fix — immediately executable, no file overlap)*
 
-- [ ] 46-15-PLAN.md — Gaps 10+11: export Step-2 edit surface as sizing floor (min-block-size floor, 90dvh-capped) + pinned unclippable toolbar (flex-shrink:0 + position:sticky) + falsifiable WebKit layout probe [gap-closure, wave 12]
+- [ ] 46-15-PLAN.md — Gaps 10+11: export Step-2 edit surface as sizing floor (min-block-size floor, 90dvh-capped) + pinned unclippable toolbar (flex-shrink:0 + position:sticky) + falsifiable WebKit layout probe [gap-closure, wave 1]
 
-**Wave 13** *(blocked on 46-15 — closing real-device re-run, supersedes 46-14's re-run duty)*
+**Round-2 Wave 2** *(blocked on 46-15 — closing real-device re-run, supersedes 46-14)*
 
-- [ ] 46-16-PLAN.md — real-device / real-PDF re-verification gate: full 11-item round-2 checklist + explicit gap 10/11 verification (default-size usable on MacBook, toolbar full-height + never scrolls away, maximize + mobile + RTL correct) [gap-closure, wave 13]
+- [ ] 46-16-PLAN.md — real-device / real-PDF re-verification gate: full 11-item round-2 checklist + explicit gap 10/11 verification (default-size usable on MacBook, toolbar full-height + never scrolls away, maximize + mobile + RTL correct) [gap-closure, wave 2]
 
 ### Phase 47: Session-Section Reordering
 
