@@ -20,7 +20,7 @@ tech-stack:
   patterns:
     - "Resolve a click's target from the clicked control's OWN toolbar via a bar→field reverse WeakMap (the reverse of the field→bar _persistentBars map) so a persistent, always-visible control never depends on prior focus"
     - "Set module focus state DIRECTLY (focus + dockTo) rather than relying on the focusin side-effect, which is not guaranteed to fire in every engine"
-    - "Anchor a deterministic caret at end-of-document (setSelectionRange(len,len)) when a never-focused field has a collapsed caret; leave any real selection (start !== end) intact"
+    - "Anchor a deterministic caret at end-of-document (setSelectionRange(len,len)) ONLY when the field has NEVER been focused — tracked by an _everFocused WeakSet recorded in dockTo, NOT by live activeElement (a blurred textarea retains its selection, so a focused-then-blurred caret is preserved); any real selection (start !== end) is left intact"
     - "Reveal a below-fold pane by scrolling its scroll container by a bar-height-offset computed from live getBoundingClientRect deltas (container.scrollTop += paneTop - barBottom - gap) — never a bare scrollIntoView (which aligns to the container top, under a sticky bar); vertical-only, hence RTL-safe"
 key-files:
   created:
@@ -49,7 +49,7 @@ Round-3 gap fix for Phase 46. Two scoped JS changes to `assets/rich-toolbar.js` 
 
 ## What was built
 
-- **Gap 12 (dispatch target).** `_dispatch(action, el)` now resolves the clicked control's owning bar (`el.closest('.rich-toolbar')`) and, via a new `_barField` bar→field reverse WeakMap, the field that bar serves. For formatting/undo/redo/heading it focuses that field and sets module focus directly (`dockTo`), anchoring a deterministic caret at end-of-document when the field was never focused (a real selection is left intact). For **preview** it resolves the field WITHOUT focusing it (view-only). A shared-bar control resolves to no `barField` and falls through to `_focused` — the shared path is byte-identical.
+- **Gap 12 (dispatch target).** `_dispatch(action, el)` now resolves the clicked control's owning bar (`el.closest('.rich-toolbar')`) and, via a new `_barField` bar→field reverse WeakMap, the field that bar serves. For formatting/undo/redo/heading it focuses that field and sets module focus directly (`dockTo`), anchoring a deterministic caret at end-of-document ONLY when the field has NEVER been focused — genuine first-touch tracked by an `_everFocused` WeakSet recorded in `dockTo` (R3 WR-01: a blurred textarea retains its selection, so a focused-then-blurred mid-document caret is preserved; a real selection is left intact). For **preview** it resolves the field WITHOUT focusing it (view-only). A shared-bar control resolves to no `barField` and falls through to `_focused` — the shared path is byte-identical.
 - **Gap 13 (preview reveal).** `openPreview` calls a new `revealPreviewPane(ta, pane)` that, only when `ta` lives inside `.export-edit-area`, scrolls that container so the pane top clears the sticky bar — offset by the bar height, computed from live rects (`container.scrollTop += paneTop − barBottom − gap`). Note-field preview resolves no container and takes no scroll.
 
 ## RED evidence (against current source)
@@ -104,9 +104,19 @@ None — plan executed exactly as written. The Gap-13 reveal uses live rect delt
 - The residual ~8px cosmetic gap under the pinned bar (46-15 NOT-list, item 12h) is untouched.
 - Real-device confirmation of gaps 12/13 (MacBook + iPhone PWA + Hebrew) is the amended 46-16 human gate (item 13) — NOT touched here.
 
+## Review fix round (R3 — 46-REVIEW-R3.md)
+
+The R3 deep review of the three commits found 0 critical / 1 warning / 2 info; all three fixed:
+
+- **WR-01 (fixed, `8760f1f` + `58c08d7`):** the cold-caret anchor was keyed on `document.activeElement !== barField`, which is also true for a focused-then-BLURRED field whose textarea retains its mid-document caret — the anchor silently relocated it to end-of-document. Now keyed on a new `_everFocused` WeakSet (recorded in `dockTo`, the single point every focus path routes through): the anchor fires only on a genuinely never-focused field. RED-first falsifier landed as jsdom **Case F** (focus → caret at 2 → blur → Bold via the bar): RED against the pre-fix guard (`'ab cd****'` — relocated to end) → GREEN (`'ab**** cd'` — preserved caret). Shipped comment tightened to state exactly the enforced constraint.
+- **IN-01 (fixed, `58c08d7`):** `revealPreviewPane`'s no-layout guard now keys on the container alone (`!areaRect.height`) — the surface whose layout the scroll math depends on.
+- **IN-02 (fixed, `8760f1f`):** jsdom Case B asserts the pane's textContent contains the field value; the probe gained **E3** (pane text contains `'Line 1'` from the setup fill) — an empty/stale pane can no longer pass on presence/visibility/aria alone.
+
+Post-round: jsdom 7/7, suite 191/191 (Case F extends the existing file — no new file), WebKit probe GREEN A–E incl. E3.
+
 ## Self-Check: PASSED
 
-- `tests/46-persistent-bar-dispatch.test.js` — FOUND (exit 0, 6/6).
+- `tests/46-persistent-bar-dispatch.test.js` — FOUND (exit 0, 7/7 after R3 round).
 - `assets/rich-toolbar.js` — FOUND (modified, node --check OK).
-- `tests/webkit/46-export-step2-layout.mjs` — FOUND (exit 0, A–E green).
-- Commits `056a02a`, `5335bec`, `8581529` — present in git log.
+- `tests/webkit/46-export-step2-layout.mjs` — FOUND (exit 0, A–E green incl. E3).
+- Commits `056a02a`, `5335bec`, `8581529`, `8760f1f`, `58c08d7` — present in git log.
