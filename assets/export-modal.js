@@ -870,6 +870,10 @@
         currentStep: 1,
         sessionData,
         hasEditedPreview: false,
+        // The last markdown generated into the editor on Step-2 entry. The dirty
+        // check compares against this so undo/redo back to the generated text
+        // clears the flag (no spurious discard prompt on a pristine document).
+        generatedMarkdown: "",
         // The Step-1 section selection, captured on Next so the PDF assembly
         // and the copy builder can read the live choice. null until Step 1 is
         // advanced — readers treat that as "no selection yet" and fall back to
@@ -931,6 +935,7 @@
           _exportState.selectedKeys = selected;
           const md = buildFilteredSessionMarkdown(selected);
           if (editor) editor.value = md;
+          _exportState.generatedMarkdown = md;
           // Direct `.value =` fires no input event; re-seed the undo baseline to
           // the generated markdown so the first undo removes the first real edit
           // rather than wiping the document back to empty.
@@ -947,7 +952,10 @@
       // formatted preview is on-demand via the toolbar's preview toggle, so no
       // live re-render is wired here.
       const onEditorInput = () => {
-        _exportState.hasEditedPreview = true;
+        // Undo/redo apply through the edit chokepoint and fire real input events,
+        // so compare against the generated markdown: a document returned to its
+        // pristine generated state is not dirty and closes without a discard prompt.
+        _exportState.hasEditedPreview = editor ? (editor.value !== _exportState.generatedMarkdown) : false;
       };
       const onMaximize = () => {
         const cardEl = modal.querySelector(".export-card");
