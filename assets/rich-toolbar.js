@@ -658,6 +658,20 @@ window.RichToolbar = (function () {
   // stack — two stacks would diverge and give contradictory results.
   function onFieldKeyDown(ev) {
     var ta = ev.currentTarget;
+    // Yield Enter/Tab to an in-progress snippet accept. The snippets autocomplete
+    // binds its keydown first and commits synchronously — it has already
+    // preventDefault'ed and closed its popover by the time this handler runs — so
+    // `ev.defaultPrevented` is the load-bearing signal that a snippet took the
+    // key. The open-state check is a belt-and-suspenders fallback for other
+    // registration orders. When either holds, bail before the list mechanics so
+    // an accept never also continues or indents the list. Plain Enter/Tab (nothing
+    // prevented, popover closed) falls through unchanged.
+    if ((ev.key === "Enter" || ev.key === "Tab") &&
+        (ev.defaultPrevented ||
+         (window.Snippets && typeof window.Snippets.isPopoverOpen === "function" &&
+          window.Snippets.isPopoverOpen()))) {
+      return;
+    }
     // Enter: list auto-format. TextEdit.autoFormatEnter returns a transform on a
     // list line (continue / top-level exit / single-level nested outdent)
     // and null on an ordinary line. On a transform we take over the Enter and

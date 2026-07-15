@@ -504,6 +504,12 @@ window.Snippets = (function () {
 
   function getPrefix() { return _prefix; }
 
+  // Read-only view of whether the autocomplete popover is currently shown. Lets a
+  // co-bound keydown handler (the formatting toolbar) know to yield Enter/Tab to
+  // an in-progress snippet accept. Additive only — snippet detection, expansion,
+  // and key handling are unchanged.
+  function isPopoverOpen() { return !!_popoverState; }
+
   function setPrefix(newPrefix) {
     if (typeof newPrefix !== "string") {
       throw new Error("setPrefix: must be a string");
@@ -542,6 +548,7 @@ window.Snippets = (function () {
     unbindTextarea: unbindTextarea,
     getPrefix: getPrefix,
     setPrefix: setPrefix,
+    isPopoverOpen: isPopoverOpen,
     __testExports: {
       detectTrigger: detectTrigger,
       resolveExpansion: resolveExpansion,
