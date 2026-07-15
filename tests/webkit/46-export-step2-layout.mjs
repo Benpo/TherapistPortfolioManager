@@ -28,6 +28,16 @@
  *     D. Maximize regression guard (NOT part of the RED evidence): with
  *        .is-maximized the card still reaches >= 0.85 * viewport height.
  *
+ *   PLUS assertion set E (Phase 46 gap-round-3, Pass 4 at 1440x820) — preview reveal
+ *   WITHOUT prior editor focus: open the preview via a real mousedown (not click)
+ *   with the editor unfocused, then
+ *     E1. Gap 12 end-to-end — the pane opened + is visible + aria-pressed=true.
+ *     E2. Gap 13 — the pane top clears the STICKY bar (paneTop >= barBottom-2 AND
+ *         paneTop <= areaBottom-20). Bar-relative, so a naive scrollIntoView landing
+ *         the pane under the pin cannot pass.
+ *   Set E is RED against current source (no pane opens without focus / below fold)
+ *   and GREEN after the rich-toolbar.js fix; A–D and passes 1–3 are byte-unchanged.
+ *
  *   FALSIFIABILITY: run against the CURRENT (unmodified) app.css this file is RED —
  *   assertions A, B and C FAIL (compressed clipped toolbar sliver, ~1.5-line
  *   editor, bar scrolls away). D is a REGRESSION GUARD, not part of the RED proof.
@@ -343,6 +353,66 @@ async function runMaximizeGuard(page, viewportHeight) {
     'cardHeight=' + h.toFixed(1) + ' viewportHeight=' + viewportHeight);
 }
 
+// E — preview reveal WITHOUT prior editor focus (Phase 46 gap-round-3, gaps 12+13).
+// setupExportStep2 fills #exportEditor via .value= + an input event but never
+// focuses it and never clicks the bar, so the editor is genuinely unfocused —
+// reproducing Gap 12's precondition. We then open the preview by dispatching a real
+// mousedown on the preview button (the toolbar binds mousedown, NOT click, so
+// btn.click() would not open it) and assert the pane opened (Gap 12 end-to-end) and
+// that its top edge clears the STICKY bar (Gap 13 — a naive scrollIntoView would
+// land the pane under the pinned bar and pass an area-only check, so E2 is
+// bar-relative). jsdom cannot see this (no layout engine); only real WebKit can.
+async function runPreviewReveal(page, label) {
+  console.log('\n[' + label + '] E (preview reveal, no prior focus):');
+  await assertUniqueSelectors(page, label);
+
+  // Drive the activation with a real mousedown, WITHOUT focusing the editor first.
+  await page.evaluate((sel) => {
+    const btn = document.querySelector(sel.previewBtn);
+    if (btn) btn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+  }, SEL);
+  await page.waitForTimeout(200); // settle the rAF + the reveal scroll
+
+  const geo = await page.evaluate((sel) => {
+    const area = document.querySelector(sel.area);
+    const bar = document.querySelector(sel.bar);
+    const btn = document.querySelector(sel.previewBtn);
+    const pane = document.querySelector(sel.area + ' .rich-toolbar-preview');
+    const rect = (el) => { const b = el.getBoundingClientRect(); return { top: b.top, bottom: b.bottom, height: b.height }; };
+    return {
+      hasPane: !!pane && !pane.classList.contains('is-hidden'),
+      pressed: btn ? btn.getAttribute('aria-pressed') : null,
+      paneRect: pane ? rect(pane) : null,
+      barRect: bar ? rect(bar) : null,
+      areaRect: area ? rect(area) : null
+    };
+  }, SEL);
+
+  // E1 — Gap 12 end-to-end: the pane opened + is visible + the button is pressed.
+  assert(geo.hasPane && geo.pressed === 'true',
+    label + ' · E1 preview opened on first click with no prior focus (Gap 12)',
+    geo.hasPane
+      ? ('pane present but aria-pressed=' + geo.pressed)
+      : 'preview did not open on first click — Gap 12');
+
+  // E2 — Gap 13: the pane top must clear the sticky bar (bar-relative), and at least
+  // ~20px of pane must be visible above the fold. Fail explicitly if the pane is absent.
+  if (geo.paneRect && geo.barRect && geo.areaRect) {
+    const clearsBar = geo.paneRect.top >= geo.barRect.bottom - 2;
+    const aboveFold = geo.paneRect.top <= geo.areaRect.bottom - 20;
+    assert(clearsBar && aboveFold,
+      label + ' · E2 preview pane revealed below the pinned bar (bar-relative)',
+      'paneTop=' + geo.paneRect.top.toFixed(1) +
+      ' barBottom=' + geo.barRect.bottom.toFixed(1) +
+      ' areaBottom=' + geo.areaRect.bottom.toFixed(1) +
+      ' (clearsBar=' + clearsBar + ' aboveFold=' + aboveFold + ')');
+  } else {
+    assert(false,
+      label + ' · E2 preview pane revealed below the pinned bar (bar-relative)',
+      'pane absent — cannot verify reveal');
+  }
+}
+
 async function newGatedContext(browser, { width, height, lang }) {
   const context = await browser.newContext({ viewport: { width, height } });
   await context.addInitScript(({ lg }) => {
@@ -352,6 +422,21 @@ async function newGatedContext(browser, { width, height, lang }) {
       localStorage.setItem('portfolioTermsAccepted', '1');
       localStorage.setItem('sg.welcomeSeen', '1');
       localStorage.setItem('portfolioLang', lg);
+      // Suppress the v1.4.0 what's-new overlay so it never sits over the toolbar and
+      // intercepts the real mousedown that Pass 4's preview-reveal (set E) drives.
+      // whats-new.js self-suppresses when the last-seen key equals the current
+      // version; a stylesheet hiding its nodes is the belt-and-suspenders. Harmless
+      // to passes 1–3 (they never click the bar; a display:none overlay is out of
+      // flow, so the export card's layout floor is unchanged).
+      localStorage.setItem('sg.whatsNewLastSeenVersion', '1.4.0');
+      var css = '.whats-new-overlay,.whats-new-popup{display:none !important;pointer-events:none !important;}';
+      var apply = function () {
+        var s = document.createElement('style');
+        s.textContent = css;
+        (document.head || document.documentElement).appendChild(s);
+      };
+      if (document.documentElement) apply();
+      else document.addEventListener('DOMContentLoaded', apply);
     } catch (e) {}
   }, { lg: lang });
   return context;
@@ -386,6 +471,16 @@ async function main() {
       const ctx = await newGatedContext(browser, { width: 1440, height: 820, lang: 'de' });
       const page = await setupExportStep2(ctx, base);
       await runABC(page, '1440x820 DE');
+      await ctx.close();
+    }
+
+    // ── Pass 4: 1440x820 (EN) — the Gap-13 repro viewport. Open the preview WITHOUT
+    //    prior editor focus (Gap 12 end-to-end) and assert the pane reveals below the
+    //    pinned bar (Gap 13). A–D at passes 1–3 are unaffected. ────────────────────
+    {
+      const ctx = await newGatedContext(browser, { width: 1440, height: 820, lang: 'en' });
+      const page = await setupExportStep2(ctx, base);
+      await runPreviewReveal(page, '1440x820 EN preview-reveal');
       await ctx.close();
     }
 
