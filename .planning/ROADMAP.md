@@ -178,7 +178,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   3. The user can toggle a live preview of the rendered result while editing, and can indent/outdent list items to build nested lists that render correctly in both the preview and the exported PDF.
   4. Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields — verified in a real browser, not jsdom.
 
-**Plans**: 12/14 plans executed
+**Plans**: 12/16 plans executed
 **UI hint**: yes (UI-SPEC approved; mockup gate D-19 satisfied)
 
 **Wave 1** *(parallel — no file overlap)*
@@ -229,6 +229,16 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 **Wave 11** *(blocked on 46-09..46-13 — closing real-device re-run)*
 
 - [ ] 46-14-PLAN.md — real-device / real-PDF re-verification gate (5 gap fixes + deferred 46-08 matrix + round-1 in-gate fixes) [gap-closure, wave 11]
+
+**Gap-Closure Round 2** *(from the 2026-07-15 46-14 re-run on MacBook Pro — item 11 failed, 2 new high-severity gaps: 10 Step-2 default layout collapse on laptop viewports, 11 export toolbar not always-visible)*
+
+**Wave 12** *(scoped CSS fix — no file overlap with pending gates)*
+
+- [ ] 46-15-PLAN.md — Gaps 10+11: export Step-2 edit surface as sizing floor (min-block-size floor, 90dvh-capped) + pinned unclippable toolbar (flex-shrink:0 + position:sticky) + falsifiable WebKit layout probe [gap-closure, wave 12]
+
+**Wave 13** *(blocked on 46-15 — closing real-device re-run, supersedes 46-14's re-run duty)*
+
+- [ ] 46-16-PLAN.md — real-device / real-PDF re-verification gate: full 11-item round-2 checklist + explicit gap 10/11 verification (default-size usable on MacBook, toolbar full-height + never scrolls away, maximize + mobile + RTL correct) [gap-closure, wave 13]
 
 ### Phase 47: Session-Section Reordering
 
