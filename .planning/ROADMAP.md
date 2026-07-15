@@ -178,7 +178,7 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
   3. The user can toggle a live preview of the rendered result while editing, and can indent/outdent list items to build nested lists that render correctly in both the preview and the exported PDF.
   4. Snippets quick-paste and autogrow keep working unchanged in the enhanced note fields — verified in a real browser, not jsdom.
 
-**Plans**: 12/16 plans executed
+**Plans**: 12/17 plans executed
 **UI hint**: yes (UI-SPEC approved; mockup gate D-19 satisfied)
 
 **Wave 1** *(parallel — no file overlap)*
@@ -238,7 +238,13 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 
 **Round-2 Wave 2** *(blocked on 46-15 — closing real-device re-run, supersedes 46-14)*
 
-- [ ] 46-16-PLAN.md — real-device / real-PDF re-verification gate: full 11-item round-2 checklist + explicit gap 10/11 verification (default-size usable on MacBook, toolbar full-height + never scrolls away, maximize + mobile + RTL correct) [gap-closure, wave 2]
+- [ ] 46-16-PLAN.md — real-device / real-PDF re-verification gate: full 11-item round-2 checklist + explicit gap 10/11 verification (default-size usable on MacBook, toolbar full-height + never scrolls away, maximize + mobile + RTL correct) + NEW gap 12/13 verification (first-click persistent-toolbar controls + Preview reveal) [gap-closure, wave 2]
+
+**Gap-Closure Round 3** *(from the 2026-07-15 Playwright-WebKit repro on build e0c48c5 — 2 new high-severity gaps found while testing the 46-15 build: 12 persistent-bar controls dead until the editor is focused once, 13 export preview pane opens below the scroll fold. The standing 46-16 gate re-runs after this lands and now carries item 13.)*
+
+**Round-3 Wave 1** *(scoped JS fix to rich-toolbar.js — immediately executable, no file overlap)*
+
+- [ ] 46-17-PLAN.md — Gaps 12+13: persistent-bar dispatch resolves its target from the clicked control's own bar (works on first click, no prior focus) + export preview scrolls its edit-area container into view below the pinned bar; RED-first jsdom test (dispatch, 190→191) + RED-first WebKit probe assertion set E (preview reveal) [gap-closure, wave 1]
 
 ### Phase 47: Session-Section Reordering
 
