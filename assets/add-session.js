@@ -1384,7 +1384,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       //   Wait one tick so populateSession's dynamic issue rows are in the DOM before reading.
       Promise.resolve().then(() => {
         lastSavedSnapshot = snapshotFormState();
-        formDirty = false; // populateSession's value writes trigger 'input' events
+        formDirty = false; // direct .value= writes fire no input event; reset the load baseline explicitly
         updateCancelButtonLabel();
       });
     }
@@ -1904,4 +1904,14 @@ function populateSession(session, issues, createIssueBlock) {
   // (not trimmed/scrolled until the first keystroke). Covers the heart-shield
   // emotions field too (it shares .session-textarea).
   growAllSessionTextareas();
+
+  // The note-field writes above are direct `.value =` assignments, which fire no
+  // input event, so the undo stack seeded at mount time (empty) never re-seeds.
+  // Re-seed each tracked field to its loaded value so the first undo removes the
+  // first real edit instead of wiping the loaded content back to empty.
+  ["trappedEmotions", "sessionComments", "sessionInsights", "customerSummary",
+   "limitingBeliefs", "additionalTech"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el && window.TextEdit && window.TextEdit.undoReset) window.TextEdit.undoReset(el);
+  });
 }

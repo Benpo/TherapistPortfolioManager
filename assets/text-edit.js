@@ -494,6 +494,12 @@ window.TextEdit = (function () {
     outdentLine: outdentLine,
     renumberOrderedBlock: renumberOrderedBlock,
     undoTrack: undoTrack,
+    // Re-seed the baseline to the field's current value, clearing the snapshot
+    // stack and pending step. Call this after any programmatic bulk `.value =`
+    // population (which fires no input event), so the loaded content — not the
+    // stale mount-time value — becomes the undo floor. undoTrack already does
+    // exactly this on re-call.
+    undoReset: undoTrack,
     undoUntrack: undoUntrack,
     undoRecord: undoRecord,
     undoNoteInput: undoNoteInput,

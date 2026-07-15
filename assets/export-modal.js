@@ -889,6 +889,10 @@
       // is ever re-rendered.
       if (window.Snippets && editor) window.Snippets.bindTextarea(editor);
       if (editor) editor.value = "";
+      // Direct `.value =` fires no input event, so re-seed the undo baseline to
+      // the reset (empty) state — this also clears any snapshots left over from a
+      // previous export, preventing cross-open undo bleed.
+      if (editor && window.TextEdit && window.TextEdit.undoReset) window.TextEdit.undoReset(editor);
 
       modal.classList.remove("is-hidden");
       App.lockBodyScroll();
@@ -927,6 +931,10 @@
           _exportState.selectedKeys = selected;
           const md = buildFilteredSessionMarkdown(selected);
           if (editor) editor.value = md;
+          // Direct `.value =` fires no input event; re-seed the undo baseline to
+          // the generated markdown so the first undo removes the first real edit
+          // rather than wiping the document back to empty.
+          if (editor && window.TextEdit && window.TextEdit.undoReset) window.TextEdit.undoReset(editor);
           _exportState.hasEditedPreview = false;
           exportSetActiveStep(2);
         } else if (_exportState.currentStep === 2) {
