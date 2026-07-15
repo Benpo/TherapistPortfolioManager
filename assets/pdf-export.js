@@ -1050,14 +1050,14 @@ window.PDFExport = (function () {
        *
        * Pipeline (matches 23-RESEARCH "Worked example" + 23-12 plan):
        *   1. Reconstruct the logical line from segments.
-       *   2. Build a per-logical-codeunit weight array (0 = regular, 1 = bold)
-       *      via a running offset walk over segment.text.length.
+       *   2. Build a per-logical-codeunit style array (0 = regular, 1 = bold,
+       *      2 = italic) via a running offset walk over segment.text.length.
        *   3. shapeForJsPdfWithMap(line) -> { visual, visualToLogicalMap }.
-       *   4. For each visual position, weight = weightByLogical[visualToLogicalMap[vp]].
-       *      Collapse to maximal contiguous visual runs sharing a single weight.
-       *   5. Measure each run's width at its own weight (bold advances differ
+       *   4. For each visual position, style = styleByLogical[visualToLogicalMap[vp]].
+       *      Collapse to maximal contiguous visual runs sharing a single style.
+       *   5. Measure each run's width at its own style (bold/italic advances differ
        *      from regular — RESEARCH G7 about identical advances holds within
-       *      a single weight; bold is a separate font with separate metrics).
+       *      a single style; each is a separate font with separate metrics).
        *   6. Anchor: LTR -> draw left-to-right starting at leftX. RTL -> sum
        *      per-run widths to get totalW, draw left-to-right starting at
        *      (rightX - totalW). Each doc.text() call uses {isInputVisual:false}
@@ -1073,21 +1073,17 @@ window.PDFExport = (function () {
         for (var si = 0; si < segments.length; si++) line += segments[si].text;
         if (line.length === 0) return;
         // styleByLogical encodes the per-code-unit style as 0=normal / 1=bold /
-        // 2=italic (parallel to the historical weightByLogical, which stays 0/1
-        // for bold). Runs now break when the STYLE changes (which subsumes a
-        // weight change), so an italic run is a distinct maximal run and gets
-        // setFont('Heebo','italic') — the vendored Rubik-Italic face registered
-        // under family 'Heebo'. normal/bold are unchanged.
+        // 2=italic. Runs break when the STYLE changes, so an italic run is a
+        // distinct maximal run and gets setFont('Heebo','italic') — the vendored
+        // Rubik-Italic face registered under family 'Heebo'. normal/bold are
+        // unchanged.
         var STYLE_NAME = ['normal', 'bold', 'italic'];
-        var weightByLogical = new Uint8Array(line.length);
         var styleByLogical = new Uint8Array(line.length);
         var off = 0;
         for (var si2 = 0; si2 < segments.length; si2++) {
           var seg = segments[si2];
-          var w = seg.bold ? 1 : 0;
           var st = seg.bold ? 1 : (seg.italic ? 2 : 0);
           for (var k = 0; k < seg.text.length; k++) {
-            weightByLogical[off + k] = w;
             styleByLogical[off + k] = st;
           }
           off += seg.text.length;
