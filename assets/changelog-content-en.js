@@ -82,13 +82,15 @@
       ],
       categories: {
         new: [
-          "A formatting toolbar sits above your session notes, with buttons for bold, italics, bullet and numbered lists, and a text-style menu for headings — plus undo and redo.",
-          "A live preview you can turn on for any note field, to watch your formatting take shape as you write.",
+          "A formatting toolbar sits above your session notes, with buttons for bold, italics, bullet and numbered lists, and a text-style menu for headings — plus undo and redo that step one line or one change at a time, so going back never sweeps away more than you meant.",
+          "A preview you can turn on for any note field, to watch your formatting take shape as you write — the button reads Preview while you are writing and Edit while you are previewing, so it always shows where it will take you.",
           "Reading a saved session now shows your notes as styled text, so bold, lists, and headings look the way you typed them — numbered lists keep the exact numbers you entered, switching between bullets and numbers renders each correctly, and it all works reliably whether or not you left a blank line between them.",
         ],
         improved: [
-          "Formatting while you type feels natural: use Ctrl+B and Ctrl+I on your computer, start a line with a dash or a number to begin a list that continues on its own, and press Tab to nest items.",
+          "Formatting while you type feels natural: use Ctrl+B and Ctrl+I on your computer, start a line with a dash or a number to begin a list that continues on its own, and press Tab to nest items. Accepting a snippet suggestion inside a list keeps you on the same line, instead of starting a stray new item.",
           "The export editor now opens roomier — with space to shape almost a whole session at once, a maximize button, and the same formatting toolbar — and fills the screen on a phone.",
+          "When you export, the before-and-after emotion ratings come pre-selected but are easy to leave out — uncheck them and that export skips the severity ratings in both the PDF and a copied summary.",
+          "Exports now describe the Heart-Wall result in words — Heart-Wall removed when it came down, or Heart-Wall present, not removed this session when it was found but not yet released — in place of a bare yes or no.",
           "PDF exports now preserve bold, italics, bullet and numbered lists, nesting, and note headings — with Hebrew right-to-left kept correct.",
           "Copying a session or saving it as a text file keeps your notes exactly as written.",
         ],
