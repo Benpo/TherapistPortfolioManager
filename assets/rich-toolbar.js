@@ -53,6 +53,10 @@ window.RichToolbar = (function () {
                                   // A persistent bar is ALWAYS visible, so its controls are clicked
                                   // before the field is ever focused; dispatch resolves the target
                                   // from the clicked control's OWN bar, so it never depends on focus.
+  var _everFocused = new WeakSet(); // fields that have received focus at least once. A blurred
+                                  // textarea RETAINS its selection, so "not currently focused" is
+                                  // NOT the same as "has no meaningful caret" — only a field that
+                                  // has NEVER been focused gets the end-of-document caret anchor.
   var _headingMenuEl = null;      // transient heading dropdown popover
   var _headingTrigger = null;     // the trigger button that opened the heading menu
   var _focused = null;            // the currently-focused registered textarea
@@ -266,6 +270,9 @@ window.RichToolbar = (function () {
   // fixed getBoundingClientRect coords for the bar — that detaches on the first
   // scroll of an autogrowing field.
   function dockTo(textarea) {
+    // Every focus path routes through here (real focusin AND a dispatch-driven
+    // focus), so this is the single point that records genuine first-touch.
+    _everFocused.add(textarea);
     // Focus moved to a DIFFERENT field: the preview is per-field and resets on
     // blur, so drop any preview bound to the previously-focused field.
     if (_previewOpen && _previewField !== textarea) closePreview();
@@ -635,7 +642,9 @@ window.RichToolbar = (function () {
     var areaRect = container.getBoundingClientRect();
     var barRect = bar.getBoundingClientRect();
     var paneRect = pane.getBoundingClientRect();
-    if (!paneRect.height && !areaRect.height) return; // no layout (e.g. headless jsdom)
+    // The container is the surface that must have layout for the scroll math to be
+    // valid — a zero-height area means no layout engine (e.g. headless jsdom).
+    if (!areaRect.height) return;
     // Pane's current offset from the top of the container content, minus the bar
     // height and gap: scroll the container so the pane top lands just below the bar.
     var delta = (paneRect.top - barRect.bottom) - GAP;
@@ -682,10 +691,13 @@ window.RichToolbar = (function () {
       }
       // Formatting/undo/redo/heading: make the bar's own field the active target.
       // Set the module focus state DIRECTLY (do not rely solely on the focusin
-      // side-effect, which may not fire in every engine). When the field was never
-      // focused its caret is the engine default (varies) — anchor a deterministic
-      // caret at end-of-document. A real selection (start !== end) is left intact.
-      if (document.activeElement !== barField &&
+      // side-effect, which may not fire in every engine). Anchor a deterministic
+      // end-of-document caret ONLY when the field has NEVER been focused (its
+      // collapsed caret is the varying engine default). A field that was focused
+      // and then blurred RETAINS its caret — a blurred textarea keeps its
+      // selection — so that caret is preserved, as is any real selection
+      // (start !== end).
+      if (!_everFocused.has(barField) &&
           barField.selectionStart === barField.selectionEnd) {
         var len = barField.value.length;
         try { barField.setSelectionRange(len, len); } catch (e) { /* detached */ }
