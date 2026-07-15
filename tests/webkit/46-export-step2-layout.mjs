@@ -107,7 +107,12 @@ function startServer() {
         let urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
         if (urlPath === '/' || urlPath === '') urlPath = '/index.html';
         const filePath = path.join(REPO_ROOT, urlPath);
-        if (!filePath.startsWith(REPO_ROOT)) { res.writeHead(403); res.end('forbidden'); return; }
+        // Traversal guard: require the separator so a sibling directory whose name
+        // merely starts with REPO_ROOT's string can never be served (allow the
+        // root itself if it is ever requested exactly).
+        if (filePath !== REPO_ROOT && !filePath.startsWith(REPO_ROOT + path.sep)) {
+          res.writeHead(403); res.end('forbidden'); return;
+        }
         if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
           res.writeHead(404); res.end('not found'); return;
         }
@@ -219,9 +224,42 @@ function measure(page) {
   }, SEL);
 }
 
+// Selector shape gate (review WR-01): every selector this probe measures through
+// must resolve to EXACTLY ONE node. The probe reconstructs the Step-2 state by
+// hand, so if export-modal.js / rich-toolbar.js / add-session.html ever rename a
+// class, dock the bar at a different node, or move is-editor-step, the modelled
+// DOM would silently diverge from production and the gate would go false-GREEN.
+// This converts any such selector/nesting drift into a loud probe FAILURE.
+async function assertUniqueSelectors(page, label) {
+  const shape = await page.evaluate((sel) => {
+    const count = (s) => document.querySelectorAll(s).length;
+    return {
+      bar: count(sel.bar),
+      area: count(sel.area),
+      editor: count(sel.editor),
+      card: count(sel.card),
+      previewBtn: count(sel.previewBtn),
+      areaOverflowY: (() => {
+        const area = document.querySelector(sel.area);
+        return area ? getComputedStyle(area).overflowY : null;
+      })()
+    };
+  }, SEL);
+  for (const key of ['bar', 'area', 'editor', 'card', 'previewBtn']) {
+    assert(shape[key] === 1,
+      label + ' · shape: selector "' + SEL[key] + '" resolves to exactly one node',
+      'count=' + shape[key] + ' — DOM drifted from the modelled production structure');
+  }
+  assert(shape.areaOverflowY === 'auto',
+    label + ' · shape: edit area is the scroll container (overflow-y: auto)',
+    'overflowY=' + shape.areaOverflowY);
+  return shape;
+}
+
 // Run assertions A, B and C for one already-set-up page.
 async function runABC(page, label) {
   console.log('\n[' + label + '] A/B/C:');
+  await assertUniqueSelectors(page, label);
   const m = await measure(page);
 
   // A — toolbar unclipped.
