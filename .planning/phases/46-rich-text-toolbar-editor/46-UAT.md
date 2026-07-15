@@ -1,19 +1,20 @@
 ---
 status: diagnosed
 phase: 46-rich-text-toolbar-editor
-source: [46-08-PLAN.md checkpoint — real-device gate, Ben driving]
+source: [46-08-PLAN.md checkpoint — real-device gate, Ben driving; 46-14 re-run round 2]
 started: 2026-07-14T21:30:00Z
-updated: 2026-07-14T23:20:00Z
+updated: 2026-07-15T09:00:00Z
 ---
 
 ## Current Test
 
 number: —
-name: Real-device checklist (10 items) — in progress, interrupted by findings below
+name: 46-14 re-run (round 2, 11 items) — in progress on the 00f0c08 pre-prod build
 expected: |
-  All 10 checklist items from 46-08-PLAN.md pass on installed Safari PWA (desktop),
+  All 11 checklist items from 46-14-PLAN.md pass on installed Safari PWA (desktop),
   iPhone PWA, Chrome, Firefox, plus a real opened PDF.
-awaiting: Ben re-tests on the be7877b pre-prod build, then completes the remaining matrix
+awaiting: Ben continues the round-2 matrix; item 11 (export Step 2) FAILED on MacBook Pro
+  (gaps 10/11 below), remaining items pending
 
 ## Tests
 
@@ -36,13 +37,23 @@ toolbar + preview mount).
 ### 2, 6, 7, 9, 10 (shortcuts, live preview, snippets/autogrow, real PDF, RTL)
 result: [pending] — matrix not finished; resume after be7877b re-test
 
+### Round 2 (46-14 re-run, 2026-07-15, 00f0c08 build)
+
+#### Item 11 — Export Step 2 single-pane / always-on toolbar / no accordion / SW delivery
+result: FAILED on MacBook Pro — default (non-maximized) Step 2 renders the toolbar as a
+clipped sliver and the editor at ~1.5 lines; toolbar also scrolls out of view on long
+documents. See gaps 10 and 11.
+
+#### Items 1-10 (round 2)
+result: [pending] — Ben continuing the matrix
+
 ## Summary
 
-total: 10 checklist items / 9 gaps found
-passed: 0 (no checklist item formally signed off; round 1 ended 2026-07-14 before the full matrix)
+total: round 1 — 10 checklist items / 9 gaps; round 2 (46-14 re-run) — 11 items, in progress / 2 new gaps so far
+passed: 0 (no checklist item formally signed off; round 2 started 2026-07-15 on the 00f0c08 build)
 gaps_resolved_during_gate: 4 (1, 2, 5, 6 — plus the list-toggle fix d88af87)
-gaps_open_for_gap_round: 5 (3 undo stack, 4 preview toggle label+icon, 7 emotions opt-out, 8 snippet-Enter collision, 9 Heart-Wall wording)
-matrix_deferred: iPhone pass, real PDF, RTL/Hebrew, snippets re-test, lists re-test — all at the gate re-run after gap execution
+gaps_fixed_in_gap_round_awaiting_round2_confirm: 5 (3 undo stack, 4 preview toggle label+icon, 7 emotions opt-out, 8 snippet-Enter collision, 9 Heart-Wall wording)
+gaps_open_round2: 2 (10 Step-2 default layout collapse on laptop viewports, 11 export toolbar not always-visible)
 skipped: 0
 blocked: 0
 
@@ -139,6 +150,42 @@ Believed pre-existing (likely live in production, unverified). Fix: replace the 
 with explanatory copy distinguishing the states, e.g. released vs "identified — not yet
 released". The gap plan must propose concrete wording options (all locales) for Ben to
 choose; also audit the same section for the released=yes wording while there.
+
+### Gap 10 — Export Step 2 default layout collapses on laptop viewports (severity: high, round 2)
+status: failed
+Found at the 46-14 re-run (2026-07-15, MacBook Pro, 00f0c08 pre-prod build, screenshot in
+session): at the Step-2 DEFAULT (non-maximized) size the toolbar renders as a ~15px sliver
+with every button clipped in half, and the editor shows ~1.5 lines — the surface is unusable
+without hitting maximize. Root cause (confirmed in source, not yet reproduced live):
+`.export-card.is-editor-step` is hard-sized to 50dvh (app.css ~3360). On a typical MacBook
+viewport (~820-980px) that is a ~410-490px card, and the fixed Step-2 chrome INSIDE it —
+title, step indicator, "Step 2 of 3" line, the ephemeral-edit info note, actions row —
+consumes ~330-380px, so `.export-edit-area` (flex:1, min-block-size:0) collapses to
+~50-100px. Inside that collapsed column the toolbar (a default-shrinkable flex child with
+`overflow-y: hidden`, app.css ~5360) compresses and clips its buttons; the editor's 240px
+min-height overflows the scroll area showing only a sliver. Round-1 Gap 1 accepted "the
+current ~50% default height is fine" — that premise assumed the chrome fit; it does not on
+laptop viewports. Fix direction for the gap plan: the EDIT SURFACE, not the card, must be
+the sizing floor (e.g. size the card so the edit area gets a guaranteed usable min-height,
+or grow the default beyond 50dvh, or slim the Step-2 chrome), plus `flex-shrink: 0` on the
+toolbar so it can never compress regardless of sizing. Must be re-verified at the default
+size on a real MacBook viewport, not only maximized.
+
+### Gap 11 — Export toolbar is not ALWAYS visible (severity: high, round 2, re-opens Gap 2's requirement)
+status: failed
+Ben re-affirmed the round-1 ratified requirement at the re-run: "the formatting toolbar
+should never be hidden in the export." The Gap-2 fix made the bar persistent (dedicated
+always-docked bar, no hide-on-blur) but two mechanisms still hide it:
+(a) compression clipping — see Gap 10 (no `flex-shrink: 0`, so the flex column crushes it);
+(b) scroll-away — rich-toolbar.js docks the persistent bar `beforebegin` the textarea,
+i.e. INSIDE `.export-edit-area`, which is the `overflow-y: auto` scroll container
+(app.css ~3384), so on any document taller than the area, scrolling down moves the bar
+out of view. Fix direction: keep the bar visually pinned while the document scrolls —
+e.g. `position: sticky; inset-block-start: 0` on the bar scoped to the export edit area
+(it already carries surface background + popover z-index), or dock it outside the scroll
+container — plus the Gap-10 `flex-shrink: 0`. Verify: with a long document, scroll to the
+bottom of the edit area — the bar must still be visible and clickable; with a short
+viewport the bar must render at full height.
 
 ### Fixed during the gate (for the record)
 - List button toggle/switch semantics: tests 88f7639, fix d88af87 (7 new unit tests).
