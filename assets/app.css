@@ -3361,6 +3361,16 @@ html[dir="rtl"] .settings-locked-info::after {
   inline-size: min(1100px, 92vw);
   block-size: 50vh;
   block-size: 50dvh;
+  /* Make the EDIT SURFACE, not the card, the sizing floor. On a laptop-band
+     viewport 50% is too short: the fixed Step-2 chrome eats the height and the
+     editor plus its always-visible toolbar collapse. This floor grows the card so
+     a usable toolbar + multi-line editor always fit, while on tall screens the
+     preferred 50% height is larger and still wins. The inner min(...,90vh/90dvh)
+     cap guarantees the floor can never exceed the modal's own max-height on any
+     viewport, so it can never force the card taller than the screen (protecting
+     the phone-width full-screen takeover). */
+  min-block-size: min(640px, 90vh);
+  min-block-size: min(640px, 90dvh);
 }
 .export-card.is-maximized.is-editor-step {
   inline-size: min(1400px, 96vw);
@@ -3398,6 +3408,19 @@ html[dir="rtl"] .settings-locked-info::after {
   flex: 1 1 auto;
   block-size: auto;
   resize: none;
+}
+/* The persistent formatting toolbar docks inside the scrolling edit area, above
+   the editor. It must never be hidden: flex-shrink:0 stops it from being
+   compressed (and its buttons clipped) when the column is short, and sticky pins
+   it to the top of the scroll area so a long document scrolls beneath it instead
+   of carrying it out of view. The base .rich-toolbar already supplies the opaque
+   surface background and popover z-index that keep it readable above the scrolled
+   content; inset-block-start is a logical property so the pin is direction-neutral.
+   Scoped to the export edit area so the note-field toolbars are untouched. */
+.export-card.is-editor-step .export-edit-area > .rich-toolbar {
+  flex-shrink: 0;
+  position: sticky;
+  inset-block-start: 0;
 }
 
 /* Maximize / restore toggle — sits inline-start of the close button in the
