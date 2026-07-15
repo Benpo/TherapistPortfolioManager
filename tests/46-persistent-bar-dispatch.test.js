@@ -29,6 +29,10 @@
  *   D — Heading, no focus → two-step (open dropdown, choose H1) adds '# ' (RED now).
  *   E — cold caret, no focus, no pre-set selection → action lands at end-of-document
  *       ('cold****'), proving a deterministic caret rather than the engine default.
+ *   F — focused-then-BLURRED field keeps its caret: a blurred textarea retains its
+ *       selectionStart/End, so a returning user's mid-document caret must be
+ *       preserved — the end-of-document anchor applies ONLY to a never-focused
+ *       field, never to one that was focused and blurred (R3 WR-01 falsifier).
  *
  * Run: node tests/46-persistent-bar-dispatch.test.js
  * Exits 0 on full pass, 1 on any failure (the tests/run-all.js contract).
@@ -123,6 +127,10 @@ test('Case B: persistent Preview opens the pane on first click and does NOT focu
   assert.ok(taP._notePreview, 'a preview pane was created for the persistent field');
   assert.ok(!taP._notePreview.classList.contains('is-hidden'), 'the preview pane is visible');
   assert.strictEqual(previewBtn.getAttribute('aria-pressed'), 'true', 'preview button reports aria-pressed=true');
+  // The pane must render the field's ACTUAL content — presence/visibility alone
+  // would pass an empty or stale pane (R3 IN-02).
+  assert.ok(/hello/.test(taP._notePreview.textContent),
+    'the preview pane rendered the field value');
   // Preview is view-only: it must NOT focus the field (guards the soft-keyboard rule).
   assert.notStrictEqual(win.document.activeElement, taP, 'preview did NOT focus the field');
 });
@@ -169,6 +177,28 @@ test('Case E: with no pre-set selection the action lands at end-of-document (col
   mousedown(win, boldBtn);
   assert.strictEqual(taP.value, 'cold****',
     'bold-with-no-selection inserted the marker pair at end-of-document (deterministic cold caret)');
+});
+
+// ── Case F — focused-then-blurred field keeps its mid-document caret (WR-01) ─
+// A blurred textarea RETAINS selectionStart/End. The end-of-document anchor must
+// key on "never focused", not "not currently focused" — otherwise a user who set a
+// mid-document caret, blurred via a non-preventDefault control (Back/close/modal
+// chrome), and returned to click Bold gets the edit silently relocated to the end.
+test('Case F: focused-then-blurred field keeps its mid-document caret on a persistent-bar click', function () {
+  const { win, taP } = makeEnv();
+  taP.value = 'ab cd';
+  taP.focus();
+  // Ensure the module observes the focus (jsdom may not fire focusin on .focus()).
+  taP.dispatchEvent(new win.Event('focusin', { bubbles: true }));
+  taP.setSelectionRange(2, 2); // collapsed mid-document caret
+  taP.blur();                  // blur preserves the textarea's selection
+  assert.notStrictEqual(win.document.activeElement, taP, 'precondition: field is blurred');
+  assert.strictEqual(taP.selectionStart, 2, 'precondition: blurred textarea retained its caret');
+  const bar = persistentBar(taP);
+  const boldBtn = bar.querySelector('.rich-toolbar-btn[data-action="bold"]');
+  mousedown(win, boldBtn);
+  assert.strictEqual(taP.value, 'ab**** cd',
+    'bold pair inserted at the PRESERVED mid-document caret, not relocated to end-of-document');
 });
 
 console.log('\n46-persistent-bar-dispatch: ' + passed + ' passed, ' + failed + ' failed');

@@ -35,6 +35,8 @@
  *     E2. Gap 13 — the pane top clears the STICKY bar (paneTop >= barBottom-2 AND
  *         paneTop <= areaBottom-20). Bar-relative, so a naive scrollIntoView landing
  *         the pane under the pin cannot pass.
+ *     E3. Content — the pane rendered the field's actual text (an empty or stale
+ *         pane cannot pass on presence/visibility alone).
  *   Set E is RED against current source (no pane opens without focus / below fold)
  *   and GREEN after the rich-toolbar.js fix; A–D and passes 1–3 are byte-unchanged.
  *
@@ -382,6 +384,7 @@ async function runPreviewReveal(page, label) {
     return {
       hasPane: !!pane && !pane.classList.contains('is-hidden'),
       pressed: btn ? btn.getAttribute('aria-pressed') : null,
+      paneText: pane ? pane.textContent : '',
       paneRect: pane ? rect(pane) : null,
       barRect: bar ? rect(bar) : null,
       areaRect: area ? rect(area) : null
@@ -411,6 +414,13 @@ async function runPreviewReveal(page, label) {
       label + ' · E2 preview pane revealed below the pinned bar (bar-relative)',
       'pane absent — cannot verify reveal');
   }
+
+  // E3 — the pane rendered the field's ACTUAL content (setupExportStep2 fills the
+  // editor with "Line 1 …" lines). Presence/visibility alone would pass an empty or
+  // stale pane; this ties the rendered output to the input.
+  assert(geo.paneText.indexOf('Line 1') !== -1,
+    label + ' · E3 preview pane rendered the field content',
+    'paneText[0..80]=' + JSON.stringify(String(geo.paneText).slice(0, 80)));
 }
 
 async function newGatedContext(browser, { width, height, lang }) {
