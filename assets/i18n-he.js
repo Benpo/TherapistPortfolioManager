@@ -483,6 +483,8 @@ window.I18N.he = {
   "settings.saved.dismiss": "סגור",
   // --- Phase 22 — Export modal ---
   "session.export": "ייצוא",
+  "session.export.heartWall.released": "חומת הלב הוסרה",
+  "session.export.heartWall.notReleased": "חומת הלב קיימת — לא הוסרה במפגש זה",
   "export.title": "ייצוא מפגש",
   "export.stepper.label.1": "בחירה",
   "export.stepper.label.2": "עריכה",

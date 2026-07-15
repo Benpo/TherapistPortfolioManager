@@ -483,6 +483,8 @@ window.I18N.de = {
   "settings.saved.dismiss": "Schließen",
   // --- Phase 22 \u2014 Export modal ---
   "session.export": "Exportieren",
+  "session.export.heartWall.released": "Heart-Wall entfernt",
+  "session.export.heartWall.notReleased": "Heart-Wall vorhanden – in dieser Sitzung nicht entfernt",
   "export.title": "Sitzung exportieren",
   "export.stepper.label.1": "Auswählen",
   "export.stepper.label.2": "Bearbeiten",

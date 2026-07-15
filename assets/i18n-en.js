@@ -487,6 +487,11 @@ window.I18N.en = {
   "settings.saved.dismiss": "Dismiss",
   // --- Phase 22 — Export modal ---
   "session.export": "Export",
+  // Export-only Heart-Wall status lines — the form radios stay plain Yes/No;
+  // in an exported document a bare "No" reads as "not a Heart-Wall session"
+  // when it actually means identified-but-not-released.
+  "session.export.heartWall.released": "Heart-Wall removed",
+  "session.export.heartWall.notReleased": "Heart-Wall present — not removed this session",
   "export.title": "Export Session",
   "export.stepper.label.1": "Choose",
   "export.stepper.label.2": "Edit",

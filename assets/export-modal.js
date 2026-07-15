@@ -247,14 +247,17 @@
       // label-and-value line ("**Heart Shield Session** No") that, after **
       // stripping, displayed as raw text between the title and the issues section,
       // looking like stray junk. Promoting it to a ## heading + body line aligns
-      // it with every other section's structure.
+      // it with every other section's structure. The value line carries
+      // export-only wording (session.export.heartWall.*), NOT the form's bare
+      // Yes/No radio labels: in a document, "No" reads as "not a Heart-Wall
+      // session" when it actually means identified-but-not-released.
       if (heartShieldChecked) {
         lines.push(
           "",
           `## ${stripRequired(App.getSectionLabel("heartShield", "session.form.heartShield"))}`,
           shieldRemovedCopyValue === "yes"
-            ? App.t("session.form.shieldRemoved.yes")
-            : App.t("session.form.shieldRemoved.no")
+            ? App.t("session.export.heartWall.released")
+            : App.t("session.export.heartWall.notReleased")
         );
       }
 
@@ -392,15 +395,17 @@
       // label-and-value line ("**Heart Shield Session** No") that, after **
       // stripping, displayed as raw text between the title and the issues section,
       // looking like stray junk. Promoting it to a ## heading + body line aligns
-      // it with every other section's structure. (Same change as
-      // buildSessionMarkdown.)
+      // it with every other section's structure. The value line carries the
+      // export-only wording (session.export.heartWall.*), NOT the form's bare
+      // Yes/No radio labels — same reasoning as buildSessionMarkdown, and the
+      // PDF renders this line from this markdown body.
       if (heartShieldChecked && selected.has("heartShield")) {
         lines.push(
           "",
           `## ${stripRequired(App.getSectionLabel("heartShield", "session.form.heartShield"))}`,
           shieldRemovedValue === "yes"
-            ? App.t("session.form.shieldRemoved.yes")
-            : App.t("session.form.shieldRemoved.no")
+            ? App.t("session.export.heartWall.released")
+            : App.t("session.export.heartWall.notReleased")
         );
       }
 

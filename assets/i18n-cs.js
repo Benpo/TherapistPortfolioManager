@@ -483,6 +483,8 @@ window.I18N.cs = {
   "settings.saved.dismiss": "Zavřít",
   // --- Phase 22 \u2014 Export modal ---
   "session.export": "Exportovat",
+  "session.export.heartWall.released": "Heart-Wall odstran\u011Bna",
+  "session.export.heartWall.notReleased": "Heart-Wall p\u0159\u00EDtomna \u2013 v tomto sezen\u00ED neodstran\u011Bna",
   "export.title": "Exportovat sezen\u00ED",
   "export.stepper.label.1": "Vybrat",
   "export.stepper.label.2": "Upravit",
