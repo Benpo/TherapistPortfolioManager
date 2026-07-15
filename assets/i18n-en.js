@@ -492,6 +492,7 @@ window.I18N.en = {
   "export.stepper.label.2": "Edit",
   "export.stepper.label.3": "Export",
   "export.step1.helper": "Step 1 of 3 — Choose which session sections to include in the export. Your selection here decides what shows up in the editor on the next step.",
+  "export.section.emotions": "Emotions before / after ratings",
   "export.step2.helper": "Step 2 of 3 — Edit your document below; use the Preview button in the toolbar to see how it will look.",
   "export.ephemeralNote": "Edits here apply to this export only. They aren't saved to the session and disappear when you close this window — so feel free to restructure or reorder freely.",
   "export.maximize": "Maximize editor",

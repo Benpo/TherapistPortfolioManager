@@ -488,6 +488,7 @@ window.I18N.de = {
   "export.stepper.label.2": "Bearbeiten",
   "export.stepper.label.3": "Exportieren",
   "export.step1.helper": "Schritt 1 von 3 \u2014 W\u00e4hlen Sie, welche Abschnitte der Sitzung in den Export aufgenommen werden sollen. Ihre Auswahl bestimmt, was im n\u00e4chsten Schritt im Editor erscheint.",
+  "export.section.emotions": "Bewertung der Emotionen vorher / nachher",
   "export.step2.helper": "Schritt 2 von 3 \u2014 Bearbeiten Sie Ihr Dokument unten; verwenden Sie die Schaltfl\u00e4che Vorschau in der Symbolleiste, um zu sehen, wie es aussehen wird.",
   "export.ephemeralNote": "\u00c4nderungen hier gelten nur f\u00fcr diesen Export. Sie werden nicht in der Sitzung gespeichert und verschwinden, wenn Sie dieses Fenster schlie\u00dfen \u2014 Sie k\u00f6nnen also frei umstrukturieren oder neu anordnen.",
   "export.maximize": "Editor maximieren",

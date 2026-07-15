@@ -488,6 +488,7 @@ window.I18N.cs = {
   "export.stepper.label.2": "Upravit",
   "export.stepper.label.3": "Exportovat",
   "export.step1.helper": "Krok 1 ze 3 \u2014 Vyberte, kter\u00E9 sekce sezen\u00ED chcete zahrnout do exportu. V\u00E1\u0161 v\u00FDb\u011Br zde ur\u010Duje, co se zobraz\u00ED v editoru v dal\u0161\u00EDm kroku.",
+  "export.section.emotions": "Hodnocen\u00ED emoc\u00ED p\u0159ed / po",
   "export.step2.helper": "Krok 2 ze 3 \u2014 Upravujte sv\u016Fj dokument n\u00ED\u017Ee; pomoc\u00ED tla\u010D\u00EDtka N\u00E1hled na panelu n\u00E1stroj\u016F zobraz\u00EDte, jak bude vypadat.",
   "export.ephemeralNote": "\u00DApravy zde plat\u00ED pouze pro tento export. Neukl\u00E1daj\u00ED se do sezen\u00ED a zmiz\u00ED, kdy\u017E toto okno zav\u0159ete \u2014 m\u016F\u017Eete tedy voln\u011B m\u011Bnit strukturu i po\u0159ad\u00ED.",
   "export.maximize": "Maximalizovat editor",

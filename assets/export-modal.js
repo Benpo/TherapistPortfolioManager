@@ -194,8 +194,11 @@
       // The 3 corresponding i18n keys (session.copy.client/date/type) are
       // intentionally KEPT in the i18n files in case other consumers use them.
 
-      // Issues section: always included, change shown when both before and after
-      // exist. Scale labels are i18n'd ("Before/After/Change", etc.); "Change"
+      // Issues section (the emotions before/after block): included by default,
+      // but a pre-selected opt-out — the export dialog's Step-1 selection can
+      // exclude it, and this copy builder honours that same live choice (see
+      // emotionsBlockIncluded). Change shown when both before and after exist.
+      // Scale labels are i18n'd ("Before/After/Change", etc.); "Change"
       // replaces the prior "Delta" wording (too scientific).
       const beforeLabel = App.t("session.copy.scale.before");
       const afterLabel = App.t("session.copy.scale.after");
@@ -255,11 +258,17 @@
         );
       }
 
-      lines.push(
-        "",
-        `## ${stripRequired(App.getSectionLabel("issues", "session.form.issuesHeading"))}`,
-        issuesText
-      );
+      // The emotions before/after block is skipped entirely when the current
+      // export dialog's selection excluded it; with no live selection the
+      // default is to include (unchanged behaviour for anyone who never opts
+      // out). Nothing is persisted — the choice resets on every export.
+      if (emotionsBlockIncluded()) {
+        lines.push(
+          "",
+          `## ${stripRequired(App.getSectionLabel("issues", "session.form.issuesHeading"))}`,
+          issuesText
+        );
+      }
 
       // Heart Shield Emotions (only when Heart Shield is on)
       const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
@@ -323,7 +332,7 @@
       additionalTech: true,
       heartShieldEmotions: true, // only if data present (re-checked at render)
       nextSession: true,
-      issues: false,
+      issues: true, // pre-selected opt-out; only if data present (re-checked at render)
       comments: false,
       heartShield: false
     };
@@ -485,13 +494,34 @@
 
     let _exportState = null;
 
+    // Whether the emotions before/after block (the issues + severity section)
+    // is included in export outputs. It is a pre-selected opt-out: included
+    // unless the open export dialog's Step-1 selection excluded it. Outside a
+    // live selection (dialog closed, or Step 1 not yet advanced) the answer is
+    // always "include" — the choice deliberately resets per export and is
+    // never persisted. Both the PDF assembly (buildRenderInputs) and the
+    // clipboard copy (buildSessionMarkdown) read this one decision so the two
+    // paths can never disagree.
+    function emotionsBlockIncluded() {
+      if (_exportState && Array.isArray(_exportState.selectedKeys)) {
+        return _exportState.selectedKeys.indexOf("issues") !== -1;
+      }
+      return true;
+    }
+
     function exportRenderStep1Rows(sessionData) {
       const container = document.getElementById("exportStep1Rows");
       if (!container) return;
       container.innerHTML = "";
       EXPORT_SECTION_ORDER.forEach((key) => {
         const enabled = App.isSectionEnabled(key);
-        const label = App.getSectionLabel(key, exportDefaultI18nKey(key));
+        // The issues row carries a clarified fixed label ("Emotions before /
+        // after ratings") so therapists recognise it as the before/after block
+        // rather than only "Issues addressed"; every other row keeps the
+        // customizable section label.
+        const label = (key === "issues")
+          ? App.t("export.section.emotions")
+          : App.getSectionLabel(key, exportDefaultI18nKey(key));
         const hasData = sectionHasData(key);
         let defaultChecked = !!EXPORT_DEFAULT_CHECKED[key];
         if (key === "heartShieldEmotions") defaultChecked = defaultChecked && hasData;
@@ -499,6 +529,10 @@
         // NEXT-06). sectionHasData("nextSession") counts either, so a date-only
         // session defaults the toggle ON while a truly empty one defaults OFF.
         if (key === "nextSession") defaultChecked = defaultChecked && hasData;
+        // The emotions before/after row is a pre-selected opt-out, but only
+        // pre-selects when the session actually has issue rows — an empty
+        // section would render nothing anyway, so a checked box would mislead.
+        if (key === "issues") defaultChecked = defaultChecked && hasData;
 
         const row = document.createElement("label");
         row.className = "export-section-row";
@@ -652,7 +686,13 @@
         // dependency of the export.
         sessionNumber = undefined;
       }
-      const issues = (typeof getIssuesPayload === "function") ? getIssuesPayload() : [];
+      // The emotions before/after block is a pre-selected opt-out: when the
+      // Step-1 selection excluded it, forward an EMPTY issues array — the
+      // severity renderer early-returns on an empty list, so the two-bar block
+      // is cleanly omitted without touching any other render logic.
+      const issues = (emotionsBlockIncluded() && typeof getIssuesPayload === "function")
+        ? getIssuesPayload()
+        : [];
       const exportedOn = App.formatDate(window.DateFormat.todayLocalISO());
 
       // Change 1 (owner revision): tell the render tier WHERE severity sits in
@@ -825,6 +865,11 @@
         currentStep: 1,
         sessionData,
         hasEditedPreview: false,
+        // The Step-1 section selection, captured on Next so the PDF assembly
+        // and the copy builder can read the live choice. null until Step 1 is
+        // advanced — readers treat that as "no selection yet" and fall back to
+        // the include-everything-eligible default.
+        selectedKeys: null,
         cleanup: null
       };
 
@@ -870,6 +915,11 @@
           const checks = modal.querySelectorAll('#exportStep1Rows input[type="checkbox"]');
           const selected = [];
           checks.forEach((cb) => { if (cb.checked && !cb.disabled) selected.push(cb.dataset.sectionKey); });
+          // Keep the selection on the dialog state so downstream assembly
+          // (buildRenderInputs) and the copy builder can gate the emotions
+          // before/after block on the live choice. It dies with the dialog —
+          // the opt-out resets on every export.
+          _exportState.selectedKeys = selected;
           const md = buildFilteredSessionMarkdown(selected);
           if (editor) editor.value = md;
           _exportState.hasEditedPreview = false;
