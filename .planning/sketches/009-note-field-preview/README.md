@@ -6,10 +6,10 @@ winner: "A"
 tags: [note-fields, preview, visual-language, phase-46.1]
 ---
 
-> **Winner: A — in-place swap** (Ben, 2026-07-17). Preview replaces the textarea in the
-> same box; the bar's segmented control shows the CURRENT mode. Still open at sign-off:
-> which preview treatment (Frame / Paper / Tint) — to be settled together with sketch
-> 008's winner so both surfaces share one language.
+> **Winner: A — in-place swap** (Ben, 2026-07-17) with the **Frame** treatment (decided
+> 2026-07-18 together with sketch 008's winner B — the same swap model + frame language on
+> both surfaces). The bar's Edit/Preview switcher is **pinned** outside the scrollable
+> control strip so Preview is always visible on phone widths (Ben's mobile finding).
 
 # Sketch 009: Note-Field Preview (Phase 46.1, Gaps 14+15)
 

@@ -89,12 +89,17 @@
   .expandable-field .field { padding: 16px 16px 0; margin-block-end: 16px; }
 
   /* ── The focus-attached toolbar ──────────────────────────────── */
+  /* Mode switcher PINNED outside the scrollable control strip — Preview is
+     always reachable on phone widths without scrolling the bar. */
   #rtToolbar {
     display: none; align-items: center; gap: 4px;
     background: var(--color-surface); border: 1px solid var(--color-border);
     border-radius: 12px; padding: 4px; margin-block-end: 8px;
-    overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
     box-shadow: var(--shadow-nav);
+  }
+  .tb-scroll {
+    display: flex; align-items: center; gap: 4px; flex: 1 1 auto; min-width: 0;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
   }
   #rtToolbar.is-docked { display: flex; animation: tb-in 0.15s ease; }
   @keyframes tb-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
@@ -514,6 +519,7 @@ function afterEdit(ta) {
 
 /* ═══════════════ Toolbar (single instance; D-20 undo/redo; per-variant mode control) ═══════════════ */
 const TB_HTML = `
+  <span class="tb-scroll">
   <button type="button" class="hc-dd-btn" data-act="heading" title="Text style">
     <span class="hc-label">Text</span>
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -541,7 +547,8 @@ const TB_HTML = `
   <button type="button" class="tb-btn icon-flip" data-act="redo" title="Redo (Ctrl+Shift+Z)">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/></svg>
   </button>
-  <span class="tb-spacer"></span>
+  </span>
+  <span class="tb-sep"></span>
   <span class="swap" role="group" aria-label="Mode">
     <button type="button" data-mode="edit" class="on never-mute">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>

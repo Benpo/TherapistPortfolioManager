@@ -2,9 +2,16 @@
 sketch: 008
 name: export-preview-edit-model
 question: "Which interaction model makes preview/edit unmistakable in export Step 2 — and how does the whole export process feel around it?"
-winner: null
+winner: "B"
 tags: [export, preview, interaction, phase-46.1]
 ---
+
+> **Winner: B — in-place swap** (Ben, 2026-07-18), with the **Frame** preview treatment on
+> both surfaces (pairs with sketch 009's winner A — same swap model in the note fields).
+> C rejected: too much effort to reach preview. A rejected in favor of B's single-surface
+> clarity. Refinement from Ben's phone check: the Edit/Preview switcher is **pinned**
+> outside the scrollable control strip, so Preview is always visible on mobile without
+> scrolling the bar — this is part of the winning design contract.
 
 # Sketch 008: Export Preview/Edit Model (Phase 46.1, Gap 14)
 

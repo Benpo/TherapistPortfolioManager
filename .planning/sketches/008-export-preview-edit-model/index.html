@@ -152,11 +152,16 @@
   .chk input { width: 18px; height: 18px; accent-color: var(--color-primary); }
   .mock-note { font-size: 0.78rem; color: var(--color-text-muted); margin-block-start: 10px; opacity: 0.8; }
 
-  /* ── Toolbar (always visible while editing — ratified invariant) ─ */
+  /* ── Toolbar (always visible while editing — ratified invariant) ─
+     The mode switcher is PINNED outside the scrollable control strip, so
+     Preview is always reachable on phone widths without scrolling the bar. */
   .rt-toolbar {
     display: flex; align-items: center; gap: 4px; flex-shrink: 0;
     background: var(--color-surface); border: 1px solid var(--color-border);
     border-radius: 12px; padding: 4px; margin-block-end: 8px;
+  }
+  .tb-scroll {
+    display: flex; align-items: center; gap: 4px; flex: 1 1 auto; min-width: 0;
     overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
   }
   .tb-btn {
@@ -333,7 +338,7 @@
   <div class="tab-row">
     <span class="nav-title">008 · export preview/edit model:</span>
     <button class="variant-tab active" id="tabA" onclick="showVariant('a')">A: Side-by-side live</button>
-    <button class="variant-tab" id="tabB" onclick="showVariant('b')">B: In-place swap</button>
+    <button class="variant-tab" id="tabB" onclick="showVariant('b')">B: In-place swap ★ Selected</button>
     <button class="variant-tab" id="tabC" onclick="showVariant('c')">C: Preview stage</button>
   </div>
   <div id="variant-desc"></div>
@@ -645,7 +650,7 @@ const HEB_DOC = `# פגישה — מאיה כהן
 /* ═══════════════ Variant metadata ═══════════════ */
 const DESCS = {
   a: '<strong>A — Side-by-side live:</strong> there is no preview mode at all — the rendered document sits beside the editor and re-renders as you type; the preview follows your scroll. Honest cost: it needs width, so it opens larger than the 007-ratified 50% (deviation is deliberate — judge if it earns it). Phone: stacked halves, both always visible.',
-  b: '<strong>B — In-place swap:</strong> one surface, one unmistakable mode. Preview fully REPLACES the editor in the same space — nothing to scroll back into. The segmented control marks the CURRENT mode in green (the Gap-14 fix: state, not target). Formatting buttons stay visible in Preview but dim — clicking one returns to Edit and applies it. Honors the 007-ratified 50% + maximize.',
+  b: '<strong>B — In-place swap ★ WINNER:</strong> one surface, one unmistakable mode. Preview fully REPLACES the editor in the same space — nothing to scroll back into. The segmented control marks the CURRENT mode in green (the Gap-14 fix: state, not target) and stays PINNED at the bar\'s end — on phone widths the formatting controls scroll beneath it, so Preview is always visible. Formatting buttons dim in Preview; clicking one returns to Edit and applies it.',
   c: '<strong>C — Preview as a stage:</strong> Step 2 is pure editing (no preview button anywhere). Continue enters "Preview &amp; Export" — the card grows and the rendered document becomes the centerpiece with export formats beside it. Preview isn\'t a mode you toggle; it\'s the natural checkpoint before exporting. Back returns to editing.'
 };
 const STEP_LABELS = {
@@ -949,7 +954,7 @@ const TB_HTML = `
   </button>`;
 
 const SWAP_HTML = `
-  <span class="tb-spacer"></span>
+  <span class="tb-sep"></span>
   <span class="swap" role="group" aria-label="Mode">
     <button type="button" data-mode="edit" class="on">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
@@ -963,7 +968,8 @@ const SWAP_HTML = `
 
 const HEADING_CYCLE = [0, 1, 2, 3];
 document.querySelectorAll('.rt-toolbar').forEach(tb => {
-  tb.innerHTML = TB_HTML + (tb.dataset.swap ? SWAP_HTML : '');
+  /* controls scroll; the mode switcher stays pinned at the bar's end */
+  tb.innerHTML = '<span class="tb-scroll">' + TB_HTML + '</span>' + (tb.dataset.swap ? SWAP_HTML : '');
   const ta = document.getElementById(tb.dataset.editor);
   let cyc = 0;
   tb.addEventListener('mousedown', (e) => e.preventDefault()); /* Gap-16 guard: bar clicks never blur */
