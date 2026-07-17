@@ -2,9 +2,14 @@
 sketch: 009
 name: note-field-preview
 question: "How does preview adapt to the 7 inline note fields — and what unified 'this is preview' visual language replaces the section-header orange?"
-winner: null
+winner: "A"
 tags: [note-fields, preview, visual-language, phase-46.1]
 ---
+
+> **Winner: A — in-place swap** (Ben, 2026-07-17). Preview replaces the textarea in the
+> same box; the bar's segmented control shows the CURRENT mode. Still open at sign-off:
+> which preview treatment (Frame / Paper / Tint) — to be settled together with sketch
+> 008's winner so both surfaces share one language.
 
 # Sketch 009: Note-Field Preview (Phase 46.1, Gaps 14+15)
 
