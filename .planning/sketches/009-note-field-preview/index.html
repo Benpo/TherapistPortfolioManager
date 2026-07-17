@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sketch 009 — Note-Field Preview (Phase 46.1)</title>
+<link rel="stylesheet" href="../themes/default.css">
+<style>
+  @font-face { font-family:'Rubik'; src:url('../../../assets/fonts/Rubik-Regular.woff2') format('woff2'); font-weight:400; font-style:normal; }
+  @font-face { font-family:'Rubik'; src:url('../../../assets/fonts/Rubik-SemiBold.woff2') format('woff2'); font-weight:600; font-style:normal; }
+  @font-face { font-family:'Rubik'; src:url('../../../assets/fonts/Rubik-Bold.woff2') format('woff2'); font-weight:700; font-style:normal; }
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { min-height: 100%; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-background);
+    color: var(--color-text);
+    padding-top: 92px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  /* ── Variant nav + explainer (sketch chrome) ─────────────────── */
+  #variant-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
+    background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+    padding: 8px 16px 6px;
+  }
+  #variant-nav .tab-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  #variant-nav .nav-title { font-size: 12px; color: var(--color-text-muted); margin-inline-end: 8px; }
+  .variant-tab {
+    font-family: var(--font-sans); font-size: 14px; padding: 6px 14px;
+    border: 1px solid var(--color-border); border-radius: 9999px;
+    background: transparent; color: var(--color-text); cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .variant-tab:hover { background: var(--color-surface-hover); }
+  .variant-tab.active { background: var(--color-primary); color: var(--color-text-inverse); border-color: var(--color-primary); font-weight: 600; }
+  #variant-desc { font-size: 12px; color: var(--color-text-muted); line-height: 1.45; padding: 5px 2px 2px; max-width: 1100px; }
+  #variant-desc strong { color: var(--color-text); }
+
+  /* ── Stage / viewport simulation ─────────────────────────────── */
+  #stage { max-width: 860px; margin: 0 auto; padding: 24px 16px 120px; transition: max-width 0.2s ease; }
+  body.vp-phone #stage { max-width: 375px; padding-inline: 8px; }
+
+  /* ── Test-script card ────────────────────────────────────────── */
+  .test-card {
+    background: var(--color-surface-alt); border: 1px solid var(--color-border-soft);
+    border-radius: 12px; padding: 16px; margin-block-end: 24px;
+    font-size: 0.9rem; line-height: 1.5;
+  }
+  .test-card h2 { font-size: 0.9rem; font-weight: 600; margin-block-end: 8px; }
+  .test-card ol { padding-inline-start: 24px; }
+  .test-card li { margin-block-end: 2px; }
+
+  /* ── Mini add-session form ───────────────────────────────────── */
+  .page-title { font-size: 1.35rem; font-weight: 700; margin-block-end: 4px; }
+  .page-sub { color: var(--color-text-muted); font-size: 0.9rem; margin-block-end: 16px; }
+  .form-card {
+    background: var(--color-surface); border-radius: 18px;
+    box-shadow: var(--shadow-card); padding: 24px; margin-block-end: 24px;
+  }
+  body.vp-phone .form-card { padding: 16px; border-radius: 12px; }
+  .field { margin-block-end: 20px; }
+  .field:last-child { margin-block-end: 0; }
+  .field > label { display: block; font-size: 0.95rem; font-weight: 600; margin-block-end: 6px; }
+  .note-field {
+    width: 100%; min-height: 96px; resize: none; overflow: hidden;
+    font-family: var(--font-sans); font-size: 1rem; line-height: 1.5;
+    color: var(--color-text); background: var(--color-surface);
+    border: 1px solid var(--color-border); border-radius: 12px; padding: 12px;
+    transition: border-color 0.15s ease;
+  }
+  .note-field:focus { outline: none; border-color: var(--color-primary); }
+
+  /* The accordion section header — Gap 15's collision reference. It keeps the
+     REAL app background (--color-surface-alt); the new preview treatments below
+     must read as something else entirely. */
+  .expandable-field { border: 1px solid var(--color-border-soft); border-radius: 12px; margin-block-end: 20px; overflow: hidden; }
+  .expandable-field > summary {
+    list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1rem; background: var(--color-surface-alt); gap: 0.5rem; user-select: none;
+    font-weight: 600; font-size: 0.95rem;
+  }
+  .expandable-field > summary::-webkit-details-marker { display: none; }
+  .expandable-field > summary::marker { display: none; }
+  .expandable-field > summary .chev { transition: transform 0.15s ease; color: var(--color-text-muted); }
+  .expandable-field[open] > summary .chev { transform: rotate(180deg); }
+  .expandable-field .field { padding: 16px 16px 0; margin-block-end: 16px; }
+
+  /* ── The focus-attached toolbar ──────────────────────────────── */
+  #rtToolbar {
+    display: none; align-items: center; gap: 4px;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: 12px; padding: 4px; margin-block-end: 8px;
+    overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+    box-shadow: var(--shadow-nav);
+  }
+  #rtToolbar.is-docked { display: flex; animation: tb-in 0.15s ease; }
+  @keyframes tb-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .tb-btn {
+    flex: 0 0 auto; width: 36px; height: 36px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid transparent; background: transparent; padding: 0;
+    color: var(--color-text); cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, opacity 0.15s;
+    font-family: var(--font-sans);
+  }
+  body.vp-phone .tb-btn { width: 44px; height: 44px; }
+  .tb-btn:hover { background: var(--color-surface-hover); }
+  .tb-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+  .tb-btn.is-active { color: var(--color-primary); background: var(--color-surface-secondary-btn); }
+  .tb-btn svg { display: block; }
+  .tb-glyph-b { font-weight: 800; font-size: 17px; }
+  .tb-glyph-i { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-size: 18px; }
+  .tb-sep { flex: 0 0 auto; width: 1px; height: 20px; background: var(--color-border-soft); margin-inline: 4px; }
+  .tb-spacer { flex: 1 0 8px; }
+  [dir="rtl"] .icon-flip svg { transform: scaleX(-1); }
+  .hc-dd-btn {
+    font-family: var(--font-sans); font-size: 0.9rem; height: 36px; flex: 0 0 auto;
+    padding: 0 10px; display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--color-border); border-radius: 8px;
+    background: transparent; color: var(--color-text); cursor: pointer;
+  }
+  body.vp-phone .hc-dd-btn { height: 44px; }
+  .hc-dd-btn:hover { background: var(--color-surface-hover); }
+  #rtToolbar.is-muted [data-act]:not(.never-mute) { opacity: 0.4; }
+
+  /* Current-state mode switcher (Gap-14 semantics: green = where you ARE) */
+  .swap { display: none; flex: 0 0 auto; border: 1px solid var(--color-border); border-radius: 9999px; overflow: hidden; }
+  body[data-variant="a"] .swap, body[data-variant="b"] .swap { display: inline-flex; }
+  .swap button {
+    font-family: var(--font-sans); font-size: 0.85rem; padding: 6px 14px; border: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent; color: var(--color-text); cursor: pointer; transition: all 0.15s ease;
+  }
+  .swap button.on { background: var(--color-primary); color: var(--color-text-inverse); font-weight: 600; }
+  .swap svg { display: block; }
+  /* C has no mode control — live pane while the field is active */
+  body[data-variant="c"] .live-note { display: inline-flex; }
+  .live-note { display: none; align-items: center; gap: 5px; font-size: 0.78rem; color: var(--color-text-muted); padding-inline: 8px; flex: 0 0 auto; }
+
+  /* ── The unified "this is preview" treatment (Gap 15) ────────── */
+  /* Never --color-surface-alt — that is the accordion header's background. */
+  .pv-wrap { position: relative; display: none; }
+  .pv-wrap.is-on { display: block; animation: tb-in 0.15s ease; }
+  .preview-frame {
+    margin-block-start: 10px; padding: 20px 16px 14px;
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-green-border-ghost); border-radius: 12px;
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    overflow-y: auto;
+  }
+  [data-theme="dark"] .preview-frame { border-color: var(--color-border); }
+  .preview-chip {
+    position: absolute; top: 0; inset-inline-start: 14px; z-index: 2;
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--color-surface-secondary-btn); color: var(--color-primary-dark);
+    border: 1px solid var(--color-border); border-radius: 9999px;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 3px 10px;
+  }
+  .preview-chip svg { display: block; }
+  body[data-pvt="paper"] .preview-frame { border-color: transparent; box-shadow: var(--shadow-card); }
+  body[data-pvt="tint"] .preview-frame { background: var(--color-green-50); border: none; border-inline-start: 3px solid var(--color-primary); border-radius: 4px 12px 12px 4px; }
+  [data-theme="dark"] body[data-pvt="tint"] .preview-frame { background: var(--color-surface-alt); }
+
+  /* Phase-45 .note-rendered register — copied verbatim from app.css */
+  .note-rendered { color: var(--color-text); font-size: 1rem; line-height: 1.55; white-space: normal; word-break: break-word; }
+  .note-rendered p { font-size: 1rem; line-height: 1.55; margin-block: 0 8px; }
+  .note-rendered p:last-child { margin-block-end: 0; }
+  .note-rendered ul, .note-rendered ol { padding-inline-start: 24px; margin-block: 0 8px; }
+  .note-rendered li { margin-block-end: 2px; }
+  .note-rendered h1 { font-size: 17px; font-weight: 600; line-height: 1.35; margin-block: 12px 4px; }
+  .note-rendered h2 { font-size: 16px; font-weight: 600; line-height: 1.35; margin-block: 12px 4px; }
+  .note-rendered h3 { font-size: 15px; font-weight: 600; line-height: 1.35; margin-block: 12px 4px; }
+  .note-rendered :first-child { margin-block-start: 0; }
+  .preview-empty { text-align: center; color: var(--color-text-muted); padding-block: 8px; font-size: 0.9rem; }
+
+  /* ── C: side-expand split (focused field grows a live pane) ──── */
+  .field.is-split .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+  .field .split-grid { display: block; }
+  .field.is-split .split-grid .pv-wrap { display: block; margin-block-start: 0; }
+  .field.is-split .split-grid .preview-frame { margin-block-start: 10px; min-height: 96px; }
+  body.vp-phone .field.is-split .split-grid { grid-template-columns: 1fr; }
+
+  .is-hidden { display: none !important; }
+
+  /* ── Sketch tools ────────────────────────────────────────────── */
+  #sketch-tools {
+    position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+    font-family: system-ui; font-size: 12px; background: rgba(0,0,0,0.72); color: #fff;
+    padding: 8px 12px; border-radius: 8px; opacity: 0.45; transition: opacity 0.2s;
+    display: flex; gap: 6px; align-items: center; flex-wrap: wrap; max-width: 360px;
+  }
+  #sketch-tools:hover { opacity: 1; }
+  #sketch-tools button {
+    font-size: 11px; background: rgba(255,255,255,0.14); color: #fff;
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 6px; padding: 3px 8px; cursor: pointer;
+  }
+  #sketch-tools button.on { background: #2d6a4f; border-color: #2d6a4f; }
+  #sketch-tools .tool-lbl { opacity: 0.6; }
+</style>
+</head>
+<body data-variant="a" data-pvt="frame">
+
+<div id="variant-nav">
+  <div class="tab-row">
+    <span class="nav-title">009 · note-field preview:</span>
+    <button class="variant-tab active" id="tabA" onclick="setVariantMode('a')">A: In-place swap</button>
+    <button class="variant-tab" id="tabB" onclick="setVariantMode('b')">B: Pane below</button>
+    <button class="variant-tab" id="tabC" onclick="setVariantMode('c')">C: Side expand</button>
+  </div>
+  <div id="variant-desc"></div>
+</div>
+
+<div id="stage">
+  <div class="test-card">
+    <h2>Test script — click into the fields below</h2>
+    <ol>
+      <li>The <strong>Limiting Beliefs</strong> accordion header above the first field keeps the REAL app background — the one the old preview collided with (Gap 15). Every new treatment must read as something else.</li>
+      <li>Focus a field — the toolbar docks above it. Use the mode control (or <strong>Ctrl/Cmd+E</strong>) to enter Preview.</li>
+      <li>Switch preview looks bottom-right: <strong>Frame / Paper / Tint</strong> — the same language sketch 008 uses in the export.</li>
+      <li>Clicking the bar's empty area never hides it (the shipped Gap-16 guard).</li>
+      <li>Bottom-right tools: dark mode, RTL + Hebrew sample, phone width (44px targets).</li>
+    </ol>
+  </div>
+
+  <h1 class="page-title">Log a Session</h1>
+  <p class="page-sub">Maya Cohen · Belief Code · 17 Jul 2026</p>
+
+  <div class="form-card" id="formCard">
+
+    <details class="expandable-field" open>
+      <summary>Limiting Beliefs
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="field" data-field>
+        <label for="fldBeliefs">Beliefs identified</label>
+        <div class="split-grid">
+          <textarea class="note-field" id="fldBeliefs" spellcheck="false">1. **I am not safe** — inherited, released
+2. *I must earn love* — age 9, released
+3. I am invisible — needs another pass</textarea>
+          <div class="pv-wrap" data-pv></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="field" data-field>
+      <label for="fldTrapped">Trapped Emotions</label>
+      <div class="split-grid">
+        <textarea class="note-field" id="fldTrapped" spellcheck="false">1. Abandonment — age 7, released
+2. Grief — inherited from mother, released
+3. Low self-esteem — age 12, needs follow-up
+4. Anger — released with magnet, 3 passes</textarea>
+        <div class="pv-wrap" data-pv></div>
+      </div>
+    </div>
+
+    <div class="field" data-field>
+      <label for="fldInsights">Insights</label>
+      <div class="split-grid">
+        <textarea class="note-field" id="fldInsights" spellcheck="false">**Key theme:** letting go of old stories
+
+- Client felt a *shift* after the second release
+- Daily heart-focused breathing assigned
+  - morning: 5 minutes
+  - evening: before sleep</textarea>
+        <div class="pv-wrap" data-pv></div>
+      </div>
+    </div>
+
+    <div class="field" data-field>
+      <label for="fldComments">Comments</label>
+      <div class="split-grid">
+        <textarea class="note-field" id="fldComments" spellcheck="false"></textarea>
+        <div class="pv-wrap" data-pv></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- The single focus-attached toolbar (docked above the focused field by JS) -->
+<div id="rtToolbar" role="toolbar" aria-label="Formatting"></div>
+
+<!-- Sketch tools -->
+<div id="sketch-tools">
+  <button id="toolDark" onclick="toggleDark()">Dark</button>
+  <button id="toolRtl" onclick="toggleRtl()">RTL</button>
+  <button onclick="fillHebrew()">עברית sample</button>
+  <span class="tool-lbl">|</span>
+  <button id="vpPhone" onclick="setViewport('phone')">Phone</button>
+  <button id="vpFull" class="on" onclick="setViewport('full')">Full</button>
+  <span class="tool-lbl">| preview look:</span>
+  <button class="pvt-btn on" onclick="setPvt('frame', this)">Frame</button>
+  <button class="pvt-btn" onclick="setPvt('paper', this)">Paper</button>
+  <button class="pvt-btn" onclick="setPvt('tint', this)">Tint</button>
+</div>
+
+<script>
+"use strict";
+/* ═══════════════ Variant metadata ═══════════════ */
+const DESCS = {
+  a: '<strong>A — In-place swap:</strong> Preview REPLACES the textarea in the very box you were typing in (same height, nothing added to the page). The bar\'s segmented control marks the CURRENT mode in green — Gap-14 semantics. One thing on screen at a time.',
+  b: '<strong>B — Pane below:</strong> the shipped concept in the new clothes — the pane opens under the field while the editor stays visible, but now it wears the unified preview language (chip + treatment) instead of the section-header orange. The eye control shows pressed-state while the pane is open.',
+  c: '<strong>C — Side expand:</strong> no mode at all — while a field is active it grows a live pane beside it that re-renders as you type. Leaving the field collapses it back. Phone: the pane stacks below (compare honestly with B there).'
+};
+
+let variant = 'a';
+let currentField = null;        /* the .field wrapper that owns the toolbar */
+let previewing = false;         /* A/B: is the preview open for currentField */
+
+/* ═══════════════ Sketch chrome ═══════════════ */
+function setVariantMode(v) {
+  closePreview();
+  undock();
+  variant = v;
+  document.body.dataset.variant = v;
+  ['a','b','c'].forEach(k => document.getElementById('tab' + k.toUpperCase()).classList.toggle('active', k === v));
+  document.getElementById('variant-desc').innerHTML = DESCS[v];
+}
+function toggleDark() {
+  const on = document.documentElement.dataset.theme === 'dark';
+  if (on) delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = 'dark';
+  document.getElementById('toolDark').classList.toggle('on', !on);
+}
+function toggleRtl() {
+  const rtl = document.documentElement.dir === 'rtl';
+  document.documentElement.dir = rtl ? 'ltr' : 'rtl';
+  document.getElementById('toolRtl').classList.toggle('on', !rtl);
+}
+function setViewport(vp) {
+  document.body.classList.toggle('vp-phone', vp === 'phone');
+  document.getElementById('vpPhone').classList.toggle('on', vp === 'phone');
+  document.getElementById('vpFull').classList.toggle('on', vp !== 'phone');
+}
+function setPvt(t, btn) {
+  document.body.dataset.pvt = t;
+  document.querySelectorAll('.pvt-btn').forEach(b => b.classList.toggle('on', b === btn));
+}
+function fillHebrew() {
+  const ta = document.getElementById('fldTrapped');
+  ta.value = `1. נטישה — גיל 7, שוחרר
+2. אבל — עבר בירושה מהאם, שוחרר
+3. ערך עצמי נמוך — גיל 12, דורש המשך
+4. כעס — שוחרר עם מגנט, 3 מעברים`;
+  if (document.documentElement.dir !== 'rtl') toggleRtl();
+  autogrow(ta);
+  ta.focus();
+}
+
+/* ═══════════════ Mini escape-first renderer (same subset as 006/007/008) ═══════════════ */
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function inlineMd(s) {
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  return s;
+}
+function renderMd(src) {
+  const lines = esc(src).split('\n');
+  let html = '', listStack = [], para = [];
+  const closeLists = (depth) => { while (listStack.length > depth) html += '</li></' + listStack.pop() + '>'; };
+  const flushPara = () => { if (para.length) { html += '<p>' + para.map(inlineMd).join('<br>') + '</p>'; para = []; } };
+  for (const raw of lines) {
+    const h = raw.match(/^(#{1,3})\s+(.*)$/);
+    const li = raw.match(/^((?:  )*)(?:-|\d+[.)])\s+(.*)$/);
+    const isOl = /^\s*\d+[.)]\s/.test(raw);
+    if (h) { flushPara(); closeLists(0); const l = h[1].length; html += `<h${l}>${inlineMd(h[2])}</h${l}>`; }
+    else if (li) {
+      flushPara();
+      const depth = li[1].length / 2 + 1, tag = isOl ? 'ol' : 'ul';
+      if (depth > listStack.length) { while (listStack.length < depth) { html += `<${tag}>`; listStack.push(tag); html += '<li>'; } html += inlineMd(li[2]); }
+      else { closeLists(depth); html += '</li><li>' + inlineMd(li[2]); }
+    }
+    else if (raw.trim() === '') { flushPara(); closeLists(0); }
+    else { closeLists(0); para.push(raw); }
+  }
+  flushPara(); closeLists(0);
+  return html;
+}
+const CHIP_HTML = `
+  <span class="preview-chip">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+    Preview
+  </span>`;
+function renderInto(pv, ta) {
+  const body = ta.value.trim()
+    ? `<div class="note-rendered">${renderMd(ta.value)}</div>`
+    : `<div class="preview-empty">Nothing to preview yet — start typing above.</div>`;
+  pv.innerHTML = CHIP_HTML + `<div class="preview-frame">${body}</div>`;
+}
+
+/* ═══════════════ Editor engine (same mechanics as sketches 006/007/008) ═══════════════ */
+function lineBounds(v, pos) {
+  const start = v.lastIndexOf('\n', pos - 1) + 1;
+  let end = v.indexOf('\n', pos); if (end === -1) end = v.length;
+  return { start, end, text: v.slice(start, end) };
+}
+function parseListLine(text) {
+  const m = text.match(/^((?:  )*)(- |(\d+)([.)]) )(.*)$/);
+  if (!m) return null;
+  return { indent: m[1], depth: m[1].length / 2, marker: m[2], num: m[3] ? parseInt(m[3], 10) : null, sep: m[4] || '.', content: m[5] };
+}
+function setValueKeepCaret(ta, newValue, selStart, selEnd) {
+  ta.value = newValue;
+  ta.setSelectionRange(selStart, selEnd !== undefined ? selEnd : selStart);
+}
+function renumber(ta) {
+  const v = ta.value, caret = ta.selectionStart, caretEnd = ta.selectionEnd;
+  const lines = v.split('\n');
+  const caretLine = v.slice(0, caret).split('\n').length - 1;
+  const caretCol = caret - (v.lastIndexOf('\n', caret - 1) + 1);
+  const counters = [];
+  let changed = false, caretDelta = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^((?:  )*)(\d+)([.)])( .*|$)/);
+    const bullet = /^((?:  )*)- /.exec(lines[i]);
+    if (m) {
+      const depth = m[1].length / 2;
+      counters.length = depth + 1;
+      counters[depth] = (counters[depth] || 0) + 1;
+      const newLine = m[1] + counters[depth] + m[3] + m[4];
+      if (newLine !== lines[i]) {
+        if (i === caretLine) {
+          const oldPrefix = m[1].length + m[2].length, newPrefix = m[1].length + String(counters[depth]).length;
+          if (caretCol > oldPrefix) caretDelta += newPrefix - oldPrefix;
+        } else if (i < caretLine) caretDelta += newLine.length - lines[i].length;
+        lines[i] = newLine; changed = true;
+      }
+    } else if (bullet) { counters.length = bullet[1].length / 2 + 1; counters[bullet[1].length / 2] = 0; }
+    else { counters.length = 0; }
+  }
+  if (changed) setValueKeepCaret(ta, lines.join('\n'), caret + caretDelta, caretEnd + caretDelta);
+}
+function toggleWrap(ta, marker) {
+  const v = ta.value, s = ta.selectionStart, e = ta.selectionEnd, m = marker.length;
+  const sel = v.slice(s, e);
+  if (sel.length >= 2 * m && sel.startsWith(marker) && sel.endsWith(marker)) {
+    setValueKeepCaret(ta, v.slice(0, s) + sel.slice(m, sel.length - m) + v.slice(e), s, e - 2 * m);
+  } else if (v.slice(s - m, s) === marker && v.slice(e, e + m) === marker) {
+    setValueKeepCaret(ta, v.slice(0, s - m) + sel + v.slice(e + m), s - m, e - m);
+  } else if (s === e) {
+    setValueKeepCaret(ta, v.slice(0, s) + marker + marker + v.slice(e), s + m);
+  } else {
+    setValueKeepCaret(ta, v.slice(0, s) + marker + sel + marker + v.slice(e), s + m, e + m);
+  }
+  afterEdit(ta);
+}
+function applyHeading(ta, level) {
+  const v = ta.value, caret = ta.selectionStart;
+  const { start, end, text } = lineBounds(v, caret);
+  const stripped = text.replace(/^#{1,3}\s+/, '');
+  const newText = level === 0 ? stripped : '#'.repeat(level) + ' ' + stripped;
+  setValueKeepCaret(ta, v.slice(0, start) + newText + v.slice(end), Math.max(start, caret + newText.length - text.length));
+  afterEdit(ta);
+}
+function toggleList(ta, ordered) {
+  const v = ta.value, caret = ta.selectionStart;
+  const { start, end, text } = lineBounds(v, caret);
+  const li = parseListLine(text);
+  let newText;
+  if (li && ((ordered && li.num !== null) || (!ordered && li.num === null))) newText = li.indent + li.content;
+  else if (li) newText = li.indent + (ordered ? '1. ' : '- ') + li.content;
+  else newText = (ordered ? '1. ' : '- ') + text;
+  setValueKeepCaret(ta, v.slice(0, start) + newText + v.slice(end), caret + (newText.length - text.length));
+  afterEdit(ta);
+}
+function indentLine(ta, outdent) {
+  const v = ta.value, caret = ta.selectionStart;
+  const { start, end, text } = lineBounds(v, caret);
+  if (!parseListLine(text)) return false;
+  let newText;
+  if (outdent) { if (!text.startsWith('  ')) return true; newText = text.slice(2); }
+  else newText = '  ' + text;
+  setValueKeepCaret(ta, v.slice(0, start) + newText + v.slice(end), Math.max(start, caret + (newText.length - text.length)));
+  afterEdit(ta);
+  return true;
+}
+function handleEnter(ta) {
+  const v = ta.value, caret = ta.selectionStart;
+  const { start, end, text } = lineBounds(v, caret);
+  const li = parseListLine(text);
+  if (!li) return false;
+  if (li.content.trim() === '' && caret >= start + li.indent.length + li.marker.length) {
+    if (li.depth > 0) setValueKeepCaret(ta, v.slice(0, start) + text.slice(2) + v.slice(end), caret - 2);
+    else setValueKeepCaret(ta, v.slice(0, start) + v.slice(end), start);
+    afterEdit(ta);
+    return true;
+  }
+  const nextMarker = li.num !== null ? (li.num + 1) + li.sep + ' ' : '- ';
+  const insert = '\n' + li.indent + nextMarker;
+  setValueKeepCaret(ta, v.slice(0, caret) + insert + v.slice(ta.selectionEnd), caret + insert.length);
+  afterEdit(ta);
+  return true;
+}
+function autogrow(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = Math.max(96, ta.scrollHeight + 2) + 'px';
+}
+function afterEdit(ta) {
+  renumber(ta);
+  autogrow(ta);
+  if (variant === 'c' && currentField) {
+    const pv = currentField.querySelector('[data-pv]');
+    renderInto(pv, ta);
+  }
+  if (variant === 'b' && previewing && currentField) {
+    renderInto(currentField.querySelector('[data-pv]'), ta);
+  }
+}
+
+/* ═══════════════ Toolbar (single instance; D-20 undo/redo; per-variant mode control) ═══════════════ */
+const TB_HTML = `
+  <button type="button" class="hc-dd-btn" data-act="heading" title="Text style">
+    <span class="hc-label">Text</span>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+  <span class="tb-sep"></span>
+  <button type="button" class="tb-btn" data-act="bold" title="Bold (Ctrl+B)"><span class="tb-glyph-b">B</span></button>
+  <button type="button" class="tb-btn" data-act="italic" title="Italic (Ctrl+I)"><span class="tb-glyph-i">I</span></button>
+  <span class="tb-sep"></span>
+  <button type="button" class="tb-btn" data-act="ul" title="Bullet list">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="9" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="9" y1="18" x2="21" y2="18"/><circle cx="4.5" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.4" fill="currentColor" stroke="none"/></svg>
+  </button>
+  <button type="button" class="tb-btn" data-act="ol" title="Numbered list">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><text x="2.4" y="8.2" font-size="7" fill="currentColor" stroke="none" font-family="system-ui">1</text><text x="2.4" y="14.4" font-size="7" fill="currentColor" stroke="none" font-family="system-ui">2</text><text x="2.4" y="20.6" font-size="7" fill="currentColor" stroke="none" font-family="system-ui">3</text></svg>
+  </button>
+  <button type="button" class="tb-btn icon-flip" data-act="indent" title="Indent (Tab)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="5" x2="21" y2="5"/><line x1="11" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="3 9 7 12 3 15"/></svg>
+  </button>
+  <button type="button" class="tb-btn icon-flip" data-act="outdent" title="Outdent (Shift+Tab)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="5" x2="21" y2="5"/><line x1="11" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="7 9 3 12 7 15"/></svg>
+  </button>
+  <span class="tb-sep"></span>
+  <button type="button" class="tb-btn icon-flip" data-act="undo" title="Undo (Ctrl+Z)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>
+  </button>
+  <button type="button" class="tb-btn icon-flip" data-act="redo" title="Redo (Ctrl+Shift+Z)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/></svg>
+  </button>
+  <span class="tb-spacer"></span>
+  <span class="swap" role="group" aria-label="Mode">
+    <button type="button" data-mode="edit" class="on never-mute">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+      Edit
+    </button>
+    <button type="button" data-mode="preview" class="never-mute">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      Preview
+    </button>
+  </span>
+  <span class="live-note">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+    live preview
+  </span>`;
+
+const tb = document.getElementById('rtToolbar');
+tb.innerHTML = TB_HTML;
+tb.addEventListener('mousedown', (e) => e.preventDefault()); /* Gap-16 guard: bar clicks never blur */
+const HEADING_CYCLE = [0, 1, 2, 3];
+let cyc = 0;
+tb.addEventListener('click', (e) => {
+  if (!currentField) return;
+  const ta = currentField.querySelector('textarea');
+  const modeBtn = e.target.closest('[data-mode]');
+  if (modeBtn) { setMode(modeBtn.dataset.mode); return; }
+  const btn = e.target.closest('[data-act]');
+  if (!btn) return;
+  if (previewing) setMode('edit'); /* a formatting click in preview returns to Edit, then applies */
+  ta.focus();
+  const act = btn.dataset.act;
+  if (act === 'bold') toggleWrap(ta, '**');
+  else if (act === 'italic') toggleWrap(ta, '*');
+  else if (act === 'ul') toggleList(ta, false);
+  else if (act === 'ol') toggleList(ta, true);
+  else if (act === 'indent') indentLine(ta, false);
+  else if (act === 'outdent') indentLine(ta, true);
+  else if (act === 'undo') document.execCommand('undo');
+  else if (act === 'redo') document.execCommand('redo');
+  else if (act === 'heading') {
+    cyc = (cyc + 1) % HEADING_CYCLE.length;
+    const lvl = HEADING_CYCLE[cyc];
+    applyHeading(ta, lvl);
+    btn.querySelector('.hc-label').textContent = lvl ? 'H' + lvl : 'Text';
+  }
+});
+
+/* ═══════════════ Docking + preview state ═══════════════ */
+function dock(field) {
+  if (currentField === field) return;
+  closePreview();
+  currentField = field;
+  field.querySelector('.split-grid').parentNode.insertBefore(tb, field.querySelector('.split-grid'));
+  tb.classList.add('is-docked');
+  if (variant === 'c') openSplit(field);
+}
+function undock() {
+  closePreview();
+  if (currentField && variant === 'c') closeSplit(currentField);
+  currentField = null;
+  tb.classList.remove('is-docked');
+}
+function setMode(mode) {
+  if (!currentField) return;
+  const ta = currentField.querySelector('textarea');
+  const pv = currentField.querySelector('[data-pv]');
+  previewing = mode === 'preview';
+  tb.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+  tb.classList.toggle('is-muted', previewing);
+  if (variant === 'a') {
+    /* in-place: preview takes the textarea's box (same height) */
+    if (previewing) {
+      renderInto(pv, ta);
+      pv.classList.add('is-on');
+      pv.querySelector('.preview-frame').style.minHeight = ta.offsetHeight + 'px';
+      ta.classList.add('is-hidden');
+    } else {
+      pv.classList.remove('is-on');
+      ta.classList.remove('is-hidden');
+      ta.focus();
+    }
+  } else if (variant === 'b') {
+    /* pane below: editor stays; the pane opens/closes under it */
+    if (previewing) { renderInto(pv, ta); pv.classList.add('is-on'); }
+    else { pv.classList.remove('is-on'); ta.focus(); }
+  }
+}
+function closePreview() {
+  if (!currentField) { previewing = false; return; }
+  const ta = currentField.querySelector('textarea');
+  const pv = currentField.querySelector('[data-pv]');
+  pv.classList.remove('is-on');
+  ta.classList.remove('is-hidden');
+  previewing = false;
+  tb.classList.remove('is-muted');
+  tb.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === 'edit'));
+}
+function openSplit(field) {
+  field.classList.add('is-split');
+  const ta = field.querySelector('textarea');
+  renderInto(field.querySelector('[data-pv]'), ta);
+}
+function closeSplit(field) {
+  field.classList.remove('is-split');
+}
+
+/* ═══════════════ Field wiring ═══════════════ */
+document.querySelectorAll('[data-field]').forEach(field => {
+  const ta = field.querySelector('textarea');
+  autogrow(ta);
+  ta.addEventListener('focus', () => dock(field));
+  ta.addEventListener('input', () => afterEdit(ta));
+  ta.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+      const k = e.key.toLowerCase();
+      if (k === 'b') { e.preventDefault(); return toggleWrap(ta, '**'); }
+      if (k === 'i') { e.preventDefault(); return toggleWrap(ta, '*'); }
+      if (k === 'e' && variant !== 'c') { e.preventDefault(); return setMode(previewing ? 'edit' : 'preview'); }
+    }
+    if (e.key === 'Enter' && handleEnter(ta)) e.preventDefault();
+    if (e.key === 'Tab' && indentLine(ta, e.shiftKey)) e.preventDefault();
+  });
+});
+/* Ctrl/Cmd+E also works while previewing (textarea hidden in variant A) */
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e' && previewing && variant !== 'c') {
+    e.preventDefault();
+    setMode('edit');
+  }
+});
+/* Click outside any field/bar/pane → leave preview, undock the bar */
+document.addEventListener('mousedown', (e) => {
+  if (e.target.closest('[data-field]') || e.target.closest('#rtToolbar') || e.target.closest('#sketch-tools') || e.target.closest('#variant-nav')) return;
+  undock();
+});
+
+/* ═══════════════ Init ═══════════════ */
+setVariantMode('a');
+</script>
+</body>
+</html>

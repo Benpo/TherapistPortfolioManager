@@ -2,6 +2,17 @@
 
 ## Design Direction
 
+**Phase 46.1 addendum (sketches 008–009):** the design-first preview/edit redesign
+(gaps 14/15 from the phase-46 device gate). Direction from the 2026-07-17 intake:
+all three interaction models in play (side-by-side live / in-place swap / preview-as-
+stage — one dramatic concept each); interaction MAY adapt per surface but the "this
+is preview" visual language must be ONE across the note fields and the export;
+leading treatment is the **framed pane + eye chip** with Paper/Tint alternates
+explorable in-mockup. Hard invariants: always-visible export toolbar, garden tokens
+only, never `--color-surface-alt` for preview (that's the section-header background
+— the Gap-15 collision), RTL/dark/phone honored, Gap-16 bar guard + D-20 undo/redo
+present.
+
 **Phase 46 addendum (sketches 006–007):** the rich-text toolbar editor's D-19 mockup
 gate. Direction is again **not open** — locked by `46-UI-SPEC.md` + the 19-decision
 `46-CONTEXT.md`: same garden tokens, Phase-45 `.note-rendered` register, icon-only
@@ -39,3 +50,5 @@ for the mockup this phase delivers (D-08: design contract + mockup, no prod code
 | 005 | changelog-register | Thematic sections + N/I/F chips vs. category-grouped vs. chip-free — how does each changelog entry read? (Phase 42) | B — grouped by category (Ben, 2026-07-09) | changelog, register, content-structure |
 | 006 | rich-text-toolbar-editor | Does the focus-attached toolbar + live preview + list mechanics feel right while typing — and text-style control: segmented or dropdown? (Phase 46, D-19) | B — dropdown "Text ▾" (Ben, 2026-07-14; +undo/redo scope added, D-20) | toolbar, editor, interaction, phase-46 |
 | 007 | export-step2-size | Step-2 editing surface: bigger-by-default (50/70/80% candidates) or current size + maximize toggle → 90%? (Phase 46, D-16) | A@50% default + B's maximize→90% synthesis (Ben, 2026-07-14) | export, modal, sizing, phase-46 |
+| 008 | export-preview-edit-model | Which interaction model kills the preview/edit mode confusion in export Step 2 — side-by-side live, in-place swap, or preview-as-stage? (Phase 46.1, Gap 14) | TBD | export, preview, interaction, phase-46.1 |
+| 009 | note-field-preview | How does preview adapt to the 7 inline note fields + which unified treatment replaces the section-header orange? (Phase 46.1, Gaps 14+15) | TBD | note-fields, preview, visual-language, phase-46.1 |
