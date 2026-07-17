@@ -70,7 +70,7 @@ Preview & Edit Experience Redesign phase (design-first).
 | 13 | Preview pane opens below the fold | fixed (46-17) | concept superseded → 46.1 |
 | 14 | Preview/edit UX concept rejected (mixed state, inverted button signal, scroll model) | OPEN — design | 46.1: sketch → UI-SPEC → plan → build |
 | 15 | Preview color = section-title orange | OPEN — design | 46.1 (unified preview language) |
-| 16 | Bar hides on padding/gap click | fixed (a6de32f) | confirm at 46-16 |
+| 16 | Bar hides on padding/gap click | fixed (a6de32f) | ✅ DEVICE-CONFIRMED by Ben 2026-07-17 |
 
 Quality loops (context, not open work): phase review R1 4 findings (1 critical),
 R2 3, R3 3 — all FIXED or explicitly accepted with rationale; three two-lens
