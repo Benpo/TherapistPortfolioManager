@@ -201,5 +201,45 @@ test('Case F: focused-then-blurred field keeps its mid-document caret on a persi
     'bold pair inserted at the PRESERVED mid-document caret, not relocated to end-of-document');
 });
 
+// ── Case G — a click on the bar's EMPTY area must not blur the field ─────────
+// The focus-preservation mousedown+preventDefault was bound per-CONTROL only, so
+// a click on the bar's own padding / inter-button gaps / the strip past the last
+// control fell through and stole focus: on the shared focus-attached bar that
+// focusout hides the bar and shifts the layout up. The fix binds
+// mousedown+preventDefault on the bar CONTAINER too. defaultPrevented is the
+// load-bearing signal — a prevented mousedown never moves focus off the field.
+test('Case G: mousedown on the shared bar container empty area is preventDefault-ed', function () {
+  const { win, taS } = makeEnv();
+  taS.focus();
+  // jsdom may not fire focusin on programmatic focus — dispatch it so the module
+  // docks the shared focus-attached bar above the field.
+  taS.dispatchEvent(new win.Event('focusin', { bubbles: true }));
+  const bar = taS.previousElementSibling;
+  assert.ok(bar && bar.classList.contains('rich-toolbar') && !bar.classList.contains('is-hidden'),
+    'the shared focus-attached bar is docked above the focused field');
+  // Click the bar's OWN empty area (target = the bar container, not a control).
+  const barEv = new win.MouseEvent('mousedown', { bubbles: true, cancelable: true });
+  bar.dispatchEvent(barEv);
+  assert.strictEqual(barEv.defaultPrevented, true,
+    'mousedown on the bar container is prevented, so the empty-area click never blurs the field');
+  // Regression guard: a mousedown on a control is still prevented (existing
+  // per-control focus-preservation must keep firing; preventDefault is idempotent).
+  const boldBtn = bar.querySelector('.rich-toolbar-btn[data-action="bold"]');
+  const btnEv = new win.MouseEvent('mousedown', { bubbles: true, cancelable: true });
+  boldBtn.dispatchEvent(btnEv);
+  assert.strictEqual(btnEv.defaultPrevented, true,
+    'mousedown on a control is still prevented (per-control focus-preservation regression guard)');
+});
+
+// The persistent (export) bar shares the same builder, so its container is guarded too.
+test('Case H: mousedown on the persistent bar container empty area is preventDefault-ed', function () {
+  const { win, taP } = makeEnv();
+  const bar = persistentBar(taP);
+  const barEv = new win.MouseEvent('mousedown', { bubbles: true, cancelable: true });
+  bar.dispatchEvent(barEv);
+  assert.strictEqual(barEv.defaultPrevented, true,
+    'mousedown on the persistent bar container is prevented (shared buildToolbar guard)');
+});
+
 console.log('\n46-persistent-bar-dispatch: ' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed === 0 ? 0 : 1);
