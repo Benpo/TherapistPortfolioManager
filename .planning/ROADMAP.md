@@ -97,7 +97,7 @@ Session documentation becomes richer and personal — formatted text and custom 
 
 - [x] **Phase 44: Tech-Debt Guardrails & Pre-Prod Environment** — comment-hygiene CONVENTIONS.md root-cause fix + runtime-leak reword (forward gate → v1.5), deploy purge-race fix, second CF Pages pre-prod project
 - [x] **Phase 45: Rich-Text Rendering & Export Foundation** — formatted notes render in read mode, PDF, and markdown copy/share; legacy content safe; encrypted-backup round-trip (completed 2026-07-13)
-- [ ] **Phase 46: Rich-Text Toolbar Editor** — formatting toolbar, keyboard shortcuts, auto-format, live preview, nested lists; snippets/autogrow preserved
+- [x] **Phase 46: Rich-Text Toolbar Editor** — formatting toolbar, keyboard shortcuts, auto-format, live preview, nested lists; snippets/autogrow preserved (completed 2026-07-17)
 - [ ] **Phase 47: Session-Section Reordering** — drag + arrow reorder in Settings, drives the form + both export builders (atomic 260615 guard rewrite), per-therapist persistence
 - [ ] **Phase 48: Mobile Pass & Validation Polish** — index-header fix, popover exclusivity, accordion error-focus, 21-03 iPhone sweep; future-birthdate reject + error-tone sweep + distinct next-date errors + visible error state
 
@@ -228,23 +228,23 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 
 **Wave 11** *(blocked on 46-09..46-13 — closing real-device re-run)*
 
-- [ ] 46-14-PLAN.md — real-device / real-PDF re-verification gate (5 gap fixes + deferred 46-08 matrix + round-1 in-gate fixes) [gap-closure, wave 11]
+- [x] 46-14-PLAN.md — real-device / real-PDF re-verification gate (5 gap fixes + deferred 46-08 matrix + round-1 in-gate fixes) [gap-closure, wave 11]
 
 **Gap-Closure Round 2** *(from the 2026-07-15 46-14 re-run on MacBook Pro — item 11 failed, 2 new high-severity gaps: 10 Step-2 default layout collapse on laptop viewports, 11 export toolbar not always-visible. Self-contained fresh round: 46-16 SUPERSEDES 46-14's re-run duty.)*
 
 **Round-2 Wave 1** *(scoped CSS fix — immediately executable, no file overlap)*
 
-- [ ] 46-15-PLAN.md — Gaps 10+11: export Step-2 edit surface as sizing floor (min-block-size floor, 90dvh-capped) + pinned unclippable toolbar (flex-shrink:0 + position:sticky) + falsifiable WebKit layout probe [gap-closure, wave 1]
+- [x] 46-15-PLAN.md — Gaps 10+11: export Step-2 edit surface as sizing floor (min-block-size floor, 90dvh-capped) + pinned unclippable toolbar (flex-shrink:0 + position:sticky) + falsifiable WebKit layout probe [gap-closure, wave 1]
 
 **Round-2 Wave 2** *(blocked on 46-15 — closing real-device re-run, supersedes 46-14)*
 
-- [ ] 46-16-PLAN.md — real-device / real-PDF re-verification gate: full 11-item round-2 checklist + explicit gap 10/11 verification (default-size usable on MacBook, toolbar full-height + never scrolls away, maximize + mobile + RTL correct) + NEW gap 12/13 verification (first-click persistent-toolbar controls + Preview reveal) [gap-closure, wave 2]
+- [x] 46-16-PLAN.md — real-device / real-PDF re-verification gate: full 11-item round-2 checklist + explicit gap 10/11 verification (default-size usable on MacBook, toolbar full-height + never scrolls away, maximize + mobile + RTL correct) + NEW gap 12/13 verification (first-click persistent-toolbar controls + Preview reveal) [gap-closure, wave 2]
 
 **Gap-Closure Round 3** *(from the 2026-07-15 Playwright-WebKit repro on build e0c48c5 — 2 new high-severity gaps found while testing the 46-15 build: 12 persistent-bar controls dead until the editor is focused once, 13 export preview pane opens below the scroll fold. The standing 46-16 gate re-runs after this lands and now carries item 13.)*
 
 **Round-3 Wave 1** *(scoped JS fix to rich-toolbar.js — immediately executable, no file overlap)*
 
-- [ ] 46-17-PLAN.md — Gaps 12+13: persistent-bar dispatch resolves its target from the clicked control's own bar (works on first click, no prior focus) + export preview scrolls its edit-area container into view below the pinned bar; RED-first jsdom test (dispatch, 190→191) + RED-first WebKit probe assertion set E (preview reveal) [gap-closure, wave 1]
+- [x] 46-17-PLAN.md — Gaps 12+13: persistent-bar dispatch resolves its target from the clicked control's own bar (works on first click, no prior focus) + export preview scrolls its edit-area container into view below the pinned bar; RED-first jsdom test (dispatch, 190→191) + RED-first WebKit probe assertion set E (preview reveal) [gap-closure, wave 1]
 
 ### Phase 46.1: Preview & Edit Experience Redesign (INSERTED)
 
@@ -265,11 +265,14 @@ is the same orange as section titles — reads as a category header, not a
 preview). See 46-UAT.md gaps 14/15 for the full findings.
 
 **Locked process (Ben-ratified 2026-07-17):**
+
 1. Sketch round — MULTIPLE interactive HTML mockup concepts (/gsd-sketch), full
    both-surfaces scope: interaction model + unified "this is preview" visual
    language decided together. Ben picks/iterates until finalized.
+
 2. /gsd-ui-phase — UI-SPEC.md design contract from the ratified sketch (the
    mandatory UI gate; NOT skippable this time).
+
 3. /gsd-plan-phase (with plan-checker + two-lens architect gate) → execute
    (RED-first) → code review → its own real-device gate.
 
@@ -283,7 +286,7 @@ under any design.
 **Requirements**: RTXT-01, RTXT-04, RTXT-05 (re-presentation of shipped
 capability; no new data-tier requirements expected — confirm at UI phase)
 **Depends on:** Phase 46
-**Plans:** 0 plans
+**Plans:** 16/17 plans complete
 
 Plans:
 
@@ -389,6 +392,6 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 43. Docs-Maintenance Hard Gate | v1.3 | 10/10 | Complete | 2026-07-10 |
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
 | 45. Rich-Text Rendering & Export Foundation | v1.4 | 8/8 | Complete    | 2026-07-13 |
-| 46. Rich-Text Toolbar Editor | v1.4 | 12/14 | In Progress|  |
+| 46. Rich-Text Toolbar Editor | v1.4 | 16/17 | Complete    | 2026-07-17 |
 | 47. Session-Section Reordering | v1.4 | 0/TBD | Not started | - |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
