@@ -284,13 +284,33 @@ being redesigned. The always-visible export toolbar remains a ratified invariant
 under any design.
 
 **Requirements**: RTXT-01, RTXT-04, RTXT-05 (re-presentation of shipped
-capability; no new data-tier requirements expected — confirm at UI phase)
+capability; no new data-tier requirements — confirmed at UI phase)
 **Depends on:** Phase 46
-**Plans:** 16/17 plans complete
+**Plans:** 7 plans
 
-Plans:
+Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). Plans created 2026-07-18.
 
-- [ ] Sketch round first (/gsd-sketch — multiple mockups), then /gsd-ui-phase 46.1, then /gsd-plan-phase 46.1
+**Wave 1** *(RED-first test scaffold — project law: tests before implementation)*
+
+- [ ] 46.1-01-PLAN.md — RED jsdom tests (in-place swap + Ctrl/Cmd+E, current-state switcher, format-in-preview + pinned-outside-strip, Gap-15 Frame source-audit) + WebKit probe set E [wave 1]
+
+**Wave 2** *(parallel — file-disjoint: rich-toolbar.js / app.css / i18n+html)*
+
+- [ ] 46.1-02-PLAN.md — rich-toolbar.js: pinned two-segment current-state Edit/Preview switcher outside a scroll strip; remove the rejected target-state toggle; setMode + return-and-apply (Gap-14) [wave 2]
+- [ ] 46.1-04-PLAN.md — app.css: unified Frame preview treatment + PREVIEW chip (never surface-alt, Gap-15) + scroll strip + green-active switcher + dim-in-preview + 280px export editor floor [wave 2]
+- [ ] 46.1-05-PLAN.md — i18n four-locale copy (chip, reconciled empty-state/discard/ephemeral/Step-2) + add-session.html defaults [wave 2]
+
+**Wave 3** *(blocked on 46.1-02 — same file)*
+
+- [ ] 46.1-03-PLAN.md — rich-toolbar.js: in-place swap (textarea hidden, Frame in same box) + Frame wrapper/chip/body (MdRender sole sink) + Ctrl/Cmd+E reaching while hidden + reveal reconcile [wave 3]
+
+**Wave 4** *(docs hard-gate — after implementation)*
+
+- [ ] 46.1-06-PLAN.md — docs Definition of Done: EN changelog entry + affected help topics (topic-quick-paste + review-export) [wave 4]
+
+**Wave 5** *(real-device ratification — Ben-ratified locked process step 3)*
+
+- [ ] 46.1-07-PLAN.md — real-device / real-PDF gate (MacBook installed-Safari PWA + iPhone, LTR + Hebrew RTL) + WebKit set-E probe; re-verifies carried Phase-46 export items 2/11/12/13 [wave 5]
 
 ### Phase 47: Session-Section Reordering
 
