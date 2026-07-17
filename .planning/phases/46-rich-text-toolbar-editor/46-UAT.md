@@ -1,20 +1,19 @@
 ---
-status: diagnosed
+status: resolved
 phase: 46-rich-text-toolbar-editor
 source: [46-08-PLAN.md checkpoint — real-device gate, Ben driving; 46-14 re-run round 2]
 started: 2026-07-14T21:30:00Z
-updated: 2026-07-17T00:00:00Z
+updated: 2026-07-17T12:00:00Z
 ---
 
 ## Current Test
 
 number: —
-name: 46-14 re-run (round 2, 11 items) — in progress on the 00f0c08 pre-prod build
+name: CLOSED — slimmed 46-16 gate PASSED by Ben 2026-07-17 (build dd986ce pre-prod)
 expected: |
-  All 11 checklist items from 46-14-PLAN.md pass on installed Safari PWA (desktop),
-  iPhone PWA, Chrome, Firefox, plus a real opened PDF.
-awaiting: Ben continues the round-2 matrix; item 11 (export Step 2) FAILED on MacBook Pro
-  (gaps 10/11 below), remaining items pending
+  Slimmed scope: content/editing items only (gaps 3/6/7/8/9/16 + iPhone core toolbar,
+  real PDF, snippets/autogrow, lists, RTL). Preview/export-flow items carved to 46.1.
+awaiting: nothing — phase 46 close-out; gaps 14/15 owned by phase 46.1
 
 ## Tests
 
@@ -57,13 +56,13 @@ Preview & Edit Experience Redesign phase (design-first).
 |-----|------|-------------|--------------|
 | 1 | Export two-pane collided with toolbar | fixed (in-gate R1) | surface superseded → 46.1 |
 | 2 | Export toolbar must be always visible | fixed (R1 persistent + R2 sticky/no-shrink) | ratified invariant, carried into 46.1 |
-| 3 | Undo granularity + first-undo-after-load | fixed (46-09 + CR-01) | confirm at 46-16 |
+| 3 | Undo granularity + first-undo-after-load | fixed (46-09 + CR-01) | ✅ DEVICE-CONFIRMED by Ben 2026-07-17 |
 | 4 | Preview toggle label+icon | fixed (46-11) | concept rejected → 46.1 |
 | 5 | SW precache delivery | fixed (be7877b) | done, field-verified |
-| 6 | Formatting-tips accordion removed | fixed (in-gate R1) | confirm at 46-16 |
-| 7 | Emotions before/after opt-out | fixed (46-10) | confirm at 46-16 |
-| 8 | Snippet-accept Enter in a list | fixed (46-11) | confirm at 46-16 |
-| 9 | Heart-Wall export wording | fixed (46-12) | confirm at 46-16 |
+| 6 | Formatting-tips accordion removed | fixed (in-gate R1) | ✅ DEVICE-CONFIRMED by Ben 2026-07-17 |
+| 7 | Emotions before/after opt-out | fixed (46-10) | ✅ DEVICE-CONFIRMED by Ben 2026-07-17 |
+| 8 | Snippet-accept Enter in a list | fixed (46-11) | ✅ DEVICE-CONFIRMED by Ben 2026-07-17 |
+| 9 | Heart-Wall export wording | fixed (46-12) | ✅ DEVICE-CONFIRMED by Ben 2026-07-17 |
 | 10 | Step-2 layout collapse on laptops | fixed (46-15, probe-verified) | surface → 46.1 |
 | 11 | Toolbar clip + scroll-away | fixed (46-15, probe-verified) | invariant → 46.1 |
 | 12 | Export bar buttons dead without focus | fixed (46-17, jsdom+probe) | mechanism survives → 46.1 surface |
@@ -111,7 +110,7 @@ The export editor toolbar must render permanently above the editor, not focus-at
 Note-field (session page) focus-attached behavior stays as built.
 
 ### Gap 3 — Undo/redo granularity "needs to feel real" (severity: high, NAMED follow-up)
-status: failed
+status: resolved — fixed 46-09 + CR-01 reseed; DEVICE-CONFIRMED by Ben 2026-07-17
 Ben typed several lines; one undo removed all of them. Native execCommand undo lets the
 browser coalesce typing into big chunks, so step boundaries feel arbitrary. Per the
 46-08-PLAN designated routing this is the D-20 discovery point and triggers the
@@ -122,7 +121,7 @@ per toolbar action; typing grouped into small human-scale units (e.g., per line/
 Failing target recorded: desktop browser (granularity UX), reported before the iOS matrix ran.
 
 ### Gap 4 — Preview toggle needs label + icon, both surfaces (severity: medium)
-status: failed
+status: superseded — built in 46-11, but the toggle CONCEPT was rejected at the round-3 gate (Gap 14); re-designed in phase 46.1
 Icon-only eye button is insufficient on note fields AND export. Ben's spec (2026-07-14):
 label AND icon, showing the TARGET state — eye icon + "Preview" while editing (switches
 to view), pencil icon + "Edit" while previewing (switches back). Applies wherever the
@@ -148,14 +147,14 @@ center (the 46-07 help update already documents formatting there); hand-typed ma
 keeps working regardless.
 
 ### Gap 7 — Export content scope: emotions before/after must be opt-out (severity: medium, scope addition)
-status: failed
+status: resolved — fixed 46-10; DEVICE-CONFIRMED by Ben 2026-07-17
 Pre-existing behavior (not a Phase 46 regression): export always includes emotions
 before/after; customers complained. Ben wants a PRE-SELECTED checkbox (opt-out), not forced
 inclusion. Approved by Ben to ride this gap round. Details + open design questions in
 .planning/todos/pending/2026-07-14-export-emotions-optout-checkbox.md.
 
 ### Gap 8 — Enter on an open snippet suggestion ALSO fires list auto-continue (severity: high)
-status: failed
+status: resolved — fixed 46-11; DEVICE-CONFIRMED by Ben 2026-07-17
 In a note field, inside any list, accepting a snippet autocomplete with Enter both expands
 the snippet AND jumps to a new list item — so you cannot expand a snippet and continue
 writing in the same bullet; you must delete the spurious new item every time. This is the
@@ -167,7 +166,7 @@ snippet accept wins, list continuation only fires on a plain Enter. Needs a regr
 covering Enter-with-suggestion-open vs plain Enter in a list.
 
 ### Gap 9 — Heart-Wall export prints a bare "No" when flagged-but-not-released (severity: medium, pre-existing)
-status: failed
+status: resolved — fixed 46-12 (Option B wording); DEVICE-CONFIRMED by Ben 2026-07-17
 When a session is flagged as a Heart-Wall session but the wall was NOT released at the end
 (the bottom flag), the exported Heart-Wall section renders just "No" — readers first assume
 it means "not a Heart-Wall session," which is wrong; it apparently means "not released."
@@ -177,7 +176,7 @@ released". The gap plan must propose concrete wording options (all locales) for 
 choose; also audit the same section for the released=yes wording while there.
 
 ### Gap 10 — Export Step 2 default layout collapses on laptop viewports (severity: high, round 2)
-status: failed
+status: resolved (code) — fixed 46-15, probe-verified; surface re-presented in phase 46.1, device eyes there
 Found at the 46-14 re-run (2026-07-15, MacBook Pro, 00f0c08 pre-prod build, screenshot in
 session): at the Step-2 DEFAULT (non-maximized) size the toolbar renders as a ~15px sliver
 with every button clipped in half, and the editor shows ~1.5 lines — the surface is unusable
@@ -197,7 +196,7 @@ toolbar so it can never compress regardless of sizing. Must be re-verified at th
 size on a real MacBook viewport, not only maximized.
 
 ### Gap 11 — Export toolbar is not ALWAYS visible (severity: high, round 2, re-opens Gap 2's requirement)
-status: failed
+status: resolved (code) — fixed 46-15, probe-verified; always-visible invariant carried into 46.1
 Ben re-affirmed the round-1 ratified requirement at the re-run: "the formatting toolbar
 should never be hidden in the export." The Gap-2 fix made the bar persistent (dedicated
 always-docked bar, no hide-on-blur) but two mechanisms still hide it:
@@ -213,7 +212,7 @@ bottom of the edit area — the bar must still be visible and clickable; with a 
 viewport the bar must render at full height.
 
 ### Gap 12 — Export toolbar controls are DEAD until the editor is focused once (severity: high, round 2)
-status: failed
+status: resolved (code) — fixed 46-17 (bar→field dispatch), jsdom+probe verified; mechanism survives the 46.1 redesign
 Reported by Ben at the round-2 gate ("the preview button in export does nothing"), reproduced
 live in Playwright WebKit (2026-07-15, build e0c48c5): with export Step 2 open and the editor
 NOT yet focused, a real click on the toolbar's Preview button does nothing — no pane, no
@@ -234,7 +233,7 @@ persistent bar never depends on prior focus. Note-field shared-bar behavior unch
 Regression test: jsdom can cover the dispatch-target resolution; the device gate covers feel.
 
 ### Gap 13 — Export preview pane opens 100% below the scroll fold (severity: high, round 2)
-status: failed
+status: resolved (code) — fixed 46-17 (bar-offset reveal); preview concept itself superseded by 46.1
 Second half of "does nothing", reproduced live in WebKit at 1440x820 on build e0c48c5: with
 the editor focused, clicking Preview DOES open the pane and flip the button (aria-pressed
 true, label → "Edit"), but the pane is inserted after the editor inside the fixed-height
@@ -252,7 +251,7 @@ preview is open. Must not disturb note-field preview behavior, the sticky pinned
 undo/caret state; RTL-safe.
 
 ### Gap 14 — Export preview/edit UX concept rejected — needs a proper UI design phase (severity: high, round 3 gate, DESIGN)
-status: failed — routed to a design-first effort per Ben's directive (2026-07-17)
+status: routed — owned by phase 46.1 (design-first; ROADMAP §46.1 carries the contract)
 Ben's findings on the 656f959 pre-prod build, verbatim intent: "the overall export is not
 behaving anywhere close to bulletproof." Specifics: (a) clicking Preview expands and
 auto-scrolls to the pane, but MANUAL scrolling brings the edit surface back into view while
@@ -270,7 +269,7 @@ sketch mockups (multiple concepts) → Ben finalizes → UI-SPEC → plan (archi
 implement → device gate. NOT another code-first gap fix.
 
 ### Gap 15 — Preview visual language collides with section-title orange (severity: medium, round 3 gate, DESIGN)
-status: failed — folded into the Gap-14 design effort
+status: routed — owned by phase 46.1 (unified preview visual language)
 On the session screen, the note preview section's background is the same orange as the
 section titles/categories (e.g. "Limiting Beliefs") — the preview reads as another category
 header, not as "rendered preview of your text." Ben's directive: the preview treatment in
@@ -279,7 +278,7 @@ is how previewed text looks in our app." A design-token/visual-identity decision
 in the Gap-14 UI phase, not a spot patch.
 
 ### Gap 16 — Formatting bar hides on a click in its empty area (severity: medium, round 3 gate, BUG)
-status: fixed (commit a6de32f; RED test 2fca8af)
+status: resolved — fixed a6de32f (RED test 2fca8af); DEVICE-CONFIRMED by Ben 2026-07-17
 Session screen, focus-attached bar: clicking ON the bar but NOT on a button (e.g. just
 right of the Preview/Edit button, or in inter-button gaps/padding) blurs the field →
 focusout hides the bar → the field shifts up; the user must re-focus the field and click
