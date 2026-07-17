@@ -219,6 +219,17 @@ window.RichToolbar = (function () {
     bar.className = "rich-toolbar is-hidden";
     bar.setAttribute("role", "toolbar");
     bar.setAttribute("aria-label", t("toolbar.aria", "Text formatting"));
+    // A mousedown on the bar's OWN empty area — padding, inter-button gaps, the
+    // strip past the last control — must not blur the focused field: the shared
+    // focus-attached bar hides on focusout, so a stray click there collapses it
+    // and shifts the layout. Controls keep their per-control mousedown guard;
+    // this container-level guard catches only the clicks that fall between them
+    // (it also fires, harmlessly, when a control's own mousedown bubbles up —
+    // preventDefault is idempotent). It never stops propagation, so control
+    // activation is untouched; a prevented mousedown does not block wheel/touch
+    // scrolling of the overflow-x strip, and native scrollbar dragging targets
+    // the scrollbar rather than this element, so both remain usable.
+    bar.addEventListener("mousedown", function (ev) { ev.preventDefault(); });
 
     GROUPS.forEach(function (group, gi) {
       if (bar.childElementCount > 0) bar.appendChild(makeSeparator());
