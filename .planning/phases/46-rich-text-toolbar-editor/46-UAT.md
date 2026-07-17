@@ -226,6 +226,46 @@ the export bar's field), possibly paired with letting the editor yield height wh
 preview is open. Must not disturb note-field preview behavior, the sticky pinned bar, or
 undo/caret state; RTL-safe.
 
+### Gap 14 — Export preview/edit UX concept rejected — needs a proper UI design phase (severity: high, round 3 gate, DESIGN)
+status: failed — routed to a design-first effort per Ben's directive (2026-07-17)
+Ben's findings on the 656f959 pre-prod build, verbatim intent: "the overall export is not
+behaving anywhere close to bulletproof." Specifics: (a) clicking Preview expands and
+auto-scrolls to the pane, but MANUAL scrolling brings the edit surface back into view while
+the mode still claims preview — mixed state; (b) the target-state button turns GREEN
+(is-active) while its label reads "Edit" — the active styling + target-state label combine
+to read as "you are in Edit mode," the inverse of reality; (c) the stacked
+editor-plus-preview-in-one-scroll-container concept itself is rejected ("the overall
+scrolling concept is also not to my liking"). Ben's process directive, verbatim: "no gaps
+finalization can help here without proper mockup, UI phase, replanning and implementation.
+which buttons to show, where the preview is shown and how to go back to edit (or its both
+integrated together somehow), how much screen space to give each part, how the overall
+process looks like." Root context: the round-1 in-gate export redesign was implemented
+WITHOUT /gsd-ui-phase (the mandatory UI gate) — this gap is the accumulated cost. Route:
+sketch mockups (multiple concepts) → Ben finalizes → UI-SPEC → plan (architect gate) →
+implement → device gate. NOT another code-first gap fix.
+
+### Gap 15 — Preview visual language collides with section-title orange (severity: medium, round 3 gate, DESIGN)
+status: failed — folded into the Gap-14 design effort
+On the session screen, the note preview section's background is the same orange as the
+section titles/categories (e.g. "Limiting Beliefs") — the preview reads as another category
+header, not as "rendered preview of your text." Ben's directive: the preview treatment in
+the session screen AND the export must share ONE visual language that always signals "this
+is how previewed text looks in our app." A design-token/visual-identity decision — belongs
+in the Gap-14 UI phase, not a spot patch.
+
+### Gap 16 — Formatting bar hides on a click in its empty area (severity: medium, round 3 gate, BUG)
+status: failed
+Session screen, focus-attached bar: clicking ON the bar but NOT on a button (e.g. just
+right of the Preview/Edit button, or in inter-button gaps/padding) blurs the field →
+focusout hides the bar → the field shifts up; the user must re-focus the field and click
+again. Bitten via a small misclick next to Preview. Root cause CONFIRMED in source:
+bindPreserveFocus (mousedown+preventDefault, rich-toolbar.js ~150-155) is bound per-CONTROL
+only; the bar container itself has no mousedown handler, so clicks on its padding fall
+through and steal focus. Fix direction: preventDefault mousedown on the BAR container
+(capturing clicks on padding/gaps; controls keep their own binding), so a click anywhere on
+the bar never blurs the field. Small, independent of the Gap-14 redesign; timing (quick fix
+vs ride the redesign) is Ben's call.
+
 ### Fixed during the gate (for the record)
 - List button toggle/switch semantics: tests 88f7639, fix d88af87 (7 new unit tests).
 - Gap 5 delivery fix + v1.4.0 bump: be7877b.
