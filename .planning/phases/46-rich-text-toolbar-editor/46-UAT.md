@@ -47,15 +47,40 @@ documents. See gaps 10 and 11.
 #### Items 1-10 (round 2)
 result: [pending] — Ben continuing the matrix
 
-## Summary
+## Summary — CANONICAL GAP LEDGER (updated 2026-07-17)
 
-total: round 1 — 10 checklist items / 9 gaps; round 2 (46-14 re-run) — 11 items, in progress / 2 new gaps so far
-passed: 0 (no checklist item formally signed off; round 2 started 2026-07-15 on the 00f0c08 build)
-gaps_resolved_during_gate: 4 (1, 2, 5, 6 — plus the list-toggle fix d88af87)
-gaps_fixed_in_gap_round_awaiting_round2_confirm: 5 (3 undo stack, 4 preview toggle label+icon, 7 emotions opt-out, 8 snippet-Enter collision, 9 Heart-Wall wording)
-gaps_open_round2: 10/11 fixed in 46-15 (awaiting 46-16 device confirm); 12 (persistent-bar controls dead without focus) and 13 (preview pane below fold) open — found while testing the 46-15 build
-skipped: 0
-blocked: 0
+One line per gap. "confirm at 46-16" = code-complete + machine-verified, needs
+Ben's device eyes on the slimmed gate. "→ 46.1" = owned by the inserted
+Preview & Edit Experience Redesign phase (design-first).
+
+| Gap | What | Code status | Owner / next |
+|-----|------|-------------|--------------|
+| 1 | Export two-pane collided with toolbar | fixed (in-gate R1) | surface superseded → 46.1 |
+| 2 | Export toolbar must be always visible | fixed (R1 persistent + R2 sticky/no-shrink) | ratified invariant, carried into 46.1 |
+| 3 | Undo granularity + first-undo-after-load | fixed (46-09 + CR-01) | confirm at 46-16 |
+| 4 | Preview toggle label+icon | fixed (46-11) | concept rejected → 46.1 |
+| 5 | SW precache delivery | fixed (be7877b) | done, field-verified |
+| 6 | Formatting-tips accordion removed | fixed (in-gate R1) | confirm at 46-16 |
+| 7 | Emotions before/after opt-out | fixed (46-10) | confirm at 46-16 |
+| 8 | Snippet-accept Enter in a list | fixed (46-11) | confirm at 46-16 |
+| 9 | Heart-Wall export wording | fixed (46-12) | confirm at 46-16 |
+| 10 | Step-2 layout collapse on laptops | fixed (46-15, probe-verified) | surface → 46.1 |
+| 11 | Toolbar clip + scroll-away | fixed (46-15, probe-verified) | invariant → 46.1 |
+| 12 | Export bar buttons dead without focus | fixed (46-17, jsdom+probe) | mechanism survives → 46.1 surface |
+| 13 | Preview pane opens below the fold | fixed (46-17) | concept superseded → 46.1 |
+| 14 | Preview/edit UX concept rejected (mixed state, inverted button signal, scroll model) | OPEN — design | 46.1: sketch → UI-SPEC → plan → build |
+| 15 | Preview color = section-title orange | OPEN — design | 46.1 (unified preview language) |
+| 16 | Bar hides on padding/gap click | fixed (a6de32f) | confirm at 46-16 |
+
+Quality loops (context, not open work): phase review R1 4 findings (1 critical),
+R2 3, R3 3 — all FIXED or explicitly accepted with rationale; three two-lens
+architect reviews (R2, R3 plans) — all conditions folded in pre-execution.
+
+**46-16 gate is SLIMMED:** verify only the content/editing items — undo (3),
+accordion (6), emotions opt-out (7), snippet-in-list (8), Heart-Wall (9),
+bar-padding click (16), plus iPhone core toolbar, real PDF, snippets/autogrow,
+lists, RTL. Everything preview/export-flow-shaped (old items 2, 11-13) moved to
+46.1's future gate.
 
 ## Gaps
 

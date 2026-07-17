@@ -246,6 +246,49 @@ Active milestone (v1.4). Shipped-milestone phase detail is archived in `mileston
 
 - [ ] 46-17-PLAN.md — Gaps 12+13: persistent-bar dispatch resolves its target from the clicked control's own bar (works on first click, no prior focus) + export preview scrolls its edit-area container into view below the pinned bar; RED-first jsdom test (dispatch, 190→191) + RED-first WebKit probe assertion set E (preview reveal) [gap-closure, wave 1]
 
+### Phase 46.1: Preview & Edit Experience Redesign (INSERTED)
+
+**Goal:** A finalized, Ben-ratified preview/edit experience across BOTH rich-text
+surfaces (the 7 session note fields AND the export Step-2 flow) — designed first,
+implemented second. Ben's directive (2026-07-17, verbatim intent): "no gaps
+finalization can help here without proper mockup, UI phase, replanning and
+implementation. which buttons to show, where the preview is shown and how to go
+back to edit (or its both integrated together somehow), how much screen space to
+give each part, how the overall process looks like."
+
+**Why this phase exists:** the round-1 in-gate export redesign skipped the
+mandatory UI phase; the accumulated cost surfaced at the phase-46 device gate as
+gaps 14 (preview/edit mode model broken: green is-active + target-state "Edit"
+label reads inverted; manual scroll escapes preview while the mode claims
+otherwise; stacked-scroll concept rejected) and 15 (note-field preview background
+is the same orange as section titles — reads as a category header, not a
+preview). See 46-UAT.md gaps 14/15 for the full findings.
+
+**Locked process (Ben-ratified 2026-07-17):**
+1. Sketch round — MULTIPLE interactive HTML mockup concepts (/gsd-sketch), full
+   both-surfaces scope: interaction model + unified "this is preview" visual
+   language decided together. Ben picks/iterates until finalized.
+2. /gsd-ui-phase — UI-SPEC.md design contract from the ratified sketch (the
+   mandatory UI gate; NOT skippable this time).
+3. /gsd-plan-phase (with plan-checker + two-lens architect gate) → execute
+   (RED-first) → code review → its own real-device gate.
+
+**Scope carried from phase 46's gate (verify here, not at 46-16):** export
+Step-2 layout/flow specifics (46-16 items 2, 11's layout parts, 12, 13) — the
+engineering under them (sizing floor, sticky bar, dispatch-without-focus, reveal)
+is probe-verified and survives as mechanism, but the surfaces they present are
+being redesigned. The always-visible export toolbar remains a ratified invariant
+under any design.
+
+**Requirements**: RTXT-01, RTXT-04, RTXT-05 (re-presentation of shipped
+capability; no new data-tier requirements expected — confirm at UI phase)
+**Depends on:** Phase 46
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] Sketch round first (/gsd-sketch — multiple mockups), then /gsd-ui-phase 46.1, then /gsd-plan-phase 46.1
+
 ### Phase 47: Session-Section Reordering
 
 **Goal**: Therapists can set the order of session sections once in Settings and have that order drive the add/edit form and every export, personalizing how each session is documented.
