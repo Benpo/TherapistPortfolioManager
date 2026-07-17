@@ -3,7 +3,7 @@ status: diagnosed
 phase: 46-rich-text-toolbar-editor
 source: [46-08-PLAN.md checkpoint — real-device gate, Ben driving; 46-14 re-run round 2]
 started: 2026-07-14T21:30:00Z
-updated: 2026-07-15T09:00:00Z
+updated: 2026-07-17T00:00:00Z
 ---
 
 ## Current Test
@@ -254,7 +254,7 @@ is how previewed text looks in our app." A design-token/visual-identity decision
 in the Gap-14 UI phase, not a spot patch.
 
 ### Gap 16 — Formatting bar hides on a click in its empty area (severity: medium, round 3 gate, BUG)
-status: failed
+status: fixed (commit a6de32f; RED test 2fca8af)
 Session screen, focus-attached bar: clicking ON the bar but NOT on a button (e.g. just
 right of the Preview/Edit button, or in inter-button gaps/padding) blurs the field →
 focusout hides the bar → the field shifts up; the user must re-focus the field and click
@@ -265,6 +265,17 @@ through and steal focus. Fix direction: preventDefault mousedown on the BAR cont
 (capturing clicks on padding/gaps; controls keep their own binding), so a click anywhere on
 the bar never blurs the field. Small, independent of the Gap-14 redesign; timing (quick fix
 vs ride the redesign) is Ben's call.
+FIXED 2026-07-17: buildToolbar() now binds mousedown+preventDefault on the bar CONTAINER, so
+a click on its empty area (padding, inter-button gaps, the strip past the last control) no
+longer blurs the focused field — the guard applies to both the shared focus-attached bar and
+the persistent export bar (they share the builder). Controls keep their per-control binding
+(the container guard never stops propagation; preventDefault's double-call is idempotent).
+Confirmed it does NOT block wheel/touch scrolling of the overflow-x strip, and native
+scrollbar dragging targets the scrollbar (not this element), so both stay usable. RED-first:
+tests/46-persistent-bar-dispatch.test.js Case G (shared bar container mousedown preventDefault
++ per-control regression guard) and Case H (persistent bar container) — both failed against
+the unfixed source (false !== true), green after the fix. Full suite 191/191; WebKit export
+probe green. Device gate on the session screen still pending Ben's real-click confirmation.
 
 ### Fixed during the gate (for the record)
 - List button toggle/switch semantics: tests 88f7639, fix d88af87 (7 new unit tests).
