@@ -286,7 +286,7 @@ under any design.
 **Requirements**: RTXT-01, RTXT-04, RTXT-05 (re-presentation of shipped
 capability; no new data-tier requirements — confirmed at UI phase)
 **Depends on:** Phase 46
-**Plans:** 5/7 plans executed
+**Plans:** 6/7 plans executed
 
 Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). Plans created 2026-07-18.
 
@@ -306,7 +306,7 @@ Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). 
 
 **Wave 4** *(docs hard-gate — after implementation)*
 
-- [ ] 46.1-06-PLAN.md — docs Definition of Done: EN changelog entry + affected help topics (topic-quick-paste + review-export) [wave 4]
+- [x] 46.1-06-PLAN.md — docs Definition of Done: EN changelog entry + affected help topics (topic-quick-paste + review-export) [wave 4]
 
 **Wave 5** *(real-device ratification — Ben-ratified locked process step 3)*
 

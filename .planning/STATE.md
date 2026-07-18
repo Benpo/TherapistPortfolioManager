@@ -6,14 +6,14 @@ current_phase: 46.1
 current_phase_name: preview-edit-experience-redesign
 status: executing
 stopped_at: Phase 46.1 UI-SPEC approved
-last_updated: "2026-07-18T07:18:17.825Z"
+last_updated: "2026-07-18T07:25:47.324Z"
 last_activity: 2026-07-18
 last_activity_desc: Phase 46.1 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 37
-  completed_plans: 34
+  completed_plans: 35
   percent: 33
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 ## Current Position
 
 Phase: 46.1 (preview-edit-experience-redesign) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-07-18 — Phase 46.1 execution started
 
@@ -269,6 +269,7 @@ Last activity: 2026-07-18 — Phase 46.1 execution started
 | Phase 46.1 P04 | 20min | 2 tasks | 1 files |
 | Phase 46.1 P05 | 10min | 2 tasks | 5 files |
 | Phase 46.1 P03 | ~25min | 3 tasks | 3 files |
+| Phase 46.1 P06 | 6min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -488,6 +489,7 @@ Recent decisions affecting current work:
 - [Phase 46]: Heart-Wall export wording: Option B present/removed — released='Heart-Wall removed', not released='Heart-Wall present — not removed this session'; export-only keys session.export.heartWall.released/.notReleased, form radios unchanged; unflagged sessions keep section omission
 - [Phase ?]: [46.1-01] RTXT-01/04/05 pinned by RED tests but NOT marked complete; plans 02-05 deliver them (marking on a RED scaffold would false-signal)
 - [Phase ?]: [46.1-01] frame source-audit assembles the section-header bg token from string parts so the test file never carries the literal token itself
+- [Phase ?]: [Phase 46.1-06]: No version bump for the preview/edit redesign — extend the preprod-only v1.4.0 changelog entry; reworded the old next-state Preview button copy (changelog + help) to the current-state Edit/Preview switch
 
 ### Pending Todos
 
@@ -567,7 +569,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-18T07:18:10.877Z
+**Last session:** 2026-07-18T07:25:15.869Z
 
 Last activity: 2026-07-12 — Phase 44 closed end-to-end in one session: /gsd-code-review 44 --fix applied all 6 review warnings (fail-closed build-staging args/noindex, cf-await-promotion secret validation + curl timeouts + loud purge diagnostics, deploy queue-not-cancel) plus the IN-04 follow-up (pipeline-script test suites now gate both deploy workflows); UAT 2/2 passed — test 1 caught that the docs-gate trailers never landed on any commit (gate dry-run blocked), fixed by amending the tip (6e4355f), gate re-run green; verification canonicalized passed, phase 44 marked complete, transitioned to Phase 45. Previous: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
 Stopped at: Phase 46.1 UI-SPEC approved
