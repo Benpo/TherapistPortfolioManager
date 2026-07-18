@@ -3359,23 +3359,22 @@ html[dir="rtl"] .settings-locked-info::after {
    natural min(720px,92vw) auto-height card and never render oddly empty. */
 .export-card.is-editor-step {
   inline-size: min(1100px, 92vw);
-  block-size: 50vh;
-  block-size: 50dvh;
-  /* Make the EDIT SURFACE, not the card, the sizing floor. On a laptop-band
-     viewport 50% is too short: the fixed Step-2 chrome eats the height and the
-     editor plus its always-visible toolbar collapse. This floor grows the card so
-     a usable toolbar + multi-line editor always fit, while on tall screens the
-     preferred 50% height is larger and still wins. The inner min(...,90vh/90dvh)
-     cap guarantees the floor can never exceed the modal's own max-height on any
-     viewport, so it can never force the card taller than the screen (protecting
-     the phone-width full-screen takeover). */
-  min-block-size: min(640px, 90vh);
-  min-block-size: min(640px, 90dvh);
+  /* Content-driven height: the card grows to fit its content (the editor's own
+     280px min-height is the floor that guarantees a usable toolbar + multi-line
+     editor), capped so it never exceeds the viewport. On tall screens the card
+     stays at content height under the cap. The vh/dvh pair lets the cap track the
+     on-screen keyboard's shrunken viewport where dvh is supported, falling back
+     to vh otherwise. The in-place preview swap reuses this box, so the surface
+     never collapses when the editor is hidden. */
+  block-size: auto;
+  max-block-size: 94vh;
+  max-block-size: 94dvh;
 }
 .export-card.is-maximized.is-editor-step {
   inline-size: min(1400px, 96vw);
-  block-size: 90vh;
-  block-size: 90dvh;
+  block-size: auto;
+  max-block-size: 92vh;
+  max-block-size: 92dvh;
   padding: 32px;
 }
 /* Propagate the card height down so the editor flex-fills the modal instead of a
@@ -3589,7 +3588,7 @@ html[dir="rtl"] .settings-locked-info::after {
   flex-direction: column;
 }
 .export-editor {
-  min-block-size: 240px;
+  min-block-size: 280px;
   font-size: 1rem;
   line-height: 1.5;
   padding: 16px;
@@ -3789,6 +3788,11 @@ html[dir="rtl"] .settings-locked-info::after {
   .export-card.is-editor-step .export-editor {
     flex: 1 1 auto;
     min-block-size: 0;
+  }
+  /* Reclaim every pixel for editing on the phone full-screen takeover — the
+     ephemeral-edit info band is hidden here. */
+  .export-info-note {
+    display: none;
   }
 }
 
@@ -5426,13 +5430,13 @@ html[dir="rtl"] .multi-select-toggle {
    snippets popover at the --z-popover layer without stealing it.
    ================================================================= */
 .rich-toolbar {
+  /* Non-scrolling flex row: it lays out the horizontally-scrollable formatting
+     strip and the pinned mode switcher. Horizontal scroll now lives on the
+     inner strip so the switcher can stay pinned and always reachable. */
   display: flex;
   align-items: center;
   gap: 4px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
+  overflow: visible;
   padding: 4px 8px;
   margin-block-end: 8px;
   background: var(--color-surface);
@@ -5445,9 +5449,67 @@ html[dir="rtl"] .multi-select-toggle {
      to <body>; this bar docks in flow, so they never collide). */
   position: relative;
   z-index: var(--z-popover);
-  scrollbar-width: thin;
 }
 .rich-toolbar.is-hidden { display: none; }
+
+/* The scrollable formatting strip — flex-fills the bar and scrolls horizontally
+   on narrow widths so the pinned switcher beside it never moves. */
+.rich-toolbar-scroll {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
+  scrollbar-width: thin;
+}
+
+/* Current-state Edit/Preview switcher — pinned at the bar's logical end by flex
+   order (no physical inset, so it is direction-neutral in RTL). */
+.rich-toolbar-swap {
+  display: inline-flex;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.rich-toolbar-swap-btn {
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+/* The active segment names the CURRENT mode and is the green-filled state. */
+.rich-toolbar-swap-btn.is-active {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-weight: 600;
+}
+.rich-toolbar-swap-btn svg { display: block; }
+
+/* While previewing, the formatting controls inside the strip dim; the switcher
+   (a sibling outside the strip) never dims. The heading trigger is itself a
+   .rich-toolbar-btn, so this single button rule dims it too — selecting the
+   .rich-toolbar-heading wrapper as well would compound to ~0.16 (too faint). */
+.rich-toolbar.is-preview .rich-toolbar-scroll .rich-toolbar-btn {
+  opacity: 0.4;
+}
+
+/* Mirror only the directional glyphs (indent/outdent/undo/redo, marked
+   .icon-flip) in RTL; semantic glyphs (bold/italic/eye/pencil) stay upright. */
+html[dir="rtl"] .rich-toolbar .icon-flip svg {
+  transform: scaleX(-1);
+}
 
 .rich-toolbar-group {
   display: flex;
@@ -5504,21 +5566,6 @@ html[dir="rtl"] .multi-select-toggle {
   line-height: 1;
 }
 
-/* The preview toggle carries a text label beside its icon, so it grows past the
-   fixed icon-button square to fit the label while keeping the same touch target
-   height and the horizontally-scrollable single-row bar. */
-.rich-toolbar-btn--labeled {
-  width: auto;
-  gap: 4px;
-  padding-inline: 8px;
-}
-.rich-toolbar-btn-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 /* Heading dropdown popover — positioned with PHYSICAL left/top by JS
    (RTL-safe). Each item previews its register. */
 .rich-toolbar-heading-menu {
@@ -5559,5 +5606,5 @@ html[dir="rtl"] .multi-select-toggle {
 @media (max-width: 640px) {
   .rich-toolbar-btn { width: 44px; height: 44px; }
   .rich-toolbar-heading-trigger { width: auto; height: 44px; }
-  .rich-toolbar-btn--labeled { width: auto; height: 44px; }
+  .rich-toolbar-swap-btn { min-height: 44px; }
 }
