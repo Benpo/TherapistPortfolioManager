@@ -491,10 +491,16 @@ window.RichToolbar = (function () {
     var n = marker.length;
     return value.slice(s - n, s) === marker && value.slice(e, e + n) === marker;
   }
-  function refreshButtonState() {
-    var bar = barFor(_focused);
-    if (!bar || !_focused) return;
-    var ta = _focused, v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+  // Reflects the given field's state onto ITS bar; with no argument it serves the
+  // currently-focused field. The explicit-field form exists for a persistent bar,
+  // which is visible (and clickable) before its field is ever focused — callers
+  // that re-seed the undo history programmatically pass the field so the bar's
+  // undo/redo dim stays honest without focus.
+  function refreshButtonState(field) {
+    var ta = field || _focused;
+    var bar = barFor(ta);
+    if (!bar || !ta) return;
+    var v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
     var line = currentLineText(v, s);
     var states = {
       bold: isWrapped(v, s, e, "**"),
@@ -521,6 +527,24 @@ window.RichToolbar = (function () {
       if (!btn) return;
       btn.classList.toggle("is-unavailable", heading);
       if (heading) btn.setAttribute("aria-disabled", "true");
+      else btn.removeAttribute("aria-disabled");
+    });
+    // Undo/redo dim to the field's REAL history availability — same treatment as
+    // the indent/outdent dim above (CSS class + aria-disabled, never the real
+    // disabled attribute, which would swallow mousedown, blur the field and
+    // collapse the shared bar). TextEdit's own no-op guards stay the behavioral
+    // backstop; a missing accessor leaves the buttons live.
+    var TE = window.TextEdit;
+    var avail = {
+      undo: TE && typeof TE.canUndo === "function" ? TE.canUndo(ta) : true,
+      redo: TE && typeof TE.canRedo === "function" ? TE.canRedo(ta) : true,
+    };
+    ["undo", "redo"].forEach(function (action) {
+      var btn = bar.querySelector('.rich-toolbar-btn[data-action="' + action + '"]');
+      if (!btn) return;
+      var off = !avail[action];
+      btn.classList.toggle("is-unavailable", off);
+      if (off) btn.setAttribute("aria-disabled", "true");
       else btn.removeAttribute("aria-disabled");
     });
   }
@@ -1012,6 +1036,11 @@ window.RichToolbar = (function () {
       if (it.indexOf("delete") === 0 || it === "insertFromPaste") maybeRenumber(ta);
     }
     if (_previewOpen && _previewField === ta) schedulePreviewRender(ta);
+    // Undo availability changes on every input (typing makes undo possible, and a
+    // restore's own input event lands here after undo/redo move the pointer), so
+    // ride the same rAF-coalesced refresh selectionchange uses — never a second
+    // per-keystroke refresh path.
+    onSelectionChange();
   }
 
   // ── Public: mount (ADDITIVE) ───────────────────────────────────────────────
@@ -1050,6 +1079,10 @@ window.RichToolbar = (function () {
       if (persistent) {
         _persistent.add(ta);
         ensurePersistentBar(ta); // dock the always-on bar immediately
+        // The always-on bar is visible before any focus, so seed its state now —
+        // a fresh history means undo/redo start dimmed rather than promising a
+        // step that does not exist.
+        refreshButtonState(ta);
       }
     });
     // Selection changes drive active-state; the Ctrl/Cmd+E return path reaches the

@@ -941,8 +941,13 @@
       if (editor) editor.value = "";
       // Direct `.value =` fires no input event, so re-seed the undo baseline to
       // the reset (empty) state — this also clears any snapshots left over from a
-      // previous export, preventing cross-open undo bleed.
+      // previous export, preventing cross-open undo bleed. The always-visible
+      // export bar then re-reads availability so its undo/redo dim matches the
+      // now-empty history (no input event means no refresh fires on its own).
       if (editor && window.TextEdit && window.TextEdit.undoReset) window.TextEdit.undoReset(editor);
+      if (editor && window.RichToolbar && window.RichToolbar.refreshButtonState) {
+        window.RichToolbar.refreshButtonState(editor);
+      }
 
       modal.classList.remove("is-hidden");
       App.lockBodyScroll();
@@ -994,6 +999,9 @@
         // the generated markdown so the first undo removes the first real edit
         // rather than wiping the document back to empty.
         if (editor && window.TextEdit && window.TextEdit.undoReset) window.TextEdit.undoReset(editor);
+        if (window.RichToolbar && window.RichToolbar.refreshButtonState) {
+          window.RichToolbar.refreshButtonState(editor);
+        }
         _exportState.hasEditedPreview = false;
       };
       const onNext = async () => {

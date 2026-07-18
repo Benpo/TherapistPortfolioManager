@@ -472,6 +472,25 @@ window.TextEdit = (function () {
     afterRestore(H, textarea);
     return true;
   }
+  // Pure availability accessors — read-only, no sealing, no pointer movement —
+  // so the toolbar can dim undo/redo when a click would be a no-op. canUndo
+  // mirrors undo()'s EFFECTIVE guard: an un-sealed live edit counts as undoable
+  // (undo() seals it before stepping, so the pointer gains a step to move back
+  // from); otherwise the pointer must already have somewhere to step back to.
+  // canRedo mirrors redo()'s guard exactly.
+  function canUndo(textarea) {
+    if (!textarea) return false;
+    var H = HISTORY.get(textarea);
+    if (!H) return false;
+    if (textarea.value !== H.snaps[H.ptr].value) return true;
+    return H.ptr > 0;
+  }
+  function canRedo(textarea) {
+    if (!textarea) return false;
+    var H = HISTORY.get(textarea);
+    return !!H && H.ptr < H.snaps.length - 1;
+  }
+
   // Move one step forward if a redo target exists.
   function redo(textarea) {
     if (_restoring || !textarea) return false;
@@ -505,6 +524,8 @@ window.TextEdit = (function () {
     undoNoteInput: undoNoteInput,
     undo: undo,
     redo: redo,
+    canUndo: canUndo,
+    canRedo: canRedo,
     __testExports: {
       currentLine: currentLine,
       toggleWrap: toggleWrap,

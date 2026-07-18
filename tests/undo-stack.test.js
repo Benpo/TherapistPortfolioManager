@@ -1,7 +1,8 @@
 /**
  * Behavior tests for window.TextEdit's module-owned undo/redo stack:
- * undoTrack / undoUntrack / undoRecord / undoNoteInput / undo / redo, plus the
- * pure coalesce-boundary decision (shouldOpenBoundary).
+ * undoTrack / undoUntrack / undoRecord / undoNoteInput / undo / redo and the
+ * pure availability reads canUndo / canRedo, plus the pure coalesce-boundary
+ * decision (shouldOpenBoundary).
  *
  * Loads assets/text-edit.js in a vm sandbox (mirrors tests/text-edit.test.js).
  * A fake document.execCommand applies insertText to the active fake textarea so
@@ -308,6 +309,41 @@ test('history is capped (a long session cannot grow without bound)', () => {
   while (TextEdit.undo(ta) && steps < 1000) steps++;
   assert.ok(steps > 0, 'some undo history is retained');
   assert.ok(steps <= 200, 'history is capped near the bound (dropped oldest)');
+});
+
+// --- availability accessors (canUndo/canRedo) -------------------------------
+test('canUndo/canRedo: availability tracks the full undo→redo cycle', () => {
+  const ta = activate(makeTA('seed'));
+  TextEdit.undoTrack(ta);
+  assert.strictEqual(TextEdit.canUndo(ta), false, 'fresh baseline: nothing to undo');
+  assert.strictEqual(TextEdit.canRedo(ta), false, 'fresh baseline: nothing to redo');
+  TextEdit.undoRecord(ta); setValue(ta, 'seed x');
+  assert.strictEqual(TextEdit.canUndo(ta), true, 'an un-sealed live edit is undoable (undo seals it first)');
+  assert.strictEqual(TextEdit.canRedo(ta), false);
+  TextEdit.undo(ta);
+  assert.strictEqual(ta.value, 'seed');
+  assert.strictEqual(TextEdit.canUndo(ta), false, 'back at the floor: undo unavailable');
+  assert.strictEqual(TextEdit.canRedo(ta), true, 'the undone step is redoable');
+  TextEdit.redo(ta);
+  assert.strictEqual(ta.value, 'seed x');
+  assert.strictEqual(TextEdit.canUndo(ta), true);
+  assert.strictEqual(TextEdit.canRedo(ta), false, 'at the tip: redo unavailable');
+});
+test('canUndo/canRedo are pure reads — repeated calls move no state', () => {
+  const ta = activate(makeTA('a'));
+  TextEdit.undoTrack(ta);
+  TextEdit.undoRecord(ta); setValue(ta, 'ab');
+  for (let i = 0; i < 5; i++) { TextEdit.canUndo(ta); TextEdit.canRedo(ta); }
+  assert.strictEqual(ta.value, 'ab', 'accessors mutate nothing');
+  assert.strictEqual(TextEdit.undo(ta), true, 'undo still works after repeated reads');
+  assert.strictEqual(ta.value, 'a', 'exactly one step back — the reads sealed nothing');
+});
+test('canUndo/canRedo: untracked or missing field reads false, never throws', () => {
+  const ta = activate(makeTA('x'));
+  assert.strictEqual(TextEdit.canUndo(ta), false);
+  assert.strictEqual(TextEdit.canRedo(ta), false);
+  assert.strictEqual(TextEdit.canUndo(null), false);
+  assert.strictEqual(TextEdit.canRedo(null), false);
 });
 
 // --- Summary ---------------------------------------------------------------
