@@ -3661,7 +3661,9 @@ html[dir="rtl"] .settings-locked-info::after {
    --color-* tokens (no new colors), WCAG-AA in light + dark. */
 .rich-toolbar-preview {
   position: relative;
-  margin-block-start: 8px;
+  /* 10px, not 8px: the chip straddles the top border (translateY(-50%)), so the
+     block-start margin must leave room for the chip's outside half. */
+  margin-block-start: 10px;
   padding: 20px 16px 14px;
   border: 1.5px solid var(--color-green-border-ghost);
   border-radius: 12px;
@@ -3681,12 +3683,15 @@ html[dir="rtl"] .settings-locked-info::after {
 .rich-toolbar-preview-body {
   background: transparent;
 }
-/* Floating "PREVIEW" pill anchored to the Frame's top edge — logical inset so it
-   pins to the reading-start corner in both LTR and RTL. The Frame's 20px top
-   padding clears it from the rendered content below. */
+/* Floating "PREVIEW" pill straddling the Frame's top border — logical inset so it
+   pins to the reading-start corner in both LTR and RTL; translateY(-50%) puts the
+   chip's midline ON the border so it overhangs half outside. The Frame's 20px top
+   padding clears the inside half from the rendered content; the Frame's 10px
+   block-start margin gives the outside half room. */
 .rich-toolbar-preview-chip {
   position: absolute;
   top: 0;
+  transform: translateY(-50%);
   inset-inline-start: 14px;
   z-index: 2;
   display: inline-flex;
@@ -3711,9 +3716,19 @@ html[dir="rtl"] .settings-locked-info::after {
   height: 12px;
 }
 /* On the export edit surface the Frame flex-fills the edit area, so the in-place
-   swap keeps the box size when the editor is hidden. MUST stay after the base
-   .rich-toolbar-preview rule so the Frame source-audit reads the base treatment. */
+   swap keeps the box size when the editor is hidden. The Frame itself must NOT
+   scroll: scrolling the Frame would clip the chip's border overhang AND carry the
+   absolutely-positioned chip away with long content. Instead the Frame is a flex
+   column and its render BODY scrolls, so the chip stays pinned to the border.
+   MUST stay after the base .rich-toolbar-preview rule so the Frame source-audit
+   reads the base treatment. */
 .export-card.is-editor-step .rich-toolbar-preview {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  display: flex;
+  flex-direction: column;
+}
+.export-card.is-editor-step .rich-toolbar-preview-body {
   flex: 1 1 auto;
   min-block-size: 0;
   overflow-y: auto;
