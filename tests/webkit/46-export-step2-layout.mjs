@@ -28,17 +28,31 @@
  *     D. Maximize regression guard (NOT part of the RED evidence): with
  *        .is-maximized the card still reaches >= 0.85 * viewport height.
  *
- *   PLUS assertion set E (Phase 46 gap-round-3, Pass 4 at 1440x820) — preview reveal
- *   WITHOUT prior editor focus: open the preview via a real mousedown (not click)
- *   with the editor unfocused, then
- *     E1. Gap 12 end-to-end — the pane opened + is visible + aria-pressed=true.
- *     E2. Gap 13 — the pane top clears the STICKY bar (paneTop >= barBottom-2 AND
+ *   PLUS assertion set E — preview reveal + IN-PLACE SWAP, driven through the new
+ *   current-state switcher segment (data-mode="preview"), NOT the deleted single
+ *   preview toggle. The preview reveal (E1-E3) opens preview WITHOUT prior editor
+ *   focus via a real mousedown on the segment (the segment binds mousedown, not
+ *   click), then:
+ *     E1. End-to-end — the pane opened + is visible + the segment's aria-pressed=true.
+ *     E2. The pane top clears the STICKY bar (paneTop >= barBottom-2 AND
  *         paneTop <= areaBottom-20). Bar-relative, so a naive scrollIntoView landing
  *         the pane under the pin cannot pass.
  *     E3. Content — the pane rendered the field's actual text (an empty or stale
  *         pane cannot pass on presence/visibility alone).
- *   Set E is RED against current source (no pane opens without focus / below fold)
- *   and GREEN after the rich-toolbar.js fix; A–D and passes 1–3 are byte-unchanged.
+ *   The in-place-swap cases (E4-E8, at 1440x820, plus an RTL pass) prove one box at
+ *   a time — the preview REPLACES the editor in the same box:
+ *     E4. The preview frame is visible in the viewport ON OPEN (top clears the
+ *         pinned bar, within the edit-area rect) WITHOUT any manual scroll.
+ *     E5. The persistent toolbar stays pinned at the edit-area top while previewing.
+ *     E6. The #exportEditor is HIDDEN (display:none / collapsed rect) while
+ *         previewing — no stacked editor+preview scroll container (editorHidden).
+ *     E7. The editor returns visible after a mousedown on the Edit segment.
+ *     E8. RTL pass (dir=rtl, Hebrew) — the same visible-on-open + editorHidden hold
+ *         with the switcher pinned at the bar's logical end.
+ *   Set E is RED against current source (no switcher segment / no in-place swap) and
+ *   GREEN after the rich-toolbar.js + app.css rewire; A–D and passes 1–3 stay valid
+ *   under the content-driven card model (the 64-line setup keeps C non-vacuous and
+ *   D >= 0.85*viewport). This probe is MANUAL — never part of npm test.
  *
  *   FALSIFIABILITY: run against the CURRENT (unmodified) app.css this file is RED —
  *   assertions A, B and C FAIL (compressed clipped toolbar sliver, ~1.5-line
@@ -162,8 +176,13 @@ const SEL = {
   area: '.export-card.is-editor-step .export-edit-area',
   editor: '#exportEditor',
   card: '.export-card',
+  // The current-state switcher segments (pinned outside the scroll strip). The
+  // old single preview toggle is gone; preview/edit are now two mode segments and
+  // aria-pressed rides the segment (mirroring is-active). Set E drives these.
   previewBtn:
-    '.export-card.is-editor-step .export-edit-area > .rich-toolbar .rich-toolbar-btn[data-action="preview"]'
+    '.export-card.is-editor-step .export-edit-area > .rich-toolbar .rich-toolbar-swap-btn[data-mode="preview"]',
+  editSeg:
+    '.export-card.is-editor-step .export-edit-area > .rich-toolbar .rich-toolbar-swap-btn[data-mode="edit"]'
 };
 
 // Drive a fresh page to the export Step-2 active state with a long document loaded.
@@ -251,13 +270,14 @@ async function assertUniqueSelectors(page, label) {
       editor: count(sel.editor),
       card: count(sel.card),
       previewBtn: count(sel.previewBtn),
+      editSeg: count(sel.editSeg),
       areaOverflowY: (() => {
         const area = document.querySelector(sel.area);
         return area ? getComputedStyle(area).overflowY : null;
       })()
     };
   }, SEL);
-  for (const key of ['bar', 'area', 'editor', 'card', 'previewBtn']) {
+  for (const key of ['bar', 'area', 'editor', 'card', 'previewBtn', 'editSeg']) {
     assert(shape[key] === 1,
       label + ' · shape: selector "' + SEL[key] + '" resolves to exactly one node',
       'count=' + shape[key] + ' — DOM drifted from the modelled production structure');
@@ -306,8 +326,9 @@ async function runABC(page, label) {
     await page.evaluate((sel) => {
       const ed = document.querySelector(sel.editor);
       ed.focus();
+      // The switcher segment binds mousedown (not click) — dispatch a real one.
       const btn = document.querySelector(sel.previewBtn);
-      if (btn) btn.click();
+      if (btn) btn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
     }, SEL);
     await page.waitForTimeout(200);
     const m2 = await measure(page);
@@ -423,6 +444,96 @@ async function runPreviewReveal(page, label) {
     'paneText[0..80]=' + JSON.stringify(String(geo.paneText).slice(0, 80)));
 }
 
+// E4-E8 — IN-PLACE SWAP: the preview REPLACES the editor in the same box (one thing
+// on screen at a time). Enter preview via a real mousedown on the switcher's Preview
+// segment WITHOUT prior editor focus, then assert the frame is visible-on-open, the
+// bar stays pinned, and the editor is hidden while previewing; leaving via the Edit
+// segment restores the editor. Pass expectRtl=true for the Hebrew/RTL pass, where the
+// switcher pins at the bar's logical end and the same geometry must still hold.
+async function runInPlaceSwap(page, label, expectRtl) {
+  console.log('\n[' + label + '] E (in-place swap):');
+  await assertUniqueSelectors(page, label);
+
+  // Enter preview via a real mousedown on the Preview segment, NO prior editor focus.
+  await page.evaluate((sel) => {
+    const seg = document.querySelector(sel.previewBtn);
+    if (seg) seg.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+  }, SEL);
+  await page.waitForTimeout(200); // settle the swap + any residual reveal scroll
+
+  const on = await page.evaluate((sel) => {
+    const area = document.querySelector(sel.area);
+    const bar = document.querySelector(sel.bar);
+    const editor = document.querySelector(sel.editor);
+    const pane = document.querySelector(sel.area + ' .rich-toolbar-preview');
+    const rect = (el) => { const b = el.getBoundingClientRect(); return { top: b.top, bottom: b.bottom, height: b.height }; };
+    return {
+      dir: (document.documentElement.getAttribute('dir') ||
+            getComputedStyle(document.documentElement).direction || 'ltr').toLowerCase(),
+      hasPane: !!pane && !pane.classList.contains('is-hidden'),
+      paneRect: pane ? rect(pane) : null,
+      barRect: bar ? rect(bar) : null,
+      areaRect: area ? rect(area) : null,
+      editorHidden: editor
+        ? (getComputedStyle(editor).display === 'none' || editor.getBoundingClientRect().height < 2)
+        : null
+    };
+  }, SEL);
+
+  // RTL precondition (non-vacuous): the RTL pass must actually run under dir=rtl.
+  if (expectRtl) {
+    assert(on.dir === 'rtl',
+      label + ' · E8 precondition: document is RTL (dir=rtl)',
+      'documentDir=' + on.dir);
+  }
+
+  // E4 — the frame is visible ON OPEN at 1440x820 without scroll: its top clears the
+  // pinned bar and sits within the visible edit-area rect.
+  if (on.paneRect && on.barRect && on.areaRect) {
+    const clearsBar = on.paneRect.top >= on.barRect.bottom - 2;
+    const withinArea = on.paneRect.top >= on.areaRect.top - 2 && on.paneRect.top <= on.areaRect.bottom - 20;
+    assert(on.hasPane && clearsBar && withinArea,
+      label + ' · E4 preview frame visible on open (in-place swap, no manual scroll)',
+      'paneTop=' + on.paneRect.top.toFixed(1) + ' barBottom=' + on.barRect.bottom.toFixed(1) +
+      ' areaTop=' + on.areaRect.top.toFixed(1) + ' areaBottom=' + on.areaRect.bottom.toFixed(1) +
+      ' (hasPane=' + on.hasPane + ' clearsBar=' + clearsBar + ' withinArea=' + withinArea + ')');
+  } else {
+    assert(false, label + ' · E4 preview frame visible on open', 'pane/bar/area not measurable');
+  }
+
+  // E5 — the persistent toolbar stays pinned at the edit-area top while previewing.
+  if (on.barRect && on.areaRect) {
+    assert(Math.abs(on.barRect.top - on.areaRect.top) <= 2,
+      label + ' · E5 persistent toolbar stays pinned at the edit-area top while previewing',
+      'barTop=' + on.barRect.top.toFixed(1) + ' areaTop=' + on.areaRect.top.toFixed(1));
+  } else {
+    assert(false, label + ' · E5 toolbar pinned while previewing', 'bar/area not measurable');
+  }
+
+  // E6 — the editor is HIDDEN while previewing (one box at a time, no stacked scroll).
+  assert(on.editorHidden === true,
+    label + ' · E6 editorHidden while previewing (#exportEditor collapses)',
+    'editorHidden=' + on.editorHidden);
+
+  // E7 — leaving preview via the Edit segment restores a visible editor.
+  await page.evaluate((sel) => {
+    const seg = document.querySelector(sel.editSeg);
+    if (seg) seg.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+  }, SEL);
+  await page.waitForTimeout(200);
+  const off = await page.evaluate((sel) => {
+    const editor = document.querySelector(sel.editor);
+    return {
+      editorVisible: editor
+        ? (getComputedStyle(editor).display !== 'none' && editor.getBoundingClientRect().height > 2)
+        : null
+    };
+  }, SEL);
+  assert(off.editorVisible === true,
+    label + ' · E7 editor returns visible after mousedown on the Edit segment',
+    'editorVisible=' + off.editorVisible);
+}
+
 async function newGatedContext(browser, { width, height, lang }) {
   const context = await browser.newContext({ viewport: { width, height } });
   await context.addInitScript(({ lg }) => {
@@ -491,6 +602,25 @@ async function main() {
       const ctx = await newGatedContext(browser, { width: 1440, height: 820, lang: 'en' });
       const page = await setupExportStep2(ctx, base);
       await runPreviewReveal(page, '1440x820 EN preview-reveal');
+      await ctx.close();
+    }
+
+    // ── Pass 5: 1440x820 (EN) — in-place swap: preview REPLACES the editor in the
+    //    same box (visible-on-open + pinned bar + editor hidden), driven through the
+    //    current-state switcher segment. RED against current source. ───────────────
+    {
+      const ctx = await newGatedContext(browser, { width: 1440, height: 820, lang: 'en' });
+      const page = await setupExportStep2(ctx, base);
+      await runInPlaceSwap(page, '1440x820 EN in-place-swap', false);
+      await ctx.close();
+    }
+
+    // ── Pass 6: 1440x820 (HE, RTL) — the same in-place-swap geometry must hold under
+    //    dir=rtl, with the switcher pinned at the bar's logical end. ────────────────
+    {
+      const ctx = await newGatedContext(browser, { width: 1440, height: 820, lang: 'he' });
+      const page = await setupExportStep2(ctx, base);
+      await runInPlaceSwap(page, '1440x820 HE rtl in-place-swap', true);
       await ctx.close();
     }
 
