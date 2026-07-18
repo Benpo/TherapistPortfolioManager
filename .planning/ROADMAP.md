@@ -286,7 +286,7 @@ under any design.
 **Requirements**: RTXT-01, RTXT-04, RTXT-05 (re-presentation of shipped
 capability; no new data-tier requirements — confirmed at UI phase)
 **Depends on:** Phase 46
-**Plans:** 4/7 plans executed
+**Plans:** 5/7 plans executed
 
 Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). Plans created 2026-07-18.
 
@@ -302,7 +302,7 @@ Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). 
 
 **Wave 3** *(blocked on 46.1-02 — same file)*
 
-- [ ] 46.1-03-PLAN.md — rich-toolbar.js: in-place swap (textarea hidden, Frame in same box) + Frame wrapper/chip/body (MdRender sole sink) + Ctrl/Cmd+E reaching while hidden + reveal reconcile [wave 3]
+- [x] 46.1-03-PLAN.md — rich-toolbar.js: in-place swap (textarea hidden, Frame in same box) + Frame wrapper/chip/body (MdRender sole sink) + Ctrl/Cmd+E reaching while hidden + reveal reconcile [wave 3]
 
 **Wave 4** *(docs hard-gate — after implementation)*
 
