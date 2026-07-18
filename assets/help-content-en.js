@@ -207,7 +207,7 @@
             ] },
             { type: "p", text: "When you want to add emphasis or structure, a small formatting toolbar appears above whichever note field you are writing in. Select some words and press the bold or italic button — on a computer, Ctrl+B and Ctrl+I do the same. Press the bullet-list or numbered-list button to start a list, and open the text-style menu to turn a line into a heading or back into regular text." },
             { type: "p", text: "Lists can also grow as you type: start a line with a dash and a space, or a number and a full stop, and the next line continues the list on its own. Press Enter on an empty item to finish the list, and use the indent and outdent buttons — or Tab and Shift+Tab on a computer — to nest items. The undo and redo buttons — and Ctrl+Z on a computer — step back and forward one line or one change at a time, so a single undo never sweeps away more than you meant." },
-            { type: "note", text: "Not sure how it will look? Use the preview button for a note field to watch your formatting take shape as you write: it reads Preview while you are writing and switches to Edit while you are previewing, so a tap always shows where it will take you. Your formatting is saved with the notes, so it reads back as styled text and stays intact when you export." }
+            { type: "note", text: "Not sure how it will look? Each note field's toolbar has an Edit / Preview switch. Tap Preview and a clearly framed preview replaces the field in place — one clean view at a time — so you can see your formatting take shape. The switch always shows which mode you are in: the active side is highlighted. To go back to writing, tap Edit, tap any formatting button (that returns you to editing and applies it in one move), or press Ctrl+E — Cmd+E on a Mac. Your snippets and the way a field grows to fit your text work just as before, and your formatting is saved with the notes, so it reads back as styled text and stays intact when you export." }
           ]
         },
         {
@@ -323,7 +323,7 @@
               "Review — and lightly edit — what will be shared.",
               "Pick {ui:export.download.pdf} for a polished document, or {ui:export.download.text} to save the notes as a plain text file."
             ] },
-            { type: "p", text: "The editing step gives you room to work in a single editor: the same formatting toolbar sits on top — including the preview button, so you can check how the document will look — and you can maximize the window to shape almost a whole session at once. On a phone it fills the screen. Anything you change here is for this export only — it is never saved back to the session." },
+            { type: "p", text: "The editing step gives you room to work in a single editor. The same formatting toolbar stays on top the whole time — it never scrolls away — and its Edit / Preview switch lets you check how the document will look: tap Preview and a clearly framed preview replaces the editor in place, then tap Edit (or press Ctrl+E — Cmd+E on a Mac) to return. You can maximize the window to shape almost a whole session at once, and on a phone it fills the screen. Anything you change here is for this export only — it is never saved back to the session." },
             { type: "p", text: "Before that, you can pick which parts to include. The before-and-after emotion ratings come pre-selected — leave them checked to include the severity ratings, or uncheck them to leave them out of this export, in both the PDF and a copied summary. That choice is per export: the box starts checked again the next time you share a session." },
             { type: "note", text: "When a session is Heart-Wall work, the export spells out the result in words — Heart-Wall removed when it came down, or Heart-Wall present, not removed this session when it was found but not yet released — so a reader is never left guessing what a bare yes or no meant. Sessions that are not Heart-Wall work leave the line out entirely." },
             { type: "p", text: "Any formatting you added to your notes — bold, italics, bullet and numbered lists (including nested ones), and headings — is preserved in the PDF, and Hebrew text stays correctly right-to-left." }
@@ -336,7 +336,8 @@
           covers: ["assets/export-modal.js"],
           body: [
             { type: "p", text: "PDF is best for sending a finished, good-looking document to your client. Plain text is best when you want to keep the notes in your own records or bring them into another app." },
-            { type: "p", text: "The PDF keeps your note formatting — bold, lists, and headings — as styled text, while the plain-text file keeps your notes exactly as you typed them." }
+            { type: "p", text: "The PDF keeps your note formatting — bold, lists, and headings — as styled text, while the plain-text file keeps your notes exactly as you typed them." },
+            { type: "p", text: "Whichever you choose, you can switch the export editor to Preview first — it shows a clearly framed view of the finished document in place of the editor — so you can see exactly how your formatting will read before you export." }
           ]
         }
       ]
