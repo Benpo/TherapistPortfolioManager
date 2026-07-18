@@ -5524,6 +5524,14 @@ html[dir="rtl"] .multi-select-toggle {
   opacity: 0.4;
 }
 
+/* Indent/outdent dim while the caret sits on a heading line (headings stay
+   flush-left, so the action would be a no-op). The button stays a live target —
+   aria-disabled, never the disabled attribute, so mousedown still fires and the
+   field keeps focus. */
+.rich-toolbar-btn.is-unavailable {
+  opacity: 0.4;
+}
+
 /* Mirror only the directional glyphs (indent/outdent/undo/redo, marked
    .icon-flip) in RTL; semantic glyphs (bold/italic/eye/pencil) stay upright. */
 html[dir="rtl"] .rich-toolbar .icon-flip svg {

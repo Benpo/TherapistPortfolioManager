@@ -508,7 +508,21 @@ window.RichToolbar = (function () {
       if (btn) btn.classList.toggle("is-active", !!states[action]);
     });
     var trig = bar.querySelector(".rich-toolbar-heading-trigger");
-    if (trig) trig.classList.toggle("is-active", /^#{1,3}\s/.test(line));
+    var heading = /^#{1,3}\s/.test(line);
+    if (trig) trig.classList.toggle("is-active", heading);
+    // Heading lines stay flush-left, so indent/outdent are no-ops there — dim
+    // the two buttons and mark them aria-disabled as feedback. Deliberately NOT
+    // the real disabled attribute: a hard-disabled button stops firing mousedown,
+    // which would blur the field and collapse the shared bar (the
+    // focus-preservation contract). The dispatch no-op guard stays the
+    // behavioral backstop.
+    ["indent", "outdent"].forEach(function (action) {
+      var btn = bar.querySelector('.rich-toolbar-btn[data-action="' + action + '"]');
+      if (!btn) return;
+      btn.classList.toggle("is-unavailable", heading);
+      if (heading) btn.setAttribute("aria-disabled", "true");
+      else btn.removeAttribute("aria-disabled");
+    });
   }
 
   // ── Heading dropdown menu (physical-coordinate popover, RTL-safe) ──────────
