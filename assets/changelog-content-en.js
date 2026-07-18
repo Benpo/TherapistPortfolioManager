@@ -83,7 +83,7 @@
       categories: {
         new: [
           "A formatting toolbar sits above your session notes, with buttons for bold, italics, bullet and numbered lists, and a text-style menu for headings — plus undo and redo that step one line or one change at a time, so going back never sweeps away more than you meant.",
-          "A preview you can turn on for any note field, and for the export editor, to watch your formatting take shape — the preview replaces the writing area in place, with a clearly framed PREVIEW look, so you see one clean view at a time. An Edit / Preview switch always shows which mode you are in, a click on any formatting button takes you straight back to editing, and Ctrl+E (or Cmd+E on a Mac) flips between the two.",
+          "A preview you can turn on for any note field, and for the export editor, to watch your formatting take shape — the preview replaces the writing area in place, with a clearly framed PREVIEW look, so you see one clean view at a time. An Edit / Preview switch always shows which mode you are in — the formatting buttons rest while you preview — and Ctrl+E (or Cmd+E on a Mac) flips between the two.",
           "Reading a saved session now shows your notes as styled text, so bold, lists, and headings look the way you typed them — numbered lists keep the exact numbers you entered, switching between bullets and numbers renders each correctly, and it all works reliably whether or not you left a blank line between them.",
         ],
         improved: [

@@ -505,6 +505,13 @@ window.RichToolbar = (function () {
     if (!bar || !ta) return;
     var v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
     var line = currentLineText(v, s);
+    // While the bar is in preview mode every strip control is inert (dimmed
+    // means dead — dispatch drops their clicks). aria-disabled mirrors that,
+    // COMPOSED with the per-control reasons below (heading-line indent dim,
+    // empty-history undo/redo dim): a control can be disabled for more than one
+    // reason at once, so leaving preview re-derives each control's state here
+    // rather than blanket-clearing the attribute.
+    var previewing = bar.classList.contains("is-preview");
     var states = {
       bold: isWrapped(v, s, e, "**"),
       // single-star italic, excluding the case where it is really a bold pair
@@ -514,11 +521,18 @@ window.RichToolbar = (function () {
     };
     Object.keys(states).forEach(function (action) {
       var btn = bar.querySelector('.rich-toolbar-btn[data-action="' + action + '"]');
-      if (btn) btn.classList.toggle("is-active", !!states[action]);
+      if (!btn) return;
+      btn.classList.toggle("is-active", !!states[action]);
+      if (previewing) btn.setAttribute("aria-disabled", "true");
+      else btn.removeAttribute("aria-disabled");
     });
     var trig = bar.querySelector(".rich-toolbar-heading-trigger");
     var heading = /^#{1,3}\s/.test(line);
-    if (trig) trig.classList.toggle("is-active", heading);
+    if (trig) {
+      trig.classList.toggle("is-active", heading);
+      if (previewing) trig.setAttribute("aria-disabled", "true");
+      else trig.removeAttribute("aria-disabled");
+    }
     // Heading lines stay flush-left, so indent/outdent are no-ops there — dim
     // the two buttons and mark them aria-disabled as feedback. Deliberately NOT
     // the real disabled attribute: a hard-disabled button stops firing mousedown,
@@ -529,7 +543,7 @@ window.RichToolbar = (function () {
       var btn = bar.querySelector('.rich-toolbar-btn[data-action="' + action + '"]');
       if (!btn) return;
       btn.classList.toggle("is-unavailable", heading);
-      if (heading) btn.setAttribute("aria-disabled", "true");
+      if (heading || previewing) btn.setAttribute("aria-disabled", "true");
       else btn.removeAttribute("aria-disabled");
     });
     // Undo/redo dim to the field's REAL history availability — same treatment as
@@ -547,7 +561,7 @@ window.RichToolbar = (function () {
       if (!btn) return;
       var off = !avail[action];
       btn.classList.toggle("is-unavailable", off);
-      if (off) btn.setAttribute("aria-disabled", "true");
+      if (off || previewing) btn.setAttribute("aria-disabled", "true");
       else btn.removeAttribute("aria-disabled");
     });
   }
@@ -836,6 +850,9 @@ window.RichToolbar = (function () {
         seg.classList.toggle("is-active", on);
         seg.setAttribute("aria-pressed", on ? "true" : "false");
       });
+      // Clear the preview-driven inert state (still-valid per-control dims —
+      // heading line, empty history — are re-derived, not blanket-cleared).
+      refreshButtonState(ta);
     }
   }
 
@@ -881,6 +898,9 @@ window.RichToolbar = (function () {
       closePreview();
       ta.focus();
     }
+    // Re-derive every strip control's inert/aria-disabled state for the new
+    // mode (explicit-field form: a persistent bar has no focus event to ride).
+    refreshButtonState(ta);
   }
 
   // ── Change-site reveal after an undo/redo restore ──────────────────────────
@@ -986,6 +1006,13 @@ window.RichToolbar = (function () {
       setMode(modeSeg.getAttribute("data-mode"), barField || _focused);
       return;
     }
+    // While this bar's surface is previewing, every control except the mode
+    // switcher is inert — dimmed means dead. Bail BEFORE the focus-anchor block
+    // so an inert click neither focuses the hidden editor, opens the heading
+    // menu, applies formatting, nor changes the mode; the switcher segments and
+    // Ctrl/Cmd+E are the ways back to Edit. The mousedown preventDefault has
+    // already run, so the dropped click steals no focus and collapses nothing.
+    if (_previewOpen && _previewField === (barField || _focused)) return;
     if (barField) {
       // Formatting/undo/redo/heading: make the bar's own field the active target.
       // Set the module focus state DIRECTLY (do not rely solely on the focusin
@@ -1005,9 +1032,6 @@ window.RichToolbar = (function () {
     }
     var ta = _focused;
     if (!ta && action !== "heading") return;
-    // A formatting gesture while previewing first returns to edit, then applies —
-    // one click both exits preview and performs the action.
-    if (_previewOpen && _previewField === ta) setMode("edit", ta);
     var TE = window.TextEdit;
     switch (action) {
       case "bold": doEmphasis(ta, "**"); break;

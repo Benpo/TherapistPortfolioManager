@@ -5516,10 +5516,11 @@ html[dir="rtl"] .multi-select-toggle {
 }
 .rich-toolbar-swap-btn svg { display: block; }
 
-/* While previewing, the formatting controls inside the strip dim; the switcher
-   (a sibling outside the strip) never dims. The heading trigger is itself a
-   .rich-toolbar-btn, so this single button rule dims it too — selecting the
-   .rich-toolbar-heading wrapper as well would compound to ~0.16 (too faint). */
+/* While previewing, the formatting controls inside the strip dim — and are
+   inert: dispatch drops their clicks, so dimmed means dead. The switcher (a
+   sibling outside the strip) never dims and stays live. The heading trigger is
+   itself a .rich-toolbar-btn, so this single button rule dims it too — selecting
+   the .rich-toolbar-heading wrapper as well would compound to ~0.16 (too faint). */
 .rich-toolbar.is-preview .rich-toolbar-scroll .rich-toolbar-btn {
   opacity: 0.4;
 }
