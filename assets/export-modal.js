@@ -651,6 +651,12 @@
         });
         if (!ok) return;
       }
+      // Return any open preview to Edit before hiding, so a reopen of Step 2 starts
+      // in Edit with a fresh render instead of a stale swapped-in Frame. resetPreview
+      // does not force focus, so it is safe on a closing modal.
+      if (window.RichToolbar && window.RichToolbar.resetPreview) {
+        window.RichToolbar.resetPreview();
+      }
       modal.classList.add("is-hidden");
       App.unlockBodyScroll();
       if (_exportState && _exportState.cleanup) {
@@ -922,8 +928,21 @@
       const onBack = () => {
         if (_exportState.currentStep > 1) exportSetActiveStep(_exportState.currentStep - 1);
       };
-      const onNext = () => {
+      const onNext = async () => {
         if (_exportState.currentStep === 1) {
+          // Advancing from Step 1 REGENERATES the editor from the section selection,
+          // overwriting any Step-2 edits. If the user went Back with dirty edits,
+          // confirm the discard BEFORE overwriting — cancel leaves the edits (and
+          // the step) untouched. Reuses the same discard dialog the close path uses.
+          if (_exportState.hasEditedPreview) {
+            const ok = await App.confirmDialog({
+              titleKey: "export.discard.title",
+              messageKey: "export.discard.body",
+              confirmKey: "export.discard.yes",
+              cancelKey: "export.discard.no"
+            });
+            if (!ok) return;
+          }
           // Collect selected sections, build initial markdown, populate editor.
           const checks = modal.querySelectorAll('#exportStep1Rows input[type="checkbox"]');
           const selected = [];
