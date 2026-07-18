@@ -241,8 +241,21 @@ window.MdRender = (function () {
       }
       return listHtml;
     }
-    // Paragraph — preserve single newlines as <br>.
-    var inner = applyInline(block).replace(/\r?\n/g, "<br>");
+    // Paragraph — preserve single newlines as <br>, and preserve each line's
+    // LEADING spaces as &nbsp; sequences so typed indentation survives normal
+    // white-space collapsing (the PDF and the clipboard copy keep those spaces,
+    // so the on-screen render must too). Leading spaces only — interior spaces
+    // keep native collapsing/wrapping, which is why the fix is entities here and
+    // NOT white-space: pre-wrap on the render target. The entities are injected
+    // AFTER applyInline on already-escaped text: applyInline never rewrites
+    // leading whitespace and nothing re-escapes downstream, so the entity can
+    // neither be double-escaped nor surface as literal text.
+    var inner = applyInline(block)
+      .split(/\r?\n/)
+      .map(function (l) {
+        return l.replace(/^ +/, function (m) { return m.replace(/ /g, "&nbsp;"); });
+      })
+      .join("<br>");
     return "<p>" + inner + "</p>";
   }
 
