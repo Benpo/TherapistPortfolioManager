@@ -238,6 +238,34 @@ test('applyHeading level 1 and level 3 emit the right hash count', () => {
   assert.strictEqual(T.applyHeading('Title', 0, 0, 3).value, '### Title');
 });
 
+// --- applyHeading on an INDENTED line: heading registers strip the indent ---
+// Headings are flush-left in the renderer grammar (an indented "## x" reads as
+// a literal paragraph), so applying H1-3 must consume the leading whitespace
+// and produce a REAL heading; the Text register (level 0) never touches
+// indentation.
+test('applyHeading H2 on an indented line strips the indent to a real flush heading', () => {
+  const r = T.applyHeading('  hello', 4, 4, 2); // caret on the "l" of hello
+  assert.strictEqual(r.value, '## hello');
+  assert.ok(HEADING_RE.test(r.value), 'result is a real md-render heading');
+  assert.strictEqual(r.selStart, 5, 'caret rides the body: still on the "l"');
+  assert.strictEqual(r.selStart, r.selEnd);
+});
+test('applyHeading H1 with the caret inside the old indent lands after the new prefix', () => {
+  const r = T.applyHeading('    deep', 2, 2, 1); // caret inside the stripped indent
+  assert.strictEqual(r.value, '# deep');
+  assert.strictEqual(r.selStart, 2, 'caret clamps to just after the "# " prefix');
+});
+test('applyHeading level 0 clears a heading back to flush text (no indent restored)', () => {
+  const h = T.applyHeading('  indented', 4, 4, 2); // "## indented" (flush)
+  const back = T.applyHeading(h.value, h.selStart, h.selEnd, 0);
+  assert.strictEqual(back.value, 'indented', 'heading → Text stays flush');
+});
+test('applyHeading level 0 on an indented NON-heading line preserves its indentation', () => {
+  const r = T.applyHeading('  plain text', 6, 6, 0);
+  assert.strictEqual(r.value, '  plain text', 'the Text register never strips indentation');
+  assert.strictEqual(r.selStart, 6, 'caret untouched by the no-op');
+});
+
 // --- editInsert chokepoint: fallback branch fires a real input event -------
 test('editInsert fallback (execCommand=false): value-splice + input event', () => {
   const sb = makeSandbox(false); // execCommand returns false → fallback path

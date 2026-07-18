@@ -152,19 +152,22 @@ window.TextEdit = (function () {
   }
 
   // ── Heading apply / clear ──────────────────────────────────────────────────
-  // level 1/2/3 sets the line's leading heading tokens ("# "/"## "/"### ");
-  // level 0 strips any existing leading heading tokens. Idempotent net of caret:
-  // level N then level 0 returns the original line.
+  // level 1/2/3 sets the line's leading heading tokens ("# "/"## "/"### ") and
+  // consumes any leading indentation — headings are flush-left in the renderer
+  // grammar (an indented "## x" reads as a literal paragraph), so applying a
+  // heading register must always produce a REAL heading. level 0 strips only
+  // the heading tokens and leaves existing indentation untouched. Idempotent
+  // net of caret on a flush line: level N then level 0 returns the original.
   function applyHeading(value, s, e, level) {
     var line = currentLine(value, s);
     var m = /^( *)(#{1,3}\s+)?/.exec(line.text);
     var lead = m[1] || "";
     var existing = m[2] || "";
     var newPrefix = level > 0 ? (new Array(level + 1).join("#") + " ") : "";
-    var repStart = line.start + lead.length;
-    var repEnd = repStart + existing.length;
+    var repStart = level > 0 ? line.start : line.start + lead.length;
+    var repEnd = line.start + lead.length + existing.length;
     var rep = { start: repStart, end: repEnd, text: newPrefix };
-    var delta = newPrefix.length - existing.length;
+    var delta = newPrefix.length - (repEnd - repStart);
     var ns = s >= repEnd ? s + delta : (s > repStart ? repStart + newPrefix.length : s);
     var ne = e >= repEnd ? e + delta : (e > repStart ? repStart + newPrefix.length : e);
     if (ns < repStart) ns = repStart;
