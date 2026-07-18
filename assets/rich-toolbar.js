@@ -883,6 +883,90 @@ window.RichToolbar = (function () {
     }
   }
 
+  // ── Change-site reveal after an undo/redo restore ──────────────────────────
+  // The restore rewrites the WHOLE value through the insert chokepoint, which
+  // resets an internally-scrolling textarea (the export editor) to the top in
+  // WebKit — so what the undo just changed can sit off screen and look like
+  // nothing happened. setSelectionRange never scrolls, and neither does a
+  // blur/focus cycle (probed in WebKit), so the reveal must be computed: a
+  // hidden mirror block replicating the field's text layout measures the Y of
+  // the CHANGE SITE — the first index where the pre- and post-restore values
+  // diverge, which is where the visible difference starts — soft wraps included
+  // (a naive newline-count times line-height undercounts them). scrollTop then
+  // centres that site when it sits outside the visible band. The SELECTION is
+  // deliberately untouched: the history restores each step's recorded caret
+  // (the pinned stack contract — e.g. an unwrapped bold restores the caret
+  // INSIDE the text while the diff starts at the removed marker), so the scroll
+  // anchors on the diff without disturbing that caret math. Autogrowing note
+  // fields never scroll internally (their height tracks content), so the
+  // scroll-room guard makes this a no-op there and the page scroll is never
+  // touched.
+  function measureTopAt(ta, index) {
+    var cs;
+    try { cs = window.getComputedStyle(ta); } catch (e) { return -1; }
+    var doc = ta.ownerDocument || document;
+    if (!doc.body) return -1;
+    var mirror = doc.createElement("div");
+    var s = mirror.style;
+    s.position = "absolute";
+    s.visibility = "hidden";
+    s.whiteSpace = "pre-wrap";
+    s.overflowWrap = "break-word";
+    s.boxSizing = "border-box";
+    // clientWidth excludes border and any scrollbar, so with border-box sizing
+    // and the copied padding the mirror wraps at the textarea's content width.
+    s.width = ta.clientWidth + "px";
+    ["direction", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft",
+     "fontFamily", "fontSize", "fontWeight", "fontStyle", "lineHeight",
+     "letterSpacing", "textTransform", "textIndent", "tabSize"].forEach(function (p) {
+      try { if (cs[p]) s[p] = cs[p]; } catch (e) { /* engine without this prop */ }
+    });
+    mirror.textContent = ta.value.slice(0, index);
+    var marker = doc.createElement("span");
+    marker.textContent = "\u200b"; // zero-width: adds no wrap of its own
+    mirror.appendChild(marker);
+    doc.body.appendChild(mirror);
+    var top = marker.offsetTop;
+    doc.body.removeChild(mirror);
+    return top;
+  }
+  // First index where the two values diverge — where the restored difference
+  // becomes visible. Clamped into the new value (a pure-append undo diverges at
+  // the old tail, which is the new end).
+  function firstDiffIndex(prev, next) {
+    var n = Math.min(prev.length, next.length);
+    var i = 0;
+    while (i < n && prev.charCodeAt(i) === next.charCodeAt(i)) i++;
+    return Math.min(i, next.length);
+  }
+  function revealChangeAfterRestore(ta, prevValue) {
+    if (!ta) return;
+    var maxScroll = ta.scrollHeight - ta.clientHeight;
+    if (!(maxScroll > 1)) return; // no internal scroll room — nothing to reveal
+    var siteTop = measureTopAt(ta, firstDiffIndex(prevValue, ta.value));
+    if (siteTop < 0) return;
+    var cs = null;
+    try { cs = window.getComputedStyle(ta); } catch (e) { /* headless */ }
+    var lineH = cs ? parseFloat(cs.lineHeight) : NaN;
+    if (!lineH || isNaN(lineH)) lineH = 20;
+    var viewTop = ta.scrollTop;
+    var viewBottom = viewTop + ta.clientHeight - lineH;
+    if (siteTop >= viewTop && siteTop <= viewBottom) return; // already visible
+    var target = siteTop - ta.clientHeight / 2;
+    if (target < 0) target = 0;
+    if (target > maxScroll) target = maxScroll;
+    ta.scrollTop = target;
+  }
+  // One chokepoint for BOTH history directions from buttons AND keyboard:
+  // capture the pre-restore value (the diff anchor), run the move, reveal the
+  // change site only when the history actually moved, then refresh the dims.
+  function runHistory(ta, direction) {
+    var prev = ta.value;
+    var moved = direction === "redo" ? window.TextEdit.redo(ta) : window.TextEdit.undo(ta);
+    if (moved) revealChangeAfterRestore(ta, prev);
+    refreshButtonState();
+  }
+
   // ── Action dispatch — single chokepoint every control routes through ───────
   function _dispatch(action, el) {
     // A persistent bar is always visible, so its controls are clicked before the
@@ -936,9 +1020,10 @@ window.RichToolbar = (function () {
       // Undo/redo drive the ONE module-owned history (window.TextEdit) — the
       // same stack the keyboard shortcut routes to, never two diverging stacks.
       // Works because every control preserves focus (mousedown+preventDefault)
-      // so the restore lands on the right field with correct caret math.
-      case "undo": ta.focus(); window.TextEdit.undo(ta); refreshButtonState(); break;
-      case "redo": ta.focus(); window.TextEdit.redo(ta); refreshButtonState(); break;
+      // so the restore lands on the right field with correct caret math. A
+      // restore that actually moved scrolls the changed site back into view.
+      case "undo": ta.focus(); runHistory(ta, "undo"); break;
+      case "redo": ta.focus(); runHistory(ta, "redo"); break;
       case "heading": toggleHeadingMenu(el); break;
     }
   }
@@ -998,15 +1083,13 @@ window.RichToolbar = (function () {
       if (zk === "z") {
         ev.preventDefault();
         ta.focus();
-        if (ev.shiftKey) window.TextEdit.redo(ta); else window.TextEdit.undo(ta);
-        refreshButtonState();
+        runHistory(ta, ev.shiftKey ? "redo" : "undo");
         return;
       }
       if (zk === "y" && ev.ctrlKey && !ev.metaKey && !ev.shiftKey && !isMac()) {
         ev.preventDefault();
         ta.focus();
-        window.TextEdit.redo(ta);
-        refreshButtonState();
+        runHistory(ta, "redo");
         return;
       }
     }
