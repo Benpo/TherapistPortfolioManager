@@ -590,8 +590,8 @@ window.RichToolbar = (function () {
   // renderReadModeNotes overlay owns — so the edit-mode preview and the read-mode
   // overlay never share an element or clobber each other. All rendering routes
   // through window.MdRender.render (escape-first, XSS-safe) into the render body
-  // ONLY; the chip + empty state use textContent; the raw note value is NEVER
-  // assigned to innerHTML.
+  // ONLY; the chip + empty state are built with DOM APIs (createElement /
+  // textContent / text nodes); the raw note value is NEVER assigned to innerHTML.
   function buildPreviewPane(ta) {
     var frame = ta._notePreview;
     if (!frame) {
@@ -600,7 +600,10 @@ window.RichToolbar = (function () {
       frame.setAttribute("aria-live", "polite");
       var chip = document.createElement("span");
       chip.className = "rich-toolbar-preview-chip";
-      chip.textContent = t("toolbar.previewChip", "PREVIEW");
+      // Eye glyph + label, built via DOM API (createElementNS + text node) so the
+      // chip never touches innerHTML — MdRender.render stays the sole sink.
+      chip.appendChild(ICONS.preview());
+      chip.appendChild(document.createTextNode(t("toolbar.previewChip", "PREVIEW")));
       frame.appendChild(chip);
       var body = document.createElement("div");
       body.className = "note-rendered rich-toolbar-preview-body";

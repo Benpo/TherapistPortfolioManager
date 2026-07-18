@@ -3703,8 +3703,12 @@ html[dir="rtl"] .settings-locked-info::after {
   padding: 3px 10px;
   line-height: 1;
 }
+/* The shared svg() helper emits 20x20 glyphs sized for toolbar buttons; the chip
+   is a compact pill, so its eye glyph shrinks to match the 0.72rem label. */
 .rich-toolbar-preview-chip svg {
   display: block;
+  width: 12px;
+  height: 12px;
 }
 /* On the export edit surface the Frame flex-fills the edit area, so the in-place
    swap keeps the box size when the editor is hidden. MUST stay after the base
