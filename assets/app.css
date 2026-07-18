@@ -3661,14 +3661,59 @@ html[dir="rtl"] .settings-locked-info::after {
    (headings stay flush-left). RTL-safe: logical properties only, existing
    --color-* tokens (no new colors), WCAG-AA in light + dark. */
 .rich-toolbar-preview {
+  position: relative;
   margin-block-start: 8px;
-  padding: 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  background: var(--color-surface-alt);
+  padding: 20px 16px 14px;
+  border: 1.5px solid var(--color-green-border-ghost);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+/* In dark mode the ghost-green edge reads too faint against the surface, so the
+   Frame border falls back to the neutral border token. */
+[data-theme="dark"] .rich-toolbar-preview {
+  border-color: var(--color-border);
 }
 .rich-toolbar-preview.is-hidden {
   display: none;
+}
+/* The render target inside the Frame carries the .note-rendered register for all
+   text styling; it must not paint a background that would reintroduce the
+   section-header look the Frame treatment deliberately replaced. */
+.rich-toolbar-preview-body {
+  background: transparent;
+}
+/* Floating "PREVIEW" pill anchored to the Frame's top edge — logical inset so it
+   pins to the reading-start corner in both LTR and RTL. The Frame's 20px top
+   padding clears it from the rendered content below. */
+.rich-toolbar-preview-chip {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 14px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--color-surface-secondary-btn);
+  color: var(--color-primary-dark);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  line-height: 1;
+}
+.rich-toolbar-preview-chip svg {
+  display: block;
+}
+/* On the export edit surface the Frame flex-fills the edit area, so the in-place
+   swap keeps the box size when the editor is hidden. MUST stay after the base
+   .rich-toolbar-preview rule so the Frame source-audit reads the base treatment. */
+.export-card.is-editor-step .rich-toolbar-preview {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow-y: auto;
 }
 /* Empty state — quiet, centered, muted; shown when the field has no content. */
 .rich-toolbar-preview.is-empty {
