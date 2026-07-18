@@ -286,13 +286,13 @@ under any design.
 **Requirements**: RTXT-01, RTXT-04, RTXT-05 (re-presentation of shipped
 capability; no new data-tier requirements — confirmed at UI phase)
 **Depends on:** Phase 46
-**Plans:** 7 plans
+**Plans:** 1/7 plans executed
 
 Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). Plans created 2026-07-18.
 
 **Wave 1** *(RED-first test scaffold — project law: tests before implementation)*
 
-- [ ] 46.1-01-PLAN.md — RED jsdom tests (in-place swap + Ctrl/Cmd+E, current-state switcher, format-in-preview + pinned-outside-strip, Gap-15 Frame source-audit) + WebKit probe set E [wave 1]
+- [x] 46.1-01-PLAN.md — RED jsdom tests (in-place swap + Ctrl/Cmd+E, current-state switcher, format-in-preview + pinned-outside-strip, Gap-15 Frame source-audit) + WebKit probe set E [wave 1]
 
 **Wave 2** *(parallel — file-disjoint: rich-toolbar.js / app.css / i18n+html)*
 
