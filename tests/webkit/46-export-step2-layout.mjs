@@ -54,6 +54,18 @@
  *   under the content-driven card model (the 64-line setup keeps C non-vacuous and
  *   D >= 0.85*viewport). This probe is MANUAL — never part of npm test.
  *
+ *   KNOWN-VACUOUS CONDITION (accepted harness limitation, do not "fix"): at
+ *   1440x820 the two set-C PRECONDITION checks report RED because the
+ *   content-driven card grows tall enough to fit this probe's 64-line test
+ *   document — the edit area never overflows, so the non-vacuity guard cannot
+ *   synthesize the overflow it needs and correctly refuses to pass C vacuously.
+ *   That is the guard doing its job against a document the viewport can swallow,
+ *   not a pinning failure: the real pinned-toolbar assertion passes at every
+ *   viewport, and the 1000x700 pass carries the genuine-overflow coverage (the
+ *   card hits its viewport ceiling there, the area overflows, and C proves the
+ *   bar stays pinned). Treat NEW reds as failures; treat exactly these two
+ *   1440x820 set-C precondition reds as expected.
+ *
  *   FALSIFIABILITY: run against the CURRENT (unmodified) app.css this file is RED —
  *   assertions A, B and C FAIL (compressed clipped toolbar sliver, ~1.5-line
  *   editor, bar scrolls away). D is a REGRESSION GUARD, not part of the RED proof.
