@@ -567,8 +567,45 @@
       });
     }
 
-    // Reflect the maximize toggle state onto the header button (icon-only, so the
-    // meaning lives in the title/aria-label, set here from i18n).
+    // Build the maximize/restore glyph with the DOM API (never innerHTML): two
+    // diagonal double-headed arrows whose heads point OUTWARD to the corners
+    // (maximize) or INWARD to the centre (restore) — the head reversal is what
+    // tells the two states apart at a glance. Diagonal pairs mirror onto
+    // themselves, so the glyph needs no RTL flip.
+    function buildMaximizeIcon(isMax) {
+      const SVG_NS = "http://www.w3.org/2000/svg";
+      const el = document.createElementNS(SVG_NS, "svg");
+      el.setAttribute("viewBox", "0 0 24 24");
+      el.setAttribute("width", "18");
+      el.setAttribute("height", "18");
+      el.setAttribute("fill", "none");
+      el.setAttribute("stroke", "currentColor");
+      el.setAttribute("stroke-width", "2");
+      el.setAttribute("stroke-linecap", "round");
+      el.setAttribute("stroke-linejoin", "round");
+      el.setAttribute("aria-hidden", "true");
+      const polylines = isMax
+        ? ["4 14 10 14 10 20", "20 10 14 10 14 4"]
+        : ["15 3 21 3 21 9", "9 21 3 21 3 15"];
+      polylines.forEach((pts) => {
+        const p = document.createElementNS(SVG_NS, "polyline");
+        p.setAttribute("points", pts);
+        el.appendChild(p);
+      });
+      [["21", "3", "14", "10"], ["3", "21", "10", "14"]].forEach((c) => {
+        const l = document.createElementNS(SVG_NS, "line");
+        l.setAttribute("x1", c[0]);
+        l.setAttribute("y1", c[1]);
+        l.setAttribute("x2", c[2]);
+        l.setAttribute("y2", c[3]);
+        el.appendChild(l);
+      });
+      return el;
+    }
+
+    // Reflect the maximize toggle state onto the header button: the icon reverses
+    // (arrows out ↔ arrows in) alongside the title/aria-label, set here from i18n
+    // — an unchanged glyph would keep promising "maximize" while maximized.
     function updateMaximizeBtn(btn, isMax) {
       if (!btn) return;
       btn.setAttribute("aria-pressed", isMax ? "true" : "false");
@@ -576,6 +613,9 @@
       const label = App.t(titleKey);
       btn.title = label;
       btn.setAttribute("aria-label", label);
+      const oldIcon = btn.querySelector("svg");
+      if (oldIcon) btn.removeChild(oldIcon);
+      btn.appendChild(buildMaximizeIcon(isMax));
     }
 
     function exportSetActiveStep(n) {
