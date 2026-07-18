@@ -946,11 +946,37 @@ window.RichToolbar = (function () {
         return;
       }
     }
+    // Ctrl/Cmd+E toggles Edit<->Preview. Handled BEFORE the coarse-pointer gate so
+    // it works on touch too. This is the ENTER direction (the field still holds
+    // focus); stop propagation so the document-level fallback (which drives the
+    // RETURN direction while the textarea is hidden) does not also fire for this
+    // same keydown and immediately toggle back.
+    if ((ev.ctrlKey || ev.metaKey) && !ev.altKey && (ev.key || "").toLowerCase() === "e") {
+      ev.preventDefault();
+      ev.stopPropagation();
+      setMode(_previewOpen ? "edit" : "preview", ta);
+      return;
+    }
     if (isCoarsePointer()) return;
     if (!(ev.ctrlKey || ev.metaKey) || ev.altKey) return;
     var k = (ev.key || "").toLowerCase();
     if (k === "b") { ev.preventDefault(); doEmphasis(ta, "**"); }
     else if (k === "i") { ev.preventDefault(); doEmphasis(ta, "*"); }
+  }
+
+  // Document-level Ctrl/Cmd+E fallback: while previewing, the textarea is hidden and
+  // receives no keys, so the RETURN-to-edit direction is bound at the document. Fire
+  // ONLY when the active element is not a registered textarea (the field handler
+  // already owns the key while focused) and a preview is actually open — never a
+  // global hijack.
+  function onDocKeyDown(ev) {
+    if (!(ev.ctrlKey || ev.metaKey) || ev.altKey) return;
+    if ((ev.key || "").toLowerCase() !== "e") return;
+    var active = document.activeElement;
+    if (active && active.tagName === "TEXTAREA" && _registered.has(active)) return;
+    if (!_previewOpen || !_previewField) return;
+    ev.preventDefault();
+    setMode("edit", _previewField);
   }
 
   // Structural deletions (Backspace/Delete/cut that removes a list line) can
@@ -1009,9 +1035,11 @@ window.RichToolbar = (function () {
         ensurePersistentBar(ta); // dock the always-on bar immediately
       }
     });
-    // Selection changes drive active-state; bind once, document-wide.
+    // Selection changes drive active-state; the Ctrl/Cmd+E return path reaches the
+    // document while the textarea is hidden. Bind both once, document-wide.
     if (!mount._selBound) {
       document.addEventListener("selectionchange", onSelectionChange);
+      document.addEventListener("keydown", onDocKeyDown);
       mount._selBound = true;
     }
   }
@@ -1043,6 +1071,7 @@ window.RichToolbar = (function () {
     _toolbarEl = null;
     if (mount._selBound) {
       document.removeEventListener("selectionchange", onSelectionChange);
+      document.removeEventListener("keydown", onDocKeyDown);
       mount._selBound = false;
     }
   }
