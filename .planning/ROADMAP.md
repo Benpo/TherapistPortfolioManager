@@ -286,7 +286,7 @@ under any design.
 **Requirements**: RTXT-01, RTXT-04, RTXT-05 (re-presentation of shipped
 capability; no new data-tier requirements — confirmed at UI phase)
 **Depends on:** Phase 46
-**Plans:** 3/7 plans executed
+**Plans:** 4/7 plans executed
 
 Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). Plans created 2026-07-18.
 
@@ -298,7 +298,7 @@ Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). 
 
 - [x] 46.1-02-PLAN.md — rich-toolbar.js: pinned two-segment current-state Edit/Preview switcher outside a scroll strip; remove the rejected target-state toggle; setMode + return-and-apply (Gap-14) [wave 2]
 - [x] 46.1-04-PLAN.md — app.css: unified Frame preview treatment + PREVIEW chip (never surface-alt, Gap-15) + scroll strip + green-active switcher + dim-in-preview + 280px export editor floor [wave 2]
-- [ ] 46.1-05-PLAN.md — i18n four-locale copy (chip, reconciled empty-state/discard/ephemeral/Step-2) + add-session.html defaults [wave 2]
+- [x] 46.1-05-PLAN.md — i18n four-locale copy (chip, reconciled empty-state/discard/ephemeral/Step-2) + add-session.html defaults [wave 2]
 
 **Wave 3** *(blocked on 46.1-02 — same file)*
 
