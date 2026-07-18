@@ -66,9 +66,12 @@ window.RichToolbar = (function () {
   var _selectionRaf = 0;          // rAF handle for coalesced active-state refresh
   var _renumbering = false;       // re-entrancy guard: our own renumber editInsert
                                   // fires an input event; block it from re-triggering
-  var _previewOpen = false;       // is the live preview pane currently shown
-  var _previewField = null;       // the textarea the preview pane belongs to
+  var _previewOpen = false;       // is the live preview frame currently shown
+  var _previewField = null;       // the textarea the preview frame belongs to
   var _previewDebounce = 0;       // debounce handle for live preview re-render
+  var _previewOutsideDown = null; // one-shot outside-pointerdown dismissal for a
+                                  // note-field preview (persistent/export fields
+                                  // are dismissed by their own modal lifecycle)
 
   // ── i18n helper ────────────────────────────────────────────────────────────
   // App lives in a different IIFE; reach it through window. A fallback keeps the
@@ -358,13 +361,19 @@ window.RichToolbar = (function () {
   // the toolbar itself, whose controls preventDefault so focus never lands there
   // — but guard anyway for keyboard focus).
   function onFieldFocusOut(ev) {
+    var field = ev.currentTarget;
     // A persistent field keeps its dedicated bar docked on blur (no hide-on-blur).
-    if (_persistent.has(ev.currentTarget)) return;
+    if (_persistent.has(field)) return;
     var next = ev.relatedTarget;
     if (next && _toolbarEl && _toolbarEl.contains(next)) return;
     if (next && next.tagName === "TEXTAREA" && _registered.has(next)) return;
     // Defer so a focus move BETWEEN two registered fields re-docks first.
     setTimeout(function () {
+      // Entering preview hides the FOCUSED textarea, which blurs it and drops focus
+      // to the body — a swap-initiated blur, NOT a real focus-leave. Do not cascade
+      // the bar + preview closed the instant preview opens; the outside-mousedown
+      // dismissal handles a genuine click away.
+      if (_previewOpen && _previewField === field) return;
       var active = document.activeElement;
       if (active && _registered.has(active)) return;
       if (active && _toolbarEl && _toolbarEl.contains(active)) return;
@@ -571,56 +580,70 @@ window.RichToolbar = (function () {
     }, 0);
   }
 
-  // ── Live preview pane (per-field, on-demand, blur-reset) ───────────────────
-  // The eye toggle builds a preview pane directly BELOW the focused field and
-  // re-renders it (debounced) while typing. The pane REUSES the .note-rendered
-  // styling but is a DISTINCT element stored on `textarea._notePreview` — never
-  // the SEPARATE property that read-mode's renderReadModeNotes overlay owns — so
-  // the edit-mode preview and the read-mode overlay never share an element or
-  // clobber each other. All rendering routes through window.MdRender.render
-  // (escape-first, XSS-safe); the raw note value is NEVER assigned to innerHTML.
+  // ── In-place preview Frame (per-field, on-demand, blur-reset) ──────────────
+  // Entering preview REPLACES the field in its own box: the textarea is hidden and
+  // a Frame takes its place (one thing on screen at a time). The Frame is a
+  // positioned wrapper `.rich-toolbar-preview` holding a floating chip and a
+  // `.note-rendered` render body — the render body carries the note styling, the
+  // wrapper carries the swap sizing + chip. The Frame is a DISTINCT element stored
+  // on `textarea._notePreview` — never the separate property read-mode's
+  // renderReadModeNotes overlay owns — so the edit-mode preview and the read-mode
+  // overlay never share an element or clobber each other. All rendering routes
+  // through window.MdRender.render (escape-first, XSS-safe) into the render body
+  // ONLY; the chip + empty state use textContent; the raw note value is NEVER
+  // assigned to innerHTML.
   function buildPreviewPane(ta) {
-    var pane = ta._notePreview;
-    if (!pane) {
-      pane = document.createElement("div");
-      pane.className = "note-rendered rich-toolbar-preview";
-      pane.setAttribute("aria-live", "polite");
-      ta.insertAdjacentElement("afterend", pane);
-      ta._notePreview = pane;
+    var frame = ta._notePreview;
+    if (!frame) {
+      frame = document.createElement("div");
+      frame.className = "rich-toolbar-preview";
+      frame.setAttribute("aria-live", "polite");
+      var chip = document.createElement("span");
+      chip.className = "rich-toolbar-preview-chip";
+      chip.textContent = t("toolbar.previewChip", "PREVIEW");
+      frame.appendChild(chip);
+      var body = document.createElement("div");
+      body.className = "note-rendered rich-toolbar-preview-body";
+      frame.appendChild(body);
+      ta.insertAdjacentElement("afterend", frame);
+      ta._notePreview = frame;
     }
-    return pane;
+    return frame;
   }
 
-  // Render the focused field's value into its preview pane. Empty field → the
-  // empty-state block (built with textContent, never innerHTML). Non-empty →
-  // MdRender.render (the SOLE innerHTML writer here); textContent fallback when
-  // MdRender is unavailable (literal markdown, never raw innerHTML).
+  // Render the focused field's value into its Frame render body (NOT the wrapper,
+  // so the floating chip survives re-renders). Empty field → the empty-state block
+  // (built with textContent, never innerHTML). Non-empty → MdRender.render (the
+  // SOLE innerHTML writer here); textContent fallback when MdRender is unavailable
+  // (literal markdown, never raw innerHTML).
   function renderPreview(ta) {
-    var pane = ta && ta._notePreview;
-    if (!pane) return;
+    var frame = ta && ta._notePreview;
+    if (!frame) return;
+    var body = frame.querySelector(".rich-toolbar-preview-body");
+    if (!body) return;
     var val = ta.value;
     if (!val || !val.trim()) {
-      pane.classList.add("is-empty");
-      pane.textContent = "";
+      frame.classList.add("is-empty");
+      body.textContent = "";
       var wrap = document.createElement("div");
       wrap.className = "rich-toolbar-preview-empty";
       var title = document.createElement("p");
       title.className = "rich-toolbar-preview-empty-title";
       title.textContent = t("toolbar.previewEmptyTitle", "Nothing to preview yet");
-      var body = document.createElement("p");
-      body.className = "rich-toolbar-preview-empty-body";
-      body.textContent = t("toolbar.previewEmptyBody", "Start typing to see the formatted result.");
+      var emptyBody = document.createElement("p");
+      emptyBody.className = "rich-toolbar-preview-empty-body";
+      emptyBody.textContent = t("toolbar.previewEmptyBody", "Start typing to see the formatted result.");
       wrap.appendChild(title);
-      wrap.appendChild(body);
-      pane.appendChild(wrap);
+      wrap.appendChild(emptyBody);
+      body.appendChild(wrap);
       return;
     }
-    pane.classList.remove("is-empty");
+    frame.classList.remove("is-empty");
     if (window.MdRender && typeof window.MdRender.render === "function") {
       // MdRender.render escapes HTML before structural rules — safe to assign.
-      pane.innerHTML = window.MdRender.render(val);
+      body.innerHTML = window.MdRender.render(val);
     } else {
-      pane.textContent = val; // fallback: literal, never raw innerHTML
+      body.textContent = val; // fallback: literal, never raw innerHTML
     }
   }
 
@@ -634,26 +657,63 @@ window.RichToolbar = (function () {
   }
 
   function openPreview(ta) {
-    var pane = buildPreviewPane(ta);
-    pane.classList.remove("is-hidden");
+    var frame = buildPreviewPane(ta);
+    frame.classList.remove("is-hidden");
     _previewOpen = true;
     _previewField = ta;
     renderPreview(ta);
-    revealPreviewPane(ta, pane);
+    // Swap in place: the Frame takes the editor's box. Size it to the textarea's
+    // current rendered height (the autogrowing note fields size to content) BEFORE
+    // hiding the editor, so the box does not collapse on the swap; then hide the
+    // textarea so only one surface shows at a time.
+    var h = ta.offsetHeight;
+    if (h) frame.style.minHeight = h + "px";
+    ta.classList.add("is-hidden");
+    revealPreviewPane(ta, frame);
+    bindPreviewOutsideDismiss(ta);
   }
 
-  // Bring a just-opened preview pane into view when it belongs to the export
-  // edit-area — the ONLY preview surface with a scroll fold. That area is a
-  // fixed-height overflow-y:auto container whose editor already fills it, so the
-  // pane (docked after the editor) opens entirely below the fold. Scroll the
-  // container so the pane's top clears the pinned (sticky) toolbar, offset by the
-  // bar's height — a bare scrollIntoView aligns to the container top, UNDER the
-  // sticky bar. Note fields grow the page instead (no fold), so they resolve no
-  // container here and take no scroll. The offset is computed from live rects
-  // (the static edit-area is not the pane's offsetParent, so a raw offsetTop would
-  // not be container-relative); the scroll is vertical-only, hence RTL-safe.
-  function revealPreviewPane(ta, pane) {
-    if (!ta || !pane || typeof ta.closest !== "function") return;
+  // Bind a one-shot outside-pointerdown dismissal for a NOTE-field preview (the
+  // persistent export editor is dismissed by its own modal lifecycle, not here).
+  // A mousedown that lands outside the field's own bar AND its Frame closes the
+  // preview and undocks the bar. Deferred bind (mirrors the heading-menu idiom) so
+  // the opening click does not immediately fire it. Torn down in closePreview.
+  function bindPreviewOutsideDismiss(ta) {
+    if (_persistent.has(ta)) return;
+    teardownPreviewOutsideDismiss();
+    var frame = ta._notePreview;
+    var bar = barFor(ta);
+    function onDown(ev) {
+      if (frame && frame.contains(ev.target)) return;
+      if (bar && bar.contains(ev.target)) return;
+      closePreview();
+      hideToolbar();
+    }
+    _previewOutsideDown = onDown;
+    setTimeout(function () {
+      if (_previewOutsideDown === onDown) {
+        document.addEventListener("mousedown", onDown, true);
+      }
+    }, 0);
+  }
+  function teardownPreviewOutsideDismiss() {
+    if (_previewOutsideDown) {
+      document.removeEventListener("mousedown", _previewOutsideDown, true);
+      _previewOutsideDown = null;
+    }
+  }
+
+  // After the swap the Frame occupies the (now-hidden) editor's box, so it is
+  // already visible on open — no scroll is needed. This retains the export
+  // edit-area scroll math as a HARMLESS no-op safety (delta ≈ 0 when the Frame sits
+  // where the editor was): the area is a fixed-height overflow-y:auto container, so
+  // if the Frame ever opened below the fold this nudges its top just under the
+  // pinned (sticky) toolbar. Note fields grow the page instead (no fold) and
+  // resolve no container here, taking no scroll. Offsets come from live rects (the
+  // static edit-area is not the Frame's offsetParent); the scroll is vertical-only,
+  // hence RTL-safe.
+  function revealPreviewPane(ta, frame) {
+    if (!ta || !frame || typeof ta.closest !== "function") return;
     var container = ta.closest(".export-edit-area");
     if (!container) return; // not the export surface — note-field preview takes no scroll
     var bar = _persistentBars.get(ta);
@@ -661,24 +721,58 @@ window.RichToolbar = (function () {
     var GAP = 8; // small breathing room below the pinned bar
     var areaRect = container.getBoundingClientRect();
     var barRect = bar.getBoundingClientRect();
-    var paneRect = pane.getBoundingClientRect();
+    var frameRect = frame.getBoundingClientRect();
     // The container is the surface that must have layout for the scroll math to be
     // valid — a zero-height area means no layout engine (e.g. headless jsdom).
     if (!areaRect.height) return;
-    // Pane's current offset from the top of the container content, minus the bar
-    // height and gap: scroll the container so the pane top lands just below the bar.
-    var delta = (paneRect.top - barRect.bottom) - GAP;
+    // Frame's current offset from the top of the container content, minus the bar
+    // height and gap: scroll the container so the Frame top lands just below the bar.
+    var delta = (frameRect.top - barRect.bottom) - GAP;
     container.scrollTop += delta;
   }
 
-  // Reset on blur / field change / toggle-off — no stickiness.
-  function closePreview() {
-    if (_previewField && _previewField._notePreview) {
-      _previewField._notePreview.classList.add("is-hidden");
+  // Restore Edit in the swap's box: show the textarea again, un-size + hide the
+  // Frame. No focus here — the caller decides (setMode's edit branch refocuses; a
+  // field-change / blur / resetPreview close must NOT yank focus back).
+  function restoreEditSurface(ta) {
+    if (!ta) return;
+    ta.classList.remove("is-hidden");
+    var frame = ta._notePreview;
+    if (frame) {
+      frame.style.minHeight = "";
+      frame.classList.add("is-hidden");
     }
+  }
+
+  // Reset on blur / field change / toggle-off — no stickiness. Restores the editor
+  // in place (undoes the swap) without forcing focus.
+  function closePreview() {
+    restoreEditSurface(_previewField);
+    teardownPreviewOutsideDismiss();
     if (_previewDebounce) { clearTimeout(_previewDebounce); _previewDebounce = 0; }
     _previewOpen = false;
     _previewField = null;
+  }
+
+  // Return an open preview to Edit for a closing modal: restore the editor in
+  // place, drop the Frame, and reset the switcher to the Edit segment — WITHOUT
+  // focusing the field (a modal is closing; do not force focus onto a hidden
+  // editor). export-modal.js calls this on close so a reopen starts in Edit with a
+  // fresh render, never a stale Frame.
+  function resetPreview() {
+    if (!_previewOpen) return;
+    var ta = _previewField;
+    var bar = barFor(ta);
+    closePreview();
+    if (bar) {
+      bar.classList.remove("is-preview");
+      var segs = bar.querySelectorAll("[data-mode]");
+      Array.prototype.forEach.call(segs, function (seg) {
+        var on = seg.getAttribute("data-mode") === "edit";
+        seg.classList.toggle("is-active", on);
+        seg.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
   }
 
   // Preview is view-only, so it resolves its field WITHOUT focusing it — focusing
@@ -714,8 +808,9 @@ window.RichToolbar = (function () {
       });
       bar.classList.toggle("is-preview", preview);
     }
-    // One surface at a time: hide the editor while its formatted result shows.
-    ta.classList.toggle("is-hidden", preview);
+    // One surface at a time. The editor-hide is owned by the swap: openPreview
+    // sizes the Frame to the editor's height BEFORE hiding it, and closePreview
+    // restores it — so the field's box never collapses on the swap.
     if (preview) {
       openPreview(ta);
     } else {
@@ -956,5 +1051,6 @@ window.RichToolbar = (function () {
     mount: mount,
     unmount: unmount,
     refreshButtonState: refreshButtonState,
+    resetPreview: resetPreview,
   };
 })();
