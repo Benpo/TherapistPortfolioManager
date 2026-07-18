@@ -1,8 +1,7 @@
 /**
  * tests/46.1-export-lifecycle.test.js — the export-modal preview LIFECYCLE
- * contract (RTXT-01/RTXT-05): reset-preview-on-close + the Back->Continue dirty
- * guard. RED-first: neither behavior is built in the current shipped source and
- * both must fail today; Task 3 turns them green.
+ * contract (RTXT-01/RTXT-05): reset-preview-on-close + the toggle-moment
+ * discard guard.
  *
  * WHAT THIS PINS (observable OUTCOMES only — DOM state, never module internals):
  *   - Close-while-previewing then reopen: entering export Step 2 and opening
@@ -10,19 +9,24 @@
  *     the editor VISIBLE, the Frame hidden, and the Edit segment active — no stale
  *     "mode lies" Frame survives the close (exportCloseDialog calls
  *     RichToolbar.resetPreview before hiding the modal).
- *   - Back->Continue dirty guard: a dirty Step-2 edit, then Back to Step 1, then
- *     Continue, prompts a discard-confirm BEFORE the step-1 regenerate overwrites
- *     editor.value. Cancel (confirm resolves false) stays on Step 1 with the edit
- *     intact; confirm (resolves true) regenerates + advances to Step 2.
+ *   - The discard decision lives at the SECTION-TOGGLE moment, never on
+ *     navigation:
+ *       (a) edit -> Back -> Continue with the selection unchanged is SILENT —
+ *           no dialog, Step 2 shows the edit with the undo stack intact;
+ *       (b) toggling a section checkbox while dirty prompts the discard confirm;
+ *           cancel reverts the checkbox and keeps the edits;
+ *       (c) confirming the toggle rebuilds the buffer from the new selection
+ *           right there (dirty cleared), and Continue lands on Step 2 with the
+ *           fresh document.
  *
  * HARNESS: cloned from tests/30-export-stepper.test.js buildEnv (real
  * add-session.html body + real assets, App stub, mock PortfolioDB, real
  * DOMContentLoaded, open via #exportSessionBtn). The App stub's confirmDialog is
- * made controllable per case via a mutable ref so the discard dialog seam can be
- * driven to resolve true or false.
+ * made controllable per case via a mutable ref (resolution value + a call
+ * counter, so "NO dialog fired" is a positive assertion).
  *
  * Run: node tests/46.1-export-lifecycle.test.js — exit 0 on full pass, 1 on any
- * failure (RED against current source is EXPECTED).
+ * failure.
  */
 
 'use strict';
@@ -63,9 +67,10 @@ function loadRealPdf(win) {
 }
 
 // A controllable confirm-dialog seam: the returned object's `.value` is what the
-// stubbed App.confirmDialog resolves to, flippable mid-test.
+// stubbed App.confirmDialog resolves to, flippable mid-test; `.calls` counts
+// invocations so a "no dialog" expectation is asserted positively.
 function buildEnv() {
-  var confirmRef = { value: true };
+  var confirmRef = { value: true, calls: 0 };
   var html = readAsset('add-session.html');
   var dom = new JSDOM(html, {
     url: 'https://localhost/add-session.html?sessionId=1',
@@ -84,7 +89,7 @@ function buildEnv() {
   win.App = createAppStub({
     createSeverityScale: function () { return win.document.createElement('div'); },
     getSeverityValue: function () { return null; },
-    confirmDialog: function () { return Promise.resolve(confirmRef.value); },
+    confirmDialog: function () { confirmRef.calls++; return Promise.resolve(confirmRef.value); },
   });
   win.PortfolioDB = createMockPortfolioDB({
     clients: [{ id: 1, name: 'Test Client' }],
@@ -95,6 +100,9 @@ function buildEnv() {
       isHeartShield: false, shieldRemoved: null
     }]
   });
+  // jsdom does not implement execCommand; force TextEdit's deterministic splice
+  // fallback so undo restores apply.
+  win.document.execCommand = function () { return false; };
   win.matchMedia = function () {
     return {
       matches: false,
@@ -180,8 +188,9 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  // ─── 2. Back→Continue dirty guard: cancel preserves, confirm regenerates ──────
-  await test('a dirty Step-2 edit then Back→Continue prompts a discard-confirm: cancel stays on Step 1 with the edit intact; confirm regenerates and advances', async function () {
+  // Shared setup for the toggle-moment guard cases: seed a trapped-emotions
+  // marker, open the export, reach Step 2, make the buffer dirty, go Back.
+  async function buildDirtyOnStep1() {
     var env = buildEnv();
     var win = env.win;
     await env.domHandler();
@@ -198,38 +207,93 @@ async function test(name, fn) {
     var editor = win.document.getElementById('exportEditor');
     assert.ok(editor.value.indexOf('TRAP_X') !== -1, 'the generated markdown carries the selected section');
 
-    // Make the document dirty (real input event → onEditorInput sets hasEditedPreview).
+    // Make the document dirty (real input event → onEditorInput sets the flag).
     editor.value = 'DIRTY EDIT';
     editor.dispatchEvent(new win.Event('input', { bubbles: true }));
     await settle();
 
-    // Back to Step 1.
+    // Back to Step 1 — must be silent (no dialog on navigation).
+    env.confirmRef.calls = 0;
     win.document.getElementById('exportBackBtn').click();
     await settle();
     assert.strictEqual(activeStep(win), 1, 'Back returns to Step 1');
+    assert.strictEqual(env.confirmRef.calls, 0, 'Back never prompts');
 
-    // Cancel the discard-confirm → stay on Step 1, edit intact.
-    env.confirmRef.value = false;
-    win.document.getElementById('exportNextBtn').click();
+    return { env: env, win: win, editor: editor };
+  }
+
+  // ─── 2a. Back→Continue with an unchanged selection is SILENT ──────────────────
+  await test('edit → Back → Continue with the selection unchanged: NO dialog, Step 2 shows the edit, undo stack intact', async function () {
+    var s = await buildDirtyOnStep1();
+
+    s.win.document.getElementById('exportNextBtn').click();
     await settle();
-    assert.strictEqual(activeStep(win), 1, 'cancelled discard keeps the dialog on Step 1');
-    assert.strictEqual(editor.value, 'DIRTY EDIT',
-      'cancelled discard preserves the dirty Step-2 edit (editor.value not regenerated)');
+    assert.strictEqual(s.env.confirmRef.calls, 0, 'unchanged-selection Continue never prompts');
+    assert.strictEqual(activeStep(s.win), 2, 'Continue lands on Step 2');
+    assert.strictEqual(s.editor.value, 'DIRTY EDIT',
+      'the dirty edit survives the round-trip untouched (no regeneration)');
 
-    // Confirm the discard → regenerate + advance to Step 2.
-    env.confirmRef.value = true;
-    win.document.getElementById('exportNextBtn').click();
-    await settle();
-    assert.strictEqual(activeStep(win), 2, 'confirmed discard advances to Step 2');
-    assert.ok(editor.value.indexOf('DIRTY EDIT') === -1,
-      'confirmed discard regenerates the editor (the dirty edit is gone)');
-    assert.ok(editor.value.indexOf('TRAP_X') !== -1,
-      'the regenerated markdown carries the selected section again');
+    // Undo stack intact: one undo steps back from the edit to the generated doc.
+    assert.strictEqual(s.win.TextEdit.undo(s.editor), true, 'undo still has the pre-edit step');
+    assert.ok(s.editor.value.indexOf('TRAP_X') !== -1,
+      'undo restores the generated markdown (stack not reset by the round-trip)');
 
-    env.dom.window.close();
+    s.env.dom.window.close();
   });
 
-  var EXPECTED_COUNT = 2;
+  // ─── 2b. Toggling a section while dirty prompts; cancel reverts the toggle ────
+  await test('edit → Back → toggle a section checkbox: discard dialog fires; cancel reverts the checkbox and keeps the edits', async function () {
+    var s = await buildDirtyOnStep1();
+
+    var cb = s.win.document.querySelector('#exportStep1Rows input[data-section-key="trapped"]');
+    assert.ok(cb, 'the trapped-emotions section row exists');
+    assert.strictEqual(cb.checked, true, 'precondition: the section is selected');
+
+    s.env.confirmRef.value = false; // "Keep editing"
+    cb.click();
+    await settle();
+    assert.strictEqual(s.env.confirmRef.calls, 1, 'the toggle fired the discard dialog');
+    assert.strictEqual(cb.checked, true, 'cancel reverts the checkbox to its prior state');
+    assert.strictEqual(s.editor.value, 'DIRTY EDIT', 'cancel keeps the edits');
+
+    // Selection and edits are consistent again, so Continue stays silent.
+    s.win.document.getElementById('exportNextBtn').click();
+    await settle();
+    assert.strictEqual(s.env.confirmRef.calls, 1, 'Continue after cancel never prompts again');
+    assert.strictEqual(activeStep(s.win), 2, 'Continue lands on Step 2');
+    assert.strictEqual(s.editor.value, 'DIRTY EDIT', 'the edit is still intact on Step 2');
+
+    s.env.dom.window.close();
+  });
+
+  // ─── 2c. Confirming the toggle rebuilds the buffer from the new selection ─────
+  await test('edit → Back → toggle + confirm: buffer rebuilds from the new selection, dirty clears, Continue shows the fresh document', async function () {
+    var s = await buildDirtyOnStep1();
+
+    var cb = s.win.document.querySelector('#exportStep1Rows input[data-section-key="trapped"]');
+    assert.ok(cb, 'the trapped-emotions section row exists');
+
+    s.env.confirmRef.value = true; // "Discard"
+    cb.click();
+    await settle();
+    assert.strictEqual(s.env.confirmRef.calls, 1, 'the toggle fired the discard dialog');
+    assert.strictEqual(cb.checked, false, 'confirm applies the toggle');
+    assert.ok(s.editor.value.indexOf('DIRTY EDIT') === -1, 'confirm discards the edits');
+    assert.ok(s.editor.value.indexOf('TRAP_X') === -1,
+      'the rebuilt document reflects the NEW selection (deselected section gone)');
+    var rebuilt = s.editor.value;
+
+    s.win.document.getElementById('exportNextBtn').click();
+    await settle();
+    assert.strictEqual(s.env.confirmRef.calls, 1, 'Continue after the rebuild never prompts');
+    assert.strictEqual(activeStep(s.win), 2, 'Continue lands on Step 2');
+    assert.strictEqual(s.editor.value, rebuilt,
+      'Step 2 shows the document the toggle rebuilt (no second regeneration)');
+
+    s.env.dom.window.close();
+  });
+
+  var EXPECTED_COUNT = 4;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {

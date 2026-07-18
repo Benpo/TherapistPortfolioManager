@@ -508,6 +508,7 @@ window.I18N.de = {
   "export.preparing": "PDF wird vorbereitet...",
   "export.discard.title": "Export\u00E4nderungen verwerfen?",
   "export.discard.body": "Diese \u00C4nderungen gelten nur f\u00FCr diesen Export und werden nicht gespeichert.",
+  "export.discard.bodySections": "Wenn Sie Abschnitte \u00E4ndern, wird das Dokument neu erstellt und Ihre \u00C4nderungen werden ersetzt. Sie gelten nur f\u00FCr diesen Export.",
   "export.discard.yes": "Verwerfen",
   "export.discard.no": "Weiter bearbeiten",
   "export.pdf.failed": "PDF konnte nicht erstellt werden. Versuchen Sie es erneut oder laden Sie als Textdatei herunter.",

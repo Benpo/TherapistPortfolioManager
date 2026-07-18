@@ -508,6 +508,7 @@ window.I18N.cs = {
   "export.preparing": "P\u0159ipravuji PDF...",
   "export.discard.title": "Zahodit \u00FApravy exportu?",
   "export.discard.body": "Tyto zm\u011Bny plat\u00ED pouze pro tento export a nebudou ulo\u017Eeny.",
+  "export.discard.bodySections": "Zm\u011Bna sekc\u00ED znovu vytvo\u0159\u00ED dokument a nahrad\u00ED va\u0161e \u00FApravy. Plat\u00ED pouze pro tento export.",
   "export.discard.yes": "Zahodit",
   "export.discard.no": "Pokra\u010Dovat v \u00FAprav\u00E1ch",
   "export.pdf.failed": "Nelze vygenerovat PDF. Zkuste znovu nebo st\u00E1hn\u011Bte jako textov\u00FD soubor.",

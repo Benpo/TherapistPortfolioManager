@@ -508,6 +508,7 @@ window.I18N.he = {
   "export.preparing": "מכין PDF…",
   "export.discard.title": "לבטל את עריכות הייצוא?",
   "export.discard.body": "השינויים חלים על ייצוא זה בלבד ולא יישמרו.",
+  "export.discard.bodySections": "שינוי הסעיפים בונה את המסמך מחדש ומחליף את העריכות שלך. השינויים חלים על ייצוא זה בלבד.",
   "export.discard.yes": "ביטול",
   "export.discard.no": "המשך עריכה",
   "export.pdf.failed": "לא ניתן ליצור PDF. יש לנסות שוב או להוריד כקובץ טקסט.",

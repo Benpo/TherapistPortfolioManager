@@ -926,46 +926,77 @@
       const onOverlay = () => exportCloseDialog(false);
       const onKey = (e) => { if (e.key === "Escape") exportCloseDialog(false); };
       const onBack = () => {
+        // Back is ALWAYS silent and non-destructive: the edited buffer (and its
+        // undo stack) survives untouched. Any discard decision happens at the
+        // moment a section checkbox is toggled, never on navigation.
         if (_exportState.currentStep > 1) exportSetActiveStep(_exportState.currentStep - 1);
+      };
+      // Read the CURRENT Step-1 selection from the live checkboxes.
+      const collectSelectedKeys = () => {
+        const checks = modal.querySelectorAll('#exportStep1Rows input[type="checkbox"]');
+        const selected = [];
+        checks.forEach((cb) => { if (cb.checked && !cb.disabled) selected.push(cb.dataset.sectionKey); });
+        return selected;
+      };
+      // Rebuild the editor buffer from a selection: this is the ONE place the
+      // selection, the generated baseline, the undo stack, and the dirty flag
+      // move together, so the dialog state is always self-consistent.
+      // Keeping the selection on the dialog state lets downstream assembly
+      // (buildRenderInputs) and the copy builder gate the emotions before/after
+      // block on the live choice. It dies with the dialog — the opt-out resets
+      // on every export.
+      const rebuildEditorFromSelection = (selected) => {
+        _exportState.selectedKeys = selected;
+        const md = buildFilteredSessionMarkdown(selected);
+        if (editor) editor.value = md;
+        _exportState.generatedMarkdown = md;
+        // Direct `.value =` fires no input event; re-seed the undo baseline to
+        // the generated markdown so the first undo removes the first real edit
+        // rather than wiping the document back to empty.
+        if (editor && window.TextEdit && window.TextEdit.undoReset) window.TextEdit.undoReset(editor);
+        _exportState.hasEditedPreview = false;
       };
       const onNext = async () => {
         if (_exportState.currentStep === 1) {
-          // Advancing from Step 1 REGENERATES the editor from the section selection,
-          // overwriting any Step-2 edits. If the user went Back with dirty edits,
-          // confirm the discard BEFORE overwriting — cancel leaves the edits (and
-          // the step) untouched. Reuses the same discard dialog the close path uses.
-          if (_exportState.hasEditedPreview) {
-            const ok = await App.confirmDialog({
-              titleKey: "export.discard.title",
-              messageKey: "export.discard.body",
-              confirmKey: "export.discard.yes",
-              cancelKey: "export.discard.no"
-            });
-            if (!ok) return;
-          }
-          // Collect selected sections, build initial markdown, populate editor.
-          const checks = modal.querySelectorAll('#exportStep1Rows input[type="checkbox"]');
-          const selected = [];
-          checks.forEach((cb) => { if (cb.checked && !cb.disabled) selected.push(cb.dataset.sectionKey); });
-          // Keep the selection on the dialog state so downstream assembly
-          // (buildRenderInputs) and the copy builder can gate the emotions
-          // before/after block on the live choice. It dies with the dialog —
-          // the opt-out resets on every export.
-          _exportState.selectedKeys = selected;
-          const md = buildFilteredSessionMarkdown(selected);
-          if (editor) editor.value = md;
-          _exportState.generatedMarkdown = md;
-          // Direct `.value =` fires no input event; re-seed the undo baseline to
-          // the generated markdown so the first undo removes the first real edit
-          // rather than wiping the document back to empty.
-          if (editor && window.TextEdit && window.TextEdit.undoReset) window.TextEdit.undoReset(editor);
-          _exportState.hasEditedPreview = false;
+          // Continue is SILENT. With the selection unchanged from the one that
+          // generated (or last rebuilt) the buffer, land on Step 2 with edits and
+          // undo stack intact — no dialog, no regeneration. A changed selection
+          // can only be reached with a CLEAN buffer here (a toggle while dirty
+          // either reverted or already rebuilt via the section-change guard), so
+          // regenerating silently never destroys an edit.
+          const selected = collectSelectedKeys();
+          const unchanged = _exportState.selectedKeys !== null &&
+            JSON.stringify(selected) === JSON.stringify(_exportState.selectedKeys);
+          if (!unchanged) rebuildEditorFromSelection(selected);
           exportSetActiveStep(2);
         } else if (_exportState.currentStep === 2) {
           exportSetActiveStep(3);
         } else {
           exportCloseDialog(true);
         }
+      };
+      // The discard decision lives at the SELECTION-CHANGE moment: toggling a
+      // section while the buffer carries user edits asks first. Cancel reverts
+      // the checkbox (edits and selection stay consistent, navigation stays
+      // free); confirm rebuilds the buffer from the new selection right here, so
+      // the state is truthful from that moment on and later toggles are
+      // clean-path. Clean-buffer toggles are silent — Continue regenerates.
+      const onSectionToggle = async (e) => {
+        const cb = e && e.target;
+        if (!cb || cb.type !== "checkbox" || !cb.dataset.sectionKey) return;
+        if (!_exportState || !_exportState.hasEditedPreview) return;
+        const ok = await App.confirmDialog({
+          titleKey: "export.discard.title",
+          messageKey: "export.discard.bodySections",
+          confirmKey: "export.discard.yes",
+          cancelKey: "export.discard.no"
+        });
+        if (!ok) {
+          // Programmatic revert fires no change event, so this cannot loop.
+          cb.checked = !cb.checked;
+          return;
+        }
+        rebuildEditorFromSelection(collectSelectedKeys());
       };
       // Track edits so closing a modified export prompts a discard confirm. The
       // formatted preview is on-demand via the toolbar's preview toggle, so no
@@ -1003,6 +1034,9 @@
       document.addEventListener("keydown", onKey);
       if (backBtn) backBtn.addEventListener("click", onBack);
       if (nextBtn) nextBtn.addEventListener("click", onNext);
+      // Delegated on the rows container (rows are re-rendered on every open).
+      const step1Rows = document.getElementById("exportStep1Rows");
+      if (step1Rows) step1Rows.addEventListener("change", onSectionToggle);
       if (editor) editor.addEventListener("input", onEditorInput);
       if (maximizeBtn) maximizeBtn.addEventListener("click", onMaximize);
       if (downloadPdfBtn) downloadPdfBtn.addEventListener("click", onPdf);
@@ -1016,6 +1050,7 @@
         document.removeEventListener("keydown", onKey);
         if (backBtn) backBtn.removeEventListener("click", onBack);
         if (nextBtn) nextBtn.removeEventListener("click", onNext);
+        if (step1Rows) step1Rows.removeEventListener("change", onSectionToggle);
         if (editor) editor.removeEventListener("input", onEditorInput);
         if (maximizeBtn) maximizeBtn.removeEventListener("click", onMaximize);
         if (downloadPdfBtn) downloadPdfBtn.removeEventListener("click", onPdf);

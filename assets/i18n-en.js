@@ -515,6 +515,7 @@ window.I18N.en = {
   "export.preparing": "Preparing PDF...",
   "export.discard.title": "Discard your export edits?",
   "export.discard.body": "These changes apply to this export only and won't be saved.",
+  "export.discard.bodySections": "Changing sections rebuilds the document and replaces your edits. They apply to this export only.",
   "export.discard.yes": "Discard",
   "export.discard.no": "Keep editing",
   "export.pdf.failed": "Could not generate PDF. Try again, or download as a text file instead.",
