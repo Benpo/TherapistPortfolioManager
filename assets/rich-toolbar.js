@@ -122,6 +122,9 @@ window.RichToolbar = (function () {
     // Pencil — the Edit-mode segment glyph in the current-state switcher.
     pencil: function () { return svg(["M12 20h9", "M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"], { strokeWidth: "1.8" }); },
     chevron: function () { return svg(["M6 9l6 6 6-6"], { strokeWidth: "2" }); },
+    // Checkmark — marks the ACTIVE register in the heading dropdown. A check is
+    // never mirrored, so it carries no RTL flip marker.
+    check: function () { return svg(["M5 12l5 5L20 7"], { strokeWidth: "2.4" }); },
   };
 
   // ── Control spec (order + grouping) ────────────────────────────────────────
@@ -573,10 +576,30 @@ window.RichToolbar = (function () {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "rich-toolbar-heading-item rich-toolbar-heading-item--" + it.cls;
-      b.setAttribute("role", "menuitem");
+      // menuitemradio (not plain menuitem): the four registers are a
+      // single-select group, and aria-checked is only valid on the radio role.
+      b.setAttribute("role", "menuitemradio");
       b.setAttribute("data-level", String(it.level));
-      b.textContent = t(it.key, it.fb);
-      if (it.level === activeLevel) b.classList.add("is-active");
+      // The current register is marked by a leading checkmark (+ soft tint via
+      // CSS) — NEVER by colouring the label text: each item PREVIEWS its
+      // register, so an accent-coloured label would read as "this style makes
+      // the text that colour", which the editor cannot do. Every item reserves
+      // the check column so the previews stay aligned; the glyph shows only on
+      // the active item. Built with DOM APIs — MdRender.render stays the sole
+      // innerHTML sink in this module. The check sits at the logical start
+      // (flex follows direction), so RTL places it on the right by itself.
+      var checkSlot = document.createElement("span");
+      checkSlot.className = "rich-toolbar-heading-check";
+      checkSlot.setAttribute("aria-hidden", "true");
+      checkSlot.appendChild(ICONS.check());
+      b.appendChild(checkSlot);
+      var itemLabel = document.createElement("span");
+      itemLabel.className = "rich-toolbar-heading-item-label";
+      itemLabel.textContent = t(it.key, it.fb);
+      b.appendChild(itemLabel);
+      var isCurrent = it.level === activeLevel;
+      if (isCurrent) b.classList.add("is-active");
+      b.setAttribute("aria-checked", isCurrent ? "true" : "false");
       // mousedown+preventDefault (focus preservation) — same rule as buttons.
       bindPreserveFocus(b, function () {
         applyTransform(ta, window.TextEdit.applyHeading(ta.value, ta.selectionStart, ta.selectionEnd, it.level));

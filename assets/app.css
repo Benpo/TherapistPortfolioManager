@@ -5606,7 +5606,9 @@ html[dir="rtl"] .rich-toolbar .icon-flip svg {
   box-shadow: var(--shadow-nav);
 }
 .rich-toolbar-heading-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   text-align: start;
   padding: 8px 12px;
@@ -5622,7 +5624,23 @@ html[dir="rtl"] .rich-toolbar .icon-flip svg {
   outline: 2px solid var(--color-primary);
   outline-offset: -2px;
 }
-.rich-toolbar-heading-item.is-active { color: var(--color-primary); font-weight: 600; }
+/* The ACTIVE register is marked by the leading checkmark + a soft tint — never
+   by colouring the label: each item previews its register, so an accent-green
+   label would read as "this style produces green text", which the editor cannot
+   do. Every item reserves the check column (empty slot) so the previews stay
+   aligned; the glyph shows only on the active item. The slot sits at the flex
+   start, so RTL mirrors it to the right on its own. Token colours keep light and
+   dark mode correct. */
+.rich-toolbar-heading-check {
+  flex: 0 0 auto;
+  width: 14px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-primary);
+}
+.rich-toolbar-heading-check svg { width: 14px; height: 14px; display: none; }
+.rich-toolbar-heading-item.is-active { background: var(--color-primary-soft); }
+.rich-toolbar-heading-item.is-active .rich-toolbar-heading-check svg { display: block; }
 .rich-toolbar-heading-item--h1 { font-size: 17px; font-weight: 600; }
 .rich-toolbar-heading-item--h2 { font-size: 16px; font-weight: 600; }
 .rich-toolbar-heading-item--h3 { font-size: 15px; font-weight: 600; }
