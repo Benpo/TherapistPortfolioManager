@@ -693,6 +693,37 @@ window.RichToolbar = (function () {
     else { if (_previewOpen) closePreview(); openPreview(ta); }
   }
 
+  // Current-state mode controller: set the field to edit or preview and reflect it
+  // on the switcher. The active segment always names the CURRENT mode — is-active
+  // and aria-pressed move together on the two segments. Preview removes the editor
+  // from view (the frame takes its box) and resolves the field WITHOUT focusing it,
+  // so the export bar never pops the soft keyboard over the just-revealed preview;
+  // edit restores and refocuses the field. The preview open/close plumbing is
+  // reused as-is.
+  function setMode(mode, field) {
+    var ta = field || _focused || _previewField;
+    if (!ta) return;
+    var preview = mode === "preview";
+    var bar = barFor(ta);
+    if (bar) {
+      var segs = bar.querySelectorAll("[data-mode]");
+      Array.prototype.forEach.call(segs, function (seg) {
+        var on = seg.getAttribute("data-mode") === mode;
+        seg.classList.toggle("is-active", on);
+        seg.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      bar.classList.toggle("is-preview", preview);
+    }
+    // One surface at a time: hide the editor while its formatted result shows.
+    ta.classList.toggle("is-hidden", preview);
+    if (preview) {
+      openPreview(ta);
+    } else {
+      closePreview();
+      ta.focus();
+    }
+  }
+
   // ── Action dispatch — single chokepoint every control routes through ───────
   function _dispatch(action, el) {
     // A persistent bar is always visible, so its controls are clicked before the
@@ -702,12 +733,17 @@ window.RichToolbar = (function () {
     // keeping the shared-bar path byte-identical.
     var ownBar = el && typeof el.closest === "function" ? el.closest(".rich-toolbar") : null;
     var barField = ownBar && _barField.has(ownBar) ? _barField.get(ownBar) : null;
+    // Mode switcher: a click on a mode segment sets the current-state mode and
+    // returns BEFORE the focus-anchor block below, so entering preview never
+    // focuses the field (keeping the soft-keyboard suppression the view-only path
+    // guarantees). Resolves the target from the clicked segment's own bar so the
+    // always-on export switcher works with no prior focus.
+    var modeSeg = el && typeof el.closest === "function" ? el.closest("[data-mode]") : null;
+    if (modeSeg) {
+      setMode(modeSeg.getAttribute("data-mode"), barField || _focused);
+      return;
+    }
     if (barField) {
-      if (action === "preview") {
-        // View-only: resolve the field WITHOUT focusing it (no soft-keyboard pop).
-        togglePreview(barField);
-        return;
-      }
       // Formatting/undo/redo/heading: make the bar's own field the active target.
       // Set the module focus state DIRECTLY (do not rely solely on the focusin
       // side-effect, which may not fire in every engine). Anchor a deterministic
@@ -726,6 +762,9 @@ window.RichToolbar = (function () {
     }
     var ta = _focused;
     if (!ta && action !== "heading") return;
+    // A formatting gesture while previewing first returns to edit, then applies —
+    // one click both exits preview and performs the action.
+    if (_previewOpen && _previewField === ta) setMode("edit", ta);
     var TE = window.TextEdit;
     switch (action) {
       case "bold": doEmphasis(ta, "**"); break;
@@ -742,7 +781,6 @@ window.RichToolbar = (function () {
       case "undo": ta.focus(); window.TextEdit.undo(ta); refreshButtonState(); break;
       case "redo": ta.focus(); window.TextEdit.redo(ta); refreshButtonState(); break;
       case "heading": toggleHeadingMenu(el); break;
-      case "preview": togglePreview(); break;
     }
   }
 
