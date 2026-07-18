@@ -121,12 +121,13 @@ test('Case B: persistent Preview opens the pane on first click and does NOT focu
   const { win, taP } = makeEnv();
   taP.value = 'hello';
   const bar = persistentBar(taP);
-  const previewBtn = bar.querySelector('.rich-toolbar-btn[data-action="preview"]');
-  assert.ok(previewBtn, 'preview button present on the persistent bar');
-  mousedown(win, previewBtn);
+  const previewSeg = bar.querySelector('.rich-toolbar-swap-btn[data-mode="preview"]');
+  assert.ok(previewSeg, 'preview mode segment present on the persistent bar');
+  mousedown(win, previewSeg);
   assert.ok(taP._notePreview, 'a preview pane was created for the persistent field');
   assert.ok(!taP._notePreview.classList.contains('is-hidden'), 'the preview pane is visible');
-  assert.strictEqual(previewBtn.getAttribute('aria-pressed'), 'true', 'preview button reports aria-pressed=true');
+  assert.strictEqual(previewSeg.getAttribute('aria-pressed'), 'true', 'preview segment reports aria-pressed=true');
+  assert.ok(previewSeg.classList.contains('is-active'), 'preview segment is is-active (current-state)');
   // The pane must render the field's ACTUAL content — presence/visibility alone
   // would pass an empty or stale pane (R3 IN-02).
   assert.ok(/hello/.test(taP._notePreview.textContent),

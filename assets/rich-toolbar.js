@@ -5,8 +5,10 @@
 //   whichever registered note field currently has focus, hides when no
 //   registered field is focused, and carries the icon-only formatting controls
 //   (bold, italic, bullet list, numbered list, a "Text" heading dropdown,
-//   indent, outdent, undo, redo, preview toggle). Every control preserves the
-//   textarea's focus/selection so the undo history + caret math survive.
+//   indent, outdent, undo, redo) inside a horizontally-scrollable strip, plus a
+//   pinned current-state Edit/Preview switcher outside that strip whose active
+//   segment reflects the mode the field is CURRENTLY in. Every control preserves
+//   the textarea's focus/selection so the undo history + caret math survive.
 //   The toolbar is docked with `insertAdjacentElement('beforebegin', field)` so
 //   it rides layout on scroll/resize/autogrow with ZERO coordinate math; only
 //   the transient heading dropdown popover uses physical getBoundingClientRect
@@ -114,14 +116,16 @@ window.RichToolbar = (function () {
     undo: function () { return svg(["M9 7L4 12l5 5", "M4 12h11a5 5 0 0 1 0 10h-1"], { strokeWidth: "1.9" }); },
     redo: function () { return svg(["M15 7l5 5-5 5", "M20 12H9a5 5 0 0 0 0 10h1"], { strokeWidth: "1.9" }); },
     preview: function () { return svg(["M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z", "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"], { strokeWidth: "1.8" }); },
-    // Pencil — the target-state icon shown while previewing (click returns to editing).
+    // Pencil — the Edit-mode segment glyph in the current-state switcher.
     pencil: function () { return svg(["M12 20h9", "M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"], { strokeWidth: "1.8" }); },
     chevron: function () { return svg(["M6 9l6 6 6-6"], { strokeWidth: "2" }); },
   };
 
   // ── Control spec (order + grouping) ────────────────────────────────────────
-  // Groups separated by hairline separators: [bold,italic] | [bullet,numbered]
-  // | [heading dropdown] | [indent,outdent] | [undo,redo] | [preview].
+  // Groups separated by hairline separators, all inside the scrollable strip:
+  // [bold,italic] | [bullet,numbered] | [heading dropdown] | [indent,outdent] |
+  // [undo,redo]. The Edit/Preview switcher is a separate pinned control built
+  // outside this strip (buildSwitcher), so it never scrolls out of reach.
   var GROUPS = [
     [
       { action: "bold", icon: "bold", key: "toolbar.bold", fallback: "Bold (Ctrl+B)" },
@@ -140,10 +144,12 @@ window.RichToolbar = (function () {
       { action: "undo", icon: "undo", key: "toolbar.undo", fallback: "Undo (Ctrl+Z)" },
       { action: "redo", icon: "redo", key: "toolbar.redo", fallback: "Redo (Ctrl+Shift+Z)" },
     ],
-    [
-      { action: "preview", icon: "preview", key: "toolbar.preview", fallback: "Preview" },
-    ],
   ];
+
+  // Directional glyphs (indent/outdent/undo/redo) must mirror under RTL; semantic
+  // glyphs (bold, italic, the switcher eye/pencil) must not. Marked here so the
+  // RTL stylesheet can flip only these.
+  var DIRECTIONAL = { indent: true, outdent: true, undo: true, redo: true };
 
   // ── FOCUS PRESERVATION ─────────────────────────────────────────────────────
   // Bind mousedown+preventDefault on EVERY toolbar control so the click commits
@@ -166,17 +172,10 @@ window.RichToolbar = (function () {
     var title = t(spec.key, spec.fallback);
     btn.title = title;
     btn.setAttribute("aria-label", title);
+    // Directional glyphs carry a flip marker so RTL can mirror them (the arrow
+    // sense reverses); semantic glyphs are left unmarked.
+    if (DIRECTIONAL[spec.action]) btn.classList.add("icon-flip");
     btn.appendChild(ICONS[spec.icon]());
-    // The preview control carries a visible label alongside its icon so its
-    // target state reads at a glance. The icon stays the first child so it can be
-    // swapped (eye <-> pencil) later; the label span follows it.
-    if (spec.action === "preview") {
-      btn.classList.add("rich-toolbar-btn--labeled");
-      var previewLabel = document.createElement("span");
-      previewLabel.className = "rich-toolbar-btn-label";
-      previewLabel.textContent = title;
-      btn.appendChild(previewLabel);
-    }
     // Keep focus on the field; run the action. `_dispatch` is filled by the
     // inline-actions layer — until then controls preserve focus only.
     bindPreserveFocus(btn, function () { _dispatch(spec.action, btn); });
@@ -213,6 +212,41 @@ window.RichToolbar = (function () {
     return wrap;
   }
 
+  // ── Current-state Edit/Preview switcher (pinned outside the scroll strip) ───
+  // Two segments whose ACTIVE one always names the mode the field is in right now
+  // (never a target-state toggle that lights up while labelled the other mode).
+  // is-active and aria-pressed move together (driven by setMode); at build the
+  // field starts in edit, so the edit segment is active + pressed.
+  function makeModeSegment(mode, iconName, key, fallback) {
+    var seg = document.createElement("button");
+    seg.type = "button";
+    seg.className = "rich-toolbar-swap-btn";
+    seg.setAttribute("data-mode", mode);
+    var isEdit = mode === "edit";
+    if (isEdit) seg.classList.add("is-active");
+    seg.setAttribute("aria-pressed", isEdit ? "true" : "false");
+    var label = t(key, fallback);
+    seg.title = label;
+    seg.setAttribute("aria-label", label);
+    seg.appendChild(ICONS[iconName]());
+    var span = document.createElement("span");
+    span.className = "rich-toolbar-swap-label";
+    span.textContent = label;
+    seg.appendChild(span);
+    bindPreserveFocus(seg, function () { _dispatch("mode", seg); });
+    return seg;
+  }
+
+  function buildSwitcher() {
+    var group = document.createElement("span");
+    group.className = "rich-toolbar-swap";
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", t("toolbar.modeAria", "Edit or preview"));
+    group.appendChild(makeModeSegment("edit", "pencil", "toolbar.backToEdit", "Edit"));
+    group.appendChild(makeModeSegment("preview", "preview", "toolbar.preview", "Preview"));
+    return group;
+  }
+
   // ── Build the ONE shared toolbar element ───────────────────────────────────
   function buildToolbar() {
     var bar = document.createElement("div");
@@ -231,18 +265,24 @@ window.RichToolbar = (function () {
     // the scrollbar rather than this element, so both remain usable.
     bar.addEventListener("mousedown", function (ev) { ev.preventDefault(); });
 
+    // Formatting controls live in a horizontally-scrollable strip; the switcher is
+    // pinned as a sibling AFTER it so it never scrolls out of reach on narrow widths.
+    var strip = document.createElement("div");
+    strip.className = "rich-toolbar-scroll";
     GROUPS.forEach(function (group, gi) {
-      if (bar.childElementCount > 0) bar.appendChild(makeSeparator());
+      if (strip.childElementCount > 0) strip.appendChild(makeSeparator());
       var wrap = document.createElement("div");
       wrap.className = "rich-toolbar-group";
       group.forEach(function (spec) { wrap.appendChild(makeButton(spec)); });
-      bar.appendChild(wrap);
+      strip.appendChild(wrap);
       // Inject the heading dropdown after the list group (index 1) when enabled.
       if (gi === 1 && _config.headings) {
-        bar.appendChild(makeSeparator());
-        bar.appendChild(makeHeadingTrigger());
+        strip.appendChild(makeSeparator());
+        strip.appendChild(makeHeadingTrigger());
       }
     });
+    bar.appendChild(strip);
+    bar.appendChild(buildSwitcher());
     return bar;
   }
 
@@ -294,7 +334,6 @@ window.RichToolbar = (function () {
       if (_toolbarEl) _toolbarEl.classList.add("is-hidden");
       _focused = textarea;
       refreshButtonState();
-      updatePreviewButton();
       return;
     }
     var bar = ensureToolbar();
@@ -302,7 +341,6 @@ window.RichToolbar = (function () {
     bar.classList.remove("is-hidden");
     _focused = textarea;
     refreshButtonState();
-    updatePreviewButton();
   }
 
   function hideToolbar() {
@@ -595,41 +633,12 @@ window.RichToolbar = (function () {
     }, 120);
   }
 
-  // The preview control shows its TARGET state, not its current one: while
-  // editing it offers an eye + "Preview" (click goes to preview); while
-  // previewing it offers a pencil + "Edit" (click goes back to editing). Icon,
-  // label, title and aria-label are set together from the one open-state flag on
-  // whichever bar currently owns the button.
-  function updatePreviewButton() {
-    var bar = barFor(_focused || _previewField);
-    if (!bar) return;
-    var btn = bar.querySelector('.rich-toolbar-btn[data-action="preview"]');
-    if (!btn) return;
-    btn.classList.toggle("is-active", _previewOpen);
-    var iconName = _previewOpen ? "pencil" : "preview";
-    var label = _previewOpen
-      ? t("toolbar.backToEdit", "Edit")
-      : t("toolbar.preview", "Preview");
-    // Swap the leading icon: replace the existing SVG child in place so the
-    // label span that follows it keeps its position.
-    var oldIcon = btn.querySelector("svg");
-    var newIcon = ICONS[iconName]();
-    if (oldIcon) btn.replaceChild(newIcon, oldIcon);
-    else btn.insertBefore(newIcon, btn.firstChild);
-    var labelEl = btn.querySelector(".rich-toolbar-btn-label");
-    if (labelEl) labelEl.textContent = label;
-    btn.title = label;
-    btn.setAttribute("aria-label", label);
-    btn.setAttribute("aria-pressed", _previewOpen ? "true" : "false");
-  }
-
   function openPreview(ta) {
     var pane = buildPreviewPane(ta);
     pane.classList.remove("is-hidden");
     _previewOpen = true;
     _previewField = ta;
     renderPreview(ta);
-    updatePreviewButton();
     revealPreviewPane(ta, pane);
   }
 
@@ -670,14 +679,13 @@ window.RichToolbar = (function () {
     if (_previewDebounce) { clearTimeout(_previewDebounce); _previewDebounce = 0; }
     _previewOpen = false;
     _previewField = null;
-    updatePreviewButton();
   }
 
   // Preview is view-only, so it resolves its field WITHOUT focusing it — focusing
   // the export editor would pop the iOS soft keyboard over the just-revealed pane.
   // A persistent control passes its own bar's field explicitly; the shared bar
-  // passes nothing and falls back to the focused field. updatePreviewButton/barFor
-  // fall back to _previewField, so the button state stays correct without focus.
+  // passes nothing and falls back to the focused field. barFor falls back to
+  // _previewField, so the switcher state stays correct without focus.
   function togglePreview(field) {
     var ta = field || _focused;
     if (!ta) return;

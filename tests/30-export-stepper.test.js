@@ -405,10 +405,10 @@ async function test(name, fn) {
     var toolbar = editor.previousElementSibling;
     assert.ok(toolbar && toolbar.classList.contains('rich-toolbar'),
       'the formatting toolbar must be docked directly above #exportEditor');
-    var previewBtn = toolbar.querySelector('.rich-toolbar-btn[data-action="preview"]');
-    assert.ok(previewBtn, 'the toolbar must carry a preview toggle button');
+    var previewSeg = toolbar.querySelector('.rich-toolbar-swap-btn[data-mode="preview"]');
+    assert.ok(previewSeg, 'the toolbar must carry a Preview mode segment');
     // The toolbar preserves focus on mousedown (its controls commit there).
-    previewBtn.dispatchEvent(new win.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    previewSeg.dispatchEvent(new win.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
     await settle();
 
     var pane = editor.nextElementSibling;
