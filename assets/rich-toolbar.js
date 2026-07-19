@@ -823,25 +823,22 @@ window.RichToolbar = (function () {
   }
 
   // Reset on blur / field change / toggle-off — no stickiness. Restores the editor
-  // in place (undoes the swap) without forcing focus.
+  // in place (undoes the swap) without forcing focus, AND resets the bar UI: the
+  // switcher segments and the is-preview marker are the CURRENT-STATE mirror of
+  // the swap, so every close path must return them to Edit together with the
+  // surface — a bar left in preview over a visible textarea lies about the mode
+  // and keeps the strip needlessly inert. The bar is resolved from the closing
+  // preview's own field BEFORE that state is cleared (the field-change path has
+  // already moved focus elsewhere by the time this runs).
   function closePreview() {
-    restoreEditSurface(_previewField);
+    if (!_previewOpen) return;
+    var ta = _previewField;
+    var bar = barFor(ta);
+    restoreEditSurface(ta);
     teardownPreviewOutsideDismiss();
     if (_previewDebounce) { clearTimeout(_previewDebounce); _previewDebounce = 0; }
     _previewOpen = false;
     _previewField = null;
-  }
-
-  // Return an open preview to Edit for a closing modal: restore the editor in
-  // place, drop the Frame, and reset the switcher to the Edit segment — WITHOUT
-  // focusing the field (a modal is closing; do not force focus onto a hidden
-  // editor). export-modal.js calls this on close so a reopen starts in Edit with a
-  // fresh render, never a stale Frame.
-  function resetPreview() {
-    if (!_previewOpen) return;
-    var ta = _previewField;
-    var bar = barFor(ta);
-    closePreview();
     if (bar) {
       bar.classList.remove("is-preview");
       var segs = bar.querySelectorAll("[data-mode]");
@@ -854,6 +851,15 @@ window.RichToolbar = (function () {
       // heading line, empty history — are re-derived, not blanket-cleared).
       refreshButtonState(ta);
     }
+  }
+
+  // Return an open preview to Edit for a closing modal — WITHOUT focusing the
+  // field (a modal is closing; do not force focus onto a hidden editor).
+  // closePreview owns the full teardown, bar UI included, and never focuses;
+  // export-modal.js calls this on close so a reopen starts in Edit with a fresh
+  // render, never a stale Frame.
+  function resetPreview() {
+    closePreview();
   }
 
   // Preview is view-only, so it resolves its field WITHOUT focusing it — focusing
