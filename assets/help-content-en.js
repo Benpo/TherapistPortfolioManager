@@ -206,7 +206,7 @@
               "Type or paste what comes up — in whatever words you use, one thought at a time.",
               "Keep going; there is no need to stop and tidy the wording until you are done."
             ] },
-            { type: "note", text: "Tidying comes later: the formatting toolbar, covered in Formatting session notes below, turns raw notes into styled text whenever you are ready." }
+            { type: "note", text: "Styling what you wrote has its own topic — Formatting session notes, right below." }
           ]
         },
         {
@@ -221,16 +221,17 @@
               "Press a list button to start a list — it continues on its own as you type.",
               "Switch the toolbar to Preview to see the styled result; press Edit to keep writing."
             ] },
+            { type: "p", text: "The bar, control by control — what each does, with its keyboard shortcut where one exists:" },
             { type: "list", items: [
-              "Bold and italic — Ctrl+B / Ctrl+I.",
-              "Bullet and numbered lists — or just start a line with a dash or a number. Enter on an empty item ends the list.",
-              "Text style — three heading sizes or regular text; a checkmark marks the current style. Headings sit flush with the edge, so the indent buttons rest on heading lines.",
-              "Indent and outdent — nest list items or step lines in and out; Tab / Shift+Tab inside a list.",
-              "Undo and redo — Ctrl+Z / Ctrl+Shift+Z, one change at a time; each button dims when there is nothing left to step to.",
-              "Edit / Preview — the switch at the end of the toolbar; Ctrl+E flips between the two.",
-              "On a Mac, use Cmd wherever Ctrl is written here."
+              "Bold and italic — emphasize the selected words; Ctrl/Cmd+B, Ctrl/Cmd+I.",
+              "Bullet and numbered list — turn the current line into a list item.",
+              "Text style — three heading sizes or regular text; a checkmark marks the current style.",
+              "Indent and outdent — nest list items or step lines in and out; Tab and Shift+Tab inside a list. Headings stay flush with the edge, so both rest on heading lines.",
+              "Undo and redo — one change at a time; Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z. Each dims when there is nothing left to step to.",
+              "Edit / Preview — the switch at the end of the bar; Ctrl/Cmd+E flips between the two."
             ] },
-            { type: "note", text: "Preview swaps the field for a framed view marked PREVIEW — exactly what saving, exporting, and copying will produce, indentation included. The formatting buttons rest while previewing; Edit or Ctrl+E returns you to writing. Everything you format is saved with the session and reads back as styled text." }
+            { type: "p", text: "Lists also grow as you type: a dash or a number starts one, Enter continues it, and Enter on an empty item ends it." },
+            { type: "note", text: "Preview swaps the field for a framed view marked PREVIEW — exactly what saving, exporting, and copying will produce, indentation included. The formatting buttons rest while previewing; Edit or Ctrl/Cmd+E returns you to writing. Everything you format is saved with the session and reads back as styled text." }
           ]
         },
         {
