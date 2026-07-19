@@ -110,26 +110,381 @@ window.TextEdit = (function () {
   }
 
   // ── Inline emphasis toggle ─────────────────────────────────────────────────
-  // marker is BOLD ("**") or ITALIC ("*"). Three cases, NEVER a doubled artifact:
-  //  (a) selection already immediately surrounded by the marker → unwrap;
-  //  (b) empty selection → insert one marker pair, caret placed BETWEEN them;
-  //  (c) non-empty selection → wrap it.
-  function toggleWrap(value, s, e, marker) {
+  // The toggle is STATE-based, not wrap-based. Every press first tokenizes the
+  // affected lines into the emphasis spans the renderers actually accept
+  // (bold pass first, then italic on the bold-masked residue — the renderer's
+  // own pass order), computes the selection's effective state for the pressed
+  // marker, and then applies exactly one of REMOVE / APPLY / a caret micro-rule:
+  //
+  //  - Selection fully emphasized → un-emphasize every intersected span
+  //    ENTIRELY (the containing span, however deep inside it the selection
+  //    sits). Never split, never nest.
+  //  - Selection mixed or plain → unwrap every span the selection touches
+  //    (either marker — pressing one marker over the other SWAPS, the pressed
+  //    marker wins) and wrap the union in ONE pair per non-empty line-segment.
+  //    Multi-line selections share one state but wrap per line: the grammar
+  //    forbids emphasis across a newline. Blank, whitespace-only and
+  //    marker/prefix-only segments are skipped, and markers are clamped into a
+  //    line's content region (after a list marker or heading prefix) so a wrap
+  //    can never destroy list- or heading-ness.
+  //  - Caret presses: inside a span un-wraps its containing span; at the very
+  //    end of a span content the caret hops past the closer with ZERO text
+  //    edit (the type-emphasized-then-continue-plain flow); between an empty
+  //    pair the pair is removed (same marker) or swapped (other marker);
+  //    otherwise an empty pair is inserted with the caret between.
+  //
+  // EMISSION INVARIANT: the output never contains a three-plus star cluster or
+  // a marker hugging another star — every cluster renders differently on
+  // screen vs in the PDF. A segment the grammar cannot express (a loose star
+  // in the content or hugging an edge) is skipped rather than wrapped, so the
+  // toggle never emits markers that would display literally. Every outcome is
+  // ONE spanning {start,end,text} replacement (one undo step); an outcome that
+  // leaves the value untouched returns an EMPTY zero-length replacement so the
+  // caller can skip editInsert entirely.
+
+  // The emphasis span grammar — CHARACTER-IDENTICAL to md-render.js applyInline
+  // (which the cross-pipeline agreement test pins to pdf-export.js). The
+  // markers this module emits must be exactly the markers both accept, so the
+  // patterns are shared verbatim, not paraphrased.
+  var BOLD_SPAN_RE = /\*\*([^*\s\n](?:[^*\n]*?[^*\s\n])?)\*\*/g;
+  var ITALIC_SPAN_RE = /(^|[^*])\*([^*\s\n](?:[^*\n]*?[^*\s\n])?)\*(?!\*)/g;
+
+  function isWsChar(ch) {
+    return ch !== "" && /\s/.test(ch);
+  }
+
+  // Where a line's CONTENT starts: after a list marker and its whitespace, or
+  // after a real heading prefix (a bare "## " line has no heading content and
+  // is a literal paragraph, so it clamps to nothing after the marker run).
+  function lineContentOffset(text) {
+    var pl = parseListLine(text);
+    if (pl) return text.length - pl.body.length;
+    var hm = /^(#{1,3}\s+)\S/.exec(text);
+    if (hm) return hm[1].length;
+    return 0;
+  }
+
+  // Tokenize one line's content region into the emphasis spans the renderers
+  // accept, positions absolute in the full value. Bold first; then italic over
+  // a copy whose bold spans are masked with a non-star, non-space filler — the
+  // italic pass must never see the stars a bold span owns, exactly as the
+  // renderer's second pass sees tags where the bold markers were.
+  function lineSpans(value, lineStart, lineText) {
+    var off = lineContentOffset(lineText);
+    var region = lineText.slice(off);
+    var base = lineStart + off;
+    var spans = [];
+    var m;
+    BOLD_SPAN_RE.lastIndex = 0;
+    while ((m = BOLD_SPAN_RE.exec(region)) !== null) {
+      spans.push({
+        marker: BOLD,
+        start: base + m.index,
+        end: base + m.index + m[0].length,
+        cs: base + m.index + BOLD.length,
+        ce: base + m.index + m[0].length - BOLD.length,
+      });
+    }
+    var masked = region;
+    for (var i = 0; i < spans.length; i++) {
+      var rs = spans[i].start - base;
+      var re = spans[i].end - base;
+      masked = masked.slice(0, rs) + new Array(re - rs + 1).join("x") + masked.slice(re);
+    }
+    ITALIC_SPAN_RE.lastIndex = 0;
+    while ((m = ITALIC_SPAN_RE.exec(masked)) !== null) {
+      var st = base + m.index + m[1].length;
+      var en = base + m.index + m[0].length;
+      spans.push({ marker: ITALIC, start: st, end: en, cs: st + 1, ce: en - 1 });
+    }
+    spans.sort(function (a, b) { return a.start - b.start || a.end - b.end; });
+    return spans;
+  }
+
+  // Every line the [s, e) range touches, each with its content offset + spans.
+  function linesTouching(value, s, e) {
+    var lines = [];
+    var ls = value.lastIndexOf("\n", s - 1) + 1;
+    var last = Math.max(s, e - 1);
+    for (;;) {
+      var le = value.indexOf("\n", ls);
+      if (le === -1) le = value.length;
+      var text = value.slice(ls, le);
+      lines.push({
+        start: ls,
+        end: le,
+        text: text,
+        contentAbs: ls + lineContentOffset(text),
+        spans: lineSpans(value, ls, text),
+      });
+      if (le >= value.length || le >= last) break;
+      ls = le + 1;
+    }
+    return lines;
+  }
+
+  // Compose sorted, non-overlapping atomic edits into the ONE spanning
+  // replacement the caller applies through a single editInsert.
+  function composeEdits(value, edits) {
+    edits.sort(function (a, b) { return a.start - b.start || a.end - b.end; });
+    var start = edits[0].start;
+    var end = edits[edits.length - 1].end;
+    var text = "";
+    var cursor = start;
+    for (var i = 0; i < edits.length; i++) {
+      text += value.slice(cursor, edits[i].start) + edits[i].text;
+      cursor = edits[i].end;
+    }
+    text += value.slice(cursor, end);
+    return { start: start, end: end, text: text };
+  }
+
+  // Map an anchor position through the edit list. A zero-length insertion
+  // sitting exactly AT the anchor counts only when includeAt is set (so a
+  // selection can land after an opening marker but before a closing one); a
+  // position inside a replaced range clamps into the replacement.
+  function mapThroughEdits(edits, pos, includeAt) {
+    var out = pos;
+    for (var i = 0; i < edits.length; i++) {
+      var ed = edits[i];
+      var w = ed.end - ed.start;
+      if (ed.end < pos || (ed.end === pos && (w > 0 || includeAt))) {
+        out += ed.text.length - w;
+      } else if (ed.start < pos && pos < ed.end) {
+        out += Math.min(pos - ed.start, ed.text.length) - (pos - ed.start);
+      }
+    }
+    return out;
+  }
+
+  function noopEmphasis(value, selStart, selEnd) {
+    return result(value, { start: selStart, end: selStart, text: "" }, selStart, selEnd);
+  }
+
+  function unwrapEdits(edits, sp) {
+    edits.push({ start: sp.start, end: sp.cs, text: "" });
+    edits.push({ start: sp.ce, end: sp.end, text: "" });
+  }
+
+  // Non-empty selection: normalize, compute the state, remove or apply.
+  function emphasisSelection(value, s0, e0, marker) {
+    var s = s0;
+    var e = e0;
+    // Normalize: trim whitespace off the edges — the hug rule makes an
+    // untrimmed wrap literal. A selection reaching into a span's markers needs
+    // no snapping: marker stars are never countable, so the state and the
+    // union land on the span's content either way.
+    while (s < e && isWsChar(value.charAt(s))) s++;
+    while (e > s && isWsChar(value.charAt(e - 1))) e--;
+    if (s === e) return noopEmphasis(value, s0, e0);
+
+    var lines = linesTouching(value, s, e);
+
+    // The state: countable chars are the selection's non-whitespace, non-star
+    // chars inside content regions. FULL means at least one exists and every
+    // one sits inside a pressed-marker span's content.
+    var any = false;
+    var full = true;
+    for (var li = 0; li < lines.length && full; li++) {
+      var line = lines[li];
+      var from = Math.max(s, line.contentAbs);
+      var to = Math.min(e, line.end);
+      for (var p = from; p < to; p++) {
+        var ch = value.charAt(p);
+        if (ch === "*" || isWsChar(ch)) continue;
+        any = true;
+        var covered = false;
+        for (var si = 0; si < line.spans.length; si++) {
+          var sp = line.spans[si];
+          if (sp.marker === marker && sp.cs <= p && p < sp.ce) { covered = true; break; }
+        }
+        if (!covered) { full = false; break; }
+      }
+    }
+    if (!any) return noopEmphasis(value, s0, e0); // marker/prefix-only selection
+
+    var edits = [];
+
+    if (full) {
+      // REMOVE: un-emphasize every intersected pressed-marker span entirely.
+      // The returned selection covers the formerly-emphasized content, so a
+      // second press re-wraps the same text in place.
+      var firstCs = -1;
+      var lastCe = -1;
+      lines.forEach(function (ln) {
+        ln.spans.forEach(function (sp) {
+          if (sp.marker !== marker) return;
+          if (sp.end <= s || sp.start >= e) return;
+          unwrapEdits(edits, sp);
+          if (firstCs === -1) firstCs = sp.cs;
+          lastCe = sp.ce;
+        });
+      });
+      var rep = composeEdits(value, edits);
+      return result(applyReplacement(value, rep), rep,
+        mapThroughEdits(edits, firstCs, true), mapThroughEdits(edits, lastCe, false));
+    }
+
+    // APPLY: per line-segment, absorb every span the segment touches (either
+    // marker — the cross-marker case is the swap), then wrap the union in one
+    // pair. A segment the grammar cannot wrap — a loose star left in the
+    // content, or a star hugging the segment from outside — is skipped so the
+    // output never holds a cluster or a literal-rendering pair.
+    var selFrom = -1;
+    var selTo = -1;
+    lines.forEach(function (ln) {
+      var segS = Math.max(s, ln.contentAbs);
+      var segE = Math.min(e, ln.end);
+      while (segS < segE && isWsChar(value.charAt(segS))) segS++;
+      while (segE > segS && isWsChar(value.charAt(segE - 1))) segE--;
+      if (segS >= segE) return;
+      var absorbed = [];
+      var grew = true;
+      while (grew) {
+        grew = false;
+        for (var ai = 0; ai < ln.spans.length; ai++) {
+          var sp = ln.spans[ai];
+          if (absorbed.indexOf(sp) !== -1) continue;
+          if (sp.end < segS || sp.start > segE) continue;
+          absorbed.push(sp);
+          if (sp.start < segS) segS = sp.start;
+          if (sp.end > segE) segE = sp.end;
+          grew = true;
+        }
+      }
+      var content = "";
+      for (var p = segS; p < segE; p++) {
+        var inMarker = false;
+        for (var mi = 0; mi < absorbed.length; mi++) {
+          var ab = absorbed[mi];
+          if ((p >= ab.start && p < ab.cs) || (p >= ab.ce && p < ab.end)) { inMarker = true; break; }
+        }
+        if (!inMarker) content += value.charAt(p);
+      }
+      if (content.indexOf("*") !== -1) return;
+      if (value.charAt(segS - 1) === "*" || value.charAt(segE) === "*") return;
+      for (var ei = 0; ei < absorbed.length; ei++) unwrapEdits(edits, absorbed[ei]);
+      edits.push({ start: segS, end: segS, text: marker });
+      edits.push({ start: segE, end: segE, text: marker });
+      if (selFrom === -1) selFrom = segS;
+      selTo = segE;
+    });
+    if (edits.length === 0) return noopEmphasis(value, s0, e0);
+    var repA = composeEdits(value, edits);
+    var next = applyReplacement(value, repA);
+    var selStart = mapThroughEdits(edits, selFrom, true);
+    var selEnd = mapThroughEdits(edits, selTo, false);
+    if (next === value) {
+      // Textually idempotent (re-applying over an exact existing wrap): a
+      // zero-edit outcome, but the selection still snaps to the wrapped content.
+      return result(value, { start: s0, end: s0, text: "" }, selStart, selEnd);
+    }
+    return result(next, repA, selStart, selEnd);
+  }
+
+  // Caret press (no selection): the micro-rules.
+  function emphasisCaret(value, c, marker) {
     var m = marker.length;
-    var wrapped = value.slice(s - m, s) === marker && value.slice(e, e + m) === marker;
-    if (wrapped) {
-      var inner = value.slice(s, e);
-      var rep = { start: s - m, end: e + m, text: inner };
-      return result(applyReplacement(value, rep), rep, s - m, e - m);
+    var other = marker === BOLD ? ITALIC : BOLD;
+    var om = other.length;
+    var line = currentLine(value, c);
+    var spans = lineSpans(value, line.start, line.text);
+    var edits = [];
+    var i;
+    var sp;
+
+    // Pressed-marker span strictly around the caret: at the very end of the
+    // content the caret hops past the closing marker with zero text edit;
+    // anywhere else the containing span un-wraps, caret on the same character.
+    var touching = [];
+    for (i = 0; i < spans.length; i++) {
+      sp = spans[i];
+      if (sp.marker === marker && sp.start < c && c < sp.end) {
+        if (c === sp.ce) {
+          return result(value, { start: c, end: c, text: "" }, sp.end, sp.end);
+        }
+        touching.push(sp);
+      }
     }
-    if (s === e) {
-      var repPair = { start: s, end: e, text: marker + marker };
-      // Caret sits between the two markers (single pair, no quadrupling).
-      return result(applyReplacement(value, repPair), repPair, s + m, s + m);
+    if (touching.length) {
+      for (i = 0; i < touching.length; i++) unwrapEdits(edits, touching[i]);
+      var repU = composeEdits(value, edits);
+      var nc = mapThroughEdits(edits, c, true);
+      return result(applyReplacement(value, repU), repU, nc, nc);
     }
-    var sel = value.slice(s, e);
-    var repWrap = { start: s, end: e, text: marker + sel + marker };
-    return result(applyReplacement(value, repWrap), repWrap, s + m, e + m);
+
+    // Other-marker span strictly around the caret: the pressed marker wins —
+    // unwrap the touched cluster and wrap its merged content with the pressed
+    // marker. Skipped (no-op) when a loose star hugs the cluster from outside:
+    // the swap would fuse into a cluster the renderers disagree on.
+    var cluster = [];
+    for (i = 0; i < spans.length; i++) {
+      sp = spans[i];
+      if (sp.marker === other && sp.start < c && c < sp.end) cluster.push(sp);
+    }
+    if (cluster.length) {
+      var grew = true;
+      while (grew) {
+        grew = false;
+        for (i = 0; i < spans.length; i++) {
+          sp = spans[i];
+          if (cluster.indexOf(sp) !== -1) continue;
+          var lo = cluster[0].start;
+          var hi = cluster[cluster.length - 1].end;
+          if (sp.end < lo || sp.start > hi) continue;
+          cluster.push(sp);
+          cluster.sort(function (a, b) { return a.start - b.start; });
+          grew = true;
+        }
+      }
+      var lo2 = cluster[0].start;
+      var hi2 = cluster[cluster.length - 1].end;
+      if (value.charAt(lo2 - 1) === "*" || value.charAt(hi2) === "*") {
+        return noopEmphasis(value, c, c);
+      }
+      for (i = 0; i < cluster.length; i++) {
+        sp = cluster[i];
+        edits.push({ start: sp.start, end: sp.cs, text: sp.start === lo2 ? marker : "" });
+        edits.push({ start: sp.ce, end: sp.end, text: sp.end === hi2 ? marker : "" });
+      }
+      var repS = composeEdits(value, edits);
+      var nc2 = mapThroughEdits(edits, c, true);
+      return result(applyReplacement(value, repS), repS, nc2, nc2);
+    }
+
+    // Empty pair around the caret (both stars unowned — an owned star means a
+    // span touched the caret and was handled above): the same marker removes
+    // the pair, the other marker swaps it in place.
+    if (c >= m && value.slice(c - m, c) === marker && value.slice(c, c + m) === marker) {
+      var repP = { start: c - m, end: c + m, text: "" };
+      return result(applyReplacement(value, repP), repP, c - m, c - m);
+    }
+    if (c >= om && value.slice(c - om, c) === other && value.slice(c, c + om) === other &&
+        value.charAt(c - om - 1) !== "*" && value.charAt(c + om) !== "*") {
+      // Isolated pairs only — a loose star hugging the pair would fuse the
+      // swapped pair into a cluster, so that shape falls through to the
+      // plain-caret rule below (whose own star guard makes it a no-op).
+      var repW = { start: c - om, end: c + om, text: marker + marker };
+      return result(applyReplacement(value, repW), repW, c - om + m, c - om + m);
+    }
+
+    // Plain-text caret: insert an empty pair, caret between — the type-flow.
+    // Clamped into the line's content region (never before a list marker or
+    // heading prefix); a loose star hugging the spot makes it a no-op instead,
+    // because an empty pair may never fuse into a cluster.
+    var at = Math.max(c, line.start + lineContentOffset(line.text));
+    if (value.charAt(at - 1) === "*" || value.charAt(at) === "*") {
+      return noopEmphasis(value, c, c);
+    }
+    var repIns = { start: at, end: at, text: marker + marker };
+    return result(applyReplacement(value, repIns), repIns, at + m, at + m);
+  }
+
+  function toggleWrap(value, s, e, marker) {
+    if (s > e) { var t = s; s = e; e = t; }
+    return s === e
+      ? emphasisCaret(value, s, marker)
+      : emphasisSelection(value, s, e, marker);
   }
 
   // ── List-marker toggle / switch ─────────────────────────────────────────────
