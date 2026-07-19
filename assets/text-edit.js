@@ -25,7 +25,11 @@
 // CONSTRAINTS: editInsert uses `document.execCommand('insertText', ...)`
 //   DELIBERATELY and IRREPLACEABLY. Despite its "deprecated" banner it is the
 //   ONLY textarea-edit API that (a) mutates the value, (b) keeps the native undo
-//   stack intact, and (c) fires a genuine `input` event. The modern-looking
+//   stack intact, and (c) fires a genuine `input` event. Pure deletions (empty
+//   replacement over a non-empty range) route through `execCommand('delete')`
+//   under the same contract — real engines no-op an EMPTY insertText, some
+//   while still reporting success, so an insertText-only chokepoint silently
+//   loses every marker-removal edit. The modern-looking
 //   range-replacing textarea method (the `set-range-text` sibling) LOOKS like
 //   the right replacement but ALSO wipes undo in Chrome/Safari — a future
 //   "cleanup" must NOT modernize editInsert into it or it silently breaks Ctrl+Z
@@ -46,15 +50,24 @@ window.TextEdit = (function () {
   var INDENT = "  "; // 2 spaces = one nesting level (shared convention)
 
   // ── The undo-safe insertion chokepoint ─────────────────────────────────────
-  // Select [start,end] then let `insertText` overwrite it. On the extremely rare
-  // env where execCommand is unavailable (returns false), fall back to a value-
-  // splice and MANUALLY re-dispatch a real bubbling `input` event so autoGrow +
-  // snippets still react — undo is lost on that path only, which is why the
-  // primary path must stay execCommand (see the CONSTRAINTS banner above).
+  // Select [start,end] then let `insertText` overwrite it. A PURE DELETION
+  // (empty replacement over a non-empty range — list exit on Enter, outdent)
+  // must NOT ride insertText: real engines treat an empty insertText as a
+  // no-op, and some still report success, so the edit silently vanishes and
+  // even the fallback below never fires. Those edits go through
+  // execCommand('delete') instead, which removes the selected range under the
+  // SAME contract — native undo intact, a genuine `input` event fired. On the
+  // extremely rare env where execCommand is unavailable (returns false), fall
+  // back to a value-splice and MANUALLY re-dispatch a real bubbling `input`
+  // event so autoGrow + snippets still react — undo is lost on that path only,
+  // which is why the primary path must stay execCommand (see the CONSTRAINTS
+  // banner above).
   function editInsert(textarea, start, end, replacement) {
     textarea.focus();
     textarea.setSelectionRange(start, end);
-    var ok = document.execCommand('insertText', false, replacement);
+    var ok = (replacement === "" && start < end)
+      ? document.execCommand('delete')
+      : document.execCommand('insertText', false, replacement);
     if (!ok) {
       var v = textarea.value;
       textarea.value = v.slice(0, start) + replacement + v.slice(end);

@@ -5,8 +5,9 @@
  * decision (shouldOpenBoundary).
  *
  * Loads assets/text-edit.js in a vm sandbox (mirrors tests/text-edit.test.js).
- * A fake document.execCommand applies insertText to the active fake textarea so
- * the real restore path (which routes through editInsert) runs headlessly. The
+ * A fake document.execCommand applies insertText / delete to the active fake
+ * textarea so the real restore path (which routes through editInsert — pure
+ * deletions ride 'delete', everything else 'insertText') runs headlessly. The
  * sandbox Date.now() is controllable (sandbox.__now) so the typing-pause
  * boundary is deterministic without real sleeps.
  *
@@ -33,6 +34,13 @@ function makeSandbox() {
           ta.value = v.slice(0, ta.selectionStart) + value + v.slice(ta.selectionEnd);
           const caret = ta.selectionStart + value.length;
           ta.selectionStart = ta.selectionEnd = caret;
+          return true;
+        }
+        if (cmd === 'delete' && sandbox.__activeTextarea) {
+          const ta = sandbox.__activeTextarea;
+          const v = ta.value;
+          ta.value = v.slice(0, ta.selectionStart) + v.slice(ta.selectionEnd);
+          ta.selectionEnd = ta.selectionStart;
           return true;
         }
         return false;
