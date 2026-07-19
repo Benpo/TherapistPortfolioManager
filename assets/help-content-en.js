@@ -31,6 +31,7 @@
 //     { type:'p',     text }          — prose
 //     { type:'note',  text }          — muted aside
 //     { type:'steps', items:[...] }   — numbered steps (strings)
+//     { type:'list',  items:[...] }   — bulleted one-liners (strings)
 //     { type:'glyph', name }          — install SVG reference (install section only)
 //
 // ── Live-label interpolation (D-23) ───────────────────────────────────────
@@ -87,7 +88,7 @@
           covers: ["settings.html", "assets/settings-snippets.js", "assets/snippets-seed.js"],
           body: [
             { type: "p", text: "Snippets turn the text you write again and again — emotion meanings, technique explanations, your usual closing note — into short trigger words that expand as you type. Sessions Garden arrives with a built-in library of emotion snippets, and you can reshape it into your own under {ui:settings.tab.snippets} in Settings." },
-            { type: "note", text: "The full guide — creating snippets and expanding them mid-session — is under Capturing emotions." }
+            { type: "note", text: "The full guide — creating snippets and expanding them mid-session — is under Writing session notes." }
           ]
         },
         {
@@ -189,27 +190,47 @@
     },
     {
       id: "capturing-emotions",
-      title: "Capturing emotions",
+      title: "Writing session notes",
       group: "session-loop",
       featured: false,
       topics: [
         {
           id: "topic-quick-paste",
-          title: "Capturing emotions fast",
+          title: "Getting your notes down fast",
+          priority: 1,
+          covers: ["add-session.html"],
+          body: [
+            { type: "p", text: "During a session you want to get things down without breaking your flow." },
+            { type: "steps", items: [
+              "Open the session and expand the section you want to write in — {ui:session.accordion.emotions}, session notes, or any other.",
+              "Type or paste what comes up — in whatever words you use, one thought at a time.",
+              "Keep going; there is no need to stop and tidy the wording until you are done."
+            ] },
+            { type: "note", text: "Tidying comes later: the formatting toolbar, covered in Formatting session notes below, turns raw notes into styled text whenever you are ready." }
+          ]
+        },
+        {
+          id: "topic-formatting",
+          title: "Formatting session notes",
           priority: 1,
           covers: ["add-session.html", "assets/rich-toolbar.js", "assets/text-edit.js"],
           body: [
-            { type: "p", text: "During a session you want to record emotions without breaking your flow." },
+            { type: "p", text: "A formatting toolbar sits above whichever note field you are writing in — the same tools in every note area of the session form and in the export editor." },
             { type: "steps", items: [
-              "Open the session and expand {ui:session.accordion.emotions}.",
-              "Type or paste the emotions as they come up — in whatever words you use, one thought at a time.",
-              "Keep going; there is no need to stop and tidy the wording until you are done."
+              "Select a few words and press the bold button.",
+              "Press a list button to start a list — it continues on its own as you type.",
+              "Switch the toolbar to Preview to see the styled result; press Edit to keep writing."
             ] },
-            { type: "p", text: "When you are ready to shape what you wrote, a formatting toolbar appears above whichever note field you are writing in — the same toolbar for every note area of the session form. Select some words and press the bold or italic button; on a computer, Ctrl+B and Ctrl+I do the same. The bullet-list and numbered-list buttons start a list, and the text-style menu turns the line you are on into a heading — three sizes to choose from — or back into regular text. The menu marks your current style with a checkmark, so you always know which one you are writing in." },
-            { type: "p", text: "Lists also grow as you type: start a line with a dash and a space, or a number and a full stop, and each new line continues the list on its own — press Enter on an empty item to finish it. The indent and outdent buttons nest list items and step ordinary lines in and out; inside a list, Tab and Shift+Tab do the same on a computer. Headings are the one exception: they always sit flush with the edge, so the indent buttons rest dimmed on a heading line, and turning an indented line into a heading brings it back to the edge." },
-            { type: "p", text: "The undo and redo buttons — Ctrl+Z and Ctrl+Shift+Z on a computer — step back and forward one line or one change at a time, so a single undo never sweeps away more than you meant. Each button dims when there is nothing left to step to in its direction." },
-            { type: "p", text: "To see how your notes will read, use the Edit / Preview switch at the end of the toolbar — the highlighted side always shows the mode you are in. Tap Preview and a framed view marked PREVIEW takes the place of the field — one clean view at a time, with your bold, lists, headings, and indentation exactly as they will appear when you export. While you preview, the formatting buttons rest dimmed and do nothing; to continue writing, tap Edit or press Ctrl+E — Cmd+E on a Mac. The same shortcut flips you back and forth." },
-            { type: "note", text: "Everything you format is saved with the session and reads back as styled text when you open it again. The PDF export keeps it too, while copying a session or saving it as a text file keeps your notes exactly as you typed them. Your snippets and the way a field grows to fit your text work just as before." }
+            { type: "list", items: [
+              "Bold and italic — Ctrl+B / Ctrl+I.",
+              "Bullet and numbered lists — or just start a line with a dash or a number. Enter on an empty item ends the list.",
+              "Text style — three heading sizes or regular text; a checkmark marks the current style. Headings sit flush with the edge, so the indent buttons rest on heading lines.",
+              "Indent and outdent — nest list items or step lines in and out; Tab / Shift+Tab inside a list.",
+              "Undo and redo — Ctrl+Z / Ctrl+Shift+Z, one change at a time; each button dims when there is nothing left to step to.",
+              "Edit / Preview — the switch at the end of the toolbar; Ctrl+E flips between the two.",
+              "On a Mac, use Cmd wherever Ctrl is written here."
+            ] },
+            { type: "note", text: "Preview swaps the field for a framed view marked PREVIEW — exactly what saving, exporting, and copying will produce, indentation included. The formatting buttons rest while previewing; Edit or Ctrl+E returns you to writing. Everything you format is saved with the session and reads back as styled text." }
           ]
         },
         {
@@ -322,15 +343,19 @@
             { type: "p", text: "When a session is finished, you can send a beautifully formatted copy to your client or file it in your own records." },
             { type: "steps", items: [
               "Open the saved session and choose {ui:session.export}.",
-              "Choose which parts of the session to include. The before-and-after emotion ratings come pre-selected — uncheck them to leave the severity ratings out, in both the PDF and a copied summary. That choice is for this export only.",
+              "Choose which parts of the session to include. The before-and-after emotion ratings come pre-selected — uncheck them to leave the severity ratings out of this export.",
               "Review — and lightly edit — what will be shared.",
               "Pick {ui:export.download.pdf} for a polished document, or {ui:export.download.text} to save the notes as a plain text file."
             ] },
-            { type: "p", text: "The editing step gives you one roomy editor with the same formatting toolbar as the session form, pinned on top so it never scrolls away. A maximize button lets the editor take the whole window while you shape a longer session — press it again to restore the size — and on a phone the editor fills the screen. Anything you change here is for this export only; it is never saved back to the session." },
-            { type: "p", text: "The toolbar's Edit / Preview switch works here too: tap Preview and a framed view of the finished document takes the editor's place, so you can check exactly how it will read before choosing a format. Tap Edit — or press Ctrl+E, Cmd+E on a Mac — to return to writing." },
-            { type: "p", text: "Move between the steps freely: Back and Continue always keep your edits, so stepping back to double-check your section choices costs nothing. The document is rebuilt only when you change the selection itself — if you have edited, checking or unchecking a section asks first whether to discard your edits, and choosing to keep them undoes the change." },
-            { type: "note", text: "When a session is Heart-Wall work, the export spells out the result in words — Heart-Wall removed when it came down, or Heart-Wall present, not removed this session when it was found but not yet released — so a reader is never left guessing what a bare yes or no meant. Sessions that are not Heart-Wall work leave the line out entirely." },
-            { type: "p", text: "Any formatting you added to your notes — bold, italics, bullet and numbered lists (including nested ones), headings, and indentation — is preserved in the PDF, and Hebrew text stays correctly right-to-left." }
+            { type: "list", items: [
+              "The formatting toolbar stays pinned above the editor — it never scrolls away.",
+              "Maximize gives the editor the whole window; press again to restore. On a phone it fills the screen.",
+              "Edits here shape this export only — nothing is saved back to the session.",
+              "Preview shows the finished document in place of the editor — check it before choosing a format.",
+              "Back and Continue keep your edits. The document rebuilds only when you change the section selection — and the app asks first.",
+              "Bold, italics, lists, headings, and indentation carry into the PDF; Hebrew stays correctly right-to-left."
+            ] },
+            { type: "note", text: "For Heart-Wall sessions the export states the result in words — Heart-Wall removed, or Heart-Wall present, not removed this session — never a bare yes or no." }
           ]
         },
         {

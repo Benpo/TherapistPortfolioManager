@@ -10,7 +10,8 @@
 | adding-a-client | topic-client-photo | Client photos | add-client.html, assets/crop.js, assets/settings-photos.js |
 | starting-a-session | topic-new-session | Two ways to begin | add-session.html, assets/add-session.js, sessions.html |
 | starting-a-session | topic-past-sessions | A client's past sessions | assets/sessions.js, sessions.html |
-| capturing-emotions | topic-quick-paste | Capturing emotions fast | add-session.html, assets/rich-toolbar.js, assets/text-edit.js |
+| capturing-emotions | topic-quick-paste | Getting your notes down fast | add-session.html |
+| capturing-emotions | topic-formatting | Formatting session notes | add-session.html, assets/rich-toolbar.js, assets/text-edit.js |
 | capturing-emotions | topic-snippets | Snippets — type less | add-session.html, assets/settings-snippets.js, assets/snippets-seed.js, assets/snippets.js, settings.html |
 | heart-wall | topic-heartwall-workflow | The Heart-Wall workflow | add-session.html |
 | heart-wall | topic-heartwall-removal | Tracking removal | add-session.html, assets/overview.js |

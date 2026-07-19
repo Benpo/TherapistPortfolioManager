@@ -402,12 +402,14 @@ body.searching .help-root .spine-group-label { display: none; }
   scroll-margin-block-start: var(--space-md);
 }
 .help-root .card-body p { margin-block-end: var(--space-sm); color: var(--color-text-muted); }
-.help-root .card-body ol {
+.help-root .card-body ol,
+.help-root .card-body ul {
   margin-block-end: var(--space-sm);
   padding-inline-start: var(--space-lg);
   color: var(--color-text);
 }
-.help-root .card-body ol li { margin-block-end: var(--space-xs); }
+.help-root .card-body ol li,
+.help-root .card-body ul li { margin-block-end: var(--space-xs); }
 .help-root .card-body .note {
   color: var(--color-text-muted);
   font-size: var(--text-label);

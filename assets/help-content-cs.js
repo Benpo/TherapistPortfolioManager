@@ -183,6 +183,14 @@
           ]
         },
         {
+          id: "topic-formatting",
+          title: "Formátování poznámek ze sezení",
+          priority: 1,
+          body: [
+            { type: "p", text: "Úplný průvodce panelem formátování bude brzy k dispozici v češtině; zatím jej najdete v anglické nápovědě." }
+          ]
+        },
+        {
           id: "topic-snippets",
           title: "Úryvky — pište méně",
           priority: 1,

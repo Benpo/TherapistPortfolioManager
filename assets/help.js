@@ -164,6 +164,15 @@
       });
       return ol;
     }
+    if (block.type === "list") {
+      var ul = el("ul");
+      (block.items || []).forEach(function (item) {
+        var li = el("li");
+        li.appendChild(interpolateUiNodes(item));
+        ul.appendChild(li);
+      });
+      return ul;
+    }
     if (block.type === "glyph") {
       var span = el("span", "install-glyph");
       // compile-time-literal SVG only (no user/content-derived markup)

@@ -183,6 +183,14 @@
           ]
         },
         {
+          id: "topic-formatting",
+          title: "Sitzungsnotizen formatieren",
+          priority: 1,
+          body: [
+            { type: "p", text: "Die vollständige Anleitung zur Formatierungsleiste erscheint bald auf Deutsch; bis dahin finden Sie sie in der englischen Hilfe." }
+          ]
+        },
+        {
           id: "topic-snippets",
           title: "Bausteine — weniger tippen",
           priority: 1,
