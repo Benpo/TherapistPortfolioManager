@@ -174,18 +174,18 @@ test('FUZZ: random doc + selection + marker → no *** emitted, join-invariant k
     assert.strictEqual(applyRep(doc, r1.replacement), r1.value,
       'replacement consistency broke on ' + JSON.stringify([doc, s, e, marker]));
 
-    // C7: never a *** cluster; an inserted empty pair must stand isolated.
-    var isPairInsert = r1.replacement.start === r1.replacement.end &&
-                       r1.replacement.text === marker + marker;
-    if (isPairInsert) {
-      assert.notStrictEqual(doc.charAt(r1.replacement.start - 1), '*',
+    // C7: never a *** cluster; an empty pair (inserted or swapped in from the
+    // other marker) must stand isolated.
+    var isEmptyPair = r1.replacement.text === marker + marker;
+    if (isEmptyPair) {
+      assert.notStrictEqual(r1.value.charAt(r1.replacement.start - 1), '*',
         'empty pair fused left on ' + JSON.stringify([doc, s, e, marker]));
-      assert.notStrictEqual(doc.charAt(r1.replacement.start), '*',
+      assert.notStrictEqual(r1.value.charAt(r1.replacement.start + r1.replacement.text.length), '*',
         'empty pair fused right on ' + JSON.stringify([doc, s, e, marker]));
       var rest = r1.value.slice(0, r1.replacement.start) +
                  r1.value.slice(r1.replacement.start + r1.replacement.text.length);
       assert.ok(!/\*{3,}/.test(rest),
-        '*** outside the inserted pair on ' + JSON.stringify([doc, s, e, marker]) + ' -> ' + JSON.stringify(r1.value));
+        '*** outside the empty pair on ' + JSON.stringify([doc, s, e, marker]) + ' -> ' + JSON.stringify(r1.value));
     } else {
       assert.ok(!/\*{3,}/.test(r1.value),
         'emitted *** on ' + JSON.stringify([doc, s, e, marker]) + ' -> ' + JSON.stringify(r1.value));
@@ -194,25 +194,32 @@ test('FUZZ: random doc + selection + marker → no *** emitted, join-invariant k
     // The cross-pipeline join-invariant holds on every output line.
     assertJoinInvariant(r1.value, JSON.stringify([doc, s, e, marker]));
 
-    // C10: one press converges the selection to a pure state (a MIXED apply or a
-    // cross-marker swap is a documented one-way door, undo-recoverable); from the
-    // CONVERGED state the toggle is an involution on text AND selection. Caret
-    // outcomes are their own micro-flows and are exercised without this check.
+    // C10: repeated pressing must settle into a 2-cycle. One press converges
+    // collisions (a MIXED apply or cross-marker swap is a documented one-way
+    // door, undo-recoverable); an unwrap can additionally EXPOSE a block
+    // marker (`*- x*` → `- x` becomes a list line) whose next wrap clamps past
+    // the new prefix — one more press, then the involution holds on text AND
+    // selection. Caret outcomes are their own micro-flows, exercised above.
     if (r1.selStart < r1.selEnd) {
       var r2 = TextEdit.toggleWrap(r1.value, r1.selStart, r1.selEnd, marker);
       var r3 = TextEdit.toggleWrap(r2.value, r2.selStart, r2.selEnd, marker);
       var r4 = TextEdit.toggleWrap(r3.value, r3.selStart, r3.selEnd, marker);
-      [r2, r3, r4].forEach(function (rn) {
+      var r5 = TextEdit.toggleWrap(r4.value, r4.selStart, r4.selEnd, marker);
+      [r2, r3, r4, r5].forEach(function (rn) {
         assert.ok(!/\*{3,}/.test(rn.value),
           'a follow-up press emitted *** on ' + JSON.stringify([doc, s, e, marker]) + ' -> ' + JSON.stringify(rn.value));
+        assertJoinInvariant(rn.value, 'follow-up press of ' + JSON.stringify([doc, s, e, marker]));
       });
       assert.strictEqual(r4.value, r2.value,
-        'double-toggle from the converged state failed to restore text on ' + JSON.stringify([doc, s, e, marker]) +
+        'the toggle failed to enter a text 2-cycle on ' + JSON.stringify([doc, s, e, marker]) +
         ': ' + JSON.stringify([r1.value, r2.value, r3.value, r4.value]));
-      assert.strictEqual(r4.selStart, r2.selStart,
-        'double-toggle from the converged state failed to restore selStart on ' + JSON.stringify([doc, s, e, marker]));
-      assert.strictEqual(r4.selEnd, r2.selEnd,
-        'double-toggle from the converged state failed to restore selEnd on ' + JSON.stringify([doc, s, e, marker]));
+      assert.strictEqual(r5.value, r3.value,
+        'double-toggle from the settled state failed to restore text on ' + JSON.stringify([doc, s, e, marker]) +
+        ': ' + JSON.stringify([r2.value, r3.value, r4.value, r5.value]));
+      assert.strictEqual(r5.selStart, r3.selStart,
+        'double-toggle from the settled state failed to restore selStart on ' + JSON.stringify([doc, s, e, marker]));
+      assert.strictEqual(r5.selEnd, r3.selEnd,
+        'double-toggle from the settled state failed to restore selEnd on ' + JSON.stringify([doc, s, e, marker]));
       involutions++;
     }
     checked++;

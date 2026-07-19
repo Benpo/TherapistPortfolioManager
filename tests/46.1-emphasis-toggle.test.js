@@ -81,7 +81,9 @@ function run(value, s, e, marker) {
     input: value,
     marker: marker,
     out: r,
-    pairInsert: r.replacement.start === r.replacement.end && r.replacement.text === marker + marker,
+    // An empty-pair outcome — inserted (zero-width) or swapped in from the
+    // other marker's pair — legitimately holds one isolated 4-star run.
+    emptyPair: r.replacement.text === marker + marker,
   });
   return r;
 }
@@ -447,15 +449,15 @@ test('C10: the empty-pair micro-flow is an involution (insert then remove)', () 
 test('C7 sweep: no case output contains a *** cluster; empty-pair inserts stay isolated', () => {
   assert.ok(RESULTS.length > 30, 'the sweep must cover the full case list');
   RESULTS.forEach((rec) => {
-    if (rec.pairInsert) {
+    if (rec.emptyPair) {
       const rep = rec.out.replacement;
-      assert.notStrictEqual(rec.input.charAt(rep.start - 1), '*',
-        'an inserted empty pair must not touch a star on its left: ' + JSON.stringify(rec.out.value));
-      assert.notStrictEqual(rec.input.charAt(rep.start), '*',
-        'an inserted empty pair must not touch a star on its right: ' + JSON.stringify(rec.out.value));
+      assert.notStrictEqual(rec.out.value.charAt(rep.start - 1), '*',
+        'an empty pair must not touch a star on its left: ' + JSON.stringify(rec.out.value));
+      assert.notStrictEqual(rec.out.value.charAt(rep.start + rep.text.length), '*',
+        'an empty pair must not touch a star on its right: ' + JSON.stringify(rec.out.value));
       const rest = rec.out.value.slice(0, rep.start) + rec.out.value.slice(rep.start + rep.text.length);
       assert.ok(!/\*{3,}/.test(rest),
-        'outside the inserted pair no *** may exist: ' + JSON.stringify(rec.out.value));
+        'outside the empty pair no *** may exist: ' + JSON.stringify(rec.out.value));
     } else if (!/\*{3,}/.test(rec.input)) {
       // Degenerate inputs that already hold a cluster only ever shrink it; every
       // clean input must stay clean.
