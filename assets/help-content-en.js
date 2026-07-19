@@ -201,12 +201,7 @@
           covers: ["add-session.html"],
           body: [
             { type: "p", text: "During a session you want to get things down without breaking your flow." },
-            { type: "steps", items: [
-              "Open the session and expand the section you want to write in — {ui:session.accordion.emotions}, session notes, or any other.",
-              "Type or paste what comes up — in whatever words you use, one thought at a time.",
-              "Keep going; there is no need to stop and tidy the wording until you are done."
-            ] },
-            { type: "note", text: "Styling what you wrote has its own topic — Formatting session notes, right below." }
+            { type: "p", text: "Open the session, expand the section you want to write in — {ui:session.accordion.emotions}, session notes, or any other — and type or paste what comes up, in whatever words you use. Tidying and styling can wait until you are done." }
           ]
         },
         {
