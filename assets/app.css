@@ -3601,11 +3601,11 @@ html[dir="rtl"] .settings-locked-info::after {
    add-session read mode (the app's ONE sanctioned innerHTML note surface, fed
    only by MdRender). It also styles the export editor's on-demand preview pane,
    which reuses this class. RTL-safe logical properties and existing --color-*
-   tokens (no new colors; WCAG-AA in light + dark). Note headings use the
-   SUBORDINATE register: differentiated from body by weight + spacing, NOT a size
-   jump — no border rule, no diamond. Every heading rule is SCOPED under
-   .note-rendered so these note-heading sizes never bleed onto other rendered
-   surfaces (UI-SPEC §B selector-scoping). */
+   tokens (no new colors; WCAG-AA in light + dark). Note headings carry a real
+   size hierarchy (22/18/16px @ 600) but stay chrome-free — no border rule, no
+   diamond. Every heading rule is SCOPED under .note-rendered so these
+   note-heading sizes never bleed onto other rendered surfaces (UI-SPEC §B
+   selector-scoping). */
 .note-rendered {
   color: var(--color-text);
   font-size: 1rem;
@@ -3629,22 +3629,23 @@ html[dir="rtl"] .settings-locked-info::after {
 .note-rendered li {
   margin-block-end: 2px;
 }
-/* Subordinate note-heading register — 17 / 16 / 15px @ 600, led by weight +
-   spacing (NO border-bottom / NO rule / NO diamond). Scoped to .note-rendered. */
+/* Note-heading register — 22 / 18 / 16px @ 600, a real size hierarchy above
+   the 16px body, still chrome-free (NO border-bottom / NO rule / NO diamond).
+   Scoped to .note-rendered; the PDF export keeps its own pt-based register. */
 .note-rendered h1 {
-  font-size: 17px;
+  font-size: 22px;
   font-weight: 600;
   line-height: 1.35;
   margin-block: 12px 4px;
 }
 .note-rendered h2 {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.35;
   margin-block: 12px 4px;
 }
 .note-rendered h3 {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.35;
   margin-block: 12px 4px;

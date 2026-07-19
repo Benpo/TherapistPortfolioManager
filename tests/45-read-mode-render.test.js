@@ -243,6 +243,16 @@ async function test(name, fn) {
     // preview pane, which reuses .note-rendered) must carry the same indent as bullets.
     assert.ok(/\.note-rendered\s+ol\b/.test(css),
       'app.css must indent ".note-rendered ol" to match ".note-rendered ul"');
+    // The screen heading register is the ratified 22/18/16px scale (weight-led,
+    // still chrome-free). Pinned per level so a drive-by "harmonization" of one
+    // size fails loudly. The PDF register (pt-based, pdf-export.js) and the
+    // heading-dropdown menu-item previews are separate and deliberately NOT
+    // asserted here.
+    [['h1', 22], ['h2', 18], ['h3', 16]].forEach(function (pair) {
+      var rule = new RegExp('\\.note-rendered\\s+' + pair[0] + '\\s*\\{[^}]*font-size:\\s*' + pair[1] + 'px');
+      assert.ok(rule.test(css),
+        '".note-rendered ' + pair[0] + '" must declare font-size: ' + pair[1] + 'px');
+    });
   });
 
   // ─── F-A end-of-file count guard ─────────────────────────────────────────────
