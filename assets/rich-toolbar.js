@@ -417,8 +417,18 @@ window.RichToolbar = (function () {
   // state as the undo target.
   function applyTransform(ta, tr) {
     if (!tr || !tr.replacement) return;
-    if (window.TextEdit.undoRecord) window.TextEdit.undoRecord(ta);
     var r = tr.replacement;
+    if (r.start === r.end && r.text === "") {
+      // A zero-length empty replacement is a transform's no-op signal (the
+      // renumber pass uses the same convention): the value is untouched, so no
+      // editInsert fires and no undo boundary is recorded — but the transform
+      // may still move the caret (the emphasis toggle hops past a closing
+      // marker this way), so the selection is applied before bailing.
+      if (typeof tr.selStart === "number") ta.setSelectionRange(tr.selStart, tr.selEnd);
+      refreshButtonState();
+      return;
+    }
+    if (window.TextEdit.undoRecord) window.TextEdit.undoRecord(ta);
     window.TextEdit.editInsert(ta, r.start, r.end, r.text);
     if (typeof tr.selStart === "number") ta.setSelectionRange(tr.selStart, tr.selEnd);
     refreshButtonState();
