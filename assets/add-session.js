@@ -121,15 +121,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     return formDirty && !formSaving;
   };
 
-  // Protect the "Back to Overview" link at the bottom of the
-  // session form. Mirrors the brand-link guard installed in App.initCommon for the
-  // top logo. Both new-session and edit-existing flows share this link, so a
-  // single guard install here covers both.
-  const backToOverviewLink = document.querySelector('a.button.ghost[href="./index.html"]');
-  if (backToOverviewLink && !backToOverviewLink._navGuardInstalled) {
-    backToOverviewLink._navGuardInstalled = true;
+  // Protect EVERY same-tab internal navigation trigger on this page with the
+  // one leave-page guard — a dirty form must always surface the app's own
+  // confirm, never fall through to the native beforeunload dialog. The set is
+  // the bottom "Back to Overview" link plus the chrome initCommon just
+  // injected: the header nav links (renderNav) and the help popover's
+  // destination rows. The brand logo and the settings gear install their own
+  // identical guards inside App.initCommon; the per-element install marker
+  // keeps this pass idempotent with those. mailto:/_blank rows never navigate
+  // this tab away and are left alone, as are the browser-chrome exits (tab
+  // close, refresh, browser Back) — the beforeunload handler below stays the
+  // last resort for exactly those.
+  const guardNavTrigger = (el) => {
+    if (!el || el._navGuardInstalled) return;
+    el._navGuardInstalled = true;
     App.installNavGuard({
-      trigger: backToOverviewLink,
+      trigger: el,
       isDirty: function () {
         return typeof window.PortfolioFormDirty === 'function' && window.PortfolioFormDirty() === true;
       },
@@ -140,9 +147,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         cancelKey:  'session.leavePage.cancel',
         tone:       'danger'
       },
-      destination: './index.html'
+      destination: el.getAttribute('href')
     });
-  }
+  };
+  guardNavTrigger(document.querySelector('a.button.ghost[href="./index.html"]'));
+  document.querySelectorAll('#nav-placeholder .app-nav a[href]').forEach(guardNavTrigger);
+  document.querySelectorAll('.help-entry-popover a[href]').forEach((a) => {
+    const href = a.getAttribute('href') || '';
+    if (href.indexOf('mailto:') === 0 || a.getAttribute('target') === '_blank') return;
+    guardNavTrigger(a);
+  });
 
   const clientSelect = document.getElementById("clientSelect");
   const sessionDate = document.getElementById("sessionDate");
