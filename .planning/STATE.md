@@ -5,15 +5,15 @@ milestone_name: Richer Sessions
 current_phase: 46.1
 current_phase_name: preview-edit-experience-redesign
 status: executing
-stopped_at: Phase 46.1 UI-SPEC approved
-last_updated: "2026-07-18T07:25:47.324Z"
-last_activity: 2026-07-18
-last_activity_desc: Phase 46.1 execution started
+stopped_at: Phase 46.1 plan 07 device gate approved (7/7 plans complete; phase verification pending)
+last_updated: "2026-07-19T21:45:00.000Z"
+last_activity: 2026-07-20
+last_activity_desc: Phase 46.1 plan 07 real-device gate approved by Ben
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 37
-  completed_plans: 35
+  completed_plans: 36
   percent: 33
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 ## Current Position
 
 Phase: 46.1 (preview-edit-experience-redesign) — EXECUTING
-Plan: 7 of 7
-Status: Ready to execute
-Last activity: 2026-07-18 — Phase 46.1 execution started
+Plan: 7 of 7 complete
+Status: All 7 plans complete — device gate approved by Ben 2026-07-20 on pre-prod build 3d5cbaf; phase verification / code review / phase completion still pending (NOT yet run)
+Last activity: 2026-07-20 — Phase 46.1 plan 07 real-device gate approved (four UAT fix rounds live-verified; suite 205/205, WebKit set E 12/12)
 
 ## Performance Metrics
 
@@ -270,6 +270,7 @@ Last activity: 2026-07-18 — Phase 46.1 execution started
 | Phase 46.1 P05 | 10min | 2 tasks | 5 files |
 | Phase 46.1 P03 | ~25min | 3 tasks | 3 files |
 | Phase 46.1 P06 | 6min | 2 tasks | 2 files |
+| Phase 46.1 P07 | ~2 days | 2 tasks | 0 files |
 
 ## Accumulated Context
 
@@ -490,6 +491,11 @@ Recent decisions affecting current work:
 - [Phase ?]: [46.1-01] RTXT-01/04/05 pinned by RED tests but NOT marked complete; plans 02-05 deliver them (marking on a RED scaffold would false-signal)
 - [Phase ?]: [46.1-01] frame source-audit assembles the section-header bg token from string parts so the test file never carries the literal token itself
 - [Phase ?]: [Phase 46.1-06]: No version bump for the preview/edit redesign — extend the preprod-only v1.4.0 changelog entry; reworded the old next-state Preview button copy (changelog + help) to the current-state Edit/Preview switch
+- [Phase 46.1-07]: Formatting bar is INERT while previewing (Ben decision B — "dimmed means dead"); UI-SPEC Amendment appended, supersedes the mockup's return-and-apply (db8aceb)
+- [Phase 46.1-07]: Bold/italic toggle rebuilt to the ratified 11-clause behavior contract (46.1-BOLD-SEMANTICS-RESEARCH.md; D1 swap-on-collision / D2 empty-pair caret / D3 mixed→apply, Ben 2026-07-19; commits 042afc5..eaea002)
+- [Phase 46.1-07]: Two WebKit set-C precondition REDs at 1440×820 ACCEPTED as harness vacuity (content-driven card fits the probe doc; documented in probe header e1bd8b8, Ben signed off) — not defects; set C stays armed at 1000×700
+- [Phase 46.1-07]: Strict markdown kept deliberately — hand-typed leading spaces before "## x" render literal in BOTH pipelines (accepted sharp edge); hand-typed *** divergence filed as pending todo 2026-07-19-triple-star-breaks-pipeline-join-invariant (pre-existing, out of phase scope)
+- [Phase 46.1-07]: Device gate PASSED — Ben "approved" 2026-07-20 on pre-prod 3d5cbaf (MacBook installed-Safari PWA + iPhone, LTR + Hebrew RTL, real PDF w/ nested lists); carried Phase-46 export items 2/11-layout/12/13 re-verified under the new design; defects fixed inline across four UAT rounds instead of a formal gap round
 
 ### Pending Todos
 
@@ -569,12 +575,12 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-18T07:25:15.869Z
+**Last session:** 2026-07-19T21:45:00.000Z
 
-Last activity: 2026-07-12 — Phase 44 closed end-to-end in one session: /gsd-code-review 44 --fix applied all 6 review warnings (fail-closed build-staging args/noindex, cf-await-promotion secret validation + curl timeouts + loud purge diagnostics, deploy queue-not-cancel) plus the IN-04 follow-up (pipeline-script test suites now gate both deploy workflows); UAT 2/2 passed — test 1 caught that the docs-gate trailers never landed on any commit (gate dry-run blocked), fixed by amending the tip (6e4355f), gate re-run green; verification canonicalized passed, phase 44 marked complete, transitioned to Phase 45. Previous: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
-Stopped at: Phase 46.1 UI-SPEC approved
-Resume file: .planning/phases/46.1-preview-edit-experience-redesign/46.1-UI-SPEC.md
-Next: /gsd-plan-phase 45 (Rich-Text Rendering & Export Foundation). NOTE: everything since origin/main 0cae46e is still local-only — the next push to main deploys; the Changelog-Unaffected trailer must ride the tip commit of that push (currently on 6e4355f).
+Last activity: 2026-07-20 — Phase 46.1 plan 07 (real-device ratification gate) closed: Ben's final "approved" on pre-prod build 3d5cbaf after the full checklist plus four live-verified UAT fix rounds (rounds 1–3: 40a6a81..7009f2c — chip/discard-guard/undo-redo/heading/inert-bar fixes; round 4: c4982a8..3d5cbaf — help-corpus restructure + 4 bug fixes + bold/italic toggle rebuilt to the ratified 11-clause contract). Suite 205/205, WebKit set E 12/12; set-C 1440×820 vacuity accepted. 46.1 is 7/7 plans complete; phase verification, code review, and phase completion NOT yet run — orchestrated separately after this. Previous: 2026-07-12 — Phase 44 closed end-to-end in one session: /gsd-code-review 44 --fix applied all 6 review warnings (fail-closed build-staging args/noindex, cf-await-promotion secret validation + curl timeouts + loud purge diagnostics, deploy queue-not-cancel) plus the IN-04 follow-up (pipeline-script test suites now gate both deploy workflows); UAT 2/2 passed — test 1 caught that the docs-gate trailers never landed on any commit (gate dry-run blocked), fixed by amending the tip (6e4355f), gate re-run green; verification canonicalized passed, phase 44 marked complete, transitioned to Phase 45. Previous: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
+Stopped at: Phase 46.1 plan 07 device gate approved — 7/7 plans complete, phase NOT yet marked complete
+Resume file: .planning/phases/46.1-preview-edit-experience-redesign/46.1-07-SUMMARY.md
+Next: Phase 46.1 verification + code review, then phase completion (orchestrated separately — do not phase.complete out of sequence).
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
 

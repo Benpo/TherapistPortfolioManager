@@ -286,7 +286,7 @@ under any design.
 **Requirements**: RTXT-01, RTXT-04, RTXT-05 (re-presentation of shipped
 capability; no new data-tier requirements — confirmed at UI phase)
 **Depends on:** Phase 46
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans executed (phase verification / completion pending)
 
 Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). Plans created 2026-07-18.
 
@@ -310,7 +310,7 @@ Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). 
 
 **Wave 5** *(real-device ratification — Ben-ratified locked process step 3)*
 
-- [ ] 46.1-07-PLAN.md — real-device / real-PDF gate (MacBook installed-Safari PWA + iPhone, LTR + Hebrew RTL) + WebKit set-E probe; re-verifies carried Phase-46 export items 2/11/12/13 [wave 5]
+- [x] 46.1-07-PLAN.md — real-device / real-PDF gate (MacBook installed-Safari PWA + iPhone, LTR + Hebrew RTL) + WebKit set-E probe; re-verifies carried Phase-46 export items 2/11/12/13 — Ben "approved" 2026-07-20 on pre-prod 3d5cbaf [wave 5]
 
 ### Phase 47: Session-Section Reordering
 
