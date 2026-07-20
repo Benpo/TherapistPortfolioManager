@@ -302,6 +302,20 @@ test('C6-iv/C5: a caret inside a list marker clamps the pair into the content re
   assert.strictEqual(r.selStart, 4);
 });
 
+test('C6-iv: caret 0 on a value that STARTS with a newline stays on the empty first line', () => {
+  // lastIndexOf with a clamped fromIndex -1 must not match the leading newline
+  // as a "previous" newline — the caret line is the empty line 1, so the pair
+  // belongs at position 0, never on line 2.
+  const r = run('\nfoo', 0, 0, BOLD);
+  assert.strictEqual(r.value, '****\nfoo', 'the empty pair lands on the caret line');
+  assert.strictEqual(r.selStart, 2);
+  assert.strictEqual(r.selEnd, 2);
+  // Same shape with a list line below: the pair may never hug the next line's marker.
+  const r2 = run('\n- item', 0, 0, BOLD);
+  assert.strictEqual(r2.value, '****\n- item', 'the clamp invariant holds against the NEXT line');
+  assert.strictEqual(r2.selStart, 2);
+});
+
 // ── C7 — cross-marker collisions resolve per D1 (swap), never emit *** ───────
 test('C7/D1: italic on bold content SWAPS deliberately — never a nested or literal artifact (defect #4)', () => {
   const v = '**word**';
@@ -512,7 +526,7 @@ test('source identity: text-edit emphasis regexes === md-render applyInline rege
 });
 
 // ── Count guard — no vacuous green ───────────────────────────────────────────
-const EXPECTED = 45;
+const EXPECTED = 46;
 if (passed + failed !== EXPECTED) {
   console.log('  FAIL  count guard: expected ' + EXPECTED + ' tests, ran ' + (passed + failed));
   failed++;

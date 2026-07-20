@@ -103,6 +103,16 @@ test('currentLine: middle line boundaries + caretInLine', () => {
   assert.strictEqual(cl.caretInLine, 1);
 });
 
+test('currentLine: caret 0 on a value starting with a newline is the empty FIRST line', () => {
+  // lastIndexOf with a clamped fromIndex -1 must not match the leading newline
+  // as a "previous" newline and hand back a record anchored on line 2.
+  const cl = T.currentLine('\nfoo', 0);
+  assert.strictEqual(cl.start, 0);
+  assert.strictEqual(cl.end, 0);
+  assert.strictEqual(cl.text, '');
+  assert.strictEqual(cl.caretInLine, 0);
+});
+
 // --- toggleWrap: empty selection (D-04 no doubled-marker artifact) ----------
 test('toggleWrap bold empty selection: caret between the two markers', () => {
   const v = 'hello ';
@@ -167,6 +177,12 @@ test('insertListMarker ordered: line gets "1. " and md-render detects it', () =>
   const r = T.insertListMarker(v, 0, 0, 'ol');
   assert.ok(LIST_RE.test(r.value), 'ordered marker not detected by list regex');
   assert.strictEqual(r.value, '1. first step');
+});
+test('insertListMarker at caret 0 of a newline-led value marks the empty first line, not line 2', () => {
+  const r = T.insertListMarker('\nfoo', 0, 0, 'ul');
+  assert.strictEqual(r.value, '- \nfoo', 'the bullet lands on the caret line');
+  assert.strictEqual(r.selStart, 2, 'caret rides to just after the new marker');
+  assert.strictEqual(r.selStart, r.selEnd);
 });
 
 // --- insertListMarker: toggle a same-kind marker OFF (no marker stacking) ---

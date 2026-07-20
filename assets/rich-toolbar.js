@@ -494,8 +494,10 @@ window.RichToolbar = (function () {
   }
 
   // ── Active-state: reflect the caret/selection format ───────────────────────
+  // Caret 0 is always a line start: lastIndexOf clamps a fromIndex of -1 to 0
+  // and would falsely match a leading newline (mirrors TextEdit's currentLine).
   function currentLineText(value, sel) {
-    var start = value.lastIndexOf("\n", sel - 1) + 1;
+    var start = sel > 0 ? value.lastIndexOf("\n", sel - 1) + 1 : 0;
     var end = value.indexOf("\n", sel);
     if (end === -1) end = value.length;
     return value.slice(start, end);

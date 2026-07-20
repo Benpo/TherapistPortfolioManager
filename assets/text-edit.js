@@ -79,9 +79,12 @@ window.TextEdit = (function () {
 
   // ── Shared helpers ─────────────────────────────────────────────────────────
   // The line containing caret `sel`: start is the index after the previous
-  // newline (0 if none), end is the next newline (or value length).
+  // newline (0 if none), end is the next newline (or value length). Caret 0
+  // needs its own arm: lastIndexOf clamps a fromIndex of -1 to 0, so a value
+  // that STARTS with a newline would falsely match it as the "previous"
+  // newline and anchor the record on the next line.
   function currentLine(value, sel) {
-    var start = value.lastIndexOf("\n", sel - 1) + 1;
+    var start = sel > 0 ? value.lastIndexOf("\n", sel - 1) + 1 : 0;
     var end = value.indexOf("\n", sel);
     if (end === -1) end = value.length;
     return { start: start, end: end, text: value.slice(start, end), caretInLine: sel - start };
@@ -202,9 +205,10 @@ window.TextEdit = (function () {
   }
 
   // Every line the [s, e) range touches, each with its content offset + spans.
+  // s === 0 is always a line start (see currentLine's caret-0 note).
   function linesTouching(value, s, e) {
     var lines = [];
-    var ls = value.lastIndexOf("\n", s - 1) + 1;
+    var ls = s > 0 ? value.lastIndexOf("\n", s - 1) + 1 : 0;
     var last = Math.max(s, e - 1);
     for (;;) {
       var le = value.indexOf("\n", ls);
