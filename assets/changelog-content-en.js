@@ -78,7 +78,7 @@
       highlights: [
         "A formatting toolbar above every note field and in the export editor — bold, italics, lists, headings, and keyboard shortcuts.",
         "Preview any note — or the export document — as a framed view of the finished result.",
-        "Your formatting keeps its shape — in saved sessions and in PDF exports, Hebrew right-to-left included.",
+        "Your formatting keeps its shape — in saved sessions and in PDF exports.",
       ],
       categories: {
         new: [
@@ -91,7 +91,7 @@
           "A roomier export editor, with a maximize option.",
           "Choose whether an export includes the before-and-after emotion ratings.",
           "Clearer Heart-Wall wording in exports.",
-          "PDF exports keep your formatting, Hebrew right-to-left included.",
+          "PDF exports keep your formatting.",
         ],
       },
     },
