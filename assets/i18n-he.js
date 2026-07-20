@@ -529,6 +529,7 @@ window.I18N.he = {
   "toolbar.preview": "תצוגה מקדימה",
   "toolbar.previewChip": "תצוגה",
   "toolbar.backToEdit": "עריכה",
+  "toolbar.modeAria": "עריכה או תצוגה מקדימה",
   "toolbar.previewEmptyTitle": "אין עדיין מה להציג",
   "toolbar.previewEmptyBody": "התחילו להקליד למעלה.",
   "toolbar.heading1": "כותרת 1",

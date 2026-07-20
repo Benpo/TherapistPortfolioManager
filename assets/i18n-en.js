@@ -538,6 +538,7 @@ window.I18N.en = {
   "toolbar.preview": "Preview",
   "toolbar.previewChip": "PREVIEW",
   "toolbar.backToEdit": "Edit",
+  "toolbar.modeAria": "Edit or preview",
   "toolbar.previewEmptyTitle": "Nothing to preview yet",
   "toolbar.previewEmptyBody": "Start typing above.",
   "toolbar.heading1": "Heading 1",

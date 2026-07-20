@@ -529,6 +529,7 @@ window.I18N.cs = {
   "toolbar.preview": "N\u00E1hled",
   "toolbar.previewChip": "N\u00C1HLED",
   "toolbar.backToEdit": "Upravit",
+  "toolbar.modeAria": "\u00DApravy nebo n\u00E1hled",
   "toolbar.previewEmptyTitle": "Zat\u00EDm nen\u00ED co zobrazit",
   "toolbar.previewEmptyBody": "Za\u010Dn\u011Bte ps\u00E1t v\u00FD\u0161e.",
   "toolbar.heading1": "Nadpis 1",

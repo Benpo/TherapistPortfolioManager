@@ -529,6 +529,7 @@ window.I18N.de = {
   "toolbar.preview": "Vorschau",
   "toolbar.previewChip": "VORSCHAU",
   "toolbar.backToEdit": "Bearbeiten",
+  "toolbar.modeAria": "Bearbeiten oder Vorschau",
   "toolbar.previewEmptyTitle": "Noch nichts zur Vorschau",
   "toolbar.previewEmptyBody": "Tippen Sie oben los.",
   "toolbar.heading1": "\u00DCberschrift 1",
