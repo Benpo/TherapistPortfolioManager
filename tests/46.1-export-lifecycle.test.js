@@ -18,6 +18,10 @@
  *       (c) confirming the toggle rebuilds the buffer from the new selection
  *           right there (dirty cleared), and Continue lands on Step 2 with the
  *           fresh document.
+ *   - A section-selection rebuild never hides behind a stale Frame: with the
+ *     preview OPEN, Back → toggle a section → Continue lands on Step 2 with the
+ *     editor visible, the Frame hidden, and the Edit segment active — the user
+ *     sees the rebuilt document, never the previous selection's render.
  *
  * HARNESS: cloned from tests/30-export-stepper.test.js buildEnv (real
  * add-session.html body + real assets, App stub, mock PortfolioDB, real
@@ -293,7 +297,63 @@ async function test(name, fn) {
     s.env.dom.window.close();
   });
 
-  var EXPECTED_COUNT = 4;
+  // ─── 3. Preview open → Back → toggle → Continue never shows a stale Frame ─────
+  await test('preview open → Back → section toggle → Continue: Step 2 shows the rebuilt editor, Frame hidden, Edit segment active', async function () {
+    var env = buildEnv();
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    setVal(win, 'trappedEmotions', 'TRAP_X');
+
+    win.document.getElementById('exportSessionBtn').click();
+    await settle();
+    win.document.getElementById('exportNextBtn').click(); // step 1 → 2 (builds editor md)
+    await settle();
+    assert.strictEqual(activeStep(win), 2, 'must reach the editor step');
+
+    var editor = win.document.getElementById('exportEditor');
+    assert.ok(editor.value.indexOf('TRAP_X') !== -1, 'the generated markdown carries the selected section');
+    var bar = editor.previousElementSibling;
+    assert.ok(bar && bar.classList.contains('rich-toolbar'), 'the persistent bar is docked above the editor');
+    var previewSeg = bar.querySelector('.rich-toolbar-swap-btn[data-mode="preview"]');
+    assert.ok(previewSeg, 'the bar exposes a Preview mode segment');
+    previewSeg.dispatchEvent(new win.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    await settle();
+    assert.ok(editor.classList.contains('is-hidden'), 'precondition: previewing (editor hidden)');
+
+    // Back with a CLEAN buffer, then deselect a section — the toggle is silent
+    // and the rebuild happens on Continue.
+    win.document.getElementById('exportBackBtn').click();
+    await settle();
+    assert.strictEqual(activeStep(win), 1, 'Back returns to Step 1');
+
+    env.confirmRef.calls = 0;
+    var cb = win.document.querySelector('#exportStep1Rows input[data-section-key="trapped"]');
+    assert.ok(cb, 'the trapped-emotions section row exists');
+    cb.click();
+    await settle();
+    assert.strictEqual(env.confirmRef.calls, 0, 'clean-buffer toggle stays silent');
+
+    win.document.getElementById('exportNextBtn').click();
+    await settle();
+    assert.strictEqual(activeStep(win), 2, 'Continue lands on Step 2');
+    assert.ok(editor.value.indexOf('TRAP_X') === -1,
+      'the rebuilt buffer reflects the NEW selection (deselected section gone)');
+
+    assert.ok(!editor.classList.contains('is-hidden'),
+      'the editor is VISIBLE — the rebuilt buffer never hides behind a stale Frame');
+    var frame = win.document.querySelector('.rich-toolbar-preview');
+    assert.ok(frame && frame.classList.contains('is-hidden'),
+      'the preview Frame is hidden after the rebuild');
+    var editSeg = bar.querySelector('.rich-toolbar-swap-btn[data-mode="edit"]');
+    assert.ok(editSeg && editSeg.classList.contains('is-active'),
+      'the Edit segment is active after the rebuild (switcher reset)');
+
+    env.dom.window.close();
+  });
+
+  var EXPECTED_COUNT = 5;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {

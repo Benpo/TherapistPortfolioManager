@@ -973,7 +973,15 @@
       const onBack = () => {
         // Back is ALWAYS silent and non-destructive: the edited buffer (and its
         // undo stack) survives untouched. Any discard decision happens at the
-        // moment a section checkbox is toggled, never on navigation.
+        // moment a section checkbox is toggled, never on navigation. Leaving
+        // the editor step does return an open preview to Edit, though — a
+        // preview parked behind Step 1 keeps serving the document-level
+        // Ctrl/Cmd+E shortcut against a hidden editor, and a later rebuild
+        // would leave its render stale. resetPreview never forces focus.
+        if (_exportState.currentStep === 2 &&
+            window.RichToolbar && window.RichToolbar.resetPreview) {
+          window.RichToolbar.resetPreview();
+        }
         if (_exportState.currentStep > 1) exportSetActiveStep(_exportState.currentStep - 1);
       };
       // Read the CURRENT Step-1 selection from the live checkboxes.
@@ -991,6 +999,14 @@
       // block on the live choice. It dies with the dialog — the opt-out resets
       // on every export.
       const rebuildEditorFromSelection = (selected) => {
+        // A rebuilt buffer must never sit behind a stale Frame: the direct
+        // `.value =` below fires no input event, so an open preview would keep
+        // rendering the PREVIOUS document while the buffer already holds the
+        // new one. Return the surface to Edit first (the same call the close
+        // path makes; it never forces focus).
+        if (window.RichToolbar && window.RichToolbar.resetPreview) {
+          window.RichToolbar.resetPreview();
+        }
         _exportState.selectedKeys = selected;
         const md = buildFilteredSessionMarkdown(selected);
         if (editor) editor.value = md;
