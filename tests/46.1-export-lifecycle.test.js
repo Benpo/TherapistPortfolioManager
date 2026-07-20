@@ -22,6 +22,10 @@
  *     preview OPEN, Back → toggle a section → Continue lands on Step 2 with the
  *     editor visible, the Frame hidden, and the Edit segment active — the user
  *     sees the rebuilt document, never the previous selection's render.
+ *   - The shared #confirmModal owns Escape while it is open: the export
+ *     modal's own Escape handler stands down (no second dialog ever starts on
+ *     the same element), and a toggle-confirm that outlives the export
+ *     dialog's teardown resolves to a guarded no-op instead of a throw.
  *
  * HARNESS: cloned from tests/30-export-stepper.test.js buildEnv (real
  * add-session.html body + real assets, App stub, mock PortfolioDB, real
@@ -353,7 +357,79 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  var EXPECTED_COUNT = 5;
+  // ─── 4a. Escape stands down while the shared confirm modal is open ────────────
+  await test('Escape while #confirmModal is visible does NOT start the export close flow; once hidden, Escape closes normally', async function () {
+    var s = await buildDirtyOnStep1();
+    var win = s.win;
+    var exportModal = win.document.getElementById('exportModal');
+    var cm = win.document.getElementById('confirmModal');
+    assert.ok(cm, 'the shared confirm modal exists in the page');
+
+    // A confirm dialog is on screen: the export modal must NOT react to Escape
+    // (no close-discard dialog may start on the same shared element).
+    cm.classList.remove('is-hidden');
+    s.env.confirmRef.calls = 0;
+    win.document.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await settle();
+    assert.strictEqual(s.env.confirmRef.calls, 0,
+      'no second dialog starts while a confirm owns the Escape');
+    assert.ok(!exportModal.classList.contains('is-hidden'),
+      'the export dialog stays open');
+
+    // Confirm gone → Escape reaches the export modal again (dirty → one dialog).
+    cm.classList.add('is-hidden');
+    win.document.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await settle();
+    assert.strictEqual(s.env.confirmRef.calls, 1, 'Escape now starts the close-discard dialog');
+    assert.ok(exportModal.classList.contains('is-hidden'),
+      'confirming the discard closes the export dialog');
+
+    s.env.dom.window.close();
+  });
+
+  // ─── 4b. A toggle-confirm orphaned by the dialog teardown is a guarded no-op ──
+  await test('a section-toggle confirm resolving AFTER the export dialog was torn down neither throws nor rebuilds', async function () {
+    var s = await buildDirtyOnStep1();
+    var win = s.win;
+
+    // Swap the immediate-resolve confirm stub for a deferred one so two dialog
+    // consumers can be interleaved deterministically.
+    var resolvers = [];
+    win.App.confirmDialog = function () {
+      s.env.confirmRef.calls++;
+      return new Promise(function (res) { resolvers.push(res); });
+    };
+
+    var cb = win.document.querySelector('#exportStep1Rows input[data-section-key="trapped"]');
+    assert.ok(cb, 'the trapped-emotions section row exists');
+    cb.click(); // dirty buffer → the toggle-discard dialog opens (stays pending)
+    await settle();
+    assert.strictEqual(resolvers.length, 1, 'the toggle dialog is pending');
+
+    win.document.getElementById('exportClose').click(); // close-discard dialog opens too
+    await settle();
+    assert.strictEqual(resolvers.length, 2, 'the close dialog is pending as well');
+
+    var rejections = [];
+    var onRej = function (err) { rejections.push(err); };
+    process.on('unhandledRejection', onRej);
+
+    resolvers[1](true); // discard-and-close wins: the export state is torn down
+    await settle();
+    assert.ok(win.document.getElementById('exportModal').classList.contains('is-hidden'),
+      'the export dialog closed');
+
+    resolvers[0](true); // the orphaned toggle dialog resolves after the teardown
+    await settle();
+    process.removeListener('unhandledRejection', onRej);
+    assert.strictEqual(rejections.length, 0,
+      'the orphaned toggle confirm must land on a guarded no-op, not a throw' +
+      (rejections.length ? ': ' + (rejections[0] && rejections[0].message) : ''));
+
+    s.env.dom.window.close();
+  });
+
+  var EXPECTED_COUNT = 7;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {

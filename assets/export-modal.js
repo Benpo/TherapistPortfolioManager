@@ -969,7 +969,16 @@
 
       const onClose = () => exportCloseDialog(false);
       const onOverlay = () => exportCloseDialog(false);
-      const onKey = (e) => { if (e.key === "Escape") exportCloseDialog(false); };
+      const onKey = (e) => {
+        if (e.key !== "Escape") return;
+        // While the shared confirm modal is open, Escape belongs to IT (its own
+        // document-level handler cancels it). Starting the close flow here too
+        // would open a second dialog on the same element and strand the first
+        // one pending and invisible, its listeners still bound.
+        const cm = document.getElementById("confirmModal");
+        if (cm && !cm.classList.contains("is-hidden")) return;
+        exportCloseDialog(false);
+      };
       const onBack = () => {
         // Back is ALWAYS silent and non-destructive: the edited buffer (and its
         // undo stack) survives untouched. Any discard decision happens at the
@@ -1055,6 +1064,10 @@
           confirmKey: "export.discard.yes",
           cancelKey: "export.discard.no"
         });
+        // The dialog is async: the export dialog can be torn down while it
+        // sits open. With no state left there is nothing to revert or rebuild
+        // against — stand down.
+        if (!_exportState) return;
         if (!ok) {
           // Programmatic revert fires no change event, so this cannot loop.
           cb.checked = !cb.checked;
