@@ -13,7 +13,7 @@ name: CLOSED — slimmed 46-16 gate PASSED by Ben 2026-07-17 (build dd986ce pre-
 expected: |
   Slimmed scope: content/editing items only (gaps 3/6/7/8/9/16 + iPhone core toolbar,
   real PDF, snippets/autogrow, lists, RTL). Preview/export-flow items carved to 46.1.
-awaiting: nothing — phase 46 close-out; gaps 14/15 owned by phase 46.1
+awaiting: nothing — all 16 gaps closed; 14/15 resolved by phase 46.1 (device gate approved by Ben 2026-07-20)
 
 ## Tests
 
@@ -67,8 +67,8 @@ Preview & Edit Experience Redesign phase (design-first).
 | 11 | Toolbar clip + scroll-away | fixed (46-15, probe-verified) | invariant → 46.1 |
 | 12 | Export bar buttons dead without focus | fixed (46-17, jsdom+probe) | mechanism survives → 46.1 surface |
 | 13 | Preview pane opens below the fold | fixed (46-17) | concept superseded → 46.1 |
-| 14 | Preview/edit UX concept rejected (mixed state, inverted button signal, scroll model) | OPEN — design | 46.1: sketch → UI-SPEC → plan → build |
-| 15 | Preview color = section-title orange | OPEN — design | 46.1 (unified preview language) |
+| 14 | Preview/edit UX concept rejected (mixed state, inverted button signal, scroll model) | resolved — 46.1 redesign (in-place swap + current-state switcher, inert bar in preview) | ✅ 46.1 device gate approved by Ben 2026-07-20 |
+| 15 | Preview color = section-title orange | resolved — 46.1 Frame treatment (surface bg + ghost-green border + PREVIEW chip, never surface-alt) | ✅ 46.1 device gate approved by Ben 2026-07-20 |
 | 16 | Bar hides on padding/gap click | fixed (a6de32f) | ✅ DEVICE-CONFIRMED by Ben 2026-07-17 |
 
 Quality loops (context, not open work): phase review R1 4 findings (1 critical),
