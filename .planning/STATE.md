@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Richer Sessions
-current_phase: 46.1
-current_phase_name: preview-edit-experience-redesign
-status: executing
-stopped_at: Phase 46.1 plan 07 device gate approved (7/7 plans complete; phase verification pending)
-last_updated: "2026-07-19T21:45:00.000Z"
+current_phase: 47
+current_phase_name: Session-Section Reordering
+status: verifying
+stopped_at: Phase 46.1 plan 07 device gate approved — 7/7 plans complete, phase NOT yet marked complete
+last_updated: "2026-07-20T06:08:53.765Z"
 last_activity: 2026-07-20
-last_activity_desc: Phase 46.1 plan 07 real-device gate approved by Ben
+last_activity_desc: Phase 46.1 complete, transitioned to Phase 47
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 37
   completed_plans: 36
-  percent: 33
+  percent: 50
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 
 ## Current Position
 
-Phase: 46.1 (preview-edit-experience-redesign) — EXECUTING
-Plan: 7 of 7 complete
+Phase: 47 — Session-Section Reordering
+Plan: Not started
 Status: All 7 plans complete — device gate approved by Ben 2026-07-20 on pre-prod build 3d5cbaf; phase verification / code review / phase completion still pending (NOT yet run)
-Last activity: 2026-07-20 — Phase 46.1 plan 07 real-device gate approved (four UAT fix rounds live-verified; suite 205/205, WebKit set E 12/12)
+Last activity: 2026-07-20 — Phase 46.1 complete, transitioned to Phase 47
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Last activity: 2026-07-20 — Phase 46.1 plan 07 real-device gate approved (four
 | 44 | 5 | - | - |
 | 45 | 8 | - | - |
 | 46 | 16 | - | - |
+| 46.1 | 7 | - | - |
 
 **Recent Trend:**
 
