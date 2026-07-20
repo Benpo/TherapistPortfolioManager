@@ -71,7 +71,7 @@
           priority: 2,
           body: [
             { type: "p", text: "Bausteine verwandeln Texte, die Sie immer wieder schreiben — Bedeutungen von Emotionen, Erklärungen von Techniken, Ihre übliche Abschlussnotiz — in kurze Auslöserwörter, die sich beim Tippen entfalten. Sessions Garden kommt mit einer eingebauten Bibliothek von Emotions-Bausteinen, und Sie können sie unter {ui:settings.tab.snippets} in den Einstellungen zu Ihrer eigenen umformen." },
-            { type: "note", text: "Die vollständige Anleitung — Bausteine erstellen und sie mitten in der Sitzung entfalten — finden Sie unter Emotionen festhalten." }
+            { type: "note", text: "Die vollständige Anleitung — Bausteine erstellen und sie mitten in der Sitzung entfalten — finden Sie unter Sitzungsnotizen schreiben." }
           ]
         },
         {
@@ -158,28 +158,25 @@
           title: "Die vergangenen Sitzungen eines Klienten",
           priority: 2,
           body: [
-            { type: "p", text: "Öffnen Sie {ui:nav.sessions}, um alles zu sehen, was Sie festgehalten haben, oder wählen Sie {ui:overview.table.viewSessions} bei einem Klienten, um zu sehen, was beim letzten Mal geschah." }
+            { type: "p", text: "Öffnen Sie {ui:nav.sessions}, um alles zu sehen, was Sie festgehalten haben, oder wählen Sie {ui:overview.table.viewSessions} bei einem Klienten, um zu sehen, was beim letzten Mal geschah." },
+            { type: "p", text: "Wenn Sie eine gespeicherte Sitzung öffnen, erscheinen Ihre Notizen als formatierter Text — fett, kursiv, Aufzählungen, nummerierte Listen und Überschriften zeigen sich so, wie Sie sie getippt haben, sodass sich eine Sitzung auf einen Blick zurücklesen lässt." }
           ]
         }
       ]
     },
     {
       id: "capturing-emotions",
-      title: "Emotionen festhalten",
+      title: "Sitzungsnotizen schreiben",
       group: "session-loop",
       featured: false,
       topics: [
         {
           id: "topic-quick-paste",
-          title: "Emotionen schnell festhalten",
+          title: "Notizen schnell festhalten",
           priority: 1,
           body: [
-            { type: "p", text: "Während einer Sitzung möchten Sie Emotionen festhalten, ohne Ihren Fluss zu unterbrechen." },
-            { type: "steps", items: [
-              "Öffnen Sie die Sitzung und klappen Sie {ui:session.accordion.emotions} auf.",
-              "Tippen oder fügen Sie die Emotionen ein, wie sie auftauchen — in welchen Worten auch immer Sie mögen, ein Gedanke nach dem anderen.",
-              "Machen Sie weiter; es ist nicht nötig, anzuhalten und die Formulierung zu ordnen, bevor Sie fertig sind."
-            ] }
+            { type: "p", text: "Während einer Sitzung möchten Sie die Dinge festhalten, ohne Ihren Fluss zu unterbrechen." },
+            { type: "p", text: "Öffnen Sie die Sitzung, klappen Sie den Abschnitt auf, in dem Sie schreiben möchten — {ui:session.accordion.emotions}, Sitzungsnotizen oder jeden anderen — und tippen oder fügen Sie ein, was auftaucht, in welchen Worten auch immer. Ordnen und Formatieren können warten, bis Sie fertig sind." }
           ]
         },
         {
@@ -187,7 +184,23 @@
           title: "Sitzungsnotizen formatieren",
           priority: 1,
           body: [
-            { type: "p", text: "Die vollständige Anleitung zur Formatierungsleiste erscheint bald auf Deutsch; bis dahin finden Sie sie in der englischen Hilfe." }
+            { type: "p", text: "Eine Formatierungsleiste sitzt über jedem Notizfeld, in dem Sie gerade schreiben — dieselben Werkzeuge in jedem Notizbereich des Sitzungsformulars und im Export-Editor." },
+            { type: "steps", items: [
+              "Markieren Sie ein paar Worte und drücken Sie die Fett-Schaltfläche.",
+              "Drücken Sie eine Listen-Schaltfläche, um eine Liste zu beginnen — sie setzt sich beim Tippen von selbst fort.",
+              "Stellen Sie die Leiste auf Vorschau, um das formatierte Ergebnis zu sehen; drücken Sie Bearbeiten, um weiterzuschreiben."
+            ] },
+            { type: "p", text: "Die Leiste, Schaltfläche für Schaltfläche — was jede tut, mit ihrem Tastaturkürzel, wo es eines gibt:" },
+            { type: "list", items: [
+              "Fett und kursiv — heben die markierten Worte hervor; Strg/Cmd+B, Strg/Cmd+I.",
+              "Aufzählung und nummerierte Liste — machen aus der aktuellen Zeile einen Listenpunkt.",
+              "Textstil — drei Überschriftgrößen oder normaler Text; ein Häkchen markiert den aktuellen Stil.",
+              "Einrücken und Ausrücken — verschachteln Listenpunkte oder rücken Zeilen hinein und heraus; Tab und Umschalt+Tab innerhalb einer Liste. Überschriften bleiben bündig am Rand, auf Überschriftzeilen ruhen also beide.",
+              "Rückgängig und Wiederholen — eine Änderung nach der anderen; Strg/Cmd+Z, Strg/Cmd+Umschalt+Z. Jede Schaltfläche wird blass, wenn kein Schritt mehr übrig ist.",
+              "Bearbeiten / Vorschau — der Schalter am Ende der Leiste; Strg/Cmd+E wechselt zwischen den beiden."
+            ] },
+            { type: "p", text: "Listen wachsen auch beim Tippen: ein Bindestrich oder eine Zahl beginnt eine, Enter setzt sie fort, und Enter auf einem leeren Punkt beendet sie." },
+            { type: "note", text: "Die Vorschau tauscht das Feld gegen eine gerahmte Ansicht mit der Markierung VORSCHAU — genau das, was Speichern, Exportieren und Kopieren erzeugen werden, Einzüge eingeschlossen. Die Formatierungs-Schaltflächen ruhen während der Vorschau; Bearbeiten oder Strg/Cmd+E bringt Sie zurück zum Schreiben. Alles, was Sie formatieren, wird mit der Sitzung gespeichert und liest sich später als formatierter Text." }
           ]
         },
         {
@@ -204,7 +217,7 @@
               "Schreiben Sie den vollständigen Text, in den sich der Auslöser entfalten soll, und drücken Sie dann {ui:common.save}."
             ] },
             { type: "p", text: "Einen Baustein zu verwenden ist genauso einfach. Während Sie in einer Sitzung schreiben, tippen Sie Ihr Auslöser-Präfix (ein Semikolon, sofern Sie es nicht geändert haben), dann das Auslöserwort, dann ein Leerzeichen. Tippen Sie ;verrat und ein Leerzeichen, und es entfaltet sich in die volle Bedeutung von Verrat — genau dort, wo Ihr Cursor steht." },
-            { type: "p", text: "Sie können sich das genaue Wort nicht merken? Tippen Sie das Präfix und den ersten Buchstaben oder zwei, und eine kleine Liste passender Bausteine erscheint an Ihrem Cursor — bewegen Sie sich mit den Pfeiltasten hindurch und drücken Sie Enter zum Einfügen oder Escape zum Schließen. Auch das Tippen eines Tag-Namens nach dem Präfix funktioniert und listet die Bausteine auf, die Sie unter diesem Tag gruppiert haben." },
+            { type: "p", text: "Sie können sich das genaue Wort nicht merken? Tippen Sie das Präfix und den ersten Buchstaben oder zwei, und eine kleine Liste passender Bausteine erscheint an Ihrem Cursor — bewegen Sie sich mit den Pfeiltasten hindurch und drücken Sie Enter zum Einfügen oder Escape zum Schließen. Auch das Tippen eines Tag-Namens nach dem Präfix funktioniert und listet die Bausteine auf, die Sie unter diesem Tag gruppiert haben. Wählen Sie auf diese Weise einen Vorschlag innerhalb einer Aufzählung oder nummerierten Liste, bleiben Sie auf derselben Zeile — das Übernehmen beginnt also nie einen versehentlichen neuen Listenpunkt." },
             { type: "p", text: "Wo es glänzt: Wenn Sie die meisten Sitzungen mit einer ähnlichen Notiz schließen — was gelöst wurde, worauf in den kommenden Tagen zu achten ist — speichern Sie sie einmal unter einem Auslöser wie schluss, und jede Sitzung kann mit einem kurzen Wort enden statt mit einem aus dem Gedächtnis neu getippten Absatz." },
             { type: "note", text: "Bausteine entfalten sich in jedem Notizbereich des Sitzungsformulars — Emotionen, Einsichten, Kommentare und dem Rest — und auch im Export-Editor, sodass Ihre Klienten-Zusammenfassungen sie ebenfalls nutzen können." },
             { type: "note", text: "Machen Sie sie ganz zu Ihren eigenen unter {ui:settings.tab.snippets}: ändern Sie dort das {ui:snippets.prefix.label} und geben Sie jedem Baustein seinen Text in mehr als einer App-Sprache mit {ui:snippets.editor.translations.toggle}." }
@@ -293,9 +306,19 @@
             { type: "p", text: "Wenn eine Sitzung abgeschlossen ist, können Sie eine wunderschön formatierte Kopie an Ihren Klienten senden oder sie in Ihren eigenen Unterlagen ablegen." },
             { type: "steps", items: [
               "Öffnen Sie die gespeicherte Sitzung und wählen Sie {ui:session.export}.",
+              "Wählen Sie, welche Teile der Sitzung enthalten sein sollen. Die Emotions-Bewertungen davor und danach sind vorausgewählt — wählen Sie sie ab, um die Schweregrad-Bewertungen aus diesem Export herauszulassen.",
               "Überprüfen — und bearbeiten Sie leicht — was geteilt wird.",
               "Wählen Sie {ui:export.download.pdf} für ein poliertes Dokument oder {ui:export.download.text}, um die Notizen als einfache Textdatei zu speichern."
-            ] }
+            ] },
+            { type: "list", items: [
+              "Die Formatierungsleiste bleibt über dem Editor angeheftet — sie scrollt nie weg.",
+              "Editor maximieren gibt dem Editor das ganze Fenster; erneutes Drücken stellt ihn wieder her. Auf einem Telefon füllt er den Bildschirm.",
+              "Änderungen hier formen nur diesen Export — nichts wird in die Sitzung zurückgespeichert.",
+              "Die Vorschau zeigt das fertige Dokument anstelle des Editors — prüfen Sie es, bevor Sie ein Format wählen.",
+              "Zurück und Weiter behalten Ihre Änderungen. Das Dokument wird nur neu aufgebaut, wenn Sie die Abschnittsauswahl ändern — und die App fragt vorher.",
+              "Fett, kursiv, Listen, Überschriften und Einzüge wandern mit ins PDF; Hebräisch bleibt korrekt von rechts nach links."
+            ] },
+            { type: "note", text: "Bei Heart-Wall-Sitzungen benennt der Export das Ergebnis in Worten — Heart-Wall entfernt, oder Heart-Wall vorhanden, in dieser Sitzung nicht entfernt — nie ein bloßes Ja oder Nein." }
           ]
         },
         {
@@ -303,7 +326,9 @@
           title: "Ein Format wählen",
           priority: 2,
           body: [
-            { type: "p", text: "PDF eignet sich am besten, um ein fertiges, gut aussehendes Dokument an Ihren Klienten zu senden. Einfacher Text eignet sich am besten, wenn Sie die Notizen in Ihren eigenen Unterlagen behalten oder in eine andere App bringen möchten." }
+            { type: "p", text: "PDF eignet sich am besten, um ein fertiges, gut aussehendes Dokument an Ihren Klienten zu senden. Einfacher Text eignet sich am besten, wenn Sie die Notizen in Ihren eigenen Unterlagen behalten oder in eine andere App bringen möchten." },
+            { type: "p", text: "Das PDF bewahrt Ihre Notiz-Formatierung — fett, Listen, Überschriften und Einzüge — als formatierten Text, während die Textdatei Ihre Notizen genau so behält, wie Sie sie getippt haben." },
+            { type: "p", text: "Nicht sicher, was zum Moment passt? Stellen Sie den Editor im Bearbeitungsschritt auf Vorschau — die gerahmte Ansicht zeigt das fertige Dokument genau so, wie es sich lesen wird — und entscheiden Sie, bevor Sie exportieren." }
           ]
         }
       ]

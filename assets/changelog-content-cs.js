@@ -22,24 +22,29 @@
 
   window.CHANGELOG_CONTENT_CS = [
 
-    // v1.4 — Richer Sessions: formatted notes that keep their shape
+    // v1.4 — Richer Sessions: formatting your notes, and notes that keep their shape
     {
       version: "1.4.0",
       anchor: "v1-4",
       date: "červenec 2026",
-      lede: "Tato verze zachovává tvar vašich poznámek k sezení — tučné písmo, seznamy a nadpisy zůstávají krásně formátované všude, kde je čtete nebo sdílíte.",
+      lede: "Formátování poznámek ze sezení je teď snadné — panel nad každým poznámkovým polem a v editoru exportu přidá tučné písmo, seznamy a nadpisy, s vestavěným náhledem, který přesně ukáže, jak se budou číst.",
       highlights: [
-        "Tučné písmo, kurzíva, odrážkové i číslované seznamy a nadpisy se nyní zobrazují jako formátovaný text, když čtete uložené sezení.",
-        "Exportovaná PDF zachovají vaše formátování a hebrejština zůstává správně zprava doleva.",
-        "Při kopírování nebo sdílení sezení zůstanou vaše poznámky přesně tak, jak jste je napsali.",
+        "Panel formátování nad každým poznámkovým polem a v editoru exportu — tučné písmo, kurzíva, seznamy, nadpisy a klávesové zkratky.",
+        "Zobrazte si náhled kterékoli poznámky — nebo exportovaného dokumentu — jako orámovaný pohled na hotový výsledek.",
+        "Vaše formátování si drží tvar — v uložených sezeních i v exportech do PDF.",
       ],
       categories: {
         new: [
-          "Čtení uloženého sezení nyní zobrazuje vaše poznámky jako formátovaný text, takže tučné písmo, seznamy a nadpisy vypadají tak, jak jste je napsali.",
+          "Panel formátování nad každým poznámkovým polem a v editoru exportu — tučné písmo, kurzíva, odrážkové a číslované seznamy, nabídka stylu textu pro nadpisy, odsazení a jeho zmenšení, zpět a znovu.",
+          "Vestavěný náhled: přepínač Upravit / Náhled vymění psací plochu za orámovaný pohled na hotový výsledek — Ctrl/Cmd+E přepíná mezi oběma.",
+          "Čtení uloženého sezení zobrazí vaše poznámky jako formátovaný text.",
         ],
         improved: [
-          "Exporty do PDF nyní zachovávají tučné písmo, kurzívu, odrážkové i číslované seznamy, vnoření a nadpisy poznámek — se správně zachovanou hebrejštinou zprava doleva.",
-          "Kopírování sezení nebo uložení jako textový soubor zachová vaše poznámky přesně tak, jak byly napsány.",
+          "Formátování plyne při psaní — pomlčka nebo číslo začne seznam, který pokračuje sám, a Tab vnořuje položky.",
+          "Prostornější editor exportu, s možností maximalizace.",
+          "Zvolte, zda export zahrne hodnocení emocí před a po.",
+          "Jasnější formulace Heart-Wall v exportech.",
+          "Exporty do PDF zachovají vaše formátování.",
         ],
       },
     },

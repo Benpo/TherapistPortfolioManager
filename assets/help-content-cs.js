@@ -71,7 +71,7 @@
           priority: 2,
           body: [
             { type: "p", text: "Úryvky promění text, který píšete znovu a znovu — významy emocí, vysvětlení technik, vaši obvyklou závěrečnou poznámku — v krátká spouštěcí slova, která se při psaní rozvinou. Sessions Garden přichází s vestavěnou knihovnou úryvků emocí a vy si ji můžete přetvořit ve svou vlastní v {ui:settings.tab.snippets} v Nastavení." },
-            { type: "note", text: "Úplný návod — vytváření úryvků a jejich rozvíjení uprostřed sezení — najdete v části Zaznamenávání emocí." }
+            { type: "note", text: "Úplný návod — vytváření úryvků a jejich rozvíjení uprostřed sezení — najdete v části Psaní poznámek ze sezení." }
           ]
         },
         {
@@ -158,28 +158,25 @@
           title: "Minulá sezení klienta",
           priority: 2,
           body: [
-            { type: "p", text: "Otevřete {ui:nav.sessions}, abyste viděli vše, co jste zaznamenali, nebo zvolte {ui:overview.table.viewSessions} u klienta, abyste viděli, co se dělo minule." }
+            { type: "p", text: "Otevřete {ui:nav.sessions}, abyste viděli vše, co jste zaznamenali, nebo zvolte {ui:overview.table.viewSessions} u klienta, abyste viděli, co se dělo minule." },
+            { type: "p", text: "Když otevřete uložené sezení, vaše poznámky se zobrazí jako formátovaný text — tučné písmo, kurzíva, odrážkové i číslované seznamy a nadpisy vypadají tak, jak jste je napsali, takže se v sezení snadno zorientujete na první pohled." }
           ]
         }
       ]
     },
     {
       id: "capturing-emotions",
-      title: "Zaznamenávání emocí",
+      title: "Psaní poznámek ze sezení",
       group: "session-loop",
       featured: false,
       topics: [
         {
           id: "topic-quick-paste",
-          title: "Rychlé zaznamenávání emocí",
+          title: "Rychlé zapsání poznámek",
           priority: 1,
           body: [
-            { type: "p", text: "Během sezení chcete zaznamenávat emoce, aniž byste přerušili svůj tok." },
-            { type: "steps", items: [
-              "Otevřete sezení a rozbalte {ui:session.accordion.emotions}.",
-              "Napište nebo vložte emoce, jak přicházejí — jakýmikoli slovy, která používáte, jednu myšlenku po druhé.",
-              "Pokračujte; není třeba se zastavovat a upravovat formulace, dokud nebudete hotovi."
-            ] }
+            { type: "p", text: "Během sezení si chcete věci zapsat, aniž byste přerušili své soustředění." },
+            { type: "p", text: "Otevřete sezení, rozbalte sekci, do které chcete psát — {ui:session.accordion.emotions}, poznámky ze sezení nebo kteroukoli jinou — a napište nebo vložte, co přichází, jakýmikoli slovy, která používáte. Úprava a formátování počkají, dokud nebudete hotovi." }
           ]
         },
         {
@@ -187,7 +184,23 @@
           title: "Formátování poznámek ze sezení",
           priority: 1,
           body: [
-            { type: "p", text: "Úplný průvodce panelem formátování bude brzy k dispozici v češtině; zatím jej najdete v anglické nápovědě." }
+            { type: "p", text: "Panel formátování je usazen nad každým poznámkovým polem, do kterého právě píšete — stejné nástroje v každé poznámkové oblasti formuláře sezení i v editoru exportu." },
+            { type: "steps", items: [
+              "Vyberte několik slov a stiskněte tlačítko tučného písma.",
+              "Stiskněte tlačítko seznamu a začněte seznam — při psaní pokračuje sám.",
+              "Přepněte panel na Náhled, abyste viděli formátovaný výsledek; stiskněte Upravit a pište dál."
+            ] },
+            { type: "p", text: "Panel, tlačítko po tlačítku — co které dělá, s klávesovou zkratkou tam, kde existuje:" },
+            { type: "list", items: [
+              "Tučné písmo a kurzíva — zvýrazní vybraná slova; Ctrl/Cmd+B, Ctrl/Cmd+I.",
+              "Odrážkový a číslovaný seznam — promění aktuální řádek v položku seznamu.",
+              "Styl textu — tři velikosti nadpisů nebo běžný text; zaškrtnutí označuje aktuální styl.",
+              "Odsadit a zmenšit odsazení — vnořují položky seznamu nebo posouvají řádky dovnitř a ven; Tab a Shift+Tab uvnitř seznamu. Nadpisy zůstávají zarovnané k okraji, takže na řádku nadpisu obě tlačítka odpočívají.",
+              "Zpět a znovu — jedna změna po druhé; Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z. Každé tlačítko pohasne, když už nezbývá žádný krok.",
+              "Upravit / Náhled — přepínač na konci panelu; Ctrl/Cmd+E přepíná mezi oběma."
+            ] },
+            { type: "p", text: "Seznamy také rostou při psaní: pomlčka nebo číslo seznam začne, Enter v něm pokračuje a Enter na prázdné položce jej ukončí." },
+            { type: "note", text: "Náhled vymění pole za orámovaný pohled s označením NÁHLED — přesně to, co uložení, export a kopírování vytvoří, včetně odsazení. Tlačítka formátování během náhledu odpočívají; Upravit nebo Ctrl/Cmd+E vás vrátí ke psaní. Vše, co naformátujete, se uloží se sezením a čte se zpět jako formátovaný text." }
           ]
         },
         {
@@ -204,7 +217,7 @@
               "Napište celý text, do kterého se má spouštěč rozvinout, a poté stiskněte {ui:common.save}."
             ] },
             { type: "p", text: "Použití úryvku je stejně jednoduché. Při psaní v sezení napište svou spouštěcí předponu (středník, pokud jste ji nezměnili), poté spouštěcí slovo a poté mezeru. Napište ;zrada a mezeru, a rozvine se to do plného významu zrady — přesně tam, kde je váš kurzor." },
-            { type: "p", text: "Nemůžete si vzpomenout na přesné slovo? Napište předponu a první písmeno nebo dvě, a u vašeho kurzoru se objeví malý seznam odpovídajících úryvků — procházejte jím pomocí šipek a stiskněte Enter pro vložení, nebo Escape pro zavření. Funguje i napsání názvu štítku za předponou, které vypíše úryvky, jež jste pod tímto štítkem seskupili." },
+            { type: "p", text: "Nemůžete si vzpomenout na přesné slovo? Napište předponu a první písmeno nebo dvě, a u vašeho kurzoru se objeví malý seznam odpovídajících úryvků — procházejte jím pomocí šipek a stiskněte Enter pro vložení, nebo Escape pro zavření. Funguje i napsání názvu štítku za předponou, které vypíše úryvky, jež jste pod tímto štítkem seskupili. Vyberete-li návrh tímto způsobem uvnitř odrážkového nebo číslovaného seznamu, zůstanete na stejném řádku — přijetí tedy nikdy nezačne nechtěnou novou položku." },
             { type: "p", text: "Kde vyniká: pokud většinu sezení zakončujete podobnou poznámkou — co bylo uvolněno, čeho si v nadcházejících dnech všímat — uložte ji jednou pod spouštěč jako zaver, a každé sezení může skončit jedním krátkým slovem místo odstavce znovu psaného z paměti." },
             { type: "note", text: "Úryvky se rozvinou v každé poznámkové oblasti formuláře sezení — emoce, postřehy, komentáře a ostatní — a také v editoru exportu, takže je mohou využít i vaše shrnutí pro klienty." },
             { type: "note", text: "Udělejte si je zcela vlastní v {ui:settings.tab.snippets}: změňte tam {ui:snippets.prefix.label} a dejte kterémukoli úryvku jeho text ve více než jednom jazyce aplikace pomocí {ui:snippets.editor.translations.toggle}." }
@@ -293,9 +306,19 @@
             { type: "p", text: "Když je sezení dokončeno, můžete svému klientovi odeslat krásně formátovanou kopii nebo ji uložit do svých vlastních záznamů." },
             { type: "steps", items: [
               "Otevřete uložené sezení a zvolte {ui:session.export}.",
+              "Zvolte, které části sezení zahrnout. Hodnocení emocí před a po jsou předvybraná — odškrtněte je, pokud chcete hodnocení závažnosti z tohoto exportu vynechat.",
               "Zkontrolujte — a lehce upravte — co bude sdíleno.",
               "Zvolte {ui:export.download.pdf} pro uhlazený dokument, nebo {ui:export.download.text} pro uložení poznámek jako prostý textový soubor."
-            ] }
+            ] },
+            { type: "list", items: [
+              "Panel formátování zůstává připnutý nad editorem — nikdy neodroluje pryč.",
+              "Maximalizovat editor mu dá celé okno; dalším stisknutím jej vrátíte. Na telefonu vyplní obrazovku.",
+              "Úpravy zde tvarují pouze tento export — nic se neukládá zpět do sezení.",
+              "Náhled zobrazí hotový dokument na místě editoru — zkontrolujte jej, než zvolíte formát.",
+              "Zpět a Pokračovat vaše úpravy zachovají. Dokument se znovu sestaví, jen když změníte výběr sekcí — a aplikace se nejdřív zeptá.",
+              "Tučné písmo, kurzíva, seznamy, nadpisy a odsazení se přenesou do PDF; hebrejština zůstává správně zprava doleva."
+            ] },
+            { type: "note", text: "U sezení s Heart-Wall export vyjádří výsledek slovy — Heart-Wall odstraněna, nebo Heart-Wall přítomna, v tomto sezení neodstraněna — nikdy holé ano či ne." }
           ]
         },
         {
@@ -303,7 +326,9 @@
           title: "Výběr formátu",
           priority: 2,
           body: [
-            { type: "p", text: "PDF je nejlepší pro odeslání hotového, dobře vypadajícího dokumentu vašemu klientovi. Prostý text je nejlepší, když chcete poznámky uchovat ve svých vlastních záznamech nebo je přenést do jiné aplikace." }
+            { type: "p", text: "PDF je nejlepší pro odeslání hotového, dobře vypadajícího dokumentu vašemu klientovi. Prostý text je nejlepší, když chcete poznámky uchovat ve svých vlastních záznamech nebo je přenést do jiné aplikace." },
+            { type: "p", text: "PDF zachová formátování vašich poznámek — tučné písmo, seznamy, nadpisy a odsazení — jako formátovaný text, zatímco prostý textový soubor uchová poznámky přesně tak, jak jste je napsali." },
+            { type: "p", text: "Nejste si jisti, co se pro tuto chvíli hodí? V kroku úprav přepněte editor na Náhled — orámovaný pohled ukáže hotový dokument přesně tak, jak se bude číst — a rozhodněte se před exportem." }
           ]
         }
       ]

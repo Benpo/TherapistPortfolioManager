@@ -21,24 +21,29 @@
 
   window.CHANGELOG_CONTENT_DE = [
 
-    // v1.4 — Richer Sessions: formatted notes that keep their shape
+    // v1.4 — Richer Sessions: formatting your notes, and notes that keep their shape
     {
       version: "1.4.0",
       anchor: "v1-4",
       date: "Juli 2026",
-      lede: "In dieser Version behalten Ihre Sitzungsnotizen ihre Form — fett, Listen und Überschriften bleiben überall schön formatiert, wo Sie sie lesen oder teilen.",
+      lede: "Ihre Sitzungsnotizen zu formatieren ist jetzt mühelos — eine Formatierungsleiste über jedem Notizfeld und im Export-Editor bringt Fett, Listen und Überschriften, mit einer eingebauten Vorschau, die genau zeigt, wie sie sich lesen werden.",
       highlights: [
-        "Fett, kursiv, Aufzählungs- und nummerierte Listen sowie Überschriften erscheinen jetzt als formatierter Text, wenn Sie eine gespeicherte Sitzung lesen.",
-        "Exportierte PDFs behalten Ihre Formatierung, und Hebräisch bleibt korrekt von rechts nach links.",
-        "Beim Kopieren oder Teilen einer Sitzung bleiben Ihre Notizen genau so, wie Sie sie geschrieben haben.",
+        "Eine Formatierungsleiste über jedem Notizfeld und im Export-Editor — fett, kursiv, Listen, Überschriften und Tastaturkürzel.",
+        "Sehen Sie jede Notiz — oder das Export-Dokument — als gerahmte Vorschau des fertigen Ergebnisses.",
+        "Ihre Formatierung behält ihre Form — in gespeicherten Sitzungen und in PDF-Exporten.",
       ],
       categories: {
         new: [
-          "Beim Lesen einer gespeicherten Sitzung erscheinen Ihre Notizen jetzt als formatierter Text, sodass Fett, Listen und Überschriften so aussehen, wie Sie sie getippt haben.",
+          "Eine Formatierungsleiste über jedem Notizfeld und im Export-Editor — fett, kursiv, Aufzählungen und nummerierte Listen, ein Textstil-Menü für Überschriften, Einrücken und Ausrücken, Rückgängig und Wiederholen.",
+          "Eine eingebaute Vorschau: der Schalter Bearbeiten / Vorschau tauscht den Schreibbereich gegen eine gerahmte Ansicht des fertigen Ergebnisses — Strg/Cmd+E wechselt zwischen den beiden.",
+          "Beim Lesen einer gespeicherten Sitzung erscheinen Ihre Notizen als formatierter Text.",
         ],
         improved: [
-          "PDF-Exporte bewahren jetzt Fett, kursiv, Aufzählungs- und nummerierte Listen, Verschachtelungen und Notiz-Überschriften — mit korrekt erhaltenem Hebräisch von rechts nach links.",
-          "Das Kopieren einer Sitzung oder das Speichern als Textdatei behält Ihre Notizen genau so, wie sie geschrieben wurden.",
+          "Formatierung fließt beim Tippen — ein Bindestrich oder eine Zahl beginnt eine Liste, die sich von selbst fortsetzt, und Tab verschachtelt Listenpunkte.",
+          "Ein großzügigerer Export-Editor, mit einer Maximieren-Option.",
+          "Wählen Sie, ob ein Export die Emotions-Bewertungen davor und danach enthält.",
+          "Klarere Heart-Wall-Formulierungen in Exporten.",
+          "PDF-Exporte bewahren Ihre Formatierung.",
         ],
       },
     },
