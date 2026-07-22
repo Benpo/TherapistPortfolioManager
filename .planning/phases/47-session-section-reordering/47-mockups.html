@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 47 — UI-SPEC mockups (remaining visual details)</title>
+<!--
+  Small interactive mockup for Phase 47 (D-17 binding process gate).
+  Covers ONLY the remaining VISUAL-detail decisions — structure/placement/reorder
+  model are already LOCKED in 47-CONTEXT.md (Model A, D-02 order, glued-before /
+  free-after severity). Palette + Rubik font mirror assets/tokens.css so Ben + Sapir
+  read it as the real app. EN/HE (RTL) + light/dark toggles.
+  Each block states the RECOMMENDED treatment that the UI-SPEC encodes as the default.
+-->
+<style>
+  /* ---- tokens mirrored from assets/tokens.css (light) ---- */
+  :root{
+    --primary:#2d6a4f; --primary-soft:#c8e6d4; --primary-dark:#174a30; --primary-deeper:#0f3520;
+    --bg:#fdf8f0; --surface:#ffffff; --surface-subtle:#fef8f0; --surface-alt:#fdf7ed;
+    --surface-toggle:#f2faf5; --secondary-btn:#e8f5ee; --disabled:#fefcf8;
+    --text:#2f2d38; --muted:#5f5c72; --meta:#0f3520;
+    --border:rgba(45,106,79,.2); --border-soft:rgba(45,106,79,.1); --border-subtle:rgba(45,106,79,.12);
+    --success:#2fb37d; --danger:#ea4b4b; --heartwall:#e83d6d;
+    --sev-border:#ccc; --sev-text:#666; --group-tint:#f2faf5;
+    --shadow-card:0 12px 26px rgba(36,24,72,.10);
+  }
+  [data-theme="dark"]{
+    --primary:#5aacac; --primary-soft:#253030; --primary-dark:#9ec8c8; --primary-deeper:#7aa8a8;
+    --bg:#151b1b; --surface:#202828; --surface-subtle:#1c2323; --surface-alt:#233030;
+    --surface-toggle:#1c2323; --secondary-btn:#233030; --disabled:#1a2020;
+    --text:#e8eeed; --muted:#7aa8a8; --meta:#9ec8c8;
+    --border:rgba(90,172,172,.22); --border-soft:rgba(90,172,172,.11); --border-subtle:rgba(90,172,172,.14);
+    --sev-border:#4a5555; --sev-text:#7aa8a8; --group-tint:#1c2323;
+    --shadow-card:0 12px 26px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:Rubik,system-ui,-apple-system,sans-serif; line-height:1.5; padding:1.25rem; -webkit-font-smoothing:antialiased;}
+  h1{font-size:1.15rem; color:var(--primary); font-weight:600; margin-bottom:.2rem;}
+  .sub{color:var(--muted); font-size:.85rem; max-width:60rem; margin-bottom:1rem;}
+  .toolbar{display:flex; gap:.5rem; align-items:center; margin-bottom:1.4rem; flex-wrap:wrap;}
+  .tgl{border:1px solid var(--primary); background:var(--surface); color:var(--primary); border-radius:999px; padding:.32rem .9rem; font-size:.82rem; cursor:pointer; font-family:inherit; font-weight:500;}
+  .tgl.active{background:var(--primary); color:#fff;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.1rem; max-width:78rem;}
+  .card{background:var(--surface); border:1px solid var(--border-soft); border-radius:16px; padding:1rem 1.1rem 1.15rem;}
+  .card h2{font-size:.95rem; color:var(--primary); font-weight:600; margin-bottom:.15rem;}
+  .card .rec{font-size:.72rem; color:var(--meta); background:var(--secondary-btn); border-radius:999px; padding:.12rem .55rem; display:inline-block; margin:.35rem 0 .8rem; font-weight:500;}
+  .card p.d{font-size:.76rem; color:var(--muted); margin-bottom:.85rem;}
+
+  /* ---- reorder list (compact rows, one container) ---- */
+  .reo{border:1px solid var(--border); border-radius:12px; overflow:hidden;}
+  .rrow{display:flex; align-items:center; gap:.45rem; padding:.5rem .55rem; background:var(--surface); border-top:1px solid var(--border-soft); min-height:44px;}
+  .rrow:first-child{border-top:none;}
+  .rrow.head{background:var(--group-tint); font-weight:600; color:var(--primary);}
+  .rrow.child{padding-inline-start:1.7rem;}
+  .rrow.dragging{opacity:.55; box-shadow:var(--shadow-card); border-radius:8px;}
+  .rrow.ph{background:transparent; border:2px dashed var(--primary-soft); min-height:40px;}
+  .rrow.disabled .nm{opacity:.5; text-decoration:line-through;}
+  .handle{color:var(--muted); cursor:grab; font-size:1.05rem; padding:.15rem .1rem; touch-action:none; user-select:none;}
+  .nm{flex:1; font-size:.82rem;}
+  .ic{border:1px solid var(--border-soft); background:var(--surface-subtle); border-radius:7px; color:var(--muted); width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; font-size:.8rem; cursor:pointer; font-family:inherit;}
+  .ic:disabled{opacity:.3; cursor:default;}
+  .pill{width:34px; height:19px; border-radius:999px; background:var(--primary); position:relative; flex-shrink:0; cursor:pointer; border:none;}
+  .pill.off{background:var(--sev-border);}
+  .pill::after{content:""; position:absolute; inset-inline-end:2.5px; top:2.5px; width:14px; height:14px; border-radius:50%; background:#fff; transition:inset-inline .15s;}
+  .pill.off::after{inset-inline-end:auto; inset-inline-start:2.5px;}
+  .reset{margin-top:.7rem; border:1px solid var(--border); background:var(--secondary-btn); color:var(--primary-dark); border-radius:10px; padding:.45rem .9rem; font-size:.8rem; font-weight:600; cursor:pointer; font-family:inherit;}
+
+  /* ---- info icon + popover ---- */
+  .toggle-line{display:flex; align-items:center; gap:.5rem; background:var(--surface); border:1px solid var(--border-soft); border-radius:12px; padding:.7rem .8rem;}
+  .infobtn{width:22px; height:22px; border-radius:50%; border:1.6px solid var(--muted); color:var(--muted); background:transparent; font-size:.72rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; font-family:Georgia,serif;}
+  .infobtn[aria-expanded="true"]{border-color:var(--primary); color:var(--primary);}
+  .pop{margin-top:.55rem; font-size:.76rem; color:var(--text); background:var(--surface-toggle); border:1px solid var(--border-subtle); border-inline-start:3px solid var(--primary); border-radius:8px; padding:.55rem .7rem; line-height:1.5;}
+  .pop[hidden]{display:none;}
+
+  /* ---- severity scale + N/A ---- */
+  .sevscale{display:flex; gap:.4rem; flex-wrap:wrap; align-items:center;}
+  .sevbtn{width:34px; height:34px; border-radius:10px; border:2px solid var(--sc,var(--sev-border)); background:var(--surface); font-weight:700; color:var(--sc,var(--sev-text)); cursor:pointer; font-family:inherit; font-size:.82rem;}
+  .sevbtn.active{background:var(--sc,var(--sev-border)); color:#fff;}
+  .sevbtn.na{width:auto; padding:0 .7rem; --sc:var(--sev-border); color:var(--sev-text); font-weight:600;}
+  .sevbtn.na.active{background:var(--sev-border); color:#fff;}
+
+  /* ---- topic row w/ before-rating ---- */
+  .topic{border:1px solid var(--border-soft); border-radius:10px; padding:.6rem .7rem; margin-bottom:.5rem; background:var(--surface-subtle);}
+  .topic .tt{font-size:.82rem; font-weight:600; margin-bottom:.45rem;}
+  .topic .lbl{font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:.3rem;}
+  html[dir="rtl"] .topic .lbl{letter-spacing:0;}
+  .sevcol[hidden]{display:none;}
+
+  .note{margin-top:1.3rem; font-size:.77rem; color:var(--muted); max-width:60rem; border-inline-start:3px solid var(--primary); background:var(--surface); padding:.5rem .8rem; border-radius:8px;}
+</style>
+</head>
+<body>
+<h1 data-k="title">Phase 47 — remaining visual details (for sign-off)</h1>
+<div class="sub" data-k="sub">Structure &amp; reorder model are already locked (Model A, D-02 order, severity glued-before / free-after). These are the small visual decisions the UI-SPEC pins down: reorder-row look, drag/arrow affordances, the ⓘ severity-off explainer, the N/A rating, and the topic + before-rating row. Each card shows the RECOMMENDED treatment.</div>
+<div class="toolbar">
+  <button class="tgl active" id="btnEn" onclick="setLang('en')">English</button>
+  <button class="tgl" id="btnHe" onclick="setLang('he')">עברית</button>
+  <span style="width:1px;height:20px;background:var(--border);margin:0 .3rem"></span>
+  <button class="tgl active" id="btnLight" onclick="setTheme('light')" data-k="light">Light</button>
+  <button class="tgl" id="btnDark" onclick="setTheme('dark')" data-k="dark">Dark</button>
+</div>
+
+<div class="grid">
+  <!-- 1. grouped reorder list -->
+  <div class="card">
+    <h2 data-k="c1">1 · Settings reorder list</h2>
+    <span class="rec" data-k="c1r">Recommended: compact rows in one container</span>
+    <p class="d" data-k="c1d">Not the big padded settings cards — one bordered list of compact rows so the whole order is scannable. Group headers tinted green; members indented. Drag a handle or use ↑/↓. Try it.</p>
+    <div class="reo" id="reoList"></div>
+    <button class="reset" data-k="reset" onclick="alert('Resets order only — renames &amp; enable states untouched (D-12)')">↺ Reset order</button>
+  </div>
+
+  <!-- 2. severity-off info icon -->
+  <div class="card">
+    <h2 data-k="c2">2 · &ldquo;Severity after&rdquo; toggle + ⓘ</h2>
+    <span class="rec" data-k="c2r">Recommended: tap-to-open popover (mobile-safe)</span>
+    <p class="d" data-k="c2d">This toggle IS the severity-tracking switch (D-08) — not obvious, so a muted ⓘ sits beside it. Tap it (not hover-only) to reveal the explainer. The same text seeds the help entry.</p>
+    <div class="toggle-line">
+      <button class="pill" id="sevPill" onclick="togglePill()"></button>
+      <span class="nm" data-k="sevTgl">Severity after — track issue severity</span>
+      <button class="infobtn" id="infoBtn" aria-expanded="false" aria-label="Explain" onclick="togglePop()">i</button>
+    </div>
+    <div class="pop" id="pop" hidden data-k="popTxt">Turning this off hides the after-session ratings AND the before-rating column inside each topic — the topics themselves stay. This is how you turn severity tracking off completely.</div>
+  </div>
+
+  <!-- 3. N/A severity -->
+  <div class="card">
+    <h2 data-k="c3">3 · Severity scale + N/A</h2>
+    <span class="rec" data-k="c3r">Recommended: 11th pill, neutral grey, at the end</span>
+    <p class="d" data-k="c3d">N/A joins the 0–10 scale as a wider neutral pill so a therapist who usually rates can skip one session while the field stays mandatory (D-09). Picking N/A hides that topic&rsquo;s after-rating.</p>
+    <div class="sevscale" id="sevScale"></div>
+    <div style="font-size:.74rem;color:var(--muted);margin-top:.6rem" id="naHint" data-k="naHintOff">Pick N/A to see its after-rating auto-hide.</div>
+  </div>
+
+  <!-- 4. topic + before-rating row -->
+  <div class="card">
+    <h2 data-k="c4">4 · Topic + before-rating row</h2>
+    <span class="rec" data-k="c4r">Recommended: rating stacked under the topic</span>
+    <p class="d" data-k="c4d">Before-severity is glued to the topic (D-07). Rating sits directly under the topic label. When severity tracking is OFF, the whole rating column vanishes — the topic text remains. Use the switch:</p>
+    <div class="toggle-line" style="margin-bottom:.7rem">
+      <button class="pill" id="topicPill" onclick="toggleTopicSev()"></button>
+      <span class="nm" data-k="sevOnLbl">Severity tracking on</span>
+    </div>
+    <div class="topic">
+      <div class="tt">1 · <span data-k="topicEx">Lower-back tension</span></div>
+      <div class="sevcol" id="tSev">
+        <div class="lbl" data-k="beforeLbl">Severity before</div>
+        <div class="sevscale" id="topicScale"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note" data-k="note">Drag = pointer events (mouse + iPhone touch), ↑/↓ = the WCAG 2.2 baseline (ORDR-01/02). In RTL the handle/arrows mirror and drag uses PHYSICAL coordinates (repo memory: inset-inline mirrors overlays wrongly). Export never shows group names (D-03); this list order == form order == export order (D-13).</div>
+
+<script>
+const DICT={
+  en:{title:'Phase 47 — remaining visual details (for sign-off)',
+    sub:'Structure & reorder model are already locked (Model A, D-02 order, severity glued-before / free-after). These are the small visual decisions the UI-SPEC pins down: reorder-row look, drag/arrow affordances, the ⓘ severity-off explainer, the N/A rating, and the topic + before-rating row. Each card shows the RECOMMENDED treatment.',
+    light:'Light',dark:'Dark',
+    c1:'1 · Settings reorder list',c1r:'Recommended: compact rows in one container',c1d:'Not the big padded settings cards — one bordered list of compact rows so the whole order is scannable. Group headers tinted green; members indented. Drag a handle or use ↑/↓. Try it.',reset:'↺ Reset order',
+    c2:'2 · “Severity after” toggle + ⓘ',c2r:'Recommended: tap-to-open popover (mobile-safe)',c2d:'This toggle IS the severity-tracking switch (D-08) — not obvious, so a muted ⓘ sits beside it. Tap it (not hover-only) to reveal the explainer. The same text seeds the help entry.',sevTgl:'Severity after — track issue severity',popTxt:'Turning this off hides the after-session ratings AND the before-rating column inside each topic — the topics themselves stay. This is how you turn severity tracking off completely.',
+    c3:'3 · Severity scale + N/A',c3r:'Recommended: 11th pill, neutral grey, at the end',c3d:'N/A joins the 0–10 scale as a wider neutral pill so a therapist who usually rates can skip one session while the field stays mandatory (D-09). Picking N/A hides that topic’s after-rating.',naHintOff:'Pick N/A to see its after-rating auto-hide.',naHintOn:'N/A selected — the after-rating for this topic is now hidden.',
+    c4:'4 · Topic + before-rating row',c4r:'Recommended: rating stacked under the topic',c4d:'Before-severity is glued to the topic (D-07). Rating sits directly under the topic label. When severity tracking is OFF, the whole rating column vanishes — the topic text remains. Use the switch:',sevOnLbl:'Severity tracking on',sevOffLbl:'Severity tracking off',topicEx:'Lower-back tension',beforeLbl:'Severity before',
+    note:'Drag = pointer events (mouse + iPhone touch), ↑/↓ = the WCAG 2.2 baseline (ORDR-01/02). In RTL the handle/arrows mirror and drag uses PHYSICAL coordinates (repo memory: inset-inline mirrors overlays wrongly). Export never shows group names (D-03); this list order == form order == export order (D-13).',
+    rows:[['h','Session topics',1],['h','Emotions & Techniques group — drag whole group',0],
+      ['head','Emotions & Techniques'],['c','Heart-Wall toggle'],['c','Emotions in the Heart-Wall'],
+      ['c','Trapped Emotions Released'],['c','Physical Imbalance'],['c','Limiting Beliefs'],['c','Additional Techniques and Tools'],
+      ['r','Severity after'],['head','Session Wrap-up'],['c','Session Notes and Observations'],['c','Information for Next Session']]},
+  he:{title:'שלב 47 — פרטים ויזואליים שנותרו (לאישור)',
+    sub:'המבנה ומודל הסידור כבר נעולים (מודל A, סדר D-02, חומרה מוצמדת-לפני / חופשית-אחרי). אלה ההחלטות הוויזואליות הקטנות שה-UI-SPEC מקבע: מראה שורת הסידור, אחיזת הגרירה/החיצים, מסביר כיבוי-החומרה (ⓘ), דירוג ה-N/A, ושורת הנושא + דירוג לפני. כל כרטיס מציג את הטיפול המומלץ.',
+    light:'בהיר',dark:'כהה',
+    c1:'1 · רשימת סידור בהגדרות',c1r:'מומלץ: שורות קומפקטיות במיכל אחד',c1d:'לא כרטיסי ההגדרות הגדולים — רשימה אחת של שורות קומפקטיות כדי לסרוק את כל הסדר. כותרות קבוצה בגוון ירוק; חברים מוזחים. גררו ידית או השתמשו ב-↑/↓. נסו.',reset:'↺ איפוס סדר',
+    c2:'2 · מתג "חומרה אחרי" + ⓘ',c2r:'מומלץ: חלונית בלחיצה (בטוח לנייד)',c2d:'המתג הזה הוא מתג מעקב-החומרה (D-08) — לא מובן מאליו, לכן ⓘ עמום לצידו. הקישו עליו (לא ריחוף בלבד) כדי לחשוף את ההסבר. אותו טקסט מזין את ערך העזרה.',sevTgl:'חומרה אחרי — מעקב אחר חומרת הנושא',popTxt:'כיבוי מסתיר את דירוגי הסיום וגם את עמודת הדירוג-לפני בתוך כל נושא — הנושאים עצמם נשארים. כך מכבים לחלוטין את מעקב החומרה.',
+    c3:'3 · סולם חומרה + N/A',c3r:'מומלץ: כפתור 11, אפור ניטרלי, בסוף',c3d:'N/A מצטרף לסולם 0–10 ככפתור ניטרלי רחב כדי שמטפל שרגיל לדרג יוכל לדלג על מפגש אחד בעוד השדה נשאר חובה (D-09). בחירת N/A מסתירה את דירוג הסיום של הנושא.',naHintOff:'בחרו N/A כדי לראות את דירוג הסיום מוסתר.',naHintOn:'נבחר N/A — דירוג הסיום לנושא זה מוסתר כעת.',
+    c4:'4 · שורת נושא + דירוג לפני',c4r:'מומלץ: הדירוג מתחת לנושא',c4d:'חומרת-לפני מוצמדת לנושא (D-07). הדירוג יושב ישירות מתחת לתווית הנושא. כשמעקב החומרה כבוי, כל עמודת הדירוג נעלמת — טקסט הנושא נשאר. השתמשו במתג:',sevOnLbl:'מעקב חומרה פעיל',sevOffLbl:'מעקב חומרה כבוי',topicEx:'מתח בגב התחתון',beforeLbl:'חומרה לפני',
+    note:'גרירה = אירועי מצביע (עכבר + מגע אייפון), ↑/↓ = בסיס נגישות WCAG 2.2 (ORDR-01/02). ב-RTL הידית/החיצים מתהפכים והגרירה משתמשת בקואורדינטות פיזיות (זיכרון מאגר: inset-inline מהפך שכבות-על שגוי). הייצוא לעולם לא מציג שמות קבוצה (D-03); סדר הרשימה == סדר הטופס == סדר הייצוא (D-13).',
+    rows:[['h','נושאי המפגש',1],['h','קבוצת רגשות וטכניקות — גררו את כל הקבוצה',0],
+      ['head','רגשות וטכניקות'],['c','מתג חומת הלב'],['c','רגשות בחומת הלב'],
+      ['c','רגשות לכודים ששוחררו'],['c','חוסר איזון גופני'],['c','אמונות מגבילות'],['c','טכניקות וכלים נוספים'],
+      ['r','חומרה אחרי'],['head','סיכום המפגש'],['c','הערות ורשמים מהמפגש'],['c','מידע לגבי המפגש הבא']]}
+};
+let LANG='en';
+const SEV=['#2fb37d','#4caf50','#74b89a','#a3c86a','#d4c85a','#f2c14e','#f0a848','#ec8f3c','#e5733a','#df5638','#d63b34'];
+
+function renderRows(){
+  const rows=DICT[LANG].rows, host=document.getElementById('reoList'); host.textContent='';
+  rows.filter(r=>r[0]!=='h').forEach((r,i,arr)=>{
+    const [type,label]=r; const div=document.createElement('div');
+    div.className='rrow'+(type==='head'?' head':'')+(type==='c'?' child':'');
+    const h=document.createElement('span'); h.className='handle'; h.textContent='⠿'; div.appendChild(h);
+    const nm=document.createElement('span'); nm.className='nm'; nm.textContent=label; div.appendChild(nm);
+    const up=document.createElement('button'); up.className='ic'; up.textContent='↑'; up.disabled=(i===0);
+    const dn=document.createElement('button'); dn.className='ic'; dn.textContent='↓'; dn.disabled=(i===arr.length-1);
+    div.appendChild(up); div.appendChild(dn);
+    if(type!=='head'){ const ed=document.createElement('button'); ed.className='ic'; ed.textContent='✎'; div.appendChild(ed);
+      const p=document.createElement('button'); p.className='pill'; p.onclick=()=>{p.classList.toggle('off');div.classList.toggle('disabled');}; div.appendChild(p);}
+    host.appendChild(div);
+    wireDrag(div,h,host);
+  });
+}
+function wireDrag(row,handle,host){
+  handle.addEventListener('pointerdown',e=>{
+    e.preventDefault(); handle.setPointerCapture(e.pointerId);
+    row.classList.add('dragging'); const startY=e.clientY; let moved=false;
+    function move(ev){ moved=true;
+      const after=[...host.querySelectorAll('.rrow:not(.dragging)')].find(el=>{
+        const b=el.getBoundingClientRect(); return ev.clientY < b.top + b.height/2; });
+      if(after) host.insertBefore(row,after); else host.appendChild(row); }
+    function up(){ row.classList.remove('dragging'); handle.releasePointerCapture(e.pointerId);
+      handle.removeEventListener('pointermove',move); handle.removeEventListener('pointerup',up);
+      refreshArrows(host); }
+    handle.addEventListener('pointermove',move); handle.addEventListener('pointerup',up);
+  });
+}
+function refreshArrows(host){ const rows=[...host.querySelectorAll('.rrow')];
+  rows.forEach((r,i)=>{ const b=r.querySelectorAll('.ic'); if(b[0])b[0].disabled=(i===0); if(b[1])b[1].disabled=(i===rows.length-1);});}
+
+function renderSev(hostId,withNA){
+  const host=document.getElementById(hostId); host.textContent='';
+  for(let i=0;i<=10;i++){ const b=document.createElement('button'); b.className='sevbtn'; b.textContent=i;
+    b.style.setProperty('--sc',SEV[i]);
+    b.onclick=()=>{host.querySelectorAll('.sevbtn').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+      if(hostId==='sevScale') setNaHint(false);}; host.appendChild(b);}
+  if(withNA){ const na=document.createElement('button'); na.className='sevbtn na'; na.textContent='N/A';
+    na.onclick=()=>{host.querySelectorAll('.sevbtn').forEach(x=>x.classList.remove('active')); na.classList.add('active'); setNaHint(true);};
+    host.appendChild(na);}
+}
+function setNaHint(on){ const h=document.getElementById('naHint');
+  h.textContent=DICT[LANG][on?'naHintOn':'naHintOff']; h.setAttribute('data-k',on?'naHintOn':'naHintOff'); }
+
+let popOpen=false;
+function togglePop(){ popOpen=!popOpen; document.getElementById('pop').hidden=!popOpen;
+  document.getElementById('infoBtn').setAttribute('aria-expanded',String(popOpen)); }
+function togglePill(){ document.getElementById('sevPill').classList.toggle('off'); }
+function toggleTopicSev(){ const p=document.getElementById('topicPill'); p.classList.toggle('off');
+  const off=p.classList.contains('off'); document.getElementById('tSev').hidden=off;
+  const lbl=document.querySelector('[data-k="sevOnLbl"]');
+  lbl.setAttribute('data-k',off?'sevOffLbl':'sevOnLbl'); lbl.textContent=DICT[LANG][off?'sevOffLbl':'sevOnLbl']; }
+
+function setLang(l){ LANG=l; document.documentElement.lang=l; document.documentElement.dir=(l==='he')?'rtl':'ltr';
+  document.getElementById('btnEn').classList.toggle('active',l==='en');
+  document.getElementById('btnHe').classList.toggle('active',l==='he');
+  document.querySelectorAll('[data-k]').forEach(el=>{ const v=DICT[l][el.getAttribute('data-k')]; if(v!==undefined) el.textContent=v; });
+  renderRows(); }
+function setTheme(t){ document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('btnLight').classList.toggle('active',t==='light');
+  document.getElementById('btnDark').classList.toggle('active',t==='dark'); }
+
+renderRows(); renderSev('sevScale',true); renderSev('topicScale',false);
+</script>
+</body>
+</html>
