@@ -2,6 +2,17 @@
 
 ## Design Direction
 
+**Phase 47 addendum (sketch 010):** the session-section reordering discussion surfaced
+a structural pain point — the form's accordion groups are incoherent (single-field
+groups, header/field name collisions, Session topics under "Heart-Wall Session"). Sketch
+010 puts the group CONCEPT itself in front of Ben + Sapir: Model A (mixed bare
+sections + real groups) vs Model B (everything grouped, cleaned defaults), plus the
+three severity-placement variants. Garden tokens, real i18n section labels, EN/HE
+toggle with full RTL for Sapir's native read. Decisions already locked in the Phase 47
+discussion (two-level reorder, drag+arrows, slot-keeping disabled rows, reset button,
+export mirrors order, groups form-only, empty groups hide) are out of scope for the
+sketch.
+
 **Phase 46.1 addendum (sketches 008–009):** the design-first preview/edit redesign
 (gaps 14/15 from the phase-46 device gate). Direction from the 2026-07-17 intake:
 all three interaction models in play (side-by-side live / in-place swap / preview-as-
@@ -52,3 +63,4 @@ for the mockup this phase delivers (D-08: design contract + mockup, no prod code
 | 007 | export-step2-size | Step-2 editing surface: bigger-by-default (50/70/80% candidates) or current size + maximize toggle → 90%? (Phase 46, D-16) | A@50% default + B's maximize→90% synthesis (Ben, 2026-07-14) | export, modal, sizing, phase-46 |
 | 008 | export-preview-edit-model | Which interaction model kills the preview/edit mode confusion in export Step 2 — side-by-side live, in-place swap, or preview-as-stage? (Phase 46.1, Gap 14) | B — in-place swap + Frame treatment + PINNED mode switcher for mobile bars (Ben, 2026-07-18; C = too much effort to reach preview) | export, preview, interaction, phase-46.1 |
 | 009 | note-field-preview | How does preview adapt to the 7 inline note fields + which unified treatment replaces the section-header orange? (Phase 46.1, Gaps 14+15) | A — in-place swap + Frame treatment (Ben, 2026-07-17/18); pinned switcher applies here too | note-fields, preview, visual-language, phase-46.1 |
+| 010 | section-groups-concept | What is the form's group model — mixed bare-sections+groups vs everything-grouped — and where does Issue severity live in the reorder? (Phase 47) | TBD — Ben + Sapir review | groups, reorder, settings, form-structure, phase-47 |

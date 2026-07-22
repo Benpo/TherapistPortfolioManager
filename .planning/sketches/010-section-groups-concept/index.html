@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketch 010 — Section groups concept (Phase 47)</title>
+<style>
+  :root{
+    --bg:#fdf8f0; --surface:#ffffff; --surface-subtle:#faf3e6; --surface-alt:#f5ecdb;
+    --green:#2d6a4f; --green-soft:#d8ebe1; --green-50:#eef6f1;
+    --text:#22302a; --muted:#6b7a72; --border:#e5dcc9; --danger:#b0533a;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:Rubik,system-ui,-apple-system,sans-serif; padding:1.25rem; line-height:1.45;}
+  h1{font-size:1.15rem; color:var(--green); margin-bottom:.25rem;}
+  .sub{color:var(--muted); font-size:.85rem; max-width:64rem; margin-bottom:1rem;}
+  .toolbar{display:flex; gap:.5rem; align-items:center; margin-bottom:1.25rem;}
+  .lang-btn{border:1px solid var(--green); background:var(--surface); color:var(--green); border-radius:999px; padding:.3rem .9rem; font-size:.85rem; cursor:pointer; font-family:inherit;}
+  .lang-btn.active{background:var(--green); color:#fff;}
+  .models{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:1.25rem; max-width:80rem;}
+  .panel{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1rem;}
+  .panel h2{font-size:1rem; color:var(--green); margin-bottom:.2rem;}
+  .panel .why{font-size:.78rem; color:var(--muted); margin-bottom:.9rem; min-height:2.2em;}
+  .label-mini{font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:.9rem 0 .4rem;}
+  html[dir="rtl"] .label-mini{letter-spacing:0;}
+  /* form mock */
+  details{border:1px solid var(--border); border-radius:10px; background:var(--surface-subtle); margin-bottom:.45rem; overflow:hidden;}
+  details summary{list-style:none; cursor:pointer; padding:.5rem .7rem; font-weight:500; font-size:.86rem; display:flex; align-items:center; gap:.5rem;}
+  details summary::-webkit-details-marker{display:none;}
+  details summary .chev{margin-inline-start:auto; color:var(--muted); transition:transform .15s;}
+  details[open] summary .chev{transform:rotate(90deg);}
+  .grp{background:var(--green-50); border-color:var(--green-soft);}
+  .grp > summary{color:var(--green);}
+  .grp-badge{font-size:.62rem; background:var(--green); color:#fff; border-radius:999px; padding:.05rem .5rem; font-weight:400;}
+  .bare-badge{font-size:.62rem; background:var(--surface-alt); color:var(--muted); border-radius:999px; padding:.05rem .5rem;}
+  .inner{padding:.15rem .7rem .55rem; display:flex; flex-direction:column; gap:.3rem;}
+  .field{background:var(--surface); border:1px dashed var(--border); border-radius:8px; padding:.35rem .6rem; font-size:.8rem;}
+  .field small{display:block; color:var(--muted); font-size:.68rem;}
+  /* settings mock */
+  .set{border:1px solid var(--border); border-radius:10px; overflow:hidden; font-size:.8rem;}
+  .row{display:flex; align-items:center; gap:.45rem; padding:.4rem .6rem; background:var(--surface); border-top:1px solid var(--border);}
+  .row:first-child{border-top:none;}
+  .row.head{background:var(--green-50); font-weight:500; color:var(--green);}
+  .row.child{padding-inline-start:1.8rem;}
+  .handle{color:var(--muted); cursor:grab; font-size:.95rem;}
+  .row .nm{flex:1;}
+  .mini-btn{border:1px solid var(--border); background:var(--surface-subtle); border-radius:6px; font-size:.66rem; padding:.05rem .35rem; color:var(--muted);}
+  .pill{width:1.7rem; height:.95rem; border-radius:999px; background:var(--green); position:relative; flex-shrink:0;}
+  .pill::after{content:""; position:absolute; inset-inline-end:2px; top:2px; width:.7rem; height:.7rem; border-radius:50%; background:#fff;}
+  /* severity variants */
+  .variants{margin-top:1.5rem; max-width:80rem;}
+  .variants h2{font-size:1rem; color:var(--green); margin-bottom:.5rem;}
+  .vgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem;}
+  .vcard{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:.8rem;}
+  .vcard h3{font-size:.85rem; margin-bottom:.15rem;}
+  .vcard p{font-size:.72rem; color:var(--muted); margin-bottom:.6rem; min-height:2.6em;}
+  .vlist{font-size:.75rem; display:flex; flex-direction:column; gap:.25rem;}
+  .vrow{border:1px solid var(--border); border-radius:7px; padding:.28rem .55rem; background:var(--surface-subtle); display:flex; gap:.4rem; align-items:center;}
+  .vrow.sev{background:var(--green-50); border-color:var(--green); color:var(--green); font-weight:500;}
+  .vrow.dim{opacity:.55;}
+  .link-ic{font-size:.8rem;}
+  .note{margin-top:1.4rem; font-size:.78rem; color:var(--muted); max-width:64rem; border-inline-start:3px solid var(--green); padding:.4rem .8rem; background:var(--surface);}
+</style>
+</head>
+<body>
+<h1 data-k="title">Sketch 010 — What ARE the form's groups? (Phase 47)</h1>
+<div class="sub" data-k="sub">Two structural models for the session form + how Settings reordering would look for each. Labels are the app's real section titles. Click headers to expand. Decide: Model A or Model B — and where "Issue severity" lives (bottom row).</div>
+<div class="toolbar">
+  <button class="lang-btn active" id="btnEn" onclick="setLang('en')">English</button>
+  <button class="lang-btn" id="btnHe" onclick="setLang('he')">עברית</button>
+</div>
+
+<div class="models">
+  <!-- MODEL A -->
+  <div class="panel">
+    <h2 data-k="maTitle">Model A — Mixed: bare sections + real groups</h2>
+    <div class="why" data-k="maWhy">A section stands alone unless a group genuinely bundles related fields. No single-field groups, no header/field name collisions.</div>
+    <div class="label-mini" data-k="formLbl">Session form</div>
+    <details open><summary><span data-k="topics">Session topics</span> <span class="bare-badge" data-k="bare">section</span><span class="chev">›</span></summary>
+      <div class="inner"><div class="field" data-k="topicsF">Issue 1 · severity before …</div></div>
+    </details>
+    <details><summary><span data-k="hw">Heart-Wall Session</span> <span class="bare-badge" data-k="bare">section</span><span class="chev">›</span></summary>
+      <div class="inner"><div class="field" data-k="hwF">On/off toggle · when on: Emotions in the Heart-Wall</div></div>
+    </details>
+    <details open class="grp"><summary><span data-k="emo">Emotions &amp; Techniques</span> <span class="grp-badge" data-k="grpB">group</span><span class="chev">›</span></summary>
+      <div class="inner">
+        <div class="field" data-k="trapped">Trapped Emotions Released</div>
+        <div class="field" data-k="insights">Physical Imbalance</div>
+        <div class="field" data-k="beliefs">Limiting Beliefs</div>
+        <div class="field" data-k="tech">Additional Techniques and Tools</div>
+      </div>
+    </details>
+    <details><summary><span data-k="sev">Issue severity (end of session)</span> <span class="bare-badge" data-k="bare">section</span><span class="chev">›</span></summary>
+      <div class="inner"><div class="field" data-k="sevF">After-ratings for the topics above</div></div>
+    </details>
+    <details><summary><span data-k="notes">Session Notes and Observations</span> <span class="bare-badge" data-k="bare">section</span><span class="chev">›</span></summary>
+      <div class="inner"><div class="field" data-k="notesF">Free text</div></div>
+    </details>
+    <details><summary><span data-k="next">Information for Next Session</span> <span class="bare-badge" data-k="bare">section</span><span class="chev">›</span></summary>
+      <div class="inner"><div class="field" data-k="nextF">Note + next date</div></div>
+    </details>
+
+    <div class="label-mini" data-k="setLbl">Settings — order &amp; visibility (one list)</div>
+    <div class="set">
+      <div class="row"><span class="handle">⠿</span><span class="nm" data-k="topics">Session topics</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row"><span class="handle">⠿</span><span class="nm" data-k="hw">Heart-Wall Session</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row head"><span class="handle">⠿</span><span class="nm" data-k="emo">Emotions &amp; Techniques</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="trapped">Trapped Emotions Released</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="insights">Physical Imbalance</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="beliefs">Limiting Beliefs</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="tech">Additional Techniques and Tools</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row"><span class="handle">⠿</span><span class="nm" data-k="sev">Issue severity (end of session)</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><span class="pill"></span></div>
+      <div class="row"><span class="handle">⠿</span><span class="nm" data-k="notes">Session Notes and Observations</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row"><span class="handle">⠿</span><span class="nm" data-k="next">Information for Next Session</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+    </div>
+  </div>
+
+  <!-- MODEL B -->
+  <div class="panel">
+    <h2 data-k="mbTitle">Model B — Everything grouped (cleaned defaults)</h2>
+    <div class="why" data-k="mbWhy">Every section lives inside a group; the pain is fixed by regrouping and renaming the defaults so headers never repeat a field's name.</div>
+    <div class="label-mini" data-k="formLbl">Session form</div>
+    <details open class="grp"><summary><span data-k="gOpen">Session opening</span> <span class="grp-badge" data-k="grpB">group</span><span class="chev">›</span></summary>
+      <div class="inner"><div class="field" data-k="topics">Session topics</div></div>
+    </details>
+    <details class="grp"><summary><span data-k="gHw">Heart-Wall</span> <span class="grp-badge" data-k="grpB">group</span><span class="chev">›</span></summary>
+      <div class="inner"><div class="field" data-k="hwT">Heart-Wall toggle</div><div class="field" data-k="hwE">Emotions in the Heart-Wall</div></div>
+    </details>
+    <details open class="grp"><summary><span data-k="emo">Emotions &amp; Techniques</span> <span class="grp-badge" data-k="grpB">group</span><span class="chev">›</span></summary>
+      <div class="inner">
+        <div class="field" data-k="trapped">Trapped Emotions Released</div>
+        <div class="field" data-k="insights">Physical Imbalance</div>
+        <div class="field" data-k="beliefs">Limiting Beliefs</div>
+        <div class="field" data-k="tech">Additional Techniques and Tools</div>
+      </div>
+    </details>
+    <details class="grp"><summary><span data-k="gWrap">Session wrap-up</span> <span class="grp-badge" data-k="grpB">group</span><span class="chev">›</span></summary>
+      <div class="inner"><div class="field" data-k="sev">Issue severity (end of session)</div><div class="field" data-k="notes">Session Notes and Observations</div><div class="field" data-k="next">Information for Next Session</div></div>
+    </details>
+
+    <div class="label-mini" data-k="setLbl">Settings — order &amp; visibility (one list)</div>
+    <div class="set">
+      <div class="row head"><span class="handle">⠿</span><span class="nm" data-k="gOpen">Session opening</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="topics">Session topics</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row head"><span class="handle">⠿</span><span class="nm" data-k="gHw">Heart-Wall</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="hwT">Heart-Wall toggle</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="hwE">Emotions in the Heart-Wall</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row head"><span class="handle">⠿</span><span class="nm" data-k="emo">Emotions &amp; Techniques</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="trapped">Trapped Emotions Released</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="insights">Physical Imbalance</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="beliefs">Limiting Beliefs</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="tech">Additional Techniques and Tools</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row head"><span class="handle">⠿</span><span class="nm" data-k="gWrap">Session wrap-up</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="sev">Issue severity (end of session)</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><span class="pill"></span></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="notes">Session Notes and Observations</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+      <div class="row child"><span class="handle">⠿</span><span class="nm" data-k="next">Information for Next Session</span><button class="mini-btn">↑</button><button class="mini-btn">↓</button><button class="mini-btn">✎</button><span class="pill"></span></div>
+    </div>
+  </div>
+</div>
+
+<div class="variants">
+  <h2 data-k="sevTitle">Where does "Issue severity" live? (applies to either model)</h2>
+  <div class="vgrid">
+    <div class="vcard">
+      <h3 data-k="v1">1 · Free — drag it anywhere</h3>
+      <p data-k="v1p">Severity is an ordinary item with its own handle. Maximum freedom; its current position just becomes the default.</p>
+      <div class="vlist">
+        <div class="vrow"><span class="handle">⠿</span><span data-k="topics">Session topics</span></div>
+        <div class="vrow sev"><span class="handle">⠿</span><span data-k="sevShort">Issue severity</span></div>
+        <div class="vrow"><span class="handle">⠿</span><span data-k="emo">Emotions &amp; Techniques</span></div>
+        <div class="vrow"><span class="handle">⠿</span><span data-k="notes">Session Notes and Observations</span></div>
+      </div>
+    </div>
+    <div class="vcard">
+      <h3 data-k="v2">2 · Glued — always follows Session topics</h3>
+      <p data-k="v2p">Severity has no handle; it auto-travels with Session topics (severity is an attribute of the topics). One invisible rule to learn.</p>
+      <div class="vlist">
+        <div class="vrow"><span class="handle">⠿</span><span data-k="topics">Session topics</span></div>
+        <div class="vrow sev"><span class="link-ic">🔗</span><span data-k="sevShort">Issue severity</span></div>
+        <div class="vrow"><span class="handle">⠿</span><span data-k="emo">Emotions &amp; Techniques</span></div>
+        <div class="vrow"><span class="handle">⠿</span><span data-k="notes">Session Notes and Observations</span></div>
+      </div>
+    </div>
+    <div class="vcard">
+      <h3 data-k="v3">3 · Pinned — fixed near the end</h3>
+      <p data-k="v3p">Severity can't move at all; everything else reorders around it. Least code, least freedom — the one row that says "no".</p>
+      <div class="vlist">
+        <div class="vrow"><span class="handle">⠿</span><span data-k="topics">Session topics</span></div>
+        <div class="vrow"><span class="handle">⠿</span><span data-k="emo">Emotions &amp; Techniques</span></div>
+        <div class="vrow sev dim"><span>📌</span><span data-k="sevShort">Issue severity</span></div>
+        <div class="vrow"><span class="handle">⠿</span><span data-k="notes">Session Notes and Observations</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note" data-k="note">Not shown here (already decided): drag + arrow buttons both work, disabled sections keep their slot, one reset-order button, export follows this order exactly. Group names/membership above are PROPOSALS — the point of this sketch is the structure, not the final wording.</div>
+
+<script>
+const DICT = {
+  en: {
+    title:'Sketch 010 — What ARE the form’s groups? (Phase 47)',
+    sub:'Two structural models for the session form + how Settings reordering would look for each. Labels are the app’s real section titles. Click headers to expand. Decide: Model A or Model B — and where "Issue severity" lives (bottom row).',
+    maTitle:'Model A — Mixed: bare sections + real groups',
+    maWhy:'A section stands alone unless a group genuinely bundles related fields. No single-field groups, no header/field name collisions.',
+    mbTitle:'Model B — Everything grouped (cleaned defaults)',
+    mbWhy:'Every section lives inside a group; the pain is fixed by regrouping and renaming the defaults so headers never repeat a field’s name.',
+    formLbl:'Session form', setLbl:'Settings — order & visibility (one list)',
+    bare:'section', grpB:'group',
+    topics:'Session topics', topicsF:'Issue 1 · severity before …',
+    hw:'Heart-Wall Session', hwF:'On/off toggle · when on: Emotions in the Heart-Wall',
+    hwT:'Heart-Wall toggle', hwE:'Emotions in the Heart-Wall',
+    emo:'Emotions & Techniques',
+    trapped:'Trapped Emotions Released', insights:'Physical Imbalance', beliefs:'Limiting Beliefs', tech:'Additional Techniques and Tools',
+    sev:'Issue severity (end of session)', sevShort:'Issue severity', sevF:'After-ratings for the topics above',
+    notes:'Session Notes and Observations', notesF:'Free text',
+    next:'Information for Next Session', nextF:'Note + next date',
+    gOpen:'Session opening', gHw:'Heart-Wall', gWrap:'Session wrap-up',
+    sevTitle:'Where does "Issue severity" live? (applies to either model)',
+    v1:'1 · Free — drag it anywhere', v1p:'Severity is an ordinary item with its own handle. Maximum freedom; its current position just becomes the default.',
+    v2:'2 · Glued — always follows Session topics', v2p:'Severity has no handle; it auto-travels with Session topics (severity is an attribute of the topics). One invisible rule to learn.',
+    v3:'3 · Pinned — fixed near the end', v3p:'Severity can’t move at all; everything else reorders around it. Least code, least freedom — the one row that says "no".',
+    note:'Not shown here (already decided): drag + arrow buttons both work, disabled sections keep their slot, one reset-order button, export follows this order exactly. Group names/membership above are PROPOSALS — the point of this sketch is the structure, not the final wording.'
+  },
+  he: {
+    title:'סקיצה 010 — מה הן בעצם הקבוצות בטופס? (שלב 47)',
+    sub:'שני מודלים מבניים לטופס המפגש + איך ייראה סידור מחדש בהגדרות בכל אחד מהם. התוויות הן שמות המקטעים האמיתיים באפליקציה. לחצו על כותרת כדי לפתוח. יש להחליט: מודל A או מודל B — ואיפה חיה "דרגת החומרה" (שורה תחתונה).',
+    maTitle:'מודל A — משולב: מקטעים עצמאיים + קבוצות אמיתיות',
+    maWhy:'מקטע עומד בפני עצמו אלא אם קבוצה באמת מאגדת שדות קשורים. אין קבוצות של שדה בודד ואין התנגשות שמות בין כותרת לשדה.',
+    mbTitle:'מודל B — הכול בקבוצות (ברירות מחדל מסודרות)',
+    mbWhy:'כל מקטע חי בתוך קבוצה; הכאב נפתר על ידי ארגון ושמות מחדש כך שכותרת קבוצה לעולם לא תחזור על שם שדה.',
+    formLbl:'טופס המפגש', setLbl:'הגדרות — סדר ותצוגה (רשימה אחת)',
+    bare:'מקטע', grpB:'קבוצה',
+    topics:'נושאי המפגש', topicsF:'נושא 1 · חומרה לפני…',
+    hw:'מפגש חומת הלב', hwF:'מתג הפעלה · כשפעיל: רגשות בחומת הלב',
+    hwT:'מתג חומת הלב', hwE:'רגשות בחומת הלב',
+    emo:'רגשות וטכניקות',
+    trapped:'רגשות לכודים ששוחררו', insights:'חוסר איזון גופני', beliefs:'אמונות מגבילות', tech:'טכניקות וכלים נוספים',
+    sev:'דרגת חומרה בסיום המפגש', sevShort:'דרגת חומרה', sevF:'דירוג "אחרי" לנושאים שלמעלה',
+    notes:'הערות ורשמים מהמפגש', notesF:'טקסט חופשי',
+    next:'מידע לגבי המפגש הבא', nextF:'הערה + תאריך הבא',
+    gOpen:'פתיחת המפגש', gHw:'חומת הלב', gWrap:'סיכום המפגש',
+    sevTitle:'איפה חיה "דרגת החומרה"? (רלוונטי לשני המודלים)',
+    v1:'1 · חופשי — גררו לכל מקום', v1p:'החומרה היא פריט רגיל עם ידית משלו. חופש מלא; המיקום הנוכחי הופך לברירת המחדל.',
+    v2:'2 · מוצמד — תמיד אחרי נושאי המפגש', v2p:'לחומרה אין ידית; היא נעה אוטומטית עם נושאי המפגש (החומרה היא תכונה של הנושאים). כלל סמוי אחד שצריך ללמוד.',
+    v3:'3 · נעוץ — קבוע לקראת הסוף', v3p:'החומרה לא זזה כלל; כל השאר מסתדר סביבה. הכי פחות קוד, הכי פחות חופש — השורה היחידה שאומרת "לא".',
+    note:'לא מוצג כאן (כבר הוחלט): גרירה וגם חיצים, מקטעים כבויים שומרים את מקומם, כפתור איפוס סדר אחד, והייצוא עוקב אחרי הסדר הזה בדיוק. שמות/שיוך הקבוצות למעלה הם הצעות — הסקיצה עוסקת במבנה, לא בניסוח הסופי.'
+  }
+};
+function setLang(l){
+  document.documentElement.lang = l;
+  document.documentElement.dir = (l === 'he') ? 'rtl' : 'ltr';
+  document.getElementById('btnEn').classList.toggle('active', l==='en');
+  document.getElementById('btnHe').classList.toggle('active', l==='he');
+  document.querySelectorAll('[data-k]').forEach(el => {
+    const v = DICT[l][el.getAttribute('data-k')];
+    if (v !== undefined) el.textContent = v;
+  });
+}
+</script>
+</body>
+</html>
