@@ -4,11 +4,11 @@ milestone: v1.4
 milestone_name: Richer Sessions
 current_phase: 47
 current_phase_name: Session-Section Reordering
-status: ready to plan
-stopped_at: Phase 47 UI-SPEC + mockup approved (D-17 closed, D-18 docs directive added) — ready to plan
-last_updated: "2026-07-22T21:26:05.370Z"
-last_activity: 2026-07-22
-last_activity_desc: v1.4.0 production push shipped + deploy babysat
+status: ready to execute
+stopped_at: Phase 47 planned — 8 plans / 4 waves, checker passed 1st iteration; ORDR-06/07/08 amendment + planner-locked decisions pending Ben's plan-review confirmation
+last_updated: "2026-07-23T00:00:00.000Z"
+last_activity: 2026-07-23
+last_activity_desc: Phase 47 planned (research + patterns + 8 plans + checker pass)
 progress:
   total_phases: 6
   completed_phases: 3
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 ## Current Position
 
 Phase: 47 — Session-Section Reordering
-Plan: Not started (discuss/plan pending)
+Plan: 8 plans / 4 waves planned 2026-07-23 (plan-checker passed iteration 1; Fable gap-gate run post-checker). Pending Ben at plan review: ORDR-06/07/08 amendment IDs + planner-locked A1–A9 discretion calls (D-07 vs Interaction 11 resolved toward the later lock).
 Status: Phases 44/45/46/46.1 ALL COMPLETE. **v1.4.0 PRODUCTION PUSH SHIPPED 2026-07-22** — origin/main advanced e48dc08..ccc4b46 (242-commit fast-forward); CI Deploy to Cloudflare Pages green (docs-gate + pipeline tests fail-closed passed, await-promotion-then-purge succeeded); byte-sweep of 9 core assets all match HEAD with BUILD_TOKEN=ccc4b46 stamped live and cf-cache MISS/DYNAMIC (no stale HIT — no rerun needed); deploy anchor advanced to "Deploy from ccc4b46". APP_VERSION 1.4.0 + 1.4.0 changelog live. Remaining post-push: Ben's real-installed-PWA field-verify (SW update arrival, changelog shows 1.4.0, What's-New popup fires with the three highlights) + his HE read of the polish + אופן-הטיפול→פורמט-המפגש terminology sweep (content-only follow-ups are cheap). NEXT: Phase 47 (session-section-reordering) discuss/plan.
 Last activity: 2026-07-22 — v1.4.0 production push shipped + deploy babysat
 
