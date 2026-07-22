@@ -130,7 +130,8 @@
   <div class="card">
     <h2 data-k="c3">3 · Severity scale + skip (—)</h2>
     <span class="rec" data-k="c3r">Recommended: 11th pill, language-free —, neutral grey, at the end</span>
-    <p class="d" data-k="c3d">A wider neutral — pill joins the 0–10 scale so a therapist who usually rates can skip one session while the field stays mandatory (D-09). Picking — hides that topic&rsquo;s end-of-session rating, and exports leave its severity out entirely.</p>
+    <p class="d" data-k="c3d">A wider neutral — pill joins the 0–10 scale so a therapist who usually rates can skip one session while the field stays mandatory (D-09). It sits FIRST — next to 0, nearest the topic — and is the first Tab stop from the topic field, so skipping is one Tab + Enter. Picking — hides that topic&rsquo;s end-of-session rating, and exports leave its severity out entirely.</p>
+    <input id="topicInput" placeholder="Topic name — press Tab ⇥: first stop is —" style="width:100%; margin-bottom:.6rem; padding:.5rem .6rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text); font-family:inherit; font-size:.8rem;">
     <div class="sevscale" id="sevScale"></div>
     <div style="font-size:.74rem;color:var(--muted);margin-top:.6rem" id="naHint" data-k="naHintOff">Pick — to see its end-of-session rating auto-hide.</div>
   </div>
@@ -161,27 +162,27 @@ const DICT={
   en:{title:'Phase 47 — remaining visual details (for sign-off)',
     sub:'Structure & reorder model are already locked (Model A, D-02 order, severity glued-before / free-after). These are the small visual decisions the UI-SPEC pins down: reorder-row look, drag/arrow affordances, the ⓘ severity-off explainer, the skipped (—) rating, and the topic + before-rating row. Each card shows the RECOMMENDED treatment.',
     light:'Light',dark:'Dark',
-    c1:'1 · Settings reorder list',c1r:'Recommended: compact rows in one container',c1d:'Not the big padded settings cards — one bordered list of compact rows so the whole order is scannable. Group headers tinted green; members indented. Drag a handle or use ↑/↓. Below the list: two quiet reset buttons, equal weight — order and names are separate actions (names asks first; typed names would be lost). Try it.',reset:'↺ Reset order',resetNames:'✎ Reset names',resetOrderMsg:'Order restored to default — names & enable states untouched (D-12).',resetNamesConfirm:'Replace all custom names with the defaults? Names you typed will be lost.',resetNamesDone:'Names restored to defaults — order & enable states untouched.',
+    c1:'1 · Settings reorder list',c1r:'Recommended: compact rows in one container',c1d:'Not the big padded settings cards — one bordered list of compact rows so the whole order is scannable. Group headers tinted green; members indented. Drag a handle or use ↑/↓. Below the list: two quiet reset buttons, equal weight — order and names are separate actions (names asks first; typed names would be lost). One locked rule: try dragging "Issue severity" above "Session topics" — it clamps.',reset:'↺ Reset order',resetNames:'✎ Reset names',resetOrderMsg:'Order restored to default — names & enable states untouched (D-12).',resetNamesConfirm:'Replace all custom names with the defaults? Names you typed will be lost.',resetNamesDone:'Names restored to defaults — order & enable states untouched.',
     c2:'2 · “Issue severity” row + ⓘ',c2r:'Recommended: clean name, tap-to-open popover (mobile-safe)',c2d:'This toggle is the master switch for ALL severity ratings (D-08) — not obvious, so a muted ⓘ sits beside it. The row name stays clean; the ⓘ carries the explanation. Tap it (not hover-only). The same text seeds the help entry.',sevTgl:'Issue severity',popTxt:'One switch for all severity ratings: when on, each topic gets a rating at the start and this end-of-session section appears; when off, both disappear — the topics themselves stay. Drag this row to choose where the end-of-session ratings appear in the form.',
-    c3:'3 · Severity scale + skip (—)',c3r:'Recommended: 11th pill, language-free —, neutral grey, at the end',c3d:'A wider neutral — pill joins the 0–10 scale so a therapist who usually rates can skip one session while the field stays mandatory (D-09). Picking — hides that topic’s end-of-session rating, and exports leave its severity out entirely.',naHintOff:'Pick — to see its end-of-session rating auto-hide.',naHintOn:'Rating skipped — the end-of-session rating for this topic is hidden, and exports leave its severity out.',
+    c3:'3 · Severity scale + skip (—)',c3r:'Recommended: language-free — pill, FIRST in the scale, next to 0',c3d:'A wider neutral — pill joins the 0–10 scale so a therapist who usually rates can skip one session while the field stays mandatory (D-09). It sits FIRST — next to 0, nearest the topic — and is the first Tab stop from the topic field, so skipping is one Tab + Enter. Picking — hides that topic’s end-of-session rating, and exports leave its severity out entirely.',topicPh:'Topic name — press Tab ⇥: first stop is —',naHintOff:'Pick — to see its end-of-session rating auto-hide.',naHintOn:'Rating skipped — the end-of-session rating for this topic is hidden, and exports leave its severity out.',
     c4:'4 · Topic + before-rating row',c4r:'Recommended: rating stacked under the topic',c4d:'The start rating is glued to the topic (D-07). It sits directly under the topic label. When severity ratings are OFF, the whole rating column vanishes — the topic text remains. Use the switch:',sevOnLbl:'Severity ratings on',sevOffLbl:'Severity ratings off',topicEx:'Lower-back tension',beforeLbl:'Severity at start',
     note:'Drag = pointer events (mouse + iPhone touch), ↑/↓ = the WCAG 2.2 baseline (ORDR-01/02). In RTL the handle/arrows mirror and drag uses PHYSICAL coordinates (repo memory: inset-inline mirrors overlays wrongly). Export never shows group names (D-03); this list order == form order == export order (D-13).',
-    rows:[['h','Session topics',1],['h','Emotions & Techniques group — drag whole group',0],
+    rows:[['r','Session topics','topics'],
       ['head','Emotions & Techniques'],['c','Heart-Wall toggle'],['c','Emotions in the Heart-Wall'],
       ['c','Trapped Emotions Released'],['c','Physical Imbalance'],['c','Limiting Beliefs'],['c','Additional Techniques and Tools'],
-      ['r','Issue severity'],['head','Session Wrap-up'],['c','Session Notes and Observations'],['c','Information for Next Session']]},
+      ['r','Issue severity','sev'],['head','Session Wrap-up'],['c','Session Notes and Observations'],['c','Information for Next Session']]},
   he:{title:'שלב 47 — פרטים ויזואליים שנותרו (לאישור)',
     sub:'המבנה ומודל הסידור כבר נעולים (מודל A, סדר D-02, חומרה מוצמדת-לפני / חופשית-אחרי). אלה ההחלטות הוויזואליות הקטנות שה-UI-SPEC מקבע: מראה שורת הסידור, אחיזת הגרירה/החיצים, מסביר כיבוי-החומרה (ⓘ), הדירוג המדולג (—), ושורת הנושא + דירוג פתיחה. כל כרטיס מציג את הטיפול המומלץ.',
     light:'בהיר',dark:'כהה',
-    c1:'1 · רשימת סידור בהגדרות',c1r:'מומלץ: שורות קומפקטיות במיכל אחד',c1d:'לא כרטיסי ההגדרות הגדולים — רשימה אחת של שורות קומפקטיות כדי לסרוק את כל הסדר. כותרות קבוצה בגוון ירוק; חברים מוזחים. גררו ידית או השתמשו ב-↑/↓. מתחת לרשימה: שני כפתורי איפוס שקטים במשקל שווה — סדר ושמות הן פעולות נפרדות (שמות שואל קודם; שמות שהוקלדו יאבדו). נסו.',reset:'↺ איפוס סדר',resetNames:'✎ איפוס שמות',resetOrderMsg:'הסדר שוחזר לברירת המחדל — שמות ומצבי הפעלה לא השתנו (D-12).',resetNamesConfirm:'להחליף את כל השמות המותאמים בשמות ברירת המחדל? שמות שהקלדתם יאבדו.',resetNamesDone:'השמות שוחזרו לברירת המחדל — הסדר ומצבי ההפעלה לא השתנו.',
+    c1:'1 · רשימת סידור בהגדרות',c1r:'מומלץ: שורות קומפקטיות במיכל אחד',c1d:'לא כרטיסי ההגדרות הגדולים — רשימה אחת של שורות קומפקטיות כדי לסרוק את כל הסדר. כותרות קבוצה בגוון ירוק; חברים מוזחים. גררו ידית או השתמשו ב-↑/↓. מתחת לרשימה: שני כפתורי איפוס שקטים במשקל שווה — סדר ושמות הן פעולות נפרדות (שמות שואל קודם; שמות שהוקלדו יאבדו). כלל נעול אחד: נסו לגרור את "דרגת חומרה" מעל "נושאי המפגש" — זה ננעל.',reset:'↺ איפוס סדר',resetNames:'✎ איפוס שמות',resetOrderMsg:'הסדר שוחזר לברירת המחדל — שמות ומצבי הפעלה לא השתנו (D-12).',resetNamesConfirm:'להחליף את כל השמות המותאמים בשמות ברירת המחדל? שמות שהקלדתם יאבדו.',resetNamesDone:'השמות שוחזרו לברירת המחדל — הסדר ומצבי ההפעלה לא השתנו.',
     c2:'2 · שורת "דרגת חומרה" + ⓘ',c2r:'מומלץ: שם נקי, חלונית בלחיצה (בטוח לנייד)',c2d:'המתג הזה הוא המתג הראשי לכל דירוגי החומרה (D-08) — לא מובן מאליו, לכן ⓘ עמום לצידו. שם השורה נשאר נקי; ה-ⓘ נושא את ההסבר. הקישו עליו (לא ריחוף בלבד). אותו טקסט מזין את ערך העזרה.',sevTgl:'דרגת חומרה',popTxt:'מתג אחד לכל דירוגי החומרה: כשהוא פעיל, כל נושא מקבל דירוג פתיחה ומקטע דירוג-הסיום מופיע; כשהוא כבוי, שניהם נעלמים — הנושאים עצמם נשארים. גררו את השורה כדי לקבוע היכן יופיעו דירוגי הסיום בטופס.',
-    c3:'3 · סולם חומרה + דילוג (—)',c3r:'מומלץ: כפתור 11, — ללא מילים, אפור ניטרלי, בסוף',c3d:'כפתור — ניטרלי ורחב מצטרף לסולם 0–10 כדי שמטפל שרגיל לדרג יוכל לדלג על מפגש אחד בעוד השדה נשאר חובה (D-09). בחירת — מסתירה את דירוג הסיום של הנושא, והייצוא משמיט את החומרה שלו לגמרי.',naHintOff:'בחרו — כדי לראות את דירוג הסיום מוסתר.',naHintOn:'הדירוג דולג — דירוג הסיום לנושא זה מוסתר, והייצוא ישמיט את החומרה שלו.',
+    c3:'3 · סולם חומרה + דילוג (—)',c3r:'מומלץ: כפתור — ללא מילים, ראשון בסולם, ליד ה-0',c3d:'כפתור — ניטרלי ורחב מצטרף לסולם 0–10 כדי שמטפל שרגיל לדרג יוכל לדלג על מפגש אחד בעוד השדה נשאר חובה (D-09). הוא יושב ראשון — ליד ה-0, הקרוב ביותר לנושא — והוא עצירת ה-Tab הראשונה משדה הנושא, כך שדילוג הוא Tab אחד + Enter. בחירת — מסתירה את דירוג הסיום של הנושא, והייצוא משמיט את החומרה שלו לגמרי.',topicPh:'שם הנושא — הקישו Tab ⇥: העצירה הראשונה היא —',naHintOff:'בחרו — כדי לראות את דירוג הסיום מוסתר.',naHintOn:'הדירוג דולג — דירוג הסיום לנושא זה מוסתר, והייצוא ישמיט את החומרה שלו.',
     c4:'4 · שורת נושא + דירוג פתיחה',c4r:'מומלץ: הדירוג מתחת לנושא',c4d:'דירוג הפתיחה מוצמד לנושא (D-07). הוא יושב ישירות מתחת לתווית הנושא. כשדירוגי החומרה כבויים, כל עמודת הדירוג נעלמת — טקסט הנושא נשאר. השתמשו במתג:',sevOnLbl:'דירוגי חומרה פעילים',sevOffLbl:'דירוגי חומרה כבויים',topicEx:'מתח בגב התחתון',beforeLbl:'דרגת חומרה בתחילת המפגש',
     note:'גרירה = אירועי מצביע (עכבר + מגע אייפון), ↑/↓ = בסיס נגישות WCAG 2.2 (ORDR-01/02). ב-RTL הידית/החיצים מתהפכים והגרירה משתמשת בקואורדינטות פיזיות (זיכרון מאגר: inset-inline מהפך שכבות-על שגוי). הייצוא לעולם לא מציג שמות קבוצה (D-03); סדר הרשימה == סדר הטופס == סדר הייצוא (D-13).',
-    rows:[['h','נושאי המפגש',1],['h','קבוצת רגשות וטכניקות — גררו את כל הקבוצה',0],
+    rows:[['r','נושאי המפגש','topics'],
       ['head','רגשות וטכניקות'],['c','מתג חומת הלב'],['c','רגשות בחומת הלב'],
       ['c','רגשות לכודים ששוחררו'],['c','חוסר איזון גופני'],['c','אמונות מגבילות'],['c','טכניקות וכלים נוספים'],
-      ['r','דרגת חומרה'],['head','סיכום המפגש'],['c','הערות ורשמים מהמפגש'],['c','מידע לגבי המפגש הבא']]}
+      ['r','דרגת חומרה','sev'],['head','סיכום המפגש'],['c','הערות ורשמים מהמפגש'],['c','מידע לגבי המפגש הבא']]}
 };
 let LANG='en';
 const SEV=['#2fb37d','#4caf50','#74b89a','#a3c86a','#d4c85a','#f2c14e','#f0a848','#ec8f3c','#e5733a','#df5638','#d63b34'];
@@ -189,8 +190,9 @@ const SEV=['#2fb37d','#4caf50','#74b89a','#a3c86a','#d4c85a','#f2c14e','#f0a848'
 function renderRows(){
   const rows=DICT[LANG].rows, host=document.getElementById('reoList'); host.textContent='';
   rows.filter(r=>r[0]!=='h').forEach((r,i,arr)=>{
-    const [type,label]=r; const div=document.createElement('div');
+    const [type,label,key]=r; const div=document.createElement('div');
     div.className='rrow'+(type==='head'?' head':'')+(type==='c'?' child':'');
+    if(key) div.dataset.key=key;
     const h=document.createElement('span'); h.className='handle'; h.textContent='⠿'; div.appendChild(h);
     const nm=document.createElement('span'); nm.className='nm'; nm.textContent=label; div.appendChild(nm);
     const up=document.createElement('button'); up.className='ic'; up.textContent='↑'; up.disabled=(i===0);
@@ -209,7 +211,11 @@ function wireDrag(row,handle,host){
     function move(ev){ moved=true;
       const after=[...host.querySelectorAll('.rrow:not(.dragging)')].find(el=>{
         const b=el.getBoundingClientRect(); return ev.clientY < b.top + b.height/2; });
-      if(after) host.insertBefore(row,after); else host.appendChild(row); }
+      if(after) host.insertBefore(row,after); else host.appendChild(row);
+      /* locked pair rule: Issue severity never above Session topics (spec §Interaction 11) */
+      const t=host.querySelector('[data-key="topics"]'), s=host.querySelector('[data-key="sev"]');
+      if(t&&s){ const all=[...host.querySelectorAll('.rrow')];
+        if(all.indexOf(s)<all.indexOf(t)){ if(row===s) host.insertBefore(s,t.nextSibling); else host.insertBefore(t,s); } } }
     function up(){ row.classList.remove('dragging'); handle.releasePointerCapture(e.pointerId);
       handle.removeEventListener('pointermove',move); handle.removeEventListener('pointerup',up);
       refreshArrows(host); }
@@ -227,7 +233,7 @@ function renderSev(hostId,withNA){
       if(hostId==='sevScale') setNaHint(false);}; host.appendChild(b);}
   if(withNA){ const na=document.createElement('button'); na.className='sevbtn na'; na.textContent='—';
     na.onclick=()=>{host.querySelectorAll('.sevbtn').forEach(x=>x.classList.remove('active')); na.classList.add('active'); setNaHint(true);};
-    host.appendChild(na);}
+    host.insertBefore(na,host.firstChild);}
 }
 function setNaHint(on){ const h=document.getElementById('naHint');
   h.textContent=DICT[LANG][on?'naHintOn':'naHintOff']; h.setAttribute('data-k',on?'naHintOn':'naHintOff'); }
@@ -245,6 +251,7 @@ function setLang(l){ LANG=l; document.documentElement.lang=l; document.documentE
   document.getElementById('btnEn').classList.toggle('active',l==='en');
   document.getElementById('btnHe').classList.toggle('active',l==='he');
   document.querySelectorAll('[data-k]').forEach(el=>{ const v=DICT[l][el.getAttribute('data-k')]; if(v!==undefined) el.textContent=v; });
+  document.getElementById('topicInput').placeholder=DICT[l].topicPh;
   renderRows(); }
 function setTheme(t){ document.documentElement.setAttribute('data-theme',t);
   document.getElementById('btnLight').classList.toggle('active',t==='light');
