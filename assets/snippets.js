@@ -15,6 +15,10 @@
 //   (assets/app.js), so the cross-scope reference must go through window.
 // CONSTRAINTS: trigger validation is Unicode-aware — the detection regex uses
 //   \p{L}\p{N} so Hebrew/German/Czech tags and triggers are fully supported.
+//   Inline formatting markers (* _ ~ `) count as word boundaries on both
+//   sides of a trigger, so snippets fire inside formatted spans (e.g. between
+//   toolbar-inserted bold markers); expansion replaces only prefix + trigger,
+//   leaving the markers intact.
 //   The setPrefix chokepoint is the single place that validates + persists the
 //   prefix; all callers use getPrefix() so the in-memory value is always
 //   consistent with localStorage.
@@ -81,6 +85,14 @@ window.Snippets = (function () {
    * Regex is anchored, non-greedy, and ReDoS-safe (bounded quantifiers + no
    * nested alternations). See tests/24-04-trigger-regex.test.js scenario H.
    *
+   * Word boundaries include the inline formatting markers (* _ ~ `) on BOTH
+   * sides, so triggers fire inside formatted spans (e.g. between paired bold
+   * markers the toolbar inserts): a leading marker counts as a word start,
+   * and a closing marker typed after a complete trigger commits the
+   * expansion. The replaced range covers only prefix + trigger, so the
+   * surrounding markers are preserved. Hyphen is NOT a boundary — it is a
+   * valid trigger character.
+   *
    * Case-insensitive at the trigger level: typed `;BETRAYAL ` matches a
    * snippet stored with trigger `betrayal`.
    */
@@ -92,10 +104,16 @@ window.Snippets = (function () {
     // time, aligned with this detection regex, so any letter the user types reaches
     // the exact-trigger match or the tag-lookup fallback).
     // \p{L} = any letter, \p{N} = any decimal digit. ReDoS-safe: bounded
-    // {1, MAX_TRIGGER_LEN} quantifier; no nested alternations.
+    // {1, MAX_TRIGGER_LEN} quantifier; no nested alternations (still holds
+    // with the marker characters added — both classes stay flat).
+    // Both boundary classes also accept the inline formatting markers
+    // (* _ ~ `) so triggers fire inside formatted spans — e.g. the caret
+    // sitting between toolbar-inserted bold markers. Hyphen is deliberately
+    // NOT a boundary: it is a valid trigger character (multi-segment
+    // triggers like heart-shock).
     const re = new RegExp(
-      "(^|[\\s.,;:!?])" + escapeRegExp(prefix) +
-      "([\\p{L}\\p{N}-]{1," + MAX_TRIGGER_LEN + "})([\\s.,;:!?\\n])?$",
+      "(^|[\\s.,;:!?*_~`])" + escapeRegExp(prefix) +
+      "([\\p{L}\\p{N}-]{1," + MAX_TRIGGER_LEN + "})([\\s.,;:!?*_~`\\n])?$",
       "u"
     );
     const m = textBeforeCaret.match(re);
