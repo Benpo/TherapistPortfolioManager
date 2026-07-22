@@ -500,7 +500,11 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-25 pending todos in .planning/todos/pending/:
+39 pending todos in .planning/todos/pending/:
+
+**Deferred content debt (2026-07-22):**
+
+- i18n-he-ui-string-consistency-sweep — residue of the executed Hebrew polish pass Ben chose to record, not fix: singular/plural register split (שלך vs שלכם), gendered "פתח/י" imperative, greeting emoji, "בעיה" vs "נושא", off-register toast, `--` typography, and the QUOTES.he מטפל/מטופל poetic-quote ruling (the last clinical-family occurrence in the HE surface)
 
 **Pre-existing:**
 
