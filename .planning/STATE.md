@@ -5,16 +5,16 @@ milestone_name: Richer Sessions
 current_phase: 47
 current_phase_name: Session-Section Reordering
 status: ready to plan
-stopped_at: v1.4 PRODUCTION PUSH DONE 2026-07-22 — origin/main e48dc08..ccc4b46 (242 commits); CI deploy green (sentinel-then-purge); byte-sweep 9/9 match, BUILD_TOKEN=ccc4b46 live; deploy anchor advanced to "Deploy from ccc4b46". APP_VERSION 1.4.0 live. Remaining: Ben's real-installed-PWA field-verify (update arrival + What's-New popup) + his HE read of the polish/terminology sweep. NEXT = Phase 47 discuss/plan.
-last_updated: "2026-07-22T15:03:30.000Z"
+stopped_at: Phase 47 context gathered
+last_updated: "2026-07-22T20:14:40.232Z"
 last_activity: 2026-07-22
-last_activity_desc: v1.4.0 production push shipped + deploy babysat (byte-sweep clean, anchor advanced)
+last_activity_desc: v1.4.0 production push shipped + deploy babysat
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 3
   total_plans: 37
-  completed_plans: 37
-  percent: 67
+  completed_plans: 36
+  percent: 50
 ---
 
 # Project State
@@ -581,11 +581,11 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-19T21:45:00.000Z
+**Last session:** 2026-07-22T20:14:40.220Z
 
 Last activity: 2026-07-20 — Phase 46.1 plan 07 (real-device ratification gate) closed: Ben's final "approved" on pre-prod build 3d5cbaf after the full checklist plus four live-verified UAT fix rounds (rounds 1–3: 40a6a81..7009f2c — chip/discard-guard/undo-redo/heading/inert-bar fixes; round 4: c4982a8..3d5cbaf — help-corpus restructure + 4 bug fixes + bold/italic toggle rebuilt to the ratified 11-clause contract). Suite 205/205, WebKit set E 12/12; set-C 1440×820 vacuity accepted. 46.1 is 7/7 plans complete; phase verification, code review, and phase completion NOT yet run — orchestrated separately after this. Previous: 2026-07-12 — Phase 44 closed end-to-end in one session: /gsd-code-review 44 --fix applied all 6 review warnings (fail-closed build-staging args/noindex, cf-await-promotion secret validation + curl timeouts + loud purge diagnostics, deploy queue-not-cancel) plus the IN-04 follow-up (pipeline-script test suites now gate both deploy workflows); UAT 2/2 passed — test 1 caught that the docs-gate trailers never landed on any commit (gate dry-run blocked), fixed by amending the tip (6e4355f), gate re-run green; verification canonicalized passed, phase 44 marked complete, transitioned to Phase 45. Previous: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
-Stopped at: Phase 46.1 plan 07 device gate approved — 7/7 plans complete, phase NOT yet marked complete
-Resume file: .planning/phases/46.1-preview-edit-experience-redesign/46.1-07-SUMMARY.md
+Stopped at: Phase 47 context gathered
+Resume file: .planning/phases/47-session-section-reordering/47-CONTEXT.md
 Next: Phase 46.1 verification + code review, then phase completion (orchestrated separately — do not phase.complete out of sequence).
 
 ## Deferred Items (acknowledged at v1.1 close, 2026-06-22)
