@@ -14,7 +14,7 @@ reviewed_at: 2026-07-22
 >
 > **Reuse-only phase.** This phase extends existing surfaces (Settings page, session form, export modal) inside an established vanilla-JS/CSS zero-build design system (`assets/tokens.css`). It introduces NO new tokens, NO new font, NO new component library. All tokens below are DECLARED-FROM-SOURCE (already shipped), not new proposals. See `## Accepted Exceptions` for the greenfield-checker calibration note (repo memory: `feedback-ui-checker-greenfield-false-positives.md`).
 
-**Companion mockup (D-17 binding gate):** `47-mockups.html` — small interactive mockup (EN/HE RTL + light/dark) for the REMAINING visual-detail decisions. Structure/placement/reorder model are already locked by sketch `010-section-groups-concept` + CONTEXT D-01..D-16; the mockup covers only reorder-row look, drag/arrow affordances, the ⓘ severity-off explainer, the N/A rating widget, and the topic + before-rating row. Requires Ben (+ Sapir, in Hebrew) sign-off BEFORE planning.
+**Companion mockup (D-17 binding gate):** `47-mockups.html` — small interactive mockup (EN/HE RTL + light/dark) for the REMAINING visual-detail decisions. Structure/placement/reorder model are already locked by sketch `010-section-groups-concept` + CONTEXT D-01..D-16; the mockup covers only reorder-row look, drag/arrow affordances, the ⓘ severity-off explainer, the skipped-rating (—) widget, and the topic + before-rating row. Requires Ben (+ Sapir, in Hebrew) sign-off BEFORE planning.
 
 ---
 
@@ -89,7 +89,7 @@ Accent (`--color-primary`) reserved for:
 
 NOT accent-colored: drag handle (`--color-text-muted`), up/down/rename icon buttons (muted on `--color-surface-subtle`), disabled rows (0.5 opacity + strike-through on the label only).
 
-**Severity scale** keeps its own shipped multi-hue ramp (green→amber→red, 0–10) via `--sev-color`; this is a domain data-encoding palette, exempt from the 60/30/10 chrome rule. The **N/A** 11th value is deliberately OUTSIDE that ramp: neutral grey (`--color-sev-default-border` #ccc / dark #4a5555) so it never reads as a severity level.
+**Severity scale** keeps its own shipped multi-hue ramp (green→amber→red, 0–10) via `--sev-color`; this is a domain data-encoding palette, exempt from the 60/30/10 chrome rule. The skipped-rating **—** 11th value (language-free dash pill, no translation needed) is deliberately OUTSIDE that ramp: neutral grey (`--color-sev-default-border` #ccc / dark #4a5555) so it never reads as a severity level.
 
 ---
 
@@ -101,12 +101,12 @@ New/changed strings ship in **all four locales EN/DE/HE/CS** (EN is the corpus o
 |---------|-----------|
 | Primary CTA (reset) | **Reset order** (↺) — restores the D-02 default order only; renames + enable states untouched (D-12) |
 | Reorder affordances | Drag handle (⠿, `aria-label="Reorder {section}"`); Up = `aria-label="Move {section} up"`; Down = `aria-label="Move {section} down"` |
-| Severity-after toggle label | **Severity after** — "Issue severity at the end of this session" |
-| ⓘ severity-off explainer (D-08) | "Turning this off hides the after-session ratings AND the before-rating column inside each topic — the topics themselves stay. This is how you turn severity tracking off completely." (same text seeds the help-corpus "how to turn severity tracking off" entry) |
-| N/A hint (D-09) | Selected state: "N/A selected — the after-rating for this topic is now hidden." |
+| Severity settings row (D-08, Ben 2026-07-22) | Settings row name: **Issue severity** (no descriptor after it — the ⓘ carries the explanation). Form section header: **Issue severity — end of session** (settings name is a visible prefix of the form header, keeping the find-the-setting link; replaces shipped `session.form.afterSeverityTitle`; HE stays on the shipped דרגת חומרה terminology). Topic-row rating label: **Severity at start** (replaces "Severity before"). Severity is named ONCE in the Settings list — the topics row never mentions it. |
+| ⓘ severity-off explainer (D-08) | "One switch for all severity ratings: when on, each topic gets a rating at the start and this end-of-session section appears; when off, both disappear — the topics themselves stay. Drag this row to choose where the end-of-session ratings appear in the form." (same text seeds the help-corpus "how to turn severity ratings off" entry) |
+| Skipped-rating hint (D-09) | Selected state: "Rating skipped — the end-of-session rating for this topic is hidden, and exports leave its severity out." |
 | Export Step-1 topics checkbox (D-14) | Named **identically to the in-session section title** in each language (HE mismatch fixed); sub-option "Include severity before/after" is a **dependent, indented** checkbox, enabled only when topics is checked, checked-by-default when issue data exists (D-15), resets per export. |
 | Empty state (empty group, D-04) | No copy — an all-disabled group **hides entirely** from the form until a member is re-enabled (not an empty-state message). In Settings the group + its disabled members remain visible (rows keep their slot, D-11). |
-| Error state | No new error surface in this phase. Existing form validation still applies; a topic's mandatory severity is satisfied by the **N/A** value (D-09) so reordering/severity-off never produces a validation dead-end. |
+| Error state | No new error surface in this phase. Existing form validation still applies; a topic's mandatory severity is satisfied by the skipped-rating **—** value (D-09) so reordering/severity-off never produces a validation dead-end. |
 | Destructive confirmation | **None.** Reset-order is non-destructive (touches order only, reversible by re-dragging); disabling a section keeps its slot and data. No confirmation dialog required. |
 
 ---
@@ -128,8 +128,9 @@ Prescriptive behaviors the executor must implement; verified by ui-checker + on-
 4. **Disabled rows keep their slot** in Settings (D-11); they render struck-through/dimmed but stay draggable and re-enableable in place. They simply don't render on form/export.
 5. **Group header row** is the drag/reorder unit for the whole group (its own handle + arrows); it has no enable toggle and no ✎ unless renamable (group renames ship — D-05; `LOCKED_RENAME` sections keep no ✎).
 6. **ⓘ severity explainer** opens on **tap/click** (mobile-safe), not hover-only; toggles `aria-expanded`; the popover is a bordered `border-inline-start:3px --color-primary` note beneath the toggle.
-7. **Severity coupling (D-08).** Disabling "Severity after" hides the after block AND the before-rating column inside topic rows; topics themselves remain.
-8. **N/A (D-09).** 11th severity value, neutral grey, at the end of the scale; selecting it auto-hides that topic's after-rating; the field stays mandatory (N/A satisfies validation).
+7. **Severity coupling (D-08).** Disabling the **Issue severity** row hides the end-of-session block AND the start-rating column inside topic rows; topics themselves remain. Its drag position controls where the end-of-session block renders in the form.
+8. **Skipped rating (D-09).** 11th severity value (rendered as a language-free **—** pill, neutral grey, at the end of the scale); selecting it auto-hides that topic's after-rating; the field stays mandatory (— satisfies validation).
+8a. **Skipped rating in export (Ben, 2026-07-22).** A topic rated — contributes NO severity to any export (no PDF bar, no markdown severity line — the topic itself still exports). If EVERY topic is —, the severity block is omitted from the export entirely, even when "Include severity before/after" is checked. Export never renders a literal "—"/N-A value.
 9. **Order takes effect on next form open** (D-16); an already-open form keeps its rendered order (no live reshuffle). Within one page load, form order == export Step-1 list order == export output order (D-13 three-way invariant, asserted against SAVED order).
 10. **Guided-tour anchors** (Phase 41) target the session form — verify anchors survive the D-02 restructure (decided at planning per CONTEXT discretion).
 

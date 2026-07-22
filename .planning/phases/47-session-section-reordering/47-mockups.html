@@ -72,7 +72,7 @@
   .pop{margin-top:.55rem; font-size:.76rem; color:var(--text); background:var(--surface-toggle); border:1px solid var(--border-subtle); border-inline-start:3px solid var(--primary); border-radius:8px; padding:.55rem .7rem; line-height:1.5;}
   .pop[hidden]{display:none;}
 
-  /* ---- severity scale + N/A ---- */
+  /* ---- severity scale + skip (—) ---- */
   .sevscale{display:flex; gap:.4rem; flex-wrap:wrap; align-items:center;}
   .sevbtn{width:34px; height:34px; border-radius:10px; border:2px solid var(--sc,var(--sev-border)); background:var(--surface); font-weight:700; color:var(--sc,var(--sev-text)); cursor:pointer; font-family:inherit; font-size:.82rem;}
   .sevbtn.active{background:var(--sc,var(--sev-border)); color:#fff;}
@@ -91,7 +91,7 @@
 </head>
 <body>
 <h1 data-k="title">Phase 47 — remaining visual details (for sign-off)</h1>
-<div class="sub" data-k="sub">Structure &amp; reorder model are already locked (Model A, D-02 order, severity glued-before / free-after). These are the small visual decisions the UI-SPEC pins down: reorder-row look, drag/arrow affordances, the ⓘ severity-off explainer, the N/A rating, and the topic + before-rating row. Each card shows the RECOMMENDED treatment.</div>
+<div class="sub" data-k="sub">Structure &amp; reorder model are already locked (Model A, D-02 order, severity glued-before / free-after). These are the small visual decisions the UI-SPEC pins down: reorder-row look, drag/arrow affordances, the ⓘ severity-off explainer, the skipped (—) rating, and the topic + before-rating row. Each card shows the RECOMMENDED treatment.</div>
 <div class="toolbar">
   <button class="tgl active" id="btnEn" onclick="setLang('en')">English</button>
   <button class="tgl" id="btnHe" onclick="setLang('he')">עברית</button>
@@ -112,39 +112,39 @@
 
   <!-- 2. severity-off info icon -->
   <div class="card">
-    <h2 data-k="c2">2 · &ldquo;Severity after&rdquo; toggle + ⓘ</h2>
-    <span class="rec" data-k="c2r">Recommended: tap-to-open popover (mobile-safe)</span>
-    <p class="d" data-k="c2d">This toggle IS the severity-tracking switch (D-08) — not obvious, so a muted ⓘ sits beside it. Tap it (not hover-only) to reveal the explainer. The same text seeds the help entry.</p>
+    <h2 data-k="c2">2 · &ldquo;Issue severity&rdquo; row + ⓘ</h2>
+    <span class="rec" data-k="c2r">Recommended: clean name, tap-to-open popover (mobile-safe)</span>
+    <p class="d" data-k="c2d">This toggle is the master switch for ALL severity ratings (D-08) — not obvious, so a muted ⓘ sits beside it. The row name stays clean; the ⓘ carries the explanation. Tap it (not hover-only). The same text seeds the help entry.</p>
     <div class="toggle-line">
       <button class="pill" id="sevPill" onclick="togglePill()"></button>
-      <span class="nm" data-k="sevTgl">Severity after — track issue severity</span>
+      <span class="nm" data-k="sevTgl">Issue severity</span>
       <button class="infobtn" id="infoBtn" aria-expanded="false" aria-label="Explain" onclick="togglePop()">i</button>
     </div>
-    <div class="pop" id="pop" hidden data-k="popTxt">Turning this off hides the after-session ratings AND the before-rating column inside each topic — the topics themselves stay. This is how you turn severity tracking off completely.</div>
+    <div class="pop" id="pop" hidden data-k="popTxt">One switch for all severity ratings: when on, each topic gets a rating at the start and this end-of-session section appears; when off, both disappear — the topics themselves stay. Drag this row to choose where the end-of-session ratings appear in the form.</div>
   </div>
 
-  <!-- 3. N/A severity -->
+  <!-- 3. skipped (—) severity -->
   <div class="card">
-    <h2 data-k="c3">3 · Severity scale + N/A</h2>
-    <span class="rec" data-k="c3r">Recommended: 11th pill, neutral grey, at the end</span>
-    <p class="d" data-k="c3d">N/A joins the 0–10 scale as a wider neutral pill so a therapist who usually rates can skip one session while the field stays mandatory (D-09). Picking N/A hides that topic&rsquo;s after-rating.</p>
+    <h2 data-k="c3">3 · Severity scale + skip (—)</h2>
+    <span class="rec" data-k="c3r">Recommended: 11th pill, language-free —, neutral grey, at the end</span>
+    <p class="d" data-k="c3d">A wider neutral — pill joins the 0–10 scale so a therapist who usually rates can skip one session while the field stays mandatory (D-09). Picking — hides that topic&rsquo;s end-of-session rating, and exports leave its severity out entirely.</p>
     <div class="sevscale" id="sevScale"></div>
-    <div style="font-size:.74rem;color:var(--muted);margin-top:.6rem" id="naHint" data-k="naHintOff">Pick N/A to see its after-rating auto-hide.</div>
+    <div style="font-size:.74rem;color:var(--muted);margin-top:.6rem" id="naHint" data-k="naHintOff">Pick — to see its end-of-session rating auto-hide.</div>
   </div>
 
   <!-- 4. topic + before-rating row -->
   <div class="card">
     <h2 data-k="c4">4 · Topic + before-rating row</h2>
     <span class="rec" data-k="c4r">Recommended: rating stacked under the topic</span>
-    <p class="d" data-k="c4d">Before-severity is glued to the topic (D-07). Rating sits directly under the topic label. When severity tracking is OFF, the whole rating column vanishes — the topic text remains. Use the switch:</p>
+    <p class="d" data-k="c4d">The start rating is glued to the topic (D-07). It sits directly under the topic label. When severity ratings are OFF, the whole rating column vanishes — the topic text remains. Use the switch:</p>
     <div class="toggle-line" style="margin-bottom:.7rem">
       <button class="pill" id="topicPill" onclick="toggleTopicSev()"></button>
-      <span class="nm" data-k="sevOnLbl">Severity tracking on</span>
+      <span class="nm" data-k="sevOnLbl">Severity ratings on</span>
     </div>
     <div class="topic">
       <div class="tt">1 · <span data-k="topicEx">Lower-back tension</span></div>
       <div class="sevcol" id="tSev">
-        <div class="lbl" data-k="beforeLbl">Severity before</div>
+        <div class="lbl" data-k="beforeLbl">Severity at start</div>
         <div class="sevscale" id="topicScale"></div>
       </div>
     </div>
@@ -156,29 +156,29 @@
 <script>
 const DICT={
   en:{title:'Phase 47 — remaining visual details (for sign-off)',
-    sub:'Structure & reorder model are already locked (Model A, D-02 order, severity glued-before / free-after). These are the small visual decisions the UI-SPEC pins down: reorder-row look, drag/arrow affordances, the ⓘ severity-off explainer, the N/A rating, and the topic + before-rating row. Each card shows the RECOMMENDED treatment.',
+    sub:'Structure & reorder model are already locked (Model A, D-02 order, severity glued-before / free-after). These are the small visual decisions the UI-SPEC pins down: reorder-row look, drag/arrow affordances, the ⓘ severity-off explainer, the skipped (—) rating, and the topic + before-rating row. Each card shows the RECOMMENDED treatment.',
     light:'Light',dark:'Dark',
     c1:'1 · Settings reorder list',c1r:'Recommended: compact rows in one container',c1d:'Not the big padded settings cards — one bordered list of compact rows so the whole order is scannable. Group headers tinted green; members indented. Drag a handle or use ↑/↓. Try it.',reset:'↺ Reset order',
-    c2:'2 · “Severity after” toggle + ⓘ',c2r:'Recommended: tap-to-open popover (mobile-safe)',c2d:'This toggle IS the severity-tracking switch (D-08) — not obvious, so a muted ⓘ sits beside it. Tap it (not hover-only) to reveal the explainer. The same text seeds the help entry.',sevTgl:'Severity after — track issue severity',popTxt:'Turning this off hides the after-session ratings AND the before-rating column inside each topic — the topics themselves stay. This is how you turn severity tracking off completely.',
-    c3:'3 · Severity scale + N/A',c3r:'Recommended: 11th pill, neutral grey, at the end',c3d:'N/A joins the 0–10 scale as a wider neutral pill so a therapist who usually rates can skip one session while the field stays mandatory (D-09). Picking N/A hides that topic’s after-rating.',naHintOff:'Pick N/A to see its after-rating auto-hide.',naHintOn:'N/A selected — the after-rating for this topic is now hidden.',
-    c4:'4 · Topic + before-rating row',c4r:'Recommended: rating stacked under the topic',c4d:'Before-severity is glued to the topic (D-07). Rating sits directly under the topic label. When severity tracking is OFF, the whole rating column vanishes — the topic text remains. Use the switch:',sevOnLbl:'Severity tracking on',sevOffLbl:'Severity tracking off',topicEx:'Lower-back tension',beforeLbl:'Severity before',
+    c2:'2 · “Issue severity” row + ⓘ',c2r:'Recommended: clean name, tap-to-open popover (mobile-safe)',c2d:'This toggle is the master switch for ALL severity ratings (D-08) — not obvious, so a muted ⓘ sits beside it. The row name stays clean; the ⓘ carries the explanation. Tap it (not hover-only). The same text seeds the help entry.',sevTgl:'Issue severity',popTxt:'One switch for all severity ratings: when on, each topic gets a rating at the start and this end-of-session section appears; when off, both disappear — the topics themselves stay. Drag this row to choose where the end-of-session ratings appear in the form.',
+    c3:'3 · Severity scale + skip (—)',c3r:'Recommended: 11th pill, language-free —, neutral grey, at the end',c3d:'A wider neutral — pill joins the 0–10 scale so a therapist who usually rates can skip one session while the field stays mandatory (D-09). Picking — hides that topic’s end-of-session rating, and exports leave its severity out entirely.',naHintOff:'Pick — to see its end-of-session rating auto-hide.',naHintOn:'Rating skipped — the end-of-session rating for this topic is hidden, and exports leave its severity out.',
+    c4:'4 · Topic + before-rating row',c4r:'Recommended: rating stacked under the topic',c4d:'The start rating is glued to the topic (D-07). It sits directly under the topic label. When severity ratings are OFF, the whole rating column vanishes — the topic text remains. Use the switch:',sevOnLbl:'Severity ratings on',sevOffLbl:'Severity ratings off',topicEx:'Lower-back tension',beforeLbl:'Severity at start',
     note:'Drag = pointer events (mouse + iPhone touch), ↑/↓ = the WCAG 2.2 baseline (ORDR-01/02). In RTL the handle/arrows mirror and drag uses PHYSICAL coordinates (repo memory: inset-inline mirrors overlays wrongly). Export never shows group names (D-03); this list order == form order == export order (D-13).',
     rows:[['h','Session topics',1],['h','Emotions & Techniques group — drag whole group',0],
       ['head','Emotions & Techniques'],['c','Heart-Wall toggle'],['c','Emotions in the Heart-Wall'],
       ['c','Trapped Emotions Released'],['c','Physical Imbalance'],['c','Limiting Beliefs'],['c','Additional Techniques and Tools'],
-      ['r','Severity after'],['head','Session Wrap-up'],['c','Session Notes and Observations'],['c','Information for Next Session']]},
+      ['r','Issue severity'],['head','Session Wrap-up'],['c','Session Notes and Observations'],['c','Information for Next Session']]},
   he:{title:'שלב 47 — פרטים ויזואליים שנותרו (לאישור)',
-    sub:'המבנה ומודל הסידור כבר נעולים (מודל A, סדר D-02, חומרה מוצמדת-לפני / חופשית-אחרי). אלה ההחלטות הוויזואליות הקטנות שה-UI-SPEC מקבע: מראה שורת הסידור, אחיזת הגרירה/החיצים, מסביר כיבוי-החומרה (ⓘ), דירוג ה-N/A, ושורת הנושא + דירוג לפני. כל כרטיס מציג את הטיפול המומלץ.',
+    sub:'המבנה ומודל הסידור כבר נעולים (מודל A, סדר D-02, חומרה מוצמדת-לפני / חופשית-אחרי). אלה ההחלטות הוויזואליות הקטנות שה-UI-SPEC מקבע: מראה שורת הסידור, אחיזת הגרירה/החיצים, מסביר כיבוי-החומרה (ⓘ), הדירוג המדולג (—), ושורת הנושא + דירוג פתיחה. כל כרטיס מציג את הטיפול המומלץ.',
     light:'בהיר',dark:'כהה',
     c1:'1 · רשימת סידור בהגדרות',c1r:'מומלץ: שורות קומפקטיות במיכל אחד',c1d:'לא כרטיסי ההגדרות הגדולים — רשימה אחת של שורות קומפקטיות כדי לסרוק את כל הסדר. כותרות קבוצה בגוון ירוק; חברים מוזחים. גררו ידית או השתמשו ב-↑/↓. נסו.',reset:'↺ איפוס סדר',
-    c2:'2 · מתג "חומרה אחרי" + ⓘ',c2r:'מומלץ: חלונית בלחיצה (בטוח לנייד)',c2d:'המתג הזה הוא מתג מעקב-החומרה (D-08) — לא מובן מאליו, לכן ⓘ עמום לצידו. הקישו עליו (לא ריחוף בלבד) כדי לחשוף את ההסבר. אותו טקסט מזין את ערך העזרה.',sevTgl:'חומרה אחרי — מעקב אחר חומרת הנושא',popTxt:'כיבוי מסתיר את דירוגי הסיום וגם את עמודת הדירוג-לפני בתוך כל נושא — הנושאים עצמם נשארים. כך מכבים לחלוטין את מעקב החומרה.',
-    c3:'3 · סולם חומרה + N/A',c3r:'מומלץ: כפתור 11, אפור ניטרלי, בסוף',c3d:'N/A מצטרף לסולם 0–10 ככפתור ניטרלי רחב כדי שמטפל שרגיל לדרג יוכל לדלג על מפגש אחד בעוד השדה נשאר חובה (D-09). בחירת N/A מסתירה את דירוג הסיום של הנושא.',naHintOff:'בחרו N/A כדי לראות את דירוג הסיום מוסתר.',naHintOn:'נבחר N/A — דירוג הסיום לנושא זה מוסתר כעת.',
-    c4:'4 · שורת נושא + דירוג לפני',c4r:'מומלץ: הדירוג מתחת לנושא',c4d:'חומרת-לפני מוצמדת לנושא (D-07). הדירוג יושב ישירות מתחת לתווית הנושא. כשמעקב החומרה כבוי, כל עמודת הדירוג נעלמת — טקסט הנושא נשאר. השתמשו במתג:',sevOnLbl:'מעקב חומרה פעיל',sevOffLbl:'מעקב חומרה כבוי',topicEx:'מתח בגב התחתון',beforeLbl:'חומרה לפני',
+    c2:'2 · שורת "דרגת חומרה" + ⓘ',c2r:'מומלץ: שם נקי, חלונית בלחיצה (בטוח לנייד)',c2d:'המתג הזה הוא המתג הראשי לכל דירוגי החומרה (D-08) — לא מובן מאליו, לכן ⓘ עמום לצידו. שם השורה נשאר נקי; ה-ⓘ נושא את ההסבר. הקישו עליו (לא ריחוף בלבד). אותו טקסט מזין את ערך העזרה.',sevTgl:'דרגת חומרה',popTxt:'מתג אחד לכל דירוגי החומרה: כשהוא פעיל, כל נושא מקבל דירוג פתיחה ומקטע דירוג-הסיום מופיע; כשהוא כבוי, שניהם נעלמים — הנושאים עצמם נשארים. גררו את השורה כדי לקבוע היכן יופיעו דירוגי הסיום בטופס.',
+    c3:'3 · סולם חומרה + דילוג (—)',c3r:'מומלץ: כפתור 11, — ללא מילים, אפור ניטרלי, בסוף',c3d:'כפתור — ניטרלי ורחב מצטרף לסולם 0–10 כדי שמטפל שרגיל לדרג יוכל לדלג על מפגש אחד בעוד השדה נשאר חובה (D-09). בחירת — מסתירה את דירוג הסיום של הנושא, והייצוא משמיט את החומרה שלו לגמרי.',naHintOff:'בחרו — כדי לראות את דירוג הסיום מוסתר.',naHintOn:'הדירוג דולג — דירוג הסיום לנושא זה מוסתר, והייצוא ישמיט את החומרה שלו.',
+    c4:'4 · שורת נושא + דירוג פתיחה',c4r:'מומלץ: הדירוג מתחת לנושא',c4d:'דירוג הפתיחה מוצמד לנושא (D-07). הוא יושב ישירות מתחת לתווית הנושא. כשדירוגי החומרה כבויים, כל עמודת הדירוג נעלמת — טקסט הנושא נשאר. השתמשו במתג:',sevOnLbl:'דירוגי חומרה פעילים',sevOffLbl:'דירוגי חומרה כבויים',topicEx:'מתח בגב התחתון',beforeLbl:'דרגת חומרה בתחילת המפגש',
     note:'גרירה = אירועי מצביע (עכבר + מגע אייפון), ↑/↓ = בסיס נגישות WCAG 2.2 (ORDR-01/02). ב-RTL הידית/החיצים מתהפכים והגרירה משתמשת בקואורדינטות פיזיות (זיכרון מאגר: inset-inline מהפך שכבות-על שגוי). הייצוא לעולם לא מציג שמות קבוצה (D-03); סדר הרשימה == סדר הטופס == סדר הייצוא (D-13).',
     rows:[['h','נושאי המפגש',1],['h','קבוצת רגשות וטכניקות — גררו את כל הקבוצה',0],
       ['head','רגשות וטכניקות'],['c','מתג חומת הלב'],['c','רגשות בחומת הלב'],
       ['c','רגשות לכודים ששוחררו'],['c','חוסר איזון גופני'],['c','אמונות מגבילות'],['c','טכניקות וכלים נוספים'],
-      ['r','חומרה אחרי'],['head','סיכום המפגש'],['c','הערות ורשמים מהמפגש'],['c','מידע לגבי המפגש הבא']]}
+      ['r','דרגת חומרה'],['head','סיכום המפגש'],['c','הערות ורשמים מהמפגש'],['c','מידע לגבי המפגש הבא']]}
 };
 let LANG='en';
 const SEV=['#2fb37d','#4caf50','#74b89a','#a3c86a','#d4c85a','#f2c14e','#f0a848','#ec8f3c','#e5733a','#df5638','#d63b34'];
@@ -222,7 +222,7 @@ function renderSev(hostId,withNA){
     b.style.setProperty('--sc',SEV[i]);
     b.onclick=()=>{host.querySelectorAll('.sevbtn').forEach(x=>x.classList.remove('active')); b.classList.add('active');
       if(hostId==='sevScale') setNaHint(false);}; host.appendChild(b);}
-  if(withNA){ const na=document.createElement('button'); na.className='sevbtn na'; na.textContent='N/A';
+  if(withNA){ const na=document.createElement('button'); na.className='sevbtn na'; na.textContent='—';
     na.onclick=()=>{host.querySelectorAll('.sevbtn').forEach(x=>x.classList.remove('active')); na.classList.add('active'); setNaHint(true);};
     host.appendChild(na);}
 }
