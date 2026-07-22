@@ -550,7 +550,7 @@ window.I18N.de = {
   "snippets.library.helper": "Bausteine durchsuchen, Tags verwalten oder neue hinzuf\u00FCgen. Geben Sie Ihr Ausl\u00F6ser-Pr\u00E4fix gefolgt vom Tag-Namen in einer Sitzungsnotiz ein, um nach Tag zu filtern.",
   "snippets.editor.helper": "Legen Sie einen Ausl\u00F6ser und den Text fest, der eingef\u00FCgt wird, wenn Sie das Pr\u00E4fix + den Ausl\u00F6ser in einer Sitzungsnotiz tippen. Mit Tags lassen sich verwandte Bausteine gruppieren.",
   "snippets.prefix.label": "Ausl\u00F6ser-Pr\u00E4fix",
-  "snippets.prefix.helper": "1 oder 2 Zeichen. Keine Buchstaben, Ziffern, Leerzeichen, Anf\u00FChrungszeichen oder spitzen Klammern.",
+  "snippets.prefix.helper": "1 oder 2 Zeichen. Keine Buchstaben, Ziffern, Leerzeichen, Anf\u00FChrungszeichen, spitzen Klammern oder Formatierungszeichen (* _ ~ `).",
   "snippets.prefix.error.length": "Pr\u00E4fix muss 1 oder 2 Zeichen lang sein.",
   "snippets.prefix.error.invalidChar": "Pr\u00E4fix enth\u00E4lt ein nicht unterst\u00FCtztes Zeichen.",
   "snippets.prefix.saved": "Pr\u00E4fix gespeichert",

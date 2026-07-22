@@ -178,6 +178,7 @@
       filterSnippetList: filterSnippetList,
       isModifiedSeed: isModifiedSeed,
       isValidTrigger: isValidTrigger,
+      validatePrefix: validatePrefix,
       hyphenateSpaces: hyphenateSpaces,
       getCrossLangWarning: getCrossLangWarning,
       pendingTagToCommit: pendingTagToCommit,
@@ -192,7 +193,25 @@
   // Unicode-aware so Hebrew/German/Czech (any Unicode letter) triggers validate,
   // aligned with the detection engine (snippets.js). \p{L}=any letter, \p{N}=any digit.
   var TRIGGER_REGEX = /^[\p{L}\p{N}-]{2,32}$/u;
-  var PREFIX_INVALID_CHAR_REGEX = /[a-zA-Z0-9\s"<>]/;
+  // Denylist: letters/digits/whitespace/quotes/angle brackets, plus the inline
+  // formatting markers (* _ ~ `). The markers are word-boundary characters in
+  // the detection engine (snippets.js detectTrigger), so a prefix built from
+  // them would collide with toolbar formatting (e.g. prefix "*" inside
+  // **bold**). Guards new input only — a previously stored marker prefix keeps
+  // working (readStoredPrefix does not re-validate).
+  var PREFIX_INVALID_CHAR_REGEX = /[a-zA-Z0-9\s"<>*_~`]/;
+
+  // Pure validator for the prefix input — returns an i18n error key, or null
+  // when valid. Module-scoped (not closure-local) so tests can exercise it.
+  function validatePrefix(value) {
+    if (typeof value !== "string" || value.length < 1 || value.length > 2) {
+      return "snippets.prefix.error.length";
+    }
+    if (PREFIX_INVALID_CHAR_REGEX.test(value)) {
+      return "snippets.prefix.error.invalidChar";
+    }
+    return null;
+  }
 
   function isValidTrigger(trigger) {
     return TRIGGER_REGEX.test(String(trigger));
@@ -323,19 +342,9 @@
       }, 2500);
     }
 
-    function validateLocal(value) {
-      if (typeof value !== "string" || value.length < 1 || value.length > 2) {
-        return "snippets.prefix.error.length";
-      }
-      if (PREFIX_INVALID_CHAR_REGEX.test(value)) {
-        return "snippets.prefix.error.invalidChar";
-      }
-      return null;
-    }
-
     input.addEventListener("change", async function () {
       var value = input.value;
-      var errorKey = validateLocal(value);
+      var errorKey = validatePrefix(value);
       if (errorKey) {
         showError(errorKey);
         // Restore previous valid prefix in the input

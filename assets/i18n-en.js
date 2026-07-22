@@ -559,7 +559,7 @@ window.I18N.en = {
   "snippets.library.helper": "Search snippets, manage tags, or add new ones. Type your trigger prefix followed by a tag name in any session note to filter by tag.",
   "snippets.editor.helper": "Set a trigger word and the text that will be inserted when you type the prefix + trigger in a session note. Add tags to group related snippets.",
   "snippets.prefix.label": "Trigger prefix",
-  "snippets.prefix.helper": "1 or 2 characters. Cannot be a letter, digit, whitespace, quote, or angle bracket.",
+  "snippets.prefix.helper": "1 or 2 characters. Cannot be a letter, digit, whitespace, quote, angle bracket, or formatting mark (* _ ~ `).",
   "snippets.prefix.error.length": "Prefix must be 1 or 2 characters.",
   "snippets.prefix.error.invalidChar": "Prefix contains an unsupported character.",
   "snippets.prefix.saved": "Prefix saved",
