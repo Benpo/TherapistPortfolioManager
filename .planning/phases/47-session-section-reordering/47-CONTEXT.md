@@ -107,6 +107,27 @@ at plan review before execution.
   affordances, ⓘ icon treatment, N/A widget, topics+before-rating row layout, RTL/dark —
   goes through the mandatory `/gsd-ui-phase` UI-SPEC with SMALL interactive mockups for
   Ben's (+ Sapir's) sign-off BEFORE planning (ROADMAP "UI hint: yes").
+  **GATE CLOSED 2026-07-23:** mockup + UI-SPEC approved by Ben (Sapir reviewed HE).
+- **D-18 (Ben, 2026-07-23, locked): help + what's-new scope is planned by the PLANNER,
+  not improvised by the code executor.** The plan MUST contain a dedicated, explicitly
+  scoped docs task (help topics + changelog/what's-new entry) with a coverage list the
+  planner derives — per repo memory `feedback-docs-content-passes-separate-from-code`,
+  content is drafted as its own pass Ben reviews, never bundled silently into code tasks.
+  Ben's draft of the changelog-worthy user story (planner verifies completeness against
+  D-01..D-16 + HELP-MAP.md before writing tasks):
+  1. Section reordering capabilities — drag + arrows, groups (renamable), enable toggles
+     with rows keeping their slot, Reset order / Reset names, order mirrored in export.
+  2. App-level severity switch — the Issue severity row toggle turns ALL severity
+     ratings on/off (D-08); includes the mandated help entry "how to turn severity
+     ratings off" (docs-gate demand, EN corpus first, all four locales).
+  3. The — skip value (D-09) — individual sessions/topics can go untracked while the
+     feature stays on.
+  4. Skipped severity is excluded from exports (Interaction 8a) + the export Step-1
+     topics/severity nested checkbox split (D-14) — the export topic must cover both.
+  Explicitly NOT in the changelog (behind-the-scenes behavior, no user story): the
+  topics<severity ordering clamp (Interaction 11), saved-order sanitization/migration,
+  tab-order and pointer-drag internals, RTL drag math, label micro-renames covered
+  inside the stories above.
 
 ### Claude's Discretion
 - Drag implementation details (pointer-events per ORDR-01; repo memory: physical

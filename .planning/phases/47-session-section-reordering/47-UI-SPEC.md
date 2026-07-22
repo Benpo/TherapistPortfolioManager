@@ -14,7 +14,7 @@ reviewed_at: 2026-07-22
 >
 > **Reuse-only phase.** This phase extends existing surfaces (Settings page, session form, export modal) inside an established vanilla-JS/CSS zero-build design system (`assets/tokens.css`). It introduces NO new tokens, NO new font, NO new component library. All tokens below are DECLARED-FROM-SOURCE (already shipped), not new proposals. See `## Accepted Exceptions` for the greenfield-checker calibration note (repo memory: `feedback-ui-checker-greenfield-false-positives.md`).
 
-**Companion mockup (D-17 binding gate):** `47-mockups.html` — small interactive mockup (EN/HE RTL + light/dark) for the REMAINING visual-detail decisions. Structure/placement/reorder model are already locked by sketch `010-section-groups-concept` + CONTEXT D-01..D-16; the mockup covers only reorder-row look, drag/arrow affordances, the ⓘ severity-off explainer, the skipped-rating (—) widget, and the topic + before-rating row. Requires Ben (+ Sapir, in Hebrew) sign-off BEFORE planning.
+**Companion mockup (D-17 binding gate):** `47-mockups.html` — small interactive mockup (EN/HE RTL + light/dark) for the REMAINING visual-detail decisions. Structure/placement/reorder model are already locked by sketch `010-section-groups-concept` + CONTEXT D-01..D-16; the mockup covers only reorder-row look, drag/arrow affordances, the ⓘ severity-off explainer, the skipped-rating (—) widget, and the topic + before-rating row. **✓ APPROVED 2026-07-23** (Ben, with Sapir on the Hebrew side) — D-17 gate closed; planning may proceed. Docs scope directive recorded as D-18 in 47-CONTEXT.md.
 
 ---
 
