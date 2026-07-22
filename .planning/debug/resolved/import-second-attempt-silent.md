@@ -1,5 +1,5 @@
 ---
-status: awaiting_human_verify
+status: resolved
 trigger: "Second backup import after a restore silently fails — confirm popup never opens (v1.4 ship blocker, resolves_phase 48; todo .planning/todos/pending/2026-07-13-import-second-attempt-no-confirm-popup.md)"
 created: 2026-07-22
 updated: 2026-07-22
@@ -49,7 +49,7 @@ reasoning_checkpoint:
 
 test: DONE — harness scenario C flipped to POPUP APPEARS; regression test proven falsifiable; suite 206/206.
 expecting: —
-next_action: AWAITING HUMAN VERIFY — Ben confirms the second import now shows the confirm popup on the real pre-prod PWA. On "confirmed fixed": archive to resolved/, append knowledge-base entry, then commit (code + docs) per Ben's push preference. A changelog entry will be needed before the next push (backup-modal.js is a watched shipped-code file → docs-gate).
+next_action: NONE — RESOLVED 2026-07-22. Ben APPROVED without a device test ("didnt test but was low risk") — an explicit low-risk acceptance, not a field verification. If the symptom ever recurs on a real device, reopen here; the unexplained repro fact ("hard refresh did not heal") is the first thread to pull. Fix + regression test + 4-locale changelog `fixed` item shipped in commit 7c62d31 (pre-prod).
 
 deferred_observation (surface to Ben, not in scope of this fix): under a genuinely hanging in-place refresh the backup modal also stays OPEN (closeBackupModal is still gated behind the same refresh promise at openImportFlow:331-337). The reported symptom (silent second attempt) is fixed regardless, but if desired, a follow-up could run closeBackupModal + finalize on import SUCCESS and let the in-place refresh run fire-and-forget. Not done here to keep the fix minimal and preserve the GAP-1 in-place re-render contract.
 
@@ -84,7 +84,7 @@ deferred_observation (surface to Ben, not in scope of this fix): under a genuine
 
 root_cause: openImportFlow (assets/backup-modal.js) resets the file input's value and closes/finalizes the modal ONLY after the post-restore `refresh` promise settles. On index.html the refresh is the in-place `window.__afterBackupRestore` hook (overview.js:163 → loadOverview, an IndexedDB read) — no page reload. When loadOverview stalls right after the restore's clearAll + bulk writes, the refresh promise does not settle, so `importInput.value = ''` (backup-modal.js:414) never runs. Re-selecting the SAME .sgbackup then fires no `change` event, so openImportFlow is never called and the confirm popup never appears — a silent no-op. All other pages call location.reload() after restore, which resets the input; that is why the bug is index.html-only. (Confirmed by a jsdom harness against the real code: silent no-op reproduces ONLY under a non-settling refresh, ONLY on same-file reselection.)
 fix: assets/backup-modal.js change handler (formerly :412-415) now resets `importInput.value = ''` IMMEDIATELY (capturing the File first), then calls openImportFlow(file) — decoupling the input reset from the post-restore refresh promise. A same-file reselection therefore always re-fires `change` regardless of whether the in-place refresh settles. Minimal, targeted; does not alter the confirm/import/refresh pipeline itself.
-verification: (1) jsdom harness against the real backup-modal.js — scenario "hanging refresh + same file" flipped from SILENT NO-OP (confirmCalled=0) to POPUP APPEARS (confirmCalled=1); all four scenarios pass. (2) New regression test tests/48-import-second-attempt-reselect.test.js pins the behaviour and was proven falsifiable — it FAILS on the pre-fix (gated-reset) code and PASSES on the fix. (3) Full suite: 206 passed, 0 failed (was 205; +1 new test). NOTE: not yet field-verified by Ben on the real pre-prod PWA (awaiting human confirm).
+verification: (1) jsdom harness against the real backup-modal.js — scenario "hanging refresh + same file" flipped from SILENT NO-OP (confirmCalled=0) to POPUP APPEARS (confirmCalled=1); all four scenarios pass. (2) New regression test tests/48-import-second-attempt-reselect.test.js pins the behaviour and was proven falsifiable — it FAILS on the pre-fix (gated-reset) code and PASSES on the fix. (3) Full suite: 206 passed, 0 failed (was 205; +1 new test). (4) Human gate: Ben APPROVED 2026-07-22 WITHOUT a device test — explicit low-risk acceptance ("didnt test but was low risk"). No field verification on a real PWA has occurred; recorded honestly for any future recurrence triage.
 files_changed:
   - assets/backup-modal.js (import change handler — eager input-value reset)
   - tests/48-import-second-attempt-reselect.test.js (new regression test)
