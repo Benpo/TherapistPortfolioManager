@@ -99,7 +99,7 @@ New/changed strings ship in **all four locales EN/DE/HE/CS** (EN is the corpus o
 
 | Element | Copy (EN) |
 |---------|-----------|
-| Primary CTA (reset) | **Reset order** (↺) — restores the D-02 default order only; renames + enable states untouched (D-12) |
+| Reset actions (Ben 2026-07-23: two SEPARATE controls, visually paired) | One quiet row under the reorder list, two compact secondary buttons of equal weight: **Reset order** (↺) — restores the D-02 default order only, instant, no confirm (D-12); **Reset names** (✎) — replaces ALL custom section/group names with defaults, order + enable states untouched, guarded by a lightweight confirm (it erases typed names). The shipped per-section "Reset to default name" (`settings.reset.tooltip`) stays for single-row reverts. |
 | Reorder affordances | Drag handle (⠿, `aria-label="Reorder {section}"`); Up = `aria-label="Move {section} up"`; Down = `aria-label="Move {section} down"` |
 | Severity settings row (D-08, Ben 2026-07-22) | Settings row name: **Issue severity** (no descriptor after it — the ⓘ carries the explanation). Form section header: **Issue severity — end of session** (settings name is a visible prefix of the form header, keeping the find-the-setting link; replaces shipped `session.form.afterSeverityTitle`; HE stays on the shipped דרגת חומרה terminology). Topic-row rating label: **Severity at start** (replaces "Severity before"). Severity is named ONCE in the Settings list — the topics row never mentions it. |
 | ⓘ severity-off explainer (D-08) | "One switch for all severity ratings: when on, each topic gets a rating at the start and this end-of-session section appears; when off, both disappear — the topics themselves stay. Drag this row to choose where the end-of-session ratings appear in the form." (same text seeds the help-corpus "how to turn severity ratings off" entry) |
@@ -107,13 +107,13 @@ New/changed strings ship in **all four locales EN/DE/HE/CS** (EN is the corpus o
 | Export Step-1 topics checkbox (D-14) | Named **identically to the in-session section title** in each language (HE mismatch fixed); sub-option "Include severity before/after" is a **dependent, indented** checkbox, enabled only when topics is checked, checked-by-default when issue data exists (D-15), resets per export. |
 | Empty state (empty group, D-04) | No copy — an all-disabled group **hides entirely** from the form until a member is re-enabled (not an empty-state message). In Settings the group + its disabled members remain visible (rows keep their slot, D-11). |
 | Error state | No new error surface in this phase. Existing form validation still applies; a topic's mandatory severity is satisfied by the skipped-rating **—** value (D-09) so reordering/severity-off never produces a validation dead-end. |
-| Destructive confirmation | **None.** Reset-order is non-destructive (touches order only, reversible by re-dragging); disabling a section keeps its slot and data. No confirmation dialog required. |
+| Destructive confirmation | **One, on Reset names only:** "Replace all custom names with the defaults? Names you typed will be lost." (typed names are user content — not recoverable by dragging). Reset order stays confirm-free (touches order only, reversible); disabling a section keeps its slot and data. |
 
 ---
 
 ## Visual Hierarchy (focal points)
 
-- **Settings reorder list:** the eye lands on the **group-header rows** (600-weight, `--color-primary` text) that segment the list; the accent-text **Reset order** button is the secondary anchor at the list's end. Member rows stay visually quiet (400-weight, neutral) so structure reads before detail.
+- **Settings reorder list:** the eye lands on the **group-header rows** (600-weight, `--color-primary` text) that segment the list; the paired accent-text reset buttons (**Reset order** / **Reset names**) form the secondary anchor at the list's end — one quiet row, equal visual weight, no dropdown. Member rows stay visually quiet (400-weight, neutral) so structure reads before detail.
 - **Restructured session form:** the **section headers** of the collapsed accordion are the anchors, with **Session topics** first (D-02 order) as the entry point; expanded content stays subordinate to its header.
 
 ---
