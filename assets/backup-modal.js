@@ -411,7 +411,17 @@
     if (importInput) {
       importInput.addEventListener('change', function () {
         var file = importInput.files && importInput.files[0];
-        Promise.resolve(openImportFlow(file)).then(function () { importInput.value = ''; });
+        // Reset the input's value IMMEDIATELY (capturing the File first) rather
+        // than after openImportFlow settles. The import flow's post-restore
+        // refresh is the in-place window.__afterBackupRestore hook on index.html
+        // (a loadOverview IndexedDB read, no page reload); if that refresh stalls
+        // after the restore's clearAll + bulk writes, a value reset gated behind
+        // it never runs, so re-selecting the SAME file fires no `change` event and
+        // the confirm popup silently never appears (the second-attempt bug). The
+        // eager reset makes a same-file reselection always re-fire `change`,
+        // independent of whether the refresh settles.
+        importInput.value = '';
+        openImportFlow(file);
       });
     }
 

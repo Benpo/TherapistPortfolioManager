@@ -45,6 +45,9 @@
           "Klarere Heart-Wall-Formulierungen in Exporten.",
           "PDF-Exporte bewahren Ihre Formatierung.",
         ],
+        fixed: [
+          "Ein Backup ein zweites Mal zu importieren fragt jetzt immer nach Bestätigung — zuvor konnte ein wiederholter Import ohne Wirkung bleiben.",
+        ],
       },
     },
 

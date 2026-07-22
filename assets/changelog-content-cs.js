@@ -46,6 +46,9 @@
           "Jasnější formulace Heart-Wall v exportech.",
           "Exporty do PDF zachovají vaše formátování.",
         ],
+        fixed: [
+          "Import zálohy podruhé se nyní vždy zeptá na potvrzení — dříve mohl opakovaný import zůstat bez odezvy.",
+        ],
       },
     },
 

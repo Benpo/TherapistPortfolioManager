@@ -93,6 +93,9 @@
           "Clearer Heart-Wall wording in exports.",
           "PDF exports keep your formatting.",
         ],
+        fixed: [
+          "Importing a backup a second time now always asks for confirmation — before, a repeat import could silently do nothing.",
+        ],
       },
     },
 
