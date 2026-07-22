@@ -4,17 +4,17 @@ milestone: v1.4
 milestone_name: Richer Sessions
 current_phase: 47
 current_phase_name: Session-Section Reordering
-status: verifying
-stopped_at: Phase 46.1 plan 07 device gate approved — 7/7 plans complete, phase NOT yet marked complete
-last_updated: "2026-07-20T06:08:53.765Z"
-last_activity: 2026-07-20
-last_activity_desc: Phase 46.1 complete, transitioned to Phase 47
+status: ready to plan
+stopped_at: Phase 46.1 CLOSED 2026-07-20 (full chain — verifier 10/10, review crit+warns fixed, parent-46 ledger 16/16, phase complete). 2026-07-22 pre-phase wave done — locale pass Ben-approved, import ship-blocker fixed + Ben-approved (low-risk acceptance), HE polish + terminology sweep live on pre-prod. NEXT = v1.4 production push (handoff in .claude/context/session-prompts/), then Phase 47 discuss/plan.
+last_updated: "2026-07-22T15:10:00.000Z"
+last_activity: 2026-07-22
+last_activity_desc: v1.4 push-readiness wave complete (locales + import fix + HE polish); production push prepared
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 37
-  completed_plans: 36
-  percent: 50
+  completed_plans: 37
+  percent: 67
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 ## Current Position
 
 Phase: 47 — Session-Section Reordering
-Plan: Not started
-Status: All 7 plans complete — device gate approved by Ben 2026-07-20 on pre-prod build 3d5cbaf; phase verification / code review / phase completion still pending (NOT yet run)
-Last activity: 2026-07-20 — Phase 46.1 complete, transitioned to Phase 47
+Plan: Not started (discuss/plan pending)
+Status: Phases 44/45/46/46.1 ALL COMPLETE (46.1 closed 2026-07-20: verifier 10/10, review crit+warns fixed, parent-46 ledger 16/16, `phase complete` run). 2026-07-22 pre-phase wave: v1.4 locale pass (HE/DE/CS) Ben-approved · import-second-attempt ship-blocker FIXED + Ben-approved (low-risk acceptance, debug session archived) · Hebrew polish pass + אופן-הטיפול→פורמט-המפגש terminology sweep live on pre-prod awaiting his read. NEXT: v1.4 production push (blocker cleared; see the push handoff), then Phase 47.
+Last activity: 2026-07-22 — push-readiness wave complete
 
 ## Performance Metrics
 
