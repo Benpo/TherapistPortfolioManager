@@ -1,10 +1,11 @@
 ---
 phase: 47
 slug: session-section-reordering
-status: draft
-nyquist_compliant: false
+status: assigned
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-07-23
+updated: 2026-07-23
 ---
 
 # Phase 47 — Validation Strategy
@@ -39,29 +40,39 @@ created: 2026-07-23
 
 > Task IDs assigned at planning; seeded from the requirement→test map in 47-RESEARCH.md.
 
+Test scaffolds are created WITHIN their owning plan (each implementation plan writes/rewrites the test it makes pass), not in a separate Wave-0 plan.
+
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | 0 | ORDR-03/04 | — | form == Step-1 == export three-way invariant asserted against a MUTATED saved order (atomic 260615 rewrite) | unit (jsdom) | `node tests/30-export-markdown.test.js` | ✅ (rewrite) | ⬜ pending |
-| TBD | TBD | 0 | ORDR-05 | — | order sentinel survives encrypted backup round-trip | unit | `node tests/47-order-backup-roundtrip.test.js` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | ORDR-05 | — | `_writeTherapistSentinel` accepts `sectionOrder`; `getAllTherapistSettings` returns it | unit | `node tests/47-order-sentinel.test.js` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | ORDR-02/05 (Interaction 11) | — | `sanitizeOrder` clamps on load AND on backup restore | unit (pure) | `node tests/47-order-sanitize.test.js` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | D-09/8a | — | — skip is mandatory-satisfying; excluded from export; all-skip omits severity block | unit | `node tests/47-severity-skip.test.js` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | ORDR-03 (Pattern 3) | — | `deriveSeverityAfterSections` ordinal correct for varied saved orders | unit (pure) | `node tests/47-severity-position.test.js` | ❌ W0 | ⬜ pending |
-| TBD | TBD | — | all | — | N/A | suite | `npm test` | ✅ | ⬜ pending |
+| 47-01 T1 | 47-01 | 1 | ORDR-05 | T-47-01/11 | `_writeTherapistSentinel` accepts `sectionOrder` (items/version); reader returns it | unit | `node tests/47-order-sentinel.test.js` | ❌ create in 47-01 | ⬜ pending |
+| 47-01 T2 | 47-01 | 1 | ORDR-05 (Interaction 11) | T-47-02 | `sanitizeOrder` clamps afterSeverity-after-issues + drops unknown keys + defaults on garbage | unit (pure) | `node tests/47-order-sanitize.test.js` | ❌ create in 47-01 | ⬜ pending |
+| 47-01 T3 | 47-01 | 1 | ORDR-07 | T-47-03 | severity widget "— (skip)" third state; getSeverityValue returns SEV_SKIP / Number / null | unit | `node tests/47-severity-marker.test.js` | ❌ create in 47-01 | ⬜ pending |
+| 47-03 T2 | 47-03 | 2 | ORDR-02 (Interaction 11) | T-47-02 | arrow-reorder persists via sentinel; illegal move clamped before save | unit (jsdom) | `node tests/47-settings-reorder.test.js` | ❌ create in 47-03 | ⬜ pending |
+| 47-04 T2 | 47-04 | 2 | ORDR-03 | T-47-05 | form section DOM order == saved order; empty-group hide | unit (jsdom) | `node tests/47-form-order.test.js` | ❌ create in 47-04 | ⬜ pending |
+| 47-05 T1 | 47-05 | 2 | ORDR-03/04 | T-47-07 | form == Step-1 == export three-way invariant vs a MUTATED saved order (atomic 260615 rewrite) | unit (jsdom) | `node tests/30-export-markdown.test.js` | ✅ (rewrite in 47-05) | ⬜ pending |
+| 47-05 T2 | 47-05 | 2 | ORDR-07 (D-09/8a) | T-47-06 | — skip excluded from export; all-skip omits block; no literal marker leaks | unit | `node tests/47-severity-skip.test.js` | ❌ create in 47-05 | ⬜ pending |
+| 47-05 T3 | 47-05 | 2 | ORDR-04 (Pattern 3) | — | `deriveSeverityAfterSections` ordinal correct for varied saved orders | unit (pure) | `node tests/47-severity-position.test.js` | ❌ create in 47-05 | ⬜ pending |
+| 47-06 T1 | 47-06 | 2 | ORDR-05 | T-47-09/10/11 | order sentinel survives encrypted backup round-trip; restore key-allowlists + clamps | unit | `node tests/47-order-backup-roundtrip.test.js` | ❌ create in 47-06 | ⬜ pending |
+| 47-07 T1/T2 | 47-07 | 3 | ORDR-06/07 | T-47-03/12 | skip satisfies validation + auto-hides after-rating; severity-off hides start-rating column | unit (jsdom) | `node tests/47-severity-form.test.js` | ❌ create in 47-07 | ⬜ pending |
+| — | all | — | all | — | full regression each wave merge | suite | `npm test` | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
 ---
 
-## Wave 0 Requirements
+## Test-Creation Assignments (folded into owning plans, not a separate Wave 0)
 
-- [ ] `tests/47-order-sentinel.test.js` — sentinel put/read (ORDR-05); model on `25-10-snippets-sentinel-roundtrip.test.js`
-- [ ] `tests/47-order-backup-roundtrip.test.js` — encrypted round-trip (ORDR-05); model on `45-backup-roundtrip.test.js` / `snippet-prefix-backup-roundtrip.test.js`
-- [ ] `tests/47-order-sanitize.test.js` — clamp on load + restore (Interaction 11)
-- [ ] `tests/47-severity-skip.test.js` — — skip value validation + export omission (D-09/8a)
-- [ ] `tests/47-severity-position.test.js` — `deriveSeverityAfterSections` ordinal (Pattern 3)
-- [ ] Rewrite `tests/30-export-markdown.test.js` — assert three-way invariant against a MUTATED saved order, not static DOM (the atomic 260615 rewrite, ORDR-04)
-- [ ] Extend `tests/30-settings-section-roundtrip.test.js` for order rows if it asserts section-row shape
+- [ ] `tests/47-order-sentinel.test.js` — created in **47-01 T1** (model on `25-10-snippets-sentinel-roundtrip.test.js`)
+- [ ] `tests/47-order-sanitize.test.js` — created in **47-01 T2** (clamp + allowlist + default)
+- [ ] `tests/47-severity-marker.test.js` — created in **47-01 T3** (widget "— (skip)" third state)
+- [ ] `tests/47-settings-reorder.test.js` — created in **47-03 T2** (arrow reorder + clamp + persist)
+- [ ] `tests/47-form-order.test.js` — created in **47-04 T2** (form order == saved order + empty-group hide)
+- [ ] Rewrite `tests/30-export-markdown.test.js` — in **47-05 T1** (three-way invariant vs MUTATED order — the atomic 260615 rewrite)
+- [ ] `tests/47-severity-skip.test.js` — created in **47-05 T2** (export omission + all-skip omits block)
+- [ ] `tests/47-severity-position.test.js` — created in **47-05 T3** (`deriveSeverityAfterSections` ordinal)
+- [ ] `tests/47-order-backup-roundtrip.test.js` — created in **47-06 T1** (encrypted round-trip + restore sanitize)
+- [ ] `tests/47-severity-form.test.js` — created in **47-07 T1/T2** (skip validation/auto-hide + severity-off column)
+- [ ] Existing `tests/30-settings-section-roundtrip.test.js` — kept green (47-03 verify runs it); extend only if it asserts the section-row shape
 - [ ] Framework install: none needed (zero-npm runner + jsdom already in place)
 
 ---
@@ -81,11 +92,13 @@ created: 2026-07-23
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 60s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All code-producing tasks have an `<automated>` verify (single-file test each), plus manual gates for jsdom-blind behavior
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify (every plan's tasks carry a test/grep/`node --check` verify)
+- [x] All MISSING test references assigned to an owning plan+task
+- [x] No watch-mode flags (single-file `node tests/*.test.js` runs)
+- [x] Feedback latency < 60s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Manual-only gates remain (real-device, pre-`/gsd-verify-work`):** iPhone touch drag (ORDR-01), RTL drag mirroring, PDF severity-block position, empty-group hide, guided-tour anchor survival.
+
+**Approval:** assigned — Task IDs / plans / waves mapped 2026-07-23.
