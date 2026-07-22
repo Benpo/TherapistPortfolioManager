@@ -68,3 +68,24 @@ None.
 - assets/snippets.js modified — FOUND
 - Commit 2aa6192 — FOUND
 - Commit 1ca439f — FOUND
+
+## Follow-Up (same session, Ben-approved): formatting markers blocked as prefix
+
+Ben's review question — "doesn't the fix mean `*` can't be a trigger sign?" — surfaced a
+real gap: trigger KEYWORDS already exclude formatting chars (`/^[\p{L}\p{N}-]{2,32}$/u`),
+but the prefix denylist (`PREFIX_INVALID_CHAR_REGEX`, assets/settings-snippets.js) still
+allowed `*` `_` `~` and backtick as the prefix — a configuration that collides with
+markdown formatting (partly already broken in v1.4.0: prefix `*` + italic `*word ` would
+auto-expand; today's boundary fix widened it to bold spans).
+
+**Resolution (commit `3952b36`, Ben-locked option "block formatting chars as prefix"):**
+- `* _ ~ `` ` `` added to `PREFIX_INVALID_CHAR_REGEX`; `validatePrefix` extracted to module
+  scope + exposed via `__SnippetEditorHelpers`.
+- Helper copy updated in all 4 locales to name the formatting markers.
+- Grandfathering: stored marker prefixes keep working (read path does not re-validate);
+  only new input is blocked.
+- New behavior test `tests/quick-260722-rew-prefix-formatting-chars.test.js` (24/24);
+  full suite 208/208.
+- Docs-gate: `Help-Unaffected: assets/settings-snippets.js` trailer on `3952b36`
+  (help does not enumerate prefix character rules); i18n dictionaries are
+  changelog-only tier. Changelog demand unchanged (still OPEN, see above).
