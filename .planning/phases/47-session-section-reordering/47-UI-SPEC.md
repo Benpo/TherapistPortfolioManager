@@ -1,10 +1,11 @@
 ---
 phase: 47
 slug: session-section-reordering
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-07-22
+reviewed_at: 2026-07-22
 ---
 
 # Phase 47 — UI Design Contract
@@ -110,6 +111,13 @@ New/changed strings ship in **all four locales EN/DE/HE/CS** (EN is the corpus o
 
 ---
 
+## Visual Hierarchy (focal points)
+
+- **Settings reorder list:** the eye lands on the **group-header rows** (600-weight, `--color-primary` text) that segment the list; the accent-text **Reset order** button is the secondary anchor at the list's end. Member rows stay visually quiet (400-weight, neutral) so structure reads before detail.
+- **Restructured session form:** the **section headers** of the collapsed accordion are the anchors, with **Session topics** first (D-02 order) as the entry point; expanded content stays subordinate to its header.
+
+---
+
 ## Interaction Contract (phase-specific)
 
 Prescriptive behaviors the executor must implement; verified by ui-checker + on-device UAT (jsdom is blind to touch drag / RTL / PDF — real-device verification required, repo memory).
@@ -150,11 +158,11 @@ Repo memory `feedback-ui-checker-greenfield-false-positives.md`: the ui-checker'
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS (n/a — no registries)
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS (FLAG resolved — focal points declared in `## Visual Hierarchy`)
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS (Accepted Exceptions honored)
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS (n/a — no registries)
 
-**Approval:** pending
+**Approval:** APPROVED — gsd-ui-checker, 2026-07-22. Remaining human gate: `47-mockups.html` sign-off by Ben (+ Sapir) per D-17, before planning.
