@@ -70,6 +70,7 @@ created: 2026-07-14
 | Audit Date | Threats Total | Closed | Open | Run By |
 |------------|---------------|--------|------|--------|
 | 2026-07-14 | 16 | 16 | 0 | /gsd-secure-phase orchestrator (ASVS L1 grep-depth; short-circuit — register authored at plan time, all mitigations evidenced in code/tests/summaries) |
+| 2026-07-22 | 16 | 16 | 0 | /gsd-secure-phase re-verification (post v1.4.0 production push; ASVS L1 short-circuit — mitigations still hold: escape-first `escapeHtml` at `md-render.js:264` runs before any transform, no raw innerHTML sinks in shipped assets, `tests/45-pipeline-agreement.test.js` present) |
 
 ---
 
