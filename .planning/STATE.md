@@ -5,10 +5,10 @@ milestone_name: Richer Sessions
 current_phase: 47
 current_phase_name: Session-Section Reordering
 status: ready to plan
-stopped_at: Phase 46.1 CLOSED 2026-07-20 (full chain — verifier 10/10, review crit+warns fixed, parent-46 ledger 16/16, phase complete). 2026-07-22 pre-phase wave done — locale pass Ben-approved, import ship-blocker fixed + Ben-approved (low-risk acceptance), HE polish + terminology sweep live on pre-prod. NEXT = v1.4 production push (handoff in .claude/context/session-prompts/), then Phase 47 discuss/plan.
-last_updated: "2026-07-22T15:10:00.000Z"
+stopped_at: v1.4 PRODUCTION PUSH DONE 2026-07-22 — origin/main e48dc08..ccc4b46 (242 commits); CI deploy green (sentinel-then-purge); byte-sweep 9/9 match, BUILD_TOKEN=ccc4b46 live; deploy anchor advanced to "Deploy from ccc4b46". APP_VERSION 1.4.0 live. Remaining: Ben's real-installed-PWA field-verify (update arrival + What's-New popup) + his HE read of the polish/terminology sweep. NEXT = Phase 47 discuss/plan.
+last_updated: "2026-07-22T15:03:30.000Z"
 last_activity: 2026-07-22
-last_activity_desc: v1.4 push-readiness wave complete (locales + import fix + HE polish); production push prepared
+last_activity_desc: v1.4.0 production push shipped + deploy babysat (byte-sweep clean, anchor advanced)
 progress:
   total_phases: 6
   completed_phases: 4
@@ -30,8 +30,8 @@ See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 
 Phase: 47 — Session-Section Reordering
 Plan: Not started (discuss/plan pending)
-Status: Phases 44/45/46/46.1 ALL COMPLETE (46.1 closed 2026-07-20: verifier 10/10, review crit+warns fixed, parent-46 ledger 16/16, `phase complete` run). 2026-07-22 pre-phase wave: v1.4 locale pass (HE/DE/CS) Ben-approved · import-second-attempt ship-blocker FIXED + Ben-approved (low-risk acceptance, debug session archived) · Hebrew polish pass + אופן-הטיפול→פורמט-המפגש terminology sweep live on pre-prod awaiting his read. NEXT: v1.4 production push (blocker cleared; see the push handoff), then Phase 47.
-Last activity: 2026-07-22 — push-readiness wave complete
+Status: Phases 44/45/46/46.1 ALL COMPLETE. **v1.4.0 PRODUCTION PUSH SHIPPED 2026-07-22** — origin/main advanced e48dc08..ccc4b46 (242-commit fast-forward); CI Deploy to Cloudflare Pages green (docs-gate + pipeline tests fail-closed passed, await-promotion-then-purge succeeded); byte-sweep of 9 core assets all match HEAD with BUILD_TOKEN=ccc4b46 stamped live and cf-cache MISS/DYNAMIC (no stale HIT — no rerun needed); deploy anchor advanced to "Deploy from ccc4b46". APP_VERSION 1.4.0 + 1.4.0 changelog live. Remaining post-push: Ben's real-installed-PWA field-verify (SW update arrival, changelog shows 1.4.0, What's-New popup fires with the three highlights) + his HE read of the polish + אופן-הטיפול→פורמט-המפגש terminology sweep (content-only follow-ups are cheap). NEXT: Phase 47 (session-section-reordering) discuss/plan.
+Last activity: 2026-07-22 — v1.4.0 production push shipped + deploy babysat
 
 ## Performance Metrics
 
