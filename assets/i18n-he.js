@@ -382,7 +382,7 @@ window.I18N.he = {
   "settings.report.desc": "משהו לא עובד? אפשר להעתיק דוח אבחון ולשלוח אותו במייל לתמיכה. שום דבר לא נשלח באופן אוטומטי.",
   "settings.report.clear.label": "ניקוי יומן התקלות",
   "settings.report.clear.confirm.title": "לנקות את יומן התקלות?",
-  "settings.report.clear.confirm.body": "פעולה זו מרוקנת את יומן האבחון השמור במכשיר הזה. היא אינה משפיעה על המטופלים או על המפגשים.",
+  "settings.report.clear.confirm.body": "פעולה זו מרוקנת את יומן האבחון השמור במכשיר הזה. היא אינה משפיעה על הלקוחות או על המפגשים.",
   "settings.report.clear.confirm.yes": "ניקוי היומן",
   "settings.report.cleared.toast": "יומן התקלות נוקה",
   "report.page.title": "דיווח על תקלה",
