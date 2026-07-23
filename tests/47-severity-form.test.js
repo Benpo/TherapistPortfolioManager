@@ -457,6 +457,10 @@ async function test(name, fn) {
     var win = env.win;
     assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), false,
       'recorded severity keeps the end-of-session section visible on load');
+    // A past session opens in read mode (pills disabled); the therapist clicks Edit
+    // to change ratings, matching the UAT repro.
+    win.document.getElementById('editSessionBtn').click();
+    await settle();
     var scales = win.document.querySelectorAll('#issueList .issue-block .severity-scale');
     clickPill(scales[0], 6); // clear X's start rating
     assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), false,
@@ -478,6 +482,8 @@ async function test(name, fn) {
       ] }],
     });
     var win = env.win;
+    win.document.getElementById('editSessionBtn').click();
+    await settle();
     var scales = win.document.querySelectorAll('#issueList .issue-block .severity-scale');
     clickPill(scales[0], 6); // clear only X's start rating; Y still recorded
     var section = afterSeveritySection(win);

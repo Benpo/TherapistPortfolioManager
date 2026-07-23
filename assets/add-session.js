@@ -749,6 +749,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     apply(issueObj);
     formDirty = true;
     updateCancelButtonLabel();
+    // Re-evaluate section visibility live: when the severity switch is off and an
+    // in-form clear empties the last numeric rating, sectionHasData('afterSeverity')
+    // flips false and the disabled end-of-session section collapses header-and-all.
+    // A section that still carries a numeric rating stays visible + badged.
+    applySectionVisibility(!!editingSession);
+    applySeverityVisibility(!!editingSession);
   }
 
   function createIssueBlock(initialIssue = {}) {
