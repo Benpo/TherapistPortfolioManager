@@ -472,8 +472,36 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── (m) a section disabled in Settings never leaks into the clipboard copy ───
+  await test('(m) clipboard: a section disabled in Settings is absent from the copy even when populated, while enabled sections still emit', async function () {
+    var env = buildEnv({
+      issues: [{ name: 'RATED', before: 5, after: 2 }],
+      isSectionEnabled: function (key) { return key !== 'trapped'; }
+    });
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    // Populate BOTH the disabled 'trapped' section and an enabled one so the
+    // copy would carry both if the disabled gate were missing.
+    win.document.getElementById('trappedEmotions').value = 'TRAPPED_BODY';
+    win.document.getElementById('sessionComments').value = 'COMMENTS_BODY';
+
+    var md = copyMarkdown(win);
+    assert.ok(md.indexOf('TRAPPED_BODY') === -1,
+      'a section disabled in Settings must not leak into the clipboard copy even when populated');
+    assert.ok(md.indexOf('## trapped') === -1,
+      'the disabled section heading must be absent from the copy');
+    assert.ok(md.indexOf('COMMENTS_BODY') !== -1,
+      'an enabled populated section still copies (the skip is scoped to disabled keys)');
+    assert.ok(md.indexOf('- RATED') !== -1,
+      'the enabled Session-topics section is unaffected by the disabled-section skip');
+
+    env.dom.window.close();
+  });
+
   // ─── count guard ─────────────────────────────────────────────────────────────
-  var EXPECTED_COUNT = 11;
+  var EXPECTED_COUNT = 12;
   if (passed + failed !== EXPECTED_COUNT) {
     console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED_COUNT + ' cases to execute, but ' +
       (passed + failed) + ' ran — an async case was silently skipped.');

@@ -256,6 +256,13 @@
       // gated on its own content presence (an empty note emits nothing); the
       // topic/severity gating mirrors the filtered builder.
       orderedFormKeys().forEach((key) => {
+        // A section disabled in Settings is excluded from the clipboard copy,
+        // matching the filtered/PDF export path (which gates each section on
+        // App.isSectionEnabled). Without this a disabled-but-populated section on
+        // a past record would leak into the copied markdown while the other
+        // export paths omit it. The severity ratings keep their own
+        // severityBlockIncluded() gating inside the issues case below.
+        if (typeof App.isSectionEnabled === "function" && !App.isSectionEnabled(key)) return;
         switch (key) {
           case "afterSeverity":
             // A clipboard copy has no structural bar block — the before/after
