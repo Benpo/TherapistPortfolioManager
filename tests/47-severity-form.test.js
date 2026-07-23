@@ -318,7 +318,87 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  var EXPECTED_COUNT = 7;
+  // ─── Case 8: severity off + no data → block AND start column hidden ──────────
+  await test('with Issue severity off on a data-free session, the end-of-session block AND every topic start-rating column hide; the topic name field stays', async function () {
+    var env = await boot({ isSectionEnabled: function (k) { return k !== 'afterSeverity'; } });
+    var win = env.win;
+    assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), true,
+      'the afterSeverity end-of-session block is hidden');
+    assert.strictEqual(firstBeforeScale(win).closest('.form-field').classList.contains('is-hidden'), true,
+      'the per-topic start-rating column is hidden');
+    assert.strictEqual(firstNameInput(win).closest('.form-field').classList.contains('is-hidden'), false,
+      'the topic name field stays visible (topics remain)');
+    env.dom.window.close();
+  });
+
+  // ─── Case 9: severity off + past session WITH data → both stay visible ───────
+  await test('with Issue severity off on a PAST session carrying numeric severity, the end-of-session block AND the start-rating columns both stay visible (badged)', async function () {
+    var env = await boot({
+      isSectionEnabled: function (k) { return k !== 'afterSeverity'; },
+      sessionId: 1,
+      sessions: [{ id: 1, clientId: 1, date: '2026-06-01', issues: [{ name: 'X', before: 6, after: 2 }] }],
+    });
+    var win = env.win;
+    assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), false,
+      'recorded severity keeps the end-of-session block visible (data never hidden)');
+    assert.strictEqual(firstBeforeScale(win).closest('.form-field').classList.contains('is-hidden'), false,
+      'recorded severity keeps the start-rating columns visible — the two surfaces never disagree');
+    var badge = afterSeveritySection(win).querySelector('.disabled-indicator-badge');
+    assert.ok(badge && !badge.classList.contains('is-hidden'),
+      'the disabled-section badge is shown on the still-visible block');
+    env.dom.window.close();
+  });
+
+  // ─── Case 10: severity on → both visible ─────────────────────────────────────
+  await test('with Issue severity on, the start-rating columns and the end-of-session block are visible', async function () {
+    var env = await boot();
+    var win = env.win;
+    assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), false,
+      'the end-of-session block is visible when severity is on');
+    assert.strictEqual(firstBeforeScale(win).closest('.form-field').classList.contains('is-hidden'), false,
+      'the start-rating column is visible when severity is on');
+    env.dom.window.close();
+  });
+
+  // ─── Case 11: a topic added while severity is off starts hidden ──────────────
+  await test('a topic added while Issue severity is off renders with its start-rating column hidden', async function () {
+    var env = await boot({ isSectionEnabled: function (k) { return k !== 'afterSeverity'; } });
+    var win = env.win;
+    win.document.getElementById('addIssueBtn').click();
+    await settle();
+    var scales = win.document.querySelectorAll('#issueList .issue-block .severity-scale');
+    assert.strictEqual(scales.length, 2, 'a second topic row exists');
+    assert.strictEqual(scales[1].closest('.form-field').classList.contains('is-hidden'), true,
+      'the newly-added topic row start-rating column is hidden while severity is off');
+    env.dom.window.close();
+  });
+
+  // ─── Case 12: the start column is HIDDEN (class), not removed — value survives ─
+  await test('the start-rating column is hidden by class, not removed — a selected value survives a disable→enable cycle', async function () {
+    var sevOn = { v: true };
+    var env = await boot({ isSectionEnabled: function (k) { return k === 'afterSeverity' ? sevOn.v : true; } });
+    var win = env.win;
+    clickPill(firstBeforeScale(win), 6);
+    assert.strictEqual(firstBeforeScale(win).dataset.value, '6', 'the start rating is set');
+    // Disable severity live.
+    sevOn.v = false;
+    win.document.dispatchEvent(new win.Event('app:settings-changed'));
+    await settle();
+    assert.strictEqual(firstBeforeScale(win).closest('.form-field').classList.contains('is-hidden'), true,
+      'the column hides on disable');
+    assert.ok(firstBeforeScale(win), 'the start scale node is still present (hidden, not removed)');
+    assert.strictEqual(firstBeforeScale(win).dataset.value, '6', 'the selected value survives while hidden');
+    // Re-enable.
+    sevOn.v = true;
+    win.document.dispatchEvent(new win.Event('app:settings-changed'));
+    await settle();
+    assert.strictEqual(firstBeforeScale(win).closest('.form-field').classList.contains('is-hidden'), false,
+      'the column reappears on enable');
+    assert.strictEqual(firstBeforeScale(win).dataset.value, '6', 'the value is intact after the cycle');
+    env.dom.window.close();
+  });
+
+  var EXPECTED_COUNT = 12;
   try { assert.strictEqual(passed + failed, EXPECTED_COUNT); }
   catch (e) {
     console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));
@@ -326,6 +406,6 @@ async function test(name, fn) {
   }
 
   console.log('');
-  console.log('Plan 47-07 severity-form tests — ' + passed + ' passed, ' + failed + ' failed');
+  console.log('Plan 47-07 severity-form + coupling tests — ' + passed + ' passed, ' + failed + ' failed');
   process.exit(failed === 0 ? 0 : 1);
 })();
