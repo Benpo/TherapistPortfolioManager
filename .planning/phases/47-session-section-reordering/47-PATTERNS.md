@@ -1,5 +1,14 @@
 # Phase 47: Session-Section Reordering - Pattern Map
 
+> **SUPERSESSION NOTE (2026-07-23, plan review — CONTEXT D-19…D-23):** everything in this
+> document about the "— (skip)" 11th severity value / SEV_SKIP marker is SUPERSEDED. Ratings
+> were never validation-mandatory in shipped code, so unrated (null) already carries the skip
+> meaning. Replacements: tap-again-to-clear (D-20), unrated omitted from every output incl.
+> the PDF bar block (D-21), emptiness-keyed end-of-session block (D-22), view-mode name-only
+> (D-23). The PLAN.md files are the executable contract — where this document disagrees, the
+> plans win.
+
+
 **Mapped:** 2026-07-23
 **Files analyzed:** 9 modified + 6 new test files
 **Analogs found:** 14 / 15 (1 net-new artifact: the order sentinel + shared validator have partial analogs only)
