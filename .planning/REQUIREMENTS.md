@@ -28,7 +28,7 @@ Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings
 
 - [x] **ORDR-01**: User can reorder session sections in Settings by dragging (works with mouse AND iPhone touch — pointer-events, not HTML5 DnD)
 - [x] **ORDR-02**: User can reorder via per-row up/down arrow buttons (accessible baseline, WCAG 2.2)
-- [ ] **ORDR-03**: Saved order drives the add/edit session form layout
+- [x] **ORDR-03**: Saved order drives the add/edit session form layout
 - [ ] **ORDR-04**: Saved order drives the markdown + PDF export builders — repointed atomically with the 260615 guard-test rewrite (order invariant never briefly broken)
 - [x] **ORDR-05**: Order persists per therapist (therapistSettings sentinel record, mirroring the snippetsDeletedSeeds pattern) and round-trips through encrypted backup
 
@@ -104,7 +104,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RTXT-10 | Phase 45 | Complete |
 | ORDR-01 | Phase 47 | Complete |
 | ORDR-02 | Phase 47 | Complete |
-| ORDR-03 | Phase 47 | Pending |
+| ORDR-03 | Phase 47 | Complete |
 | ORDR-04 | Phase 47 | Pending |
 | ORDR-05 | Phase 47 | Complete |
 | ORDR-06 | Phase 47 | Complete |
