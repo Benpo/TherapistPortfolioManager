@@ -738,6 +738,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // A user severity-pill interaction — setting OR clearing, on the start scale OR
+  // the end scale. The pills are <button> elements, so their clicks never fire the
+  // form input/change events the dirty tracker listens to; wire the dirty flag here
+  // instead, mirroring those listeners. Called ONLY from the scales' onChange arrows
+  // (which fire exclusively on a user click, never on the initial-value render), so
+  // the programmatic init/load calls to the shared helpers never mark a loaded form
+  // dirty.
+  function onSeverityInteraction(issueObj, apply) {
+    apply(issueObj);
+    formDirty = true;
+    updateCancelButtonLabel();
+  }
+
   function createIssueBlock(initialIssue = {}) {
     const id = `issue-${issueCounter++}`;
     // issueRef is a shared container so onChange callbacks can reference issueObj
@@ -768,7 +781,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     severityLabel.className = "label";
     severityLabel.setAttribute("data-i18n", "session.form.severityAtStart");
     severityLabel.textContent = App.t("session.form.severityAtStart");
-    const beforeScale = App.createSeverityScale(initialIssue.before, () => onBeforeSeverityChange(issueRef.obj));
+    const beforeScale = App.createSeverityScale(initialIssue.before, () => onSeverityInteraction(issueRef.obj, onBeforeSeverityChange));
     severityField.appendChild(severityLabel);
     severityField.appendChild(beforeScale);
 
@@ -802,7 +815,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     afterLabel.className = "label muted-label";
     afterLabel.setAttribute("data-i18n", "session.form.afterSeverity");
     afterLabel.textContent = App.t("session.form.afterSeverity");
-    const afterScale = App.createSeverityScale(initialIssue.after, () => updateDelta(issueRef.obj));
+    const afterScale = App.createSeverityScale(initialIssue.after, () => onSeverityInteraction(issueRef.obj, updateDelta));
     const deltaEl = document.createElement("span");
     deltaEl.className = "severity-delta";
     deltaEl.style.display = "none";
