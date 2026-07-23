@@ -3166,6 +3166,176 @@ html[dir="rtl"] .settings-locked-info::after {
 }
 .report-support-fallback { margin-block-start: 16px; }
 
+/* ---------------------------------------------------------------------------
+   Settings grouped reorder list
+
+   The Fields list renders as one bordered, scannable container of compact rows:
+   bare section rows, tinted group headers, indented members, and the severity
+   row with its ⓘ explainer. Chrome uses CSS logical properties so RTL flips for
+   free; drag geometry stays in JS via physical coordinates. Dark mode falls out
+   of the semantic tokens — no dedicated dark rules needed.
+   --------------------------------------------------------------------------- */
+#settingsRowsContainer:has(.reorder-row) {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+/* A compact list row. Overrides the padded .settings-row card look when the two
+   classes combine, so the whole order reads as one list. */
+.reorder-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: var(--tap-target-min);
+  padding: 8px 12px;
+  margin-block-end: 0;
+  border: none;
+  border-radius: 0;
+  border-block-start: 1px solid var(--color-border-soft);
+  background: var(--color-surface);
+}
+#settingsRowsContainer > .reorder-row:first-child { border-block-start: none; }
+.reorder-row .settings-row-meta { flex: 1 1 auto; min-inline-size: 0; }
+.reorder-row .settings-rename-wrap { inline-size: auto; }
+
+/* Grab handle: a 44px tap target; touch-action:none so iOS drags the row
+   instead of scrolling the page. */
+.reorder-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--tap-target-min);
+  block-size: var(--tap-target-min);
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.reorder-handle:active { cursor: grabbing; }
+
+/* Up/down arrow controls: 44px tap targets, muted on a subtle surface; disabled
+   end-stops dim to 0.3 and lose their pointer. */
+.reorder-arrows {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.reorder-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--tap-target-min);
+  block-size: var(--tap-target-min);
+  padding: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.reorder-arrow[disabled] {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.reorder-handle:focus-visible,
+.reorder-arrow:focus-visible,
+.reorder-info-btn:focus-visible,
+.reorder-reset-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-green-50);
+}
+
+/* Group-header row: tinted, with the group title in the primary-dark accent. */
+.reorder-group-header {
+  background: var(--color-surface-toggle);
+}
+.reorder-group-title {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-primary-dark);
+}
+.reorder-group-meta { flex: 1 1 auto; min-inline-size: 0; }
+
+/* Member rows indent under their group header. */
+.reorder-member { padding-inline-start: 28px; }
+
+/* Dragged row + dashed insertion placeholder. */
+.reorder-row.dragging {
+  opacity: 0.55;
+  box-shadow: var(--shadow-card);
+  border-radius: 8px;
+}
+.reorder-placeholder {
+  min-height: 40px;
+  background: transparent;
+  border: 1px dashed var(--color-primary-soft);
+  border-radius: 8px;
+}
+
+/* Disabled section keeps its slot: quiet the label but stay draggable. */
+.reorder-row:has(.disabled-indicator-badge) .settings-row-label {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+/* Issue-severity row: the ⓘ explainer button + tap-toggled popover. */
+.reorder-severity-meta { flex: 1 1 auto; min-inline-size: 0; }
+.reorder-info-wrap { display: inline-flex; flex-shrink: 0; }
+.reorder-info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--tap-target-min);
+  block-size: var(--tap-target-min);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.reorder-info-btn[aria-expanded="true"] { color: var(--color-primary); }
+.reorder-info-pop {
+  flex-basis: 100%;
+  margin-block-start: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-text);
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-inline-start: 3px solid var(--color-primary);
+  border-radius: 8px;
+}
+.reorder-info-pop[hidden] { display: none; }
+
+/* Paired Reset order / Reset names controls beneath the list. */
+.reorder-reset-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block-start: 12px;
+}
+.reorder-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap-target-min);
+  color: var(--color-primary-dark);
+}
+.reorder-reset-btn-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 @media (min-width: 769px) {
   .settings-row {
     flex-direction: row;
@@ -3175,6 +3345,10 @@ html[dir="rtl"] .settings-locked-info::after {
   .settings-row-meta { flex: 1; }
   .settings-rename-wrap { inline-size: 280px; }
   .settings-rename-input { inline-size: 100%; }
+  /* Keep reorder rows compact even on desktop (the .settings-row desktop rule
+     above would otherwise re-inflate the combined rows). */
+  .reorder-row { gap: 8px; }
+  .reorder-row .settings-rename-wrap { inline-size: 220px; }
 }
 
 /* ── Session-types editor (Personalization tab, Phase 37 item 9, UAT
