@@ -500,8 +500,75 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── (n) partial before-only: rated side copies with dash, NO change line ─────
+  await test('(n) clipboard: a before-only topic copies its rating line (rated side + dash for the unrated side) with no change component and no NaN', async function () {
+    var env = buildEnv({ issues: [{ name: 'PARTIAL_B', before: 6, after: null }] });
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    var md = copyMarkdown(win);
+    assert.ok(md.indexOf('- PARTIAL_B — session.copy.scale.before: 6, session.copy.scale.after: -') !== -1,
+      'a before-only topic must emit its rating line with the dash convention for the unrated side (got: ' + md + ')');
+    assert.ok(md.indexOf('session.copy.scale.change') === -1,
+      'no change component may be emitted when only one side is rated');
+    assert.ok(md.indexOf('NaN') === -1, 'no NaN may ever reach the clipboard');
+
+    env.dom.window.close();
+  });
+
+  // ─── (o) partial after-only (legacy shape): rated side copies, NO change ──────
+  await test('(o) clipboard: an after-only topic (legacy before:null shape) copies its rating line with the dash on the before side and no change component', async function () {
+    var env = buildEnv({ issues: [{ name: 'PARTIAL_A', before: null, after: 8 }] });
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    var md = copyMarkdown(win);
+    assert.ok(md.indexOf('- PARTIAL_A — session.copy.scale.before: -, session.copy.scale.after: 8') !== -1,
+      'an after-only topic must emit its rating line with the dash convention for the unrated before side (got: ' + md + ')');
+    assert.ok(md.indexOf('session.copy.scale.change') === -1,
+      'no change component may be emitted when only one side is rated');
+    assert.ok(md.indexOf('NaN') === -1, 'no NaN may ever reach the clipboard');
+
+    env.dom.window.close();
+  });
+
+  // ─── (p) fully-rated topic still emits its full line WITH the change value ────
+  await test('(p) clipboard: a fully-rated topic still emits before, after AND the signed change value', async function () {
+    var env = buildEnv({ issues: [{ name: 'FULL', before: 7, after: 2 }] });
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    var md = copyMarkdown(win);
+    assert.ok(md.indexOf('- FULL — session.copy.scale.before: 7, session.copy.scale.after: 2, session.copy.scale.change: -5') !== -1,
+      'a fully-rated topic must keep its complete before/after/change line (got: ' + md + ')');
+
+    env.dom.window.close();
+  });
+
+  // ─── (q) severity switch OFF suppresses the partial rating line too ───────────
+  await test('(q) clipboard: with the severity switch off, a partially-rated topic copies as its name only (no rating line)', async function () {
+    var env = buildEnv({
+      issues: [{ name: 'PARTIAL_B', before: 6, after: null }],
+      isSectionEnabled: function (key) { return key !== 'afterSeverity'; }
+    });
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    var md = copyMarkdown(win);
+    assert.ok(md.indexOf('- PARTIAL_B') !== -1, 'the topic name still copies when severity is suppressed');
+    assert.ok(md.indexOf('PARTIAL_B —') === -1,
+      'no rating line may follow a partially-rated topic name when the severity switch is off');
+    assert.ok(md.indexOf(RATING_KEY) === -1, 'no before/after rating label may appear when the severity switch is off');
+
+    env.dom.window.close();
+  });
+
   // ─── count guard ─────────────────────────────────────────────────────────────
-  var EXPECTED_COUNT = 12;
+  var EXPECTED_COUNT = 16;
   if (passed + failed !== EXPECTED_COUNT) {
     console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED_COUNT + ' cases to execute, but ' +
       (passed + failed) + ' ran — an async case was silently skipped.');

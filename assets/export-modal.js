@@ -273,9 +273,11 @@
             // Session topics: included unless the open dialog's selection
             // excluded it (outside a live selection the default is include). With
             // severity included, a fully-rated topic emits its before/after/change
-            // line; a topic with an unrated (non-numeric) side emits its name
-            // only — a null side is never string-interpolated into a rating line
-            // nor subtracted into a NaN change value. With severity excluded, the
+            // line; a partially-rated topic (exactly one numeric side) emits the
+            // rated side with "-" standing in for the unrated side and NO change
+            // component — the change value exists only when both sides are
+            // numeric, so a null side is never subtracted into a NaN. A fully-
+            // unrated topic emits its name only. With severity excluded, the
             // topic NAMES still list, but no rating text appears.
             if (!emotionsBlockIncluded()) return;
             const payload = (typeof getIssuesPayload === "function") ? getIssuesPayload() : [];
@@ -286,10 +288,17 @@
             const withSeverity = severityBlockIncluded();
             const body = payload.map((issue) => {
               const name = (issue && issue.name != null) ? String(issue.name) : "";
-              if (withSeverity && typeof issue.before === "number" && typeof issue.after === "number") {
+              const hasBefore = issue && typeof issue.before === "number";
+              const hasAfter = issue && typeof issue.after === "number";
+              if (withSeverity && hasBefore && hasAfter) {
                 const delta = issue.after - issue.before;
                 const sign = delta > 0 ? "+" : "";
                 return `- ${name} — ${beforeLabel}: ${issue.before}, ${afterLabel}: ${issue.after}, ${changeLabel}: ${sign}${delta}`;
+              }
+              if (withSeverity && (hasBefore || hasAfter)) {
+                const before = hasBefore ? issue.before : "-";
+                const after = hasAfter ? issue.after : "-";
+                return `- ${name} — ${beforeLabel}: ${before}, ${afterLabel}: ${after}`;
               }
               return `- ${name}`;
             }).join("\n");
