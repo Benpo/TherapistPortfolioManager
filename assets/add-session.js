@@ -1171,9 +1171,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Write the therapist's customLabel into the visible form labels.
-  // applyTranslations() resets these to the i18n default, so this MUST run
-  // after every applyTranslations pass that affects this page. Uses
+  // Write the therapist's customLabel into the visible form labels, and the
+  // saved group renames (titleOverride) into the group accordion headers.
+  // applyTranslations() resets all of these to the i18n default, so this MUST
+  // run after every applyTranslations pass that affects this page. Uses
   // .textContent (never innerHTML) — customLabel is user-controlled.
   function applySectionLabels() {
     const wrappers = document.querySelectorAll("[data-section-key]");
@@ -1201,6 +1202,31 @@ document.addEventListener("DOMContentLoaded", async () => {
           field.placeholder = App.t(phKey);
         }
       });
+    });
+
+    // Group accordion headers face the same applyTranslations stomp: the pass
+    // rewrites their data-i18n default, erasing a saved group rename. Re-resolve
+    // each header here from the page-pinned order — the therapist's
+    // titleOverride wins, otherwise the group's default title key. Uses
+    // .textContent (never innerHTML) — titleOverride is user-controlled.
+    if (typeof App.getSectionOrder !== "function") return;
+    const order = App.getSectionOrder();
+    if (!Array.isArray(order)) return;
+    const groupTitleKeys = App.GROUP_DEFAULT_TITLE_KEYS || {};
+    order.forEach((item) => {
+      if (!item || item.type !== "group") return;
+      const group = document.querySelector('[data-group-id="' + item.id + '"]');
+      const header = group && group.querySelector(".accordion-header");
+      if (!header) return;
+      const override = (typeof item.titleOverride === "string" && item.titleOverride.trim().length > 0)
+        ? item.titleOverride
+        : null;
+      if (override) {
+        header.textContent = override;
+      } else {
+        const titleKey = groupTitleKeys[item.id] || header.getAttribute("data-i18n");
+        if (titleKey) header.textContent = App.t(titleKey);
+      }
     });
   }
 

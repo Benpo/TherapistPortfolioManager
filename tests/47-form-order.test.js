@@ -101,6 +101,18 @@ function buildEnv(opts) {
     getSectionOrder: function () { return JSON.parse(JSON.stringify(order)); },
     pinSectionOrder: function () { pinCount += 1; },
     flattenOrderKeys: function (o) { return flatten(o); },
+    GROUP_DEFAULT_TITLE_KEYS: {
+      emotionsTech: 'session.accordion.emotions',
+      wrapup: 'session.group.wrapup',
+    },
+    // When a case needs the REAL translation stomp (data-i18n re-stamp), model
+    // App.applyTranslations faithfully: every [data-i18n] element is rewritten
+    // to t(key) — the stub t returns the key itself.
+    applyTranslations: opts.realTranslations ? function () {
+      win.document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        el.textContent = el.getAttribute('data-i18n');
+      });
+    } : undefined,
   });
   win.PortfolioDB = createMockPortfolioDB({ clients: [], sessions: opts.sessions || [] });
   win.matchMedia = function () {
@@ -240,7 +252,65 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  var EXPECTED_COUNT = 6;
+  // ─── Case 7: a saved group rename renders on the form group header ───────────
+  await test('a titleOverride on emotionsTech renders in the form group header; wrapup keeps its default', async function () {
+    var order = JSON.parse(JSON.stringify(DEFAULT_ORDER));
+    order[1].titleOverride = 'RENAMED_GROUP_TITLE';
+    var env = buildEnv({ order: order });
+    var win = env.win;
+    await env.docHandlers['DOMContentLoaded'][0]();
+    await settle();
+
+    var emoHeader = groupContainer(win, 'emotionsTech').querySelector('.accordion-header');
+    var wrapHeader = groupContainer(win, 'wrapup').querySelector('.accordion-header');
+    assert.strictEqual(emoHeader.textContent, 'RENAMED_GROUP_TITLE',
+      'the renamed group must show its titleOverride on the session form header');
+    assert.strictEqual(wrapHeader.textContent, 'session.group.wrapup',
+      'an un-renamed group must resolve its default title key');
+    env.dom.window.close();
+  });
+
+  // ─── Case 8: titleOverride null → the default group title key resolves ───────
+  await test('a null titleOverride resolves the group default title (via the group title key map)', async function () {
+    var env = buildEnv({ order: DEFAULT_ORDER });
+    var win = env.win;
+    await env.docHandlers['DOMContentLoaded'][0]();
+    await settle();
+
+    var emoHeader = groupContainer(win, 'emotionsTech').querySelector('.accordion-header');
+    assert.strictEqual(emoHeader.textContent, 'session.accordion.emotions',
+      'with no override the header must carry the default title (t of the group title key)');
+    env.dom.window.close();
+  });
+
+  // ─── Case 9: an applyTranslations re-stamp does NOT stomp the rename ─────────
+  await test('an in-page language switch (applyTranslations re-stamp) keeps the group rename', async function () {
+    var order = JSON.parse(JSON.stringify(DEFAULT_ORDER));
+    order[1].titleOverride = 'SURVIVES_TRANSLATION';
+    var env = buildEnv({ order: order, realTranslations: true });
+    var win = env.win;
+    await env.docHandlers['DOMContentLoaded'][0]();
+    await settle();
+
+    var emoHeader = groupContainer(win, 'emotionsTech').querySelector('.accordion-header');
+    assert.strictEqual(emoHeader.textContent, 'SURVIVES_TRANSLATION', 'override present at load');
+
+    // Fire the real in-page language-switch path (App.applyTranslations +
+    // the label re-apply pass).
+    win.document.dispatchEvent(new win.CustomEvent('app:language'));
+    await settle();
+
+    // Prove the stomp pass really ran: an unrelated data-i18n element was
+    // re-stamped to its key by the modeled applyTranslations.
+    var addBtn = win.document.getElementById('addIssueBtn');
+    assert.strictEqual(addBtn.textContent, 'session.form.addIssue',
+      'the translation pass must have re-stamped data-i18n elements');
+    assert.strictEqual(emoHeader.textContent, 'SURVIVES_TRANSLATION',
+      'the group rename must survive the applyTranslations re-stamp');
+    env.dom.window.close();
+  });
+
+  var EXPECTED_COUNT = 9;
   try { assert.strictEqual(passed + failed, EXPECTED_COUNT); }
   catch (e) {
     console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));
