@@ -5,7 +5,7 @@ milestone_name: Richer Sessions
 current_phase: 47
 current_phase_name: Session-Section Reordering
 status: ready to execute
-stopped_at: Phase 47 plans CLEARED FOR EXECUTION — gap-gate loop closed (17 G-fixes + flatKeys blocker + R2-1/2/3 all landed & verified); ORDR-06/07/08 approved; next /gsd-execute-phase 47
+stopped_at: Phase 47 CLEARED FOR EXECUTION (round 3) — D-19..D-23+D-22a scope correction (skip pill dropped, tap-to-clear, unrated omitted everywhere, view-mode, clear-voids-pair) replanned into 10 plans; checker iter-3 passed; Fable R3 clean after R3-1/2/3 fixes; next /gsd-execute-phase 47
 last_updated: "2026-07-23T00:00:00.000Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 47 planned (research + patterns + 8 plans + checker pass)
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 ## Current Position
 
 Phase: 47 — Session-Section Reordering
-Plan: 8 plans / 4 waves — CLEARED FOR EXECUTION 2026-07-23. Full quality loop: checker pass 1 → Fable gap-gate R1 (6 blockers/10 warnings vs discussion, Ben approved all fixes) → planner revision 71486b6 → checker iter-2 (flatKeys contract blocker, fixed 402120e/5c28fe1) → Fable gap-gate R2 (all 17 fixes verified landed; R2-1/2/3 fixed inline 4a56f7c). ORDR-06/07/08 approved by Ben. See 47-GAP-REPORT.md (incl. round-2 addendum). Note for execution: 47-05 is the densest plan (4 tasks, export surface) — extra review scrutiny there per checker advisory.
+Plan: 10 plans / 4 waves — CLEARED FOR EXECUTION 2026-07-23 after THREE quality rounds. R1: Fable gap-gate found 6 blockers/10 warnings vs discussion (post-checker!), Ben approved all fixes, revision 71486b6. R2: checker caught the flatKeys contract blocker (fixed 402120e/5c28fe1); Fable verified all 17 fixes + fixed R2-1/2/3 (4a56f7c). THEN Ben's scope correction D-19..D-23+D-22a (cf72ed3/61638f8): ratings were NEVER validation-mandatory → skip pill dropped, tap-again-to-clear, unrated omitted from every output incl. the PDF bar filter (Ben's screenshot), view-mode name-only (new 47-10), 47-05 split (Tasks 3+4 → new wave-3 47-09) for context quality; replan 9e80414; checker iter-3 PASSED; Fable R3 verified translation fidelity + split integrity, R3-1/2/3 fixed (c2ae9a5/61638f8). ORDR-06/07/08 approved; ORDR-07 rewritten to unrated-by-default. See 47-GAP-REPORT.md. Execution notes: (1) wave-close grep sweep of shipped-code diff for planning-ID comment contamination (ORDR-|D-NN|G-N|R2-|47-0N|Phase 47) blocks wave merge; (2) comment-hygiene clause in EVERY executor dispatch prompt; (3) scoped code review of export-modal.js+pdf-export.js after 47-09, before wave 4.
 Status: Phases 44/45/46/46.1 ALL COMPLETE. **v1.4.0 PRODUCTION PUSH SHIPPED 2026-07-22** — origin/main advanced e48dc08..ccc4b46 (242-commit fast-forward); CI Deploy to Cloudflare Pages green (docs-gate + pipeline tests fail-closed passed, await-promotion-then-purge succeeded); byte-sweep of 9 core assets all match HEAD with BUILD_TOKEN=ccc4b46 stamped live and cf-cache MISS/DYNAMIC (no stale HIT — no rerun needed); deploy anchor advanced to "Deploy from ccc4b46". APP_VERSION 1.4.0 + 1.4.0 changelog live. Remaining post-push: Ben's real-installed-PWA field-verify (SW update arrival, changelog shows 1.4.0, What's-New popup fires with the three highlights) + his HE read of the polish + אופן-הטיפול→פורמט-המפגש terminology sweep (content-only follow-ups are cheap). NEXT: Phase 47 (session-section-reordering) discuss/plan.
 Last activity: 2026-07-22 — v1.4.0 production push shipped + deploy babysat
 
