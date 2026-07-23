@@ -178,8 +178,86 @@ async function test(name, fn) {
       'the issue line must NEVER be assigned via innerHTML (render-hardening lock)');
   });
 
+  // ─── CLIENT-OVERVIEW expanded-session row ──────────────────────────────────
+  await test('overview.js: expanded-row issues string omits the suffix for a fully-unrated topic (name only); partial → "(5→-)"; full → "(8→3)"', function () {
+    var env = buildOverviewEnv();
+    var win = env.win;
+
+    var clients = [{ id: 1, name: 'Maya Cohen' }];
+    var sessionsByClient = new Map([[1, [{
+      id: 500, clientId: 1, date: '2026-04-10', sessionType: 'clinic',
+      issues: THREE_TOPICS,
+    }]]]);
+
+    win.renderClientRows(clients, sessionsByClient);
+
+    var tableBody = win.document.getElementById('clientTableBody');
+    var issuesEl = tableBody.querySelector('.session-issues');
+    assert.ok(issuesEl, 'the expanded-session row must render a .session-issues element');
+
+    var entries = issuesEl.textContent.split(', ');
+    assert.strictEqual(entries.length, 3, 'the joined issues string must have three comma-separated entries');
+
+    // fully-unrated → name only
+    assert.strictEqual(entries[0], 'Fear',
+      'the fully-unrated topic entry must be its name only');
+    assert.ok(issuesEl.textContent.indexOf('(-→-)') === -1,
+      'the joined string must contain no "(-→-)" empty suffix');
+    assert.ok(issuesEl.textContent.indexOf('Fear (') === -1,
+      'the fully-unrated topic must not be followed by a "(" suffix');
+
+    // partial + full unchanged
+    assert.strictEqual(entries[1], 'Anger (5→-)',
+      'the partial topic entry must be "Anger (5→-)"');
+    assert.strictEqual(entries[2], 'Grief (8→3)',
+      'the fully-rated topic entry must be "Grief (8→3)"');
+
+    env.dom.window.close();
+  });
+
+  await test('overview.js: averages exclude a fully-unrated topic — a fully-unrated + fully-rated fixture reports the fully-rated topic\'s own before/after', function () {
+    var env = buildOverviewEnv();
+    var win = env.win;
+
+    // One session, two topics: one fully-unrated (contributes to neither
+    // average) and one fully-rated (before 8 / after 3). The averages must equal
+    // the fully-rated topic alone.
+    var sessions = [{
+      id: 500, clientId: 1, date: '2026-04-10', sessionType: 'clinic',
+      issues: [
+        { name: 'Fear', before: null, after: null },
+        { name: 'Grief', before: 8, after: 3 },
+      ],
+    }];
+
+    var metrics = win.getClientMetrics(sessions);
+    assert.strictEqual(metrics.avgBefore, '8.0',
+      'avgBefore must equal the fully-rated topic\'s before (unrated excluded)');
+    assert.strictEqual(metrics.avgAfter, '3.0',
+      'avgAfter must equal the fully-rated topic\'s after (unrated excluded)');
+    assert.strictEqual(metrics.issues, 2,
+      'both topics still count toward the issue count (only averages exclude unrated)');
+
+    env.dom.window.close();
+  });
+
+  await test('overview.js: expanded row stays textContent-only and the averages loop null-guards are intact', function () {
+    var src = readAsset('assets/overview.js');
+    assert.ok(/issueText\.textContent\s*=/.test(src),
+      'the expanded-row issues string must be assigned via issueText.textContent');
+    assert.ok(!/issueText\.innerHTML\s*=/.test(src),
+      'the expanded-row issues string must NEVER be assigned via innerHTML (render-hardening lock)');
+    // The averages loop must keep excluding null/undefined before & after.
+    assert.ok(/issue\.before !== null && issue\.before !== undefined/.test(src),
+      'the averages loop must keep its before null/undefined guard');
+    assert.ok(/issue\.after !== null && issue\.after !== undefined/.test(src),
+      'the averages loop must keep its after null/undefined guard');
+    assert.ok(/beforeCount \+= 1/.test(src) && /afterCount \+= 1/.test(src),
+      'the averages loop must keep incrementing beforeCount/afterCount only inside the null-guards');
+  });
+
   // ─── F-A count guard ────────────────────────────────────────────────────────
-  var EXPECTED_COUNT = 2;
+  var EXPECTED_COUNT = 5;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {
