@@ -417,19 +417,321 @@ window.SettingsPage = (function () {
     return row;
   }
 
-  // Reorder interactions (pointer drag, delegated arrows, Reset controls) are
-  // wired below. These seams are populated once the interaction layer is loaded;
-  // rendering never depends on them being active.
-  var _reorderInteractions = null;
-  function maybeWireDrag(row) {
-    if (_reorderInteractions && typeof _reorderInteractions.wireDrag === "function") {
-      _reorderInteractions.wireDrag(row);
+  // Reorder interactions — pointer drag (mouse + touch), arrow moves with
+  // end-stops, and the paired Reset controls. Rendering calls maybeWireDrag /
+  // mountResetControls; the real implementations live below.
+  function maybeWireDrag(row) { wireDrag(row); }
+  function mountResetControls() { mountResetControlsImpl(); }
+
+  function reorderContainer() {
+    return document.getElementById("settingsRowsContainer");
+  }
+
+  // Pencil glyph for the Reset names control (built via DOM APIs, no user data).
+  function buildRenameGlyphSvg() {
+    return buildSvg(
+      { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", width: "20", height: "20", fill: "none", stroke: "currentColor", "stroke-width": "1.8", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" },
+      [
+        { tag: "path", attrs: { d: "M12 20h9" } },
+        { tag: "path", attrs: { d: "M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" } }
+      ]
+    );
+  }
+
+  // The DOM nodes forming the top-level unit that begins at `row`: a group
+  // header block (header + its members) or a single top-level section row.
+  function unitNodeListForRow(row) {
+    if (row.getAttribute("data-reorder-type") === "group") {
+      var nodes = [row];
+      var gid = row.getAttribute("data-group-id");
+      var n = row.nextElementSibling;
+      while (n && n.getAttribute("data-reorder-type") === "section" &&
+             n.getAttribute("data-level") === "member" &&
+             n.getAttribute("data-group-id") === gid) {
+        nodes.push(n);
+        n = n.nextElementSibling;
+      }
+      return nodes;
+    }
+    return [row];
+  }
+
+  function unitNodeList(unit) {
+    return unit.type === "group" ? [unit.header].concat(unit.members) : [unit.row];
+  }
+
+  function topLevelPrimaries(container) {
+    var out = [];
+    Array.prototype.forEach.call(container.children, function (el) {
+      var rt = el.getAttribute("data-reorder-type");
+      if (rt === "group") out.push(el);
+      else if (rt === "section" && el.getAttribute("data-level") !== "member") out.push(el);
+    });
+    return out;
+  }
+
+  function memberRowsForGroup(container, gid) {
+    var out = [];
+    Array.prototype.forEach.call(container.children, function (el) {
+      if (el.getAttribute("data-reorder-type") === "section" &&
+          el.getAttribute("data-level") === "member" &&
+          el.getAttribute("data-group-id") === gid) {
+        out.push(el);
+      }
+    });
+    return out;
+  }
+
+  // Keep the Issue-severity row from ever preceding Session topics at top level.
+  function enforceOrderClamp(container) {
+    var units = computeTopLevelUnits(container);
+    var issuesIdx = -1, sevIdx = -1;
+    units.forEach(function (u, i) {
+      if (u.type === "section" && u.key === "issues") issuesIdx = i;
+      if (u.type === "section" && u.key === "afterSeverity") sevIdx = i;
+    });
+    if (issuesIdx !== -1 && sevIdx !== -1 && sevIdx < issuesIdx) {
+      var sevRow = units[sevIdx].row;
+      var issuesRow = units[issuesIdx].row;
+      container.insertBefore(sevRow, issuesRow.nextElementSibling);
     }
   }
-  function mountResetControls() {
-    if (_reorderInteractions && typeof _reorderInteractions.mountResetControls === "function") {
-      _reorderInteractions.mountResetControls();
+
+  function markReorderDirty(container) {
+    enforceOrderClamp(container);
+    refreshReorderArrows(container);
+    formDirty = true;
+    updateSaveButtonState();
+  }
+
+  // Arrow move: a member swaps with the adjacent member in its own group; a
+  // top-level row (section or group header) swaps with the adjacent unit.
+  function handleArrowMove(container, row, dir) {
+    if (row.getAttribute("data-reorder-type") === "section" &&
+        row.getAttribute("data-level") === "member") {
+      moveMemberRow(container, row, dir);
+    } else {
+      moveTopLevelUnit(container, row, dir);
     }
+    markReorderDirty(container);
+  }
+
+  function moveMemberRow(container, row, dir) {
+    var gid = row.getAttribute("data-group-id");
+    var sibling = dir === "up" ? row.previousElementSibling : row.nextElementSibling;
+    if (!sibling ||
+        sibling.getAttribute("data-reorder-type") !== "section" ||
+        sibling.getAttribute("data-level") !== "member" ||
+        sibling.getAttribute("data-group-id") !== gid) return;
+    if (dir === "up") container.insertBefore(row, sibling);
+    else container.insertBefore(sibling, row);
+  }
+
+  function moveTopLevelUnit(container, row, dir) {
+    var units = computeTopLevelUnits(container);
+    var idx = -1;
+    for (var i = 0; i < units.length; i++) {
+      var primary = units[i].type === "group" ? units[i].header : units[i].row;
+      if (primary === row) { idx = i; break; }
+    }
+    if (idx === -1) return;
+    var target = dir === "up" ? idx - 1 : idx + 1;
+    if (target < 0 || target >= units.length) return;
+    var moving = unitNodeList(units[idx]);
+    var targetNodes = unitNodeList(units[target]);
+    if (dir === "up") {
+      var before = targetNodes[0];
+      moving.forEach(function (n) { container.insertBefore(n, before); });
+    } else {
+      var afterRef = targetNodes[targetNodes.length - 1].nextElementSibling;
+      moving.forEach(function (n) { container.insertBefore(n, afterRef); });
+    }
+  }
+
+  // Pointer-event drag on a row's handle. Members reorder within their group;
+  // top-level rows reorder among top-level units (a group drags as a block). All
+  // insertion math uses PHYSICAL getBoundingClientRect top/height — never logical
+  // inline-axis insets, which mirror overlay geometry wrongly under RTL.
+  function wireDrag(row) {
+    var handle = row.querySelector(".reorder-handle");
+    if (!handle) return;
+    handle.addEventListener("pointerdown", function (e) {
+      var container = row.parentNode;
+      if (!container) return;
+      e.preventDefault();
+      try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+      var isMember = row.getAttribute("data-level") === "member";
+      var gid = row.getAttribute("data-group-id");
+      var movingNodes = isMember ? [row] : unitNodeListForRow(row);
+      row.classList.add("dragging");
+
+      function onMove(ev) {
+        if (isMember) {
+          var siblings = memberRowsForGroup(container, gid).filter(function (n) { return n !== row; });
+          var afterM = null;
+          for (var i = 0; i < siblings.length; i++) {
+            var bm = siblings[i].getBoundingClientRect();
+            if (ev.clientY < bm.top + bm.height / 2) { afterM = siblings[i]; break; }
+          }
+          if (afterM) container.insertBefore(row, afterM);
+          else {
+            var all = memberRowsForGroup(container, gid);
+            var last = all[all.length - 1];
+            if (last && last !== row) container.insertBefore(row, last.nextElementSibling);
+          }
+        } else {
+          var primaries = topLevelPrimaries(container).filter(function (n) { return movingNodes.indexOf(n) === -1; });
+          var afterP = null;
+          for (var j = 0; j < primaries.length; j++) {
+            var bp = primaries[j].getBoundingClientRect();
+            if (ev.clientY < bp.top + bp.height / 2) { afterP = primaries[j]; break; }
+          }
+          movingNodes.forEach(function (n) { container.insertBefore(n, afterP); });
+        }
+        enforceOrderClamp(container);
+      }
+      function onUp() {
+        row.classList.remove("dragging");
+        try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
+        handle.removeEventListener("pointermove", onMove);
+        handle.removeEventListener("pointerup", onUp);
+        markReorderDirty(container);
+      }
+      handle.addEventListener("pointermove", onMove);
+      handle.addEventListener("pointerup", onUp);
+    });
+  }
+
+  // Read the staged order back out of the DOM as an order[] the shared validator
+  // understands: top-level sections + groups carrying their staged titleOverride
+  // and member keys, in reading order.
+  function reconstructOrder(container) {
+    var items = [];
+    var currentGroup = null;
+    Array.prototype.forEach.call(container.children, function (el) {
+      var rt = el.getAttribute("data-reorder-type");
+      if (rt === "group") {
+        var rename = el.querySelector(".reorder-group-rename");
+        var override = (rename && rename.value.trim().length > 0) ? rename.value.trim() : null;
+        currentGroup = { type: "group", id: el.getAttribute("data-group-id"), titleOverride: override, members: [] };
+        items.push(currentGroup);
+      } else if (rt === "section") {
+        var key = el.getAttribute("data-section-key");
+        if (el.getAttribute("data-level") === "member" && currentGroup) {
+          currentGroup.members.push(key);
+        } else {
+          currentGroup = null;
+          items.push({ type: "section", key: key });
+        }
+      }
+    });
+    return items;
+  }
+
+  // Persist the staged order via the sectionOrder sentinel (clamped through the
+  // shared validator first). No-op when the order foundation is absent.
+  async function persistSectionOrder(container) {
+    var App = window.App;
+    if (!container || !App || typeof App.sanitizeOrder !== "function") return;
+    if (typeof PortfolioDB === "undefined" || typeof PortfolioDB._writeTherapistSentinel !== "function") return;
+    var order = App.sanitizeOrder(reconstructOrder(container));
+    await PortfolioDB._writeTherapistSentinel({ sectionKey: "sectionOrder", version: 1, items: order });
+  }
+
+  // Reorder the EXISTING rows into the default order (nodes are moved, never
+  // rebuilt) so in-progress rename/enable edits survive. Order only, confirm-free.
+  function onResetOrder() {
+    var App = window.App;
+    var container = reorderContainer();
+    if (!container || !App || !Array.isArray(App.DEFAULT_SECTION_ORDER)) return;
+    App.DEFAULT_SECTION_ORDER.forEach(function (item) {
+      if (item.type === "section") {
+        var row = container.querySelector('[data-reorder-type="section"][data-section-key="' + item.key + '"][data-level="top"]') ||
+                  container.querySelector('[data-reorder-type="section"][data-section-key="' + item.key + '"]');
+        if (row) { row.setAttribute("data-level", "top"); row.removeAttribute("data-group-id"); container.appendChild(row); }
+      } else if (item.type === "group") {
+        var header = container.querySelector('.reorder-group-header[data-group-id="' + item.id + '"]');
+        if (header) container.appendChild(header);
+        (item.members || []).forEach(function (mk) {
+          var m = container.querySelector('[data-reorder-type="section"][data-section-key="' + mk + '"]');
+          if (m) { m.setAttribute("data-level", "member"); m.setAttribute("data-group-id", item.id); container.appendChild(m); }
+        });
+      }
+    });
+    markReorderDirty(container);
+  }
+
+  // Clear every custom section label and group titleOverride (order + enable
+  // untouched), guarded by a neutral confirm — typed names are user content.
+  async function onResetNames() {
+    var App = window.App;
+    var container = reorderContainer();
+    if (!container || !App || typeof App.confirmDialog !== "function") return;
+    var ok = false;
+    try {
+      ok = await App.confirmDialog({
+        titleKey: "settings.reset.names.label",
+        messageKey: "settings.reset.names.confirm",
+        confirmKey: "settings.reset.names.label",
+        cancelKey: "confirm.cancel",
+        tone: "neutral"
+      });
+    } catch (e) { ok = false; }
+    if (!ok) return;
+    var inputs = container.querySelectorAll(".settings-rename-input");
+    Array.prototype.forEach.call(inputs, function (inp) {
+      if (inp.classList.contains("reorder-group-rename")) return;
+      inp.value = "";
+    });
+    var groupRenames = container.querySelectorAll(".reorder-group-rename");
+    Array.prototype.forEach.call(groupRenames, function (gr) {
+      gr.value = "";
+      var header = gr.closest ? gr.closest(".reorder-group-header") : null;
+      if (!header) return;
+      var titleEl = header.querySelector(".reorder-group-title");
+      if (titleEl) titleEl.textContent = groupDefaultTitle(header.getAttribute("data-group-id"));
+      var revert = header.querySelector(".reorder-group-revert");
+      if (revert) { revert.disabled = true; revert.setAttribute("aria-disabled", "true"); }
+    });
+    formDirty = true;
+    updateSaveButtonState();
+  }
+
+  var _resetControlsMounted = false;
+  function mountResetControlsImpl() {
+    if (_resetControlsMounted) return;
+    var App = window.App;
+    if (!App || typeof App.getSectionOrder !== "function") return; // reorder inactive
+    var container = reorderContainer();
+    if (!container || !container.parentNode) return;
+
+    var bar = document.createElement("div");
+    bar.className = "reorder-reset-bar";
+
+    var resetOrderBtn = document.createElement("button");
+    resetOrderBtn.type = "button";
+    resetOrderBtn.className = "button ghost reorder-reset-btn reorder-reset-order";
+    resetOrderBtn.appendChild(buildResetIconSvg());
+    var orderLabel = document.createElement("span");
+    orderLabel.className = "reorder-reset-btn-label";
+    orderLabel.textContent = App.t("settings.reset.order.label");
+    resetOrderBtn.appendChild(orderLabel);
+    resetOrderBtn.addEventListener("click", onResetOrder);
+
+    var resetNamesBtn = document.createElement("button");
+    resetNamesBtn.type = "button";
+    resetNamesBtn.className = "button ghost reorder-reset-btn reorder-reset-names";
+    resetNamesBtn.appendChild(buildRenameGlyphSvg());
+    var namesLabel = document.createElement("span");
+    namesLabel.className = "reorder-reset-btn-label";
+    namesLabel.textContent = App.t("settings.reset.names.label");
+    resetNamesBtn.appendChild(namesLabel);
+    resetNamesBtn.addEventListener("click", onResetNames);
+
+    bar.appendChild(resetOrderBtn);
+    bar.appendChild(resetNamesBtn);
+    container.parentNode.insertBefore(bar, container.nextSibling);
+    _resetControlsMounted = true;
   }
 
   // Render the grouped reorder list from App.getSectionOrder() into the
@@ -937,6 +1239,18 @@ window.SettingsPage = (function () {
         await PortfolioDB.setTherapistSetting(record);
       }
 
+      // Persist the staged section order via the sectionOrder sentinel (clamped
+      // by the shared validator). Joins the same Save flow — no separate control.
+      await persistSectionOrder(refs.rowsContainer);
+
+      // Refresh the shared order cache in THIS tab before the post-save
+      // re-render, so the freshly saved order is what re-renders (the
+      // cross-tab broadcast below is async and would otherwise race the
+      // re-render, snapping the list back to the pre-save cached order).
+      if (window.App && typeof App.refreshSectionOrderCache === "function") {
+        try { await App.refreshSectionOrderCache(); } catch (e) { /* non-fatal */ }
+      }
+
       // Cross-tab sync
       try {
         if (typeof BroadcastChannel !== "undefined") {
@@ -1100,6 +1414,19 @@ window.SettingsPage = (function () {
 
     if (refs.saveBtn) refs.saveBtn.addEventListener("click", onSave);
     if (refs.discardBtn) refs.discardBtn.addEventListener("click", onDiscard);
+
+    // Delegated up/down arrow reorder (survives re-renders — the container
+    // persists while its rows are replaced).
+    if (refs.rowsContainer) {
+      refs.rowsContainer.addEventListener("click", function (e) {
+        var btn = (e.target && e.target.closest) ? e.target.closest(".reorder-arrow") : null;
+        if (!btn || btn.disabled) return;
+        var row = btn.closest(".reorder-row");
+        if (!row) return;
+        var dir = btn.classList.contains("reorder-arrow-up") ? "up" : "down";
+        handleArrowMove(refs.rowsContainer, row, dir);
+      });
+    }
 
     // Mount the "Report a problem" entry row.
     mountReportRow();
