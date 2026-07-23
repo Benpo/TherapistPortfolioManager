@@ -653,14 +653,14 @@
       // The end-of-session severity item is an app-level switch (its Settings
       // enable toggle). When off, the dependent severity sub-option is not
       // offered at all — severity output is suppressed everywhere.
-      const severityTrackingOn = (typeof App.isSectionEnabled === "function")
-        ? App.isSectionEnabled("afterSeverity") : true;
+      const severityTrackingOn = severityTrackingEnabled();
       orderedFormKeys().forEach((key) => {
         // The end-of-session severity item is not a standalone export row — its
         // ratings are offered as a dependent sub-option beneath Session topics
         // (wired below), never as a sibling section.
         if (key === "afterSeverity") return;
-        const enabled = App.isSectionEnabled(key);
+        const enabled = (typeof App.isSectionEnabled === "function")
+          ? App.isSectionEnabled(key) : true;
         // The topics row is named identically to the in-session "Session topics"
         // title (so therapists recognise it); every other row keeps the
         // customizable section label.
