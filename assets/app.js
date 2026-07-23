@@ -109,6 +109,220 @@ window.App = (() => {
     } catch (_) { /* ignore */ }
   }
 
+  // ---------------------------------------------------------------------------
+  // Session-section order — shared data foundation
+  //
+  // The whole app reads the section order from ONE synchronous cache and
+  // validates every order through ONE function, so the Settings reorder UI,
+  // the session form, and the export builders can never diverge on layout.
+  // ---------------------------------------------------------------------------
+
+  // The shipped section order: the fallback whenever no per-therapist order is
+  // saved, and the template a partial or crafted order is repaired against.
+  // Two kinds of entry — a bare orderable "section", or a "group" that renders
+  // a titled block wrapping ordered member sections.
+  const DEFAULT_SECTION_ORDER = [
+    { type: "section", key: "issues" },
+    {
+      type: "group",
+      id: "emotionsTech",
+      titleOverride: null,
+      members: ["heartShield", "heartShieldEmotions", "trapped", "insights", "limitingBeliefs", "additionalTech"],
+    },
+    { type: "section", key: "afterSeverity" },
+    { type: "group", id: "wrapup", titleOverride: null, members: ["comments", "nextSession"] },
+  ];
+
+  // One group-id → default title i18n key map. The Settings group header, its
+  // revert control, and the session-form group headers all resolve a group's
+  // title from here whenever the therapist has set no titleOverride. No
+  // consumer falls back to a section title key.
+  const GROUP_DEFAULT_TITLE_KEYS = {
+    emotionsTech: "session.accordion.emotions",
+    wrapup: "session.group.wrapup",
+  };
+
+  // Every orderable section key: the nine editable Settings rows plus the
+  // end-of-session severity item. sanitizeOrder drops any key not in this set.
+  const KNOWN_SECTION_KEYS = new Set([
+    "trapped", "insights", "limitingBeliefs", "additionalTech",
+    "heartShield", "heartShieldEmotions", "issues", "comments", "nextSession",
+    "afterSeverity",
+  ]);
+
+  // Raw saved order items (or null → resolve to the default). Eager-loaded in
+  // initCommon and invalidated cross-tab, mirroring _sectionLabelCache.
+  let _sectionOrderCache = null;
+  // Page-scoped snapshot captured when a form opens, so the form and its
+  // same-page exports read one identical order for the page's lifetime even if
+  // a peer tab changes the saved order mid-edit.
+  let _pinnedSectionOrder = null;
+
+  function _cloneOrder(order) {
+    return JSON.parse(JSON.stringify(order));
+  }
+
+  // Insert a missing default top-level entry after the last preceding default
+  // entry that is present in `result`; if none precede it, insert at the front.
+  function _insertAtDefaultSlot(result, defaultIndex, entry) {
+    let insertAt = 0;
+    for (let j = defaultIndex - 1; j >= 0; j -= 1) {
+      const dj = DEFAULT_SECTION_ORDER[j];
+      const idx = result.findIndex((r) =>
+        (dj.type === "section" && r.type === "section" && r.key === dj.key) ||
+        (dj.type === "group" && r.type === "group" && r.id === dj.id));
+      if (idx !== -1) { insertAt = idx + 1; break; }
+    }
+    result.splice(insertAt, 0, entry);
+  }
+
+  // Insert a missing default member after the last preceding default member
+  // that is present in the group; if none precede it, insert at the front.
+  function _insertMemberAtDefaultSlot(group, defaultMembers, memberIndex, memberKey) {
+    let insertAt = 0;
+    for (let j = memberIndex - 1; j >= 0; j -= 1) {
+      const idx = group.members.indexOf(defaultMembers[j]);
+      if (idx !== -1) { insertAt = idx + 1; break; }
+    }
+    group.members.splice(insertAt, 0, memberKey);
+  }
+
+  /**
+   * sanitizeOrder — the single clamp + allowlist + append-missing validator.
+   * Pure: never mutates its input or the default template.
+   *
+   *   - Malformed input (not a non-empty array) returns a fresh default order.
+   *   - Unknown section keys and unknown group members are dropped; a group
+   *     left with zero members is dropped; every key appears at most once.
+   *   - Any KNOWN section, group, or default group member missing from the
+   *     candidate is re-appended at its default slot, so no enabled section is
+   *     ever silently hidden from the form or export.
+   *   - The end-of-session severity item may never precede Session topics: if
+   *     afterSeverity sits before issues at top level, it is moved to sit
+   *     immediately after issues.
+   *
+   * @param {Array} items - candidate order
+   * @returns {Array} sanitized order (fresh objects)
+   */
+  function sanitizeOrder(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+      return _cloneOrder(DEFAULT_SECTION_ORDER);
+    }
+
+    const seen = new Set();
+    const result = [];
+    items.forEach((item) => {
+      if (!item || typeof item !== "object") return;
+      if (item.type === "section") {
+        if (!KNOWN_SECTION_KEYS.has(item.key) || seen.has(item.key)) return;
+        seen.add(item.key);
+        result.push({ type: "section", key: item.key });
+      } else if (item.type === "group") {
+        const members = (Array.isArray(item.members) ? item.members : [])
+          .filter((m) => KNOWN_SECTION_KEYS.has(m) && !seen.has(m));
+        if (members.length === 0) return;
+        members.forEach((m) => seen.add(m));
+        result.push({
+          type: "group",
+          id: item.id,
+          titleOverride: (typeof item.titleOverride === "string" ? item.titleOverride : null),
+          members: members,
+        });
+      }
+    });
+
+    DEFAULT_SECTION_ORDER.forEach((d, di) => {
+      if (d.type === "section") {
+        if (seen.has(d.key)) return;
+        seen.add(d.key);
+        _insertAtDefaultSlot(result, di, { type: "section", key: d.key });
+      } else if (d.type === "group") {
+        const group = result.find((r) => r.type === "group" && r.id === d.id);
+        if (!group) {
+          const members = d.members.filter((m) => !seen.has(m));
+          if (members.length === 0) return;
+          members.forEach((m) => seen.add(m));
+          _insertAtDefaultSlot(result, di, {
+            type: "group", id: d.id, titleOverride: null, members: members,
+          });
+        } else {
+          d.members.forEach((mk, mi) => {
+            if (seen.has(mk)) return;
+            seen.add(mk);
+            _insertMemberAtDefaultSlot(group, d.members, mi, mk);
+          });
+        }
+      }
+    });
+
+    const issuesIdx = result.findIndex((r) => r.type === "section" && r.key === "issues");
+    const sevIdx = result.findIndex((r) => r.type === "section" && r.key === "afterSeverity");
+    if (issuesIdx !== -1 && sevIdx !== -1 && sevIdx < issuesIdx) {
+      const [sev] = result.splice(sevIdx, 1);
+      const reIssuesIdx = result.findIndex((r) => r.type === "section" && r.key === "issues");
+      result.splice(reIssuesIdx + 1, 0, sev);
+    }
+
+    return result;
+  }
+
+  /**
+   * getSectionOrder — synchronous sanitized read of the resolved order.
+   * Returns a defensive copy: mutating the result never corrupts the cache.
+   * Once a page has pinned an order, that frozen snapshot is returned.
+   */
+  function getSectionOrder() {
+    if (_pinnedSectionOrder) return _cloneOrder(_pinnedSectionOrder);
+    return _cloneOrder(sanitizeOrder(_sectionOrderCache || DEFAULT_SECTION_ORDER));
+  }
+
+  /**
+   * pinSectionOrder — freeze the current resolved order as a page-scoped
+   * snapshot. A form calls this at open so it and its same-page exports never
+   * diverge, even when a peer tab rewrites the saved order mid-edit.
+   */
+  function pinSectionOrder() {
+    _pinnedSectionOrder = sanitizeOrder(_sectionOrderCache || DEFAULT_SECTION_ORDER);
+  }
+
+  /**
+   * flattenOrderKeys — the ordered section-key list, groups flattened and group
+   * identities absent (top-level sections and group members in reading order).
+   * The only flattening API; consumers call
+   * App.flattenOrderKeys(App.getSectionOrder()).
+   */
+  function flattenOrderKeys(order) {
+    const keys = [];
+    (Array.isArray(order) ? order : []).forEach((item) => {
+      if (!item) return;
+      if (item.type === "section") {
+        keys.push(item.key);
+      } else if (item.type === "group" && Array.isArray(item.members)) {
+        item.members.forEach((m) => keys.push(m));
+      }
+    });
+    return keys;
+  }
+
+  /**
+   * refreshSectionOrderCache — reload the saved order from storage into the
+   * sync cache. Used by initCommon and the cross-tab handler. Never touches the
+   * page pin, so an open form keeps its snapshot across a peer-tab change.
+   */
+  async function refreshSectionOrderCache() {
+    try {
+      if (typeof PortfolioDB !== "undefined" && typeof PortfolioDB.getSectionOrderRecord === "function") {
+        const record = await PortfolioDB.getSectionOrderRecord();
+        _sectionOrderCache = record ? record.items : null;
+      } else {
+        _sectionOrderCache = null;
+      }
+    } catch (err) {
+      console.warn("refreshSectionOrderCache failed:", err);
+      _sectionOrderCache = null;
+    }
+  }
+
   /**
    * Set the active language, persist to localStorage, update dir attribute, and dispatch event.
    * @param {string} lang - Language code ('en', 'he', 'de', 'cs')
@@ -850,6 +1064,10 @@ window.App = (() => {
       _snippetCache = [];
     }
 
+    // Eager-load the saved section order so App.getSectionOrder is synchronously
+    // readable before the first form/export render.
+    await refreshSectionOrderCache();
+
     // Phase 22: cross-tab sync via BroadcastChannel.
     // When another tab updates therapistSettings, refresh the cache and
     // dispatch app:settings-changed so the current page can re-render labels.
@@ -862,6 +1080,9 @@ window.App = (() => {
             try {
               const rows = await PortfolioDB.getAllTherapistSettings();
               _sectionLabelCache = new Map(rows.map(r => [r.sectionKey, r]));
+              // One message invalidates both caches; the pin is left untouched
+              // so an open form keeps its snapshot across a peer-tab change.
+              await refreshSectionOrderCache();
               document.dispatchEvent(new CustomEvent("app:settings-changed"));
             } catch (err) {
               console.warn("BroadcastChannel refresh failed:", err);
@@ -1775,6 +1996,16 @@ window.App = (() => {
     // Phase 24 Plan 04 — snippet cache
     getSnippets,
     refreshSnippetCache,
+
+    // Session-section order — shared data foundation
+    DEFAULT_SECTION_ORDER,
+    GROUP_DEFAULT_TITLE_KEYS,
+    KNOWN_SECTION_KEYS,
+    sanitizeOrder,
+    getSectionOrder,
+    pinSectionOrder,
+    flattenOrderKeys,
+    refreshSectionOrderCache,
   };
 })();
 
