@@ -586,7 +586,18 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  var EXPECTED_COUNT = 22;
+  // ─── Case 23: clicking Add issue marks the form dirty ────────────────────────
+  await test('clicking Add issue marks the form dirty (the add control is a button that bypasses the input/change tracker)', async function () {
+    var env = await boot();
+    var win = env.win;
+    assert.strictEqual(win.PortfolioFormDirty(), false, 'a freshly opened form is clean');
+    win.document.getElementById('addIssueBtn').click();
+    await settle();
+    assert.strictEqual(win.PortfolioFormDirty(), true, 'adding an issue marks the form dirty');
+    env.dom.window.close();
+  });
+
+  var EXPECTED_COUNT = 23;
   try { assert.strictEqual(passed + failed, EXPECTED_COUNT); }
   catch (e) {
     console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));

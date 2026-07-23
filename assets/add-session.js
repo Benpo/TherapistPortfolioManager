@@ -1215,6 +1215,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       createIssueBlock();
       applySeverityVisibility(!!editingSession);
       App.applyTranslations();
+      // Adding an issue is an unsaved edit the form-input listeners never see
+      // (the add control is a <button>): mark dirty and refresh the cancel label.
+      formDirty = true;
+      updateCancelButtonLabel();
     });
   }
 
