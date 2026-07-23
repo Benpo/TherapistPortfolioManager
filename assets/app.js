@@ -1442,6 +1442,14 @@ window.App = (() => {
         button.classList.add("is-active");
       }
       button.addEventListener("click", () => {
+        if (wrap.dataset.value === String(i)) {
+          // Tap the already-selected pill again to clear the rating back to
+          // unrated, so a mis-tap is always reversible.
+          wrap.dataset.value = "";
+          wrap.querySelectorAll(".severity-button").forEach((btn) => btn.classList.remove("is-active"));
+          if (onChange) onChange(null);
+          return;
+        }
         wrap.dataset.value = String(i);
         wrap.querySelectorAll(".severity-button").forEach((btn) => btn.classList.remove("is-active"));
         button.classList.add("is-active");
