@@ -32,7 +32,7 @@ Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings
 - [ ] **ORDR-04**: Saved order drives the markdown + PDF export builders — repointed atomically with the 260615 guard-test rewrite (order invariant never briefly broken)
 - [ ] **ORDR-05**: Order persists per therapist (therapistSettings sentinel record, mirroring the snippetsDeletedSeeds pattern) and round-trips through encrypted backup
 
-**Amendment (drafted by planner 2026-07-23, per Phase 47 CONTEXT — Ben approves at plan review before execution):** the severity-optional redesign (D-08/D-09) and group renames (D-05) that grew into Phase 47 scope need their own requirement IDs so Phase 47 coverage is honest. Proposed:
+**Amendment (drafted by planner 2026-07-23, per Phase 47 CONTEXT; APPROVED by Ben at plan review 2026-07-23):** the severity-optional redesign (D-08/D-09) and group renames (D-05) that grew into Phase 47 scope need their own requirement IDs so Phase 47 coverage is honest.
 
 - [ ] **ORDR-06**: An app-level severity switch — the "Issue severity" Settings row toggle turns ALL severity ratings on/off (D-08); disabling it hides the end-of-session severity block AND the start-rating column inside topic rows (topics themselves remain). A ⓘ info icon explains the coupling, and the help corpus gains a "how to turn severity ratings off" entry (EN corpus of record, then DE/HE/CS).
 - [ ] **ORDR-07**: A "— (skip)" severity value (D-09) — an 11th scale value that satisfies mandatory-field validation without contributing a number; a topic rated — auto-hides its end-of-session rating and is omitted from every export (no PDF bar, no markdown line); if every topic is —, the severity block is omitted entirely.
@@ -107,9 +107,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ORDR-03 | Phase 47 | Pending |
 | ORDR-04 | Phase 47 | Pending |
 | ORDR-05 | Phase 47 | Pending |
-| ORDR-06 (draft) | Phase 47 | Pending |
-| ORDR-07 (draft) | Phase 47 | Pending |
-| ORDR-08 (draft) | Phase 47 | Pending |
+| ORDR-06 | Phase 47 | Pending |
+| ORDR-07 | Phase 47 | Pending |
+| ORDR-08 | Phase 47 | Pending |
 | MOBL-01 | Phase 48 | Pending |
 | MOBL-02 | Phase 48 | Pending |
 | MOBL-03 | Phase 48 | Pending |
