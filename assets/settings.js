@@ -30,12 +30,18 @@
 window.SettingsPage = (function () {
   "use strict";
 
-  // Three rows are disable-only: their purpose is structurally
-  // fixed; the toggle and Reset still work.
-  var LOCKED_RENAME = new Set(["heartShield", "issues", "nextSession"]);
+  // Rows whose purpose is structurally fixed: rename is disabled (the toggle and
+  // Reset still work). "afterSeverity" is the master severity switch — its name
+  // is fixed and its ⓘ carries the explanation, so it is rename-locked too.
+  var LOCKED_RENAME = new Set(["heartShield", "issues", "nextSession", "afterSeverity"]);
 
-  // Canonical 9-row schema. Keys + i18n labels MUST stay in sync with the
-  // session form and the i18n bundle.
+  // Canonical section schema. Keys + i18n labels MUST stay in sync with the
+  // session form and the i18n bundle. The first nine are the editable Settings
+  // rows; "afterSeverity" is the end-of-session severity switch — it has no
+  // visible description (its explanation lives only in the ⓘ popover) and no
+  // rename. Display order is NOT driven by this array — it comes from
+  // App.getSectionOrder(); this list only backs the Save / disable-transition
+  // loops.
   var SECTION_DEFS = [
     { key: "trapped",              i18nLabelKey: "session.form.trapped",              i18nDescKey: "settings.row.trapped.description" },
     { key: "insights",             i18nLabelKey: "session.form.insights",             i18nDescKey: "settings.row.insights.description" },
@@ -46,6 +52,7 @@ window.SettingsPage = (function () {
     { key: "issues",               i18nLabelKey: "session.form.issuesHeading",        i18nDescKey: "settings.row.issues.description" },
     { key: "comments",             i18nLabelKey: "session.form.comments",             i18nDescKey: "settings.row.comments.description" },
     { key: "nextSession",          i18nLabelKey: "session.form.nextSession",          i18nDescKey: "settings.row.nextSession.description" },
+    { key: "afterSeverity",        i18nLabelKey: "settings.row.afterSeverity.label",  i18nDescKey: null },
   ];
 
   var formDirty = false;
@@ -93,6 +100,427 @@ window.SettingsPage = (function () {
         { tag: "polyline", attrs: { points: "3 21 3 16 8 16" } }
       ]
     );
+  }
+
+  // Six-dot grab handle, drawn via DOM APIs (no innerHTML, no user data).
+  function buildDragHandleSvg() {
+    return buildSvg(
+      { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", "aria-hidden": "true" },
+      [
+        { tag: "circle", attrs: { cx: "9",  cy: "6",  r: "1.6" } },
+        { tag: "circle", attrs: { cx: "15", cy: "6",  r: "1.6" } },
+        { tag: "circle", attrs: { cx: "9",  cy: "12", r: "1.6" } },
+        { tag: "circle", attrs: { cx: "15", cy: "12", r: "1.6" } },
+        { tag: "circle", attrs: { cx: "9",  cy: "18", r: "1.6" } },
+        { tag: "circle", attrs: { cx: "15", cy: "18", r: "1.6" } }
+      ]
+    );
+  }
+
+  // Up/down chevron for the arrow-reorder buttons.
+  function buildChevronSvg(dir) {
+    var points = dir === "up" ? "6 15 12 9 18 15" : "6 9 12 15 18 9";
+    return buildSvg(
+      { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", width: "18", height: "18", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" },
+      [ { tag: "polyline", attrs: { points: points } } ]
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Grouped reorder list
+  //
+  // The Settings Fields list renders as ONE grouped reorder list derived from
+  // App.getSectionOrder(): bare section rows, group-header rows (renamable) with
+  // indented member rows, and the end-of-session severity row with its ⓘ
+  // explainer. Every user-typed label (section customLabel, group titleOverride)
+  // is rendered via .textContent / input.value ONLY — never innerHTML.
+  //
+  // When the order foundation (App.getSectionOrder) is unavailable — e.g. a
+  // legacy environment without the section-order cache — the list falls back to
+  // a flat render of the nine editable rows, so the page degrades gracefully.
+  // ---------------------------------------------------------------------------
+
+  // Resolve an i18n string with a {section} token substituted (App.t itself
+  // takes no parameters).
+  function reorderAria(key, name) {
+    var raw = (window.App && App.t) ? App.t(key) : key;
+    return String(raw).replace(/\{section\}/g, name == null ? "" : name);
+  }
+
+  function sectionDefByKey(key) {
+    for (var i = 0; i < SECTION_DEFS.length; i++) {
+      if (SECTION_DEFS[i].key === key) return SECTION_DEFS[i];
+    }
+    return { key: key, i18nLabelKey: key, i18nDescKey: null };
+  }
+
+  // The name shown to assistive tech for a section's reorder controls: the
+  // therapist's custom label when set, else the default i18n label.
+  function resolveSectionName(def, current) {
+    var custom = (current && typeof current.customLabel === "string") ? current.customLabel.trim() : "";
+    if (custom.length > 0) return current.customLabel;
+    return (window.App && App.t) ? App.t(def.i18nLabelKey) : def.i18nLabelKey;
+  }
+
+  // The default (un-overridden) group title, resolved through the shared
+  // App.GROUP_DEFAULT_TITLE_KEYS map (a group's own title key, never a section
+  // title key).
+  function groupDefaultTitle(groupId) {
+    var map = (window.App && App.GROUP_DEFAULT_TITLE_KEYS) || {};
+    var key = map[groupId];
+    if (key && window.App && App.t) return App.t(key);
+    return key || groupId;
+  }
+
+  function buildDragHandle(name) {
+    var handle = document.createElement("span");
+    handle.className = "reorder-handle";
+    handle.setAttribute("role", "button");
+    handle.tabIndex = 0;
+    handle.setAttribute("aria-label", reorderAria("settings.reorder.dragHandle.aria", name));
+    handle.appendChild(buildDragHandleSvg());
+    return handle;
+  }
+
+  function buildArrowPair(name) {
+    var wrap = document.createElement("div");
+    wrap.className = "reorder-arrows";
+
+    var up = document.createElement("button");
+    up.type = "button";
+    up.className = "reorder-arrow reorder-arrow-up";
+    up.setAttribute("aria-label", reorderAria("settings.reorder.moveUp.aria", name));
+    up.appendChild(buildChevronSvg("up"));
+
+    var down = document.createElement("button");
+    down.type = "button";
+    down.className = "reorder-arrow reorder-arrow-down";
+    down.setAttribute("aria-label", reorderAria("settings.reorder.moveDown.aria", name));
+    down.appendChild(buildChevronSvg("down"));
+
+    wrap.appendChild(up);
+    wrap.appendChild(down);
+    return wrap;
+  }
+
+  // A bare/section reorder row. For the nine editable sections this reuses the
+  // shipped renderRow (a .settings-row with its rename input + enable toggle +
+  // reset), then decorates it with a drag handle and arrow pair. The severity
+  // row is built by its own compact builder (no rename, no description, with the
+  // ⓘ explainer).
+  function buildSectionReorderRow(key, level, groupId) {
+    var def = sectionDefByKey(key);
+    var current = currentMap.get(key) || {};
+    var row;
+    if (key === "afterSeverity") {
+      row = buildSeverityReorderRow(def, current);
+    } else {
+      row = renderRow(def, current);
+      row.classList.add("reorder-row");
+    }
+    var name = resolveSectionName(def, current);
+    row.setAttribute("data-reorder-type", "section");
+    row.setAttribute("data-level", level);
+    if (groupId) row.setAttribute("data-group-id", groupId);
+    if (level === "member") row.classList.add("reorder-member");
+    row.insertBefore(buildDragHandle(name), row.firstChild);
+    row.appendChild(buildArrowPair(name));
+    maybeWireDrag(row);
+    return row;
+  }
+
+  // The end-of-session severity switch row. Renders the "Issue severity" name
+  // with NO visible description (the explanation lives only in the ⓘ popover), a
+  // ⓘ button whose tap-toggled popover
+  // carries the explainer, and the enable toggle that is the app-level severity
+  // switch. A hidden, disabled rename input keeps its enabled state flowing
+  // through the generic Save loop (it is rename-locked, so the value stays null).
+  function buildSeverityReorderRow(def, current) {
+    var enabled = !current || current.enabled !== false;
+    var labelText = (window.App && App.t) ? App.t(def.i18nLabelKey) : def.i18nLabelKey;
+
+    var row = document.createElement("div");
+    row.className = "reorder-row reorder-severity-row";
+    row.setAttribute("data-section-key", "afterSeverity");
+
+    var meta = document.createElement("div");
+    meta.className = "settings-row-meta reorder-severity-meta";
+    var labelLine = document.createElement("div");
+    labelLine.className = "settings-row-label-line";
+    var labelEl = document.createElement("span");
+    labelEl.className = "settings-row-label label";
+    // SECURITY: textContent — never innerHTML.
+    labelEl.textContent = labelText;
+    labelLine.appendChild(labelEl);
+    if (!enabled) {
+      var badge = document.createElement("span");
+      badge.className = "disabled-indicator-badge";
+      badge.textContent = (window.App && App.t) ? App.t("settings.indicator.disabled") : "Disabled in Settings";
+      labelLine.appendChild(badge);
+    }
+    meta.appendChild(labelLine);
+    row.appendChild(meta);
+
+    // ⓘ info button + tap-toggled popover carrying the explainer text.
+    var infoWrap = document.createElement("div");
+    infoWrap.className = "reorder-info-wrap";
+    var infoBtn = document.createElement("button");
+    infoBtn.type = "button";
+    infoBtn.className = "reorder-info-btn";
+    infoBtn.setAttribute("aria-expanded", "false");
+    infoBtn.setAttribute("aria-label", labelText);
+    var popId = "afterSeverity-info-pop";
+    infoBtn.setAttribute("aria-controls", popId);
+    infoBtn.appendChild(buildInfoIconSvg(18));
+
+    var pop = document.createElement("div");
+    pop.className = "reorder-info-pop";
+    pop.id = popId;
+    pop.hidden = true;
+    // The explainer lives ONLY here — never as a row description.
+    // SECURITY: textContent — never innerHTML.
+    pop.textContent = (window.App && App.t) ? App.t("settings.row.afterSeverity.info") : "settings.row.afterSeverity.info";
+
+    infoBtn.addEventListener("click", function () {
+      var open = infoBtn.getAttribute("aria-expanded") === "true";
+      infoBtn.setAttribute("aria-expanded", open ? "false" : "true");
+      pop.hidden = open;
+    });
+    infoWrap.appendChild(infoBtn);
+    row.appendChild(infoWrap);
+
+    // Hidden, disabled rename input so the generic onSave loop persists this
+    // row's enabled state (afterSeverity is rename-locked → customLabel null).
+    var hiddenRename = document.createElement("input");
+    hiddenRename.type = "text";
+    hiddenRename.className = "settings-rename-input reorder-severity-rename";
+    hiddenRename.setAttribute("data-section-key", "afterSeverity");
+    hiddenRename.value = "";
+    hiddenRename.disabled = true;
+    hiddenRename.hidden = true;
+    hiddenRename.setAttribute("aria-hidden", "true");
+    row.appendChild(hiddenRename);
+
+    var controls = document.createElement("div");
+    controls.className = "settings-row-controls reorder-severity-controls";
+    var toggleLabel = document.createElement("label");
+    toggleLabel.className = "toggle-switch";
+    var toggleInput = document.createElement("input");
+    toggleInput.type = "checkbox";
+    toggleInput.className = "settings-enable-toggle";
+    toggleInput.setAttribute("data-section-key", "afterSeverity");
+    toggleInput.checked = enabled;
+    toggleInput.setAttribute("aria-label", labelText);
+    var toggleSlider = document.createElement("span");
+    toggleSlider.className = "toggle-slider";
+    toggleLabel.appendChild(toggleInput);
+    toggleLabel.appendChild(toggleSlider);
+    controls.appendChild(toggleLabel);
+    toggleInput.addEventListener("change", function () {
+      var existing = labelLine.querySelector(".disabled-indicator-badge");
+      if (toggleInput.checked) {
+        if (existing) existing.remove();
+      } else if (!existing) {
+        var nb = document.createElement("span");
+        nb.className = "disabled-indicator-badge";
+        nb.textContent = (window.App && App.t) ? App.t("settings.indicator.disabled") : "Disabled in Settings";
+        labelLine.appendChild(nb);
+      }
+      formDirty = true;
+      updateSaveButtonState();
+    });
+    row.appendChild(controls);
+
+    // The popover spans its own line below the row controls.
+    row.appendChild(pop);
+    return row;
+  }
+
+  // A group-header reorder row: its own drag handle + arrows, a renamable title
+  // bound to the group's titleOverride, and a per-group revert. No enable toggle.
+  function buildGroupHeaderRow(item) {
+    var gid = item.id;
+    var defaultTitle = groupDefaultTitle(gid);
+    var override = (typeof item.titleOverride === "string" && item.titleOverride.trim().length > 0) ? item.titleOverride : "";
+    var displayTitle = override || defaultTitle;
+
+    var row = document.createElement("div");
+    row.className = "reorder-row reorder-group-header";
+    row.setAttribute("data-reorder-type", "group");
+    row.setAttribute("data-group-id", gid);
+
+    row.appendChild(buildDragHandle(displayTitle));
+
+    var meta = document.createElement("div");
+    meta.className = "reorder-group-meta";
+    var titleEl = document.createElement("span");
+    titleEl.className = "reorder-group-title label";
+    // SECURITY: textContent — never innerHTML.
+    titleEl.textContent = displayTitle;
+    meta.appendChild(titleEl);
+    row.appendChild(meta);
+
+    var renameWrap = document.createElement("div");
+    renameWrap.className = "settings-rename-wrap reorder-group-rename-wrap";
+    var input = document.createElement("input");
+    input.type = "text";
+    input.className = "input settings-rename-input reorder-group-rename";
+    input.maxLength = 60;
+    input.setAttribute("maxlength", "60");
+    input.placeholder = defaultTitle;
+    // SECURITY: .value assignment is auto-escaped for attribute rendering.
+    input.value = override;
+    input.setAttribute("data-group-id", gid);
+    row.appendChild(renameWrap);
+
+    var revertBtn = document.createElement("button");
+    revertBtn.type = "button";
+    revertBtn.className = "button ghost reset-row-btn reorder-group-revert";
+    revertBtn.setAttribute("data-group-id", gid);
+    var revTip = (window.App && App.t) ? App.t("settings.reset.tooltip") : "Reset to default name";
+    revertBtn.setAttribute("aria-label", revTip);
+    revertBtn.title = revTip;
+    revertBtn.appendChild(buildResetIconSvg());
+    var revLabel = document.createElement("span");
+    revLabel.className = "reset-row-btn-label";
+    revLabel.textContent = (window.App && App.t) ? App.t("settings.row.revert.label") : "Revert";
+    revertBtn.appendChild(revLabel);
+    if (!override) {
+      revertBtn.disabled = true;
+      revertBtn.setAttribute("aria-disabled", "true");
+    }
+
+    // Live-update the visible title as the therapist types, and enable/disable
+    // the revert affordance with the presence of an override.
+    input.addEventListener("input", function () {
+      var v = input.value.trim();
+      titleEl.textContent = v.length > 0 ? input.value : defaultTitle;
+      revertBtn.disabled = v.length === 0;
+      if (v.length === 0) revertBtn.setAttribute("aria-disabled", "true");
+      else revertBtn.removeAttribute("aria-disabled");
+      formDirty = true;
+      updateSaveButtonState();
+    });
+    revertBtn.addEventListener("click", function () {
+      input.value = "";
+      titleEl.textContent = defaultTitle;
+      revertBtn.disabled = true;
+      revertBtn.setAttribute("aria-disabled", "true");
+      formDirty = true;
+      updateSaveButtonState();
+    });
+
+    renameWrap.appendChild(input);
+    row.appendChild(revertBtn);
+    row.appendChild(buildArrowPair(displayTitle));
+    maybeWireDrag(row);
+    return row;
+  }
+
+  // Reorder interactions (pointer drag, delegated arrows, Reset controls) are
+  // wired below. These seams are populated once the interaction layer is loaded;
+  // rendering never depends on them being active.
+  var _reorderInteractions = null;
+  function maybeWireDrag(row) {
+    if (_reorderInteractions && typeof _reorderInteractions.wireDrag === "function") {
+      _reorderInteractions.wireDrag(row);
+    }
+  }
+  function mountResetControls() {
+    if (_reorderInteractions && typeof _reorderInteractions.mountResetControls === "function") {
+      _reorderInteractions.mountResetControls();
+    }
+  }
+
+  // Render the grouped reorder list from App.getSectionOrder() into the
+  // container. Falls back to a flat render of the nine editable rows when the
+  // order foundation is unavailable.
+  function renderReorderList(container) {
+    var App = window.App;
+    if (!App || typeof App.getSectionOrder !== "function") {
+      // Legacy fallback: flat list of the nine editable rows (no severity row,
+      // which only exists alongside the order/severity feature).
+      SECTION_DEFS.forEach(function (def) {
+        if (def.key === "afterSeverity") return;
+        container.appendChild(renderRow(def, currentMap.get(def.key) || {}));
+      });
+      return;
+    }
+    var order = App.getSectionOrder();
+    (Array.isArray(order) ? order : []).forEach(function (item) {
+      if (!item) return;
+      if (item.type === "section") {
+        container.appendChild(buildSectionReorderRow(item.key, "top", null));
+      } else if (item.type === "group") {
+        container.appendChild(buildGroupHeaderRow(item));
+        (Array.isArray(item.members) ? item.members : []).forEach(function (mk) {
+          container.appendChild(buildSectionReorderRow(mk, "member", item.id));
+        });
+      }
+    });
+    refreshReorderArrows(container);
+    mountResetControls();
+  }
+
+  // The reorder units at the top level: each is either a single top-level
+  // section or a whole group (its header + member rows). Used for unit-aware
+  // arrow end-stops and reorder.
+  function computeTopLevelUnits(container) {
+    var units = [];
+    var current = null;
+    Array.prototype.forEach.call(container.children, function (el) {
+      var rt = el.getAttribute && el.getAttribute("data-reorder-type");
+      if (rt === "group") {
+        current = { type: "group", id: el.getAttribute("data-group-id"), header: el, members: [] };
+        units.push(current);
+      } else if (rt === "section") {
+        if (el.getAttribute("data-level") === "member" && current && current.type === "group") {
+          current.members.push(el);
+        } else {
+          current = null;
+          units.push({ type: "section", key: el.getAttribute("data-section-key"), row: el });
+        }
+      }
+    });
+    return units;
+  }
+
+  function setArrowDisabled(btn, on) {
+    if (!btn) return;
+    if (on) { btn.disabled = true; btn.setAttribute("aria-disabled", "true"); }
+    else { btn.disabled = false; btn.removeAttribute("aria-disabled"); }
+  }
+
+  // Refresh every arrow's end-stop state: top-level units disable up on the
+  // first / down on the last, plus the Issue-severity-after-Session-topics clamp
+  // boundary; members disable up on the first / down on the last within a group.
+  function refreshReorderArrows(container) {
+    var units = computeTopLevelUnits(container);
+    var issuesIdx = -1;
+    var sevIdx = -1;
+    units.forEach(function (u, i) {
+      if (u.type === "section" && u.key === "issues") issuesIdx = i;
+      if (u.type === "section" && u.key === "afterSeverity") sevIdx = i;
+    });
+    units.forEach(function (u, i) {
+      var primary = u.type === "group" ? u.header : u.row;
+      var up = primary.querySelector(".reorder-arrow-up");
+      var down = primary.querySelector(".reorder-arrow-down");
+      var upOff = (i === 0);
+      var downOff = (i === units.length - 1);
+      // Clamp affordance: severity may never rise above topics, and topics may
+      // never drop below severity (the same crossing, both directions).
+      if (u.type === "section" && u.key === "afterSeverity" && issuesIdx === i - 1) upOff = true;
+      if (u.type === "section" && u.key === "issues" && sevIdx === i + 1) downOff = true;
+      setArrowDisabled(up, upOff);
+      setArrowDisabled(down, downOff);
+      if (u.type === "group") {
+        u.members.forEach(function (m, mi) {
+          setArrowDisabled(m.querySelector(".reorder-arrow-up"), mi === 0);
+          setArrowDisabled(m.querySelector(".reorder-arrow-down"), mi === u.members.length - 1);
+        });
+      }
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -421,13 +849,10 @@ window.SettingsPage = (function () {
       console.warn("settings: getAllTherapistSettings failed", e);
     }
 
-    // Clear and re-render
+    // Clear and re-render as one grouped reorder list (or a flat fallback when
+    // the section-order foundation is unavailable).
     refs.rowsContainer.textContent = ""; // safe clear (no innerHTML="")
-    SECTION_DEFS.forEach(function (def) {
-      var current = currentMap.get(def.key) || {};
-      var row = renderRow(def, current);
-      refs.rowsContainer.appendChild(row);
-    });
+    renderReorderList(refs.rowsContainer);
 
     formDirty = false;
     updateSaveButtonState();
