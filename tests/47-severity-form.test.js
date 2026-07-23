@@ -183,6 +183,7 @@ function firstAfterScale(win) { return win.document.querySelector('#issueSummary
 function firstSummaryBlock(win) { return win.document.querySelector('#issueSummaryList .issue-summary'); }
 function firstNameInput(win) { return win.document.querySelector('#issueList .issue-block input.input'); }
 function afterSeveritySection(win) { return win.document.querySelector('[data-section-key="afterSeverity"]'); }
+function firstRemoveButton(win) { return win.document.querySelector('#issueList .issue-block .issue-remove'); }
 function clickPill(scale, n) { scale.querySelectorAll('.severity-button')[n].click(); }
 function nameFirstTopic(win, name) {
   var input = firstNameInput(win);
@@ -495,7 +496,47 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  var EXPECTED_COUNT = 18;
+  // ─── Case 19: removing an issue marks the form dirty ─────────────────────────
+  await test('removing an issue marks the form dirty (the remove control is a button that bypasses the input/change tracker)', async function () {
+    var env = await boot({
+      sessionId: 1,
+      sessions: [{ id: 1, clientId: 1, date: '2026-06-01', issues: [
+        { name: 'X', before: 6, after: 2 },
+        { name: 'Y', before: 4, after: 1 },
+      ] }],
+    });
+    var win = env.win;
+    assert.strictEqual(win.PortfolioFormDirty(), false, 'a freshly loaded past session is clean');
+    win.document.getElementById('editSessionBtn').click();
+    await settle();
+    firstRemoveButton(win).click();
+    assert.strictEqual(win.PortfolioFormDirty(), true,
+      'removing an issue marks the form dirty so navigation warns before the deletion is silently discarded');
+    env.dom.window.close();
+  });
+
+  // ─── Case 20: removing the only rated issue live-hides the disabled section ───
+  await test('with severity off, removing the only rated issue live-hides the emptied end-of-session section (header + badge gone)', async function () {
+    var env = await boot({
+      isSectionEnabled: function (k) { return k !== 'afterSeverity'; },
+      sessionId: 1,
+      sessions: [{ id: 1, clientId: 1, date: '2026-06-01', issues: [
+        { name: 'RATED', before: 6, after: 2 },
+        { name: 'UNRATED', before: null, after: null },
+      ] }],
+    });
+    var win = env.win;
+    assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), false,
+      'the recorded rating keeps the disabled section visible on load');
+    win.document.getElementById('editSessionBtn').click();
+    await settle();
+    firstRemoveButton(win).click(); // removes RATED (the first block); no numeric rating remains
+    assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), true,
+      'removing the only rated issue empties the disabled section, which hides live');
+    env.dom.window.close();
+  });
+
+  var EXPECTED_COUNT = 20;
   try { assert.strictEqual(passed + failed, EXPECTED_COUNT); }
   catch (e) {
     console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));

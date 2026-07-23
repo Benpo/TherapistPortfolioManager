@@ -690,6 +690,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (removed.summaryBlock) removed.summaryBlock.remove();
     updateAddIssueState();
     updateRemoveButtons();
+    // Removing an issue is an unsaved edit the form-input listeners never see
+    // (the remove control is a <button>), and it can empty the last numeric
+    // rating — so mark the form dirty, refresh the cancel label, and re-run the
+    // visibility passes so a now-empty end-of-session section collapses.
+    formDirty = true;
+    updateCancelButtonLabel();
+    applySectionVisibility(!!editingSession);
+    applySeverityVisibility(!!editingSession);
   }
 
   // Reset a severity scale back to unrated: clear its stored value and drop the
