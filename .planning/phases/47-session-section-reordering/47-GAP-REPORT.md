@@ -69,3 +69,18 @@
 ## D-17 ruling
 
 D-17 is a closed PROCESS gate — "small mockups are part of decision-making", satisfied and marked GATE CLOSED 2026-07-23 in CONTEXT (47-CONTEXT.md:104-110), with `47-mockups.html` wired into 47-03/47-04 as the visual contract. Needs no plan coverage; the coverage tool's "not covered" flag is a false positive.
+
+---
+
+# Round 2 addendum (post-revision verification, 2026-07-23)
+
+**Pipeline:** planner revision 71486b6 folded G-1…G-17 in (Ben approved all fixes) → plan-checker iteration 2 found 1 NEW blocker (flatKeys API contract mismatch 47-01/04 vs 47-05), fixed inline (402120e, 5c28fe1) → Fable gap-gate round 2 (focused verification).
+
+**Round 2 verdict:** all 17 G-fixes verified LANDED as executable plan content (G-8/G-11/G-15 exactly per Ben's decisions); flatKeys repair VERIFIED (free-function `App.flattenOrderKeys(order)` is the only flattening API; zero `.flatKeys()` method usage left in any plan); 0 blockers, 2 warnings + 2 info newly found in the revised text — all resolved inline:
+
+- **R2-1 (warning, fixed):** 47-02's G-15 ACs were unsatisfiable against the kept " *" required marker. Pinned: `session.form.issuesHeading` = "Session topics *" (marker stays), `export.section.topics` = stripped "Session topics", equality ACs stripRequired-normalized (also repairs the HE D-14 comparison's marker asymmetry).
+- **R2-2 (warning, fixed):** 47-04's empty-group hide keyed on enable state alone could hide a past session's badged-visible member data (contradicting the G-11 "recorded clinical data is never hidden" rule). Pinned: a group hides only when every member is EFFECTIVELY hidden (disabled AND not past-session-with-data visible); test fixture added to behavior/AC/test instruction.
+- **R2-3 (info, fixed):** 47-05 Task 3's first AC example passed "afterSeverity" in presentKeys — runtime-impossible under G-2 (its heading is never emitted). Example corrected so the executor isn't taught a false invariant.
+- **R2-4 (info, no action):** 47-UI-SPEC.md Interaction 8 / Error-state still says "— satisfies validation" as if validation inspects ratings; per Ben's G-17 ruling the plans (validateIssues unchanged, value round-trip asserted) win. Spec sentence left as historical; do not mistake it for an unimplemented requirement.
+
+**Phase 47 plan set status after round 2: cleared for execution.**
