@@ -1422,18 +1422,18 @@ window.PDFExport = (function () {
       var y = drawClientCard();
       var blocks = parseMarkdown(markdown);
 
-      // Phase 34 (REVISED per owner review, Change 1): the structural severity
-      // block renders in its FORM-ORDER slot, not after the whole body. The form
-      // DOM (add-session.html) places the issues/severity section at position 2 —
-      // right after the heartShield section and BEFORE every other section
-      // (heart-shield-emotions, trapped, insights, …, comments, next-meeting /
-      // plan notes). export-modal forwards sessionData.severityAfterSections =
-      // (heartShield section present ? 1 : 0); the renderer draws the two-bar block
-      // just before the (severityAfterSections+1)-th section heading. If that many
-      // section headings never appear (fewer sections, or a body with none) it
-      // falls back to the end — which, with no trailing sections, is still the
-      // correct form slot. The block's APPEARANCE is unchanged (drawSeverityBlock,
-      // hoisted below); only its position in the flow moves.
+      // The structural severity block renders in its SAVED-ORDER slot, not after
+      // the whole body. export-modal forwards sessionData.severityAfterSections =
+      // the number of sections that ACTUALLY appear in the exported (possibly
+      // Step-2-edited) body text AND precede the end-of-session-severity slot in
+      // the therapist's saved section order — so reordering sections in Settings
+      // moves the block, and deleting a preceding heading in the export editor
+      // moves it up one slot. The renderer draws the two-bar block just before
+      // the (severityAfterSections+1)-th counted document heading. If that many
+      // headings never appear (fewer sections, or a body with none) it falls
+      // back to the end — which, with no trailing sections, is still the correct
+      // slot. Position only; the block's appearance is drawSeverityBlock's
+      // (hoisted below).
       var severityIssues = sessionData.issues || [];
       var severityAfterSections =
         (typeof sessionData.severityAfterSections === 'number' && sessionData.severityAfterSections >= 0)
