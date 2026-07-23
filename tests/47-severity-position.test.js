@@ -134,9 +134,50 @@ function test(name, fn) {
     assert.strictEqual(derive(null, null), 0);
   });
 
+  // ─── producer/consumer heading-level agreement (parsePresentSectionKeys) ──────
+  // The PDF consumer counts ANY document-labeled heading at level 2 OR 3 toward
+  // the severity ordinal (its parseMarkdown accepts #{1,3} and its counter
+  // matches level >= 2). The producer that derives presentKeys from the edited
+  // Step-2 text must therefore accept the same levels: a therapist promoting
+  // `## insights` to `### insights` must NOT drop the section from presentKeys,
+  // or the severity block draws one slot early. parsePresentSectionKeys is an
+  // init-scoped closure, so this case runs the init handshake with a minimal
+  // ctx + App stub (getSectionLabel echoes the key, so headings are `## <key>`).
+  test('a heading promoted to level 3 (### insights) still counts as present', function () {
+    var env2 = buildEnv();
+    var win2 = env2.win;
+    win2.App = {
+      t: function (k) { return k; },
+      getSectionLabel: function (id) { return id; },
+    };
+    win2.__exportModalInit({
+      els: {},
+      getIssuesPayload: function () { return []; },
+      getEditingSession: function () { return null; },
+    });
+    var parse = win2.__exportModalTestHooks &&
+      win2.__exportModalTestHooks.parsePresentSectionKeys;
+    assert.ok(typeof parse === 'function',
+      'window.__exportModalTestHooks.parsePresentSectionKeys must be exposed after init');
+
+    var orderedKeys = ['issues', 'insights', 'comments'];
+    var md = '## issues\n- topic\n\n### insights\nbody\n\n## comments\nbody\n';
+    var present = parse(orderedKeys, md);
+    assert.deepStrictEqual(present, ['issues', 'insights', 'comments'],
+      'a ###-promoted heading must still count as present (got ' + JSON.stringify(present) + ')');
+
+    // Level 1 and level 4 stay excluded — the consumer never counts them toward
+    // the ordinal (level 1 is the document title; #### is not a parsed heading).
+    var mdEdge = '# issues\n\n#### insights\n\n## comments\n';
+    assert.deepStrictEqual(parse(orderedKeys, mdEdge), ['comments'],
+      'level-1 and level-4 lines must not register as present sections');
+
+    env2.dom.window.close();
+  });
+
   env.dom.window.close();
 
-  var EXPECTED = 9;
+  var EXPECTED = 10;
   if (passed + failed !== EXPECTED) {
     console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED + ' cases, ran ' + (passed + failed));
     process.exit(1);

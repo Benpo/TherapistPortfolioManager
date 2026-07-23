@@ -582,14 +582,17 @@
 
     // The subset of the saved order whose section headings actually appear in
     // the exported body text, kept in saved order. A section-heading line is
-    // `## <label>` where <label> is the same stripRequired(getSectionLabel(...))
+    // `## <label>` (or `### <label>` — a therapist may promote a heading in the
+    // Step-2 editor, and the PDF counts document-labeled headings at level 2 or
+    // 3 toward the severity ordinal, so this producer must accept the same
+    // levels) where <label> is the same stripRequired(getSectionLabel(...))
     // string the builders emit; matching against the EDITED editor text (rather
     // than the build-time emission list) is what makes the severity-block slot
     // honour a manual heading deletion in Step 2. The severity slot itself never
     // emits a heading, so it is never in the returned set.
     function parsePresentSectionKeys(orderedKeys, markdown) {
       const headingTexts = {};
-      const re = /^##[ \t]+(.+?)[ \t]*$/gm;
+      const re = /^#{2,3}[ \t]+(.+?)[ \t]*$/gm;
       let m;
       while ((m = re.exec(markdown)) !== null) {
         headingTexts[m[1].trim()] = true;
@@ -1371,6 +1374,7 @@
       window.__exportModalTestHooks.buildFilteredSessionMarkdown = buildFilteredSessionMarkdown;
       window.__exportModalTestHooks.buildSessionMarkdown = buildSessionMarkdown;
       window.__exportModalTestHooks.buildDocumentSectionLabels = buildDocumentSectionLabels;
+      window.__exportModalTestHooks.parsePresentSectionKeys = parsePresentSectionKeys;
     }
   }
 
