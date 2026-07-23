@@ -225,132 +225,139 @@
       // The 3 corresponding i18n keys (session.copy.client/date/type) are
       // intentionally KEPT in the i18n files in case other consumers use them.
 
-      // Issues section (the emotions before/after block): included by default,
-      // but a pre-selected opt-out — the export dialog's Step-1 selection can
-      // exclude it, and this copy builder honours that same live choice (see
-      // emotionsBlockIncluded). Change shown when both before and after exist.
-      // Scale labels are i18n'd ("Before/After/Change", etc.); "Change"
-      // replaces the prior "Delta" wording (too scientific).
+      // Scale labels are i18n'd ("Before/After/Change", etc.); "Change" replaces
+      // the prior "Delta" wording (too scientific).
       const beforeLabel = App.t("session.copy.scale.before");
       const afterLabel = App.t("session.copy.scale.after");
       const changeLabel = App.t("session.copy.scale.change");
-      const issuesPayload = getIssuesPayload();
-      const issuesText = issuesPayload.length
-        ? issuesPayload
-            .map((issue) => {
-              const hasBefore = issue.before !== null && issue.before !== undefined;
-              const hasAfter = issue.after !== null && issue.after !== undefined;
-              const before = hasBefore ? issue.before : "-";
-              const after = hasAfter ? issue.after : "-";
-              if (hasBefore && hasAfter) {
-                const delta = issue.after - issue.before;
-                const sign = delta > 0 ? "+" : "";
-                return `- ${issue.name} — ${beforeLabel}: ${before}, ${afterLabel}: ${after}, ${changeLabel}: ${sign}${delta}`;
-              }
-              return `- ${issue.name} — ${beforeLabel}: ${before}, ${afterLabel}: ${after}`;
-            })
-            .join("\n")
-        : `- ${App.t("session.copy.empty")}`;
-
-      // Collect optional text fields -- only include if non-empty
-      const trappedEl = document.getElementById("trappedEmotions");
-      const limitingBeliefsEl = document.getElementById("limitingBeliefs");
-      const additionalTechEl = document.getElementById("additionalTech");
-      const commentsEl = document.getElementById("sessionComments");
-
-      const trappedValue = (trappedEl ? trappedEl.value : "").trim();
-      const limitingBeliefsValue = (limitingBeliefsEl ? limitingBeliefsEl.value : "").trim();
-      const additionalTechValue = (additionalTechEl ? additionalTechEl.value : "").trim();
-      const insightsValue = (insightsInput ? insightsInput.value : "").trim();
-      const commentsValue = (commentsEl ? commentsEl.value : "").trim();
-      const summaryValue = (customerSummaryInput ? customerSummaryInput.value : "").trim();
-
-      // Heart Shield status for copy
       const heartShieldChecked = heartShieldToggle ? heartShieldToggle.checked : false;
-      const shieldRemovedCopyInput = document.querySelector("input[name='shieldRemoved']:checked");
-      const shieldRemovedCopyValue = shieldRemovedCopyInput ? shieldRemovedCopyInput.value : null;
 
       const lines = [
         `# ${App.t("session.copy.title")}`
       ];
 
-      // Heart shield is its own ## section in the body -- previously a bare
-      // label-and-value line ("**Heart Shield Session** No") that, after **
-      // stripping, displayed as raw text between the title and the issues section,
-      // looking like stray junk. Promoting it to a ## heading + body line aligns
-      // it with every other section's structure. The value line carries
-      // export-only wording (session.export.heartWall.*), NOT the form's bare
-      // Yes/No radio labels: in a document, "No" reads as "not a Heart-Wall
-      // session" when it actually means identified-but-not-released.
-      if (heartShieldChecked) {
-        lines.push(
-          "",
-          `## ${stripRequired(App.getSectionLabel("heartShield", "session.form.heartShield"))}`,
-          shieldRemovedCopyValue === "yes"
-            ? App.t("session.export.heartWall.released")
-            : App.t("session.export.heartWall.notReleased")
-        );
-      }
-
-      // The emotions before/after block is skipped entirely when the current
-      // export dialog's selection excluded it; with no live selection the
-      // default is to include (unchanged behaviour for anyone who never opts
-      // out). Nothing is persisted — the choice resets on every export.
-      if (emotionsBlockIncluded()) {
-        lines.push(
-          "",
-          `## ${stripRequired(App.getSectionLabel("issues", "session.form.issuesHeading"))}`,
-          issuesText
-        );
-      }
-
-      // Heart Shield Emotions (only when Heart Shield is on)
-      const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
-      const heartShieldEmotionsValue = (heartShieldEmotionsEl ? heartShieldEmotionsEl.value : "").trim();
-      if (heartShieldChecked && heartShieldEmotionsValue.length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("heartShieldEmotions", "session.form.heartShieldEmotions"))}`, heartShieldEmotionsValue);
-      }
-
       // Every ## heading is wrapped with stripRequired() so any section label that
-      // ends with the form-required marker "*" (currently
-      // session.form.issuesHeading; potentially others if therapists customize
-      // titles via Settings or new required sections are added) renders without
-      // the literal asterisk leaking into the section title. stripRequired() is
-      // a no-op on labels that don't end with "*", so it's safe to apply
-      // defensively to every heading call site.
-      // Order MUST mirror the add-session form DOM order (data-section-key in
-      // add-session.html): Trapped -> Insights -> Limiting Beliefs -> Additional
-      // Techniques -> Comments -> Next Session. Insights was previously emitted
-      // last, so it sorted after Additional Techniques. The section-order test
-      // suite asserts this invariant.
-      if (trappedValue.length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("trapped", "session.form.trapped"))}`, trappedValue);
-      }
-      if (insightsValue.length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("insights", "session.form.insights"))}`, insightsValue);
-      }
-      if (limitingBeliefsValue.length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("limitingBeliefs", "session.form.limitingBeliefs"))}`, limitingBeliefsValue);
-      }
-      if (additionalTechValue.length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("additionalTech", "session.form.additionalTech"))}`, additionalTechValue);
-      }
-      if (commentsValue.length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("comments", "session.form.comments"))}`, commentsValue);
-      }
-      // Next Session (D-09/NEXT-06): render the formatted next-session date line
-      // (via App.formatDate — the same locale/RTL-aware engine the overview cell
-      // and PDF footer use, honoring portfolioDateFormat) alongside the note. The
-      // gate is now note-OR-date so a date-only session (empty note) still emits
-      // the block; whichever of date/note is present renders. Read straight from
-      // #nextSessionDate (the same source the save path reads at add-session.js).
-      const nextDateRaw = document.getElementById("nextSessionDate")?.value || "";
-      const nextDateFormatted = nextDateRaw ? App.formatDate(nextDateRaw) : "";
-      if (summaryValue.length > 0 || nextDateRaw) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("nextSession", "session.form.nextSession"))}`);
-        if (nextDateFormatted) lines.push(nextDateFormatted);
-        if (summaryValue.length > 0) lines.push(summaryValue);
-      }
+      // ends with the form-required marker "*" renders without the literal
+      // asterisk leaking into the title. stripRequired() is a no-op on labels
+      // that don't end with "*", so it is safe to apply to every heading.
+      const pushSection = (key, body) => {
+        lines.push("", `## ${stripRequired(App.getSectionLabel(key, exportDefaultI18nKey(key)))}`);
+        if (Array.isArray(body)) {
+          body.forEach((b) => { if (b) lines.push(b); });
+        } else if (body) {
+          lines.push(body);
+        }
+      };
+
+      // The clipboard copy emits its sections in the therapist's saved order
+      // (the same page-pinned source the filtered/PDF builder reads), so the two
+      // export paths can never disagree on section sequence. Group names never
+      // appear — the order is flattened to section keys only. Each section is
+      // gated on its own content presence (an empty note emits nothing); the
+      // topic/severity gating mirrors the filtered builder.
+      orderedFormKeys().forEach((key) => {
+        switch (key) {
+          case "afterSeverity":
+            // A clipboard copy has no structural bar block — the before/after
+            // ratings are emitted as text beside the topic names in the Session-
+            // topics section, so this slot itself contributes no heading.
+            return;
+          case "issues": {
+            // Session topics: included unless the open dialog's selection
+            // excluded it (outside a live selection the default is include). With
+            // severity included, a fully-rated topic emits its before/after/change
+            // line; a topic with an unrated (non-numeric) side emits its name
+            // only — a null side is never string-interpolated into a rating line
+            // nor subtracted into a NaN change value. With severity excluded, the
+            // topic NAMES still list, but no rating text appears.
+            if (!emotionsBlockIncluded()) return;
+            const payload = (typeof getIssuesPayload === "function") ? getIssuesPayload() : [];
+            if (payload.length === 0) {
+              pushSection(key, `- ${App.t("session.copy.empty")}`);
+              return;
+            }
+            const withSeverity = severityBlockIncluded();
+            const body = payload.map((issue) => {
+              const name = (issue && issue.name != null) ? String(issue.name) : "";
+              if (withSeverity && typeof issue.before === "number" && typeof issue.after === "number") {
+                const delta = issue.after - issue.before;
+                const sign = delta > 0 ? "+" : "";
+                return `- ${name} — ${beforeLabel}: ${issue.before}, ${afterLabel}: ${issue.after}, ${changeLabel}: ${sign}${delta}`;
+              }
+              return `- ${name}`;
+            }).join("\n");
+            pushSection(key, body);
+            return;
+          }
+          case "heartShield": {
+            // Heart shield is its own ## section. The value line carries
+            // export-only wording (session.export.heartWall.*), NOT the form's
+            // bare Yes/No radio labels: in a document, "No" reads as "not a
+            // Heart-Wall session" when it actually means identified-but-not-
+            // released.
+            if (!heartShieldChecked) return;
+            const shieldRemovedInput = document.querySelector("input[name='shieldRemoved']:checked");
+            const shieldRemovedValue = shieldRemovedInput ? shieldRemovedInput.value : null;
+            pushSection(key, shieldRemovedValue === "yes"
+              ? App.t("session.export.heartWall.released")
+              : App.t("session.export.heartWall.notReleased"));
+            return;
+          }
+          case "heartShieldEmotions": {
+            const el = document.getElementById("heartShieldEmotions");
+            const v = (el ? el.value : "").trim();
+            if (!heartShieldChecked || v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "trapped": {
+            const v = ((document.getElementById("trappedEmotions") || {}).value || "").trim();
+            if (v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "insights": {
+            const v = (insightsInput ? insightsInput.value : "").trim();
+            if (v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "limitingBeliefs": {
+            const v = ((document.getElementById("limitingBeliefs") || {}).value || "").trim();
+            if (v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "additionalTech": {
+            const v = ((document.getElementById("additionalTech") || {}).value || "").trim();
+            if (v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "comments": {
+            const v = ((document.getElementById("sessionComments") || {}).value || "").trim();
+            if (v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "nextSession": {
+            // The formatted next-session date line (App.formatDate — the same
+            // locale/RTL-aware engine the overview cell and PDF footer use,
+            // honoring portfolioDateFormat) renders beside the note. The gate is
+            // note-OR-date so a date-only session (empty note) still emits the
+            // block; whichever of date/note is present renders. Read straight from
+            // #nextSessionDate (the same source the save path reads).
+            const summaryValue = (customerSummaryInput ? customerSummaryInput.value : "").trim();
+            const nextDateRaw = document.getElementById("nextSessionDate")?.value || "";
+            if (summaryValue.length === 0 && !nextDateRaw) return;
+            const nextDateFormatted = nextDateRaw ? App.formatDate(nextDateRaw) : "";
+            pushSection(key, [nextDateFormatted, summaryValue.length > 0 ? summaryValue : ""]);
+            return;
+          }
+          default:
+            return;
+        }
+      });
 
       return lines.join("\n");
     }

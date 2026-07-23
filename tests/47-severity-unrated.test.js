@@ -87,6 +87,14 @@ function buildEnv(opts) {
     },
   };
   if (typeof opts.isSectionEnabled === 'function') appOverrides.isSectionEnabled = opts.isSectionEnabled;
+  // When a test supplies an explicit saved order, expose the same reader pair the
+  // production page pins (App.getSectionOrder + App.flattenOrderKeys) so the
+  // export builders read THAT order instead of the DEFAULT_FLAT_ORDER fallback.
+  if (Array.isArray(opts.orderKeys)) {
+    var _order = opts.orderKeys.slice();
+    appOverrides.getSectionOrder = function () { return _order.slice(); };
+    appOverrides.flattenOrderKeys = function (o) { return (o || _order).slice(); };
+  }
   win.App = createAppStub(appOverrides);
 
   win.PortfolioDB = createMockPortfolioDB({
@@ -309,8 +317,86 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── clipboard-copy builder (buildSessionMarkdown) ───────────────────────────
+  // These drive the REAL copy path directly via the test-hook seam (the copy
+  // button never opens the Step-1 modal, so _exportState stays null and the
+  // include-by-default posture applies). App.t returns the KEY, so a rating line
+  // is detectable by its i18n key 'session.copy.scale.before'.
+  function copyMarkdown(win) {
+    var hooks = win.__exportModalTestHooks;
+    assert.ok(hooks && typeof hooks.buildSessionMarkdown === 'function',
+      '__exportModalTestHooks.buildSessionMarkdown must be exposed (the clipboard copy builder)');
+    return hooks.buildSessionMarkdown();
+  }
+  var RATING_KEY = 'session.copy.scale.before';
+
+  // ─── (h) an unrated topic copies as its NAME ONLY (no rating line, no NaN) ────
+  await test('(h) clipboard: an unrated topic copies as its name only — no rating line for the unrated side, no NaN change line', async function () {
+    var env = buildEnv({ issues: [{ name: 'UNRATED_TOPIC', before: null, after: null }] });
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    var md = copyMarkdown(win);
+    assert.ok(md.indexOf('## issues') !== -1, 'the Session-topics heading must be present in the copy');
+    assert.ok(md.indexOf('- UNRATED_TOPIC') !== -1, 'the unrated topic name must copy');
+    assert.ok(md.indexOf('UNRATED_TOPIC —') === -1,
+      'no rating line (name + em-dash + rating) may be emitted for an unrated topic');
+    assert.ok(md.indexOf(RATING_KEY) === -1, 'no before/after rating label may appear for an unrated topic');
+    assert.ok(md.indexOf('NaN') === -1, 'no NaN change value may ever reach the clipboard');
+
+    env.dom.window.close();
+  });
+
+  // ─── (i) a mutated saved order reorders the copied sections ───────────────────
+  await test('(i) clipboard: a mutated saved order changes the copied section sequence to match flattenOrderKeys(order)', async function () {
+    // Put comments + trapped BEFORE issues in the saved order; both non-default.
+    var order = ['comments', 'trapped', 'issues', 'afterSeverity', 'insights',
+      'heartShield', 'heartShieldEmotions', 'limitingBeliefs', 'additionalTech', 'nextSession'];
+    var env = buildEnv({
+      orderKeys: order,
+      issues: [{ name: 'RATED', before: 5, after: 2 }]
+    });
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    // Give trapped + comments visible content so their sections emit.
+    win.document.getElementById('trappedEmotions').value = 'TRAPPED_BODY';
+    win.document.getElementById('sessionComments').value = 'COMMENTS_BODY';
+
+    var md = copyMarkdown(win);
+    var iComments = md.indexOf('## comments');
+    var iTrapped = md.indexOf('## trapped');
+    var iIssues = md.indexOf('## issues');
+    assert.ok(iComments !== -1 && iTrapped !== -1 && iIssues !== -1,
+      'comments, trapped and issues sections must all be present');
+    assert.ok(iComments < iTrapped && iTrapped < iIssues,
+      'the copied section order must follow the mutated saved order (comments → trapped → issues)');
+
+    env.dom.window.close();
+  });
+
+  // ─── (j) severity switch OFF → topic names copy, zero rating lines ────────────
+  await test('(j) clipboard: with the severity switch off, the copy carries topic names but zero before/after/change lines', async function () {
+    var env = buildEnv({
+      issues: [{ name: 'RATED', before: 9, after: 1 }],
+      isSectionEnabled: function (key) { return key !== 'afterSeverity'; }
+    });
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    var md = copyMarkdown(win);
+    assert.ok(md.indexOf('- RATED') !== -1, 'the topic name still copies when severity is suppressed');
+    assert.ok(md.indexOf('RATED —') === -1, 'no rating line may follow the topic name when severity is off');
+    assert.ok(md.indexOf(RATING_KEY) === -1, 'no before/after rating label may appear when the severity switch is off');
+
+    env.dom.window.close();
+  });
+
   // ─── count guard ─────────────────────────────────────────────────────────────
-  var EXPECTED_COUNT = 6;
+  var EXPECTED_COUNT = 9;
   if (passed + failed !== EXPECTED_COUNT) {
     console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED_COUNT + ' cases to execute, but ' +
       (passed + failed) + ' ran — an async case was silently skipped.');
