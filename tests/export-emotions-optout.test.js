@@ -89,9 +89,20 @@ function buildEnv() {
   // it must return a node; getSeverityValue null keeps the payload shape
   // ({name, before:null, after:null}) — the gating assertions only need the
   // array to be non-empty vs empty.
+  // The severity pair round-trips the seeded before/after through the scale
+  // node's dataset so the topic reads as RATED (8/3) — it must survive the
+  // export's unrated-topic filter to prove the "left checked forwards issues"
+  // path.
   win.App = createAppStub({
-    createSeverityScale: function () { return win.document.createElement('div'); },
-    getSeverityValue: function () { return null; },
+    createSeverityScale: function (initial) {
+      var d = win.document.createElement('div');
+      if (initial !== null && initial !== undefined && initial !== '') d.dataset.value = String(initial);
+      return d;
+    },
+    getSeverityValue: function (node) {
+      var v = node && node.dataset ? node.dataset.value : '';
+      return (v === undefined || v === null || v === '') ? null : Number(v);
+    },
   });
   win.PortfolioDB = createMockPortfolioDB({
     clients: [{ id: 1, name: 'Test Client' }],
@@ -148,7 +159,7 @@ async function test(name, fn) {
 
 (async function () {
   // ─── 1. Pre-selected default + clarified label ─────────────────────────────
-  await test('the emotions before/after row defaults CHECKED (pre-selected) and carries the export.section.emotions label', async function () {
+  await test('the Session topics row defaults CHECKED (pre-selected) and carries the export.section.topics label', async function () {
     var env = buildEnv();
     var win = env.win;
     await env.domHandler();

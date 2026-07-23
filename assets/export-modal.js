@@ -559,10 +559,34 @@
       return true;
     }
 
+    // Whether the end-of-session severity block (the two-bar before/after PDF
+    // block) is included. Three gates, ALL required: the app-level severity
+    // switch is on, Session topics is selected, and the dependent severity
+    // sub-option is checked. When the switch is off, severity is suppressed even
+    // for an old session whose stored ratings carry numbers. Outside a live
+    // selection (dialog closed) the answer follows the switch and the
+    // include-by-default posture, matching emotionsBlockIncluded's default.
+    function severityTrackingEnabled() {
+      return (typeof App.isSectionEnabled === "function") ? App.isSectionEnabled("afterSeverity") : true;
+    }
+    function severityBlockIncluded() {
+      if (!severityTrackingEnabled()) return false;
+      if (_exportState && Array.isArray(_exportState.selectedKeys)) {
+        if (_exportState.selectedKeys.indexOf("issues") === -1) return false;
+        return _exportState.includeSeverity !== false;
+      }
+      return true;
+    }
+
     function exportRenderStep1Rows(sessionData) {
       const container = document.getElementById("exportStep1Rows");
       if (!container) return;
       container.innerHTML = "";
+      // The end-of-session severity item is an app-level switch (its Settings
+      // enable toggle). When off, the dependent severity sub-option is not
+      // offered at all — severity output is suppressed everywhere.
+      const severityTrackingOn = (typeof App.isSectionEnabled === "function")
+        ? App.isSectionEnabled("afterSeverity") : true;
       orderedFormKeys().forEach((key) => {
         // The end-of-session severity item is not a standalone export row — its
         // ratings are offered as a dependent sub-option beneath Session topics
@@ -612,6 +636,45 @@
           row.title = App.t("settings.indicator.disabled");
         }
         container.appendChild(row);
+
+        // Session topics carries a dependent "Include severity before/after"
+        // sub-option: an indented checkbox enabled only while topics is checked,
+        // so selecting severity alone is impossible by construction. It is
+        // offered only while end-of-session severity tracking is on. The
+        // sub-option defaults checked when the session has issue data; toggling
+        // topics off disables + unchecks it, and re-checking topics restores that
+        // data-derived DEFAULT (never the last manual state). Nothing persists —
+        // both reset on every export open.
+        if (key === "issues" && severityTrackingOn) {
+          const subDefault = hasData;
+          const subRow = document.createElement("label");
+          subRow.className = "export-section-row export-suboption-row";
+          subRow.style.paddingInlineStart = "1.75rem";
+
+          const subCb = document.createElement("input");
+          subCb.type = "checkbox";
+          subCb.id = "exportIncludeSeverity";
+          subCb.checked = cb.checked && subDefault;
+          subCb.disabled = !cb.checked;
+
+          const subLabel = document.createElement("span");
+          subLabel.className = "export-section-label";
+          subLabel.textContent = App.t("export.suboption.includeSeverity");
+
+          subRow.appendChild(subCb);
+          subRow.appendChild(subLabel);
+          container.appendChild(subRow);
+
+          cb.addEventListener("change", () => {
+            if (cb.checked) {
+              subCb.disabled = false;
+              subCb.checked = subDefault;
+            } else {
+              subCb.checked = false;
+              subCb.disabled = true;
+            }
+          });
+        }
       });
     }
 
@@ -785,13 +848,22 @@
         // dependency of the export.
         sessionNumber = undefined;
       }
-      // The emotions before/after block is a pre-selected opt-out: when the
-      // Step-1 selection excluded it, forward an EMPTY issues array — the
-      // severity renderer early-returns on an empty list, so the two-bar block
-      // is cleanly omitted without touching any other render logic.
-      const issues = (emotionsBlockIncluded() && typeof getIssuesPayload === "function")
+      // The end-of-session severity block is gated by severityBlockIncluded()
+      // (switch on + topics selected + sub-option checked); when excluded,
+      // forward an EMPTY issues array so the severity renderer early-returns and
+      // the two-bar block is cleanly omitted.
+      //
+      // Unrated omission: keep only topics with at least one numeric rating
+      // (before OR after is a Number). A fully-unrated topic (both sides
+      // non-numeric) is dropped so it contributes no bar row; a partially-rated
+      // topic keeps its row (one filled bar is real information). When zero
+      // topics qualify the array is empty and the block is omitted via the same
+      // empty-array early-return — no empty bars, no dash placeholder. The topic
+      // NAME still exports under Session topics regardless of rating.
+      let issues = (severityBlockIncluded() && typeof getIssuesPayload === "function")
         ? getIssuesPayload()
         : [];
+      issues = issues.filter((it) => it && (typeof it.before === "number" || typeof it.after === "number"));
       const exportedOn = App.formatDate(window.DateFormat.todayLocalISO());
 
       // Change 1 (owner revision): tell the render tier WHERE severity sits in
@@ -973,6 +1045,10 @@
         // advanced — readers treat that as "no selection yet" and fall back to
         // the include-everything-eligible default.
         selectedKeys: null,
+        // The dependent severity sub-option state, captured with the selection.
+        // null until Step 1 is advanced — readers treat that as "no selection
+        // yet" and fall back to the switch-driven default.
+        includeSeverity: null,
         cleanup: null
       };
 
@@ -1045,7 +1121,10 @@
       const collectSelectedKeys = () => {
         const checks = modal.querySelectorAll('#exportStep1Rows input[type="checkbox"]');
         const selected = [];
-        checks.forEach((cb) => { if (cb.checked && !cb.disabled) selected.push(cb.dataset.sectionKey); });
+        // Only section rows carry data-section-key; the severity sub-option does
+        // not, so it never enters the section-key selection (it is read
+        // separately when the selection is captured).
+        checks.forEach((cb) => { if (cb.checked && !cb.disabled && cb.dataset.sectionKey) selected.push(cb.dataset.sectionKey); });
         return selected;
       };
       // Rebuild the editor buffer from a selection: this is the ONE place the
@@ -1065,6 +1144,10 @@
           window.RichToolbar.resetPreview();
         }
         _exportState.selectedKeys = selected;
+        // Capture the dependent severity sub-option state alongside the section
+        // selection so the PDF payload path reads one coherent snapshot.
+        const subCb = document.getElementById("exportIncludeSeverity");
+        _exportState.includeSeverity = subCb ? (subCb.checked && !subCb.disabled) : false;
         const md = buildFilteredSessionMarkdown(selected);
         if (editor) editor.value = md;
         _exportState.generatedMarkdown = md;
