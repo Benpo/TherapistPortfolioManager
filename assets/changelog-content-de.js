@@ -21,6 +21,32 @@
 
   window.CHANGELOG_CONTENT_DE = [
 
+    // v1.5 — Ein Sitzungsformular, das zu Ihrer Arbeitsweise passt
+    {
+      version: "1.5.0",
+      anchor: "v1-5",
+      date: "Juli 2026",
+      lede: "Gestalten Sie das Sitzungsformular nach Ihrer eigenen Arbeitsweise — ordnen Sie jeden Abschnitt per Ziehen oder mit Pfeilen neu, gruppieren und benennen Sie ihn um, und entscheiden Sie, wann Schweregrad-Bewertungen gelten.",
+      highlights: [
+        "Ordnen Sie die Sitzungsabschnitte — durch Ziehen oder mit den Pfeilen nach oben und unten — in die Reihenfolge, in der Sie wirklich arbeiten, und Ihre Exporte folgen derselben Reihenfolge.",
+        "Ein Schalter schaltet die Schweregrad-Bewertungen für die ganze App ein oder aus, und wenn sie an sind, ist jede Bewertung freiwillig.",
+        "Lassen Sie eine Bewertung aus, und sie bleibt aus Ihren Exporten heraus und liest sich sauber in Ihrem Sitzungsverlauf.",
+      ],
+      categories: {
+        new: [
+          "Sitzungsformular neu anordnen: Ziehen Sie einen Abschnitt am Griff oder verschieben Sie ihn mit den Pfeilen nach oben und unten. Verwandte Abschnitte liegen in Gruppen, die Sie umbenennen können, und ein ausgeschalteter Abschnitt behält seinen Platz, sodass er genau dort zurückkehrt, wo er war.",
+          "Reihenfolge zurücksetzen und Namen zurücksetzen stellen die Abschnitte und ihre Titel auf die Standardwerte zurück, wann immer Sie einen sauberen Anfang möchten.",
+          "Ein einziger Schweregrad-Schalter schaltet alle Bewertungen davor und danach in der ganzen App ein oder aus.",
+        ],
+        improved: [
+          "Schweregrad-Bewertungen sind jetzt freiwillig — tippen Sie eine Bewertung erneut an, um sie wieder auf unbewertet zu setzen. Ein unbewertetes Anliegen behält seinen Namen; es trägt einfach keine Zahlen.",
+          "Die Reihenfolge, die Sie für Ihre Abschnitte festlegen, spiegelt sich in jedem Export wider.",
+          "Exporte lassen Sie Ihre Sitzungsthemen mit oder ohne die Schweregrad-Bewertungen einschließen.",
+          "Ein unbewertetes Anliegen bleibt aus Ihren Exporten heraus und erscheint nur mit seinem Namen in Ihrem Sitzungsverlauf und in der Klientenübersicht.",
+        ],
+      },
+    },
+
     // v1.4 — Richer Sessions: formatting your notes, and notes that keep their shape
     {
       version: "1.4.0",

@@ -54,7 +54,22 @@
               "Zapněte nebo vypněte jednotlivé sekce sezení, aby formulář sezení zobrazoval jen ty části, se kterými skutečně pracujete.",
               "Stiskněte {ui:settings.action.save}, abyste své změny uložili."
             ] },
-            { type: "note", text: "Tím se změní to, co vidíte všude, kde zaznamenáváte sezení — nic se nikdy nesmaže, takže můžete sekci kdykoli znovu zapnout." }
+            { type: "note", text: "Tím se změní to, co vidíte všude, kde zaznamenáváte sezení — nic se nikdy nesmaže. Vypnutá sekce si ponechá své místo v seznamu, takže se po opětovném zapnutí vrátí přesně tam, kde byla." }
+          ]
+        },
+        {
+          id: "topic-reordering",
+          title: "Změna pořadí sekcí",
+          priority: 1,
+          body: [
+            { type: "p", text: "Seřaďte sekce sezení do pořadí, ve kterém skutečně pracujete. Stejné pořadí přejde do formuláře sezení i do exportů." },
+            { type: "steps", items: [
+              "Otevřete Nastavení a přejděte na {ui:settings.tab.fields}.",
+              "Přetáhněte sekci za úchyt nebo ji přesuňte šipkami nahoru a dolů.",
+              "Související sekce jsou ve skupině, kterou lze přejmenovat — přetažením skupiny ji přesunete jako celek.",
+              "Stiskněte {ui:settings.action.save}, abyste nové pořadí uložili."
+            ] },
+            { type: "note", text: "{ui:settings.reset.order.label} obnoví výchozí pořadí a {ui:settings.reset.names.label} obnoví výchozí názvy — vašich sezení se to nikdy nedotkne." }
           ]
         },
         {
@@ -62,7 +77,8 @@
           title: "Přejmenování sekcí",
           priority: 2,
           body: [
-            { type: "p", text: "V {ui:settings.tab.fields} můžete většinu sekcí sezení přejmenovat přesně na slova, která používáte se svými klienty, aby formulář mluvil vaším jazykem. Několik pevných sekcí si své názvy ponechává, přesto je však můžete vypnout." }
+            { type: "p", text: "V {ui:settings.tab.fields} můžete většinu sekcí sezení přejmenovat přesně na slova, která používáte se svými klienty, aby formulář mluvil vaším jazykem. Přejmenovat lze i skupiny, které sdružují související sekce. Několik pevných sekcí si své názvy ponechává, přesto je však můžete vypnout." },
+            { type: "note", text: "Rozmysleli jste si to? {ui:settings.reset.names.label} vrátí každý název sekce i skupiny na výchozí hodnoty." }
           ]
         },
         {
@@ -266,12 +282,26 @@
           title: "Hodnocení před a po",
           priority: 1,
           body: [
-            { type: "p", text: "Hodnocení každého problému před prací a po ní ukazuje změnu v čase, v klientových vlastních číslech." },
+            { type: "p", text: "Hodnocení každého problému před prací a po ní ukazuje změnu v čase, v klientových vlastních číslech. Hodnocení jsou nepovinná — problém zůstává bez hodnocení, dokud nezadáte číslo." },
             { type: "steps", items: [
               "Pojmenujte problém v {ui:session.form.issueName}.",
-              "Na začátku nastavte {ui:session.form.beforeSeverity} na stupnici 0 až 10.",
+              "Na začátku nastavte {ui:session.form.severityAtStart} na stupnici 0 až 10.",
               "Na konci sezení nastavte {ui:session.form.afterSeverity} pro tentýž problém."
-            ] }
+            ] },
+            { type: "note", text: "Klepnutím na hodnocení znovu jej vymažete zpět na bez hodnocení — vymazáním počátečního hodnocení se s ním vymaže i závěrečné hodnocení daného problému. Problém bez hodnocení zůstává mimo vaše exporty a v historii sezení se zobrazuje jen svým názvem." }
+          ]
+        },
+        {
+          id: "topic-turn-off",
+          title: "Vypnutí hodnocení závažnosti",
+          priority: 1,
+          body: [
+            { type: "p", text: "Nehodnotíte závažnost? Jeden přepínač ji všude skryje. V Nastavení, pod {ui:settings.tab.fields}, je řádek {ui:settings.row.afterSeverity.label} jediným přepínačem pro všechna hodnocení závažnosti." },
+            { type: "list", items: [
+              "Zapnuto — každý problém dostane na začátku hodnocení a objeví se sekce hodnocení na konci sezení.",
+              "Vypnuto — obojí zmizí; problémy samotné zůstávají, jen nezaznamenáváte žádná čísla."
+            ] },
+            { type: "note", text: "Přetáhněte tento řádek, abyste zvolili, kde hodnocení na konci sezení ve formuláři sedí — stejná poloha určuje, kde se objeví ve vašich exportech." }
           ]
         },
         {
@@ -279,7 +309,7 @@
           title: "Více problémů",
           priority: 2,
           body: [
-            { type: "p", text: "Pracujete v sezení na více než jedné věci? Zvolte {ui:session.form.addIssue} pro sledování dalšího problému — až tři na sezení, každý s vlastním hodnocením před a po." }
+            { type: "p", text: "Pracujete v sezení na více než jedné věci? Zvolte {ui:session.form.addIssue} pro sledování dalšího problému — až tři na sezení. Každý může nést vlastní hodnocení před a po, a každý problém, který necháte bez hodnocení, se jednoduše zobrazí svým názvem v historii sezení a v přehledu klienta." }
           ]
         },
         {
@@ -306,11 +336,12 @@
             { type: "p", text: "Když je sezení dokončeno, můžete svému klientovi odeslat krásně formátovanou kopii nebo ji uložit do svých vlastních záznamů." },
             { type: "steps", items: [
               "Otevřete uložené sezení a zvolte {ui:session.export}.",
-              "Zvolte, které části sezení zahrnout. Hodnocení emocí před a po jsou předvybraná — odškrtněte je, pokud chcete hodnocení závažnosti z tohoto exportu vynechat.",
+              "Zvolte, které části sezení zahrnout — pod {ui:export.section.topics} můžete také zvolit, zda se hodnocení závažnosti přidají.",
               "Zkontrolujte — a lehce upravte — co bude sdíleno.",
               "Zvolte {ui:export.download.pdf} pro uhlazený dokument, nebo {ui:export.download.text} pro uložení poznámek jako prostý textový soubor."
             ] },
             { type: "list", items: [
+              "Vaše sekce se zobrazí v pořadí, které jste nastavili v Nastavení.",
               "Panel formátování zůstává připnutý nad editorem — nikdy neodroluje pryč.",
               "Maximalizovat editor mu dá celé okno; dalším stisknutím jej vrátíte. Na telefonu vyplní obrazovku.",
               "Úpravy zde tvarují pouze tento export — nic se neukládá zpět do sezení.",
@@ -328,6 +359,7 @@
           body: [
             { type: "p", text: "PDF je nejlepší pro odeslání hotového, dobře vypadajícího dokumentu vašemu klientovi. Prostý text je nejlepší, když chcete poznámky uchovat ve svých vlastních záznamech nebo je přenést do jiné aplikace." },
             { type: "p", text: "PDF zachová formátování vašich poznámek — tučné písmo, seznamy, nadpisy a odsazení — jako formátovaný text, zatímco prostý textový soubor uchová poznámky přesně tak, jak jste je napsali." },
+            { type: "p", text: "Tak či onak sekce vyjdou v pořadí, které jste nastavili v Nastavení, a hodnocení závažnosti sedí tam, kam ta sekce ve vašem pořadí spadá. Pokud při úpravách smažete nadpis sekce, blok závažnosti se odpovídajícím způsobem posune nahoru." },
             { type: "p", text: "Nejste si jisti, co se pro tuto chvíli hodí? V kroku úprav přepněte editor na Náhled — orámovaný pohled ukáže hotový dokument přesně tak, jak se bude číst — a rozhodněte se před exportem." }
           ]
         }
@@ -395,6 +427,7 @@
               "Uchovejte tento soubor na bezpečném místě, například na externím disku nebo ve svém vlastním cloudovém úložišti.",
               "Chcete-li získat svá data zpět, otevřete stejný panel, stiskněte {ui:backup.action.import} a vyberte svůj soubor zálohy."
             ] },
+            { type: "note", text: "Obnovení vrátí vaše pořadí sekcí a názvy skupin spolu s vašimi klienty a sezeními." },
             { type: "note", text: "Ikona cloudu v záhlaví ukazuje, jak nedávno jste naposledy zálohovali — jemné pobídnutí, když je opět čas." }
           ]
         },

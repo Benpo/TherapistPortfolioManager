@@ -54,7 +54,22 @@
               "Schalten Sie einzelne Sitzungsabschnitte ein oder aus, sodass das Sitzungsformular nur die Teile zeigt, mit denen Sie wirklich arbeiten.",
               "Drücken Sie {ui:settings.action.save}, um Ihre Änderungen zu behalten."
             ] },
-            { type: "note", text: "Das ändert, was Sie überall dort sehen, wo Sie eine Sitzung festhalten — nichts wird jemals gelöscht, sodass Sie einen Abschnitt jederzeit wieder einschalten können." }
+            { type: "note", text: "Das ändert, was Sie überall dort sehen, wo Sie eine Sitzung festhalten — nichts wird jemals gelöscht. Ein ausgeschalteter Abschnitt behält seinen Platz in der Liste, sodass er beim Wiedereinschalten genau dort zurückkehrt, wo er war." }
+          ]
+        },
+        {
+          id: "topic-reordering",
+          title: "Abschnitte neu anordnen",
+          priority: 1,
+          body: [
+            { type: "p", text: "Bringen Sie die Sitzungsabschnitte in die Reihenfolge, in der Sie wirklich arbeiten. Dieselbe Reihenfolge fließt in das Sitzungsformular und in Ihre Exporte." },
+            { type: "steps", items: [
+              "Öffnen Sie die Einstellungen und gehen Sie zu {ui:settings.tab.fields}.",
+              "Ziehen Sie einen Abschnitt am Griff oder verschieben Sie ihn mit den Pfeilen nach oben und unten.",
+              "Verwandte Abschnitte liegen in einer Gruppe, die Sie umbenennen können — ziehen Sie die Gruppe, um sie als Ganzes zu verschieben.",
+              "Drücken Sie {ui:settings.action.save}, um die neue Reihenfolge zu behalten."
+            ] },
+            { type: "note", text: "{ui:settings.reset.order.label} stellt die Standardreihenfolge wieder her und {ui:settings.reset.names.label} die Standardnamen — Ihre Sitzungen werden dabei nie berührt." }
           ]
         },
         {
@@ -62,7 +77,8 @@
           title: "Abschnitte umbenennen",
           priority: 2,
           body: [
-            { type: "p", text: "In {ui:settings.tab.fields} können Sie die meisten Sitzungsabschnitte in genau die Worte umbenennen, die Sie mit Ihren Klienten verwenden, sodass das Formular Ihre Sprache spricht. Einige feste Abschnitte behalten ihre Namen, doch Sie können sie trotzdem ausschalten." }
+            { type: "p", text: "In {ui:settings.tab.fields} können Sie die meisten Sitzungsabschnitte in genau die Worte umbenennen, die Sie mit Ihren Klienten verwenden, sodass das Formular Ihre Sprache spricht. Auch die Gruppen, die verwandte Abschnitte zusammenfassen, lassen sich umbenennen. Einige feste Abschnitte behalten ihre Namen, doch Sie können sie trotzdem ausschalten." },
+            { type: "note", text: "Anders überlegt? {ui:settings.reset.names.label} setzt jeden Abschnitts- und Gruppennamen auf die Standardwerte zurück." }
           ]
         },
         {
@@ -266,12 +282,26 @@
           title: "Bewertungen davor und danach",
           priority: 1,
           body: [
-            { type: "p", text: "Jedes Anliegen vor und nach der Arbeit zu bewerten zeigt die Veränderung über die Zeit, in den eigenen Zahlen des Klienten." },
+            { type: "p", text: "Jedes Anliegen vor und nach der Arbeit zu bewerten zeigt die Veränderung über die Zeit, in den eigenen Zahlen des Klienten. Bewertungen sind freiwillig — ein Anliegen bleibt unbewertet, bis Sie eine Zahl setzen." },
             { type: "steps", items: [
               "Geben Sie dem Anliegen einen Namen in {ui:session.form.issueName}.",
-              "Setzen Sie {ui:session.form.beforeSeverity} zu Beginn auf einer Skala von 0 bis 10.",
+              "Setzen Sie {ui:session.form.severityAtStart} zu Beginn auf einer Skala von 0 bis 10.",
               "Setzen Sie am Ende der Sitzung {ui:session.form.afterSeverity} für dasselbe Anliegen."
-            ] }
+            ] },
+            { type: "note", text: "Tippen Sie eine Bewertung erneut an, um sie wieder auf unbewertet zu setzen — wird die Anfangsbewertung gelöscht, entfällt damit auch die Endbewertung dieses Anliegens. Ein unbewertetes Anliegen bleibt aus Ihren Exporten heraus und erscheint nur mit seinem Namen in Ihrem Sitzungsverlauf." }
+          ]
+        },
+        {
+          id: "topic-turn-off",
+          title: "Schweregrad-Bewertungen ausschalten",
+          priority: 1,
+          body: [
+            { type: "p", text: "Bewerten Sie den Schweregrad nicht? Ein Schalter blendet ihn überall aus. In den Einstellungen, unter {ui:settings.tab.fields}, ist die Zeile {ui:settings.row.afterSeverity.label} ein einziger Schalter für alle Schweregrad-Bewertungen." },
+            { type: "list", items: [
+              "Ein — jedes Anliegen erhält zu Beginn eine Bewertung, und der Abschnitt mit den Bewertungen am Sitzungsende erscheint.",
+              "Aus — beide verschwinden; die Anliegen selbst bleiben, Sie halten nur keine Zahlen fest."
+            ] },
+            { type: "note", text: "Ziehen Sie diese Zeile, um zu wählen, wo die Bewertungen am Sitzungsende im Formular sitzen — dieselbe Position bestimmt, wo sie in Ihren Exporten erscheinen." }
           ]
         },
         {
@@ -279,7 +309,7 @@
           title: "Mehrere Anliegen",
           priority: 2,
           body: [
-            { type: "p", text: "Arbeiten Sie in einer Sitzung an mehr als einer Sache? Wählen Sie {ui:session.form.addIssue}, um ein weiteres Anliegen zu verfolgen — bis zu drei pro Sitzung, jedes mit eigenen Bewertungen davor und danach." }
+            { type: "p", text: "Arbeiten Sie in einer Sitzung an mehr als einer Sache? Wählen Sie {ui:session.form.addIssue}, um ein weiteres Anliegen zu verfolgen — bis zu drei pro Sitzung. Jedes kann eigene Bewertungen davor und danach tragen, und jedes Anliegen, das Sie unbewertet lassen, erscheint einfach mit seinem Namen in Ihrem Sitzungsverlauf und in der Klientenübersicht." }
           ]
         },
         {
@@ -306,11 +336,12 @@
             { type: "p", text: "Wenn eine Sitzung abgeschlossen ist, können Sie eine wunderschön formatierte Kopie an Ihren Klienten senden oder sie in Ihren eigenen Unterlagen ablegen." },
             { type: "steps", items: [
               "Öffnen Sie die gespeicherte Sitzung und wählen Sie {ui:session.export}.",
-              "Wählen Sie, welche Teile der Sitzung enthalten sein sollen. Die Emotions-Bewertungen davor und danach sind vorausgewählt — wählen Sie sie ab, um die Schweregrad-Bewertungen aus diesem Export herauszulassen.",
+              "Wählen Sie, welche Teile der Sitzung enthalten sein sollen — unter {ui:export.section.topics} können Sie auch wählen, ob die Schweregrad-Bewertungen mitkommen.",
               "Überprüfen — und bearbeiten Sie leicht — was geteilt wird.",
               "Wählen Sie {ui:export.download.pdf} für ein poliertes Dokument oder {ui:export.download.text}, um die Notizen als einfache Textdatei zu speichern."
             ] },
             { type: "list", items: [
+              "Ihre Abschnitte erscheinen in der Reihenfolge, die Sie in den Einstellungen festgelegt haben.",
               "Die Formatierungsleiste bleibt über dem Editor angeheftet — sie scrollt nie weg.",
               "Editor maximieren gibt dem Editor das ganze Fenster; erneutes Drücken stellt ihn wieder her. Auf einem Telefon füllt er den Bildschirm.",
               "Änderungen hier formen nur diesen Export — nichts wird in die Sitzung zurückgespeichert.",
@@ -328,6 +359,7 @@
           body: [
             { type: "p", text: "PDF eignet sich am besten, um ein fertiges, gut aussehendes Dokument an Ihren Klienten zu senden. Einfacher Text eignet sich am besten, wenn Sie die Notizen in Ihren eigenen Unterlagen behalten oder in eine andere App bringen möchten." },
             { type: "p", text: "Das PDF bewahrt Ihre Notiz-Formatierung — fett, Listen, Überschriften und Einzüge — als formatierten Text, während die Textdatei Ihre Notizen genau so behält, wie Sie sie getippt haben." },
+            { type: "p", text: "So oder so kommen die Abschnitte in der Reihenfolge heraus, die Sie in den Einstellungen festgelegt haben, und die Schweregrad-Bewertungen sitzen dort, wo dieser Abschnitt in Ihrer Reihenfolge fällt. Wenn Sie beim Bearbeiten eine Abschnittsüberschrift löschen, rückt der Schweregrad-Block entsprechend nach oben." },
             { type: "p", text: "Nicht sicher, was zum Moment passt? Stellen Sie den Editor im Bearbeitungsschritt auf Vorschau — die gerahmte Ansicht zeigt das fertige Dokument genau so, wie es sich lesen wird — und entscheiden Sie, bevor Sie exportieren." }
           ]
         }
@@ -395,6 +427,7 @@
               "Bewahren Sie diese Datei an einem sicheren Ort auf, etwa auf einer externen Festplatte oder Ihrem eigenen Cloud-Speicher.",
               "Um Ihre Daten zurückzuholen, öffnen Sie dasselbe Panel, drücken Sie {ui:backup.action.import} und wählen Sie Ihre Backup-Datei."
             ] },
+            { type: "note", text: "Eine Wiederherstellung holt Ihre Abschnittsreihenfolge und Gruppennamen zusammen mit Ihren Klienten und Sitzungen zurück." },
             { type: "note", text: "Das Wolkensymbol in der Kopfzeile zeigt, wie kürzlich Sie zuletzt gesichert haben — ein sanfter Anstoß, wenn es wieder Zeit ist." }
           ]
         },

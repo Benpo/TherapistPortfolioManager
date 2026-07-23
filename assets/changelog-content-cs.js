@@ -22,6 +22,32 @@
 
   window.CHANGELOG_CONTENT_CS = [
 
+    // v1.5 — Formulář sezení přizpůsobený vašemu způsobu práce
+    {
+      version: "1.5.0",
+      anchor: "v1-5",
+      date: "červenec 2026",
+      lede: "Přizpůsobte formulář sezení svému vlastnímu způsobu práce — seřaďte každou sekci přetažením nebo šipkami, seskupte ji a přejmenujte a rozhodněte, kdy platí hodnocení závažnosti.",
+      highlights: [
+        "Seřaďte sekce sezení — přetažením nebo šipkami nahoru a dolů — do pořadí, ve kterém skutečně pracujete, a vaše exporty budou následovat stejné pořadí.",
+        "Jeden přepínač zapíná nebo vypíná hodnocení závažnosti pro celou aplikaci, a když jsou zapnutá, každé hodnocení je nepovinné.",
+        "Vynechte hodnocení a zůstane mimo vaše exporty a čte se přehledně v historii sezení.",
+      ],
+      categories: {
+        new: [
+          "Změna pořadí formuláře sezení: přetáhněte sekci za úchyt nebo ji přesuňte šipkami nahoru a dolů. Související sekce jsou ve skupinách, které lze přejmenovat, a vypnutá sekce si ponechá své místo, takže se vrátí přesně tam, kde byla.",
+          "Obnovit pořadí a Obnovit názvy vrátí sekce a jejich názvy na výchozí hodnoty, kdykoli chcete čistý začátek.",
+          "Jediný přepínač závažnosti zapíná nebo vypíná všechna hodnocení před a po v celé aplikaci.",
+        ],
+        improved: [
+          "Hodnocení závažnosti jsou nyní nepovinná — klepnutím na hodnocení znovu jej vymažete zpět na bez hodnocení. Problém bez hodnocení si ponechá svůj název; jen nenese žádná čísla.",
+          "Pořadí, které pro své sekce nastavíte, se odráží v každém exportu.",
+          "Exporty vám umožní zahrnout témata sezení s hodnocením závažnosti nebo bez něj.",
+          "Problém bez hodnocení zůstává mimo vaše exporty a zobrazuje se jen svým názvem v historii sezení a v přehledu klienta.",
+        ],
+      },
+    },
+
     // v1.4 — Richer Sessions: formatting your notes, and notes that keep their shape
     {
       version: "1.4.0",
