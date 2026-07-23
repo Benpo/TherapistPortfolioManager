@@ -1163,6 +1163,16 @@ window.BackupManager = (function () {
     // sectionOrder sentinel (every ALLOWED_SECTION_KEYS entry is a legal order
     // key; anything else in a crafted order is dropped before it can be stored).
     var KNOWN_ORDER_KEYS = new Set(ALLOWED_SECTION_KEYS);
+    // Legitimate group ids are exactly the keys of App.GROUP_DEFAULT_TITLE_KEYS
+    // (the one group-id → default-title map). A group item carrying any other
+    // id is dropped whole on restore — a crafted backup could otherwise inject
+    // an arbitrary group id that renders a broken, titleless header. The
+    // dropped group's member KEYS are not lost: the sanitizer's append-missing
+    // pass re-inserts them at their default slots. The literal fallback mirrors
+    // that map for the (defensive) case where App is not loaded here.
+    var KNOWN_GROUP_IDS = (window.App && window.App.GROUP_DEFAULT_TITLE_KEYS)
+      ? new Set(Object.keys(window.App.GROUP_DEFAULT_TITLE_KEYS))
+      : new Set(["emotionsTech", "wrapup"]);
     for (var k = 0; k < manifest.therapistSettings.length; k++) {
       var rec = manifest.therapistSettings[k];
       if (!rec || typeof rec !== "object" || typeof rec.sectionKey !== "string") {
@@ -1182,7 +1192,8 @@ window.BackupManager = (function () {
           // Session topics) or arbitrary section keys that would then drive the
           // form/export. Neutralize BEFORE storing, in two steps:
           //   1) key-allow-list every item against the known order keys — drop
-          //      unknown top-level sections and unknown group members;
+          //      unknown top-level sections, unknown group ids (whole group),
+          //      and unknown group members;
           //   2) clamp the result through the ONE shared validator so the
           //      severity item can never precede topics and any missing known
           //      section is re-appended at its default slot.
@@ -1193,6 +1204,7 @@ window.BackupManager = (function () {
               return KNOWN_ORDER_KEYS.has(it.key) ? { type: "section", key: it.key } : null;
             }
             if (it.type === "group") {
+              if (!KNOWN_GROUP_IDS.has(it.id)) return null;
               var members = (Array.isArray(it.members) ? it.members : [])
                 .filter(function (m) { return KNOWN_ORDER_KEYS.has(m); });
               return {

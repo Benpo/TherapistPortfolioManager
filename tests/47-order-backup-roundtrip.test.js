@@ -214,6 +214,38 @@ async function test(name, fn) {
     assert.ok(topKeys(rec.items).indexOf('issues') !== -1, 'known keys retained');
   });
 
+  await test('a crafted order carrying a bogus GROUP id drops that group but keeps every legitimate section key', async function () {
+    // The bogus group carries two LEGITIMATE member keys pulled out of
+    // emotionsTech, so this also proves the members of a dropped group are not
+    // lost — they re-enter via the sanitizer's append-missing pass.
+    var CRAFTED = [
+      { type: 'section', key: 'issues' },
+      { type: 'group', id: '__evilGroup__', titleOverride: 'Injected',
+        members: ['trapped', 'insights'] },
+      { type: 'group', id: 'emotionsTech', titleOverride: null,
+        members: ['heartShield', 'heartShieldEmotions', 'limitingBeliefs', 'additionalTech'] },
+      { type: 'section', key: 'afterSeverity' },
+      { type: 'group', id: 'wrapup', titleOverride: null, members: ['comments', 'nextSession'] },
+    ];
+    var env = await roundTrip([{ sectionKey: 'sectionOrder', version: 1, items: CRAFTED }]);
+    var rec = await env.db.getSectionOrderRecord();
+    assert.ok(rec, 'sentinel written');
+    var groupIds = rec.items
+      .filter(function (o) { return o.type === 'group'; })
+      .map(function (o) { return o.id; });
+    assert.ok(groupIds.indexOf('__evilGroup__') === -1,
+      'a group id outside the known set must be dropped on restore; got ' + JSON.stringify(groupIds));
+    var flat = env.App.flattenOrderKeys(rec.items);
+    ['issues', 'heartShield', 'heartShieldEmotions', 'trapped', 'insights',
+      'limitingBeliefs', 'additionalTech', 'afterSeverity', 'comments', 'nextSession'
+    ].forEach(function (k) {
+      assert.ok(flat.indexOf(k) !== -1,
+        'legitimate section key "' + k + '" must survive the dropped group; got ' + JSON.stringify(flat));
+    });
+    assert.strictEqual(new Set(flat).size, flat.length,
+      'no section key may be duplicated after the re-append; got ' + JSON.stringify(flat));
+  });
+
   await test('a manifest with NO sectionOrder record restores cleanly → default order', async function () {
     var env = await roundTrip([]); // no sectionOrder row
     var rec = await env.db.getSectionOrderRecord();
@@ -224,7 +256,7 @@ async function test(name, fn) {
   });
 
   // ── Count guard — no vacuous green ─────────────────────────────────────────
-  var EXPECTED = 5;
+  var EXPECTED = 6;
   if (passed + failed !== EXPECTED) {
     console.log('  FAIL  count guard: expected ' + EXPECTED + ' tests, ran ' + (passed + failed));
     failed++;
