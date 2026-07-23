@@ -324,7 +324,7 @@ Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). 
   3. The saved order drives BOTH the markdown and PDF export builders — `severityAfterSections` included — repointed atomically with the 260615 guard-test rewrite so export order can never briefly diverge from the saved order.
   4. The chosen order persists per therapist (a `therapistSettings` sentinel record, mirroring the `snippetsDeletedSeeds` pattern) and survives an encrypted backup round-trip.
 
-**Plans**: 7/10 plans executed
+**Plans**: 8/10 plans executed
 **UI hint**: yes
 
 Plans:
@@ -344,7 +344,7 @@ Plans:
 
 **Wave 3** (second add-session pass + clipboard/PDF-placement export split — after the restructure)
 
-- [ ] 47-07-PLAN.md — Severity form semantics: unrated-aware readers, end-of-session-rating auto-hide when unrated (D-22), severity-off column coupling, "Severity at start" label [ORDR-06, ORDR-07]
+- [x] 47-07-PLAN.md — Severity form semantics: unrated-aware readers, end-of-session-rating auto-hide when unrated (D-22), severity-off column coupling, "Severity at start" label [ORDR-06, ORDR-07]
 - [ ] 47-09-PLAN.md — Export split from 47-05 (sequential on export-modal.js): clipboard buildSessionMarkdown saved-order + unrated omission (D-21) + edit-aware severity-block placement (G-8) [ORDR-04, ORDR-07]
 
 **Wave 4** (planner-owned docs pass, D-18 — Ben reviews copy)
@@ -439,5 +439,5 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
 | 45. Rich-Text Rendering & Export Foundation | v1.4 | 8/8 | Complete    | 2026-07-13 |
 | 46. Rich-Text Toolbar Editor | v1.4 | 16/17 | Complete    | 2026-07-17 |
-| 47. Session-Section Reordering | v1.4 | 7/10 | In Progress|  |
+| 47. Session-Section Reordering | v1.4 | 8/10 | In Progress|  |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
