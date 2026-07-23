@@ -35,13 +35,12 @@
       categories: {
         new: [
           "Sitzungsformular neu anordnen: Ziehen Sie einen Abschnitt am Griff oder verschieben Sie ihn mit den Pfeilen nach oben und unten. Verwandte Abschnitte liegen in Gruppen, die Sie umbenennen können, und ein ausgeschalteter Abschnitt behält seinen Platz, sodass er genau dort zurückkehrt, wo er war.",
-          "Reihenfolge zurücksetzen und Namen zurücksetzen stellen die Abschnitte und ihre Titel auf die Standardwerte zurück, wann immer Sie einen sauberen Anfang möchten.",
           "Ein einziger Schweregrad-Schalter schaltet alle Bewertungen davor und danach in der ganzen App ein oder aus.",
         ],
         improved: [
           "Schweregrad-Bewertungen sind jetzt freiwillig — tippen Sie eine Bewertung erneut an, um sie wieder auf unbewertet zu setzen. Ein unbewertetes Anliegen behält seinen Namen; es trägt einfach keine Zahlen.",
           "Die Reihenfolge, die Sie für Ihre Abschnitte festlegen, spiegelt sich in jedem Export wider.",
-          "Exporte lassen Sie Ihre Sitzungsthemen mit oder ohne die Schweregrad-Bewertungen einschließen.",
+          "Sitzungsthemen sind jetzt eine eigene Wahl im Export, mit den Bewertungen davor und danach als gekoppelte Unteroption darunter — angeboten, solange die Schweregrad-Bewertungen der App eingeschaltet sind.",
           "Ein unbewertetes Anliegen bleibt aus Ihren Exporten heraus und erscheint nur mit seinem Namen in Ihrem Sitzungsverlauf und in der Klientenübersicht.",
         ],
       },

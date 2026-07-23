@@ -83,13 +83,12 @@
       categories: {
         new: [
           "Reorder the session form: drag a section by its handle or move it with the up and down arrows. Related sections sit in groups you can rename, and turning a section off keeps its place so it returns exactly where it was.",
-          "Reset order and Reset names put the sections and their titles back to the defaults whenever you want a clean slate.",
           "A single Issue severity switch turns all before-and-after ratings on or off across the whole app.",
         ],
         improved: [
           "Severity ratings are now optional — tap a rating again to clear it back to unrated. An unrated topic keeps its name; it just carries no numbers.",
           "The order you set for your sections is mirrored in every export.",
-          "Exports let you include your session topics with or without the severity ratings.",
+          "Session topics are now their own choice in an export, with the before-and-after ratings as a linked sub-option beneath them — offered whenever the app's severity ratings are switched on.",
           "An unrated topic is left out of your exports and shows its name only in your session history and client overview.",
         ],
       },

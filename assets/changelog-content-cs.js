@@ -36,13 +36,12 @@
       categories: {
         new: [
           "Změna pořadí formuláře sezení: přetáhněte sekci za úchyt nebo ji přesuňte šipkami nahoru a dolů. Související sekce jsou ve skupinách, které lze přejmenovat, a vypnutá sekce si ponechá své místo, takže se vrátí přesně tam, kde byla.",
-          "Obnovit pořadí a Obnovit názvy vrátí sekce a jejich názvy na výchozí hodnoty, kdykoli chcete čistý začátek.",
           "Jediný přepínač závažnosti zapíná nebo vypíná všechna hodnocení před a po v celé aplikaci.",
         ],
         improved: [
           "Hodnocení závažnosti jsou nyní nepovinná — klepnutím na hodnocení znovu jej vymažete zpět na bez hodnocení. Problém bez hodnocení si ponechá svůj název; jen nenese žádná čísla.",
           "Pořadí, které pro své sekce nastavíte, se odráží v každém exportu.",
-          "Exporty vám umožní zahrnout témata sezení s hodnocením závažnosti nebo bez něj.",
+          "Témata sezení jsou nyní v exportu samostatnou volbou a hodnocení před a po se k nim připojují jako navázaná dílčí volba pod nimi — nabízená vždy, když jsou hodnocení závažnosti v aplikaci zapnutá.",
           "Problém bez hodnocení zůstává mimo vaše exporty a zobrazuje se jen svým názvem v historii sezení a v přehledu klienta.",
         ],
       },
