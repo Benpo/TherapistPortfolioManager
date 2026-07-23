@@ -148,6 +148,21 @@ async function saveAndSettle(win) {
   await settle();
 }
 
+// Construct a real PointerEvent in the jsdom window (jsdom exposes the ctor and
+// carries pointerId + clientX/clientY, but does NOT implement pointer capture —
+// tests spy on setPointerCapture/releasePointerCapture to observe capture state).
+function pev(win, type, props) {
+  return new win.PointerEvent(type, Object.assign({ bubbles: true, cancelable: true }, props || {}));
+}
+
+// Install capture spies on a handle (jsdom has no native pointer capture) so a
+// test can assert the drag both captured and later released the pointer.
+function spyCapture(handle) {
+  handle.__captured = null;
+  handle.setPointerCapture = function (id) { handle.__captured = id; };
+  handle.releasePointerCapture = function (id) { if (handle.__captured === id) handle.__captured = null; };
+}
+
 var passed = 0, failed = 0;
 async function test(name, fn) {
   try { await fn(); console.log('  PASS  ' + name); passed++; }
@@ -275,8 +290,89 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── E. Highlight cleanup + capture release on cancel AND lost-capture ────
+  // Guards G1's stuck-highlight: after a drag ends by pointercancel or by
+  // lostpointercapture (the paths WebKit fires when it steals the gesture), the
+  // row must not keep the .dragging highlight and the pointer capture must be
+  // released. A regression to cleaning up only in onUp would leave .dragging
+  // stuck on both paths and FAIL here.
+  await test('a drag ended by pointercancel or lostpointercapture clears .dragging and releases capture', async function () {
+    var env = buildEnv([]);
+    var win = env.win;
+    await env.iife1();
+    await settle();
+    var container = win.document.getElementById('settingsRowsContainer');
+
+    function grab() {
+      var row = container.querySelector('[data-reorder-type="section"][data-section-key="issues"]');
+      assert.ok(row, 'the issues section row renders');
+      var handle = row.querySelector('.reorder-handle');
+      assert.ok(handle, 'the issues row has a drag handle');
+      spyCapture(handle);
+      return { row: row, handle: handle };
+    }
+
+    // pointercancel path (dispatched on document, where the listener lives).
+    var a = grab();
+    a.handle.dispatchEvent(pev(win, 'pointerdown', { pointerId: 7, clientX: 0, clientY: 50 }));
+    assert.ok(a.row.classList.contains('dragging'), 'pointerdown adds the drag highlight');
+    assert.strictEqual(a.handle.__captured, 7, 'pointerdown captures the pointer');
+    win.document.dispatchEvent(pev(win, 'pointercancel', { pointerId: 7 }));
+    assert.ok(!a.row.classList.contains('dragging'), 'pointercancel clears the drag highlight — no stuck row');
+    assert.strictEqual(a.handle.__captured, null, 'pointercancel releases the pointer capture');
+
+    // lostpointercapture path (dispatched on the handle, where the listener lives).
+    var b = grab();
+    b.handle.dispatchEvent(pev(win, 'pointerdown', { pointerId: 9, clientX: 0, clientY: 50 }));
+    assert.ok(b.row.classList.contains('dragging'), 'pointerdown adds the drag highlight');
+    b.handle.dispatchEvent(pev(win, 'lostpointercapture', { pointerId: 9 }));
+    assert.ok(!b.row.classList.contains('dragging'), 'lostpointercapture clears the drag highlight — no stuck row');
+    assert.strictEqual(b.handle.__captured, null, 'lostpointercapture releases the pointer capture');
+
+    env.dom.window.close();
+  });
+
+  // ─── F. A pointer drag funnels through the same shared clamp as the arrows ─
+  // Guards G1's "both paths clamp": dragging afterSeverity above issues by the
+  // pointer must (a) set the form dirty so Save is enabled, (b) release capture on
+  // pointerup, and (c) still persist issues BEFORE afterSeverity through the
+  // shared App.sanitizeOrder. A pointer path that bypassed the clamp would
+  // persist afterSeverity first and FAIL.
+  await test('a pointer drag of afterSeverity above issues stays clamped and persists issues first', async function () {
+    var env = buildEnv([]);
+    var win = env.win;
+    await env.iife1();
+    await settle();
+    var container = win.document.getElementById('settingsRowsContainer');
+
+    var sevRow = container.querySelector('.reorder-severity-row[data-section-key="afterSeverity"]');
+    assert.ok(sevRow, 'the Issue severity row renders');
+    var handle = sevRow.querySelector('.reorder-handle');
+    assert.ok(handle, 'the severity row has a drag handle');
+    spyCapture(handle);
+
+    // Grab, then drag well upward (clientY far above the start) so the physical
+    // insertion would place afterSeverity before the first top-level unit.
+    handle.dispatchEvent(pev(win, 'pointerdown', { pointerId: 3, clientX: 0, clientY: 200 }));
+    win.document.dispatchEvent(pev(win, 'pointermove', { pointerId: 3, clientX: 0, clientY: -200 }));
+    win.document.dispatchEvent(pev(win, 'pointerup', { pointerId: 3, clientX: 0, clientY: -200 }));
+    await settle();
+    assert.strictEqual(handle.__captured, null, 'pointerup releases the pointer capture');
+
+    await saveAndSettle(win);
+
+    var items = lastSentinelItems(env.mockDb);
+    var issuesIdx = topLevelIndex(items, 'issues');
+    var sevIdx = topLevelIndex(items, 'afterSeverity');
+    assert.ok(issuesIdx !== -1 && sevIdx !== -1, 'both issues and afterSeverity persist at top level');
+    assert.ok(issuesIdx < sevIdx,
+      'the shared clamp keeps issues before a pointer-dragged afterSeverity (got issues@' + issuesIdx + ', afterSeverity@' + sevIdx + ')');
+
+    env.dom.window.close();
+  });
+
   // ─── F-A end-of-file count guard ─────────────────────────────────────────
-  var EXPECTED_COUNT = 4;
+  var EXPECTED_COUNT = 6;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {

@@ -552,6 +552,17 @@ window.SettingsPage = (function () {
   // top-level rows reorder among top-level units (a group drags as a block). All
   // insertion math uses PHYSICAL getBoundingClientRect top/height — never logical
   // inline-axis insets, which mirror overlay geometry wrongly under RTL.
+  //
+  // The move/up/cancel listeners live on `document`, not the handle: on WebKit a
+  // mouse pointer capture does not reliably redirect pointermove to the capturing
+  // element, and a drag that drifts over the editable rows triggers a native text
+  // selection that WebKit prioritises — it steals the gesture (firing
+  // pointercancel / lostpointercapture) so handle-bound move/up never arrive, the
+  // row will not move, and any highlight added on pointerdown stays stuck.
+  // Document-level listeners receive the events regardless of capture routing;
+  // selectstart is suppressed for the gesture; movement only engages past a small
+  // slop threshold; and cleanup runs on EVERY end path (up, cancel, lost capture)
+  // so the highlight can never persist and capture is always released.
   function wireDrag(row) {
     var handle = row.querySelector(".reorder-handle");
     if (!handle) return;
@@ -559,19 +570,27 @@ window.SettingsPage = (function () {
       var container = row.parentNode;
       if (!container) return;
       e.preventDefault();
-      try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+
+      var pointerId = e.pointerId;
+      var startX = e.clientX;
+      var startY = e.clientY;
+      var engaged = false;
+      var done = false;
+      var SLOP = 4;
       var isMember = row.getAttribute("data-level") === "member";
       var gid = row.getAttribute("data-group-id");
       var movingNodes = isMember ? [row] : unitNodeListForRow(row);
+
+      try { handle.setPointerCapture(pointerId); } catch (_) {}
       row.classList.add("dragging");
 
-      function onMove(ev) {
+      function reposition(clientY) {
         if (isMember) {
           var siblings = memberRowsForGroup(container, gid).filter(function (n) { return n !== row; });
           var afterM = null;
           for (var i = 0; i < siblings.length; i++) {
             var bm = siblings[i].getBoundingClientRect();
-            if (ev.clientY < bm.top + bm.height / 2) { afterM = siblings[i]; break; }
+            if (clientY < bm.top + bm.height / 2) { afterM = siblings[i]; break; }
           }
           if (afterM) container.insertBefore(row, afterM);
           else {
@@ -584,21 +603,54 @@ window.SettingsPage = (function () {
           var afterP = null;
           for (var j = 0; j < primaries.length; j++) {
             var bp = primaries[j].getBoundingClientRect();
-            if (ev.clientY < bp.top + bp.height / 2) { afterP = primaries[j]; break; }
+            if (clientY < bp.top + bp.height / 2) { afterP = primaries[j]; break; }
           }
           movingNodes.forEach(function (n) { container.insertBefore(n, afterP); });
         }
         enforceOrderClamp(container);
       }
-      function onUp() {
+
+      function suppressSelect(ev) { ev.preventDefault(); }
+
+      function cleanup() {
+        if (done) return;
+        done = true;
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onUp);
+        document.removeEventListener("pointercancel", onEnd);
+        handle.removeEventListener("lostpointercapture", onEnd);
+        document.removeEventListener("selectstart", suppressSelect);
         row.classList.remove("dragging");
-        try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
-        handle.removeEventListener("pointermove", onMove);
-        handle.removeEventListener("pointerup", onUp);
+        try { handle.releasePointerCapture(pointerId); } catch (_) {}
+      }
+
+      function onMove(ev) {
+        if (ev.pointerId !== pointerId) return;
+        if (!engaged) {
+          if (Math.abs(ev.clientX - startX) < SLOP && Math.abs(ev.clientY - startY) < SLOP) return;
+          engaged = true;
+        }
+        reposition(ev.clientY);
+      }
+      function onUp(ev) {
+        if (ev && ev.pointerId != null && ev.pointerId !== pointerId) return;
+        cleanup();
         markReorderDirty(container);
       }
-      handle.addEventListener("pointermove", onMove);
-      handle.addEventListener("pointerup", onUp);
+      // Cancel / lost-capture: WebKit fires one of these when it steals the
+      // gesture (or a touch is interrupted). Treat it as end-of-drag so the
+      // highlight is cleared and capture released — never left stuck.
+      function onEnd(ev) {
+        if (ev && ev.pointerId != null && ev.pointerId !== pointerId) return;
+        cleanup();
+        markReorderDirty(container);
+      }
+
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", onUp);
+      document.addEventListener("pointercancel", onEnd);
+      handle.addEventListener("lostpointercapture", onEnd);
+      document.addEventListener("selectstart", suppressSelect);
     });
   }
 
