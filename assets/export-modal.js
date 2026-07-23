@@ -53,6 +53,37 @@
     return idx === -1 ? sorted.length + 1 : idx + 1;
   }
 
+  // Where the structural severity block sits, expressed as the number of section
+  // headings that precede it. The block is drawn just before the
+  // (result + 1)-th document heading the PDF encounters, so this is the ordinal
+  // of the end-of-session-severity slot among the sections ACTUALLY PRESENT in
+  // the exported body.
+  //
+  // orderedKeys  — the therapist's saved section order (flattened to keys).
+  // presentKeys  — the subset whose headings actually appear in the edited
+  //                Step-2 text, in saved order (saved order ∩ parsed headings).
+  //                Deriving from the edited text (not the build-time emission
+  //                list) means deleting a heading in Step 2 shifts the block up
+  //                one slot, exactly matching what the reader will see.
+  //
+  // Only present sections that come BEFORE the severity slot count; a present
+  // section positioned after it does not. When the severity slot is not in the
+  // saved order at all, the block falls to the end (all present sections
+  // precede it). Pure — no DOM, no closure state — so it is testable in
+  // isolation via the module test-hook seam.
+  function deriveSeverityAfterSections(orderedKeys, presentKeys) {
+    const ordered = Array.isArray(orderedKeys) ? orderedKeys : [];
+    const present = Array.isArray(presentKeys) ? presentKeys : [];
+    const presentSet = new Set(present);
+    const slot = ordered.indexOf("afterSeverity");
+    if (slot === -1) return present.length;
+    let count = 0;
+    for (let i = 0; i < slot; i++) {
+      if (presentSet.has(ordered[i])) count++;
+    }
+    return count;
+  }
+
   function initExportModal(ctx) {
     // DOM elements: from ctx.els or re-resolved by the same static IDs (unchanged
     // in add-session.html). Mutable JS state (editingSession/sessionId/isReadMode)
@@ -542,6 +573,26 @@
       return labels;
     }
 
+    // The subset of the saved order whose section headings actually appear in
+    // the exported body text, kept in saved order. A section-heading line is
+    // `## <label>` where <label> is the same stripRequired(getSectionLabel(...))
+    // string the builders emit; matching against the EDITED editor text (rather
+    // than the build-time emission list) is what makes the severity-block slot
+    // honour a manual heading deletion in Step 2. The severity slot itself never
+    // emits a heading, so it is never in the returned set.
+    function parsePresentSectionKeys(orderedKeys, markdown) {
+      const headingTexts = {};
+      const re = /^##[ \t]+(.+?)[ \t]*$/gm;
+      let m;
+      while ((m = re.exec(markdown)) !== null) {
+        headingTexts[m[1].trim()] = true;
+      }
+      return orderedKeys.filter((key) => {
+        const label = stripRequired(App.getSectionLabel(key, exportDefaultI18nKey(key)));
+        return headingTexts[String(label).trim()] === true;
+      });
+    }
+
     let _exportState = null;
 
     // Whether the emotions before/after block (the issues + severity section)
@@ -866,26 +917,21 @@
       issues = issues.filter((it) => it && (typeof it.before === "number" || typeof it.after === "number"));
       const exportedOn = App.formatDate(window.DateFormat.todayLocalISO());
 
-      // Change 1 (owner revision): tell the render tier WHERE severity sits in
-      // form order. The form DOM (add-session.html) places the issues/severity
-      // section right after heartShield (position 2) and before every text
-      // section, so the PDF must draw the two-bar block after the heartShield
-      // section (when present) and before the rest — never last. We forward the
-      // count of leading body sections that precede severity: 1 when the
-      // heart-shield section heads the exported body, else 0. Read from the editor
-      // markdown actually being exported (the heartShield ## is always the first
-      // section when present, per buildFilteredSessionMarkdown) so manual Step-2
-      // edits are honoured. Robust + locale-correct: it matches the SAME localized
-      // heartShield label the builder emits.
+      // Tell the render tier WHERE the two-bar severity block sits: the ordinal
+      // of the end-of-session-severity slot among the sections that ACTUALLY
+      // appear in the body being exported, read in the therapist's saved order.
+      // The PDF draws the block just before the (severityAfterSections + 1)-th
+      // document heading it encounters, so moving severity in Settings moves the
+      // block, and deleting a preceding heading in Step 2 moves it up one slot.
+      // presentKeys is parsed from the edited editor text (not the build-time
+      // emission list) so those manual Step-2 edits are honoured.
       let severityAfterSections = 0;
       try {
         const editorEl = document.getElementById("exportEditor");
         const md = editorEl ? editorEl.value : "";
-        const firstHeading = md.match(/^##[ \t]+(.+?)[ \t]*$/m);
-        if (firstHeading) {
-          const hsLabel = stripRequired(App.getSectionLabel("heartShield", "session.form.heartShield"));
-          if (firstHeading[1].trim() === String(hsLabel).trim()) severityAfterSections = 1;
-        }
+        const orderedKeys = orderedFormKeys();
+        const presentKeys = parsePresentSectionKeys(orderedKeys, md);
+        severityAfterSections = deriveSeverityAfterSections(orderedKeys, presentKeys);
       } catch (e) {
         severityAfterSections = 0;
       }
@@ -1317,5 +1363,6 @@
     // against a seeded window.PortfolioDB — no DOM, no init handshake required.
     window.__exportModalTestHooks = window.__exportModalTestHooks || {};
     window.__exportModalTestHooks.deriveSessionOrdinal = deriveSessionOrdinal;
+    window.__exportModalTestHooks.deriveSeverityAfterSections = deriveSeverityAfterSections;
   }
 })();
