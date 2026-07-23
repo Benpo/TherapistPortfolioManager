@@ -692,9 +692,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateRemoveButtons();
   }
 
+  // Reset a severity scale back to unrated: clear its stored value and drop the
+  // active pill. Mirrors the widget's own tap-again-to-clear so a programmatic
+  // clear leaves it in the same state as a user clear (getSeverityValue → null).
+  function clearSeverityScale(scale) {
+    if (!scale) return;
+    scale.dataset.value = "";
+    scale.querySelectorAll(".severity-button").forEach((pill) => pill.classList.remove("is-active"));
+  }
+
+  // A start rating is the anchor of the pair: when it is cleared the topic is no
+  // longer being measured, so the end rating is voided too — otherwise a hidden
+  // end value could survive into the saved record and the export. The end scale's
+  // own clear (tap-again) still clears only itself.
+  function onBeforeSeverityChange(issueObj) {
+    if (App.getSeverityValue(issueObj.beforeScale) === null) {
+      clearSeverityScale(issueObj.afterScale);
+    }
+    updateDelta(issueObj);
+  }
+
   function updateDelta(issueObj) {
     const beforeValue = App.getSeverityValue(issueObj.beforeScale);
     const afterValue = App.getSeverityValue(issueObj.afterScale);
+    // A topic with no start rating is "not measured": drop its end-of-session
+    // rating row entirely so the summary lists only started topics.
+    if (issueObj.summaryBlock) {
+      issueObj.summaryBlock.classList.toggle("is-hidden", beforeValue === null);
+    }
     const deltaEl = issueObj.deltaEl;
     if (!deltaEl) return;
     if (beforeValue !== null && afterValue !== null) {
@@ -741,9 +766,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     severityField.className = "form-field";
     const severityLabel = document.createElement("label");
     severityLabel.className = "label";
-    severityLabel.setAttribute("data-i18n", "session.form.beforeSeverity");
-    severityLabel.textContent = App.t("session.form.beforeSeverity");
-    const beforeScale = App.createSeverityScale(initialIssue.before, () => updateDelta(issueRef.obj));
+    severityLabel.setAttribute("data-i18n", "session.form.severityAtStart");
+    severityLabel.textContent = App.t("session.form.severityAtStart");
+    const beforeScale = App.createSeverityScale(initialIssue.before, () => onBeforeSeverityChange(issueRef.obj));
     severityField.appendChild(severityLabel);
     severityField.appendChild(beforeScale);
 
@@ -812,6 +837,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       nameInput,
       beforeScale,
       afterScale,
+      severityField,
       summaryInput,
       deltaEl,
       block,
