@@ -366,8 +366,34 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── G. The drag handle is pointer-only — out of the a11y tree ─────────────
+  // The up/down arrow buttons are the designed accessible reorder path; a
+  // focusable role="button" handle that answers no key is a keyboard trap-lite.
+  // The handle must be removed from the a11y tree (aria-hidden, not
+  // keyboard-focusable) while staying pointer-draggable (Case E/F cover that).
+  await test('the drag handle is aria-hidden and not keyboard-focusable', async function () {
+    var env = buildEnv([]);
+    var win = env.win;
+    await env.iife1();
+    await settle();
+    var container = win.document.getElementById('settingsRowsContainer');
+
+    var handles = container.querySelectorAll('.reorder-handle');
+    assert.ok(handles.length > 0, 'reorder handles render');
+    Array.prototype.forEach.call(handles, function (h) {
+      assert.strictEqual(h.getAttribute('aria-hidden'), 'true',
+        'every drag handle must be aria-hidden (the arrows are the accessible path)');
+      assert.strictEqual(h.tabIndex, -1,
+        'a drag handle must not be keyboard-focusable (it answers no key)');
+      assert.notStrictEqual(h.getAttribute('role'), 'button',
+        'a drag handle must not claim an interactive role it cannot honor');
+    });
+
+    env.dom.window.close();
+  });
+
   // ─── F-A end-of-file count guard ─────────────────────────────────────────
-  var EXPECTED_COUNT = 6;
+  var EXPECTED_COUNT = 7;
   try {
     assert.strictEqual(passed + failed, EXPECTED_COUNT);
   } catch (e) {

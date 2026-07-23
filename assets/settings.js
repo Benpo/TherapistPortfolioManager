@@ -175,8 +175,11 @@ window.SettingsPage = (function () {
   function buildDragHandle(name) {
     var handle = document.createElement("span");
     handle.className = "reorder-handle";
-    handle.setAttribute("role", "button");
-    handle.tabIndex = 0;
+    // Pointer-only affordance: the up/down arrow buttons are the accessible
+    // reorder path, so the handle stays out of the a11y tree instead of being
+    // a focusable "button" that answers no key. Pointer dragging is unchanged.
+    handle.setAttribute("aria-hidden", "true");
+    handle.tabIndex = -1;
     handle.setAttribute("aria-label", reorderAria("settings.reorder.dragHandle.aria", name));
     handle.appendChild(buildDragHandleSvg());
     return handle;
