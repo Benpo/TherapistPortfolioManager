@@ -317,6 +317,83 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
+  // ─── k. Back → uncheck sub-option → Continue must NOT leak severity ───────────
+  await test('(k) round-trip: capture severity ON, then Back → uncheck sub-option → Continue → the PDF payload is empty (no stale leak)', async function () {
+    var env = buildEnv({ issues: [{ name: 'TOPIC_A', before: 7, after: 2 }] });
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    win.document.getElementById('exportSessionBtn').click();
+    await settle();
+
+    var sub = severitySubOption(win);
+    assert.ok(sub && sub.checked && !sub.disabled, 'precondition: sub-option checked + enabled');
+
+    // Continue with the sub-option CHECKED → severity captured as included.
+    win.document.getElementById('exportNextBtn').click(); // 1 → 2
+    await settle();
+    // Back to Step 1, then opt OUT of severity without changing any section.
+    win.document.getElementById('exportBackBtn').click(); // 2 → 1
+    await settle();
+    sub = severitySubOption(win);
+    sub.checked = false;
+
+    // Continue again (section selection unchanged → no rebuild) and download.
+    win.document.getElementById('exportNextBtn').click(); // 1 → 2
+    await settle();
+    win.document.getElementById('exportNextBtn').click(); // 2 → 3
+    await settle();
+    win.document.getElementById('exportDownloadPdf').click();
+    await waitFor(function () { return env.pdfCalls.length > 0; });
+    var input = env.pdfCalls[0];
+
+    assert.strictEqual(input.issues.length, 0,
+      'the sub-option was unchecked after the first capture → severity must NOT leak into the PDF (got ' +
+      JSON.stringify(input.issues) + ')');
+
+    env.dom.window.close();
+  });
+
+  // ─── l. Back → check sub-option → Continue must RESTORE severity ──────────────
+  await test('(l) round-trip: capture severity OFF, then Back → check sub-option → Continue → the PDF payload is restored (no stale omission)', async function () {
+    var env = buildEnv({ issues: [{ name: 'TOPIC_A', before: 7, after: 2 }] });
+    var win = env.win;
+    await env.domHandler();
+    await settle();
+
+    win.document.getElementById('exportSessionBtn').click();
+    await settle();
+
+    var sub = severitySubOption(win);
+    assert.ok(sub && sub.checked, 'precondition: sub-option defaults checked');
+    // Opt OUT before the first capture so severity is captured as excluded.
+    sub.checked = false;
+
+    win.document.getElementById('exportNextBtn').click(); // 1 → 2 (captures OFF)
+    await settle();
+    win.document.getElementById('exportBackBtn').click(); // 2 → 1
+    await settle();
+    // Opt back IN without changing any section.
+    sub = severitySubOption(win);
+    sub.checked = true;
+
+    win.document.getElementById('exportNextBtn').click(); // 1 → 2
+    await settle();
+    win.document.getElementById('exportNextBtn').click(); // 2 → 3
+    await settle();
+    win.document.getElementById('exportDownloadPdf').click();
+    await waitFor(function () { return env.pdfCalls.length > 0; });
+    var input = env.pdfCalls[0];
+
+    assert.strictEqual(input.issues.length, 1,
+      're-checking the sub-option after a captured OFF must restore the severity payload (got ' +
+      JSON.stringify(input.issues) + ')');
+    assert.strictEqual(input.issues[0].name, 'TOPIC_A', 'the rated topic must be forwarded');
+
+    env.dom.window.close();
+  });
+
   // ─── clipboard-copy builder (buildSessionMarkdown) ───────────────────────────
   // These drive the REAL copy path directly via the test-hook seam (the copy
   // button never opens the Step-1 modal, so _exportState stays null and the
@@ -396,7 +473,7 @@ async function test(name, fn) {
   });
 
   // ─── count guard ─────────────────────────────────────────────────────────────
-  var EXPECTED_COUNT = 9;
+  var EXPECTED_COUNT = 11;
   if (passed + failed !== EXPECTED_COUNT) {
     console.error('\nCOUNT GUARD FAILED: expected ' + EXPECTED_COUNT + ' cases to execute, but ' +
       (passed + failed) + ' ran — an async case was silently skipped.');

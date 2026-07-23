@@ -631,6 +631,13 @@
       if (!severityTrackingEnabled()) return false;
       if (_exportState && Array.isArray(_exportState.selectedKeys)) {
         if (_exportState.selectedKeys.indexOf("issues") === -1) return false;
+        // The dependent sub-option carries no markdown, so it can flip while
+        // the dialog is open (Back → toggle → Continue) with the section
+        // selection unchanged — a path that triggers no rebuild to re-capture
+        // it. Prefer the live checkbox while it exists; fall back to the
+        // captured snapshot only once the dialog DOM is gone.
+        const subCb = document.getElementById("exportIncludeSeverity");
+        if (subCb) return subCb.checked && !subCb.disabled;
         return _exportState.includeSeverity !== false;
       }
       return true;
@@ -1225,6 +1232,12 @@
           const unchanged = _exportState.selectedKeys !== null &&
             JSON.stringify(selected) === JSON.stringify(_exportState.selectedKeys);
           if (!unchanged) rebuildEditorFromSelection(selected);
+          // The severity sub-option carries no markdown, so it can be toggled
+          // (Back → change → Continue) with the section selection unchanged,
+          // taking the no-rebuild path above. Re-capture it here so the payload
+          // snapshot never trails the live checkbox.
+          const subCb = document.getElementById("exportIncludeSeverity");
+          if (subCb) _exportState.includeSeverity = subCb.checked && !subCb.disabled;
           exportSetActiveStep(2);
         } else if (_exportState.currentStep === 2) {
           exportSetActiveStep(3);
