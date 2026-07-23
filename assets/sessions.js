@@ -247,9 +247,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           const issueLine = document.createElement("div");
           issueLine.className = "issue-line";
           const issueName = issue.name || "-";
-          const before = issue.before !== null && issue.before !== undefined ? issue.before : "-";
-          const after = issue.after !== null && issue.after !== undefined ? issue.after : "-";
-          issueLine.textContent = `${issueName} (${before} -> ${after})`;
+          // A topic that carries no rating at all (both sides empty) shows its
+          // name alone — the empty "(- -> -)" suffix is pure noise. A topic with
+          // even one numeric side keeps the suffix, with "-" standing in for the
+          // side that was left blank (one real number is worth showing).
+          const beforeRated = issue.before !== null && issue.before !== undefined;
+          const afterRated = issue.after !== null && issue.after !== undefined;
+          if (!beforeRated && !afterRated) {
+            issueLine.textContent = issueName;
+          } else {
+            const before = beforeRated ? issue.before : "-";
+            const after = afterRated ? issue.after : "-";
+            issueLine.textContent = `${issueName} (${before} -> ${after})`;
+          }
           issueList.appendChild(issueLine);
         });
         issuesCell.appendChild(issueList);
