@@ -398,7 +398,53 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  var EXPECTED_COUNT = 12;
+  // ─── Case 13: setting a start rating marks the form dirty ────────────────────
+  await test('setting a start rating marks the form dirty (severity pills are buttons that bypass the input/change tracker)', async function () {
+    var env = await boot();
+    var win = env.win;
+    assert.strictEqual(win.PortfolioFormDirty(), false, 'a freshly opened form is clean');
+    clickPill(firstBeforeScale(win), 6);
+    assert.strictEqual(win.PortfolioFormDirty(), true, 'clicking a start-rating pill marks the form dirty so navigation warns');
+    env.dom.window.close();
+  });
+
+  // ─── Case 14: clearing a start rating keeps the form dirty ───────────────────
+  await test('clearing a start rating (tap the active pill again) keeps the form dirty', async function () {
+    var env = await boot();
+    var win = env.win;
+    clickPill(firstBeforeScale(win), 6);
+    clickPill(firstBeforeScale(win), 6); // clear
+    assert.strictEqual(win.PortfolioFormDirty(), true, 'clearing a start rating still marks the form dirty (silent-loss path closed)');
+    env.dom.window.close();
+  });
+
+  // ─── Case 15: an end-rating interaction marks the form dirty ─────────────────
+  await test('an end-rating interaction marks the form dirty independently of the start scale (set AND clear)', async function () {
+    var env = await boot();
+    var win = env.win;
+    assert.strictEqual(win.PortfolioFormDirty(), false, 'a freshly opened form is clean');
+    clickPill(firstAfterScale(win), 3);
+    assert.strictEqual(win.PortfolioFormDirty(), true, 'clicking an end-rating pill marks the form dirty');
+    clickPill(firstAfterScale(win), 3); // clear the end only
+    assert.strictEqual(win.PortfolioFormDirty(), true, 'clearing the end rating still marks the form dirty');
+    env.dom.window.close();
+  });
+
+  // ─── Case 16: saving the form resets it clean ────────────────────────────────
+  await test('saving the form resets it clean (a subsequent navigation does not warn)', async function () {
+    var env = await boot({ clients: [{ id: 1, firstName: 'A', lastName: 'B' }] });
+    var win = env.win;
+    win.document.getElementById('clientSelect').value = '1';
+    nameFirstTopic(win, 'Anxiety');
+    clickPill(firstBeforeScale(win), 6);
+    assert.strictEqual(win.PortfolioFormDirty(), true, 'the edited form is dirty before save');
+    win.document.getElementById('sessionForm').dispatchEvent(new win.Event('submit', { bubbles: true, cancelable: true }));
+    await settle();
+    assert.strictEqual(win.PortfolioFormDirty(), false, 'after a successful save the form reads clean');
+    env.dom.window.close();
+  });
+
+  var EXPECTED_COUNT = 16;
   try { assert.strictEqual(passed + failed, EXPECTED_COUNT); }
   catch (e) {
     console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));
