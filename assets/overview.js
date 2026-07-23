@@ -825,8 +825,16 @@ function renderClientRows(clients, sessionsByClient) {
         const issues = (session.issues || [])
           .map((issue) => {
             const name = issue.name || "-";
-            const before = issue.before !== null && issue.before !== undefined ? issue.before : "-";
-            const after = issue.after !== null && issue.after !== undefined ? issue.after : "-";
+            // A topic with no rating on either side shows its name alone — the
+            // empty "(-→-)" suffix is pure noise. One numeric side is enough to
+            // keep the suffix, with "-" for the side left blank.
+            const beforeRated = issue.before !== null && issue.before !== undefined;
+            const afterRated = issue.after !== null && issue.after !== undefined;
+            if (!beforeRated && !afterRated) {
+              return name;
+            }
+            const before = beforeRated ? issue.before : "-";
+            const after = afterRated ? issue.after : "-";
             return `${name} (${before}→${after})`;
           })
           .join(", ");
