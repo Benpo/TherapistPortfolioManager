@@ -3479,12 +3479,16 @@ html[dir="rtl"] .settings-locked-info::after {
 .settings-saved-notice-mark::after {
   content: "";
   position: absolute;
-  inset-inline-start: 28%;
-  inset-block-start: 18%;
+  /* A checkmark is a SEMANTIC glyph — it must stay upright in RTL, never mirror.
+     Draw it with PHYSICAL geometry (left/top + bottom/right borders) so the
+     corner never flips under [dir=rtl], matching the app's semantic-glyph
+     convention (directional glyphs mirror via .icon-flip; semantic ones do not). */
+  left: 28%;
+  top: 18%;
   width: 22%;
   height: 50%;
-  border-block-end: 1.5px solid var(--color-success-bg);
-  border-inline-end: 1.5px solid var(--color-success-bg);
+  border-bottom: 1.5px solid var(--color-success-bg);
+  border-right: 1.5px solid var(--color-success-bg);
   transform: rotate(45deg);
 }
 
