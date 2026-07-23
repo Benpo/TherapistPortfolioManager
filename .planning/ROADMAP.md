@@ -324,7 +324,7 @@ Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). 
   3. The saved order drives BOTH the markdown and PDF export builders — `severityAfterSections` included — repointed atomically with the 260615 guard-test rewrite so export order can never briefly diverge from the saved order.
   4. The chosen order persists per therapist (a `therapistSettings` sentinel record, mirroring the `snippetsDeletedSeeds` pattern) and survives an encrypted backup round-trip.
 
-**Plans**: 1/10 plans executed
+**Plans**: 2/10 plans executed
 **UI hint**: yes
 
 Plans:
@@ -332,7 +332,7 @@ Plans:
 **Wave 1** (shared foundation — parallel, no file overlap)
 
 - [x] 47-01-PLAN.md — Order sentinel (db.js) + shared getSectionOrder cache/sanitizeOrder validator + tap-again-to-clear on the severity scale (app.js, D-20) [ORDR-05, ORDR-07]
-- [ ] 47-02-PLAN.md — i18n UI string contract for the whole phase, EN/DE/HE/CS (incl. D-14 HE export-label fix) [ORDR-06, ORDR-07, ORDR-08]
+- [x] 47-02-PLAN.md — i18n UI string contract for the whole phase, EN/DE/HE/CS (incl. D-14 HE export-label fix) [ORDR-06, ORDR-07, ORDR-08]
 
 **Wave 2** (feature surfaces — parallel, disjoint files; consume Wave-1 APIs)
 
@@ -439,5 +439,5 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
 | 45. Rich-Text Rendering & Export Foundation | v1.4 | 8/8 | Complete    | 2026-07-13 |
 | 46. Rich-Text Toolbar Editor | v1.4 | 16/17 | Complete    | 2026-07-17 |
-| 47. Session-Section Reordering | v1.4 | 1/10 | In Progress|  |
+| 47. Session-Section Reordering | v1.4 | 2/10 | In Progress|  |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
