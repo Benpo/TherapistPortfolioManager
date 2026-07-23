@@ -536,7 +536,57 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  var EXPECTED_COUNT = 20;
+  // ─── Case 21: revert re-shows a section that an in-form clear had collapsed ────
+  await test('severity off + past session WITH recorded severity: an in-form clear collapses the section; Cancel→Discard restores the data AND re-shows the section', async function () {
+    var env = await boot({
+      isSectionEnabled: function (k) { return k !== 'afterSeverity'; },
+      sessionId: 1,
+      sessions: [{ id: 1, clientId: 1, date: '2026-06-01', issues: [{ name: 'X', before: 6, after: 2 }] }],
+    });
+    var win = env.win;
+    assert.strictEqual(win.PortfolioFormDirty(), false, 'clean after load');
+    assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), false,
+      'recorded severity keeps the disabled section visible on load');
+    win.document.getElementById('editSessionBtn').click();
+    await settle();
+    clickPill(firstBeforeScale(win), 6); // tap the active pill again → clears the only rating
+    assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), true,
+      'clearing the only rating collapses the disabled section live');
+    win.document.getElementById('cancelSessionBtn').click(); // confirmDialog resolves true → revert
+    await settle();
+    assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), false,
+      'after discard the restored recorded severity re-shows the section (revert re-applies visibility)');
+    assert.strictEqual(firstBeforeScale(win).dataset.value, '6',
+      'the discarded edit restored the saved start rating');
+    env.dom.window.close();
+  });
+
+  // ─── Case 22: revert re-hides rebuilt start-rating columns (severity off) ─────
+  await test('severity off + past session WITHOUT severity data: after an edit, Cancel→Discard re-hides the rebuilt start-rating column instead of wrongly showing it', async function () {
+    var env = await boot({
+      isSectionEnabled: function (k) { return k !== 'afterSeverity'; },
+      sessionId: 1,
+      sessions: [{ id: 1, clientId: 1, date: '2026-06-01', trappedEmotions: 'orig',
+        issues: [{ name: 'X', before: null, after: null }] }],
+    });
+    var win = env.win;
+    assert.strictEqual(firstBeforeScale(win).closest('.form-field').classList.contains('is-hidden'), true,
+      'severity off + no recorded data → the start-rating column is hidden on load');
+    win.document.getElementById('editSessionBtn').click();
+    await settle();
+    var trapped = win.document.getElementById('trappedEmotions');
+    trapped.value = 'edited';
+    trapped.dispatchEvent(new win.Event('input', { bubbles: true }));
+    await settle();
+    assert.strictEqual(win.PortfolioFormDirty(), true, 'the edit marks the form dirty');
+    win.document.getElementById('cancelSessionBtn').click(); // confirmDialog resolves true → revert
+    await settle();
+    assert.strictEqual(firstBeforeScale(win).closest('.form-field').classList.contains('is-hidden'), true,
+      'after discard the rebuilt start-rating column is re-hidden to match the severity-off setting');
+    env.dom.window.close();
+  });
+
+  var EXPECTED_COUNT = 22;
   try { assert.strictEqual(passed + failed, EXPECTED_COUNT); }
   catch (e) {
     console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));

@@ -935,6 +935,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     populateSession(lastSavedSnapshot, issues, createIssueBlock);
     formDirty = false;
     updateCancelButtonLabel();
+    // populateSession rebuilds the issue blocks fresh (severity columns default
+    // visible) while the static section containers keep whatever is-hidden state
+    // they held at Cancel. Re-run the load-path visibility + label passes so
+    // restored data is shown and rebuilt columns are re-hidden to match settings.
+    applySectionVisibility(!!editingSession);
+    applySeverityVisibility(!!editingSession);
+    applySectionLabels();
   }
 
   // Asymmetric Cancel button label. "Cancel" when clean, "Discard changes" when dirty.
