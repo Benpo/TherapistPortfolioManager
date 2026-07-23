@@ -1,6 +1,7 @@
 | Section | Topic | Title | Covers |
 |---------|-------|-------|--------|
 | make-it-yours | topic-sections-on-off | Sections on and off | assets/settings.js, settings.html |
+| make-it-yours | topic-reordering | Reordering sections | assets/add-session.js, assets/settings.js, settings.html |
 | make-it-yours | topic-renaming | Renaming sections | assets/settings.js, settings.html |
 | make-it-yours | topic-snippet-library | Your snippet library | assets/settings-snippets.js, assets/snippets-seed.js, settings.html |
 | make-it-yours | topic-date-format | Your date format | assets/date-format.js, assets/settings.js, settings.html |
@@ -16,6 +17,7 @@
 | heart-wall | topic-heartwall-workflow | The Heart-Wall workflow | add-session.html |
 | heart-wall | topic-heartwall-removal | Tracking removal | add-session.html, assets/overview.js |
 | severity | topic-before-after | Before and after ratings | add-session.html |
+| severity | topic-turn-off | Turning severity ratings off | add-session.html, assets/settings.js |
 | severity | topic-multiple-issues | Multiple issues | add-session.html |
 | severity | topic-reversal | Understanding reversal | add-session.html |
 | review-export | topic-single-export | Exporting one session | assets/bidi.min.js, assets/export-modal.js, assets/fonts/rubik-italic-base64.js, assets/jspdf.min.js, assets/pdf-export.js |

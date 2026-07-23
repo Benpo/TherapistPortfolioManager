@@ -233,20 +233,20 @@ test('The v1.0 entry is origin-only (origin:true, no highlights/categories)', fu
   if ('categories' in v10) throw new Error('v1.0.0 origin entry must NOT have categories');
 });
 
-// ── 5. First element is the latest v1.4.0 with highlights (CHLG-04) ──────────
-// Advanced from 1.3.0 → 1.4.0 in Phase 45 (Plan 05): the self-hosting changelog
-// now stages the in-progress v1.4 "Richer Sessions" entry as its newest release
-// (APP_VERSION flips to 1.4.0 at the release boundary, per the version-bump
-// convention — the changelog entry is prepared ahead of that flip). The
-// assertion is structurally unchanged: the newest entry must carry the popup's
-// highlights array (CHLG-04).
-test('First entry is v1.4.0 (self-hosting) with a non-empty highlights array', function () {
+// ── 5. First element is the latest v1.5.0 with highlights (CHLG-04) ──────────
+// Advanced 1.3.0 → 1.4.0 → 1.5.0 as each self-hosting release entry lands: the
+// changelog stages the newest release entry ahead of the APP_VERSION flip at the
+// release boundary (per the version-bump convention — the entry is prepared
+// before the flip, and version.js follows at ship time). The assertion is
+// structurally unchanged: the newest entry must carry the popup's highlights
+// array (CHLG-04).
+test('First entry is v1.5.0 (self-hosting) with a non-empty highlights array', function () {
   const first = ENTRIES[0];
-  if (!first || first.version !== '1.4.0') {
-    throw new Error('first entry version is "' + (first && first.version) + '", expected 1.4.0');
+  if (!first || first.version !== '1.5.0') {
+    throw new Error('first entry version is "' + (first && first.version) + '", expected 1.5.0');
   }
   if (!Array.isArray(first.highlights) || first.highlights.length < 2) {
-    throw new Error('v1.4.0 must ship a non-empty highlights array (popup source, CHLG-04)');
+    throw new Error('v1.5.0 must ship a non-empty highlights array (popup source, CHLG-04)');
   }
 });
 

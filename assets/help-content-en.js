@@ -69,7 +69,23 @@
               "Turn any session section on or off, so the session form shows only the parts you actually work with.",
               "Press {ui:settings.action.save} to keep your changes."
             ] },
-            { type: "note", text: "This changes what you see everywhere you record a session — nothing is ever deleted, so you can turn a section back on any time." }
+            { type: "note", text: "This changes what you see everywhere you record a session — nothing is ever deleted. Turning a section off keeps its place in the list, so it comes back exactly where it was when you turn it on again." }
+          ]
+        },
+        {
+          id: "topic-reordering",
+          title: "Reordering sections",
+          priority: 1,
+          covers: ["settings.html", "assets/settings.js", "assets/add-session.js"],
+          body: [
+            { type: "p", text: "Put the session sections in the order you actually work in. The same order flows into the session form and into your exports." },
+            { type: "steps", items: [
+              "Open Settings and go to {ui:settings.tab.fields}.",
+              "Drag a section by its handle, or use its up and down arrows, to move it.",
+              "Related sections sit in a group you can rename — drag the group to move it as one block.",
+              "Press {ui:settings.action.save} to keep the new order."
+            ] },
+            { type: "note", text: "{ui:settings.reset.order.label} restores the default order and {ui:settings.reset.names.label} restores the default names — your sessions are never touched." }
           ]
         },
         {
@@ -78,7 +94,8 @@
           priority: 2,
           covers: ["settings.html", "assets/settings.js"],
           body: [
-            { type: "p", text: "In {ui:settings.tab.fields} you can rename most session sections to the exact words you use with your clients, so the form speaks your language. A few fixed sections keep their names, but you can still switch them off." }
+            { type: "p", text: "In {ui:settings.tab.fields} you can rename most session sections to the exact words you use with your clients, so the form speaks your language. The groups that hold related sections can be renamed too. A few fixed sections keep their names, but you can still switch them off." },
+            { type: "note", text: "Changed your mind? {ui:settings.reset.names.label} puts every section and group title back to the defaults." }
           ]
         },
         {
@@ -296,12 +313,27 @@
           priority: 1,
           covers: ["add-session.html"],
           body: [
-            { type: "p", text: "Rating each issue before and after the work shows change over time, in the client's own numbers." },
+            { type: "p", text: "Rating each issue before and after the work shows change over time, in the client's own numbers. Ratings are optional — a topic stays unrated until you set a number." },
             { type: "steps", items: [
               "Give the issue a name in {ui:session.form.issueName}.",
-              "Set {ui:session.form.beforeSeverity} on a 0 to 10 scale at the start.",
+              "Set {ui:session.form.severityAtStart} on a 0 to 10 scale at the start.",
               "At the end of the session, set {ui:session.form.afterSeverity} for the same issue."
-            ] }
+            ] },
+            { type: "note", text: "Tap a rating again to clear it back to unrated — clearing the start rating clears that topic's end rating with it. An unrated topic is left out of your exports and shows its name only in your session history." }
+          ]
+        },
+        {
+          id: "topic-turn-off",
+          title: "Turning severity ratings off",
+          priority: 1,
+          covers: ["add-session.html", "assets/settings.js"],
+          body: [
+            { type: "p", text: "Not rating severity? One switch hides it everywhere. In Settings, under {ui:settings.tab.fields}, the {ui:settings.row.afterSeverity.label} row is a single switch for all severity ratings." },
+            { type: "list", items: [
+              "On — each topic gets a rating at the start, and the end-of-session ratings section appears.",
+              "Off — both disappear; the topics themselves stay, you simply record no numbers."
+            ] },
+            { type: "note", text: "Drag that row to choose where the end-of-session ratings sit in the form — the same position sets where they appear in your exports." }
           ]
         },
         {
@@ -310,7 +342,7 @@
           priority: 2,
           covers: ["add-session.html"],
           body: [
-            { type: "p", text: "Working on more than one thing in a session? Choose {ui:session.form.addIssue} to track another issue — up to three per session, each with its own before-and-after ratings." }
+            { type: "p", text: "Working on more than one thing in a session? Choose {ui:session.form.addIssue} to track another issue — up to three per session. Each can carry its own before-and-after ratings, and any topic you leave unrated simply shows its name in your session history and client overview." }
           ]
         },
         {
@@ -339,11 +371,12 @@
             { type: "p", text: "When a session is finished, you can send a beautifully formatted copy to your client or file it in your own records." },
             { type: "steps", items: [
               "Open the saved session and choose {ui:session.export}.",
-              "Choose which parts of the session to include. The before-and-after emotion ratings come pre-selected — uncheck them to leave the severity ratings out of this export.",
+              "Choose which parts of the session to include — under {ui:export.section.topics} you can also choose whether the severity ratings come along.",
               "Review — and lightly edit — what will be shared.",
               "Pick {ui:export.download.pdf} for a polished document, or {ui:export.download.text} to save the notes as a plain text file."
             ] },
             { type: "list", items: [
+              "Your sections appear in the order you set in Settings.",
               "The formatting toolbar stays pinned above the editor — it never scrolls away.",
               "Maximize gives the editor the whole window; press again to restore. On a phone it fills the screen.",
               "Edits here shape this export only — nothing is saved back to the session.",
@@ -362,6 +395,7 @@
           body: [
             { type: "p", text: "PDF is best for sending a finished, good-looking document to your client. Plain text is best when you want to keep the notes in your own records or bring them into another app." },
             { type: "p", text: "The PDF keeps your note formatting — bold, lists, headings, and indentation — as styled text, while the plain-text file keeps your notes exactly as you typed them." },
+            { type: "p", text: "Either way, sections come out in the order you set in Settings, and the severity ratings sit where that section falls in your order. If you delete a section heading while editing, the severity block moves up accordingly." },
             { type: "p", text: "Not sure which suits the moment? On the editing step, switch the editor to Preview — the framed view shows the finished document exactly as it will read — and decide before you export." }
           ]
         }
@@ -434,6 +468,7 @@
               "Keep that file somewhere safe, like an external drive or your own cloud storage.",
               "To bring your data back, open the same panel, press {ui:backup.action.import}, and pick your backup file."
             ] },
+            { type: "note", text: "A restore brings back your section order and group names along with your clients and sessions." },
             { type: "note", text: "The cloud icon in the header shows how recently you last backed up — a gentle nudge when it is time again." }
           ]
         },

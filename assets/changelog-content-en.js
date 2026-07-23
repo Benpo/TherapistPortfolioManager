@@ -69,6 +69,32 @@
 
   window.CHANGELOG_CONTENT_EN = [
 
+    // ═══ v1.5 — A session form shaped to your way of working ═══════════════════
+    {
+      version: "1.5.0",
+      anchor: "v1-5",
+      date: "July 2026",
+      lede: "Shape the session form to your own way of working — reorder every section by drag or arrows, group and rename them, and decide when severity ratings apply.",
+      highlights: [
+        "Reorder the session sections — drag them or use the up and down arrows — into the order you actually work in, and your exports follow the same order.",
+        "One switch turns severity ratings on or off for the whole app, and when they are on, every rating is optional.",
+        "Skip a rating and it stays out of your exports and reads cleanly in your session history.",
+      ],
+      categories: {
+        new: [
+          "Reorder the session form: drag a section by its handle or move it with the up and down arrows. Related sections sit in groups you can rename, and turning a section off keeps its place so it returns exactly where it was.",
+          "Reset order and Reset names put the sections and their titles back to the defaults whenever you want a clean slate.",
+          "A single Issue severity switch turns all before-and-after ratings on or off across the whole app.",
+        ],
+        improved: [
+          "Severity ratings are now optional — tap a rating again to clear it back to unrated. An unrated topic keeps its name; it just carries no numbers.",
+          "The order you set for your sections is mirrored in every export.",
+          "Exports let you include your session topics with or without the severity ratings.",
+          "An unrated topic is left out of your exports and shows its name only in your session history and client overview.",
+        ],
+      },
+    },
+
     // ═══ v1.4 — Richer Sessions: formatting your notes, and notes that keep their shape ═══
     {
       version: "1.4.0",
