@@ -597,7 +597,19 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  var EXPECTED_COUNT = 23;
+  // ─── Case 24: an after-only stored topic keeps its end-of-session row visible ─
+  await test('a stored end rating with no start rating (imported/pre-existing data) keeps the end-of-session row VISIBLE — recorded clinical data is never hidden', async function () {
+    var env = await boot({
+      sessionId: 1,
+      sessions: [{ id: 1, clientId: 1, date: '2026-06-01', issues: [{ name: 'X', before: null, after: 6 }] }],
+    });
+    var win = env.win;
+    assert.strictEqual(firstSummaryBlock(win).classList.contains('is-hidden'), false,
+      'an after-only topic (before null, after numeric) keeps its end-of-session row visible');
+    env.dom.window.close();
+  });
+
+  var EXPECTED_COUNT = 24;
   try { assert.strictEqual(passed + failed, EXPECTED_COUNT); }
   catch (e) {
     console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));

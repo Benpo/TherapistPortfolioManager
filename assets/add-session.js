@@ -723,10 +723,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   function updateDelta(issueObj) {
     const beforeValue = App.getSeverityValue(issueObj.beforeScale);
     const afterValue = App.getSeverityValue(issueObj.afterScale);
-    // A topic with no start rating is "not measured": drop its end-of-session
-    // rating row entirely so the summary lists only started topics.
+    // Drop the end-of-session rating row only when the topic carries NO rating on
+    // either side. In the new-UI flow clearing the start voids the end (both go
+    // null → row hides), but imported/pre-existing records can hold an end rating
+    // with no start; that recorded clinical data must stay visible, never hidden.
     if (issueObj.summaryBlock) {
-      issueObj.summaryBlock.classList.toggle("is-hidden", beforeValue === null);
+      issueObj.summaryBlock.classList.toggle("is-hidden", beforeValue === null && afterValue === null);
     }
     const deltaEl = issueObj.deltaEl;
     if (!deltaEl) return;
