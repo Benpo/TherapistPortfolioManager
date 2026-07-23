@@ -340,17 +340,39 @@
       heartShield: false
     };
 
-    const EXPORT_SECTION_ORDER = [
+    // Fallback flattened key sequence, used ONLY when the shared saved-order
+    // reader is unavailable (e.g. a minimal test host). It mirrors the app's
+    // default section structure so even the fallback never diverges from what
+    // the form renders. In production the saved-order reader below always wins.
+    const DEFAULT_FLAT_ORDER = [
+      "issues",
+      "heartShield",
+      "heartShieldEmotions",
       "trapped",
       "insights",
       "limitingBeliefs",
       "additionalTech",
-      "heartShield",
-      "heartShieldEmotions",
-      "issues",
+      "afterSeverity",
       "comments",
       "nextSession"
     ];
+
+    // The ONE order source every export consumer reads: the Step-1 checkbox
+    // list, the filtered markdown builder, and the document-section labels all
+    // iterate this same flattened key list, so their orderings can never
+    // diverge. On the add-session page this is the snapshot the form pinned at
+    // open, so a peer-tab reorder mid-edit cannot desync form and export.
+    function orderedFormKeys() {
+      try {
+        if (typeof App.getSectionOrder === "function" && typeof App.flattenOrderKeys === "function") {
+          const keys = App.flattenOrderKeys(App.getSectionOrder());
+          if (Array.isArray(keys) && keys.length > 0) return keys;
+        }
+      } catch (e) {
+        // fall through to the default structure
+      }
+      return DEFAULT_FLAT_ORDER.slice();
+    }
 
     function exportDefaultI18nKey(sectionKey) {
       switch (sectionKey) {
@@ -361,6 +383,7 @@
         case "heartShield": return "session.form.heartShield";
         case "heartShieldEmotions": return "session.form.heartShieldEmotions";
         case "issues": return "session.form.issuesHeading";
+        case "afterSeverity": return "session.form.afterSeverityTitle";
         case "comments": return "session.form.comments";
         case "nextSession": return "session.form.nextSession";
         default: return sectionKey;
@@ -378,96 +401,118 @@
 
     function buildFilteredSessionMarkdown(selectedKeys) {
       // Build a markdown document filtered to only the section keys checked in
-      // Step 1. Client/date/type lines are omitted — they're redundant with the
-      // PDF title block, which reads sessionData.clientName/sessionDate/sessionType
-      // directly from the function args, not from the markdown body.
+      // Step 1, emitted in the therapist's saved section order. Client/date/type
+      // lines are omitted — they're redundant with the PDF title block, which
+      // reads sessionData.clientName/sessionDate/sessionType directly from the
+      // function args, not from the markdown body.
+      //
+      // Every ## heading is wrapped with stripRequired() so any section label
+      // that ends with the form-required marker "*" renders without the literal
+      // asterisk. stripRequired() is a no-op on labels that don't end with "*".
+      //
+      // Group NAMES never appear here — the order is flattened to section keys
+      // only, so the exported document stays a flat sequence of section headings.
       const selected = new Set(selectedKeys);
-
       const heartShieldChecked = heartShieldToggle ? heartShieldToggle.checked : false;
-      const shieldRemovedInput = document.querySelector("input[name='shieldRemoved']:checked");
-      const shieldRemovedValue = shieldRemovedInput ? shieldRemovedInput.value : null;
 
       const lines = [
         `# ${App.t("session.copy.title")}`
       ];
 
-      // Heart shield is its own ## section in the body -- previously a bare
-      // label-and-value line ("**Heart Shield Session** No") that, after **
-      // stripping, displayed as raw text between the title and the issues section,
-      // looking like stray junk. Promoting it to a ## heading + body line aligns
-      // it with every other section's structure. The value line carries the
-      // export-only wording (session.export.heartWall.*), NOT the form's bare
-      // Yes/No radio labels — same reasoning as buildSessionMarkdown, and the
-      // PDF renders this line from this markdown body.
-      if (heartShieldChecked && selected.has("heartShield")) {
-        lines.push(
-          "",
-          `## ${stripRequired(App.getSectionLabel("heartShield", "session.form.heartShield"))}`,
-          shieldRemovedValue === "yes"
-            ? App.t("session.export.heartWall.released")
-            : App.t("session.export.heartWall.notReleased")
-        );
-      }
+      const pushSection = (key, body) => {
+        lines.push("", `## ${stripRequired(App.getSectionLabel(key, exportDefaultI18nKey(key)))}`);
+        if (Array.isArray(body)) {
+          body.forEach((b) => { if (b) lines.push(b); });
+        } else if (body) {
+          lines.push(body);
+        }
+      };
 
-      // Every ## heading is wrapped with stripRequired() so any section label that
-      // ends with the form-required marker "*" (currently
-      // session.form.issuesHeading; potentially others if therapists customize
-      // titles via Settings or new required sections are added) renders without
-      // the literal asterisk leaking into the section title. stripRequired() is
-      // a no-op on labels that don't end with "*", so it's safe to apply
-      // defensively to every heading call site.
-      // The issues/severity section is NO LONGER emitted
-      // as markdown body text here. Severity now renders STRUCTURALLY in the PDF
-      // as the two-bar before/after block (drawSeverityBlock in pdf-export.js),
-      // fed by the structured issues[] forwarded on the buildSessionPDF input
-      // contract (34-05). Dropping the markdown emission together with adding the
-      // bars (same phase) guarantees severity appears EXACTLY ONCE — as bars —
-      // never doubled and never missing. The FULL builder (buildSessionMarkdown,
-      // the clipboard-copy path) still emits the text issues section unchanged.
-
-      const heartShieldEmotionsEl = document.getElementById("heartShieldEmotions");
-      const heartShieldEmotionsValue = (heartShieldEmotionsEl ? heartShieldEmotionsEl.value : "").trim();
-      if (selected.has("heartShieldEmotions") && heartShieldChecked && heartShieldEmotionsValue.length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("heartShieldEmotions", "session.form.heartShieldEmotions"))}`, heartShieldEmotionsValue);
-      }
-
-      const trappedValue = (document.getElementById("trappedEmotions") || {}).value || "";
-      if (selected.has("trapped") && trappedValue.trim().length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("trapped", "session.form.trapped"))}`, trappedValue.trim());
-      }
-      // Section order MUST mirror the add-session form DOM order (data-section-key
-      // in add-session.html): trapped -> insights -> limitingBeliefs ->
-      // additionalTech. Insights was previously emitted last, so it sorted after
-      // additionalTech. The section-order test suite asserts this invariant.
-      const insightsValue = (insightsInput ? insightsInput.value : "").trim();
-      if (selected.has("insights") && insightsValue.length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("insights", "session.form.insights"))}`, insightsValue);
-      }
-      const limitingBeliefsValue = (document.getElementById("limitingBeliefs") || {}).value || "";
-      if (selected.has("limitingBeliefs") && limitingBeliefsValue.trim().length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("limitingBeliefs", "session.form.limitingBeliefs"))}`, limitingBeliefsValue.trim());
-      }
-      const additionalTechValue = (document.getElementById("additionalTech") || {}).value || "";
-      if (selected.has("additionalTech") && additionalTechValue.trim().length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("additionalTech", "session.form.additionalTech"))}`, additionalTechValue.trim());
-      }
-      const commentsValue = (document.getElementById("sessionComments") || {}).value || "";
-      if (selected.has("comments") && commentsValue.trim().length > 0) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("comments", "session.form.comments"))}`, commentsValue.trim());
-      }
-      const summaryValue = (customerSummaryInput ? customerSummaryInput.value : "").trim();
-      // Next Session (D-09/NEXT-06): the per-section include-toggle still gates
-      // BOTH note and date together — if nextSession is excluded, neither renders.
-      // When included, the gate is note-OR-date so a date-only session still emits
-      // the block, and the formatted date line (App.formatDate, honoring
-      // portfolioDateFormat) renders beside the note (whichever is present).
-      const nextDateRaw = document.getElementById("nextSessionDate")?.value || "";
-      const nextDateFormatted = nextDateRaw ? App.formatDate(nextDateRaw) : "";
-      if (selected.has("nextSession") && (summaryValue.length > 0 || nextDateRaw)) {
-        lines.push("", `## ${stripRequired(App.getSectionLabel("nextSession", "session.form.nextSession"))}`);
-        if (nextDateFormatted) lines.push(nextDateFormatted);
-        if (summaryValue.length > 0) lines.push(summaryValue);
-      }
+      orderedFormKeys().forEach((key) => {
+        if (!selected.has(key)) return;
+        switch (key) {
+          case "afterSeverity":
+            // The end-of-session severity content is PDF-structural (the two-bar
+            // before/after block), never markdown text — so this slot emits no
+            // section here.
+            return;
+          case "issues": {
+            // Session topics: the topic NAMES only. Numeric ratings stay
+            // PDF-structural bars gated by the severity sub-option; no rating
+            // text ever appears in this filtered markdown.
+            const names = ((typeof getIssuesPayload === "function") ? getIssuesPayload() : [])
+              .map((it) => (it && it.name != null) ? String(it.name).trim() : "")
+              .filter((n) => n.length > 0);
+            if (names.length === 0) return;
+            pushSection(key, names.join("\n"));
+            return;
+          }
+          case "heartShield": {
+            if (!heartShieldChecked) return;
+            // The value line carries the export-only wording
+            // (session.export.heartWall.*), NOT the form's bare Yes/No radio
+            // labels: in a document, "No" reads as "not a Heart-Wall session"
+            // when it actually means identified-but-not-released.
+            const shieldRemovedInput = document.querySelector("input[name='shieldRemoved']:checked");
+            const shieldRemovedValue = shieldRemovedInput ? shieldRemovedInput.value : null;
+            pushSection(key, shieldRemovedValue === "yes"
+              ? App.t("session.export.heartWall.released")
+              : App.t("session.export.heartWall.notReleased"));
+            return;
+          }
+          case "heartShieldEmotions": {
+            const el = document.getElementById("heartShieldEmotions");
+            const v = (el ? el.value : "").trim();
+            if (!heartShieldChecked || v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "trapped": {
+            const v = ((document.getElementById("trappedEmotions") || {}).value || "").trim();
+            if (v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "insights": {
+            const v = (insightsInput ? insightsInput.value : "").trim();
+            if (v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "limitingBeliefs": {
+            const v = ((document.getElementById("limitingBeliefs") || {}).value || "").trim();
+            if (v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "additionalTech": {
+            const v = ((document.getElementById("additionalTech") || {}).value || "").trim();
+            if (v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "comments": {
+            const v = ((document.getElementById("sessionComments") || {}).value || "").trim();
+            if (v.length === 0) return;
+            pushSection(key, v);
+            return;
+          }
+          case "nextSession": {
+            // The per-section include-toggle gates BOTH note and date together.
+            // The gate is note-OR-date so a date-only session still emits the
+            // block, and the formatted date line (App.formatDate, honoring
+            // portfolioDateFormat) renders beside the note (whichever is present).
+            const summaryValue = (customerSummaryInput ? customerSummaryInput.value : "").trim();
+            const nextDateRaw = document.getElementById("nextSessionDate")?.value || "";
+            if (summaryValue.length === 0 && !nextDateRaw) return;
+            const nextDateFormatted = nextDateRaw ? App.formatDate(nextDateRaw) : "";
+            pushSection(key, [nextDateFormatted, summaryValue.length > 0 ? summaryValue : ""]);
+            return;
+          }
+          default:
+            return;
+        }
+      });
 
       return lines.join("\n");
     }
@@ -490,7 +535,7 @@
     // a levels-1-3 classification without the title would demote the document title
     // to the note register on every PDF.
     function buildDocumentSectionLabels() {
-      const labels = EXPORT_SECTION_ORDER.map(function (key) {
+      const labels = orderedFormKeys().map(function (key) {
         return stripRequired(App.getSectionLabel(key, exportDefaultI18nKey(key)));
       });
       labels.push(App.t("session.copy.title"));
@@ -518,14 +563,17 @@
       const container = document.getElementById("exportStep1Rows");
       if (!container) return;
       container.innerHTML = "";
-      EXPORT_SECTION_ORDER.forEach((key) => {
+      orderedFormKeys().forEach((key) => {
+        // The end-of-session severity item is not a standalone export row — its
+        // ratings are offered as a dependent sub-option beneath Session topics
+        // (wired below), never as a sibling section.
+        if (key === "afterSeverity") return;
         const enabled = App.isSectionEnabled(key);
-        // The issues row carries a clarified fixed label ("Emotions before /
-        // after ratings") so therapists recognise it as the before/after block
-        // rather than only "Issues addressed"; every other row keeps the
+        // The topics row is named identically to the in-session "Session topics"
+        // title (so therapists recognise it); every other row keeps the
         // customizable section label.
         const label = (key === "issues")
-          ? App.t("export.section.emotions")
+          ? App.t("export.section.topics")
           : App.getSectionLabel(key, exportDefaultI18nKey(key));
         const hasData = sectionHasData(key);
         let defaultChecked = !!EXPORT_DEFAULT_CHECKED[key];

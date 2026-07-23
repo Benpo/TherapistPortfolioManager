@@ -166,8 +166,8 @@ async function test(name, fn) {
     // customizable section label.
     var labelSpan = cb.parentElement.querySelector('.export-section-label');
     assert.ok(labelSpan, 'the row must carry a label span');
-    assert.strictEqual(labelSpan.textContent, 'export.section.emotions',
-      'the emotions row label must route through the export.section.emotions i18n key');
+    assert.strictEqual(labelSpan.textContent, 'export.section.topics',
+      'the topics row label must route through the export.section.topics i18n key (named identically to the in-session section title)');
 
     env.dom.window.close();
   });
