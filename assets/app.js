@@ -194,6 +194,14 @@ window.App = (() => {
    *   - Malformed input (not a non-empty array) returns a fresh default order.
    *   - Unknown section keys and unknown group members are dropped; a group
    *     left with zero members is dropped; every key appears at most once.
+   *   - A crafted order cannot abuse group structure: a top-level-only key
+   *     (issues, afterSeverity — anything a bare section in the default
+   *     template) nested inside a group is hoisted back to top level
+   *     immediately after its host group; a duplicate group id is dropped
+   *     (first kept group wins, the duplicate's members re-enter via
+   *     append-missing); a KNOWN group only carries its own default members —
+   *     a foreign member key is dropped from the group and re-enters at its
+   *     default slot.
    *   - Any KNOWN section, group, or default group member missing from the
    *     candidate is re-appended at its default slot, so no enabled section is
    *     ever silently hidden from the form or export.
@@ -210,6 +218,14 @@ window.App = (() => {
     }
 
     const seen = new Set();
+    // Group ids already kept in the result — a later duplicate is dropped
+    // whole (its unseen members re-enter via the append-missing pass below).
+    const keptGroupIds = new Set();
+    // Keys that are bare top-level sections in the default template may never
+    // nest inside a group (that is how a crafted order could slip severity
+    // ahead of topics past the clamp, or nest the severity block in a group).
+    const topLevelOnlyKeys = new Set(
+      DEFAULT_SECTION_ORDER.filter((d) => d.type === "section").map((d) => d.key));
     const result = [];
     items.forEach((item) => {
       if (!item || typeof item !== "object") return;
@@ -218,15 +234,39 @@ window.App = (() => {
         seen.add(item.key);
         result.push({ type: "section", key: item.key });
       } else if (item.type === "group") {
+        if (keptGroupIds.has(item.id)) return;
+        const defaultGroup = DEFAULT_SECTION_ORDER.find(
+          (d) => d.type === "group" && d.id === item.id);
+        // A top-level-only key nested in the group is hoisted back to top
+        // level immediately after its host group (relative position kept; the
+        // severity-after-topics clamp below still has the final word).
+        const hoisted = [];
         const members = (Array.isArray(item.members) ? item.members : [])
-          .filter((m) => KNOWN_SECTION_KEYS.has(m) && !seen.has(m));
-        if (members.length === 0) return;
-        members.forEach((m) => seen.add(m));
-        result.push({
-          type: "group",
-          id: item.id,
-          titleOverride: (typeof item.titleOverride === "string" ? item.titleOverride : null),
-          members: members,
+          .filter((m) => {
+            if (!KNOWN_SECTION_KEYS.has(m) || seen.has(m)) return false;
+            if (topLevelOnlyKeys.has(m)) {
+              seen.add(m);
+              hoisted.push(m);
+              return false;
+            }
+            // A KNOWN group only carries its own default members; a foreign
+            // member is dropped here (unseen) and re-enters at its default
+            // slot via the append-missing pass below.
+            if (defaultGroup && defaultGroup.members.indexOf(m) === -1) return false;
+            return true;
+          });
+        if (members.length > 0) {
+          keptGroupIds.add(item.id);
+          members.forEach((m) => seen.add(m));
+          result.push({
+            type: "group",
+            id: item.id,
+            titleOverride: (typeof item.titleOverride === "string" ? item.titleOverride : null),
+            members: members,
+          });
+        }
+        hoisted.forEach((m) => {
+          result.push({ type: "section", key: m });
         });
       }
     });

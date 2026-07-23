@@ -150,6 +150,64 @@ await test('no duplicate section keys after sanitize', () => {
   assert.strictEqual(new Set(flat).size, flat.length, 'no dup keys: ' + JSON.stringify(flat));
 });
 
+// ---- structural abuse from crafted orders ----------------------------------
+
+await test('issues nested inside a group is hoisted to top level (group blind spot closed)', () => {
+  const out = App.sanitizeOrder([
+    { type: 'group', id: 'emotionsTech', titleOverride: null, members: ['trapped', 'issues', 'insights'] },
+    { type: 'section', key: 'afterSeverity' },
+  ]);
+  out.filter((o) => o.type === 'group').forEach((g) => {
+    assert.ok(g.members.indexOf('issues') === -1, 'no group may carry issues as a member');
+  });
+  const keys = topKeys(out);
+  assert.ok(keys.indexOf('issues') !== -1, 'issues re-surfaces as a top-level section');
+  assert.ok(keys.indexOf('issues') < keys.indexOf('afterSeverity'),
+    'the severity-after-topics clamp still holds on the hoisted result');
+  const flat = App.flattenOrderKeys(out);
+  assert.strictEqual(new Set(flat).size, flat.length, 'no dup keys: ' + JSON.stringify(flat));
+});
+
+await test('afterSeverity nested inside a group is hoisted AND clamped after issues', () => {
+  const out = App.sanitizeOrder([
+    { type: 'group', id: 'emotionsTech', titleOverride: null, members: ['afterSeverity', 'trapped'] },
+    { type: 'section', key: 'issues' },
+  ]);
+  out.filter((o) => o.type === 'group').forEach((g) => {
+    assert.ok(g.members.indexOf('afterSeverity') === -1, 'no group may carry afterSeverity as a member');
+  });
+  const keys = topKeys(out);
+  assert.ok(keys.indexOf('afterSeverity') !== -1, 'afterSeverity re-surfaces at top level');
+  assert.ok(keys.indexOf('issues') < keys.indexOf('afterSeverity'),
+    'hoisted afterSeverity may never precede issues; got ' + JSON.stringify(keys));
+});
+
+await test('a duplicate group id is deduped — first wins, its members are never lost', () => {
+  const out = App.sanitizeOrder([
+    { type: 'group', id: 'emotionsTech', titleOverride: 'First', members: ['trapped'] },
+    { type: 'group', id: 'emotionsTech', titleOverride: 'Second', members: ['insights'] },
+  ]);
+  const emos = out.filter((o) => o.type === 'group' && o.id === 'emotionsTech');
+  assert.strictEqual(emos.length, 1, 'exactly one emotionsTech group survives');
+  assert.strictEqual(emos[0].titleOverride, 'First', 'the FIRST occurrence wins');
+  const flat = App.flattenOrderKeys(out);
+  assert.ok(flat.indexOf('insights') !== -1, 'the dropped duplicate\'s member re-enters via append-missing');
+  assert.strictEqual(new Set(flat).size, flat.length, 'no dup keys: ' + JSON.stringify(flat));
+});
+
+await test('a foreign member is dropped from a known group but its key survives in the flattened order', () => {
+  const out = App.sanitizeOrder([
+    { type: 'group', id: 'wrapup', titleOverride: null, members: ['trapped', 'comments'] },
+  ]);
+  const wrap = out.find((o) => o.type === 'group' && o.id === 'wrapup');
+  assert.ok(wrap, 'wrapup group present');
+  assert.ok(wrap.members.indexOf('trapped') === -1, 'a known group only carries its own default members');
+  assert.ok(wrap.members.indexOf('comments') !== -1, 'the legitimate member is kept');
+  const flat = App.flattenOrderKeys(out);
+  assert.ok(flat.indexOf('trapped') !== -1, 'the foreign key is never lost — it re-enters at its default slot');
+  assert.strictEqual(new Set(flat).size, flat.length, 'no dup keys: ' + JSON.stringify(flat));
+});
+
 // ---- getSectionOrder / flattenOrderKeys ------------------------------------
 
 await test('getSectionOrder returns a defensive copy', () => {
