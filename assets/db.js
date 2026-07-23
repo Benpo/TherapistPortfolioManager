@@ -11,7 +11,7 @@
 //   session CRUD (addSession, getSession, getAllSessions, updateSession,
 //   deleteSession, getSessionsByClient); therapist settings
 //   (getAllTherapistSettings, setTherapistSetting, _writeTherapistSentinel,
-//   clearTherapistSettings); snippets (validateSnippetShape, getAllSnippets,
+//   getSectionOrderRecord, clearTherapistSettings); snippets (validateSnippetShape, getAllSnippets,
 //   getSnippet, addSnippet, updateSnippet, deleteSnippet, resetSeedSnippet);
 //   crash log (addCrashlog, getAllCrashlog, clearCrashlog, replaceAllCrashlog);
 //   recovery (getAllForRecoveryExport, clearAll, DB_VERSION,
@@ -916,8 +916,11 @@ window.PortfolioDB = (() => {
 
   // Allow-set for the dedicated sentinel write path. Kept narrow on purpose:
   // any new sentinel record (non-section therapistSettings row) MUST be added
-  // here AND in backup.js#ALLOWED_SENTINEL_KEYS, in lock-step.
-  const _SENTINEL_KEYS = new Set([DELETED_SEEDS_KEY]); // 'snippetsDeletedSeeds'
+  // here AND in backup.js#ALLOWED_SENTINEL_KEYS, in lock-step — a key missing
+  // from the backup allow-set is silently dropped on restore.
+  const _SENTINEL_KEYS = new Set([DELETED_SEEDS_KEY, "sectionOrder"]);
+  // members: 'snippetsDeletedSeeds' (deletedIds payload),
+  //          'sectionOrder'         (version + items payload)
 
   /**
    * _writeTherapistSentinel — raw `put` into the therapistSettings store for
@@ -935,12 +938,16 @@ window.PortfolioDB = (() => {
    *
    * Used by:
    *   - assets/backup.js importBackup loop (sentinel write for the deleted-seeds record)
+   *   - the per-therapist section-order write path
    *
-   * Input contract:
-   *   record.sectionKey  — must be in _SENTINEL_KEYS
-   *   record.deletedIds  — array (non-array → coerced to []); non-string
-   *                        entries filtered silently (matches the discipline
-   *                        in _setDeletedSeedIds).
+   * Each registered sentinel carries its own payload shape; this writer persists
+   * exactly the fields that shape needs and type-guards them on write so a
+   * malformed caller (or a crafted backup) can never land a wrong-typed row:
+   *   sectionKey === "snippetsDeletedSeeds":
+   *     record.deletedIds — array (non-array → []); non-string entries filtered.
+   *   sectionKey === "sectionOrder":
+   *     record.items      — array (non-array → []).
+   *     record.version    — number (non-number → 1).
    *
    * Returns: same promise shape as withStore put.
    */
@@ -951,6 +958,17 @@ window.PortfolioDB = (() => {
     if (!_SENTINEL_KEYS.has(record.sectionKey)) {
       throw new Error("_writeTherapistSentinel: sectionKey '" +
         record.sectionKey + "' is not a registered sentinel");
+    }
+    if (record.sectionKey === "sectionOrder") {
+      const items = Array.isArray(record.items) ? record.items : [];
+      const version = typeof record.version === "number" ? record.version : 1;
+      return withStore("therapistSettings", "readwrite", function (store) {
+        return store.put({
+          sectionKey: record.sectionKey,
+          version: version,
+          items: items,
+        });
+      });
     }
     const rawIds = Array.isArray(record.deletedIds) ? record.deletedIds : [];
     const cleanIds = rawIds.filter((x) => typeof x === "string");
@@ -993,6 +1011,20 @@ window.PortfolioDB = (() => {
       request.onsuccess = () => resolve(request.result || []);
       request.onerror = () => reject(request.error);
     });
+  }
+
+  /**
+   * getSectionOrderRecord — return the sentinel row that stores the
+   * per-therapist session-section order ({sectionKey, version, items}), or
+   * null when none has been written yet. Read from the existing
+   * getAllTherapistSettings() result (filtered by sectionKey) so no extra
+   * store/transaction is introduced; section-row walkers filter this same row
+   * out by its sectionKey.
+   */
+  async function getSectionOrderRecord() {
+    const rows = await getAllTherapistSettings();
+    const row = rows.find((r) => r && r.sectionKey === "sectionOrder");
+    return row || null;
   }
 
   async function clearTherapistSettings() {
@@ -1158,6 +1190,8 @@ window.PortfolioDB = (() => {
     setTherapistSetting,
     // Raw sentinel write path; see definition above.
     _writeTherapistSentinel,
+    // Reader for the section-order sentinel row (or null).
+    getSectionOrderRecord,
     clearTherapistSettings,
     // Snippets API
     validateSnippetShape,
