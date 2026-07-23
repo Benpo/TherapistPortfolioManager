@@ -444,7 +444,52 @@ async function test(name, fn) {
     env.dom.window.close();
   });
 
-  var EXPECTED_COUNT = 16;
+  // ─── Case 17: severity off, past session — clearing all start ratings live-hides the emptied section ─
+  await test('with severity off on a past session, clearing every start rating live-hides the emptied end-of-session section (header + badge gone)', async function () {
+    var env = await boot({
+      isSectionEnabled: function (k) { return k !== 'afterSeverity'; },
+      sessionId: 1,
+      sessions: [{ id: 1, clientId: 1, date: '2026-06-01', issues: [
+        { name: 'X', before: 6, after: 2 },
+        { name: 'Y', before: 4, after: 1 },
+      ] }],
+    });
+    var win = env.win;
+    assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), false,
+      'recorded severity keeps the end-of-session section visible on load');
+    var scales = win.document.querySelectorAll('#issueList .issue-block .severity-scale');
+    clickPill(scales[0], 6); // clear X's start rating
+    assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), false,
+      'one topic still carries a numeric rating — the section stays visible');
+    clickPill(scales[1], 4); // clear Y's start rating — no numeric rating remains
+    assert.strictEqual(afterSeveritySection(win).classList.contains('is-hidden'), true,
+      'the fully-emptied disabled section hides live, header-and-all');
+    env.dom.window.close();
+  });
+
+  // ─── Case 18: a disabled section retaining one rating stays visible + badged ──
+  await test('a disabled severity section retaining one numeric rating stays visible + badged after an in-form clear', async function () {
+    var env = await boot({
+      isSectionEnabled: function (k) { return k !== 'afterSeverity'; },
+      sessionId: 1,
+      sessions: [{ id: 1, clientId: 1, date: '2026-06-01', issues: [
+        { name: 'X', before: 6, after: 2 },
+        { name: 'Y', before: 4, after: 1 },
+      ] }],
+    });
+    var win = env.win;
+    var scales = win.document.querySelectorAll('#issueList .issue-block .severity-scale');
+    clickPill(scales[0], 6); // clear only X's start rating; Y still recorded
+    var section = afterSeveritySection(win);
+    assert.strictEqual(section.classList.contains('is-hidden'), false,
+      'the section stays visible while a topic still carries a numeric rating');
+    var badge = section.querySelector('.disabled-indicator-badge');
+    assert.ok(badge && !badge.classList.contains('is-hidden'),
+      'the disabled-section badge stays shown on the still-visible section');
+    env.dom.window.close();
+  });
+
+  var EXPECTED_COUNT = 18;
   try { assert.strictEqual(passed + failed, EXPECTED_COUNT); }
   catch (e) {
     console.error('\nGUARD FAILED: expected ' + EXPECTED_COUNT + ' cases, ran ' + (passed + failed));
