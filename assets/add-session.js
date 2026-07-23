@@ -994,6 +994,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // Physically arrange the top-level section/group containers — and each group's
+  // members — into the therapist's saved order. Moves the existing nodes
+  // (appendChild), never rebuilds them, so every input, value, and listener
+  // survives. Reads the page-pinned order so this form and its same-page exports
+  // arrange from one identical snapshot for the page's whole lifetime, even if a
+  // peer tab rewrites the saved order mid-edit.
+  function applySectionOrder() {
+    if (!App || typeof App.getSectionOrder !== "function") return;
+    const host = document.getElementById("sessionSectionsHost");
+    if (!host) return;
+    const order = App.getSectionOrder();
+    if (!Array.isArray(order)) return;
+    order.forEach((item) => {
+      if (!item) return;
+      if (item.type === "section") {
+        const container = topLevelSectionContainer(host, item.key);
+        if (container) host.appendChild(container);
+      } else if (item.type === "group") {
+        const group = host.querySelector('[data-group-id="' + item.id + '"]');
+        if (!group) return;
+        host.appendChild(group);
+        const body = group.querySelector(".accordion-body");
+        if (!body || !Array.isArray(item.members)) return;
+        item.members.forEach((memberKey) => {
+          const member = body.querySelector('[data-section-key="' + memberKey + '"]');
+          if (member) body.appendChild(member);
+        });
+        // The Heart-Wall "was it removed?" field must stay the LAST child of the
+        // group holding the Heart-Wall toggle, so an empty-group hide can never
+        // strand this required conditional after the members are re-appended.
+        const conditional = body.querySelector("#heartShieldConditional");
+        if (conditional) body.appendChild(conditional);
+      }
+    });
+  }
+
+  // Resolve the direct child of the sections host that carries a top-level
+  // section key (a bare section's key lives on its accordion container).
+  function topLevelSectionContainer(host, sectionKey) {
+    let el = host.querySelector('[data-section-key="' + sectionKey + '"]');
+    while (el && el.parentElement && el.parentElement !== host) {
+      el = el.parentElement;
+    }
+    return el && el.parentElement === host ? el : null;
+  }
+
   function applySectionVisibility(isPastSession) {
     const wrappers = document.querySelectorAll("[data-section-key]");
     wrappers.forEach((wrapper) => {
@@ -1022,6 +1068,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         wrapper.classList.add("is-hidden");
         if (badge) badge.classList.add("is-hidden");
       }
+    });
+
+    // Hide a group container once every member section is effectively hidden;
+    // show it as soon as one member renders — an enabled member, or a disabled
+    // past-session member that carries recorded data and stays badged-visible —
+    // so clinical data is never hidden behind a collapsed group.
+    document.querySelectorAll("[data-group-id]").forEach((group) => {
+      const members = group.querySelectorAll("[data-section-key]");
+      if (!members.length) return;
+      let anyVisible = false;
+      members.forEach((m) => {
+        if (!m.classList.contains("is-hidden")) anyVisible = true;
+      });
+      group.classList.toggle("is-hidden", !anyVisible);
     });
   }
 
@@ -1056,17 +1116,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
     });
-    // Keep the heart-shield accordion-header in sync — it shares the same
-    // i18n key as the inner section label, so a rename must show on both.
-    const heartShieldHeader = document.querySelector(
-      '[data-accordion="heart-shield"] > .accordion-header[data-i18n]'
-    );
-    if (heartShieldHeader) {
-      heartShieldHeader.textContent = App.getSectionLabel(
-        "heartShield",
-        "session.form.heartShield"
-      );
-    }
   }
 
   // Cross-tab + same-tab settings change → re-apply visibility AND labels.
@@ -1382,6 +1431,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     populateSpotlight(editingSession ? editingSession.clientId : (clientSelect ? clientSelect.value : null));
     updateCancelButtonLabel(); // re-translate Cancel/Discard label
   });
+
+  // Pin the saved order once at open, then arrange the form to it. The pin
+  // freezes a page-scoped snapshot both the form and its same-page exports read,
+  // so the two can never diverge for the page's lifetime. Arrange runs for both
+  // the new-session and editing paths below.
+  if (App && typeof App.pinSectionOrder === "function") App.pinSectionOrder();
+  applySectionOrder();
 
   if (sessionId && Number.isInteger(sessionId)) {
     editingSession = await PortfolioDB.getSession(sessionId);
