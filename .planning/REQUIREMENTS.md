@@ -30,12 +30,12 @@ Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings
 - [ ] **ORDR-02**: User can reorder via per-row up/down arrow buttons (accessible baseline, WCAG 2.2)
 - [ ] **ORDR-03**: Saved order drives the add/edit session form layout
 - [ ] **ORDR-04**: Saved order drives the markdown + PDF export builders — repointed atomically with the 260615 guard-test rewrite (order invariant never briefly broken)
-- [ ] **ORDR-05**: Order persists per therapist (therapistSettings sentinel record, mirroring the snippetsDeletedSeeds pattern) and round-trips through encrypted backup
+- [x] **ORDR-05**: Order persists per therapist (therapistSettings sentinel record, mirroring the snippetsDeletedSeeds pattern) and round-trips through encrypted backup
 
 **Amendment (drafted by planner 2026-07-23, per Phase 47 CONTEXT; APPROVED by Ben at plan review 2026-07-23):** the severity-optional redesign (D-08/D-09) and group renames (D-05) that grew into Phase 47 scope need their own requirement IDs so Phase 47 coverage is honest.
 
 - [ ] **ORDR-06**: An app-level severity switch — the "Issue severity" Settings row toggle turns ALL severity ratings on/off (D-08); disabling it hides the end-of-session severity block AND the start-rating column inside topic rows (topics themselves remain). A ⓘ info icon explains the coupling, and the help corpus gains a "how to turn severity ratings off" entry (EN corpus of record, then DE/HE/CS).
-- [ ] **ORDR-07**: Unrated-by-default severity (D-19…D-23, rewritten at plan review 2026-07-23 — replaces the earlier "— (skip)" 11th-value design): ratings are optional (as the shipped validation always was); tapping the active pill again CLEARS the rating back to unrated; an unrated topic contributes no severity anywhere — no PDF bar row (the block filters to topics with ≥1 numeric rating and is omitted when none qualify), no markdown/clipboard line, no end-of-session rating row, and no "(- -> -)" suffix in the Sessions History / client-overview views (name only); partially-rated topics keep their rated side everywhere.
+- [x] **ORDR-07**: Unrated-by-default severity (D-19…D-23, rewritten at plan review 2026-07-23 — replaces the earlier "— (skip)" 11th-value design): ratings are optional (as the shipped validation always was); tapping the active pill again CLEARS the rating back to unrated; an unrated topic contributes no severity anywhere — no PDF bar row (the block filters to topics with ≥1 numeric rating and is omitted when none qualify), no markdown/clipboard line, no end-of-session rating row, and no "(- -> -)" suffix in the Sessions History / client-overview views (name only); partially-rated topics keep their rated side everywhere.
 - [ ] **ORDR-08**: Group renames (D-05) — group header rows in the Settings reorder list carry the same ✎ rename (+ revert) pattern that sections have; group title overrides persist in the order sentinel (group-as-DATA, so the future group-management phase plugs in with zero migration). Group creation/dissolution/move-between stays deferred.
 
 ### Mobile Pass (MOBL)
@@ -106,9 +106,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ORDR-02 | Phase 47 | Pending |
 | ORDR-03 | Phase 47 | Pending |
 | ORDR-04 | Phase 47 | Pending |
-| ORDR-05 | Phase 47 | Pending |
+| ORDR-05 | Phase 47 | Complete |
 | ORDR-06 | Phase 47 | Pending |
-| ORDR-07 | Phase 47 | Pending |
+| ORDR-07 | Phase 47 | Complete |
 | ORDR-08 | Phase 47 | Pending |
 | MOBL-01 | Phase 48 | Pending |
 | MOBL-02 | Phase 48 | Pending |

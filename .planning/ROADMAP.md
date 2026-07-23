@@ -324,16 +324,18 @@ Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). 
   3. The saved order drives BOTH the markdown and PDF export builders — `severityAfterSections` included — repointed atomically with the 260615 guard-test rewrite so export order can never briefly diverge from the saved order.
   4. The chosen order persists per therapist (a `therapistSettings` sentinel record, mirroring the `snippetsDeletedSeeds` pattern) and survives an encrypted backup round-trip.
 
-**Plans**: 10 plans
+**Plans**: 1/10 plans executed
 **UI hint**: yes
 
 Plans:
 
 **Wave 1** (shared foundation — parallel, no file overlap)
-- [ ] 47-01-PLAN.md — Order sentinel (db.js) + shared getSectionOrder cache/sanitizeOrder validator + tap-again-to-clear on the severity scale (app.js, D-20) [ORDR-05, ORDR-07]
+
+- [x] 47-01-PLAN.md — Order sentinel (db.js) + shared getSectionOrder cache/sanitizeOrder validator + tap-again-to-clear on the severity scale (app.js, D-20) [ORDR-05, ORDR-07]
 - [ ] 47-02-PLAN.md — i18n UI string contract for the whole phase, EN/DE/HE/CS (incl. D-14 HE export-label fix) [ORDR-06, ORDR-07, ORDR-08]
 
 **Wave 2** (feature surfaces — parallel, disjoint files; consume Wave-1 APIs)
+
 - [ ] 47-03-PLAN.md — Settings grouped reorder UI: drag + arrows, group headers (renamable), Issue-severity row + ⓘ, Reset order / Reset names, persistence on Save [ORDR-01, ORDR-02, ORDR-06, ORDR-08]
 - [ ] 47-04-PLAN.md — Session form D-02 restructure + order-driven render (empty-group hide, tour anchors) [ORDR-03]
 - [ ] 47-05-PLAN.md — Filtered export builder repointed to saved order (atomic 260615 rewrite) + topics/severity split (D-14) + unrated omission via the PDF-input filter (D-21) [ORDR-04, ORDR-07]
@@ -341,10 +343,12 @@ Plans:
 - [ ] 47-10-PLAN.md — View mode: fully-unrated topic renders name only (no "(- -> -)" suffix) in Sessions History + client-overview; averages untouched (D-23) [ORDR-07]
 
 **Wave 3** (second add-session pass + clipboard/PDF-placement export split — after the restructure)
+
 - [ ] 47-07-PLAN.md — Severity form semantics: unrated-aware readers, end-of-session-rating auto-hide when unrated (D-22), severity-off column coupling, "Severity at start" label [ORDR-06, ORDR-07]
 - [ ] 47-09-PLAN.md — Export split from 47-05 (sequential on export-modal.js): clipboard buildSessionMarkdown saved-order + unrated omission (D-21) + edit-aware severity-block placement (G-8) [ORDR-04, ORDR-07]
 
 **Wave 4** (planner-owned docs pass, D-18 — Ben reviews copy)
+
 - [ ] 47-08-PLAN.md — Help topics (new reordering + "turn severity off") + 4-part changelog entry, EN corpus + DE/HE/CS + HELP-MAP.md [ORDR-06, ORDR-07, ORDR-08]
 
 **Requirements amendment (approved by Ben at plan review, 2026-07-23):** ORDR-06 (app-level severity switch + ⓘ + help entry), ORDR-07 (unrated-by-default severity — D-19…D-23: no 11th "skip" value, tap-again-to-clear, omission from exports + views), ORDR-08 (group renames) added to REQUIREMENTS.md to cover the severity-optional + group-rename scope that grew into Phase 47.
@@ -435,5 +439,5 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
 | 45. Rich-Text Rendering & Export Foundation | v1.4 | 8/8 | Complete    | 2026-07-13 |
 | 46. Rich-Text Toolbar Editor | v1.4 | 16/17 | Complete    | 2026-07-17 |
-| 47. Session-Section Reordering | v1.4 | 0/TBD | Not started | - |
+| 47. Session-Section Reordering | v1.4 | 1/10 | In Progress|  |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
