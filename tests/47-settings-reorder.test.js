@@ -296,7 +296,7 @@ async function test(name, fn) {
   // row must not keep the .dragging highlight and the pointer capture must be
   // released. A regression to cleaning up only in onUp would leave .dragging
   // stuck on both paths and FAIL here.
-  await test('a drag ended by pointercancel or lostpointercapture clears .dragging and releases capture', async function () {
+  await test('the drag claims no pointer capture, survives lostpointercapture, and pointercancel clears .dragging', async function () {
     var env = buildEnv([]);
     var win = env.win;
     await env.iife1();
@@ -312,22 +312,17 @@ async function test(name, fn) {
       return { row: row, handle: handle };
     }
 
-    // pointercancel path (dispatched on document, where the listener lives).
+    // No-capture contract: repositioning a row (insertBefore) implicitly
+    // releases pointer capture in real engines, so the gesture must neither
+    // claim capture nor die when lostpointercapture fires mid-drag.
     var a = grab();
     a.handle.dispatchEvent(pev(win, 'pointerdown', { pointerId: 7, clientX: 0, clientY: 50 }));
     assert.ok(a.row.classList.contains('dragging'), 'pointerdown adds the drag highlight');
-    assert.strictEqual(a.handle.__captured, 7, 'pointerdown captures the pointer');
+    assert.strictEqual(a.handle.__captured, null, 'the gesture claims NO pointer capture');
+    a.handle.dispatchEvent(pev(win, 'lostpointercapture', { pointerId: 7 }));
+    assert.ok(a.row.classList.contains('dragging'), 'the drag SURVIVES lostpointercapture — a mid-drag row move must not end the gesture');
     win.document.dispatchEvent(pev(win, 'pointercancel', { pointerId: 7 }));
     assert.ok(!a.row.classList.contains('dragging'), 'pointercancel clears the drag highlight — no stuck row');
-    assert.strictEqual(a.handle.__captured, null, 'pointercancel releases the pointer capture');
-
-    // lostpointercapture path (dispatched on the handle, where the listener lives).
-    var b = grab();
-    b.handle.dispatchEvent(pev(win, 'pointerdown', { pointerId: 9, clientX: 0, clientY: 50 }));
-    assert.ok(b.row.classList.contains('dragging'), 'pointerdown adds the drag highlight');
-    b.handle.dispatchEvent(pev(win, 'lostpointercapture', { pointerId: 9 }));
-    assert.ok(!b.row.classList.contains('dragging'), 'lostpointercapture clears the drag highlight — no stuck row');
-    assert.strictEqual(b.handle.__captured, null, 'lostpointercapture releases the pointer capture');
 
     env.dom.window.close();
   });

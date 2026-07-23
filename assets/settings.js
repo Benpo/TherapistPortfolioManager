@@ -553,16 +553,16 @@ window.SettingsPage = (function () {
   // insertion math uses PHYSICAL getBoundingClientRect top/height — never logical
   // inline-axis insets, which mirror overlay geometry wrongly under RTL.
   //
-  // The move/up/cancel listeners live on `document`, not the handle: on WebKit a
-  // mouse pointer capture does not reliably redirect pointermove to the capturing
-  // element, and a drag that drifts over the editable rows triggers a native text
-  // selection that WebKit prioritises — it steals the gesture (firing
-  // pointercancel / lostpointercapture) so handle-bound move/up never arrive, the
-  // row will not move, and any highlight added on pointerdown stays stuck.
-  // Document-level listeners receive the events regardless of capture routing;
-  // selectstart is suppressed for the gesture; movement only engages past a small
-  // slop threshold; and cleanup runs on EVERY end path (up, cancel, lost capture)
-  // so the highlight can never persist and capture is always released.
+  // The move/up/cancel listeners live on `document`, not the handle, and the
+  // gesture deliberately does NOT use pointer capture: repositioning the row via
+  // insertBefore detaches the node for an instant, and that implicitly releases
+  // any pointer capture (firing lostpointercapture) — so a capture-based gesture,
+  // or one that treats lostpointercapture as end-of-drag, kills itself on its
+  // first row move. Document-level listeners keyed on pointerId receive the
+  // stream no matter where the pointer wanders; selectstart is suppressed for
+  // the gesture so a drag over the editable rows cannot start a text selection;
+  // movement only engages past a small slop threshold; and cleanup runs on every
+  // real end path (up, cancel) so the highlight can never persist.
   function wireDrag(row) {
     var handle = row.querySelector(".reorder-handle");
     if (!handle) return;
@@ -581,7 +581,6 @@ window.SettingsPage = (function () {
       var gid = row.getAttribute("data-group-id");
       var movingNodes = isMember ? [row] : unitNodeListForRow(row);
 
-      try { handle.setPointerCapture(pointerId); } catch (_) {}
       row.classList.add("dragging");
 
       function reposition(clientY) {
@@ -618,10 +617,8 @@ window.SettingsPage = (function () {
         document.removeEventListener("pointermove", onMove);
         document.removeEventListener("pointerup", onUp);
         document.removeEventListener("pointercancel", onEnd);
-        handle.removeEventListener("lostpointercapture", onEnd);
         document.removeEventListener("selectstart", suppressSelect);
         row.classList.remove("dragging");
-        try { handle.releasePointerCapture(pointerId); } catch (_) {}
       }
 
       function onMove(ev) {
@@ -637,9 +634,9 @@ window.SettingsPage = (function () {
         cleanup();
         markReorderDirty(container);
       }
-      // Cancel / lost-capture: WebKit fires one of these when it steals the
-      // gesture (or a touch is interrupted). Treat it as end-of-drag so the
-      // highlight is cleared and capture released — never left stuck.
+      // Cancel: the browser interrupts the gesture (e.g. an interrupted touch).
+      // Treat it as end-of-drag so the highlight is never left stuck. NOTE:
+      // lostpointercapture must NOT be handled here — see the comment above.
       function onEnd(ev) {
         if (ev && ev.pointerId != null && ev.pointerId !== pointerId) return;
         cleanup();
@@ -649,7 +646,6 @@ window.SettingsPage = (function () {
       document.addEventListener("pointermove", onMove);
       document.addEventListener("pointerup", onUp);
       document.addEventListener("pointercancel", onEnd);
-      handle.addEventListener("lostpointercapture", onEnd);
       document.addEventListener("selectstart", suppressSelect);
     });
   }
