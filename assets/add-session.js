@@ -1015,6 +1015,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       case "issues": {
         return Array.isArray(issues) && issues.length > 0;
       }
+      case "afterSeverity": {
+        // Recorded severity = any topic carrying a numeric start OR end rating;
+        // an unrated (null) topic is not data. Keeps a past session's recorded
+        // ratings visible+badged when the severity switch is off.
+        if (typeof App.getSeverityValue !== "function") return false;
+        return Array.isArray(issues) && issues.some((issue) =>
+          App.getSeverityValue(issue.beforeScale) !== null ||
+          App.getSeverityValue(issue.afterScale) !== null);
+      }
       default:
         return false;
     }
@@ -1111,6 +1120,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // The 'Issue severity' switch is the app-level severity master. When it is off
+  // the end-of-session block is hidden by applySectionVisibility (afterSeverity
+  // carries data-section-key); this pass couples the per-topic start-rating
+  // column to the same switch. On a past session that already recorded severity
+  // both stay visible+badged instead — recorded clinical data is never hidden,
+  // so the start columns and the end block always agree.
+  function applySeverityVisibility(isPastSession) {
+    if (!App || typeof App.isSectionEnabled !== "function") return;
+    const enabled = App.isSectionEnabled("afterSeverity");
+    const hideColumn = !enabled && !(!!isPastSession && sectionHasData("afterSeverity"));
+    issues.forEach((issue) => {
+      if (issue.severityField) issue.severityField.classList.toggle("is-hidden", hideColumn);
+    });
+  }
+
   // Write the therapist's customLabel into the visible form labels.
   // applyTranslations() resets these to the i18n default, so this MUST run
   // after every applyTranslations pass that affects this page. Uses
@@ -1147,6 +1171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Cross-tab + same-tab settings change → re-apply visibility AND labels.
   document.addEventListener("app:settings-changed", () => {
     applySectionVisibility(!!editingSession);
+    applySeverityVisibility(!!editingSession);
     applySectionLabels();
   });
 
@@ -1154,6 +1179,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     addIssueBtn.addEventListener("click", () => {
       if (issues.length >= MAX_ISSUES) return;
       createIssueBlock();
+      applySeverityVisibility(!!editingSession);
       App.applyTranslations();
     });
   }
@@ -1475,6 +1501,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (deleteButton) deleteButton.classList.remove("is-hidden");
       setReadMode(true);
       applySectionVisibility(true);
+      applySeverityVisibility(true);
       applySectionLabels();
       // Snapshot the freshly-loaded session for revertSessionForm.
       //   Wait one tick so populateSession's dynamic issue rows are in the DOM before reading.
@@ -1487,6 +1514,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   } else {
     // New session — hide disabled sections from the form.
     applySectionVisibility(false);
+    applySeverityVisibility(false);
     applySectionLabels();
     // Size the (empty) long textareas once after initial
     // construction/i18n so they start consistent; subsequent typing grows them
