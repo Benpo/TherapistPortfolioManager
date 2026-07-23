@@ -23,7 +23,7 @@
 var AppVersion = (function() {
   'use strict';
 
-  var APP_VERSION = '1.4.0';
+  var APP_VERSION = '1.5.0';
 
   // Deploy-stamped at build time by .github/workflows/deploy.yml. The literal
   // below is the placeholder the sed step replaces; if it is still its
