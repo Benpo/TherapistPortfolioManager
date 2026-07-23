@@ -324,7 +324,7 @@ Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). 
   3. The saved order drives BOTH the markdown and PDF export builders — `severityAfterSections` included — repointed atomically with the 260615 guard-test rewrite so export order can never briefly diverge from the saved order.
   4. The chosen order persists per therapist (a `therapistSettings` sentinel record, mirroring the `snippetsDeletedSeeds` pattern) and survives an encrypted backup round-trip.
 
-**Plans**: 5/10 plans executed
+**Plans**: 6/10 plans executed
 **UI hint**: yes
 
 Plans:
@@ -338,7 +338,7 @@ Plans:
 
 - [x] 47-03-PLAN.md — Settings grouped reorder UI: drag + arrows, group headers (renamable), Issue-severity row + ⓘ, Reset order / Reset names, persistence on Save [ORDR-01, ORDR-02, ORDR-06, ORDR-08]
 - [x] 47-04-PLAN.md — Session form D-02 restructure + order-driven render (empty-group hide, tour anchors) [ORDR-03]
-- [ ] 47-05-PLAN.md — Filtered export builder repointed to saved order (atomic 260615 rewrite) + topics/severity split (D-14) + unrated omission via the PDF-input filter (D-21) [ORDR-04, ORDR-07]
+- [x] 47-05-PLAN.md — Filtered export builder repointed to saved order (atomic 260615 rewrite) + topics/severity split (D-14) + unrated omission via the PDF-input filter (D-21) [ORDR-04, ORDR-07]
 - [ ] 47-06-PLAN.md — Backup restore of the order sentinel (lock-step allowlist + sanitize-on-restore) + encrypted round-trip [ORDR-05]
 - [x] 47-10-PLAN.md — View mode: fully-unrated topic renders name only (no "(- -> -)" suffix) in Sessions History + client-overview; averages untouched (D-23) [ORDR-07]
 
@@ -439,5 +439,5 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
 | 45. Rich-Text Rendering & Export Foundation | v1.4 | 8/8 | Complete    | 2026-07-13 |
 | 46. Rich-Text Toolbar Editor | v1.4 | 16/17 | Complete    | 2026-07-17 |
-| 47. Session-Section Reordering | v1.4 | 5/10 | In Progress|  |
+| 47. Session-Section Reordering | v1.4 | 6/10 | In Progress|  |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |

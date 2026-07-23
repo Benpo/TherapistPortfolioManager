@@ -29,7 +29,7 @@ Decisions locked 2026-07-11: markdown-at-rest storage (fields stay plain strings
 - [x] **ORDR-01**: User can reorder session sections in Settings by dragging (works with mouse AND iPhone touch — pointer-events, not HTML5 DnD)
 - [x] **ORDR-02**: User can reorder via per-row up/down arrow buttons (accessible baseline, WCAG 2.2)
 - [x] **ORDR-03**: Saved order drives the add/edit session form layout
-- [ ] **ORDR-04**: Saved order drives the markdown + PDF export builders — repointed atomically with the 260615 guard-test rewrite (order invariant never briefly broken)
+- [x] **ORDR-04**: Saved order drives the markdown + PDF export builders — repointed atomically with the 260615 guard-test rewrite (order invariant never briefly broken)
 - [x] **ORDR-05**: Order persists per therapist (therapistSettings sentinel record, mirroring the snippetsDeletedSeeds pattern) and round-trips through encrypted backup
 
 **Amendment (drafted by planner 2026-07-23, per Phase 47 CONTEXT; APPROVED by Ben at plan review 2026-07-23):** the severity-optional redesign (D-08/D-09) and group renames (D-05) that grew into Phase 47 scope need their own requirement IDs so Phase 47 coverage is honest.
@@ -105,7 +105,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ORDR-01 | Phase 47 | Complete |
 | ORDR-02 | Phase 47 | Complete |
 | ORDR-03 | Phase 47 | Complete |
-| ORDR-04 | Phase 47 | Pending |
+| ORDR-04 | Phase 47 | Complete |
 | ORDR-05 | Phase 47 | Complete |
 | ORDR-06 | Phase 47 | Complete |
 | ORDR-07 | Phase 47 | Complete |
