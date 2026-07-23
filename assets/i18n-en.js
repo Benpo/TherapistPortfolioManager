@@ -113,6 +113,7 @@ window.I18N.en = {
   "session.form.date": "Session Date *",
   "session.form.heartShield": "Heart-Wall Session",
   "session.accordion.emotions": "Emotions & Techniques",
+  "session.group.wrapup": "Session Wrap-up",
   "session.form.comments.title": "Session Notes",
   "session.form.shieldRemoved": "Heart-Wall Removed?",
   "session.form.shieldRemoved.yes": "Yes",
@@ -121,9 +122,10 @@ window.I18N.en = {
   "session.form.heartShieldEmotions.placeholder": "List the emotions found in the Heart-Wall",
   "session.form.issuesTitle": "Issues addressed in this session *",
   "session.form.issueLimit": "You may list up to 3 issues per session",
-  "session.form.issuesHeading": "Issues addressed in this session *",
+  "session.form.issuesHeading": "Session topics *",
   "session.form.issueName": "Reason for Referral / Complaint",
   "session.form.beforeSeverity": "Severity Level at Start of Session",
+  "session.form.severityAtStart": "Severity at start",
   "session.form.removeIssue": "Remove issue",
   "session.form.addIssue": "Add Another Issue",
   "session.form.trapped": "Trapped Emotions Released",
@@ -160,7 +162,7 @@ window.I18N.en = {
   "pdf.footer.madeWith": "Made with Sessions Garden · sessionsgarden.app",
   "pdf.footer.exportedOn": "Exported on",
   "session.edit": "Edit Session",
-  "session.form.afterSeverityTitle": "Issue severity at the end of this session",
+  "session.form.afterSeverityTitle": "Issue severity — end of session",
   "session.form.afterSeverity": "Severity Level at End of Session",
   "session.form.comments": "Session Notes and Observations",
   "session.form.comments.placeholder": "Notes and observations from this session",
@@ -409,8 +411,20 @@ window.I18N.en = {
   "settings.row.additionalTech.description": "Other tools or techniques used in this session",
   "settings.row.heartShield.description": "Heart-Wall session toggle and controls",
   "settings.row.heartShieldEmotions.description": "Emotions found inside the Heart-Wall",
-  "settings.row.issues.description": "The issues addressed and their before/after severity",
+  "settings.row.issues.description": "The topics you addressed in this session",
   "settings.row.comments.description": "Free-form notes and observations",
+  // Session-section reordering: drag-handle + arrow controls (section name
+  // interpolated), the two paired reset actions, and the single master-switch
+  // row that turns the whole severity flow on or off. The info string is the
+  // full explainer shown when the ⓘ on that row is opened.
+  "settings.reorder.dragHandle.aria": "Reorder {section}",
+  "settings.reorder.moveUp.aria": "Move {section} up",
+  "settings.reorder.moveDown.aria": "Move {section} down",
+  "settings.reset.order.label": "Reset order",
+  "settings.reset.names.label": "Reset names",
+  "settings.reset.names.confirm": "Replace all custom names with the defaults? Names you typed will be lost.",
+  "settings.row.afterSeverity.label": "Issue severity",
+  "settings.row.afterSeverity.info": "One switch for all severity ratings: when on, each topic gets a rating at the start and this end-of-session section appears; when off, both disappear — the topics themselves stay. Drag this row to choose where the end-of-session ratings appear in the form.",
   "settings.row.nextSession.description": "What to focus on or carry into the next session",
   "settings.indicator.disabled": "Disabled in Settings",
   "settings.discard.title": "Discard unsaved changes?",
@@ -498,6 +512,11 @@ window.I18N.en = {
   "export.stepper.label.3": "Export",
   "export.step1.helper": "Step 1 of 3 — Choose which session sections to include in the export. Your selection here decides what shows up in the editor on the next step.",
   "export.section.emotions": "Emotions before / after ratings",
+  // Export Step-1: the topics checkbox is labelled identically to the in-session
+  // section title (marker stripped); its dependent, indented sub-option pulls the
+  // before/after severity into the document.
+  "export.section.topics": "Session topics",
+  "export.suboption.includeSeverity": "Include severity before/after",
   "export.step2.helper": "Step 2 of 3 — Edit your document below; switch to Preview any time to see how it will look.",
   "export.ephemeralNote": "Edits here apply to this export only. Restructure freely — nothing is saved back to the session.",
   "export.maximize": "Maximize editor",
