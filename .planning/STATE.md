@@ -5,7 +5,7 @@ milestone_name: Richer Sessions
 current_phase: 47
 current_phase_name: Session-Section Reordering
 status: ready to execute
-stopped_at: Phase 47 planned — 8 plans / 4 waves, checker passed 1st iteration; ORDR-06/07/08 amendment + planner-locked decisions pending Ben's plan-review confirmation
+stopped_at: Phase 47 plans CLEARED FOR EXECUTION — gap-gate loop closed (17 G-fixes + flatKeys blocker + R2-1/2/3 all landed & verified); ORDR-06/07/08 approved; next /gsd-execute-phase 47
 last_updated: "2026-07-23T00:00:00.000Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 47 planned (research + patterns + 8 plans + checker pass)
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-12 — Phase 44 transition)
 ## Current Position
 
 Phase: 47 — Session-Section Reordering
-Plan: 8 plans / 4 waves planned 2026-07-23 (plan-checker passed iteration 1; Fable gap-gate run post-checker). Pending Ben at plan review: ORDR-06/07/08 amendment IDs + planner-locked A1–A9 discretion calls (D-07 vs Interaction 11 resolved toward the later lock).
+Plan: 8 plans / 4 waves — CLEARED FOR EXECUTION 2026-07-23. Full quality loop: checker pass 1 → Fable gap-gate R1 (6 blockers/10 warnings vs discussion, Ben approved all fixes) → planner revision 71486b6 → checker iter-2 (flatKeys contract blocker, fixed 402120e/5c28fe1) → Fable gap-gate R2 (all 17 fixes verified landed; R2-1/2/3 fixed inline 4a56f7c). ORDR-06/07/08 approved by Ben. See 47-GAP-REPORT.md (incl. round-2 addendum). Note for execution: 47-05 is the densest plan (4 tasks, export surface) — extra review scrutiny there per checker advisory.
 Status: Phases 44/45/46/46.1 ALL COMPLETE. **v1.4.0 PRODUCTION PUSH SHIPPED 2026-07-22** — origin/main advanced e48dc08..ccc4b46 (242-commit fast-forward); CI Deploy to Cloudflare Pages green (docs-gate + pipeline tests fail-closed passed, await-promotion-then-purge succeeded); byte-sweep of 9 core assets all match HEAD with BUILD_TOKEN=ccc4b46 stamped live and cf-cache MISS/DYNAMIC (no stale HIT — no rerun needed); deploy anchor advanced to "Deploy from ccc4b46". APP_VERSION 1.4.0 + 1.4.0 changelog live. Remaining post-push: Ben's real-installed-PWA field-verify (SW update arrival, changelog shows 1.4.0, What's-New popup fires with the three highlights) + his HE read of the polish + אופן-הטיפול→פורמט-המפגש terminology sweep (content-only follow-ups are cheap). NEXT: Phase 47 (session-section-reordering) discuss/plan.
 Last activity: 2026-07-22 — v1.4.0 production push shipped + deploy babysat
 
