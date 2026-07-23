@@ -202,8 +202,22 @@
 
           <div class="section-divider"></div>
 
-          <div class="accordion-section" data-accordion="heart-shield">
-            <div class="accordion-header" data-i18n="session.form.heartShield">Heart-Wall Session</div>
+          <div id="sessionSectionsHost">
+
+          <div class="accordion-section" data-accordion="topics" data-section-key="issues">
+            <div class="accordion-header">
+              <span class="label" data-i18n="session.form.issuesHeading">נושאי המפגש *</span>
+              <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+            </div>
+            <div class="accordion-body">
+              <div class="helper-text" data-i18n="session.form.issueLimit">You may list up to 3 issues per session</div>
+              <div id="issueList"></div>
+              <button class="button secondary" type="button" id="addIssueBtn" data-i18n="session.form.addIssue">Add Another Issue</button>
+            </div>
+          </div>
+
+          <div class="accordion-section is-active" data-accordion="emotions" data-group-id="emotionsTech" data-tour="session-heart">
+            <div class="accordion-header" data-i18n="session.accordion.emotions">Emotions &amp; Techniques</div>
             <div class="accordion-body">
               <div class="session-section" data-section-key="heartShield">
                 <div class="heart-shield-section" id="heartShieldSection">
@@ -218,16 +232,6 @@
                 </div>
               </div>
 
-              <div class="session-section" data-section-key="issues">
-                <div class="form-field">
-                  <label class="label" data-i18n="session.form.issuesHeading">נושאי המפגש *</label>
-                  <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
-                  <div class="helper-text" data-i18n="session.form.issueLimit">You may list up to 3 issues per session</div>
-                </div>
-                <div id="issueList"></div>
-                <button class="button secondary" type="button" id="addIssueBtn" data-i18n="session.form.addIssue">Add Another Issue</button>
-              </div>
-
               <div class="session-section" data-section-key="heartShieldEmotions">
                 <details class="expandable-field is-hidden" id="heartShieldEmotionsField">
                   <summary>
@@ -240,12 +244,7 @@
                   </div>
                 </details>
               </div>
-            </div>
-          </div>
 
-          <div class="accordion-section is-active" data-accordion="emotions" data-tour="session-heart">
-            <div class="accordion-header" data-i18n="session.accordion.emotions">Emotions &amp; Techniques</div>
-            <div class="accordion-body">
               <div class="session-section" data-section-key="trapped">
                 <details class="expandable-field">
                   <summary>
@@ -297,21 +296,37 @@
                   </div>
                 </details>
               </div>
+
+              <div class="heart-shield-conditional is-hidden" id="heartShieldConditional" style="margin-top:1.5rem;">
+                <div class="form-field">
+                  <label class="label" data-i18n="session.form.shieldRemoved">Was the Heart-Wall removed? *</label>
+                  <div class="shield-removed-options">
+                    <label class="radio-option">
+                      <input type="radio" name="shieldRemoved" value="yes" />
+                      <span data-i18n="session.form.shieldRemoved.yes">Yes</span>
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" name="shieldRemoved" value="no" />
+                      <span data-i18n="session.form.shieldRemoved.no">No</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="accordion-section" data-accordion="severity">
-            <div class="accordion-header" data-i18n="session.form.afterSeverityTitle">Issue severity</div>
+          <div class="accordion-section" data-accordion="severity" data-section-key="afterSeverity">
+            <div class="accordion-header">
+              <span class="label muted-label" data-i18n="session.form.afterSeverityTitle">Issue severity at the end of this session *</span>
+              <span class="disabled-indicator-badge is-hidden" data-i18n="settings.indicator.disabled">Disabled in Settings</span>
+            </div>
             <div class="accordion-body">
-              <div class="form-field">
-                <label class="label muted-label" data-i18n="session.form.afterSeverityTitle">Issue severity at the end of this session *</label>
-              </div>
               <div id="issueSummaryList"></div>
             </div>
           </div>
 
-          <div class="accordion-section" data-accordion="notes">
-            <div class="accordion-header" data-i18n="session.form.comments.title">Session Notes</div>
+          <div class="accordion-section" data-accordion="notes" data-group-id="wrapup">
+            <div class="accordion-header" data-i18n="session.group.wrapup">Session Wrap-up</div>
             <div class="accordion-body">
               <div class="session-section" data-section-key="comments">
                 <div class="form-field">
@@ -342,23 +357,9 @@
                   <input class="input" id="nextSessionDate" type="date" />
                 </div>
               </div>
-
-              <div class="heart-shield-conditional is-hidden" id="heartShieldConditional" style="margin-top:1.5rem;">
-                <div class="form-field">
-                  <label class="label" data-i18n="session.form.shieldRemoved">Was the Heart-Wall removed? *</label>
-                  <div class="shield-removed-options">
-                    <label class="radio-option">
-                      <input type="radio" name="shieldRemoved" value="yes" />
-                      <span data-i18n="session.form.shieldRemoved.yes">Yes</span>
-                    </label>
-                    <label class="radio-option">
-                      <input type="radio" name="shieldRemoved" value="no" />
-                      <span data-i18n="session.form.shieldRemoved.no">No</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
             </div>
+          </div>
+
           </div>
 
           <div class="section-divider"></div>
