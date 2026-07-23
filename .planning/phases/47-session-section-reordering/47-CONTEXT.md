@@ -153,6 +153,14 @@ at plan review before execution.
   shipped in the 46 gap round; the residual defect (topics folded into the severity
   checkbox) closes via D-14. Mark the todo resolved when Phase 47 ships.
 
+### Plan-review scope correction (Ben, 2026-07-23, locked — supersedes the "— (skip)" pill parts of D-09 and Interaction 8/8a)
+- **D-19: No 11th severity value** — ratings were NEVER validation-mandatory in the shipped code (validateIssues checks topic presence only), so the "— (skip)" pill duplicates what `null`/unrated already means. No skip marker constant, no 11th pill, no skip data value.
+- **D-20: Tap-again-to-clear** — the severity scale gains a deselect path: tapping the active pill again clears the rating back to unrated (`null`, onChange(null), is-active removed). This replaces the — pill's affordance; without it a mis-tap could never be undone (createSeverityScale currently has no clear path).
+- **D-21: Unrated is omitted from EVERY output** — text/markdown/clipboard builders already guard non-numeric sides (keep); the PDF severity block MUST filter to topics with at least one numeric rating and omit the block entirely when zero topics qualify (today it draws empty bars + dash for fully-unrated topics — Ben's screenshot 2026-07-23); a partially-rated topic keeps its row (one filled bar is real information).
+- **D-22: End-of-session block lists only topics that have a start rating** — the old "— auto-hides the after-rating" rule keyed on emptiness instead of the pill.
+- **D-23: View mode hides empty severity** — in the Sessions History table and the client-overview expanded row, a fully-unrated topic renders its NAME ONLY (no "(- -> -)" suffix); partially-rated topics render as today; overview averages already exclude unrated (unchanged).
+- ORDR-07 is REWRITTEN to this model (unrated-by-default + clear affordance + omission everywhere); the skip-hint i18n string and — pill tab-order/first-position UI-SPEC rules are superseded.
+
 </decisions>
 
 <canonical_refs>
