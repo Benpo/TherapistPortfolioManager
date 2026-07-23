@@ -1153,8 +1153,16 @@ window.BackupManager = (function () {
       "issues",
       "comments",
       "nextSession",
+      "afterSeverity",
     ];
-    var ALLOWED_SENTINEL_KEYS = new Set(["snippetsDeletedSeeds"]);
+    // Must match db.js#_SENTINEL_KEYS exactly — a sentinel key missing here is
+    // silently dropped on restore. 'sectionOrder' carries the reorderable
+    // session-section layout; 'snippetsDeletedSeeds' the deleted-seed prefs.
+    var ALLOWED_SENTINEL_KEYS = new Set(["snippetsDeletedSeeds", "sectionOrder"]);
+    // The orderable section keys, reused as the restore key-allow-list for the
+    // sectionOrder sentinel (every ALLOWED_SECTION_KEYS entry is a legal order
+    // key; anything else in a crafted order is dropped before it can be stored).
+    var KNOWN_ORDER_KEYS = new Set(ALLOWED_SECTION_KEYS);
     for (var k = 0; k < manifest.therapistSettings.length; k++) {
       var rec = manifest.therapistSettings[k];
       if (!rec || typeof rec !== "object" || typeof rec.sectionKey !== "string") {
@@ -1166,6 +1174,54 @@ window.BackupManager = (function () {
       if (ALLOWED_SENTINEL_KEYS.has(rec.sectionKey)) {
         if (typeof db._writeTherapistSentinel !== "function") {
           console.warn("Backup restore: _writeTherapistSentinel unavailable; skipping sentinel", rec.sectionKey);
+          continue;
+        }
+        if (rec.sectionKey === "sectionOrder") {
+          // A restored order is untrusted input: a crafted or old backup could
+          // carry an illegal layout (the end-of-session severity item before
+          // Session topics) or arbitrary section keys that would then drive the
+          // form/export. Neutralize BEFORE storing, in two steps:
+          //   1) key-allow-list every item against the known order keys — drop
+          //      unknown top-level sections and unknown group members;
+          //   2) clamp the result through the ONE shared validator so the
+          //      severity item can never precede topics and any missing known
+          //      section is re-appended at its default slot.
+          var rawItems = Array.isArray(rec.items) ? rec.items : [];
+          var allowlisted = rawItems.map(function (it) {
+            if (!it || typeof it !== "object") return null;
+            if (it.type === "section") {
+              return KNOWN_ORDER_KEYS.has(it.key) ? { type: "section", key: it.key } : null;
+            }
+            if (it.type === "group") {
+              var members = (Array.isArray(it.members) ? it.members : [])
+                .filter(function (m) { return KNOWN_ORDER_KEYS.has(m); });
+              return {
+                type: "group",
+                id: it.id,
+                titleOverride: (typeof it.titleOverride === "string" ? it.titleOverride : null),
+                members: members,
+              };
+            }
+            return null;
+          }).filter(function (x) { return x !== null; });
+
+          // Prefer the shared validator (single source of truth for the clamp +
+          // append-missing). If it is not loaded in this context, still never
+          // trust the raw order — write the key-allow-listed candidate only.
+          var App = window.App;
+          var sanitizedItems = (App && typeof App.sanitizeOrder === "function")
+            ? App.sanitizeOrder(allowlisted)
+            : allowlisted;
+          var orderVersion = (typeof rec.version === "number") ? rec.version : 1;
+          try {
+            await db._writeTherapistSentinel({
+              sectionKey: "sectionOrder",
+              version: orderVersion,
+              items: sanitizedItems,
+            });
+          } catch (e) {
+            console.warn("Backup restore: _writeTherapistSentinel failed for sectionOrder", e);
+          }
           continue;
         }
         var sentinelIds = Array.isArray(rec.deletedIds) ? rec.deletedIds : [];

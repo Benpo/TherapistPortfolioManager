@@ -160,8 +160,11 @@ async function test(name, fn) {
     assert.ok(rec, 'a sectionOrder sentinel must be written on restore (not dropped by the allow-list)');
     assert.strictEqual(rec.sectionKey, 'sectionOrder');
     assert.strictEqual(rec.version, 1, 'version round-trips');
-    // A complete, legal order is a fixed point of sanitizeOrder → byte-identical.
-    assert.deepStrictEqual(rec.items, REORDERED,
+    // A complete, legal order is a fixed point of sanitizeOrder → unchanged.
+    // Normalize through JSON: the restored objects are built in the jsdom window
+    // realm (a different Object.prototype), so a raw deepStrictEqual would trip
+    // on prototype identity rather than content.
+    assert.deepStrictEqual(JSON.parse(JSON.stringify(rec.items)), REORDERED,
       'the reordered custom order (incl. a custom group title + member order) must round-trip unchanged');
   });
 
