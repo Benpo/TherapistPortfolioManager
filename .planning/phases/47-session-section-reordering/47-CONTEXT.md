@@ -159,6 +159,7 @@ at plan review before execution.
 - **D-21: Unrated is omitted from EVERY output** — text/markdown/clipboard builders already guard non-numeric sides (keep); the PDF severity block MUST filter to topics with at least one numeric rating and omit the block entirely when zero topics qualify (today it draws empty bars + dash for fully-unrated topics — Ben's screenshot 2026-07-23); a partially-rated topic keeps its row (one filled bar is real information).
 - **D-22: End-of-session block lists only topics that have a start rating** — the old "— auto-hides the after-rating" rule keyed on emptiness instead of the pill.
 - **D-23: View mode hides empty severity** — in the Sessions History table and the client-overview expanded row, a fully-unrated topic renders its NAME ONLY (no "(- -> -)" suffix); partially-rated topics render as today; overview averages already exclude unrated (unchanged).
+- **D-22a (Ben, 2026-07-23, R3-2 ruling): clearing a start rating clears the end rating too** — tap-to-clear on a topic's start scale also voids that topic's end-of-session rating (both become null; "not measuring this topic" voids the pair). An accidental clear losing the end value is accepted. Clearing the END scale alone clears only itself. Legacy/partial data ({before:null, after:N}) reached by other paths still renders by the D-21/D-23 partial rules.
 - ORDR-07 is REWRITTEN to this model (unrated-by-default + clear affordance + omission everywhere); the skip-hint i18n string and — pill tab-order/first-position UI-SPEC rules are superseded.
 
 </decisions>
