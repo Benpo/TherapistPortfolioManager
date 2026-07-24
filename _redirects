@@ -1,0 +1,3 @@
+# Root redirect removed — CF Pages treats index.html as the root document,
+# so "/ /landing.html 302" caused ALL ./index.html navigations to loop back
+# to landing. The redirect is now handled by index.html Gate 0 (JS check).

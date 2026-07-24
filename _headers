@@ -1,0 +1,27 @@
+/*
+  X-Robots-Tag: noindex
+  Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lemonsqueezy.com; font-src 'self'
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/*.html
+  Cache-Control: no-cache
+
+/*.js
+  Cache-Control: public, max-age=86400
+
+/*.css
+  Cache-Control: public, max-age=86400
+
+# version.js carries INTEGRITY_TOKEN, the value that drives cache-busting. It must
+# never be HTTP-cached, or the service worker's update check (which re-imports it)
+# would read a stale token for up to /*.js max-age and miss a new deploy. no-cache
+# forces revalidation, so every deploy is detected immediately. (sw.js below is
+# byte-identical across deploys — version.js is what actually changes.)
+/assets/version.js
+  Cache-Control: no-cache
+
+/sw.js
+  Cache-Control: no-cache

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script>
+    (function(){try{var B='crashlogBuffer';function P(m,s,u){if(self.CrashLog)return;try{var a=JSON.parse(localStorage.getItem(B)||'[]');if(!Array.isArray(a))a=[];a.push({timestamp:Date.now(),message:String(m||''),stack:s?String(s):'',url:u||location.href,source:'early'});while(a.length>5)a.shift();localStorage.setItem(B,JSON.stringify(a));}catch(e){}}window.onerror=function(m,src,l,c,err){P(m,err&&err.stack,location.href);return false;};window.addEventListener('unhandledrejection',function(ev){try{var r=ev&&ev.reason;P(r&&(r.message||String(r)),r&&r.stack,location.href);}catch(e){}});}catch(e){}})();
+  </script>
+  <script>
+    (function(){try{if(window.name==='demo-mode')return;if(!localStorage.getItem('portfolioTermsAccepted')){var n=encodeURIComponent(window.location.pathname+window.location.search);var l=localStorage.getItem('portfolioLang')||'en';var d=(l==='de')?'./disclaimer.html':'./disclaimer-'+l+'.html';window.location.replace(d+'?next='+n);}}catch(e){}})();
+  </script>
+  <script>
+    (function(){try{if(window.name==='demo-mode')return;if(localStorage.getItem('portfolioTermsAccepted')&&(!localStorage.getItem('portfolioLicenseActivated')||!localStorage.getItem('portfolioLicenseInstance'))){window.location.replace('./license.html');}}catch(e){}})();
+  </script>
+  <script>
+    (function(){try{var t=localStorage.getItem('portfolioTheme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();
+  </script>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/branding/favicon-32.png">
+  <link rel="icon" type="image/x-icon" href="./assets/branding/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/branding/icon-180.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sessions Garden</title>
+  <link rel="stylesheet" href="./assets/tokens.css" />
+  <link rel="stylesheet" href="./assets/app.css" />
+  <link rel="stylesheet" href="./assets/changelog.css" />
+  <link rel="stylesheet" href="./assets/tour.css" />
+  <link rel="manifest" href="./manifest.json" />
+</head>
+<body data-nav="changelog">
+  <div class="app-shell">
+    <div class="container">
+      <header class="app-header">
+        <a href="./index.html" class="brand brand-link" style="text-decoration:none;color:inherit;">
+          <div class="brand-mark">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+              <path d="M12 2 C14 2 18 6 18 11 C18 17 15 21 12 22 C9 21 6 17 6 11 C6 6 10 2 12 2 Z" fill="currentColor" opacity="0.85"/>
+              <path d="M12 3 L12 21" stroke="white" stroke-width="0.9" stroke-linecap="round" opacity="0.5" fill="none"/>
+              <path d="M12 7 Q15 9 16 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 7 Q9 9 8 11" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 12 Q15 14 16 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+              <path d="M12 12 Q9 14 8 15" stroke="white" stroke-width="0.65" stroke-linecap="round" opacity="0.4" fill="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-title">Sessions Garden</div>
+            <div class="brand-subtitle" data-i18n="app.subtitle">Documentation and tracking of therapeutic sessions</div>
+          </div>
+        </a>
+        <div id="nav-placeholder"></div>
+        <div class="header-actions" id="headerActions"></div>
+      </header>
+
+      <!-- Changelog surface. The page renderer fills #changelogEntries from
+           window.CHANGELOG_CONTENT_EN (Plan 04) — the container ships EMPTY, the
+           same idiom as help.html's #helpCards. The page head carries data-i18n
+           chrome keys (changelog.page.*, added in Plan 08) with an English
+           fallback for the no-JS / pre-render state. -->
+      <main class="changelog-page">
+
+        <header class="page-head">
+          <h1 id="changelogTitle" data-i18n="changelog.page.title">What's new in Sessions Garden</h1>
+          <p id="changelogIntro" data-i18n="changelog.page.intro">Every release, in plain language — newest first. Everything always stays on your device.</p>
+        </header>
+
+        <div id="changelogEntries"></div>
+
+      </main>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="./assets/i18n-en.js"></script>
+  <script src="./assets/i18n-he.js"></script>
+  <script src="./assets/i18n-de.js"></script>
+  <script src="./assets/i18n-cs.js"></script>
+  <script src="./assets/i18n.js"></script>
+  <script src="./assets/snippets-seed.js"></script>
+  <script src="./assets/db.js"></script>
+  <script src="./assets/version.js"></script>
+  <script src="./assets/crashlog.js"></script>
+  <script src="./assets/shared-chrome.js"></script>
+  <script src="./assets/date-format.js"></script>
+  <script src="./assets/attention-coordinator.js"></script>
+  <script src="./assets/app.js"></script>
+  <script src="./assets/tour.js"></script>
+  <!-- Backup trio: the header cloud icon derives its recency color from the
+       last-backup timestamp (BackupManager) and opens the modal in place. -->
+  <script src="./assets/jszip.min.js"></script>
+  <script src="./assets/backup.js"></script>
+  <script src="./assets/backup-modal.js"></script>
+  <!-- Changelog data + What's-New popup surface. This page mounts chrome, so the
+       coordinator runs here too — the popup can fire on the changelog page like
+       any other. The data corpus MUST load before both the popup surface and the
+       page renderer; all three come AFTER the coordinator script above so the
+       'whats-new' precedence slot is registerable. -->
+  <script src="./assets/changelog-content-en.js"></script>
+  <script src="./assets/changelog-content-he.js"></script>
+  <script src="./assets/changelog-content-de.js"></script>
+  <script src="./assets/changelog-content-cs.js"></script>
+  <script src="./assets/whats-new.js"></script>
+  <script src="./assets/changelog.js"></script>
+  <script>
+    if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW registration failed:',e)});});}
+  </script>
+</body>
+</html>

@@ -1,0 +1,1216 @@
+// ────────────────────────────────────────────────────────────────────────
+// db.js — IndexedDB choke-point: all persistent data flows through here.
+//
+// OWNS: all CRUD for the five IDB object stores — clients, sessions,
+//   therapistSettings, snippets, crashlog; the v1–v6 versioned schema
+//   migrations (MIGRATIONS[1..6]); the _dbPromise connection pool; the
+//   one-time emotion_code_portfolio → sessions_garden rename migration;
+//   and the migration-failure escape-hatch banner (export + reset flow).
+// PUBLIC SURFACE: window.PortfolioDB — client CRUD (addClient, getClient,
+//   getAllClients, updateClient, estimatePhotosBytes, deleteClientAndSessions);
+//   session CRUD (addSession, getSession, getAllSessions, updateSession,
+//   deleteSession, getSessionsByClient); therapist settings
+//   (getAllTherapistSettings, setTherapistSetting, _writeTherapistSentinel,
+//   getSectionOrderRecord, clearTherapistSettings); snippets (validateSnippetShape, getAllSnippets,
+//   getSnippet, addSnippet, updateSnippet, deleteSnippet, resetSeedSnippet);
+//   crash log (addCrashlog, getAllCrashlog, clearCrashlog, replaceAllCrashlog);
+//   recovery (getAllForRecoveryExport, clearAll, DB_VERSION,
+//   _showDBMigrationError).
+// DEPENDENCIES: raw IndexedDB API (no wrapper library); window.SNIPPETS_SEED
+//   (assets/snippets-seed.js — loaded before db.js on every page that needs
+//   snippets); window.BackupManager.exportRecoveryBackup and
+//   window.App.confirmDialog (used inside the migration-failure escape-hatch
+//   banner — only reachable after a migration error fires).
+// CONSTRAINTS: every module reaches IDB only through PortfolioDB — never
+//   open indexedDB directly from a page module (bypasses the pool and
+//   migrations). All IDB access serializes through _dbPromise. Demo
+//   isolation: window.name === "demo-mode" opens demo_portfolio instead of
+//   sessions_garden. The service worker never touches IDB.
+// ────────────────────────────────────────────────────────────────────────
+window.PortfolioDB = (() => {
+  const DB_NAME = window.name === "demo-mode" ? "demo_portfolio" : "sessions_garden";
+  const OLD_DB_NAME = "emotion_code_portfolio";
+  const DB_VERSION = 6;
+  const DELETED_SEEDS_KEY = "snippetsDeletedSeeds";
+
+  let _migrationDone = false;
+  let _seedingDone = false;
+  let _seedingPromise = null;
+  // Connection pool — a single resolved Promise<IDBDatabase>
+  // reused across openDB()'s 23 call sites. Left uninitialized (undefined → falsy)
+  // on purpose so the only invalidation (null-out) lines are the two sites below
+  // (db.onversionchange before close, and request.onerror) — those two null-outs
+  // are the whole correctness story of the pool: without them a closed/failed
+  // connection would be handed back to the next caller.
+  let _dbPromise;
+
+  /**
+   * One-time migration: copies data from "emotion_code_portfolio" to "sessions_garden"
+   * for existing users after the rebrand. Safe to call multiple times (idempotent).
+   */
+  async function migrateOldDB() {
+    // Only run once per page load, and never in demo mode
+    if (_migrationDone || DB_NAME !== "sessions_garden") {
+      _migrationDone = true;
+      return;
+    }
+    _migrationDone = true;
+
+    try {
+      // Detect whether the old DB exists
+      let oldDBExists = false;
+
+      if (typeof indexedDB.databases === "function") {
+        // Modern browsers: enumerate databases
+        const dbs = await indexedDB.databases();
+        oldDBExists = dbs.some((d) => d.name === OLD_DB_NAME);
+      } else {
+        // Firefox < 126 fallback: attempt to open without triggering upgradeneeded
+        oldDBExists = await new Promise((resolve) => {
+          const probe = indexedDB.open(OLD_DB_NAME, 1);
+          let isNew = false;
+          probe.onupgradeneeded = () => {
+            // DB did not exist — it is being created fresh; mark as new and abort
+            isNew = true;
+            probe.result.close();
+            probe.transaction.abort();
+          };
+          probe.onsuccess = () => {
+            const db = probe.result;
+            const hasStores = db.objectStoreNames.length > 0;
+            db.close();
+            if (!hasStores) {
+              // Empty DB was accidentally created; clean it up
+              indexedDB.deleteDatabase(OLD_DB_NAME);
+              resolve(false);
+            } else {
+              resolve(true);
+            }
+          };
+          probe.onerror = () => resolve(false);
+          // onblocked fires if another tab already has old DB open
+          probe.onblocked = () => resolve(false);
+          // Give the probe result time; if upgradeneeded fired, mark as not existing
+          setTimeout(() => {
+            if (isNew) resolve(false);
+          }, 0);
+        });
+      }
+
+      if (!oldDBExists) return;
+
+      // Open the new DB first so its schema is ready
+      const newDB = await openDB();
+
+      // Check idempotency: if new DB already has clients, migration already ran
+      const existingClients = await new Promise((resolve, reject) => {
+        const tx = newDB.transaction("clients", "readonly");
+        const req = tx.objectStore("clients").count();
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+
+      if (existingClients > 0) {
+        newDB.close();
+        // Closing the pooled handle (opened by the recursive
+        // openDB() above) leaves _dbPromise holding a CLOSED connection. Null it
+        // so the outer openDB() re-opens a fresh live handle instead of returning
+        // this dead one (mirrors the invalidate-before-close pattern at onversionchange).
+        _dbPromise = null;
+        // Old DB still exists but new DB has data — just delete the old DB
+        indexedDB.deleteDatabase(OLD_DB_NAME);
+        console.log("Skipped migration: sessions_garden already has data. Deleted emotion_code_portfolio.");
+        return;
+      }
+
+      // Open the old DB (read-only; no upgradeneeded since it exists at its current version)
+      const oldDB = await new Promise((resolve, reject) => {
+        // Open without specifying a version so we get whatever version it is at
+        const req = indexedDB.open(OLD_DB_NAME);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+        req.onupgradeneeded = () => {
+          // Should not happen since we confirmed the DB exists; abort to be safe
+          req.transaction.abort();
+          reject(new Error("Unexpected upgradeneeded on old DB during migration"));
+        };
+      });
+
+      // Copy clients
+      const clients = await new Promise((resolve, reject) => {
+        if (!oldDB.objectStoreNames.contains("clients")) return resolve([]);
+        const tx = oldDB.transaction("clients", "readonly");
+        const req = tx.objectStore("clients").getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+
+      // Copy sessions
+      const sessions = await new Promise((resolve, reject) => {
+        if (!oldDB.objectStoreNames.contains("sessions")) return resolve([]);
+        const tx = oldDB.transaction("sessions", "readonly");
+        const req = tx.objectStore("sessions").getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+
+      oldDB.close();
+
+      // Write clients to new DB
+      if (clients.length > 0) {
+        await new Promise((resolve, reject) => {
+          const tx = newDB.transaction("clients", "readwrite");
+          const store = tx.objectStore("clients");
+          clients.forEach((c) => store.put(c));
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+      }
+
+      // Write sessions to new DB
+      if (sessions.length > 0) {
+        await new Promise((resolve, reject) => {
+          const tx = newDB.transaction("sessions", "readwrite");
+          const store = tx.objectStore("sessions");
+          sessions.forEach((s) => store.put(s));
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+      }
+
+      newDB.close();
+      // Same as the early-return path above — closing the pooled
+      // handle would otherwise leave _dbPromise holding a closed connection, which
+      // the outer openDB() would hand back to consumers (use-after-close). Null the
+      // pool so the outer call re-opens a fresh live handle after migration.
+      _dbPromise = null;
+
+      // Delete the old database
+      indexedDB.deleteDatabase(OLD_DB_NAME);
+
+      console.log("Migrated database from emotion_code_portfolio to sessions_garden");
+    } catch (err) {
+      // Migration failure is non-fatal: user keeps their data in new (empty) DB;
+      // log for debugging but do not surface to user
+      console.error("DB name migration failed (non-fatal):", err);
+    }
+  }
+
+  const DB_STRINGS = {
+    en: {
+      blocked: "Please close other tabs of this app to continue.",
+      versionChanged: "A newer version of this app is open. Please refresh to continue.",
+      refresh: "Refresh",
+      // Reworded so the banner no longer implies a dead-end
+      // "refresh" is the only way out — the recover actions below are the path.
+      migrationFailed: "Database update failed. Your data is safe.",
+      exportBackupNow: "Export backup now",
+      affirmBackupSaved: "I have saved a backup I can restore from",
+      resetAndRecover: "Reset & recover"
+    },
+    he: {
+      blocked: "נא לסגור כרטיסיות אחרות של האפליקציה כדי להמשיך.",
+      versionChanged: "גרסה חדשה יותר של האפליקציה פתוחה. נא לרענן כדי להמשיך.",
+      refresh: "רענון",
+      migrationFailed: "עדכון מסד הנתונים נכשל. הנתונים שלך בטוחים.",
+      exportBackupNow: "ייצוא גיבוי עכשיו",
+      affirmBackupSaved: "שמרתי גיבוי שאפשר לשחזר ממנו",
+      resetAndRecover: "איפוס ושחזור"
+    },
+    de: {
+      blocked: "Bitte schliesse andere Tabs dieser App, um fortzufahren.",
+      versionChanged: "Eine neuere Version dieser App ist geoeffnet. Bitte aktualisiere, um fortzufahren.",
+      refresh: "Aktualisieren",
+      migrationFailed: "Datenbankaktualisierung fehlgeschlagen. Deine Daten sind sicher.",
+      exportBackupNow: "Backup jetzt exportieren",
+      affirmBackupSaved: "Ich habe ein Backup gespeichert, das ich wiederherstellen kann",
+      resetAndRecover: "Zuruecksetzen & wiederherstellen"
+    },
+    cs: {
+      blocked: "Pro pokracovani prosim zavri ostatni karty teto aplikace.",
+      versionChanged: "Je otevrena novejsi verze teto aplikace. Pro pokracovani prosim obnov stranku.",
+      refresh: "Obnovit",
+      migrationFailed: "Aktualizace databaze se nezdarila. Tvoje data jsou v bezpeci.",
+      exportBackupNow: "Exportovat zalohu nyni",
+      affirmBackupSaved: "Mam ulozenou zalohu, ze ktere mohu obnovit",
+      resetAndRecover: "Resetovat a obnovit"
+    }
+  };
+
+  function dbStr(key) {
+    var lang = localStorage.getItem('portfolioLang') || 'en';
+    var strings = DB_STRINGS[lang] || DB_STRINGS.en;
+    return strings[key] || DB_STRINGS.en[key] || key;
+  }
+
+  const MIGRATIONS = {
+    1: function initializeSchema(db) {
+      // v1: original schema — only runs on fresh installs (oldVersion === 0)
+      if (!db.objectStoreNames.contains("clients")) {
+        const store = db.createObjectStore("clients", { keyPath: "id", autoIncrement: true });
+        store.createIndex("name", "name", { unique: false });
+      }
+      if (!db.objectStoreNames.contains("sessions")) {
+        const store = db.createObjectStore("sessions", { keyPath: "id", autoIncrement: true });
+        store.createIndex("clientId", "clientId", { unique: false });
+        store.createIndex("date", "date", { unique: false });
+      }
+    },
+    2: function expandDataModel(db, transaction) {
+      // Migrate existing clients with type "human" to "adult"
+      const clientStore = transaction.objectStore("clients");
+      const cursorReq = clientStore.openCursor();
+      cursorReq.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          const record = cursor.value;
+          if (record.type === "human") {
+            cursor.update({ ...record, type: "adult" });
+          }
+          cursor.continue();
+        }
+      };
+    },
+    3: function heartShieldRedesign(db, transaction) {
+      // Migrate sessions: convert heartWallCleared -> isHeartShield + shieldRemoved
+      const sessionStore = transaction.objectStore("sessions");
+      const sessionCursorReq = sessionStore.openCursor();
+      sessionCursorReq.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          const record = cursor.value;
+          if ("heartWallCleared" in record) {
+            record.isHeartShield = true;
+            record.shieldRemoved = !!record.heartWallCleared;
+            delete record.heartWallCleared;
+            cursor.update(record);
+          }
+          cursor.continue();
+        }
+      };
+      // Migrate clients: remove heartWall field
+      const clientStore = transaction.objectStore("clients");
+      const clientCursorReq = clientStore.openCursor();
+      clientCursorReq.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          const record = cursor.value;
+          if ("heartWall" in record) {
+            delete record.heartWall;
+            cursor.update(record);
+          }
+          cursor.continue();
+        }
+      };
+    },
+    4: function therapistSettingsStore(db /*, transaction */) {
+      // Additive migration — creates the therapistSettings object store.
+      // No data mutation on existing clients/sessions stores.
+      if (!db.objectStoreNames.contains("therapistSettings")) {
+        db.createObjectStore("therapistSettings", { keyPath: "sectionKey" });
+      }
+    },
+    5: function snippetsStore(db /*, transaction */) {
+      // Additive migration — creates the snippets object store.
+      // Schema: { id, trigger, expansions:{he,en,cs,de}, tags:[], origin, createdAt, updatedAt }
+      // Triggers match /^[\p{L}\p{N}-]{2,32}$/u — any Unicode letter/digit + hyphen
+      // (enforced by validateSnippetShape); the editor lowercases before save, so the
+      // direct unique index on trigger gives case-insensitive uniqueness for free.
+      // Seed-pack populate is deferred to seedSnippetsIfNeeded(db) — see openDB success.
+      if (!db.objectStoreNames.contains("snippets")) {
+        const store = db.createObjectStore("snippets", { keyPath: "id" });
+        store.createIndex("trigger", "trigger", { unique: true });
+        store.createIndex("origin", "origin", { unique: false });
+      }
+    },
+    6: function crashlogStore(db /*, transaction */) {
+      // Additive migration — creates the crashlog
+      // object store. Schema: { id (auto), timestamp, message, stack, url, source }.
+      // No data mutation on existing stores. The crash logger writes here as its
+      // primary log; a localStorage mirror (crashlogBuffer) survives an IDB-open
+      // failure independently of this store.
+      if (!db.objectStoreNames.contains("crashlog")) {
+        db.createObjectStore("crashlog", { keyPath: "id", autoIncrement: true });
+      }
+    },
+  };
+
+  async function openDB() {
+    await migrateOldDB();
+    // Return the cached connection if one is live. The check is
+    // placed AFTER `await migrateOldDB()` (never around it): migrateOldDB() calls
+    // openDB() recursively (db.js ~:67), so the inner recursive call opens and
+    // caches the handle (migrateOldDB short-circuits its own second run via
+    // _migrationDone) and the outer call then returns that same cached promise.
+    // Caching BEFORE/around migrateOldDB() would deadlock the recursion.
+    if (_dbPromise) return _dbPromise;
+    _dbPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+      request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        const transaction = event.target.transaction;
+        const oldVersion = event.oldVersion; // 0 for brand-new installs
+        const newVersion = event.newVersion;
+
+        try {
+          // Run each migration in order from oldVersion+1 to newVersion
+          // This handles skipped versions: v1→v3 runs migration 2 then migration 3
+          for (let v = oldVersion + 1; v <= newVersion; v++) {
+            if (MIGRATIONS[v]) {
+              MIGRATIONS[v](db, transaction);
+            }
+          }
+        } catch (err) {
+          // Abort the upgrade transaction so the DB stays at oldVersion
+          transaction.abort();
+          showDBMigrationError(err);
+          reject(err);
+        }
+      };
+
+      request.onblocked = () => {
+        // Another tab has this DB open at an older version
+        // The current tab requested a version upgrade that is blocked
+        showDBBlockedMessage();
+      };
+
+      request.onsuccess = (event) => {
+        const db = event.target.result;
+
+        // When another tab upgrades the DB, close this connection so the upgrade can proceed
+        db.onversionchange = () => {
+          // Invalidate the pool BEFORE closing so the next openDB()
+          // re-opens a fresh connection instead of reusing this closed handle.
+          _dbPromise = null;
+          db.close();
+          showDBVersionChangedMessage();
+        };
+
+        // Idempotent seed populate runs AFTER upgrade transaction
+        // completes. First open pays the cost; subsequent calls short-circuit via
+        // _seedingDone. Concurrent first-opens share _seedingPromise.
+        seedSnippetsIfNeeded(db)
+          .then(() => resolve(db))
+          .catch((err) => {
+            console.error("seed populate failed:", err);
+            // Resolve anyway — the app still works without snippets seeded.
+            resolve(db);
+          });
+      };
+
+      request.onerror = () => {
+        // Do not cache a failed open — invalidate so the next call retries.
+        _dbPromise = null;
+        reject(request.error);
+      };
+    });
+    return _dbPromise;
+  }
+
+  /**
+   * seedSnippetsIfNeeded — populates the snippets store from window.SNIPPETS_SEED
+   * the FIRST time this DB is opened on this page load. Idempotent across:
+   *   - Subsequent openDB() calls on the same page load (short-circuits via _seedingDone).
+   *   - Re-running the migration (records compared by id; existing ids skipped).
+   *   - User-deleted seeds (tracked in therapistSettings[snippetsDeletedSeeds].deletedIds).
+   *
+   * Identifier-resolution note: window.SNIPPETS_SEED is referenced with an explicit
+   * window. prefix. snippets-seed.js loads BEFORE db.js on every page that loads db.js,
+   * so the global exists by the time this function runs.
+   */
+  async function seedSnippetsIfNeeded(db) {
+    if (_seedingDone) return;
+    if (_seedingPromise) return _seedingPromise;
+
+    _seedingPromise = (async () => {
+      try {
+        // 1) Read existing snippet ids in this DB.
+        const existing = await new Promise((resolve, reject) => {
+          const tx = db.transaction("snippets", "readonly");
+          const store = tx.objectStore("snippets");
+          const req = store.getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => reject(req.error);
+        });
+        const existingIds = new Set(existing.map((s) => s.id));
+
+        // 2) Read deletedSeedIds from therapistSettings.
+        const deletedRec = await new Promise((resolve, reject) => {
+          const tx = db.transaction("therapistSettings", "readonly");
+          const store = tx.objectStore("therapistSettings");
+          const req = store.get(DELETED_SEEDS_KEY);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+        const deletedIds = new Set((deletedRec && deletedRec.deletedIds) || []);
+
+        // 3) Determine which seeds to add.
+        const seed = (typeof window !== "undefined" && window.SNIPPETS_SEED) || [];
+        const toAdd = [];
+        for (const s of seed) {
+          if (!existingIds.has(s.id) && !deletedIds.has(s.id)) toAdd.push(s);
+        }
+
+        // 4) Add missing seeds in one transaction.
+        if (toAdd.length > 0) {
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction("snippets", "readwrite");
+            const store = tx.objectStore("snippets");
+            for (const s of toAdd) store.add(s);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+          });
+        }
+
+        _seedingDone = true;
+      } finally {
+        _seedingPromise = null;
+      }
+    })();
+
+    return _seedingPromise;
+  }
+
+  function showDBBlockedMessage() {
+    // Show a persistent banner (not just a toast) because user must take action
+    const existing = document.getElementById("dbBlockedBanner");
+    if (existing) return; // Already showing
+
+    const banner = document.createElement("div");
+    banner.id = "dbBlockedBanner";
+    banner.setAttribute("role", "alert");
+    banner.className = "db-error-banner db-error-banner--blocked";
+    banner.textContent = dbStr('blocked');
+    document.body.prepend(banner);
+  }
+
+  function showDBVersionChangedMessage() {
+    // The DB was upgraded by another tab — this tab must reload
+    const existing = document.getElementById("dbVersionChangedBanner");
+    if (existing) return;
+
+    const banner = document.createElement("div");
+    banner.id = "dbVersionChangedBanner";
+    banner.setAttribute("role", "alert");
+    banner.className = "db-error-banner db-error-banner--version";
+
+    const msg = document.createElement("span");
+    msg.textContent = dbStr('versionChanged');
+
+    const btn = document.createElement("button");
+    btn.textContent = dbStr('refresh');
+    btn.className = "db-error-btn";
+    btn.onclick = () => location.reload();
+
+    banner.append(msg, btn);
+    document.body.prepend(banner);
+  }
+
+  // In-session flag — true once an escape-hatch export has
+  // succeeded this page load. Drives the extra-emphatic destructive-confirm
+  // variant: a user who clicked straight to Reset without exporting
+  // gets the stronger "you haven't exported a backup yet" wording.
+  let _exportedThisSession = false;
+
+  /**
+   * showDBMigrationError(err) — escape hatch for migration failures (replaces
+   * the old dead-end "Refresh page → location.reload()" which re-ran the
+   * failing migration forever). Renders the migration-failure danger band with:
+   *   1. "Export backup now" (primary green, NOT red) → BackupManager
+   *      .exportRecoveryBackup() (reads around the failure using the no-version
+   *      open path). Sets the in-session flag on success.
+   *   2. an affirmation checkbox ("I have saved a backup I can restore from")
+   *      that gates (3).
+   *   3. "Reset & recover" — disabled until the checkbox is checked; on click
+   *      runs App.confirmDialog({tone:'danger'}) with an extra-emphatic copy
+   *      variant when no export happened this session; only on confirm does
+   *      indexedDB.deleteDatabase(DB_NAME) + location.reload() run.
+   *
+   * Built with createElement + textContent (never innerHTML), role="alert",
+   * duplicate-render guard, dir set defensively from portfolioLang (RTL-safe).
+   * Renders before i18n.js using the inline DB_STRINGS 4-language strings; the
+   * destructive confirm uses App.confirmDialog (data-i18n) which is acceptable
+   * because it fires AFTER the user chose to act.
+   */
+  function showDBMigrationError(err) {
+    console.error("IndexedDB migration failed:", err);
+
+    const existing = document.getElementById("dbMigrationErrorBanner");
+    if (existing) return;
+
+    const banner = document.createElement("div");
+    banner.id = "dbMigrationErrorBanner";
+    banner.setAttribute("role", "alert");
+    banner.className = "db-error-banner db-error-banner--migration db-error-banner--escape";
+    // Defensive dir from portfolioLang (banner may render before page dir set).
+    try {
+      var lang = (typeof localStorage !== "undefined" && localStorage.getItem("portfolioLang")) || "en";
+      banner.dir = (lang === "he") ? "rtl" : "ltr";
+    } catch (e) {}
+
+    const msg = document.createElement("span");
+    msg.className = "db-error-banner-msg";
+    msg.textContent = dbStr("migrationFailed");
+
+    // (1) Export backup now — primary/safe action (green, NOT red).
+    const exportBtn = document.createElement("button");
+    exportBtn.className = "db-error-btn";
+    exportBtn.setAttribute("data-role", "export");
+    exportBtn.textContent = dbStr("exportBackupNow");
+    exportBtn.onclick = function () {
+      try {
+        var BM = (typeof window !== "undefined" && window.BackupManager) || null;
+        if (!BM || typeof BM.exportRecoveryBackup !== "function") return;
+        Promise.resolve(BM.exportRecoveryBackup())
+          .then(function (res) {
+            // A successful export (encrypt OR skip-encryption) flips the flag;
+            // a cancel does not.
+            if (res && res.ok && !res.cancelled) _exportedThisSession = true;
+          })
+          .catch(function (e) { try { console.error("Recovery export failed:", e); } catch (_) {} });
+      } catch (e) { try { console.error(e); } catch (_) {} }
+    };
+
+    // (2) Affirmation checkbox gating the reset.
+    const affirmLabel = document.createElement("label");
+    affirmLabel.className = "db-error-affirm";
+    const affirmBox = document.createElement("input");
+    affirmBox.setAttribute("type", "checkbox");
+    affirmBox.className = "db-error-affirm-box";
+    const affirmText = document.createElement("span");
+    affirmText.textContent = dbStr("affirmBackupSaved");
+    affirmLabel.append(affirmBox, affirmText);
+
+    // (3) Reset & recover — disabled until the checkbox is checked.
+    const resetBtn = document.createElement("button");
+    resetBtn.className = "db-error-btn db-error-btn--danger";
+    resetBtn.setAttribute("data-role", "reset");
+    resetBtn.textContent = dbStr("resetAndRecover");
+    resetBtn.disabled = true;
+
+    affirmBox.onchange = function () {
+      resetBtn.disabled = !affirmBox.checked;
+    };
+
+    resetBtn.onclick = function () {
+      // Hard gate: never proceed while disabled / unchecked (defence in depth
+      // beyond the disabled attribute).
+      if (resetBtn.disabled || !affirmBox.checked) return;
+
+      var App = (typeof window !== "undefined" && window.App) || null;
+      // Choose the confirm copy variant by whether an export happened this
+      // session: extra-emphatic wording when no export has occurred yet.
+      var variant = _exportedThisSession
+        ? {
+            titleKey: "confirm.resetApp.title",
+            messageKey: "confirm.resetApp.body",
+            confirmKey: "confirm.resetApp.yes",
+            cancelKey: "confirm.cancel",
+          }
+        : {
+            titleKey: "confirm.resetAppNoBackup.title",
+            messageKey: "confirm.resetAppNoBackup.body",
+            confirmKey: "confirm.resetAppNoBackup.yes",
+            cancelKey: "confirm.resetAppNoBackup.cancel",
+          };
+
+      if (!App || typeof App.confirmDialog !== "function") return;
+
+      Promise.resolve(
+        App.confirmDialog({
+          titleKey: variant.titleKey,
+          messageKey: variant.messageKey,
+          confirmKey: variant.confirmKey,
+          cancelKey: variant.cancelKey,
+          tone: "danger",
+        })
+      ).then(function (confirmed) {
+        if (!confirmed) return; // no silent wipe — cancel aborts entirely
+        // Only here — after BOTH the checkbox AND the double-confirm — wipe.
+        var req = indexedDB.deleteDatabase(DB_NAME);
+        var reload = function () {
+          try { location.reload(); } catch (e) {}
+        };
+        req.onsuccess = reload;
+        // Even if delete errors/blocks, reload so the user is not trapped.
+        req.onerror = reload;
+        req.onblocked = reload;
+      });
+    };
+
+    banner.append(msg, exportBtn, affirmLabel, resetBtn);
+    document.body.prepend(banner);
+  }
+
+  async function withStore(storeName, mode, callback) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(storeName, mode);
+      const store = tx.objectStore(storeName);
+      const result = callback(store);
+      tx.oncomplete = () => resolve(result);
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function addRecord(storeName, record) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(storeName, "readwrite");
+      const store = tx.objectStore(storeName);
+      const request = store.add(record);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function addClient(client) {
+    return addRecord("clients", client);
+  }
+
+  async function updateClient(client) {
+    return withStore("clients", "readwrite", (store) => store.put(client));
+  }
+
+  async function getClient(id) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("clients", "readonly");
+      const store = tx.objectStore("clients");
+      const request = store.get(id);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function getAllClients() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("clients", "readonly");
+      const store = tx.objectStore("clients");
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  // Pure photo-storage size estimator.
+  // Sums (b64 length × 0.75) across every client whose photoData (or legacy
+  // `photo`) starts with a data: URL prefix. No IDB call — caller supplies
+  // the clients array (typically from PortfolioDB.getAllClients()). Powers
+  // the Photos Settings tab usage display AND the bulk-optimize savings
+  // preview. Non-string, non-data:, null, and number values contribute 0.
+  function estimatePhotosBytes(clients) {
+    if (!Array.isArray(clients)) return 0;
+    let total = 0;
+    for (let i = 0; i < clients.length; i++) {
+      const c = clients[i] || {};
+      const photo = c.photoData || c.photo;
+      if (typeof photo !== "string") continue;
+      if (!photo.startsWith("data:")) continue;
+      const commaIdx = photo.indexOf(",");
+      if (commaIdx < 0) continue;
+      const b64 = photo.slice(commaIdx + 1);
+      total += Math.floor(b64.length * 0.75);
+    }
+    return total;
+  }
+
+  async function getSession(id) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("sessions", "readonly");
+      const store = tx.objectStore("sessions");
+      const request = store.get(id);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function addSession(session) {
+    return addRecord("sessions", session);
+  }
+
+  async function updateSession(session) {
+    return withStore("sessions", "readwrite", (store) => store.put(session));
+  }
+
+  async function deleteSession(id) {
+    return withStore("sessions", "readwrite", (store) => store.delete(id));
+  }
+
+  async function getAllSessions() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("sessions", "readonly");
+      const store = tx.objectStore("sessions");
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function clearStore(storeName) {
+    return withStore(storeName, "readwrite", (store) => store.clear());
+  }
+
+  async function clearAll() {
+    await clearStore("sessions");
+    await clearStore("clients");
+    await clearStore("therapistSettings");
+    // Cache one connection instead of re-opening per store check.
+    const db = await openDB();
+    if (db.objectStoreNames.contains("snippets")) {
+      await clearStore("snippets");
+    }
+    // Do NOT clear "crashlog" here. clearAll()'s sole caller is the
+    // backup RESTORE path (backup.js). The crash log is device-local diagnostic
+    // data, is not part of the backup file, and is most valuable exactly when a
+    // user restores — often because something broke. Wiping it destroys the
+    // diagnostic trail with nothing to replace it. A true clean slate is still
+    // available via the migration-failure reset path (indexedDB.deleteDatabase).
+    // Allow the next openDB() to repopulate the seed pack (debug-wipe flow).
+    // With connection pooling, a cached openDB() short-circuits
+    // before its onsuccess seed-on-open path, so resetting the seeding flags alone
+    // would never reseed after a wipe. Reset the pool to its uninitialized state
+    // (undefined) too, so the next openDB() actually re-opens and reseeds — this
+    // preserves the clearAll()->reseed contract.
+    _seedingDone = false;
+    _seedingPromise = null;
+    _dbPromise = undefined;
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Snippets
+  // ────────────────────────────────────────────────────────────────────
+
+  /**
+   * validateSnippetShape — pure-function validator. Throws on any rejection
+   * branch. Called by addSnippet/updateSnippet, by backup importer, and by
+   * the Settings UI before persisting user edits.
+   *
+   * Unknown locale keys in expansions (e.g., expansions.fr) are silently
+   * allowed — the validator only enforces types for he/en/cs/de IF PRESENT
+   * and requires the object itself.
+   */
+  function validateSnippetShape(snippet) {
+    if (!snippet || typeof snippet !== "object" || Array.isArray(snippet)) {
+      throw new Error("validateSnippetShape: snippet must be a non-array object");
+    }
+    if (typeof snippet.id !== "string" || snippet.id.length === 0) {
+      throw new Error("validateSnippetShape: id must be a non-empty string");
+    }
+    if (typeof snippet.trigger !== "string" || !/^[\p{L}\p{N}-]{2,32}$/u.test(snippet.trigger)) {
+      throw new Error("validateSnippetShape: trigger must match /^[\\p{L}\\p{N}-]{2,32}$/u (got \"" + snippet.trigger + "\")");
+    }
+    if (!snippet.expansions || typeof snippet.expansions !== "object" || Array.isArray(snippet.expansions)) {
+      throw new Error("validateSnippetShape: expansions must be a non-array object");
+    }
+    ["he", "en", "cs", "de"].forEach((loc) => {
+      if (loc in snippet.expansions && typeof snippet.expansions[loc] !== "string") {
+        throw new Error("validateSnippetShape: expansion " + loc + " must be a string (got " + typeof snippet.expansions[loc] + ")");
+      }
+    });
+    if (!Array.isArray(snippet.tags)) {
+      throw new Error("validateSnippetShape: tags must be an array");
+    }
+    snippet.tags.forEach((t, i) => {
+      if (typeof t !== "string") {
+        throw new Error("validateSnippetShape: tag " + i + " must be a string");
+      }
+    });
+    if (snippet.origin !== "seed" && snippet.origin !== "user") {
+      throw new Error("validateSnippetShape: origin must be \"seed\" or \"user\" (got " + JSON.stringify(snippet.origin) + ")");
+    }
+  }
+
+  async function getAllSnippets() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("snippets", "readonly");
+      const store = tx.objectStore("snippets");
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function getSnippet(id) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("snippets", "readonly");
+      const store = tx.objectStore("snippets");
+      const request = store.get(id);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function addSnippet(snippet) {
+    validateSnippetShape(snippet);
+    return withStore("snippets", "readwrite", (store) => store.add(snippet));
+  }
+
+  async function updateSnippet(snippet) {
+    validateSnippetShape(snippet);
+    return withStore("snippets", "readwrite", (store) => store.put(snippet));
+  }
+
+  // Internal: read the deletedSeedIds list from therapistSettings.
+  async function _getDeletedSeedIds() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("therapistSettings", "readonly");
+      const store = tx.objectStore("therapistSettings");
+      const request = store.get(DELETED_SEEDS_KEY);
+      request.onsuccess = () => {
+        const rec = request.result;
+        resolve((rec && rec.deletedIds) || []);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  // Internal: write the deletedSeedIds list.
+  async function _setDeletedSeedIds(ids) {
+    return withStore("therapistSettings", "readwrite", (store) => {
+      return store.put({ sectionKey: DELETED_SEEDS_KEY, deletedIds: ids });
+    });
+  }
+
+  async function deleteSnippet(id) {
+    const snippet = await getSnippet(id);
+    if (snippet && snippet.origin === "seed") {
+      // Persist the deletion so seedSnippetsIfNeeded does not re-add this seed
+      // on next page load.
+      const list = await _getDeletedSeedIds();
+      if (!list.includes(id)) {
+        await _setDeletedSeedIds(list.concat([id]));
+      }
+    }
+    return withStore("snippets", "readwrite", (store) => store.delete(id));
+  }
+
+  /**
+   * resetSeedSnippet — restores a seed snippet from window.SNIPPETS_SEED and
+   * removes it from the deletedSeedIds list. Used by the Settings UI
+   * "Reset to default" action.
+   *
+   * Identifier-resolution note: window.SNIPPETS_SEED is accessed explicitly
+   * via the window. prefix (matches seedSnippetsIfNeeded's discipline).
+   */
+  async function resetSeedSnippet(id) {
+    const seed = (typeof window !== "undefined" && window.SNIPPETS_SEED) || [];
+    const original = seed.find((s) => s.id === id);
+    if (!original) {
+      throw new Error("resetSeedSnippet: id \"" + id + "\" not found in seed pack");
+    }
+    await withStore("snippets", "readwrite", (store) => store.put(original));
+    const list = await _getDeletedSeedIds();
+    const filtered = list.filter((x) => x !== id);
+    if (filtered.length !== list.length) {
+      await _setDeletedSeedIds(filtered);
+    }
+  }
+
+  // Allow-set for the dedicated sentinel write path. Kept narrow on purpose:
+  // any new sentinel record (non-section therapistSettings row) MUST be added
+  // here AND in backup.js#ALLOWED_SENTINEL_KEYS, in lock-step — a key missing
+  // from the backup allow-set is silently dropped on restore.
+  const _SENTINEL_KEYS = new Set([DELETED_SEEDS_KEY, "sectionOrder"]);
+  // members: 'snippetsDeletedSeeds' (deletedIds payload),
+  //          'sectionOrder'         (version + items payload)
+
+  /**
+   * _writeTherapistSentinel — raw `put` into the therapistSettings store for
+   * sentinel records that do NOT carry the {sectionKey, customLabel, enabled}
+   * shape (e.g. snippetsDeletedSeeds with a deletedIds array).
+   *
+   * Why a separate path: setTherapistSetting coerces customLabel/enabled and
+   * would store {sectionKey, customLabel:null, enabled:true, deletedIds:...}
+   * which silently loses the sentinel semantics on read (the existing
+   * _getDeletedSeedIds reader looks at .deletedIds which would survive, BUT
+   * the customLabel/enabled fields polluting the row would confuse any future
+   * code that walks therapistSettings looking only at section rows). This is
+   * also a defence-in-depth boundary: section writes go through validation,
+   * sentinels go through a tightly-scoped allow-set.
+   *
+   * Used by:
+   *   - assets/backup.js importBackup loop (sentinel write for the deleted-seeds record)
+   *   - the per-therapist section-order write path
+   *
+   * Each registered sentinel carries its own payload shape; this writer persists
+   * exactly the fields that shape needs and type-guards them on write so a
+   * malformed caller (or a crafted backup) can never land a wrong-typed row:
+   *   sectionKey === "snippetsDeletedSeeds":
+   *     record.deletedIds — array (non-array → []); non-string entries filtered.
+   *   sectionKey === "sectionOrder":
+   *     record.items      — array (non-array → []).
+   *     record.version    — number (non-number → 1).
+   *
+   * Returns: same promise shape as withStore put.
+   */
+  async function _writeTherapistSentinel(record) {
+    if (!record || typeof record.sectionKey !== "string") {
+      throw new Error("_writeTherapistSentinel: record.sectionKey required");
+    }
+    if (!_SENTINEL_KEYS.has(record.sectionKey)) {
+      throw new Error("_writeTherapistSentinel: sectionKey '" +
+        record.sectionKey + "' is not a registered sentinel");
+    }
+    if (record.sectionKey === "sectionOrder") {
+      const items = Array.isArray(record.items) ? record.items : [];
+      const version = typeof record.version === "number" ? record.version : 1;
+      return withStore("therapistSettings", "readwrite", function (store) {
+        return store.put({
+          sectionKey: record.sectionKey,
+          version: version,
+          items: items,
+        });
+      });
+    }
+    const rawIds = Array.isArray(record.deletedIds) ? record.deletedIds : [];
+    const cleanIds = rawIds.filter((x) => typeof x === "string");
+    return withStore("therapistSettings", "readwrite", function (store) {
+      return store.put({
+        sectionKey: record.sectionKey,
+        deletedIds: cleanIds,
+      });
+    });
+  }
+
+  /**
+   * setTherapistSetting — stores a record. customLabel is stored verbatim.
+   * Consumers MUST render via .textContent or .value (never innerHTML) to prevent XSS.
+   */
+  async function setTherapistSetting(record) {
+    if (!record || typeof record.sectionKey !== "string") {
+      throw new Error("setTherapistSetting: record.sectionKey required");
+    }
+    var customLabel = (record.customLabel === undefined ? null : record.customLabel);
+    if (typeof customLabel === "string") {
+      var trimmed = customLabel.trim();
+      customLabel = trimmed.length > 0 ? trimmed : null;
+    }
+    return withStore("therapistSettings", "readwrite", function (store) {
+      return store.put({
+        sectionKey: record.sectionKey,
+        customLabel: customLabel,
+        enabled: (record.enabled === undefined ? true : !!record.enabled),
+      });
+    });
+  }
+
+  async function getAllTherapistSettings() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("therapistSettings", "readonly");
+      const store = tx.objectStore("therapistSettings");
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /**
+   * getSectionOrderRecord — return the sentinel row that stores the
+   * per-therapist session-section order ({sectionKey, version, items}), or
+   * null when none has been written yet. Read from the existing
+   * getAllTherapistSettings() result (filtered by sectionKey) so no extra
+   * store/transaction is introduced; section-row walkers filter this same row
+   * out by its sectionKey.
+   */
+  async function getSectionOrderRecord() {
+    const rows = await getAllTherapistSettings();
+    const row = rows.find((r) => r && r.sectionKey === "sectionOrder");
+    return row || null;
+  }
+
+  async function clearTherapistSettings() {
+    return withStore("therapistSettings", "readwrite", function (store) {
+      return store.clear();
+    });
+  }
+
+  async function getSessionsByClient(clientId) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("sessions", "readonly");
+      const store = tx.objectStore("sessions");
+      const index = store.index("clientId");
+      const request = index.getAll(clientId);
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function deleteClientAndSessions(clientId) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(["clients", "sessions"], "readwrite");
+      const clientStore = tx.objectStore("clients");
+      const sessionStore = tx.objectStore("sessions");
+      clientStore.delete(clientId);
+      const index = sessionStore.index("clientId");
+      const range = IDBKeyRange.only(clientId);
+      const request = index.openCursor(range);
+      request.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          cursor.delete();
+          cursor.continue();
+        }
+      };
+      request.onerror = () => reject(request.error);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Crashlog store accessors (v6 schema).
+  // The crash logger (assets/crashlog.js) owns the prune-on-write policy; these
+  // are thin storage primitives. `replaceAllCrashlog` lets the logger rewrite
+  // the store after pruning (clear + bulk add) in a single readwrite tx so the
+  // ≤50/≤30-day ceiling holds atomically.
+  // ──────────────────────────────────────────────────────────────────────
+  async function addCrashlog(entry) {
+    return addRecord("crashlog", entry);
+  }
+
+  async function getAllCrashlog() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("crashlog", "readonly");
+      const store = tx.objectStore("crashlog");
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function clearCrashlog() {
+    return clearStore("crashlog");
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Export-around-failure: read-only open without a version argument.
+  //
+  // When a migration throws, openDB() re-opens at DB_VERSION, re-fires the
+  // failing upgrade and aborts (db.js onupgradeneeded → transaction.abort).
+  // That bricks every read accessor (getAllClients etc.) on a device that has
+  // data. getAllForRecoveryExport() escapes the brick: it opens DB_NAME with
+  // NO version argument, so onupgradeneeded never fires (the DB is returned at
+  // its existing un-upgraded version), and reads whatever stores exist. Each
+  // store read is guarded by objectStoreNames.contains — the un-upgraded DB may
+  // LACK a store the failing migration would have created (returns [] instead
+  // of crashing). This composes the existing read-only old-DB open shape
+  // (db.js:86-96) with the four backup stores. It MUST NEVER call openDB() and
+  // MUST NEVER specify a version. Zero network.
+  // ──────────────────────────────────────────────────────────────────────
+  function _openReadOnlyNoVersion() {
+    return new Promise((resolve, reject) => {
+      // No version arg → no upgradeneeded → the failing migration cannot re-fire.
+      const req = indexedDB.open(DB_NAME);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+      req.onupgradeneeded = () => {
+        // Defensive: must not fire on an existing DB. Abort so we never run the
+        // throwing migration on the recovery path.
+        if (req.transaction && typeof req.transaction.abort === "function") {
+          req.transaction.abort();
+        }
+        reject(new Error("Unexpected upgradeneeded on recovery-export open"));
+      };
+    });
+  }
+
+  function _readStoreReadOnly(db, name) {
+    return new Promise((resolve, reject) => {
+      // The un-upgraded DB may not have this store yet — skip without crashing.
+      if (!db.objectStoreNames.contains(name)) return resolve([]);
+      const tx = db.transaction(name, "readonly");
+      const req = tx.objectStore(name).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function getAllForRecoveryExport() {
+    const db = await _openReadOnlyNoVersion();
+    try {
+      const clients = await _readStoreReadOnly(db, "clients");
+      const sessions = await _readStoreReadOnly(db, "sessions");
+      const therapistSettings = await _readStoreReadOnly(db, "therapistSettings");
+      const snippets = await _readStoreReadOnly(db, "snippets");
+      return { clients, sessions, therapistSettings, snippets };
+    } finally {
+      try { db.close(); } catch (e) {}
+    }
+  }
+
+  async function replaceAllCrashlog(entries) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("crashlog", "readwrite");
+      const store = tx.objectStore("crashlog");
+      store.clear();
+      for (const e of entries) {
+        // Strip any prior auto-key so the store re-assigns fresh ids; keeps the
+        // keyPath/autoIncrement contract intact after a prune+rewrite.
+        const { id, ...rest } = e || {};
+        store.add(rest);
+      }
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  return {
+    // Expose the schema version so report.js dbVersion() reports the
+    // real value in the diagnostic header instead of falling through to
+    // "unknown".
+    DB_VERSION,
+    addClient,
+    updateClient,
+    getClient,
+    getAllClients,
+    // Pure storage-size estimator
+    estimatePhotosBytes,
+    addSession,
+    updateSession,
+    deleteSession,
+    getSession,
+    getAllSessions,
+    getSessionsByClient,
+    deleteClientAndSessions,
+    clearAll,
+    getAllTherapistSettings,
+    setTherapistSetting,
+    // Raw sentinel write path; see definition above.
+    _writeTherapistSentinel,
+    // Reader for the section-order sentinel row (or null).
+    getSectionOrderRecord,
+    clearTherapistSettings,
+    // Snippets API
+    validateSnippetShape,
+    getAllSnippets,
+    getSnippet,
+    addSnippet,
+    updateSnippet,
+    deleteSnippet,
+    resetSeedSnippet,
+    // Crashlog store accessors (v6 schema)
+    addCrashlog,
+    getAllCrashlog,
+    clearCrashlog,
+    replaceAllCrashlog,
+    // Export-around-failure read-only no-version open
+    getAllForRecoveryExport,
+    // Test seam for the migration-failure escape-hatch banner
+    // (reached in production via openDB() onupgradeneeded catch; exposed so the
+    // behavior test can render + drive it without a real upgrade abort).
+    _showDBMigrationError: showDBMigrationError,
+  };
+})();
