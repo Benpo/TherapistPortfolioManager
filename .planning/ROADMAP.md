@@ -98,7 +98,7 @@ Session documentation becomes richer and personal — formatted text and custom 
 - [x] **Phase 44: Tech-Debt Guardrails & Pre-Prod Environment** — comment-hygiene CONVENTIONS.md root-cause fix + runtime-leak reword (forward gate → v1.5), deploy purge-race fix, second CF Pages pre-prod project
 - [x] **Phase 45: Rich-Text Rendering & Export Foundation** — formatted notes render in read mode, PDF, and markdown copy/share; legacy content safe; encrypted-backup round-trip (completed 2026-07-13)
 - [x] **Phase 46: Rich-Text Toolbar Editor** — formatting toolbar, keyboard shortcuts, auto-format, live preview, nested lists; snippets/autogrow preserved (completed 2026-07-17)
-- [ ] **Phase 47: Session-Section Reordering** — drag + arrow reorder in Settings, drives the form + both export builders (atomic 260615 guard rewrite), per-therapist persistence
+- [x] **Phase 47: Session-Section Reordering** — drag + arrow reorder in Settings, drives the form + both export builders (atomic 260615 guard rewrite), per-therapist persistence (completed 2026-07-24)
 - [ ] **Phase 48: Mobile Pass & Validation Polish** — index-header fix, popover exclusivity, accordion error-focus, 21-03 iPhone sweep; future-birthdate reject + error-tone sweep + distinct next-date errors + visible error state
 
 ## Phase Details
@@ -324,7 +324,7 @@ Sketch round + UI-SPEC complete (008-B / 009-A ratified; UI-SPEC approved 6/6). 
   3. The saved order drives BOTH the markdown and PDF export builders — `severityAfterSections` included — repointed atomically with the 260615 guard-test rewrite so export order can never briefly diverge from the saved order.
   4. The chosen order persists per therapist (a `therapistSettings` sentinel record, mirroring the `snippetsDeletedSeeds` pattern) and survives an encrypted backup round-trip.
 
-**Plans**: 12/13 plans executed
+**Plans**: 13/13 plans complete
 **UI hint**: yes
 
 Plans:
@@ -353,7 +353,7 @@ Plans:
 
 **Wave 4** (planner-owned docs pass, D-18 — Ben reviews copy)
 
-- [ ] 47-08-PLAN.md — Help topics (new reordering + "turn severity off") + 4-part changelog entry, EN corpus + DE/HE/CS + HELP-MAP.md [ORDR-06, ORDR-07, ORDR-08]
+- [x] 47-08-PLAN.md — Help topics (new reordering + "turn severity off") + 4-part changelog entry, EN corpus + DE/HE/CS + HELP-MAP.md [ORDR-06, ORDR-07, ORDR-08]
 
 **Requirements amendment (approved by Ben at plan review, 2026-07-23):** ORDR-06 (app-level severity switch + ⓘ + help entry), ORDR-07 (unrated-by-default severity — D-19…D-23: no 11th "skip" value, tap-again-to-clear, omission from exports + views), ORDR-08 (group renames) added to REQUIREMENTS.md to cover the severity-optional + group-rename scope that grew into Phase 47.
 
@@ -443,5 +443,5 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
 | 45. Rich-Text Rendering & Export Foundation | v1.4 | 8/8 | Complete    | 2026-07-13 |
 | 46. Rich-Text Toolbar Editor | v1.4 | 16/17 | Complete    | 2026-07-17 |
-| 47. Session-Section Reordering | v1.4 | 12/13 | In Progress|  |
+| 47. Session-Section Reordering | v1.4 | 13/13 | Complete   | 2026-07-24 |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |

@@ -6,15 +6,15 @@ current_phase: 47
 current_phase_name: session-section-reordering
 status: verifying
 stopped_at: Completed 47-07-PLAN.md
-last_updated: "2026-07-23T14:47:36.035Z"
+last_updated: "2026-07-24T05:34:48.421Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 47 execution started
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 50
-  completed_plans: 48
-  percent: 50
+  completed_plans: 49
+  percent: 67
 ---
 
 # Project State
@@ -284,6 +284,7 @@ Last activity: 2026-07-23 — Phase 47 execution started
 | Phase 47 P11 | ~10min | 2 tasks | 6 files |
 | Phase 47 P12 | ~40min | 2 tasks | 3 files |
 | Phase 47 P13 | 40min | 2 tasks | 2 files |
+| Phase 47 P08 | ~50min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -514,6 +515,7 @@ Recent decisions affecting current work:
 - [Phase ?]: 47-11: HE reorderable session sections renamed מקטע→שדות (shipped-UI term) across help/i18n; 1.5.0 changelog export line corrected to the real delta (topics independent, severity dependent sub-option) rather than re-announcing 1.4.0; Reset bullet dropped in all four locales
 - [Phase ?]: 47-12 G1 root cause: WebKit drops handle-bound pointermove/up when pointer-capture routing is lost or native text-selection steals the drag over the editable rows; fix moves listeners to document + suppresses selectstart + adds a slop threshold + cleans up unconditionally on pointerup/pointercancel/lostpointercapture
 - [Phase ?]: 47-12 G2: the settings-saved checkmark is a semantic glyph drawn with physical geometry (left/top + border-bottom/right) so RTL never mirrors it into a wrong-facing chevron
+- [Phase 47]: Phase 47 release version confirmed 1.5.0 (Ben, 47-08 checkpoint); changelog-integrity marker and APP_VERSION advanced together at the release boundary
 
 ### Pending Todos
 
@@ -598,7 +600,7 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-**Last session:** 2026-07-23T14:47:19.409Z
+**Last session:** 2026-07-24T05:34:20.610Z
 
 Last activity: 2026-07-20 — Phase 46.1 plan 07 (real-device ratification gate) closed: Ben's final "approved" on pre-prod build 3d5cbaf after the full checklist plus four live-verified UAT fix rounds (rounds 1–3: 40a6a81..7009f2c — chip/discard-guard/undo-redo/heading/inert-bar fixes; round 4: c4982a8..3d5cbaf — help-corpus restructure + 4 bug fixes + bold/italic toggle rebuilt to the ratified 11-clause contract). Suite 205/205, WebKit set E 12/12; set-C 1440×820 vacuity accepted. 46.1 is 7/7 plans complete; phase verification, code review, and phase completion NOT yet run — orchestrated separately after this. Previous: 2026-07-12 — Phase 44 closed end-to-end in one session: /gsd-code-review 44 --fix applied all 6 review warnings (fail-closed build-staging args/noindex, cf-await-promotion secret validation + curl timeouts + loud purge diagnostics, deploy queue-not-cancel) plus the IN-04 follow-up (pipeline-script test suites now gate both deploy workflows); UAT 2/2 passed — test 1 caught that the docs-gate trailers never landed on any commit (gate dry-run blocked), fixed by amending the tip (6e4355f), gate re-run green; verification canonicalized passed, phase 44 marked complete, transitioned to Phase 45. Previous: 2026-07-09 — Completed quick task 260709-o77: backup schedule prompt no longer fires over the active onboarding tour (Phase 41 escape, release blocker cleared; commits e078167 RED + 35e83af GREEN, suite 154/154). Previous: 2026-07-07 closed out wave-2 gap plan 38-12 (UAT test 8 — warning-toast visibility). showToast gained a backward-compatible third options param ({ tone, focus }): error tone (dark-safe `.toast--error` via `--color-warning-*`, 4000ms dwell vs 1800ms success) + auto scroll-to/focus of the offending field; migrated the add-session.js incomplete-date guard + session/client form error toasts (field-bound ones focus their control; DB/network tone-only); success/info toasts untouched. Ben-approved scope addition: the #nextSessionDate save guard now also blocks `validity.rangeUnderflow` (typed too-early date) with the new 4-language `toast.nextSessionDateTooEarly` key (D-08 enforced at save). Commits ca426c5/e1a3014/e7b0f9a/c06e2ae; 38-12-toast-tone-focus 3/3, 38-next-session-partial-guard 7/7, full suite 131/131. Ben approved on-device in real Safari 2026-07-07 (warning distinct+longer+scrolls-to-field, too-early date blocked, other form errors same, success unchanged, dark mode + Hebrew RTL legible). UAT test 8 resolved — the last open Phase 38 UAT gap.
 Stopped at: Completed 47-07-PLAN.md
