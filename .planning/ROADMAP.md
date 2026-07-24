@@ -443,5 +443,5 @@ Deferred items. The v1.1 carry-overs are unscoped; the codebase-concerns triage 
 | 44. Tech-Debt Guardrails & Pre-Prod Environment | v1.4 | 5/5 | Complete    | 2026-07-12 |
 | 45. Rich-Text Rendering & Export Foundation | v1.4 | 8/8 | Complete    | 2026-07-13 |
 | 46. Rich-Text Toolbar Editor | v1.4 | 16/17 | Complete    | 2026-07-17 |
-| 47. Session-Section Reordering | v1.4 | 13/13 | Complete   | 2026-07-24 |
+| 47. Session-Section Reordering | v1.4 | 13/13 | Complete    | 2026-07-24 |
 | 48. Mobile Pass & Validation Polish | v1.4 | 0/TBD | Not started | - |
