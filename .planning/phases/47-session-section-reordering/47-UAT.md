@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: resolved
 phase: 47-session-section-reordering
 source: [preprod field test by Ben, 2026-07-23, Safari desktop, Hebrew UI]
 started: 2026-07-23T14:30:00.000Z
-updated: 2026-07-23T14:30:00.000Z
+updated: 2026-07-24T01:30:00.000Z
 ---
 
 ## Context
@@ -70,24 +70,40 @@ blocked: 0
 - gap: G1 — Safari pointer-drag in Settings reorder barely functional; stuck drag
   highlight after release (WebKit pointer state machine)
   severity: critical
-  status: failed
+  status: resolved
+  resolution: two-stage — 47-12 (13bf9b5) then root-cause re-fix b22c45d after Ben's
+  retest failed: insertBefore on the dragged row implicitly releases pointer capture
+  in ALL engines; gesture now capture-free (document listeners, lostpointercapture
+  ignored). Real-browser probe (WebKit+Chromium): row drags two slots, no stuck
+  highlight. Ben's post-fix device re-confirm pending (private window — 24h asset cache).
 - gap: G2 — settings-saved notice icon mirrored in RTL
   severity: minor
-  status: failed
+  status: resolved
+  resolution: 47-12 (07d6eee) — checkmark redrawn with physical geometry (logical
+  inline props mirrored under RTL). Ben's device re-confirm pending.
 - gap: G3 — empty end-severity section keeps its header after severity-off + in-form
   rating clears (visibility must re-evaluate when form data empties)
   severity: major
-  status: failed
+  status: resolved
+  resolution: 47-13 (1cae898) live visibility re-eval on severity interactions; review
+  round closed the missed entry points removeIssue (9d3c928) and Cancel/Discard
+  (9ee265c). 18/18 severity-form cases + falsifiable guards.
 - gap: G4 — severity rating clears don't set the form dirty flag → silent data loss on
   navigation
   severity: major
-  status: failed
+  status: resolved
+  resolution: 47-13 (d4ab62f) shared onSeverityInteraction hook at the onChange seam;
+  removeIssue + addIssueBtn wired in the review round (9d3c928, 273115d).
 - gap: G5 — HE terminology: מקטע → align with shipped שדות language across i18n-he,
   help-content-he, changelog-content-he; broader HE polish pass on the new help copy
   severity: major
-  status: failed
+  status: resolved
+  resolution: 47-11 (9142f93) native rewrite; Ben's verdict on preprod: "overall it
+  looks way better in Hebrew now" + his לללא-דירוג typo fix applied (both surfaces).
 - gap: G6 — What's-New 1.5.0 entry: drop minor-feature bullets (resets), restructure
   around headline changes, and fix the EN 1.4.0-contradiction on export severity by
   stating what actually changed (all four locales follow EN)
   severity: major
-  status: failed
+  status: resolved
+  resolution: 47-11 (4eda604) restructure + Ben's lede round (dragging phrasing, no
+  grouping overclaim, app-wide severity switch named; 4 locales). Ben: "seems perfect."
