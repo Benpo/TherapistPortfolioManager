@@ -26,7 +26,7 @@
       version: "1.5.0",
       anchor: "v1-5",
       date: "Juli 2026",
-      lede: "Gestalten Sie das Sitzungsformular nach Ihrer eigenen Arbeitsweise — ordnen Sie jeden Abschnitt per Ziehen oder mit Pfeilen neu, gruppieren und benennen Sie ihn um, und entscheiden Sie, wann Schweregrad-Bewertungen gelten.",
+      lede: "Gestalten Sie das Sitzungsformular nach Ihrer eigenen Arbeitsweise — ordnen Sie jeden Abschnitt durch Ziehen oder mit den Pfeilen neu, benennen Sie die Abschnittsgruppen um, und schalten Sie die Schweregrad-Bewertungen ganz ab, wenn sie nicht Teil Ihrer Arbeit sind.",
       highlights: [
         "Ordnen Sie die Sitzungsabschnitte — durch Ziehen oder mit den Pfeilen nach oben und unten — in die Reihenfolge, in der Sie wirklich arbeiten, und Ihre Exporte folgen derselben Reihenfolge.",
         "Ein Schalter schaltet die Schweregrad-Bewertungen für die ganze App ein oder aus, und wenn sie an sind, ist jede Bewertung freiwillig.",

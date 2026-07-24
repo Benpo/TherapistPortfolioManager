@@ -74,7 +74,7 @@
       version: "1.5.0",
       anchor: "v1-5",
       date: "July 2026",
-      lede: "Shape the session form to your own way of working — reorder every section by drag or arrows, group and rename them, and decide when severity ratings apply.",
+      lede: "Shape the session form to your own way of working — reorder every section by dragging or with the arrows, rename the section groups, and switch severity tracking off entirely if it isn't part of your work.",
       highlights: [
         "Reorder the session sections — drag them or use the up and down arrows — into the order you actually work in, and your exports follow the same order.",
         "One switch turns severity ratings on or off for the whole app, and when they are on, every rating is optional.",

@@ -27,7 +27,7 @@
       version: "1.5.0",
       anchor: "v1-5",
       date: "červenec 2026",
-      lede: "Přizpůsobte formulář sezení svému vlastnímu způsobu práce — seřaďte každou sekci přetažením nebo šipkami, seskupte ji a přejmenujte a rozhodněte, kdy platí hodnocení závažnosti.",
+      lede: "Přizpůsobte formulář sezení svému vlastnímu způsobu práce — seřaďte každou sekci přetažením nebo šipkami, přejmenujte skupiny sekcí a úplně vypněte hodnocení závažnosti, pokud není součástí vaší práce.",
       highlights: [
         "Seřaďte sekce sezení — přetažením nebo šipkami nahoru a dolů — do pořadí, ve kterém skutečně pracujete, a vaše exporty budou následovat stejné pořadí.",
         "Jeden přepínač zapíná nebo vypíná hodnocení závažnosti pro celou aplikaci, a když jsou zapnutá, každé hodnocení je nepovinné.",
