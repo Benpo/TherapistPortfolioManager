@@ -75,7 +75,7 @@ blocked: 0
   retest failed: insertBefore on the dragged row implicitly releases pointer capture
   in ALL engines; gesture now capture-free (document listeners, lostpointercapture
   ignored). Real-browser probe (WebKit+Chromium): row drags two slots, no stuck
-  highlight. Ben's post-fix device re-confirm pending (private window — 24h asset cache).
+  highlight. Ben CONFIRMED on his Safari 2026-07-24: "the drag works".
 - gap: G2 — settings-saved notice icon mirrored in RTL
   severity: minor
   status: resolved
