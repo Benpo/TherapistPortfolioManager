@@ -1,0 +1,150 @@
+/* changelog.css — page + entry-card styling for changelog.html (Phase 42, Plan 07;
+ * CHLG-02). Ported from the approved sketch 005 Variant B
+ * (.planning/sketches/005-changelog-register/index.html — the "grouped by
+ * category" layout locked by D-11).
+ *
+ * Changes from the sketch:
+ *   - Class names follow the shipped changelog.js DOM (.changelog-entry /
+ *     .changelog-cat / __version / __date / __lede / __label / __list) instead of
+ *     the sketch's throwaway .entry / .cat-sec names.
+ *   - Every color is a semantic token from tokens.css — NO literal hex. The
+ *     sketch's Variant-A chip hex and any literal button color are NOT ported.
+ *   - Category-heading colors are the UI-SPEC tokens (New green-600/400,
+ *     Improved green-500/200, Fixed orange-500 both themes) with [data-theme=
+ *     "dark"] overrides.
+ *   - Radii / paddings are the exact approved sketch values (14px card radius,
+ *     1.5rem 1.75rem card padding — garden house-style organic radii, UI-SPEC
+ *     Accepted Exception), not new grid steps.
+ *
+ * Every property uses logical (block/inline) directions so RTL flips for free.
+ */
+
+/* ── page frame (mirrors the help-center calm) ──────────────────────────────── */
+.changelog-page {
+  max-inline-size: 720px;
+  margin-inline: auto;
+  margin-block: 0;
+  padding-block: 2.5rem 5rem;
+  padding-inline: 1.25rem;
+}
+
+.changelog-page .page-head {
+  margin-block-end: 2.25rem;
+}
+.changelog-page .page-head h1 {
+  margin-block: 0 0.4rem;
+  margin-inline: 0;
+  font-size: 1.7rem;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--color-primary-deeper);
+}
+[data-theme="dark"] .changelog-page .page-head h1 {
+  color: var(--color-green-400);
+}
+.changelog-page .page-head p {
+  margin-block: 0;
+  margin-inline: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+/* ── version entry card ─────────────────────────────────────────────────────── */
+.changelog-entry {
+  background: var(--color-surface);
+  border: 1px solid var(--color-green-border-subtle);
+  border-radius: 14px;
+  padding-block: 1.5rem;
+  padding-inline: 1.75rem;
+  margin-block-end: 1.5rem;
+  box-shadow: 0 1px 4px var(--color-green-border-faint);
+}
+
+.changelog-entry__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-block-end: 0.4rem;
+}
+.changelog-entry__version {
+  margin-block: 0;
+  margin-inline: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--color-primary-deeper);
+}
+[data-theme="dark"] .changelog-entry__version {
+  color: var(--color-green-400);
+}
+.changelog-entry__date {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+.changelog-entry__lede {
+  margin-block: 0 1rem;
+  margin-inline: 0;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+/* one-line origin marker (v1.0 — D-01): tighter, quieter, no category blocks */
+.changelog-entry--origin {
+  padding-block: 1rem;
+}
+.changelog-entry--origin .changelog-entry__head {
+  margin-block-end: 0;
+}
+.changelog-entry--origin .changelog-entry__lede {
+  margin-block: 0.35rem 0;
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+}
+
+/* ── category block (New / Improved / Fixed) ────────────────────────────────── */
+.changelog-cat {
+  margin-block-start: 1.15rem;
+}
+.changelog-cat__label {
+  margin-block: 0 0.5rem;
+  margin-inline: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* category tints (UI-SPEC §Color — a categorization signal, quieter than the
+   10% primary accent; each with a dark-mode override) */
+.changelog-cat[data-cat="new"] .changelog-cat__label {
+  color: var(--color-green-600);
+}
+.changelog-cat[data-cat="improved"] .changelog-cat__label {
+  color: var(--color-green-500);
+}
+.changelog-cat[data-cat="fixed"] .changelog-cat__label {
+  color: var(--color-orange-500);
+}
+[data-theme="dark"] .changelog-cat[data-cat="new"] .changelog-cat__label {
+  color: var(--color-green-400);
+}
+[data-theme="dark"] .changelog-cat[data-cat="improved"] .changelog-cat__label {
+  color: var(--color-green-200);
+}
+/* Fixed keeps orange-500 in dark (sketch parity) — no override needed. */
+
+.changelog-cat__list {
+  margin-block: 0;
+  margin-inline: 0;
+  padding-inline-start: 1.2rem;
+}
+.changelog-cat__list li {
+  margin-block-end: 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--color-text);
+}
+.changelog-cat__list li:last-child {
+  margin-block-end: 0;
+}
